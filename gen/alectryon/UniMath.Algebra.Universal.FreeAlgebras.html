@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FreeAlgebras.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Free algebras. *)</span>
+<span class="sd">(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)</span>
+<span class="sd">(**</span>
+<span class="sd">This file contains a formalization of free algebras over a signature (i.e., the algebra</span>
+<span class="sd">of terms over a signature and a set of variables.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+
+<span class="kn">Require Export</span> UniMath.Algebra.Universal.Algebras.
+<span class="kn">Require Export</span> UniMath.Algebra.Universal.VTerms.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> sorted.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hom.
+
+<span class="kn">Section</span> <span class="nf">FreeAlgebras</span>.
+
+  <span class="kn">Definition</span> <span class="nf">free_algebra</span> (<span class="nv">σ</span>: signature) (<span class="nv">V</span>: varspec σ): algebra σ :=
+    @make_algebra σ (termset σ V) build_term.
+
+  <span class="kn">Context</span> {<span class="nv">σ</span>: signature} (<span class="nv">a</span> : algebra σ) {<span class="nv">V</span>: varspec σ} (<span class="nv">α</span>: assignment a V).
+
+  <span class="kn">Definition</span> <span class="nf">eval</span>: free_algebra σ V s→ a := fromterm (ops a) α.
+
+  <span class="kn">Lemma</span> <span class="nf">evalstep</span> (<span class="nv">nm</span>: names σ) (<span class="nv">v</span>:  (term σ V)⋆ (arity nm))
+    : <span class="kp">eval</span> (sort nm) (build_term nm v) = ops a nm (<span class="kp">eval</span>⋆⋆ (arity nm) v).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> <span class="kp">eval</span>.
+    <span class="nb">change</span> (sort nm) <span class="k">with</span> (sort nm).
+    <span class="nb">apply</span> fromtermstep.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ishomeval</span>: ishom <span class="kp">eval</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> evalstep.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">evalhom</span>: free_algebra σ V ↷ a := make_hom ishomeval.
+
+  <span class="kn">Definition</span> <span class="nf">universalmap</span>: ∑ h: free_algebra σ V ↷ a, ∏ v: V, h _ (varterm v) = α v.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">evalhom</span>.
+    <span class="nb">intro</span> v.
+    <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> <span class="kp">eval</span>, varterm.
+    <span class="nb">apply</span> fromtermstep'.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">universalmap_is_unique</span> (<span class="nv">h</span>: free_algebra σ V ↷ a) (<span class="nv">honvars</span>: ∏ v: V, h (varsort v) (varterm v) = α v): pr1 h = pr1 universalmap.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> h <span class="k">as</span> [h hishom].
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span> s.
+    <span class="nb">apply</span> funextfun.
+    <span class="nb">unfold</span> homot.
+    <span class="nb">revert</span> s.
+    <span class="nb">apply</span> (term_ind(σ := vsignature σ V)).
+    <span class="nb">unfold</span> term_ind_HP.
+    <span class="nb">intros</span> nm hv IHhv.
+    <span class="nb">induction</span> nm <span class="k">as</span> [nm | v].
+    * <span class="nb">change</span> (inl nm) <span class="k">with</span> (namelift V nm).
+      <span class="nb">change</span> (sort (namelift V nm)) <span class="k">with</span> (sort nm).
+      <span class="nb">change</span> (build_gterm (namelift V nm) hv) <span class="k">with</span> (ops (free_algebra σ V) nm hv) <span class="nb">at</span> <span class="mi">1</span>.
+      <span class="nb">change</span> (build_gterm (namelift V nm) hv) <span class="k">with</span> (build_term nm hv).
+      <span class="nb">rewrite</span> hishom.
+      <span class="nb">rewrite</span> evalstep.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">revert</span> hv IHhv.
+      <span class="nb">change</span> (@arity (vsignature σ V) (inl nm)) <span class="k">with</span> (arity nm).
+      <span class="nb">generalize</span> (arity nm).
+      <span class="nb">refine</span> (list_ind _ _ _).
+      -- <span class="bp">reflexivity</span>.
+      -- <span class="nb">intros</span> x xs IHxs hv IHhv.
+         <span class="nb">unfold</span> starfun.
+           <span class="nb">simpl</span>.
+           <span class="nb">simpl</span> <span class="k">in</span> IHhv.
+           <span class="nb">apply</span> hcons_paths.
+           + <span class="bp">exact</span> (pr1 IHhv).
+           + <span class="bp">exact</span> (IHxs (pr2 hv) (pr2 IHhv)).
+    * <span class="nb">induction</span> hv.
+      <span class="nb">change</span> (inr v) <span class="k">with</span> (varname v).
+      <span class="nb">change</span> (sort (varname v)) <span class="k">with</span> (varsort v).
+      <span class="nb">change</span> (build_gterm (varname v) tt) <span class="k">with</span> (varterm v).
+      <span class="nb">rewrite</span> honvars.
+      <span class="nb">unfold</span> <span class="kp">eval</span>.
+      <span class="nb">rewrite</span> fromtermstep'.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iscontr_universalmap</span> (<span class="nv">setprop</span>: has_supportsets a)
+    :  iscontr (∑ h: free_algebra σ V ↷ a, ∏ v: V, h (varsort v) (varterm v) = α v).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">universalmap</span>.
+    <span class="nb">intro</span> h.
+    <span class="nb">induction</span> h <span class="k">as</span> [h honvars].
+    <span class="nb">apply</span> subtypePairEquality'.
+    - <span class="nb">apply</span> subtypePairEquality'.
+      + <span class="nb">apply</span> universalmap_is_unique.
+        <span class="bp">assumption</span>.
+      + <span class="nb">apply</span> isapropishom.
+        <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> impred_isaprop.
+      <span class="nb">intros</span>.
+      <span class="nb">apply</span> (setprop (varsort t)).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">FreeAlgebras</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/Universal/FreeAlgebras.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; of terms over a signature and a set of variables.
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Export UniMath.Algebra.Universal.Algebras.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

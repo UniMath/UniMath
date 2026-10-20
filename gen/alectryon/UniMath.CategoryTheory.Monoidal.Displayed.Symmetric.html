@@ -1,0 +1,982 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Symmetric.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************************************************</span>
+
+<span class="sd"> Displayed symmetric monoidal categories</span>
+
+<span class="sd"> In this file, we define the notion of a symmetric displayed monoidal category and show how the total monoidal category is symmetric.</span>
+
+<span class="sd">Table of contents:</span>
+<span class="sd">1. DisplayedBraided:</span>
+<span class="sd">   - Definition of displayed braiding [disp_braiding]</span>
+<span class="sd">   - Construction of braiding on the total category [total_braiding]</span>
+<span class="sd">2. DisplayedSymmetric:</span>
+<span class="sd">   - Definition of displayed symmetric [disp_symmetric]</span>
+<span class="sd">   - Construction of symmetry on the total category [total_symmetric]</span>
+<span class="sd">   - Proof of redundancy in the axioms of the braiding when considering a symmetric braiding.</span>
+<span class="sd">     The redundant set of axioms is given in [disp_symm_braiding_laws].</span>
+<span class="sd">     The proof that we get a braiding [make_disp_symmetric].</span>
+<span class="sd">3. Projection:</span>
+<span class="sd">   - Proof that the forgetful functor, from the total to the base category, is symmetric [projection_is_symmetric]</span>
+<span class="sd">4. LocallyPropositional:</span>
+<span class="sd">   - A make braiding constructor for locally propositional displayed categories;</span>
+<span class="sd">     i.e., only the braiding and (inverse) has to be provided [make_disp_laws_braiding_locally_propositional].</span>
+<span class="sd">   - A make symmetric constructor for locally propositional displayed categories [make_disp_symmetric_locally_propositional]</span>
+<span class="sd">5. InvertibleMorphismsBraiding</span>
+<span class="sd">   - A make braiding constructor for locally invertible displayed categories [make_disp_braiding_locally_groupoidal]</span>
+<span class="sd">6. InvertibleMorphismsSymmetric</span>
+<span class="sd">   - A make symmetric constructor for locally invertible displayed categories [make_disp_symmetric_locally_groupoidal]</span>
+
+<span class="sd"> *********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Projection.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TransportLemmas.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Import</span> MonoidalNotations.
+<span class="kn">Import</span> DisplayedBifunctorNotations.
+<span class="kn">Import</span> DisplayedMonoidalNotations.
+
+<span class="kn">Local Lemma</span> <span class="nf">specialized_transport_lemma</span>
+  {<span class="nv">C</span> : category} {<span class="nv">D</span> : disp_cat C}
+  {<span class="nv">M</span> : monoidal C} {<span class="nv">DM</span> : disp_monoidal D M}
+  {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z1</span> <span class="nv">z2</span> : C}
+  {<span class="nv">f</span> : C⟦x,y ⊗_{M} z1⟧}
+  {<span class="nv">g</span> : C⟦z1, z2⟧}
+  {<span class="nv">h</span> : C⟦x, y ⊗_{M} z2⟧}
+  {<span class="nv">xx</span> : D x} {<span class="nv">yy</span> : D y} {<span class="nv">zz1</span> : D z1} {<span class="nv">zz2</span> : D z2}
+  (<span class="nv">ff</span> : xx --&gt;[f] (yy ⊗⊗_{DM} zz1))
+  (<span class="nv">gg</span> : zz1 --&gt;[g] zz2)
+  (<span class="nv">hh</span> : xx --&gt;[h] (yy ⊗⊗_{DM} zz2))
+  (<span class="nv">p</span> : h = f · identity y ⊗^{ M} g)
+  : ff ;; (id_disp yy ⊗⊗^{DM} gg) = transportf _ p hh
+    → ff ;; yy ⊗⊗^{DM}_{l} gg
+      = transportf _ (p @ maponpaths (<span class="k">λ</span> <span class="nv">i</span>, f · i) (when_bifunctor_becomes_leftwhiskering M y g)) hh.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> q.
+  <span class="nb">rewrite</span> &lt;- transport_f_f.
+  etrans.
+  <span class="mi">2</span>: {
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> q.
+  }
+  <span class="nb">clear</span> q.
+  etrans.
+  <span class="mi">2</span>: {
+    <span class="nb">apply</span> mor_disp_transportf_prewhisker.
+  }
+  <span class="nb">apply</span> maponpaths.
+
+  <span class="nb">unfold</span> dispfunctoronmorphisms1.
+  use transportf_transpose_right.
+  <span class="nb">apply</span> pathsinv0, disp_tensor_with_id_on_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">specialized_transport_lemma'</span>
+  {<span class="nv">C</span> : category} {<span class="nv">D</span> : disp_cat C}
+  {<span class="nv">M</span> : monoidal C} {<span class="nv">DM</span> : disp_monoidal D M}
+  {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z1</span> <span class="nv">z2</span> : C}
+  {<span class="nv">f</span> : C⟦x,y⟧}
+  {<span class="nv">g</span> : C⟦y ⊗_{M} z1, z2⟧}
+  {<span class="nv">h</span> : C⟦x ⊗_{M} _, z2⟧}
+  {<span class="nv">xx</span> : D x} {<span class="nv">yy</span> : D y} {<span class="nv">zz1</span> : D z1} {<span class="nv">zz2</span> : D z2}
+  (<span class="nv">ff</span> : xx --&gt;[f] yy)
+  (<span class="nv">gg</span> : yy ⊗⊗_{DM} zz1 --&gt;[g] zz2)
+  (<span class="nv">hh</span> : xx ⊗⊗_{DM} _ --&gt;[h] zz2)
+  (<span class="nv">p</span> : h = f ⊗^{ M} identity z1 · g)
+  : (ff ⊗⊗^{DM} id_disp _) ;; gg = transportf _ p hh
+    → ff ⊗⊗^{DM}_{r} _ ;; gg
+      = transportf _ (p @ maponpaths (<span class="k">λ</span> <span class="nv">i</span>, i · g) (when_bifunctor_becomes_rightwhiskering M z1 f)) hh.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> q.
+  <span class="nb">rewrite</span> &lt;- transport_f_f.
+  etrans.
+  <span class="mi">2</span>: {
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> q.
+  }
+  etrans.
+  <span class="mi">2</span>: {
+    <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+  }
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">unfold</span> dispfunctoronmorphisms1.
+  use transportf_transpose_right.
+  <span class="nb">apply</span> pathsinv0, disp_tensor_with_id_on_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">DisplayedBraided</span>.
+
+  <span class="kn">Context</span>
+    {<span class="nv">C</span> : category}
+    {<span class="nv">D</span> : disp_cat C}
+    {<span class="nv">M</span> : monoidal C}
+    (<span class="nv">DM</span> : disp_monoidal D M).
+
+  <span class="kn">Definition</span> <span class="nf">disp_braiding_data</span>
+    (<span class="nv">B</span> : braiding_data M) : UU
+    := ∏ (x y : C) (xx : D x) (yy : D y),
+      xx ⊗⊗_{ DM} yy --&gt;[B x y] yy ⊗⊗_{ DM} xx.
+
+  <span class="kn">Definition</span> <span class="nf">total_braiding_data</span>
+    {<span class="nv">B</span> : braiding_data M} (<span class="nv">DB</span> : disp_braiding_data B)
+    : braiding_data (total_monoidal DM)
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, _ ,, DB _ _ (pr2 x) (pr2 y).
+
+  <span class="kn">Section</span> <span class="nf">BraidingLaws</span>.
+
+    <span class="kn">Context</span>
+      {<span class="nv">B</span> : braiding M}
+        (<span class="nv">DB</span> : disp_braiding_data (monoidal_braiding_data B))
+        (<span class="nv">DBinv</span> : disp_braiding_data (monoidal_braiding_data_inv B)).
+
+    <span class="kn">Definition</span> <span class="nf">disp_braiding_law_naturality_left</span> : UU
+      := ∏ (x y1 y2 : C)
+          (xx : D x) (yy1 : D y1) (yy2 : D y2)
+          (g : C⟦y1,y2⟧) gg,
+        transportf _ (monoidal_braiding_naturality_left B x y1 y2 g)
+          (DB x y1 xx yy1 ;; gg ⊗⊗^{ DM}_{r} xx)
+        = xx ⊗⊗^{ DM}_{l} gg ;; DB x y2 xx yy2.
+
+    <span class="kn">Definition</span> <span class="nf">disp_braiding_law_naturality_right</span> : UU
+      := ∏ (x1 x2 y : C)
+          (xx1 : D x1) (xx2 : D x2) (yy : D y)
+          (f : C⟦x1,x2⟧) ff,
+    transportf _ (monoidal_braiding_naturality_right B x1 x2 y f)
+      (DB x1 y xx1 yy ;; yy ⊗⊗^{ DM}_{l} ff)
+    = ff ⊗⊗^{ DM}_{r} yy ;; DB x2 y xx2 yy.
+
+    <span class="kn">Definition</span> <span class="nf">disp_braiding_law_naturality</span>
+      : UU
+      := disp_braiding_law_naturality_left × disp_braiding_law_naturality_right.
+
+    <span class="kn">Definition</span> <span class="nf">disp_braiding_iso</span>
+      : UU
+      := ∏ (x y : C) (xx : D x) (yy : D y),
+        is_disp_inverse (monoidal_braiding_inverses B x y) (DB _ _ xx yy) (DBinv _ _ yy xx).
+
+    <span class="kn">Definition</span> <span class="nf">disp_braiding_law_hexagon1</span> : UU
+      := ∏ (x y z : C) (xx : D x) (yy : D y) (zz : D z),
+        transportf _ ((pr122 (monoidal_braiding_laws B)) x y z)
+          (dα^{ DM }_{ xx, yy, zz}
+           ;; DB x (y ⊗_{ M} z) xx (yy ⊗⊗_{ DM} zz)
+           ;; dα^{ DM }_{ yy, zz, xx})
+        = DB x y xx yy ⊗⊗^{ DM}_{r} zz
+          ;; dα^{ DM }_{ yy, xx, zz}
+          ;; yy ⊗⊗^{ DM}_{l} DB x z xx zz.
+
+    <span class="kn">Definition</span> <span class="nf">disp_braiding_law_hexagon2</span> : UU
+      := ∏ (x y z : C) (xx : D x) (yy : D y) (zz : D z),
+         transportf _ ((pr222 (monoidal_braiding_laws B)) x y z)
+           (dαinv^{DM}_{xx, yy, zz}
+            ;; DB (x ⊗_{M} y) z (xx ⊗⊗_{DM} yy) zz
+            ;; dαinv^{DM}_{zz, xx, yy})
+         = xx ⊗⊗^{DM}_{l} DB y z yy zz
+           ;; dαinv^{DM}_{xx, zz, yy}
+           ;; DB x z xx zz ⊗⊗^{DM}_{r} yy.
+
+    <span class="kn">Definition</span> <span class="nf">disp_braiding_law_hexagon</span> : UU
+      := disp_braiding_law_hexagon1 × disp_braiding_law_hexagon2.
+
+    <span class="kn">Definition</span> <span class="nf">disp_braiding_laws</span>
+      : UU
+      := disp_braiding_law_naturality
+         × disp_braiding_iso
+         × disp_braiding_law_hexagon.
+
+  <span class="kn">End</span> <span class="nf">BraidingLaws</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_braiding</span>
+    (<span class="nv">B</span> : braiding M) : UU
+    := ∑ (DB : disp_braiding_data (monoidal_braiding_data B))
+         (DBinv : disp_braiding_data (monoidal_braiding_data_inv B)),
+      disp_braiding_laws DB DBinv.
+
+  <span class="kn">Definition</span> <span class="nf">disp_braiding_to_braiding</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding B)
+    : disp_braiding_data (monoidal_braiding_data B)
+    := pr1 DB.
+
+  <span class="kn">Definition</span> <span class="nf">disp_braiding_to_braiding_inv</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding B)
+    : disp_braiding_data (monoidal_braiding_data_inv B)
+    := pr12 DB.
+
+  <span class="kn">Definition</span> <span class="nf">disp_braiding_to_braiding_laws</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding B)
+    : disp_braiding_laws (disp_braiding_to_braiding DB) (disp_braiding_to_braiding_inv DB)
+    := pr22 DB.
+
+  <span class="kn">Definition</span> <span class="nf">disp_braiding_to_naturality</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding B)
+    : disp_braiding_law_naturality (disp_braiding_to_braiding DB)
+    := pr1 (disp_braiding_to_braiding_laws DB).
+
+  <span class="kn">Definition</span> <span class="nf">disp_braiding_to_naturality_left</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding B)
+    : disp_braiding_law_naturality_left (disp_braiding_to_braiding DB)
+    := pr1 (disp_braiding_to_naturality DB).
+
+  <span class="kn">Definition</span> <span class="nf">disp_braiding_to_naturality_right</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding B)
+    : disp_braiding_law_naturality_right (disp_braiding_to_braiding DB)
+    := pr2 (disp_braiding_to_naturality DB).
+
+  <span class="kn">Definition</span> <span class="nf">disp_braiding_to_inverses</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding B)
+    : disp_braiding_iso (disp_braiding_to_braiding DB) (disp_braiding_to_braiding_inv DB)
+    := pr12 (disp_braiding_to_braiding_laws DB).
+
+  <span class="kn">Definition</span> <span class="nf">disp_braiding_to_hexagon</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding B)
+    : disp_braiding_law_hexagon (disp_braiding_to_braiding DB)
+    := pr22 (disp_braiding_to_braiding_laws DB).
+
+  <span class="kn">Definition</span> <span class="nf">disp_braiding_to_hexagon1</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding B)
+    : disp_braiding_law_hexagon1 (disp_braiding_to_braiding DB)
+    := pr1 (disp_braiding_to_hexagon DB).
+
+  <span class="kn">Definition</span> <span class="nf">disp_braiding_to_hexagon2</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding B)
+    : disp_braiding_law_hexagon2 (disp_braiding_to_braiding DB)
+    := pr2 (disp_braiding_to_hexagon DB).
+
+  <span class="kn">Lemma</span> <span class="nf">total_braiding_naturality_left</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding B)
+    : braiding_law_naturality_left (total_braiding_data (disp_braiding_to_braiding DB)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use total2_paths_f.
+    - <span class="nb">apply</span> monoidal_braiding_naturality_left.
+    - <span class="nb">apply</span> disp_braiding_to_naturality_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_braiding_naturality_right</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding B)
+    : braiding_law_naturality_right (total_braiding_data (disp_braiding_to_braiding DB)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use total2_paths_f.
+    - <span class="nb">apply</span> monoidal_braiding_naturality_right.
+    - <span class="nb">apply</span> disp_braiding_to_naturality_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_braiding_naturality</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding B)
+    : braiding_law_naturality (total_braiding_data (disp_braiding_to_braiding DB)).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">total_braiding_naturality_left</span> <span class="nv">DB</span>).
+    <span class="bp">exact</span> (total_braiding_naturality_right DB).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_braiding_iso</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding B)
+    : braiding_iso
+        (total_braiding_data (disp_braiding_to_braiding DB))
+        (total_braiding_data (disp_braiding_to_braiding_inv DB)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [x xx] [y yy].
+    <span class="nb">set</span> (i := is_z_iso_total
+      (total_braiding_data (disp_braiding_to_braiding DB) (x,, xx) (y,, yy))
+      (_,, monoidal_braiding_inverses B x y : is_z_isomorphism (pr1 B x y))).
+    <span class="bp">exact</span> (pr2 (i (_ ,, disp_braiding_to_inverses DB _ _ xx yy))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_braiding_hexagon1</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding B)
+    : braiding_law_hexagon1 (total_braiding_data (disp_braiding_to_braiding DB)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use total2_paths_f.
+    - <span class="nb">apply</span> (pr122 (monoidal_braiding_laws B)).
+    - <span class="nb">apply</span> disp_braiding_to_hexagon1.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_braiding_hexagon2</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding B)
+    : braiding_law_hexagon2 (total_braiding_data (disp_braiding_to_braiding DB)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use total2_paths_f.
+    - <span class="nb">apply</span> (pr222 (monoidal_braiding_laws B)).
+    - <span class="nb">cbn</span>. <span class="nb">apply</span> disp_braiding_to_hexagon2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_braiding_hexagon</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding B)
+    : braiding_law_hexagon (total_braiding_data (disp_braiding_to_braiding DB)).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">total_braiding_hexagon1</span> <span class="nv">DB</span>).
+    <span class="bp">exact</span> (total_braiding_hexagon2 DB).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_braiding_laws</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding B)
+    : braiding_laws
+        (total_braiding_data (disp_braiding_to_braiding DB))
+        (total_braiding_data (disp_braiding_to_braiding_inv DB)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_,,_,,_).
+    - <span class="bp">exact</span> (total_braiding_naturality DB).
+    - <span class="bp">exact</span> (total_braiding_iso DB).
+    - <span class="bp">exact</span> (total_braiding_hexagon DB).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_braiding</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding B)
+    : braiding (total_monoidal DM).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_,,_,,_).
+    - <span class="bp">exact</span> (total_braiding_data (disp_braiding_to_braiding DB)).
+    - <span class="bp">exact</span> (total_braiding_data (disp_braiding_to_braiding_inv DB)).
+    - <span class="bp">exact</span> (total_braiding_laws DB).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">DisplayedBraided</span>.
+
+<span class="kn">Section</span> <span class="nf">DisplayedSymmetric</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+    {<span class="nv">D</span> : disp_cat C}
+    {<span class="nv">M</span> : monoidal C}
+    (<span class="nv">DM</span> : disp_monoidal D M).
+
+  <span class="kn">Definition</span> <span class="nf">disp_symmetric_data</span> (<span class="nv">B</span> : symmetric M) : UU
+    := disp_braiding_data DM B.
+
+  <span class="kn">Definition</span> <span class="nf">disp_symmetric</span> (<span class="nv">B</span> : symmetric M) : UU
+    := ∑ DB : disp_symmetric_data B, disp_braiding_laws _ DB DB.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_symmetric_locally_prop</span>
+    (<span class="nv">LP</span> : locally_propositional D)
+    {<span class="nv">B</span> : symmetric M}
+    (<span class="nv">DSD</span> : disp_symmetric_data B)
+    : disp_symmetric B.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">DSD</span>.
+    split3; <span class="kp">try</span> <span class="nb">split</span>; <span class="kp">try</span> (<span class="nb">intro</span>; <span class="nb">intros</span>); <span class="nb">apply</span> LP.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_symmetric_to_braiding</span>
+    {<span class="nv">B</span> : symmetric M}
+    (<span class="nv">DB</span> : disp_symmetric B)
+    : disp_braiding DM (symmetric_to_braiding B).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">DB</span>).
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">DB</span>).
+    <span class="bp">exact</span> (pr2 DB).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Coercion</span> <span class="nf">disp_symmetric_to_braiding</span> : disp_symmetric &gt;-&gt; disp_braiding.
+
+  <span class="kn">Definition</span> <span class="nf">total_symmetric</span>
+    {<span class="nv">B</span> : symmetric M}
+    (<span class="nv">DB</span> : disp_symmetric B)
+    : symmetric (total_monoidal DM).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">total_braiding_data</span> <span class="nv">_</span> (pr1 DB)).
+    <span class="bp">exact</span> (total_braiding_laws _ DB).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_sym_moncat_laws_tensored_inv</span>
+    {<span class="nv">B</span> : symmetric M}
+    (<span class="nv">c</span> : disp_braiding_data DM B)
+    : UU
+    := ∏ (x y : C) (xx : D x) (yy : D y),
+         transportf _ (pr1 (monoidal_braiding_inverses B x y)) (c x y xx yy ;; c y x yy xx)
+         = id_disp (xx ⊗⊗_{DM} yy).
+
+  <span class="kn">Definition</span> <span class="nf">disp_sym_moncat_laws_tensored_nat</span>
+    {<span class="nv">B</span> : symmetric M}
+    (<span class="nv">c</span> : disp_braiding_data DM B)
+    : UU
+    := ∏ (x1 x2 y1 y2 : C) (f : C⟦x1, x2⟧) (g : C⟦y1, y2⟧)
+         (xx1 : D x1) (xx2 : D x2) (yy1 : D y1) (yy2 : D y2)
+         (ff : xx1 --&gt;[f] xx2) (gg : yy1 --&gt;[g] yy2),
+      transportf _ (tensor_sym_mon_braiding ((C,,M),,B) f g)
+        (ff ⊗⊗^{DM} gg ;; c x2 y2 xx2 yy2)
+      = c x1 y1 xx1 yy1 ;; gg ⊗⊗^{DM} ff.
+
+  <span class="kn">Definition</span> <span class="nf">disp_sym_moncat_laws_tensored_hex</span>
+               {<span class="nv">B</span> : symmetric M}
+    (<span class="nv">c</span> : disp_braiding_data DM B)
+    : UU
+    := ∏ (x y z : C) (xx : D x) (yy : D y) (zz : D z),
+      transportf _ (sym_mon_hexagon_lassociator ((C,,M),,B) x y z)
+        (disp_monoidal_associator _ _ _ _ xx yy zz
+      ;; c _ _ xx (yy ⊗⊗_{DM} zz)
+      ;; disp_monoidal_associator _ _ _ _ yy zz xx)
+      = c x y xx yy  ⊗⊗^{DM} id_disp zz
+        ;; disp_monoidal_associator _ _ _ _ yy xx zz
+        ;; id_disp yy ⊗⊗^{DM} c x z xx zz.
+
+  <span class="kn">Definition</span> <span class="nf">disp_symm_braiding_laws</span>
+    {<span class="nv">B</span> : symmetric M}
+    (<span class="nv">c</span> : disp_braiding_data DM B)
+    : UU
+    := disp_sym_moncat_laws_tensored_inv c
+         × disp_sym_moncat_laws_tensored_nat c
+         × disp_sym_moncat_laws_tensored_hex c.
+
+  <span class="kn">Definition</span> <span class="nf">braiding_laws_one_hexagon_to_braiding_laws</span>
+    {<span class="nv">B</span> : symmetric M}
+    {<span class="nv">c</span> : disp_braiding_data DM B}
+    (<span class="nv">p_inv</span> : disp_braiding_iso DM c c)
+    (<span class="nv">p_nat</span> : disp_braiding_law_naturality DM c)
+    (<span class="nv">p_hex1</span> : disp_braiding_law_hexagon1 DM c)
+    : disp_braiding_law_hexagon2 DM c.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">set</span> (p := transportb_transpose_right (p_hex1 _ _ _ zz xx yy)).
+
+    <span class="nb">rewrite</span> assoc_disp_var.
+    <span class="nb">rewrite</span> transport_f_f.
+    use transportf_transpose_left.
+    use disp_z_iso_inv_on_left.
+    { <span class="bp">exact</span> (pr2 (z_iso_inv (z_iso_from_associator_iso M x y z))). }
+    {
+      <span class="nb">set</span> (t := disp_monoidal_associatoriso DM _ _ _ xx yy zz).
+      <span class="bp">exact</span> (_ ,, (pr2 t,, pr1 t)).
+    }
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0inv0.
+    }
+
+    use disp_z_iso_inv_on_left.
+    {
+      <span class="nb">refine</span> (_,,_).
+      <span class="nb">apply</span> (pr122 B).
+    }
+    {
+      <span class="nb">refine</span> (_ ,, _).
+      <span class="nb">apply</span> p_inv.
+    }
+    <span class="nb">refine</span> (id_right_disp_var _ @ _).
+    use transportf_transpose_left.
+
+    use disp_z_iso_inv_on_left.
+    { <span class="bp">exact</span> (pr2 (z_iso_inv (z_iso_from_associator_iso M z x y))). }
+    {
+      <span class="nb">set</span> (t := disp_monoidal_associatoriso DM _ _ _ zz xx yy).
+      <span class="bp">exact</span> (_ ,, (pr2 t,, pr1 t)).
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">rewrite</span> assoc_disp.
+    <span class="nb">rewrite</span> assoc_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> ! transport_f_f.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> p.
+    }
+    <span class="nb">clear</span> p.
+    <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> ! assoc_disp_var.
+    <span class="nb">rewrite</span> transport_f_f.
+    etrans. {
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc_disp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (! transportf_transpose_left (disp_bifunctor_leftcomp DM _ _ _ _ _ _ _ _ _ _ _ _) @ _).
+      etrans. {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> p_inv.
+      }
+
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (disp_tensor_with_id_left DM (pr2 (monoidal_braiding_inverses B y z)) xx (zz ⊗⊗_{DM} yy)).
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> ! transport_f_f.
+    <span class="nb">rewrite</span> ! mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> ! mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> id_left_disp.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc_disp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> disp_monoidal_associatoriso.
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> id_left_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> (! transportf_transpose_left (disp_bifunctor_rightcomp DM _ _ _ _ _ _ _ _ _ _ _ _)).
+    etrans. {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (pr1 (p_inv _ _ xx zz)).
+    }
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> transport_f_f.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> disp_tensor_with_id_right.
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    use transportf_set.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">make_disp_symm_braiding_nat_left</span>
+    {<span class="nv">B</span> : symmetric M}
+    {<span class="nv">c</span> : disp_braiding_data DM B}
+    (<span class="nv">p_nat</span> : disp_sym_moncat_laws_tensored_nat c)
+    : disp_braiding_law_naturality_left DM c.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use precomp_disp_id_left_inj.
+    <span class="nb">set</span> (q := transportb_transpose_right (p_nat _ _ _ _ _ _ xx xx yy1 yy2 (id_disp xx) gg)).
+    <span class="nb">unfold</span> dispfunctoronmorphisms1 <span class="k">in</span> q.
+    <span class="nb">set</span> (tq := assoc_disp_var (id_disp xx ⊗⊗^{ DM}_{r} yy1) (xx ⊗⊗^{ DM}_{l} gg) (c x y2 xx yy2)) <span class="k">in</span> q.
+    <span class="nb">set</span> (q' := transportb_transpose_right (! tq @ q)).
+    <span class="nb">rewrite</span> disp_bifunctor_rightid <span class="k">in</span> q'.
+    <span class="nb">unfold</span> transportb <span class="k">in</span> q'.
+    <span class="nb">rewrite</span> (mor_disp_transportf_postwhisker _ (id_disp (xx ⊗⊗_{ DM} yy1))) <span class="k">in</span> q'.
+    <span class="nb">set</span> (q'' := transportb_transpose_right q').
+    <span class="nb">refine</span> (_ @ ! q'').
+    <span class="nb">clear</span> q'' q' tq q.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> ! transport_f_f.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, assoc_disp.
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    use transportf_transpose_right.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> id_left_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> disp_bifunctor_leftid.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> ! mor_disp_transportf_prewhisker.
+    use transportf_transpose_right.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> id_right_disp.
+    use transportf_transpose_right.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    use transportf_set.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">make_disp_symm_braiding_nat_right</span>
+    {<span class="nv">B</span> : symmetric M}
+    {<span class="nv">c</span> : disp_braiding_data DM B}
+    (<span class="nv">p_nat</span> : disp_sym_moncat_laws_tensored_nat c)
+    : disp_braiding_law_naturality_right DM c.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">set</span> (q := ! p_nat _ _ _ _ _ _ xx1 xx2 yy yy ff (id_disp yy)).
+    use transportf_transpose_left.
+    <span class="nb">set</span> (qq := specialized_transport_lemma (c x1 y xx1 yy) ff _ _ q).
+    <span class="nb">refine</span> (qq @ _).
+    <span class="nb">clear</span> qq.
+    <span class="nb">clear</span> q.
+    use transportf_transpose_left.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> path_comp_inv_inv.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (idpath (maponpaths (<span class="k">λ</span> <span class="nv">i</span>, i · pr1 B _ _) (when_bifunctor_becomes_rightwhiskering M y f)) @ _).
+      <span class="nb">apply</span> homset_property.
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (maponpathsinv0  (<span class="k">λ</span> <span class="nv">i</span> : C ⟦ x1 ⊗_{ M} y, x2 ⊗_{ M} y ⟧, i · pr1 B x2 y)).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+    }
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> disp_tensor_with_id_on_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">make_disp_symm_braiding_nat</span>
+    {<span class="nv">B</span> : symmetric M}
+    {<span class="nv">c</span> : disp_braiding_data DM B}
+    (<span class="nv">p_nat</span> : disp_sym_moncat_laws_tensored_nat c)
+    : disp_braiding_law_naturality DM c.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> (make_disp_symm_braiding_nat_left p_nat).
+    - <span class="bp">exact</span> (make_disp_symm_braiding_nat_right p_nat).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">make_disp_symm_braiding_iso</span>
+    {<span class="nv">B</span> : symmetric M}
+    {<span class="nv">c</span> : disp_braiding_data DM B}
+    (<span class="nv">p_inv</span> : disp_sym_moncat_laws_tensored_inv c)
+    : disp_braiding_iso DM c c.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> pathsinv0.
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (! p_inv y x yy xx).
+      }
+      <span class="nb">apply</span> transportb_transpose_left.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">apply</span> pathsinv0.
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (! p_inv x y xx yy).
+      }
+      <span class="nb">apply</span> transportb_transpose_left.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">make_disp_symm_braiding_hex1</span>
+    {<span class="nv">B</span> : symmetric M}
+    {<span class="nv">c</span> : disp_braiding_data DM B}
+    (<span class="nv">p_hex</span> : disp_sym_moncat_laws_tensored_hex c)
+    : disp_braiding_law_hexagon1 DM c.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> disp_braiding_law_hexagon1.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">set</span> (q := p_hex x y z xx yy zz).
+    <span class="nb">set</span> (qq := specialized_transport_lemma _ _ _ _ (! q)).
+    <span class="nb">rewrite</span> assoc_disp_var <span class="k">in</span> qq.
+    <span class="nb">set</span> (qq' := transportb_transpose_right qq).
+    <span class="nb">set</span> (qq'' := specialized_transport_lemma' _ _ _ _ qq').
+    <span class="nb">rewrite</span> assoc_disp <span class="k">in</span> qq''.
+    <span class="nb">set</span> (qq''' := transportb_transpose_right qq'').
+    <span class="nb">refine</span> (_ @ ! qq''').
+    <span class="nb">clear</span> qq''' qq'' qq' qq q.
+    use transportf_transpose_left.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> ! transport_f_f.
+    <span class="nb">apply</span> pathsinv0.
+    use transportf_set.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">make_disp_symm_braiding_hex2</span>
+    {<span class="nv">B</span> : symmetric M}
+    {<span class="nv">c</span> : disp_braiding_data DM B}
+    (<span class="nv">p_inv</span> : disp_sym_moncat_laws_tensored_inv c)
+    (<span class="nv">p_nat</span> : disp_sym_moncat_laws_tensored_nat c)
+    (<span class="nv">p_hex</span> : disp_sym_moncat_laws_tensored_hex c)
+    : disp_braiding_law_hexagon2 DM c.
+  <span class="kn">Proof</span>.
+    use braiding_laws_one_hexagon_to_braiding_laws.
+    - <span class="bp">exact</span> (make_disp_symm_braiding_iso p_inv).
+    - <span class="bp">exact</span> (make_disp_symm_braiding_nat p_nat).
+    - <span class="bp">exact</span> (make_disp_symm_braiding_hex1 p_hex).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">make_disp_symm_braiding_laws</span>
+    {<span class="nv">B</span> : symmetric M}
+    {<span class="nv">c</span> : disp_braiding_data DM B}
+    (<span class="nv">p_inv</span> : disp_sym_moncat_laws_tensored_inv c)
+    (<span class="nv">p_nat</span> : disp_sym_moncat_laws_tensored_nat c)
+    (<span class="nv">p_hex</span> : disp_sym_moncat_laws_tensored_hex c)
+    : disp_braiding_laws DM c c.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,,_,, (_ ,, _)).
+    - <span class="bp">exact</span> (make_disp_symm_braiding_nat p_nat).
+    - <span class="bp">exact</span> (make_disp_symm_braiding_iso p_inv).
+    - <span class="bp">exact</span> (make_disp_symm_braiding_hex1 p_hex).
+    - <span class="bp">exact</span> (make_disp_symm_braiding_hex2 p_inv p_nat p_hex).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_symmetric</span>
+    {<span class="nv">B</span> : symmetric M}
+    {<span class="nv">c</span> : disp_braiding_data DM B}
+    (<span class="nv">p_inv</span> : disp_sym_moncat_laws_tensored_inv c)
+    (<span class="nv">p_nat</span> : disp_sym_moncat_laws_tensored_nat c)
+    (<span class="nv">p_hex</span> : disp_sym_moncat_laws_tensored_hex c)
+    : disp_symmetric B.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (c ,, _).
+    <span class="bp">exact</span> (make_disp_symm_braiding_laws p_inv p_nat p_hex).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">DisplayedSymmetric</span>.
+
+<span class="kn">Section</span> <span class="nf">Projection</span>.
+
+  <span class="kn">Context</span>
+    {<span class="nv">C</span> : category}
+    {<span class="nv">D</span> : disp_cat C}
+    {<span class="nv">M</span> : monoidal C}
+    {<span class="nv">DM</span> : disp_monoidal D M}
+    {<span class="nv">B</span> : symmetric M}
+    (<span class="nv">DB</span> : disp_symmetric DM B).
+
+  <span class="kn">Definition</span> <span class="nf">projection_is_symmetric</span>
+    : is_symmetric_monoidal_functor (total_symmetric DM DB) B (projection_fmonoidal DM).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intro</span>.
+    <span class="bp">exact</span> (id_right _ @ ! id_left _).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Projection</span>.
+
+<span class="kn">Section</span> <span class="nf">LocallyPropositional</span>.
+
+  <span class="kn">Context</span>
+    {<span class="nv">C</span> : category}
+    {<span class="nv">D</span> : disp_cat C}
+    {<span class="nv">M</span> : monoidal C}
+    (<span class="nv">DM</span> : disp_monoidal D M).
+
+  <span class="kn">Context</span> (<span class="nv">LP</span> : locally_propositional D).
+
+  <span class="kn">Lemma</span> <span class="nf">make_disp_laws_braiding_locally_propositional</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding_data DM (monoidal_braiding_data B))
+    (<span class="nv">DBinv</span> : disp_braiding_data DM (monoidal_braiding_data_inv B))
+    : disp_braiding_laws DM DB DBinv.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, _ ,, _).
+    - <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> LP.
+    - <span class="nb">split</span> ; <span class="nb">apply</span> LP.
+    - <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> LP.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_braiding_locally_propositional</span>
+    {<span class="nv">B</span> : braiding M}
+    (<span class="nv">DB</span> : disp_braiding_data DM (monoidal_braiding_data B))
+    (<span class="nv">DBinv</span> : disp_braiding_data DM (monoidal_braiding_data_inv B))
+    : disp_braiding DM B.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_,,_,,_).
+    <span class="bp">exact</span> (make_disp_laws_braiding_locally_propositional DB DBinv).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_laws_symmetric_locally_propositional</span>
+    {<span class="nv">B</span> : symmetric M}
+    (<span class="nv">DB</span> : disp_braiding_data DM (monoidal_braiding_data B))
+    : disp_braiding_laws DM DB DB.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, _ ,, _).
+    - <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> LP.
+    - <span class="nb">split</span> ; <span class="nb">apply</span> LP.
+    - <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> LP.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_symmetric_locally_propositional</span>
+    {<span class="nv">B</span> : symmetric M}
+    (<span class="nv">DB</span> : disp_braiding_data DM (monoidal_braiding_data B))
+    : disp_symmetric DM B.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_,,_).
+    <span class="bp">exact</span> (make_disp_laws_symmetric_locally_propositional DB).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">LocallyPropositional</span>.
+
+<span class="kn">Section</span> <span class="nf">InvertibleMorphismsBraiding</span>.
+
+  <span class="kn">Context</span>
+    {<span class="nv">C</span> : category}
+    {<span class="nv">D</span> : disp_cat C}
+    {<span class="nv">M</span> : monoidal C}
+    (<span class="nv">DM</span> : disp_monoidal D M)
+    (<span class="nv">B</span> : braiding M).
+
+  <span class="kn">Context</span> (<span class="nv">LG</span> : groupoidal_disp_cat D).
+  <span class="kn">Context</span> (<span class="nv">DB</span> : disp_braiding_data DM (monoidal_braiding_data B)).
+
+  <span class="kn">Definition</span> <span class="nf">DB_obj_inv</span>
+    {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">xx</span> : D x) (<span class="nv">yy</span> : D y)
+    : is_z_iso_disp
+         (make_z_iso' _ (monoidal_braiding_data_inv B x y,, monoidal_braiding_inverses B y x))
+         (DB y x yy xx).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (l := LG _ _ (monoidal_braiding_data B y x) (_ ,, monoidal_braiding_inverses B y x)).
+    <span class="bp">exact</span> (l _ _ (DB _ _ yy xx)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DBinv</span>
+    : disp_braiding_data DM (monoidal_braiding_data_inv B).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y xx yy.
+    <span class="bp">exact</span> (pr1 (DB_obj_inv xx yy)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_laws_braiding_locally_groupoidal</span>
+    (<span class="nv">p_nat</span> : disp_braiding_law_naturality DM DB)
+    (<span class="nv">p_hex</span> :  disp_braiding_law_hexagon DM DB)
+    : disp_braiding_laws DM DB DBinv.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> p_nat.
+    - <span class="nb">split</span> ; <span class="nb">apply</span> DB_obj_inv.
+    - <span class="bp">exact</span> p_hex.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_braiding_locally_groupoidal</span>
+    (<span class="nv">p_nat</span> : disp_braiding_law_naturality DM DB)
+    (<span class="nv">p_hex</span> :  disp_braiding_law_hexagon DM DB)
+    : disp_braiding DM B.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, _ ,, _).
+    <span class="bp">exact</span> (make_disp_laws_braiding_locally_groupoidal p_nat p_hex).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">InvertibleMorphismsBraiding</span>.
+
+<span class="kn">Section</span> <span class="nf">InvertibleMorphismsSymmetric</span>.
+
+  <span class="kn">Context</span>
+    {<span class="nv">C</span> : category}
+    {<span class="nv">D</span> : disp_cat C}
+    {<span class="nv">M</span> : monoidal C}
+    (<span class="nv">DM</span> : disp_monoidal D M)
+    (<span class="nv">B</span> : symmetric M).
+
+  <span class="kn">Context</span> (<span class="nv">LG</span> : groupoidal_disp_cat D).
+  <span class="kn">Context</span> (<span class="nv">DB</span> : disp_braiding_data DM (monoidal_braiding_data B)).
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_laws_symmetric_locally_groupoidal</span>
+    (<span class="nv">p_nat</span> : disp_sym_moncat_laws_tensored_nat DM DB)
+    (<span class="nv">p_hex</span> : disp_sym_moncat_laws_tensored_hex DM DB)
+    (<span class="nv">p_sym</span> : ∏ x y xx yy,
+        DB x y xx yy ;; DB y x yy xx
+        = transportb _ (pr2 (monoidal_braiding_inverses B y x)) (id_disp (xx ⊗⊗_{ DM} yy)))
+    : disp_sym_moncat_laws_tensored_inv DM DB.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use transportf_transpose_left.
+    <span class="nb">refine</span> (_ @ pr12 (DB_obj_inv _ B LG DB xx yy) @ _).
+    - <span class="nb">refine</span> (p_sym _ _ xx yy @ _).
+      <span class="bp">exact</span> (! pr12 (DB_obj_inv _ B LG DB xx yy)).
+    - <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_symmetric_locally_groupoidal</span>
+    (<span class="nv">p_nat</span> : disp_sym_moncat_laws_tensored_nat DM DB)
+    (<span class="nv">p_hex</span> : disp_sym_moncat_laws_tensored_hex DM DB)
+    (<span class="nv">p_sym</span> : ∏ x y xx yy,
+        DB x y xx yy ;; DB y x yy xx
+        = transportb _ (pr2 (monoidal_braiding_inverses B y x)) (id_disp (xx ⊗⊗_{ DM} yy)))
+    : disp_symmetric DM B.
+  <span class="kn">Proof</span>.
+    use make_disp_symmetric.
+    - <span class="bp">exact</span> DB.
+    - <span class="bp">exact</span> (make_disp_laws_symmetric_locally_groupoidal p_nat p_hex p_sym).
+    - <span class="bp">exact</span> p_nat.
+    - <span class="bp">exact</span> p_hex.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">InvertibleMorphismsSymmetric</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Displayed/Symmetric.v</tt>, line 29)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;    - A make symmetric constructor for locally invertible displayed categories [make_disp_symmetric_locally_groupoidal]
+  &gt;
+  &gt;  *********************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

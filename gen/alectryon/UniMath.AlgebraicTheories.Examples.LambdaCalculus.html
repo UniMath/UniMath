@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LambdaCalculus.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">  The λ-calculus λ-theory</span>
+
+<span class="sd">  Given a model for the λ-calculus, this file constructs a λ-theory and shows that it has</span>
+<span class="sd">  eta and beta equality (since we assume that the λ-calculus has these equalities).</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The algebraic theory of the λ-calculus [lambda_calculus_algebraic_theory]</span>
+<span class="sd">  2. The λ-theory of the λ-calculus [lambda_calculus_lambda_theory]</span>
+<span class="sd">  3. The λ-theory has β-equality [lambda_calculus_has_β]</span>
+<span class="sd">  4. The λ-theory is the initial λ-theory with β-equality [lambda_calculus_is_initial]</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Tuples.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.LambdaTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.LambdaCalculus.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.LambdaTheoryCategoryCore.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
+
+<span class="sd">(** * 1. The algebraic theory of the λ-calculus *)</span>
+
+<span class="kn">Section</span> <span class="nf">LambdaCalculus</span>.
+
+<span class="kn">Variable</span> <span class="nv">L</span> : lambda_calculus.
+
+<span class="kn">Definition</span> <span class="nf">lambda_calculus_algebraic_theory_data</span>
+  : algebraic_theory_data
+  := make_algebraic_theory_data
+    L
+    (<span class="k">λ</span> <span class="nv">_</span>, var)
+    (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">l</span> <span class="nv">targets</span>, <span class="nb">subst</span> l targets).
+
+<span class="kn">Lemma</span> <span class="nf">lambda_calculus_is_algebraic_theory</span>
+  : is_algebraic_theory lambda_calculus_algebraic_theory_data.
+<span class="kn">Proof</span>.
+  use make_is_algebraic_theory.
+  - <span class="nb">intros</span> l m n f_l f_m f_n.
+    <span class="nb">revert</span> l f_l m f_m n f_n.
+    use (lambda_calculus_ind_prop (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, _ ,, _));
+      <span class="nb">cbn</span> -[isaprop].
+    + <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+      <span class="nb">apply</span> setproperty.
+    + <span class="nb">intros</span>.
+      <span class="bp">now</span> <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> var_subst.
+    + <span class="nb">intros</span> ? ? ? Hl Hl' ? ? ? ?.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> subst_app.
+      <span class="bp">now</span> <span class="nb">rewrite</span> Hl, Hl'.
+    + <span class="nb">intros</span> l f_l Hl m f_m n f_n.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> subst_abs.
+      <span class="nb">rewrite</span> Hl.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!extend_tuple_eq _ _).
+      * <span class="nb">intro</span>.
+        <span class="nb">refine</span> (_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, <span class="nb">subst</span> x _) (extend_tuple_inl _ _ _)).
+        <span class="nb">rewrite</span> inflate_subst.
+        <span class="nb">unfold</span> inflate.
+        <span class="nb">rewrite</span> subst_subst.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span>.
+        <span class="bp">now</span> <span class="nb">rewrite</span> var_subst, extend_tuple_inl.
+      * <span class="bp">now</span> <span class="nb">rewrite</span> extend_tuple_inr, var_subst, extend_tuple_inr.
+    + <span class="nb">intros</span> m n l f Hl Hf m' f_m' n' f_n'.
+      <span class="nb">rewrite</span> Hl.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> subst_subst.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> Hf.
+  - <span class="kp">do</span> <span class="mi">4</span> <span class="nb">intro</span>.
+    <span class="nb">apply</span> var_subst.
+  - use (lambda_calculus_ind_prop (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, make_hProp _ (setproperty _ _ _)));
+      <span class="nb">cbn</span>.
+    + <span class="nb">intros</span>.
+      <span class="nb">apply</span> subst_var.
+    + <span class="nb">intros</span> ? ? ? Hl Hl'.
+      <span class="bp">now</span> <span class="nb">rewrite</span> subst_app, Hl, Hl'.
+    + <span class="nb">intros</span> n' l Hl.
+      <span class="nb">rewrite</span> subst_abs.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (_ @ Hl).
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (extend_tuple_eq inflate_var (idpath _)).
+    + <span class="nb">intros</span> ? ? ? ? Hl Hf.
+      <span class="nb">rewrite</span> subst_subst.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> Hf. <span class="c">(* Apparently we don't need Hl in this proof *)</span>
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lambda_calculus_algebraic_theory</span>
+  : algebraic_theory
+  := make_algebraic_theory _ lambda_calculus_is_algebraic_theory.
+
+<span class="sd">(** * 2. The λ-theory of the λ-calculus *)</span>
+
+<span class="kn">Definition</span> <span class="nf">lambda_calculus_lambda_theory_data</span>
+  : lambda_theory_data.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (lambda_calculus_algebraic_theory ,, _ ,, _);
+    <span class="nb">simpl</span>.
+  - <span class="nb">intros</span> ? l.
+    <span class="bp">exact</span> (app (inflate l) (var (stnweq (inr tt)))).
+  - <span class="nb">intro</span>.
+    <span class="bp">exact</span> abs.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lambda_calculus_app_is_app</span>
+  {<span class="nv">n</span> : nat}
+  (<span class="nv">f</span> <span class="nv">g</span> : lambda_calculus_lambda_theory_data n)
+  : LambdaTheories.app f g = LambdaCalculus.app f g.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> subst_app.
+  <span class="nb">rewrite</span> var_subst.
+  <span class="nb">rewrite</span> subst_inflate.
+  <span class="nb">refine</span> (maponpaths _ (extend_tuple_inr _ _ tt) @ _).
+  <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, LambdaCalculus.app x _)).
+  <span class="nb">refine</span> (_ @ subst_var _).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> funextfun.
+  <span class="nb">intro</span> i.
+  <span class="nb">apply</span> extend_tuple_inl.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lambda_calculus_is_lambda_theory</span>
+  : is_lambda_theory lambda_calculus_lambda_theory_data.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_is_lambda_theory;
+    <span class="kp">do</span> <span class="mi">4</span> <span class="nb">intro</span>;
+    <span class="nb">cbn</span> -[stnweq];
+    <span class="nb">unfold</span> inflate.
+  - <span class="nb">rewrite</span> subst_app.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> subst_subst.
+    <span class="nb">rewrite</span> var_subst.
+    <span class="nb">rewrite</span> extend_tuple_inr.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ (_ x) _)).
+    <span class="nb">apply</span> funextfun.
+    <span class="nb">intro</span>.
+    <span class="bp">now</span> <span class="nb">rewrite</span> var_subst, extend_tuple_inl.
+  - <span class="bp">now</span> <span class="nb">rewrite</span> subst_abs.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lambda_calculus_lambda_theory</span>
+  : lambda_theory
+  := _ ,, lambda_calculus_is_lambda_theory.
+
+<span class="sd">(** * 3. The λ-theory has β-equality *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">lambda_calculus_has_β</span>
+  : has_β lambda_calculus_lambda_theory.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> has_β, LambdaTheories.app, LambdaTheories.abs.
+  <span class="nb">cbn</span> -[stnweq].
+  <span class="nb">intros</span> n l.
+  <span class="nb">rewrite</span> inflate_abs.
+  <span class="nb">rewrite</span> beta_equality.
+  <span class="nb">rewrite</span> subst_subst.
+  <span class="nb">refine</span> (_ @ subst_var _).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> funextfun.
+  <span class="nb">intro</span> i.
+  <span class="nb">rewrite</span> &lt;- (homotweqinvweq stnweq i).
+  <span class="nb">induction</span> (invmap stnweq i) <span class="k">as</span> [i' | i'].
+  - <span class="nb">rewrite</span> extend_tuple_inl.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> inflate_var.
+    <span class="nb">rewrite</span> var_subst.
+    <span class="bp">now</span> <span class="nb">rewrite</span> extend_tuple_inl.
+  - <span class="nb">rewrite</span> extend_tuple_inr.
+    <span class="nb">rewrite</span> var_subst.
+    <span class="bp">now</span> <span class="nb">rewrite</span> extend_tuple_inr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lambda_calculus_β_lambda_theory</span>
+  : β_lambda_theory
+  := make_β_lambda_theory lambda_calculus_lambda_theory lambda_calculus_has_β.
+
+<span class="sd">(** * 4. The λ-calculus is the initial λ-theory with β-equality *)</span>
+
+<span class="kn">Section</span> <span class="nf">Initial</span>.
+
+  <span class="kn">Context</span> (<span class="nv">L'</span> : β_lambda_theory).
+
+  <span class="kn">Definition</span> <span class="nf">lambda_calculus_initial_morphism_data</span>
+    : ∏ n, lambda_calculus_β_lambda_theory n → L' n.
+  <span class="kn">Proof</span>.
+    use (lambda_calculus_rect L').
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">n</span>, AlgebraicTheories.var).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">n</span>, LambdaTheories.app).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">n</span>, LambdaTheories.abs).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">m</span> <span class="nv">n</span>, AlgebraicTheories.<span class="nb">subst</span>).
+    - <span class="kp">repeat</span> <span class="nb">split</span>.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">m</span> <span class="nv">n</span>, AlgebraicTheories.var_subst L').
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">m</span> <span class="nv">n</span>, LambdaTheories.subst_app L').
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">m</span> <span class="nv">n</span>, LambdaTheories.subst_abs L').
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">l</span> <span class="nv">m</span> <span class="nv">n</span>, AlgebraicTheories.subst_subst L').
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">n</span>, LambdaTheories.beta_equality L' (β_lambda_theory_has_β L')).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lambda_calculus_initial_is_algebraic_theory_morphism</span>
+    : is_algebraic_theory_morphism lambda_calculus_initial_morphism_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_algebraic_theory_morphism.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">n</span>, lambda_calculus_rect_var).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">m</span> <span class="nv">n</span>, lambda_calculus_rect_subst).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lambda_calculus_initial_algebraic_theory_morphism</span>
+    : algebraic_theory_morphism lambda_calculus_β_lambda_theory L'
+    := make_algebraic_theory_morphism _ lambda_calculus_initial_is_algebraic_theory_morphism.
+
+  <span class="kn">Lemma</span> <span class="nf">lambda_calculus_initial_is_lambda_theory_morphism</span>
+    : is_lambda_theory_morphism lambda_calculus_initial_algebraic_theory_morphism.
+  <span class="kn">Proof</span>.
+    use (make_is_lambda_theory_morphism).
+    - <span class="nb">intros</span> n f.
+      <span class="nb">refine</span> (_ @ !appx_to_app _).
+      <span class="nb">refine</span> (lambda_calculus_rect_app _ _ @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, LambdaTheories.app _ x) (lambda_calculus_rect_var _) @ _).
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, LambdaTheories.app x _)).
+      <span class="nb">refine</span> (lambda_calculus_rect_subst _ _ @ _).
+      <span class="nb">apply</span> (maponpaths (AlgebraicTheories.<span class="nb">subst</span> _)).
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> i.
+      <span class="nb">apply</span> lambda_calculus_rect_var.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">n</span>, lambda_calculus_rect_abs).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lambda_calculus_initial_lambda_theory_morphism</span>
+    : lambda_theory_morphism lambda_calculus_β_lambda_theory L'
+    := make_lambda_theory_morphism _ lambda_calculus_initial_is_lambda_theory_morphism.
+
+  <span class="kn">Definition</span> <span class="nf">lambda_calculus_initial_morphism</span>
+    : β_lambda_theory_morphism lambda_calculus_β_lambda_theory L'
+    := make_β_lambda_theory_morphism lambda_calculus_initial_lambda_theory_morphism.
+
+  <span class="kn">Lemma</span> <span class="nf">lambda_calculus_initial_morphism_unique</span>
+    (<span class="nv">f</span> : β_lambda_theory_morphism lambda_calculus_β_lambda_theory L')
+    : f = lambda_calculus_initial_morphism.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> β_lambda_theory_morphism_eq.
+    <span class="nb">apply</span> lambda_theory_morphism_eq.
+    <span class="nb">apply</span> algebraic_theory_morphism_eq.
+    use (lambda_calculus_ind_prop (<span class="k">λ</span> <span class="nv">n</span> <span class="nv">t</span>, make_hProp _ (setproperty _ _ _))).
+    - <span class="nb">intros</span> n i.
+      <span class="bp">now</span> <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (mor_var _ _ @ ! _).
+    - <span class="nb">intros</span> n l l' Hl Hl'.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (!_ @ maponpaths _ (lambda_calculus_app_is_app _ _)).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (mor_app _ _ _ @ !_).
+      <span class="bp">exact</span> (maponpaths_2 _ Hl _ @ maponpaths _ Hl').
+    - <span class="nb">intros</span> n l Hl.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (mor_abs _ _ @ !_).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> Hl.
+    - <span class="nb">intros</span> mm n l l' Hl Hl'.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (mor_subst _ _ _ @ !_).
+      <span class="nb">refine</span> (maponpaths_2 _ Hl _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> Hl'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lambda_calculus_unique_morphism</span>
+    : iscontr (β_lambda_theory_morphism lambda_calculus_β_lambda_theory L')
+    := make_iscontr
+      (make_β_lambda_theory_morphism lambda_calculus_initial_lambda_theory_morphism)
+      lambda_calculus_initial_morphism_unique.
+
+<span class="kn">End</span> <span class="nf">Initial</span>.
+
+<span class="kn">Definition</span> <span class="nf">lambda_calculus_is_initial</span>
+  : isInitial β_lambda_theory_cat lambda_calculus_β_lambda_theory
+  := lambda_calculus_unique_morphism.
+
+<span class="kn">Definition</span> <span class="nf">initial_lambda_calculus</span>
+  : Initial β_lambda_theory_cat
+  := make_Initial
+    lambda_calculus_β_lambda_theory
+    lambda_calculus_is_initial.
+
+<span class="kn">End</span> <span class="nf">LambdaCalculus</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/Examples/LambdaCalculus.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   4. The λ-theory is the initial λ-theory with β-equality [lambda_calculus_is_initial]
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

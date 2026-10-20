@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ClosedUnderInvertibles.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd"> Properties of morphisms are closed under invertible 2-cells</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Equivalences are closed under invertible 2-cells</span>
+<span class="sd"> 2. Adjoint quivalences are closed under invertible 2-cells</span>
+<span class="sd"> 3. Faithful 1-cells are closed under invertible 2-cells</span>
+<span class="sd"> 4. Fully faithful 1-cells are closed under invertible 2-cells</span>
+<span class="sd"> 5. Conservative 1-cells are closed under invertible 2-cells</span>
+<span class="sd"> 6. Discrete 1-cells are closed under invertible 2-cells</span>
+<span class="sd"> 7. Pseudomonic 1-cells are closed under invertible 2-cells</span>
+<span class="sd"> 8. Internal Street fibrations are closed under invertible 2-cells</span>
+<span class="sd"> 9. Adjunctions are closed under invertible 2-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.DiscreteMorphisms.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.InternalStreetFibration.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Equivalences are closed under invertible 2-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">left_equivalence_invertible</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b}
+           (<span class="nv">g_equiv</span> : left_equivalence g)
+           {<span class="nv">α</span> : f ==&gt; g}
+           (<span class="nv">Hα</span> : is_invertible_2cell α)
+  : left_equivalence f.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> ((_ ,, (_ ,, _)) ,, (_ ,, _)).
+  - <span class="bp">exact</span> (left_adjoint_right_adjoint g_equiv).
+  - <span class="bp">exact</span> ((left_adjoint_unit g_equiv)
+           • (Hα^-<span class="mi">1</span> ▹ left_adjoint_right_adjoint g_equiv)).
+  - <span class="bp">exact</span> ((left_adjoint_right_adjoint g_equiv ◃ α)
+           • (left_adjoint_counit g_equiv)).
+  - <span class="nb">cbn</span>.
+    is_iso.
+    <span class="nb">apply</span> g_equiv.
+  - <span class="nb">cbn</span>.
+    is_iso.
+    <span class="nb">apply</span> g_equiv.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Adjoint quivalences are closed under invertible 2-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">left_adjoint_equivalence_invertible</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b}
+           (<span class="nv">g_equiv</span> : left_adjoint_equivalence g)
+           {<span class="nv">α</span> : f ==&gt; g}
+           (<span class="nv">Hα</span> : is_invertible_2cell α)
+  : left_adjoint_equivalence f.
+<span class="kn">Proof</span>.
+  use equiv_to_adjequiv.
+  <span class="bp">exact</span> (left_equivalence_invertible g_equiv Hα).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Faithful 1-cells are closed under invertible 2-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">faithful_invertible</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : a --&gt; b}
+           (<span class="nv">β</span> : f₁ ==&gt; f₂)
+           (<span class="nv">Hβ</span> : is_invertible_2cell β)
+  : faithful_1cell f₁ → faithful_1cell f₂.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hf₁ z g₁ g₂ α₁ α₂ p.
+  <span class="nb">apply</span> (faithful_1cell_eq_cell Hf₁).
+  use (vcomp_rcancel (_ ◃ β)).
+  {
+    is_iso.
+  }
+  <span class="nb">rewrite</span> !vcomp_whisker.
+  <span class="nb">rewrite</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Fully faithful 1-cells are closed under invertible 2-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">fully_faithful_invertible</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : a --&gt; b}
+           (<span class="nv">β</span> : f₁ ==&gt; f₂)
+           (<span class="nv">Hβ</span> : is_invertible_2cell β)
+           (<span class="nv">Hf₁</span> : fully_faithful_1cell f₁)
+  : fully_faithful_1cell f₂.
+<span class="kn">Proof</span>.
+  use make_fully_faithful.
+  - <span class="bp">exact</span> (faithful_invertible β Hβ (fully_faithful_1cell_faithful Hf₁)).
+  - <span class="nb">intros</span> z g₁ g₂ αf.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="nb">apply</span> (fully_faithful_1cell_inv_map Hf₁).
+      <span class="bp">exact</span> ((g₁ ◃ β) • αf • (g₂ ◃ Hβ^-<span class="mi">1</span>)).
+    + <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         use (vcomp_rcancel (_ ◃ Hβ^-<span class="mi">1</span>)) ; [ is_iso | ] ;
+         <span class="nb">rewrite</span> vcomp_whisker ;
+         <span class="nb">rewrite</span> fully_faithful_1cell_inv_map_eq ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">rewrite</span> lwhisker_vcomp ;
+         <span class="nb">rewrite</span> vcomp_linv ;
+         <span class="nb">rewrite</span> lwhisker_id2 ;
+         <span class="nb">rewrite</span> id2_left ;
+         <span class="nb">apply</span> idpath).
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Conservative 1-cells are closed under invertible 2-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">conservative_invertible</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : a --&gt; b}
+           (<span class="nv">β</span> : f₁ ==&gt; f₂)
+           (<span class="nv">Hβ</span> : is_invertible_2cell β)
+           (<span class="nv">Hf₁</span> : conservative_1cell f₁)
+  : conservative_1cell f₂.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x g₁ g₂ α Hα.
+  <span class="nb">apply</span> Hf₁.
+  use eq_is_invertible_2cell.
+  - <span class="bp">exact</span> ((g₁ ◃ β) • (α ▹ f₂) • (g₂ ◃ Hβ^-<span class="mi">1</span>)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> &lt;- vcomp_whisker ;
+       <span class="nb">rewrite</span> !vassocl ;
+       <span class="nb">rewrite</span> lwhisker_vcomp ;
+       <span class="nb">rewrite</span> vcomp_rinv ;
+       <span class="nb">rewrite</span> lwhisker_id2 ;
+       <span class="nb">apply</span> id2_right).
+  - use is_invertible_2cell_vcomp.
+    + use is_invertible_2cell_vcomp.
+      * is_iso.
+      * <span class="bp">exact</span> Hα.
+    + is_iso.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Discrete 1-cells are closed under invertible 2-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">discrete_invertible</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : a --&gt; b}
+           (<span class="nv">β</span> : f₁ ==&gt; f₂)
+           (<span class="nv">Hβ</span> : is_invertible_2cell β)
+           (<span class="nv">Hf₁</span> : discrete_1cell f₁)
+  : discrete_1cell f₂.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (faithful_invertible β Hβ (pr1 Hf₁)).
+  - <span class="bp">exact</span> (conservative_invertible β Hβ (pr2 Hf₁)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 7. Pseudomonic 1-cells are closed under invertible 2-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">pseudomonic_invertible</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : a --&gt; b}
+           (<span class="nv">β</span> : f₁ ==&gt; f₂)
+           (<span class="nv">Hβ</span> : is_invertible_2cell β)
+           (<span class="nv">Hf₁</span> : pseudomonic_1cell f₁)
+  : pseudomonic_1cell f₂.
+<span class="kn">Proof</span>.
+  use make_pseudomonic.
+  - <span class="nb">apply</span> (faithful_invertible β Hβ).
+    <span class="nb">apply</span> pseudomonic_1cell_faithful.
+    <span class="bp">exact</span> Hf₁.
+  - <span class="nb">intros</span> z g₁ g₂ αf Hαf.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + <span class="nb">refine</span> (pseudomonic_1cell_inv_map Hf₁ ((_ ◃ β) • αf • (_ ◃ Hβ^-<span class="mi">1</span>)) _).
+      is_iso.
+    + <span class="nb">apply</span> is_invertible_2cell_pseudomonic_1cell_inv_map.
+    + <span class="kp">abstract</span>
+        (<span class="nb">simpl</span> ;
+         use (vcomp_lcancel (_ ◃ β)) ; [ is_iso | ] ;
+         <span class="nb">rewrite</span> &lt;- vcomp_whisker ;
+         <span class="nb">rewrite</span> pseudomonic_1cell_inv_map_eq ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> lwhisker_vcomp ;
+         <span class="nb">rewrite</span> vcomp_linv ;
+         <span class="nb">rewrite</span> lwhisker_id2 ;
+         <span class="nb">rewrite</span> id2_right ;
+         <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 8. Internal Street fibrations are closed under invertible 2-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">Cartesian2CellInvertible</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">a</span> <span class="nv">b</span> : B}
+          {<span class="nv">f₁</span> <span class="nv">f₂</span> : a --&gt; b}
+          (<span class="nv">β</span> : f₁ ==&gt; f₂)
+          (<span class="nv">Hβ</span> : is_invertible_2cell β)
+          {<span class="nv">x</span> : B}
+          {<span class="nv">g₁</span> <span class="nv">g₂</span> : x --&gt; a}
+          {<span class="nv">α</span> : g₁ ==&gt; g₂}
+          (<span class="nv">Hα</span> : is_cartesian_2cell_sfib f₁ α).
+
+  <span class="kn">Definition</span> <span class="nf">is_cartesian_2cell_invertible_unique</span>
+             {<span class="nv">h</span> : x --&gt; a}
+             {<span class="nv">γ</span> : h ==&gt; g₂}
+             {<span class="nv">δp</span> : h · f₂ ==&gt; g₁ · f₂}
+             (<span class="nv">q</span> : γ ▹ f₂ = δp • (α ▹ f₂))
+    : isaprop (∑ (δ : h ==&gt; g₁), δ ▹ f₂ = δp × δ • α = γ).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> φ₁ φ₂.
+    use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property | ].
+    use (is_cartesian_2cell_sfib_factor_unique
+           _
+           Hα
+           _
+           γ
+           ((h ◃ β) • δp • (_ ◃ Hβ^-<span class="mi">1</span>))).
+    - <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> &lt;- vcomp_whisker.
+      <span class="nb">rewrite</span> !vassocr.
+      use vcomp_move_L_Mp ; [ is_iso | ].
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> vcomp_whisker.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> q.
+    - use vcomp_move_L_Mp ; [ is_iso | ] ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> vcomp_whisker.
+      <span class="nb">rewrite</span> (pr12 φ₁).
+      <span class="nb">apply</span> idpath.
+    - use vcomp_move_L_Mp ; [ is_iso | ] ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> vcomp_whisker.
+      <span class="nb">rewrite</span> (pr12 φ₂).
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> (pr22 φ₁).
+    - <span class="nb">apply</span> (pr22 φ₂).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_cartesian_2cell_invertible</span>
+    : is_cartesian_2cell_sfib f₂ α.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> h γ δp q.
+    use iscontraprop1.
+    - <span class="bp">exact</span> (is_cartesian_2cell_invertible_unique q).
+    - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="nb">refine</span> (is_cartesian_2cell_sfib_factor
+                  _
+                  Hα
+                  γ
+                  ((h ◃ β) • δp • (_ ◃ Hβ^-<span class="mi">1</span>))
+                  _).
+        <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> &lt;- vcomp_whisker ;
+           <span class="nb">rewrite</span> !vassocr ;
+           use vcomp_move_L_Mp ; [ is_iso | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> vcomp_whisker ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="bp">exact</span> q).
+      + <span class="kp">abstract</span>
+          (use (vcomp_rcancel (_ ◃ Hβ^-<span class="mi">1</span>)) ; [ is_iso | ] ;
+           <span class="nb">rewrite</span> vcomp_whisker ;
+           <span class="nb">rewrite</span> is_cartesian_2cell_sfib_factor_over ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> lwhisker_vcomp ;
+           <span class="nb">rewrite</span> vcomp_linv ;
+           <span class="nb">rewrite</span> lwhisker_id2 ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">apply</span> is_cartesian_2cell_sfib_factor_comm).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Cartesian2CellInvertible</span>.
+
+<span class="kn">Section</span> <span class="nf">InvertibleFromInternalSFib</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">a</span> <span class="nv">b</span> : B}
+          {<span class="nv">f₁</span> <span class="nv">f₂</span> : a --&gt; b}
+          (<span class="nv">β</span> : f₁ ==&gt; f₂)
+          (<span class="nv">Hβ</span> : is_invertible_2cell β)
+          (<span class="nv">Hf₁</span> : internal_sfib f₁).
+
+  <span class="kn">Definition</span> <span class="nf">internal_sfib_cleaving_invertible</span>
+    : internal_sfib_cleaving f₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x g₁ g₂ α.
+    <span class="nb">pose</span> (ℓ := pr1 Hf₁ x g₁ g₂ (α • (g₂ ◃ Hβ^-<span class="mi">1</span>))).
+    <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _).
+    - <span class="bp">exact</span> (pr1 ℓ).
+    - <span class="bp">exact</span> (pr12 ℓ).
+    - <span class="bp">exact</span> (comp_of_invertible_2cell
+               (lwhisker_of_invertible_2cell
+                  _
+                  (inv_of_invertible_2cell (β ,, Hβ)))
+               (pr122 ℓ)).
+    - <span class="nb">apply</span> (is_cartesian_2cell_invertible β Hβ).
+      <span class="bp">exact</span> (pr1 (pr222 ℓ)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">simpl</span> ;
+         <span class="nb">rewrite</span> !vassocl ;
+         use vcomp_move_L_pM ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> &lt;- vcomp_whisker ;
+         use vcomp_move_R_Mp ; [ is_iso ; <span class="nb">apply</span> Hβ | ] ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="bp">exact</span> (pr2 (pr222 ℓ))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lwhisker_is_cartesian_invertible</span>
+    : lwhisker_is_cartesian f₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y h g₁ g₂ γ Hγ.
+    <span class="nb">apply</span> (is_cartesian_2cell_invertible β Hβ).
+    <span class="nb">apply</span> (pr2 Hf₁).
+    <span class="nb">apply</span> (is_cartesian_2cell_invertible _ (is_invertible_2cell_inv Hβ)).
+    <span class="bp">exact</span> Hγ.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">internal_sfib_invertible</span>
+    : internal_sfib f₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> internal_sfib_cleaving_invertible.
+    - <span class="bp">exact</span> lwhisker_is_cartesian_invertible.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">InvertibleFromInternalSFib</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 9. Adjunctions are closed under invertible 2-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">AdjunctionInvertible</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">x</span> <span class="nv">y</span> : B}
+          {<span class="nv">l</span> <span class="nv">l'</span> : x --&gt; y}
+          (<span class="nv">α</span> : invertible_2cell l l')
+          (<span class="nv">Hl</span> : left_adjoint l).
+
+  <span class="kn">Let</span> <span class="nf">r</span> : y --&gt; x := left_adjoint_right_adjoint Hl.
+  <span class="kn">Let</span> <span class="nf">η</span> : id₁ x ==&gt; l · r := left_adjoint_unit Hl.
+  <span class="kn">Let</span> <span class="nf">ε</span> : r · l ==&gt; id₁ y := left_adjoint_counit Hl.
+
+  <span class="kn">Let</span> <span class="nf">trl</span> : linvunitor _ • (η ▹ _) • rassociator _ _ _ • (_ ◃ ε) • runitor _ = id₂ _
+      := pr12 Hl.
+  <span class="kn">Let</span> <span class="nf">trr</span> : rinvunitor _ • (_ ◃ η) • lassociator _ _ _ • (ε ▹ _) • lunitor _ = id₂ _
+      := pr22 Hl.
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_data_invertible</span>
+    : left_adjoint_data l'
+    := r ,, (η • (α ▹ r) ,, (_ ◃ α^-<span class="mi">1</span>) • ε).
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_axioms_invertible</span>
+    : left_adjoint_axioms left_adjoint_data_invertible.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> rwhisker_rwhisker_alt.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> vcomp_whisker.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> vcomp_whisker.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> vcomp_runitor.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> lwhisker_lwhisker_rassociator.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> vcomp_whisker.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> lwhisker_hcomp.
+        <span class="nb">rewrite</span> &lt;- linvunitor_natural.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> idpath.
+      }
+      use vcomp_move_R_pM ; [ is_iso | ].
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_right.
+      <span class="nb">refine</span> (_ @ id2_left _).
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> trl.
+    - <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> rwhisker_lwhisker.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> rwhisker_vcomp.
+        <span class="nb">rewrite</span> lwhisker_vcomp.
+        <span class="nb">rewrite</span> vcomp_rinv.
+        <span class="nb">rewrite</span> lwhisker_id2.
+        <span class="nb">rewrite</span> id2_rwhisker.
+        <span class="nb">rewrite</span> id2_left.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="bp">exact</span> trr.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_invertible</span>
+    : left_adjoint l'
+    := left_adjoint_data_invertible ,, left_adjoint_axioms_invertible.
+<span class="kn">End</span> <span class="nf">AdjunctionInvertible</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Morphisms/Properties/ClosedUnderInvertibles.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. Internal Street fibrations are closed under invertible 2-cells
+  &gt;  9. Adjunctions are closed under invertible 2-cells
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

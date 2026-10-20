@@ -1,0 +1,926 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>precomp_ess_surj.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Benedikt Ahrens, Chris Kapulkin, Mike Shulman</span>
+
+<span class="sd">january 2013</span>
+
+
+<span class="sd">************************************************************)</span>
+
+
+<span class="sd">(** **********************************************************</span>
+
+<span class="sd">Contents : Precomposition with a fully faithful and</span>
+<span class="sd">           essentially surjective functor yields</span>
+<span class="sd">           an essentially surjective functor</span>
+
+<span class="sd">************************************************************)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Univalence.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"FF ^-1"</span> := (fully_faithful_inv_hom FF _ _ ).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"F '^-i'"</span> := (iso_from_fully_faithful_reflection F) (<span class="kn">at level</span> <span class="mi">20</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"G 'O' F"</span> := (functor_compose _ _ _ F G) (<span class="kn">at level</span> <span class="mi">25</span>).
+
+<span class="kn">Ltac</span> <span class="nf">inv_functor</span> HF x y :=
+   <span class="k">let</span> <span class="nv">H</span>:=<span class="kp">fresh</span> <span class="k">in</span>
+   <span class="nb">set</span> (H:= homotweqinvweq (weq_from_fully_faithful HF x y));
+     <span class="nb">simpl</span> <span class="k">in</span> H;
+     <span class="nb">unfold</span> fully_faithful_inv_hom; <span class="nb">simpl</span>;
+     <span class="nb">rewrite</span> H; <span class="nb">clear</span> H.
+
+
+<span class="sd">(** * Lengthy preparation for the main result of this file *)</span>
+
+<span class="kn">Section</span> <span class="nf">precomp_w_ess_surj_ff_is_ess_surj</span>.
+
+<span class="sd">(** ** Section variables *)</span>
+
+  <span class="kn">Context</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span>: category).
+  <span class="kn">Hypothesis</span> <span class="nv">Ccat</span> : is_univalent C.
+  <span class="kn">Variable</span> <span class="nv">H</span> : functor A B.
+  <span class="kn">Hypothesis</span> <span class="nv">p</span> : essentially_surjective H.
+  <span class="kn">Hypothesis</span> <span class="nv">fH</span> : fully_faithful H.
+
+<span class="sd">(**  We prove that precomposition with a [H] yields an essentially surjective functor *)</span>
+
+<span class="kn">Section</span> <span class="nf">essentially_surjective</span>.
+
+
+<span class="sd">(** ** Specification of preimage [G] of a functor [F] *)</span>
+
+<span class="sd">(** Given a functor [F] from [A] to [C], we construct [G] such that</span>
+<span class="sd">       [F = G O H] *)</span>
+
+<span class="kn">Variable</span> <span class="nv">F</span> : functor A C.
+
+<span class="kn">Section</span> <span class="nf">preimage</span>.
+
+<span class="sd">(** The type [X b] will be contractible, and [G] is defined as</span>
+<span class="sd">     the first component of its center. *)</span>
+
+<span class="kn">Local Definition</span> <span class="nf">X</span> (<span class="nv">b</span> : B) := total2 (
+ <span class="k">fun</span> <span class="nv">ck</span> :
+  total2 (<span class="k">λ</span> <span class="nv">c</span> : C,
+                ∏ a : A,
+                     z_iso (H a) b -&gt; z_iso (F a) c) =&gt;
+    ∏ t t' : total2 (<span class="k">λ</span> <span class="nv">a</span> : A, z_iso (H a) b),
+          ∏ f : pr1 t --&gt; pr1 t',
+             (#H f · pr2 t' = pr2 t -&gt;
+                    #F f · pr2 ck (pr1 t') (pr2 t') = pr2 ck (pr1 t) (pr2 t))).
+
+<span class="kn">Local Definition</span> <span class="nf">kX</span> {<span class="nv">b</span> : B} (<span class="nv">t</span> : X b) := (pr2 (pr1 t)).
+
+<span class="sd">(** The following is the third component of the center of [X b] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">X_aux_type_center_of_contr_proof</span> (<span class="nv">b</span> : B) (<span class="nv">anot</span> : A) (<span class="nv">hnot</span> : z_iso (H anot) b) :
+  ∏ (t t' : total2 (<span class="k">λ</span> <span class="nv">a</span> :  A, z_iso (H a) b))
+    (f : pr1 t --&gt; pr1 t'),
+  #H f· pr2 t' = pr2 t -&gt;
+  #F f·
+  #F (fH^-<span class="mi">1</span> (pr2 t'· inv_from_z_iso hnot)) =
+  #F (fH^-<span class="mi">1</span> (pr2 t· inv_from_z_iso hnot)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> t t' f.
+  <span class="nb">destruct</span> t <span class="k">as</span> [a h].
+  <span class="nb">destruct</span> t' <span class="k">as</span> [a' h'].
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">intro</span> star.
+  <span class="nb">rewrite</span> &lt;- functor_comp.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> (invmaponpathsweq
+          (weq_from_fully_faithful fH a anot)).
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> functor_comp.
+  inv_functor fH a' anot.
+  <span class="nb">rewrite</span> assoc.
+  inv_functor fH a anot.
+  <span class="nb">rewrite</span> &lt;- star.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** The center of [X b] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">X_aux_type_center_of_contr</span> (<span class="nv">b</span> : B)
+    (<span class="nv">anot</span> : A)(<span class="nv">hnot</span> : z_iso (H anot) b) : X b.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (cnot := F anot).
+  <span class="nb">set</span> (g := <span class="k">fun</span> (<span class="nv">a</span> : A)(<span class="nv">h</span> : z_iso (H a) b) =&gt;
+              (fH^-i (z_iso_comp h (z_iso_inv_from_z_iso hnot)))).
+  <span class="nb">set</span> (knot := <span class="k">fun</span> (<span class="nv">a</span> : A)(<span class="nv">h</span> : z_iso (H a) b) =&gt;
+                    functor_on_z_iso F (g a h)).
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="k">exists</span> (<span class="nv">tpair</span> <span class="nv">_</span> (F anot) knot).
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> X_aux_type_center_of_contr_proof.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Any inhabitant of [X b] is equal to the center of [X b]. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">X_aux_type_contr_eq</span> (<span class="nv">b</span> : B) (<span class="nv">anot</span> : A) (<span class="nv">hnot</span> : z_iso (H anot) b) :
+   ∏ t : X b, t = X_aux_type_center_of_contr b anot hnot.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> t.
+  <span class="nb">assert</span> (Hpr1 : pr1 (X_aux_type_center_of_contr b anot hnot) = pr1 t).
+  { <span class="nb">set</span> (w := isotoid _ Ccat ((pr2 (pr1 t)) anot hnot) :
+           pr1 (pr1 (X_aux_type_center_of_contr b anot hnot)) = pr1 (pr1 t)).
+    <span class="nb">apply</span> (total2_paths_f w).
+    <span class="nb">simpl</span>.
+    <span class="nb">destruct</span> t <span class="k">as</span> [[c1 k1] q1].
+    <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> a.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> h.
+    <span class="nb">set</span> (gah := fH^-i (z_iso_comp h (z_iso_inv_from_z_iso hnot))).
+    <span class="nb">set</span> (qhelp := q1 (tpair _ a h)(tpair _ anot hnot) gah).
+    <span class="nb">simpl</span> <span class="k">in</span> *.
+
+    <span class="nb">assert</span> (feedtoqhelp :
+             #H (fH^-<span class="mi">1</span> (h· inv_from_z_iso hnot))· hnot = h).
+    { inv_functor fH a anot.
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+      <span class="nb">apply</span> id_right.
+    }
+    <span class="nb">assert</span> (quack := qhelp feedtoqhelp).
+    <span class="nb">simpl</span> <span class="k">in</span> *.
+    intermediate_path (z_iso_comp  (functor_on_z_iso F
+               (fH^-i (z_iso_comp h (z_iso_inv_from_z_iso hnot)))) (idtoiso w) ).
+    { <span class="nb">generalize</span> w; <span class="nb">intro</span> w0.
+      <span class="nb">induction</span> w0.
+      <span class="nb">simpl</span>. <span class="nb">apply</span> z_iso_eq. <span class="nb">simpl</span>.
+      <span class="nb">simpl</span>. <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">apply</span> z_iso_eq.
+    <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> w.
+    <span class="nb">rewrite</span> idtoiso_isotoid.
+    <span class="nb">apply</span> quack.
+  }
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (total2_paths_f Hpr1).
+  <span class="nb">apply</span> proofirrelevance.
+  <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+  <span class="nb">apply</span> C.
+<span class="kn">Qed</span>.
+
+
+<span class="sd">(** Putting everything together: [X b] is contractible. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">iscontr_X</span> : ∏ b : B, iscontr (X b).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> b.
+  <span class="nb">assert</span> (HH : isaprop (iscontr (X b))).
+  <span class="nb">apply</span> isapropiscontr.
+  <span class="nb">apply</span> (p b (tpair (<span class="k">λ</span> <span class="nv">x</span>, isaprop x) (iscontr (X b)) HH)).
+  <span class="nb">intro</span> t.
+  <span class="k">exists</span> (<span class="nv">X_aux_type_center_of_contr</span> <span class="nv">b</span> (pr1 t) (pr2 t)).
+  <span class="nb">apply</span> (X_aux_type_contr_eq b (pr1 t) (pr2 t)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The object part of [G], [Go b], is defined as the first component of</span>
+<span class="sd">    the center of [X b]. *)</span>
+
+<span class="sd">(** *** [G] on objects *)</span>
+
+<span class="kn">Definition</span> <span class="nf">Go</span> : B -&gt; C :=
+   <span class="k">λ</span> <span class="nv">b</span> : B, pr1 (pr1 (pr1 (iscontr_X b))).
+
+<span class="kn">Local Definition</span> <span class="nf">k</span> (<span class="nv">b</span> : B) :
+     ∏ a : A, z_iso (H a) b -&gt; z_iso (F a) (Go b) :=
+              pr2 (pr1 (pr1 (iscontr_X b))).
+
+<span class="kn">Local Definition</span> <span class="nf">q</span> (<span class="nv">b</span> : B) := pr2 (pr1 (iscontr_X b)).
+
+
+<span class="sd">(** Given any inhabitant of [X b], its first component is equal to [Go b]. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">Xphi</span> (<span class="nv">b</span> : B) (<span class="nv">t</span> : X b) : pr1 (pr1 t) = Go b.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (p1 := pr2 (iscontr_X b) t).
+  <span class="bp">exact</span> (base_paths _ _ (base_paths _ _ p1)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Given any inhabitant [t : X b], its second component is equal to [k b],</span>
+<span class="sd">       modulo transport along [Xphi b t]. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">Xkphi_transp</span> (<span class="nv">b</span> : B) (<span class="nv">t</span> : X b) :
+     ∏ a : A, ∏ h : z_iso (H a) b,
+  transportf _ (Xphi b t) (kX t) a h =  k b a h.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> k.
+  <span class="nb">rewrite</span> &lt;- (fiber_paths (base_paths _ _ (pr2 (iscontr_X b) t))).
+  <span class="nb">intros</span> ? ?.
+  <span class="nb">apply</span> maponpaths, idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Similarly to the lemma before, the second component of [t] is the same</span>
+<span class="sd">    as [k b], modulo postcomposition with an isomorphism. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">Xkphi_idtoiso</span> (<span class="nv">b</span> : B) (<span class="nv">t</span> : X b) :
+    ∏ a : A, ∏ h : z_iso (H a) b,
+   k b a h · idtoiso (!Xphi b t) = kX t a h.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a h.
+  <span class="nb">rewrite</span> &lt;- (Xkphi_transp _ t).
+  <span class="nb">generalize</span> (Xphi b t).
+  <span class="nb">intro</span> i; <span class="nb">destruct</span> i.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+
+<span class="c">(*</span>
+<span class="c">Lemma k_transport (b : ob B) (*t : X b*) (c : ob C)</span>
+<span class="c">   (p : pr1 (pr1 t) = c) (a : ob A) (h : iso (pr1 H a) b):</span>
+<span class="c">transportf (λ c' : ob C, ∏ a : ob A, iso (pr1 H a) b -&gt;</span>
+<span class="c">                          iso ((pr1 F) a) c')</span>
+<span class="c">   p (k) a h = (k b) b a h · idtoiso p .</span>
+<span class="c">*)</span>
+
+
+<span class="sd">(** *** Preparation for [G] on morphisms *)</span>
+
+<span class="sd">(** [G f] will be defined as the first component of the center of</span>
+<span class="sd">     contraction of [Y f]. *)</span>
+
+<span class="kn">Local Definition</span> <span class="nf">Y</span> {<span class="nv">b</span> <span class="nv">b'</span> : B} (<span class="nv">f</span> : b --&gt; b') :=
+  total2 (<span class="k">fun</span> <span class="nv">g</span> : Go b --&gt; Go b' =&gt;
+      ∏ a : A,
+        ∏ h : z_iso (H a) b,
+          ∏ a' : A,
+            ∏ h' : z_iso (H a') b',
+              ∏ l : a --&gt; a',
+                #H l · h' = h · f -&gt; #F l · k b' a' h' = k b a h · g).
+
+<span class="kn">Lemma</span> <span class="nf">Y_inhab_proof</span> (<span class="nv">b</span> <span class="nv">b'</span> : B) (<span class="nv">f</span> : b --&gt; b') (<span class="nv">a0</span> : A) (<span class="nv">h0</span> : z_iso (H a0) b)
+    (<span class="nv">a0'</span> : A) (<span class="nv">h0'</span> : z_iso (H a0') b') :
+  ∏ (a : A) (h : z_iso (H a) b) (a' : A) (h' : z_iso (H a') b')
+    (l : a --&gt; a'),
+  #H l· h' = h· f -&gt;
+  #F l· k b' a' h' =
+    k b a h· ((inv_from_z_iso (k b a0 h0)·
+  #F (fH^-<span class="mi">1</span> ((h0· f)· inv_from_z_iso h0')))· k b' a0' h0').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a h a' h' l alpha.
+  <span class="nb">set</span> (m := fH^-i (z_iso_comp h0 (z_iso_inv_from_z_iso h))).
+  <span class="nb">set</span> (m' := fH^-i (z_iso_comp h0' (z_iso_inv_from_z_iso h'))).
+  <span class="nb">assert</span> (sss : z_iso_comp (functor_on_z_iso F m) (k b a h) =
+                  k b a0 h0).
+  { <span class="nb">apply</span> z_iso_eq.
+    <span class="nb">apply</span> (q b (tpair _ a0 h0) (tpair _ a h) m).
+    <span class="nb">simpl</span>.
+    inv_functor fH a0 a.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+    <span class="nb">apply</span> id_right.
+  }
+  <span class="nb">assert</span> (ssss : z_iso_comp (functor_on_z_iso F m') (k b' a' h') =
+                   k b' a0' h0').
+  { <span class="nb">apply</span> z_iso_eq.
+    <span class="nb">apply</span> (q b' (tpair _ a0' h0') (tpair _ a' h') m').
+    <span class="nb">simpl</span>;
+    inv_functor fH a0' a'.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+    <span class="nb">apply</span> id_right.
+  }
+  <span class="nb">set</span> (hfh := h0 · f · inv_from_z_iso h0').
+  <span class="nb">set</span> (l0 := fH^-<span class="mi">1</span> hfh).
+  <span class="nb">set</span> (g0 := inv_from_z_iso (k b a0 h0) · #F l0  · k b' a0' h0').
+  <span class="nb">assert</span> (sssss : #H (l0 · m') = #H (m · l)).
+  { <span class="nb">rewrite</span> functor_comp .
+    <span class="nb">unfold</span> m'. <span class="nb">simpl</span>.
+    inv_functor fH a0' a'.
+    <span class="nb">unfold</span> l0.
+    inv_functor fH a0 a0'.
+    <span class="nb">unfold</span> hfh.
+    intermediate_path (h0 · f · (inv_from_z_iso h0' · h0') · inv_from_z_iso h').
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc; <span class="nb">apply</span> idpath. }
+    <span class="nb">rewrite</span> z_iso_after_z_iso_inv, id_right, functor_comp.
+    inv_functor fH a0 a.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> maponpaths, pathsinv0, z_iso_inv_on_right.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> z_iso_inv_on_left, pathsinv0, alpha.
+  }
+  <span class="nb">assert</span> (star5 : inv_from_z_iso m · l0 = l · inv_from_z_iso m').
+  { <span class="nb">apply</span> z_iso_inv_on_right.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> z_iso_inv_on_left,
+          (invmaponpathsweq (weq_from_fully_faithful fH a0 a' )),
+          pathsinv0,
+      sssss.
+  }
+  <span class="nb">clear</span> sssss.
+  <span class="nb">unfold</span> g0.
+  <span class="nb">assert</span> (sss'' : k b a h · inv_from_z_iso (k b a0 h0) =
+                    inv_from_z_iso (functor_on_z_iso F m)).
+  { <span class="nb">apply</span> pathsinv0, z_iso_inv_on_left, pathsinv0.
+    <span class="nb">apply</span> z_iso_inv_on_right.
+    <span class="nb">unfold</span> m; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> pathsinv0, (base_paths _ _ sss).
+  }
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+  <span class="nb">rewrite</span> sss''. <span class="nb">clear</span> sss'' sss.
+  <span class="nb">rewrite</span> &lt;- functor_on_inv_from_z_iso.
+  <span class="nb">rewrite</span> &lt;- functor_comp.
+  <span class="nb">rewrite</span> star5; <span class="nb">clear</span> star5.
+  <span class="nb">rewrite</span> functor_comp, functor_on_inv_from_z_iso.
+  <span class="nb">assert</span> (star4 :
+        inv_from_z_iso (functor_on_z_iso F m')· k b' a0' h0'
+           = k b' a' h' ).
+  { <span class="nb">apply</span> z_iso_inv_on_right.
+    <span class="nb">apply</span> pathsinv0, (base_paths _ _ ssss). }
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">rewrite</span> star4.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** The center of [Y b b' f]. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">Y_inhab</span> (<span class="nv">b</span> <span class="nv">b'</span> : B) (<span class="nv">f</span> : b --&gt; b')
+      (<span class="nv">a0</span> : A) (<span class="nv">h0</span> : z_iso (H a0) b) (<span class="nv">a0'</span> : A) (<span class="nv">h0'</span> : z_iso (H a0') b') : Y f.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (hfh := h0 · f · inv_from_z_iso h0').
+  <span class="nb">set</span> (l0 := fH^-<span class="mi">1</span> hfh).
+  <span class="nb">set</span> (g0 := inv_from_z_iso (k b a0 h0) · #F l0  · k b' a0' h0').
+  <span class="k">exists</span> <span class="nv">g0</span>.
+  <span class="nb">apply</span> Y_inhab_proof.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Any inhabitant of [Y b b' f] is equal to the center. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">Y_contr_eq</span> (<span class="nv">b</span> <span class="nv">b'</span> : B) (<span class="nv">f</span> : b --&gt; b')
+     (<span class="nv">a0</span> : A) (<span class="nv">h0</span> : z_iso (H a0) b)
+     (<span class="nv">a0'</span> : A) (<span class="nv">h0'</span> : z_iso (H a0') b') :
+  ∏ t : Y f, t = Y_inhab b b' f a0 h0 a0' h0'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> t.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">assert</span> (Hpr : pr1 (Y_inhab b b' f a0 h0 a0' h0') = pr1 t).
+    <span class="nb">destruct</span> t <span class="k">as</span> [g1 r1]; <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> z_iso_inv_on_right.
+    <span class="nb">set</span> (hfh := h0 · f · inv_from_z_iso h0').
+    <span class="nb">set</span> (l0 := fH^-<span class="mi">1</span> hfh).
+    <span class="nb">apply</span> (r1 a0 h0 a0' h0' l0).
+    <span class="nb">unfold</span> l0.
+    inv_functor fH a0 a0' .
+    <span class="nb">unfold</span> hfh.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">rewrite</span> z_iso_after_z_iso_inv, id_right.
+    <span class="nb">apply</span> idpath.
+  <span class="nb">apply</span> (total2_paths_f Hpr).
+  <span class="nb">apply</span> proofirrelevance.
+  <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+  <span class="nb">apply</span> C.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** The type [Y b b' f] is contractible. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">Y_iscontr</span>  (<span class="nv">b</span> <span class="nv">b'</span> : B) (<span class="nv">f</span> : b --&gt; b') :
+   iscontr (Y f).
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (HH : isaprop (iscontr (Y f))).
+    <span class="nb">apply</span> isapropiscontr.
+  <span class="nb">apply</span> (p b (tpair (<span class="k">λ</span> <span class="nv">x</span>, isaprop x) (iscontr (Y f)) HH)).
+  <span class="nb">intros</span> [a0 h0].
+  <span class="nb">apply</span> (p b' (tpair (<span class="k">λ</span> <span class="nv">x</span>, isaprop x) (iscontr (Y f)) HH)).
+  <span class="nb">intros</span> [a0' h0'].
+  <span class="k">exists</span> (<span class="nv">Y_inhab</span> <span class="nv">b</span> <span class="nv">b'</span> <span class="nv">f</span> <span class="nv">a0</span> <span class="nv">h0</span> <span class="nv">a0'</span> <span class="nv">h0'</span>).
+  <span class="nb">apply</span> Y_contr_eq.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** [G] on morphisms *)</span>
+
+<span class="sd">(** We now have the data necessary to define the functor [G]. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">preimage_functor_data</span> : functor_data B C.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">Go</span>.
+  <span class="nb">intros</span> b b' f.
+  <span class="bp">exact</span> (pr1 (pr1 (Y_iscontr b b' f))).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'G' f"</span> := (pr1 (pr1 (Y_iscontr _ _ f))) (<span class="kn">at level</span> <span class="mi">3</span>).
+
+<span class="sd">(** The above data is indeed functorial. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_preimage_functor_data</span> : is_functor preimage_functor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">unfold</span> functor_idax. <span class="nb">simpl</span>.
+    <span class="nb">intro</span> b.
+    <span class="nb">assert</span> (PR2 : ∏ (a : A) (h : z_iso (H a) b) (a' : A)
+                    (h' : z_iso (H a') b)
+                    (l : a --&gt; a'),
+               #H l· h' = h· identity b -&gt;
+               #F l· k b a' h' = k b a h· identity (Go b)).
+    { <span class="nb">intros</span> a h a' h' l LL.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> (q b (tpair _ a h) (tpair _ a' h') l).
+      <span class="nb">rewrite</span> id_right <span class="k">in</span> LL.
+      <span class="nb">apply</span> LL.
+    }
+    <span class="nb">set</span> (Gbrtilde :=
+           tpair _ (identity (Go b)) PR2 : Y (identity b)).
+    <span class="nb">set</span> (H' := pr2 (Y_iscontr b b (identity b)) Gbrtilde).
+    <span class="nb">set</span> (H'' := base_paths _ _ H').
+    <span class="nb">simpl</span> <span class="k">in</span> H'.
+    <span class="nb">rewrite</span> &lt;- H'.
+    <span class="nb">apply</span> idpath.
+  - <span class="sd">(** composition *)</span>
+    <span class="nb">intros</span> b b' b'' f f'.
+    <span class="nb">assert</span> (HHHH : isaprop (pr1 (pr1 (Y_iscontr b b'' (f· f'))) =
+                              pr1 (pr1 (Y_iscontr b b' f))· pr1 (pr1 (Y_iscontr b' b'' f')))).
+    { <span class="nb">apply</span> C. }
+    <span class="nb">apply</span> (p b (tpair (<span class="k">λ</span> <span class="nv">x</span>, isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f· f'))) =
+          pr1 (pr1 (Y_iscontr b b' f))· pr1 (pr1 (Y_iscontr b' b'' f'))) HHHH)).
+    <span class="nb">intros</span> [a0 h0]; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> (p b' (tpair (<span class="k">λ</span> <span class="nv">x</span>, isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f· f'))) =
+           pr1 (pr1 (Y_iscontr b b' f))· pr1 (pr1 (Y_iscontr b' b'' f'))) HHHH)).
+    <span class="nb">intros</span> [a0' h0']; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> (p b'' (tpair (<span class="k">λ</span> <span class="nv">x</span>, isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f· f'))) =
+           pr1 (pr1 (Y_iscontr b b' f))· pr1 (pr1 (Y_iscontr b' b'' f'))) HHHH)).
+    <span class="nb">intros</span> [a0'' h0''].
+    <span class="nb">simpl</span>; <span class="nb">clear</span> HHHH.
+    <span class="nb">set</span> (l0 := fH^-<span class="mi">1</span> (h0 · f · inv_from_z_iso h0')).
+    <span class="nb">set</span> (l0' := fH^-<span class="mi">1</span> (h0' · f' · inv_from_z_iso h0'')).
+    <span class="nb">set</span> (l0'' := fH^-<span class="mi">1</span> (h0 · (f· f') · inv_from_z_iso h0'')).
+    <span class="nb">assert</span> (L : l0 · l0' = l0'').
+    { <span class="nb">apply</span> (invmaponpathsweq (weq_from_fully_faithful fH a0 a0'')).
+      <span class="nb">simpl</span>; <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">unfold</span> l0'.
+      inv_functor fH a0' a0''.
+      <span class="nb">unfold</span> l0.
+      inv_functor fH a0 a0'.
+      intermediate_path (h0 · f · (inv_from_z_iso h0' · h0') · f' · inv_from_z_iso h0'').
+      { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc; <span class="nb">apply</span> idpath. }
+      <span class="nb">rewrite</span> z_iso_after_z_iso_inv, id_right.
+      <span class="nb">unfold</span> l0''.
+      inv_functor fH a0 a0''.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc; <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">assert</span> (PR2 : ∏ (a : A) (h : z_iso (H a) b)(a' : A)
+          (h' : z_iso (H a') b') (l : a --&gt; a'),
+           #H l· h' = h· f -&gt;
+           #F l· k b' a' h' =
+             k b a h· ((inv_from_z_iso (k b a0 h0)· #F l0)· k b' a0' h0') ).
+    { <span class="nb">intros</span> a h a' h' l.
+      <span class="nb">intro</span> alpha.
+      <span class="nb">set</span> (m := fH^-i (z_iso_comp h0 (z_iso_inv_from_z_iso h))).
+      <span class="nb">set</span> (m' := fH^-i (z_iso_comp h0' (z_iso_inv_from_z_iso h'))).
+      <span class="nb">assert</span> (sss : z_iso_comp (functor_on_z_iso F m) (k b a h) =
+                      k b a0 h0).
+      { <span class="nb">apply</span> z_iso_eq; <span class="nb">simpl</span>.
+        <span class="nb">apply</span> (q b (tpair _ a0 h0) (tpair _ a h) m).
+        <span class="nb">simpl</span>.
+        inv_functor fH a0 a.
+        <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+        <span class="nb">apply</span> id_right.
+      }
+      <span class="nb">assert</span> (ssss : z_iso_comp (functor_on_z_iso F m') (k b' a' h') =
+                       k b' a0' h0').
+      { <span class="nb">apply</span> z_iso_eq; <span class="nb">simpl</span>.
+        <span class="nb">apply</span> (q b' (tpair _ a0' h0') (tpair _ a' h') m'); <span class="nb">simpl</span>.
+        inv_functor fH a0' a'.
+        <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+        <span class="nb">apply</span> id_right.
+      }
+      <span class="nb">assert</span> (sssss : #H (l0 · m') = #H (m · l)).
+      { <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">unfold</span> m'; <span class="nb">simpl</span>.
+        inv_functor fH a0' a'.
+        <span class="nb">unfold</span> l0.
+        inv_functor fH a0 a0'.
+        intermediate_path (h0 · f · (inv_from_z_iso h0' · h0') · inv_from_z_iso h').
+        { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc; <span class="nb">apply</span> idpath. }
+        <span class="nb">rewrite</span> z_iso_after_z_iso_inv, id_right, functor_comp.
+        inv_functor fH a0 a.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> z_iso_inv_on_right.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> z_iso_inv_on_left.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> alpha.
+      }
+      <span class="nb">assert</span> (star5 : inv_from_z_iso m · l0 = l · inv_from_z_iso m').
+      { <span class="nb">apply</span> z_iso_inv_on_right.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> z_iso_inv_on_left.
+        <span class="nb">apply</span> (invmaponpathsweq (weq_from_fully_faithful fH a0 a' )).
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> sssss.
+      }
+      <span class="nb">clear</span> sssss.
+      <span class="nb">set</span> (sss':= base_paths _ _ sss); <span class="nb">simpl</span> <span class="k">in</span> sss'.
+      <span class="nb">assert</span> (sss'' : k b a h · inv_from_z_iso (k b a0 h0) =
+                        inv_from_z_iso (functor_on_z_iso F m)).
+      { <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> z_iso_inv_on_left.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> z_iso_inv_on_right.
+        <span class="nb">unfold</span> m; <span class="nb">simpl</span>.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> sss'.
+      }
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> sss''. <span class="nb">clear</span> sss'' sss' sss.
+      <span class="nb">rewrite</span> &lt;- functor_on_inv_from_z_iso.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">rewrite</span> star5, functor_comp, functor_on_inv_from_z_iso.
+      <span class="nb">clear</span> star5.
+      <span class="nb">assert</span> (star4 :
+               inv_from_z_iso (functor_on_z_iso F m')· k b' a0' h0'
+               = k b' a' h' ).
+      { <span class="nb">apply</span> z_iso_inv_on_right.
+        <span class="nb">set</span> (ssss' := base_paths _ _ ssss).
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">simpl</span> <span class="k">in</span> ssss'. <span class="nb">simpl</span>.
+        <span class="nb">apply</span> ssss'; <span class="nb">clear</span> ssss'.
+      }
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> star4.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">assert</span> (HGf : G f = inv_from_z_iso (k b a0 h0) · #F l0 · k b' a0' h0').
+    { <span class="nb">set</span> (Gbrtilde :=
+           tpair _ (inv_from_z_iso (k b a0 h0) · #F l0 · k b' a0' h0') PR2 : Y f).
+      <span class="nb">set</span> (H' := pr2 (Y_iscontr b b' f) Gbrtilde).
+      <span class="nb">set</span> (H'' := base_paths _ _ H').
+      <span class="nb">simpl</span> <span class="k">in</span> H'.
+      <span class="nb">rewrite</span> &lt;- H'.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">clear</span> PR2.
+    <span class="nb">assert</span> (PR2 : ∏ (a : A) (h : z_iso (H a) b') (a' : A)
+            (h' : z_iso (H a') b'') (l : a --&gt; a'),
+         #H l· h' = h· f' -&gt;
+           #F l· k b'' a' h' =
+         k b' a h· ((inv_from_z_iso (k b' a0' h0')· #F l0')· k b'' a0'' h0'')).
+    { <span class="nb">intros</span> a' h' a'' h'' l'.
+      <span class="nb">intro</span> alpha.
+      <span class="nb">set</span> (m := fH^-i (z_iso_comp h0' (z_iso_inv_from_z_iso h'))).
+      <span class="nb">set</span> (m' := fH^-i (z_iso_comp h0'' (z_iso_inv_from_z_iso h''))).
+      <span class="nb">assert</span> (sss : z_iso_comp (functor_on_z_iso F m) (k b' a' h') =
+                      k b' a0' h0').
+      { <span class="nb">apply</span> z_iso_eq; <span class="nb">simpl</span>.
+        <span class="nb">apply</span> (q b' (tpair _ a0' h0') (tpair _ a' h') m); <span class="nb">simpl</span>.
+        inv_functor fH a0' a'.
+        <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+        <span class="nb">apply</span> id_right.
+      }
+      <span class="nb">assert</span> (ssss : z_iso_comp (functor_on_z_iso F m') (k b'' a'' h'') =
+                       k b'' a0'' h0'').
+      { <span class="nb">apply</span> z_iso_eq; <span class="nb">simpl</span>.
+        <span class="nb">apply</span> (q b'' (tpair _ a0'' h0'') (tpair _ a'' h'') m'); <span class="nb">simpl</span>.
+        inv_functor fH a0'' a''.
+        <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+        <span class="nb">apply</span> id_right.
+      }
+      <span class="nb">assert</span> (sssss : #H (l0' · m') = #H (m · l')).
+      { <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">unfold</span> m'. <span class="nb">simpl</span>.
+        inv_functor fH a0'' a''.
+        <span class="nb">unfold</span> l0'.
+        inv_functor fH a0' a0''.
+        intermediate_path (h0' · f' · (inv_from_z_iso h0'' · h0'') · inv_from_z_iso h'').
+        { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc; <span class="nb">apply</span> idpath. }
+        <span class="nb">rewrite</span> z_iso_after_z_iso_inv, id_right, functor_comp.
+        inv_functor fH a0' a'.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">apply</span> maponpaths, pathsinv0, z_iso_inv_on_right.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> z_iso_inv_on_left, pathsinv0, alpha.
+      }
+      <span class="nb">assert</span> (star5 : inv_from_z_iso m · l0' = l' · inv_from_z_iso m').
+      { <span class="nb">apply</span> z_iso_inv_on_right.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> z_iso_inv_on_left,
+          (invmaponpathsweq (weq_from_fully_faithful fH a0' a'' )),
+          pathsinv0,
+          sssss.
+      }
+      <span class="nb">set</span> (sss':= base_paths _ _ sss); <span class="nb">simpl</span> <span class="k">in</span> sss'.
+      <span class="nb">assert</span> (sss'' : k b' a' h' · inv_from_z_iso (k b' a0' h0') =
+                        inv_from_z_iso (functor_on_z_iso F m)).
+      { <span class="nb">apply</span> pathsinv0, z_iso_inv_on_left, pathsinv0, z_iso_inv_on_right.
+        <span class="nb">unfold</span> m; <span class="nb">simpl</span>;
+          <span class="nb">apply</span> pathsinv0, sss'.
+      }
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> sss''. <span class="nb">clear</span> sss'' sss' sss.
+      <span class="nb">rewrite</span> &lt;- functor_on_inv_from_z_iso.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">rewrite</span> star5. <span class="nb">clear</span> star5 sssss.
+      <span class="nb">rewrite</span> functor_comp, functor_on_inv_from_z_iso.
+      <span class="nb">assert</span> (star4 :
+               inv_from_z_iso (functor_on_z_iso F m')· k b'' a0'' h0''
+               = k b'' a'' h'' ).
+      { <span class="nb">apply</span> z_iso_inv_on_right.
+        <span class="nb">set</span> (ssss' := base_paths _ _ ssss).
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">simpl</span> <span class="k">in</span> *; <span class="nb">apply</span> ssss'.
+      }
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> star4.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">assert</span> (HGf' : G f' = inv_from_z_iso (k b' a0' h0') · #F l0' · k b'' a0'' h0'').
+    { <span class="nb">set</span> (Gbrtilde :=
+             tpair _ (inv_from_z_iso (k b' a0' h0') · #F l0' · k b'' a0'' h0'') PR2 :
+                     Y f').
+      <span class="nb">set</span> (H' := pr2 (Y_iscontr b' b'' f') Gbrtilde).
+      <span class="nb">rewrite</span> &lt;- (base_paths _ _ H').
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">clear</span> PR2.
+    <span class="nb">assert</span> (PR2 : ∏ (a : A) (h : z_iso (H a) b) (a' : A)
+             (h' : z_iso (H a') b'') (l : a --&gt; a'),
+          #H l· h' = h· (f· f') -&gt;
+          #F l· k b'' a' h' =
+           k b a h· ((inv_from_z_iso (k b a0 h0)· #F l0'')· k b'' a0'' h0'')).
+    { <span class="nb">intros</span> a h a'' h'' l.
+      <span class="nb">intro</span> alpha.
+      <span class="nb">set</span> (m := fH^-i (z_iso_comp h0 (z_iso_inv_from_z_iso h))).
+      <span class="nb">set</span> (m' := fH^-i (z_iso_comp h0'' (z_iso_inv_from_z_iso h''))).
+      <span class="nb">assert</span> (sss : z_iso_comp (functor_on_z_iso F m) (k b a h) = k b a0 h0).
+      { <span class="nb">apply</span> z_iso_eq.
+        <span class="nb">apply</span> (q b (tpair _ a0 h0) (tpair _ a h) m); <span class="nb">simpl</span>.
+        inv_functor fH a0 a.
+        <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+        <span class="nb">apply</span> id_right.
+      }
+      <span class="nb">assert</span> (ssss : z_iso_comp (functor_on_z_iso F m') (k b'' a'' h'') =
+                       k b'' a0'' h0'').
+      { <span class="nb">apply</span> z_iso_eq.
+        <span class="nb">apply</span> (q b'' (tpair _ a0'' h0'') (tpair _ a'' h'') m').
+        <span class="nb">simpl</span>; inv_functor fH a0'' a''.
+        <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+        <span class="nb">apply</span> id_right.
+      }
+      <span class="nb">assert</span> (sssss : #H (l0'' · m') = #H (m · l)).
+      { <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">unfold</span> m'. <span class="nb">simpl</span>.
+        inv_functor fH a0'' a''.
+        <span class="nb">unfold</span> l0''.
+        inv_functor fH a0 a0''.
+        intermediate_path (h0 · (f · f') · (inv_from_z_iso h0'' · h0'') · inv_from_z_iso h'').
+        { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc; <span class="nb">apply</span> idpath. }
+        <span class="nb">rewrite</span> z_iso_after_z_iso_inv, id_right, functor_comp.
+        inv_functor fH a0 a.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">apply</span> maponpaths, pathsinv0, z_iso_inv_on_right.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> z_iso_inv_on_left, pathsinv0.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">apply</span> alpha.
+      }
+      <span class="nb">assert</span> (star5 : inv_from_z_iso m · l0'' = l · inv_from_z_iso m').
+      { <span class="nb">apply</span> z_iso_inv_on_right.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> z_iso_inv_on_left.
+        <span class="nb">apply</span> (invmaponpathsweq (weq_from_fully_faithful fH a0 a'' )).
+        <span class="nb">apply</span> pathsinv0, sssss.
+      }
+      <span class="nb">set</span> (sss':= base_paths _ _ sss); <span class="nb">simpl</span> <span class="k">in</span> sss'.
+      <span class="nb">assert</span> (sss'' : k b a h · inv_from_z_iso (k b a0 h0) =
+                        inv_from_z_iso (functor_on_z_iso F m)).
+      { <span class="nb">apply</span> pathsinv0, z_iso_inv_on_left, pathsinv0, z_iso_inv_on_right.
+        <span class="nb">unfold</span> m; <span class="nb">simpl</span>.
+        <span class="nb">apply</span> pathsinv0, sss'. }
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> sss''. <span class="nb">clear</span> sss'' sss' sss.
+      <span class="nb">rewrite</span> &lt;- functor_on_inv_from_z_iso.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">rewrite</span> star5. <span class="nb">clear</span> star5 sssss.
+      <span class="nb">rewrite</span> functor_comp, functor_on_inv_from_z_iso.
+      <span class="nb">assert</span> (star4 :
+               inv_from_z_iso (functor_on_z_iso F m')· k b'' a0'' h0''
+               = k b'' a'' h'' ).
+      { <span class="nb">apply</span> z_iso_inv_on_right, pathsinv0, (base_paths _ _ ssss). }
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> star4.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">assert</span> (HGff' : G (f · f') =
+                      inv_from_z_iso (k b a0 h0) · #F l0'' · k b'' a0'' h0'').
+    { <span class="nb">set</span> (Gbrtilde :=
+           tpair _ (inv_from_z_iso (k b a0 h0) · #F l0'' · k b'' a0'' h0'') PR2 :
+               Y (f · f')).
+      <span class="nb">rewrite</span> &lt;- (pr2 (Y_iscontr b b'' (f · f')) Gbrtilde).
+      <span class="nb">apply</span> idpath. }
+    <span class="nb">clear</span> PR2.
+    <span class="nb">rewrite</span> HGf, HGf'.
+    intermediate_path (inv_from_z_iso (k b a0 h0)· #F l0· (k b' a0' h0'·
+                       inv_from_z_iso (k b' a0' h0'))· #F l0'· k b'' a0'' h0'').
+    { <span class="nb">rewrite</span> z_iso_inv_after_z_iso, id_right.
+      <span class="nb">rewrite</span> HGff'.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- L.
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="sd">(** We call the functor [GG] ... *)</span>
+
+<span class="kn">Definition</span> <span class="nf">GG</span> : [B, C, C] := tpair _ preimage_functor_data
+                    is_functor_preimage_functor_data.
+
+<span class="sd">(** ** [G] is the preimage of [F] under [ _ O H] *)</span>
+
+<span class="sd">(** Given any [a : A], we produce an element in [X (H a)], whose</span>
+<span class="sd">     first component is [F a].</span>
+<span class="sd">   This allows to prove [G (H a) = F a]. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">qF</span> (<span class="nv">a0</span> : A) :
+  ∏ (t t' : total2 (<span class="k">λ</span> <span class="nv">a</span> :  A, z_iso (H a) (H a0)))
+    (f : pr1 t --&gt; pr1 t'),
+  #H f· pr2 t' = pr2 t -&gt;
+  #F f· #F (fH^-<span class="mi">1</span> (pr2 t')) =
+  #F (fH^-<span class="mi">1</span>  (pr2 t)).
+<span class="kn">Proof</span>.
+  <span class="nb">simpl</span>.
+  <span class="nb">intros</span> [a h] [a' h'] f L.
+  <span class="nb">simpl</span> <span class="k">in</span> L; <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> &lt;- functor_comp.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> (invmaponpathsweq (weq_from_fully_faithful fH a a0)
+                 (f· fH^-<span class="mi">1</span> h') (fH^-<span class="mi">1</span> h)  ).
+  inv_functor fH a a0.
+  <span class="nb">rewrite</span> functor_comp.
+  inv_functor fH a' a0.
+  <span class="nb">apply</span> L.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">kFa</span> (<span class="nv">a0</span> : A) : ∏ a : A,
+  z_iso (H a) (H a0) -&gt; z_iso (F a) (F a0) :=
+ <span class="k">fun</span> (<span class="nv">a</span> : A) (<span class="nv">h</span> : z_iso (H a) (H a0)) =&gt;
+   functor_on_z_iso F
+                  (iso_from_fully_faithful_reflection fH h).
+
+<span class="kn">Definition</span> <span class="nf">XtripleF</span> (<span class="nv">a0</span> : A) : X (H a0) :=
+   tpair _ (tpair _ (F a0) (kFa a0)) (qF a0).
+
+
+<span class="kn">Lemma</span> <span class="nf">phi</span> (<span class="nv">a0</span> : A) : pr1 (pr1 (functor_composite H GG)) a0 = pr1 (pr1 F) a0.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (!Xphi _ (XtripleF a0)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">extphi</span> : pr1 (pr1 (functor_composite H GG)) = pr1 (pr1 F).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextsec.
+  <span class="nb">unfold</span> homot.
+  <span class="nb">apply</span> phi.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Now for the functor as a whole. It remains to prove</span>
+<span class="sd">    equality on morphisms, modulo transport. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">is_preimage_for_pre_composition</span> : functor_composite H GG = F.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (functor_eq _ _  C (functor_composite H GG) F).
+  <span class="nb">apply</span> (total2_paths_f extphi).
+  <span class="nb">apply</span> funextsec; <span class="nb">intro</span> a0;
+  <span class="nb">apply</span> funextsec; <span class="nb">intro</span> a0';
+  <span class="nb">apply</span> funextsec; <span class="nb">intro</span> f.
+  <span class="nb">rewrite</span> transport_of_functor_map_is_pointwise.
+  <span class="nb">unfold</span> extphi.
+  <span class="nb">unfold</span> double_transport.
+  <span class="nb">rewrite</span> toforallpaths_funextsec.
+  <span class="nb">rewrite</span> &lt;- idtoiso_postcompose.
+  <span class="nb">rewrite</span> &lt;- idtoiso_precompose.
+  <span class="nb">rewrite</span> idtoiso_inv.
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">assert</span> (PSIf : ∏ (a : A) (h : z_iso (H a) (H a0)) (a' : A)
+     (h' : z_iso (H a') (H a0')) (l : a --&gt; a'),
+         #H l· h' = h· #H f -&gt;
+         #F l· k (H a0') a' h' =
+         k (H a0) a h·
+         ((idtoiso (phi a0)· #F f)· inv_from_z_iso (idtoiso (phi a0')))).
+    { <span class="nb">intros</span> a h a' h' l alpha.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> z_iso_inv_on_left.
+      <span class="nb">unfold</span> phi.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> (Xkphi_idtoiso (H a0) (XtripleF a0)).
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> (Xkphi_idtoiso (H a0') (XtripleF a0')).
+      <span class="nb">simpl</span>.
+      <span class="nb">assert</span> (HH4 : fH^-<span class="mi">1</span> h · f = l · fH^-<span class="mi">1</span> h').
+      { <span class="nb">apply</span> (invmaponpathsweq (weq_from_fully_faithful fH a a0')).
+        <span class="nb">simpl</span>; <span class="kp">repeat</span> <span class="nb">rewrite</span> functor_comp.
+        inv_functor fH a a0.
+        inv_functor fH a' a0'.
+        <span class="nb">apply</span> pathsinv0, alpha.
+      }
+      intermediate_path (#F (fH^-<span class="mi">1</span> h· f)).
+      { <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">apply</span> idpath. }
+      <span class="nb">rewrite</span> HH4.
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">set</span> (Ybla := tpair _ (idtoiso (phi a0) · #F f · inv_from_z_iso (idtoiso (phi a0')))
+                    PSIf : Y (#H f)).
+    <span class="nb">set</span> (Ycontr := pr2 (Y_iscontr _ _ (#(pr1 H) f)) Ybla).
+    <span class="nb">set</span> (Ycontr2 := base_paths _ _ Ycontr); <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">change</span> (G (#H f)) <span class="k">with</span> (G (#(pr1 H) f)).
+    <span class="nb">rewrite</span> &lt;- Ycontr2.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> z_iso_after_z_iso_inv, id_left.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">rewrite</span> z_iso_after_z_iso_inv, id_right.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">End</span> <span class="nf">preimage</span>.
+
+<span class="kn">End</span> <span class="nf">essentially_surjective</span>.
+
+
+<span class="sd">(** * Precomposition with an ess. surj. and f. f. functor is ess. surj. *)</span>
+<span class="sd">(** Abstracting from [F] by closing the previous section,</span>
+<span class="sd">    we can prove essential surjectivity of [_ O H]. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">pre_composition_essentially_surjective</span> :
+       essentially_surjective (pre_composition_functor A B C H).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F p' f.
+  <span class="nb">apply</span> f.
+  <span class="k">exists</span> (<span class="nv">GG</span> <span class="nv">F</span>).
+  <span class="nb">apply</span> idtoiso.
+  <span class="nb">apply</span> is_preimage_for_pre_composition.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">precomp_w_ess_surj_ff_is_ess_surj</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/precomp_ess_surj.v</tt>, line 21)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; ************************************************************)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

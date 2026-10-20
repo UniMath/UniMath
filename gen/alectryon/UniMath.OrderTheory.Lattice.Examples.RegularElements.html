@@ -1,0 +1,660 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>RegularElements.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************************</span>
+
+<span class="sd"> Regular elements in a complete Heyting algebra</span>
+
+<span class="sd"> Every complete Heyting algebra gives rise to a complete Boolean algebra, namely the complete</span>
+<span class="sd"> Heyting algebra of all regular elements.</span>
+
+<span class="sd"> More specifically, suppose that we have a complete Heyting algebra [H]. We say that an element</span>
+<span class="sd"> [x] is regular if [x = ¬ ¬ x]. The connectives on regular elements are defined as follows.</span>
+<span class="sd"> - Top element: [⊤] in [H]</span>
+<span class="sd"> - Bottom element: [⊤] in [H]</span>
+<span class="sd"> - Conjunction of [x] and [y]: [x ∧ y] in [H]</span>
+<span class="sd"> - Negation of [x]: [¬ x] in [H]. Note that [¬ x] is regular, because even intuitionistically</span>
+<span class="sd">   we have that [¬ ¬ ¬ x] implies [¬ x].</span>
+<span class="sd"> - Greatest lower bounds of regular elements are computed as in [H].</span>
+<span class="sd"> However, disjunctions and least upper bounds are defined different compared to [H]. If we have</span>
+<span class="sd"> two regular elements [x] and [y], then the disjunction [x ∨ y] is not necessarily regular.</span>
+<span class="sd"> Instead their disjunction is defined to be [¬ ¬(x ∨ y)], which always is regular. We use the</span>
+<span class="sd"> same idea for least upper bounds. Those also are not guaranteed to be regular, and thus we</span>
+<span class="sd"> also add a double negation. Exponentials are defined using least upper bounds.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - The appendix in "Intuitionistic Set Theory" by Bell</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Regular elements</span>
+<span class="sd"> 2. Examples of regular elements</span>
+<span class="sd"> 2.1. Top and bottom</span>
+<span class="sd"> 2.2. The double negation</span>
+<span class="sd"> 2.3. Negation of regular elements</span>
+<span class="sd"> 2.4. Conjunction and disjunction</span>
+<span class="sd"> 2.5. Greatest lower bounds</span>
+<span class="sd"> 3. The lattice of regular elements</span>
+<span class="sd"> 4. The bounded lattice of regular elements</span>
+<span class="sd"> 5. The complete lattice of regular elements</span>
+<span class="sd"> 6. Least upper bounds of regular elements</span>
+<span class="sd"> 7. Exponentials</span>
+<span class="sd"> 8. The complete Boolean algebra of regular elements</span>
+
+<span class="sd"> **********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Lattice.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Bounded.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Heyting.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.CompleteHeyting.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.DerivedLawsCompleteHeyting.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> heyting.
+
+<span class="sd">(** * 1. Regular elements *)</span>
+<span class="kn">Definition</span> <span class="nf">is_regular_element</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           (<span class="nv">x</span> : H)
+  : hProp
+  := (x = (¬ ¬ x)%heyting)%logic.
+
+<span class="kn">Proposition</span> <span class="nf">make_is_regular_element</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x</span> : H}
+            (<span class="nv">p</span> : ¬ ¬ x ≤ x)
+  : is_regular_element x.
+<span class="kn">Proof</span>.
+  use cha_le_antisymm.
+  - <span class="nb">apply</span> cha_not_not.
+  - <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">regular_element</span>
+           (<span class="nv">H</span> : complete_heyting_algebra)
+  : UU
+  := ∑ (x : H), is_regular_element x.
+
+<span class="kn">Definition</span> <span class="nf">make_regular_element</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           (<span class="nv">x</span> : H)
+           (<span class="nv">Hx</span> : is_regular_element x)
+  : regular_element H
+  := x ,, Hx.
+
+<span class="kn">Coercion</span> <span class="nf">regular_element_type</span>
+         {H : complete_heyting_algebra}
+         (x : regular_element H)
+  : H
+  := pr1 x.
+
+<span class="kn">Proposition</span> <span class="nf">is_regular_regular_element</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : regular_element H)
+  : ¬ ¬ x = x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (!(pr2 x)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">eq_regular_element</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x</span> <span class="nv">y</span> : regular_element H}
+            (<span class="nv">p</span> : (x : H) = y)
+  : x = y.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> propproperty.
+  }
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">isaset_regular_element</span>
+            (<span class="nv">H</span> : complete_heyting_algebra)
+  : isaset (regular_element H).
+<span class="kn">Proof</span>.
+  use isaset_total2 ; [ <span class="nb">apply</span> setproperty | ].
+  <span class="nb">intro</span> x.
+  <span class="nb">apply</span> isasetaprop.
+  <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_of_regular_elements</span>
+           (<span class="nv">H</span> : complete_heyting_algebra)
+  : hSet.
+<span class="kn">Proof</span>.
+  use make_hSet.
+  - <span class="bp">exact</span> (regular_element H).
+  - <span class="nb">apply</span> isaset_regular_element.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cha_not_antimonotone_inv</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x</span> <span class="nv">y</span> : regular_element H}
+            (<span class="nv">p</span> : ¬ x ≤ ¬ y)
+  : y ≤ x.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (cha_not_antimonotone p) <span class="k">as</span> q.
+  <span class="nb">rewrite</span> !is_regular_regular_element <span class="k">in</span> q.
+  <span class="bp">exact</span> q.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Examples of regular elements *)</span>
+
+<span class="sd">(** ** 2.1. Top and bottom *)</span>
+<span class="kn">Definition</span> <span class="nf">top_regular_element</span>
+           (<span class="nv">H</span> : complete_heyting_algebra)
+  : regular_element H.
+<span class="kn">Proof</span>.
+  use make_regular_element.
+  - <span class="bp">exact</span> ⊤.
+  - <span class="kp">abstract</span>
+      (use make_is_regular_element ;
+       <span class="nb">rewrite</span> cha_not_top ;
+       <span class="nb">rewrite</span> cha_not_bot ;
+       <span class="nb">apply</span> cha_le_refl).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bot_regular_element</span>
+           (<span class="nv">H</span> : complete_heyting_algebra)
+  : regular_element H.
+<span class="kn">Proof</span>.
+  use make_regular_element.
+  - <span class="bp">exact</span> ⊥.
+  - <span class="kp">abstract</span>
+      (use make_is_regular_element ;
+       <span class="nb">rewrite</span> cha_not_bot ;
+       <span class="nb">rewrite</span> cha_not_top ;
+       <span class="nb">apply</span> cha_le_refl).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2.2. The double negation *)</span>
+<span class="kn">Proposition</span> <span class="nf">not_not_is_regular_element</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> : H)
+  : ¬ ¬ x = ¬ ¬ ¬ ¬ x.
+<span class="kn">Proof</span>.
+  use make_is_regular_element.
+  use cha_to_le_exp.
+  <span class="nb">refine</span> (cha_le_trans _ (cha_exp_eval (¬ ¬ ¬ x) _)).
+  use cha_min_le_case.
+  - use cha_min_le_l.
+  - <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+    <span class="nb">apply</span> cha_not_not.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">not_not_regular_element</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           (<span class="nv">x</span> : H)
+  : regular_element H.
+<span class="kn">Proof</span>.
+  use make_regular_element.
+  - <span class="bp">exact</span> (¬ ¬ x).
+  - <span class="nb">apply</span> not_not_is_regular_element.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** 2.3. Negation of regular elements *)</span>
+<span class="kn">Definition</span> <span class="nf">not_regular_element</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           (<span class="nv">x</span> : regular_element H)
+  : regular_element H.
+<span class="kn">Proof</span>.
+  use make_regular_element.
+  - <span class="bp">exact</span> (¬ x).
+  - <span class="kp">abstract</span>
+      (use make_is_regular_element ;
+       <span class="nb">rewrite</span> cha_not_not_not ;
+       <span class="nb">apply</span> cha_le_refl).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** 2.4. Conjunction and disjunction *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_regular_conj</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> <span class="nv">y</span> : regular_element H)
+  : is_regular_element (x ∧ y).
+<span class="kn">Proof</span>.
+  use make_is_regular_element.
+  <span class="nb">rewrite</span> &lt;- (is_regular_regular_element x).
+  <span class="nb">rewrite</span> &lt;- (is_regular_regular_element y).
+  <span class="nb">rewrite</span> cha_conj_not.
+  <span class="nb">rewrite</span> cha_not_not_not.
+  <span class="nb">apply</span> cha_le_refl.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">conj_regular_element</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           (<span class="nv">x</span> <span class="nv">y</span> : regular_element H)
+  : regular_element H.
+<span class="kn">Proof</span>.
+  use make_regular_element.
+  - <span class="bp">exact</span> (x ∧ y).
+  - <span class="nb">apply</span> is_regular_conj.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disj_regular_element</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           (<span class="nv">x</span> <span class="nv">y</span> : regular_element H)
+  : regular_element H
+  := not_not_regular_element (x ∨ y).
+
+<span class="kn">Proposition</span> <span class="nf">is_regular_glb</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">I</span> : UU}
+            (<span class="nv">f</span> : I → regular_element H)
+  : is_regular_element (/\_{ i : I } f i).
+<span class="kn">Proof</span>.
+  use make_is_regular_element.
+  use cha_le_glb.
+  <span class="nb">intros</span> i ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> &lt;- (is_regular_regular_element (f i)).
+  use cha_not_antimonotone.
+  use cha_not_antimonotone.
+  <span class="bp">exact</span> (cha_glb_le_pt f i).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** 2.5. Greatest lower bounds *)</span>
+<span class="kn">Definition</span> <span class="nf">glb_regular_element</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           {<span class="nv">I</span> : UU}
+           (<span class="nv">f</span> : I → regular_element H)
+  : regular_element H.
+<span class="kn">Proof</span>.
+  use make_regular_element.
+  - <span class="bp">exact</span> (/\_{ i : I } f i).
+  - <span class="nb">apply</span> is_regular_glb.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. The lattice of regular elements *)</span>
+<span class="kn">Proposition</span> <span class="nf">regular_element_islatticeop</span>
+            (<span class="nv">H</span> : complete_heyting_algebra)
+  : islatticeop
+      (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : set_of_regular_elements H), conj_regular_element x y)
+      (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : set_of_regular_elements H), disj_regular_element x y).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> x y z ; use eq_regular_element ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> cha_min_assoc.
+  - <span class="nb">intros</span> x y ; use eq_regular_element ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> cha_min_comm.
+  - <span class="nb">intros</span> x y z ; use eq_regular_element ; <span class="nb">cbn</span> ; <span class="nb">cbn</span> <span class="k">in</span> x, y, z.
+    use cha_le_antisymm.
+    + <span class="nb">refine</span> (cha_le_trans _ _) ;
+        [ <span class="nb">rewrite</span> &lt;- (is_regular_regular_element z)
+        | <span class="nb">rewrite</span> &lt;- (is_regular_regular_element x) ].
+      {
+        <span class="nb">apply</span> cha_le_refl.
+      }
+      <span class="nb">rewrite</span> !cha_not_not_disj_not.
+      <span class="nb">rewrite</span> !cha_conj_not.
+      use cha_not_not_monotone.
+      <span class="nb">rewrite</span> cha_max_assoc.
+      <span class="nb">apply</span> cha_le_refl.
+    + <span class="nb">refine</span> (cha_le_trans _ _) ;
+        [ <span class="nb">rewrite</span> &lt;- (is_regular_regular_element x)
+        | <span class="nb">rewrite</span> &lt;- (is_regular_regular_element z) ].
+      {
+        <span class="nb">apply</span> cha_le_refl.
+      }
+      <span class="nb">rewrite</span> !cha_not_not_disj_not.
+      <span class="nb">rewrite</span> !cha_conj_not.
+      use cha_not_not_monotone.
+      <span class="nb">rewrite</span> cha_max_assoc.
+      <span class="nb">apply</span> cha_le_refl.
+  - <span class="nb">intros</span> x y ; use eq_regular_element ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> cha_max_comm.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x y ; use eq_regular_element ; <span class="nb">cbn</span>.
+    use cha_le_antisymm.
+    + <span class="nb">apply</span> cha_min_le_l.
+    + use cha_min_le_case.
+      {
+        <span class="nb">apply</span> cha_le_refl.
+      }
+      <span class="nb">rewrite</span> &lt;- cha_conj_not.
+      <span class="nb">refine</span> (cha_le_trans _ _).
+      {
+        <span class="nb">rewrite</span> &lt;- (is_regular_regular_element x).
+        <span class="nb">apply</span> cha_le_refl.
+      }
+      use cha_not_antimonotone.
+      use cha_min_le_l.
+  - <span class="nb">intros</span> x y ; use eq_regular_element ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> cha_max_absorb.
+    <span class="nb">rewrite</span> is_regular_regular_element.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">regular_element_lattice</span>
+           (<span class="nv">H</span> : complete_heyting_algebra)
+  : lattice (set_of_regular_elements H).
+<span class="kn">Proof</span>.
+  use make_lattice.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, conj_regular_element x y).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, disj_regular_element x y).
+  - <span class="bp">exact</span> (regular_element_islatticeop H).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">to_le_regular_element_lattice</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x</span> <span class="nv">y</span> : regular_element H}
+            (<span class="nv">p</span> : x ≤ y)
+  : Lle (regular_element_lattice H) x y.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  use eq_regular_element.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">from_le_regular_element_lattice</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">x</span> <span class="nv">y</span> : regular_element H}
+            (<span class="nv">p</span> : Lle (regular_element_lattice H) x y)
+  : x ≤ y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (maponpaths pr1 p).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. The bounded lattice of regular elements *)</span>
+<span class="kn">Proposition</span> <span class="nf">regular_element_bounded_latticeop</span>
+            (<span class="nv">H</span> : complete_heyting_algebra)
+  : bounded_latticeop
+      (regular_element_lattice H)
+      (bot_regular_element H)
+      (top_regular_element H).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> x ; use eq_regular_element ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> cha_lunit_max_bot.
+    <span class="nb">rewrite</span> is_regular_regular_element.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intro</span> x ; use eq_regular_element ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> cha_lunit_min_top.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">regular_element_bounded_lattice</span>
+           (<span class="nv">H</span> : complete_heyting_algebra)
+  : bounded_lattice (set_of_regular_elements H).
+<span class="kn">Proof</span>.
+  use make_bounded_lattice.
+  - <span class="bp">exact</span> (regular_element_lattice H).
+  - <span class="bp">exact</span> (bot_regular_element H).
+  - <span class="bp">exact</span> (top_regular_element H).
+  - <span class="bp">exact</span> (regular_element_bounded_latticeop H).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 5. The complete lattice of regular elements *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_glb_glb_regular_element</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">I</span> : UU}
+            (<span class="nv">f</span> : I → regular_element H)
+  : is_greatest_lowerbound_lattice
+      (regular_element_lattice H)
+      f
+      (glb_regular_element f).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> i ; use eq_regular_element.
+    <span class="bp">exact</span> (cha_glb_le_pt (<span class="k">λ</span> <span class="nv">j</span>, (f j : H)) i).
+  - <span class="nb">intros</span> x Hx ; use eq_regular_element ; <span class="nb">cbn</span> ; <span class="nb">cbn</span> <span class="k">in</span> x.
+    use (@cha_le_glb H I (<span class="k">λ</span> <span class="nv">j</span>, (f j : H)) x).
+    <span class="nb">intros</span> i ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (maponpaths pr1 (Hx i)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">regular_element_complete_lattice</span>
+           (<span class="nv">H</span> : complete_heyting_algebra)
+  : is_complete_lattice (regular_element_bounded_lattice H).
+<span class="kn">Proof</span>.
+  use complete_lattice_from_glb.
+  <span class="nb">intros</span> I f.
+  <span class="nb">refine</span> (glb_regular_element f ,, _).
+  <span class="nb">apply</span> is_glb_glb_regular_element.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 6. Least upper bounds of regular elements *)</span>
+<span class="kn">Definition</span> <span class="nf">lub_regular_element</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           (<span class="nv">I</span> : UU)
+           (<span class="nv">f</span> : I → regular_element H)
+  : regular_element H
+  := pr1 (regular_element_complete_lattice H I f).
+
+<span class="kn">Proposition</span> <span class="nf">le_lub_regular_element</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">I</span> : UU}
+            (<span class="nv">f</span> : I → regular_element H)
+            (<span class="nv">y</span> : regular_element H)
+            (<span class="nv">i</span> : I)
+            (<span class="nv">p</span> : y ≤ f i)
+  : y ≤ lub_regular_element I f.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (cha_le_trans p _).
+  use from_le_regular_element_lattice.
+  <span class="bp">exact</span> (pr12 (regular_element_complete_lattice H I f) i).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lub_regular_element_le</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">I</span> : UU}
+            (<span class="nv">f</span> : I → regular_element H)
+            (<span class="nv">y</span> : regular_element H)
+            (<span class="nv">p</span> : ∏ (i : I), f i ≤ y)
+  : lub_regular_element I f ≤ y.
+<span class="kn">Proof</span>.
+  use from_le_regular_element_lattice.
+  <span class="nb">refine</span> (pr22 (regular_element_complete_lattice H I f) y _).
+  <span class="nb">intros</span> i.
+  use to_le_regular_element_lattice.
+  <span class="nb">apply</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lub_regular_element_pt_le</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">I</span> : UU}
+            (<span class="nv">f</span> <span class="nv">f'</span> : I → regular_element H)
+            (<span class="nv">p</span> : ∏ (i : I), f i ≤ f' i)
+  : lub_regular_element I f ≤ lub_regular_element I f'.
+<span class="kn">Proof</span>.
+  use lub_regular_element_le.
+  <span class="nb">intro</span> i.
+  use le_lub_regular_element.
+  - <span class="bp">exact</span> i.
+  - <span class="nb">apply</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lub_regular_element_eq</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">I</span> : UU)
+            (<span class="nv">f</span> : I → regular_element H)
+  : lub_regular_element I f
+    =
+    not_not_regular_element (\/_{ i : I } f i).
+<span class="kn">Proof</span>.
+  use eq_regular_element.
+  use cha_le_antisymm.
+  - <span class="nb">cbn</span> -[lub_regular_element].
+    use cha_to_le_exp.
+    <span class="nb">refine</span> (cha_le_trans _ (cha_exp_eval (¬ (\/_{ i } f i)) _)).
+    use cha_and_monotone_l.
+    <span class="nb">refine</span> (lub_regular_element_le f (not_not_regular_element (\/_{ i : I } f i)) _).
+    <span class="nb">intro</span> i ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (cha_le_trans (cha_not_not _) _).
+    use cha_not_not_monotone.
+    <span class="bp">exact</span> (cha_le_lub_pt f i).
+  - use cha_le_glb.
+    <span class="nb">intro</span> i.
+    <span class="nb">induction</span> i <span class="k">as</span> [ x p ] ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- (is_regular_regular_element x).
+    use cha_not_not_monotone.
+    use cha_lub_le.
+    <span class="nb">intro</span> i ; <span class="nb">cbn</span>.
+    use from_le_regular_element_lattice.
+    <span class="nb">apply</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">conj_lub_regular_element</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            {<span class="nv">I</span> : UU}
+            (<span class="nv">f</span> : I → regular_element H)
+            (<span class="nv">y</span> : regular_element H)
+  : (lub_regular_element I f ∧ y)
+    ≤
+    lub_regular_element I (<span class="k">λ</span> <span class="nv">i</span>, conj_regular_element (f i) y).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> !lub_regular_element_eq ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> &lt;- (is_regular_regular_element y).
+  <span class="nb">rewrite</span> &lt;- cha_not_not_conj.
+  <span class="nb">rewrite</span> is_regular_regular_element.
+  use cha_not_not_monotone.
+  <span class="nb">rewrite</span> (cha_min_comm _ y).
+  <span class="nb">rewrite</span> cha_frobenius.
+  use cha_lub_le.
+  <span class="nb">intro</span> i.
+  use cha_le_lub.
+  - <span class="bp">exact</span> i.
+  - <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> (cha_min_comm y (f i)).
+    <span class="nb">apply</span> cha_le_refl.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 7. Exponentials *)</span>
+<span class="kn">Definition</span> <span class="nf">impl_regular_element</span>
+           {<span class="nv">H</span> : complete_heyting_algebra}
+           (<span class="nv">x</span> <span class="nv">y</span> : regular_element H)
+  : regular_element H
+  := lub_regular_element (∑ (w : regular_element H), (w ∧ x) ≤ y) pr1.
+
+<span class="kn">Proposition</span> <span class="nf">regular_element_is_exponential</span>
+            {<span class="nv">H</span> : complete_heyting_algebra}
+            (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : regular_element H)
+  : Lle (regular_element_lattice H) z (impl_regular_element x y)
+    &lt;-&gt;
+    Lle (regular_element_lattice H) (conj_regular_element z x) y.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> p.
+    <span class="nb">apply</span> from_le_regular_element_lattice <span class="k">in</span> p.
+    use to_le_regular_element_lattice.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (cha_le_trans _ _).
+    {
+      <span class="bp">exact</span> (cha_and_monotone_l p).
+    }
+    <span class="nb">refine</span> (cha_le_trans _ _).
+    {
+      <span class="nb">apply</span> conj_lub_regular_element.
+    }
+    <span class="nb">refine</span> (cha_le_trans _ _).
+    {
+      use (lub_regular_element_pt_le _ (<span class="k">λ</span> <span class="nv">_</span>, y)).
+      <span class="nb">cbn</span>.
+      <span class="nb">intro</span> i.
+      <span class="nb">induction</span> i <span class="k">as</span> [ w Hw ] ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> Hw.
+    }
+    use lub_regular_element_le.
+    <span class="nb">intro</span> i ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> cha_le_refl.
+  - <span class="nb">intro</span> p.
+    <span class="nb">apply</span> from_le_regular_element_lattice <span class="k">in</span> p.
+    use to_le_regular_element_lattice.
+    <span class="nb">cbn</span> ; <span class="nb">cbn</span> <span class="k">in</span> p.
+    use cha_le_glb.
+    <span class="nb">intros</span> i ; <span class="nb">induction</span> i <span class="k">as</span> [ w q ] ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (cha_le_trans _ (cha_min_le_r z w)).
+    <span class="nb">assert</span> ((z ∧ w) = z) <span class="k">as</span> -&gt;.
+    {
+      <span class="bp">exact</span> (maponpaths pr1 (q (z ,, p))).
+    }
+    <span class="nb">apply</span> cha_le_refl.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">regular_element_exponential</span>
+           (<span class="nv">H</span> : complete_heyting_algebra)
+  : exponential (regular_element_bounded_lattice H).
+<span class="kn">Proof</span>.
+  use make_exponential.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, impl_regular_element x y).
+  - <span class="bp">exact</span> regular_element_is_exponential.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 8. The complete Boolean algebra of regular elements *)</span>
+<span class="kn">Definition</span> <span class="nf">regular_element_cha</span>
+           (<span class="nv">H</span> : complete_heyting_algebra)
+  : complete_heyting_algebra.
+<span class="kn">Proof</span>.
+  use make_complete_heyting_algebra.
+  - <span class="bp">exact</span> (set_of_regular_elements H).
+  - <span class="bp">exact</span> (regular_element_bounded_lattice H).
+  - <span class="bp">exact</span> (regular_element_complete_lattice H).
+  - <span class="bp">exact</span> (regular_element_exponential H).
+<span class="kn">Defined</span>.
+
+#[local] <span class="kn">Transparent</span> complete_heyting_algebra_max.
+#[local] <span class="kn">Transparent</span> complete_heyting_algebra_top.
+#[local] <span class="kn">Transparent</span> complete_heyting_algebra_exp.
+
+<span class="kn">Proposition</span> <span class="nf">is_boolean_regular_element_cha</span>
+            (<span class="nv">H</span> : complete_heyting_algebra)
+  : is_boolean_algebra (regular_element_cha H).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  use eq_regular_element ; <span class="nb">cbn</span> <span class="k">in</span> x.
+  <span class="nb">refine</span> (_ @ cha_not_not_lem x).
+  <span class="nb">cbn</span> -[Lle].
+  use cha_le_antisymm.
+  - use cha_not_not_monotone.
+    use cha_max_le_max_r.
+    use cha_glb_le.
+    + <span class="nb">refine</span> (not_regular_element x ,, _).
+      <span class="nb">intro</span> i.
+      <span class="nb">induction</span> i <span class="k">as</span> [ w Hw ].
+      use to_le_regular_element_lattice ; <span class="nb">cbn</span>.
+      use cha_to_le_exp.
+      <span class="bp">exact</span> Hw.
+    + <span class="nb">cbn</span>.
+      <span class="nb">apply</span> cha_le_refl.
+  - use cha_not_not_monotone.
+    use cha_max_le_max_r.
+    use cha_le_glb.
+    <span class="nb">intros</span> i.
+    <span class="nb">induction</span> i <span class="k">as</span> [ w Hw ] ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (from_le_regular_element_lattice (Hw (not_regular_element x ,, _))).
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> cha_not_eval.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/Lattice/Examples/RegularElements.v</tt>, line 41)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. The complete Boolean algebra of regular elements
+  &gt;
+  &gt;  **********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Algebra.BinaryOperations.
+  &gt; Require Import UniMath.OrderTheory.Lattice.Lattice.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

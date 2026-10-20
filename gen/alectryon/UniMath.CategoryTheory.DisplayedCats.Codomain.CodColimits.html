@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CodColimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***************************************************************************************</span>
+
+<span class="sd"> Colimits in the slice category</span>
+
+<span class="sd"> If a category `C` has colimits, then every slice category `C/x` also has colimits. We</span>
+<span class="sd"> prove this for initial objects and binary coproducts. Note that the pullback functor</span>
+<span class="sd"> does not necessarily preserve colimits. This would be the case if `C` is locally</span>
+<span class="sd"> Cartesian closed, because then the pullback functor is a left adjoint. The pullback</span>
+<span class="sd"> functor would preserve all finite coproducts if `C` is extensive, because that is one</span>
+<span class="sd"> of the requirements of being an extensive category.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Initial object in the slice</span>
+<span class="sd"> 2. Binary coproducts in the slice</span>
+<span class="sd"> 3. Coequalizers in the slice</span>
+
+<span class="sd"> ***************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodDomain.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Initial object in the slice *)</span>
+<span class="kn">Definition</span> <span class="nf">to_initial_slice</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">y</span> : C}
+           (<span class="nv">I</span> : C/y)
+           (<span class="nv">H</span> : isInitial C (cod_dom I))
+  : isInitial (C/y) I.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f.
+  <span class="nb">pose</span> (II := make_Initial _ H).
+  use iscontraprop1.
+  - <span class="kp">abstract</span>
+      (use invproofirrelevance ;
+       <span class="nb">intros</span> φ₁ φ₂ ;
+       use eq_mor_cod_fib ;
+       use (InitialArrowEq (O := II))).
+  - use make_cod_fib_mor.
+    + <span class="bp">exact</span> (InitialArrow II _).
+    + <span class="kp">abstract</span>
+        (use (InitialArrowEq (O := II))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">initial_cod_fib</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">y</span> : C)
+           (<span class="nv">I</span> : Initial C)
+  : Initial (C/y).
+<span class="kn">Proof</span>.
+  use make_Initial.
+  - use make_cod_fib_ob.
+    + <span class="bp">exact</span> I.
+    + <span class="nb">apply</span> InitialArrow.
+  - use to_initial_slice.
+    <span class="bp">exact</span> (pr2 I).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Binary coproducts in the slice *)</span>
+<span class="kn">Section</span> <span class="nf">IsBinCoproductSlice</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">y</span> : C}
+          {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">s</span> : C/y}
+          (<span class="nv">ι₁</span> : f --&gt; s)
+          (<span class="nv">ι₂</span> : g --&gt; s)
+          (<span class="nv">H</span> : isBinCoproduct C _ _ _ (dom_mor ι₁) (dom_mor ι₂)).
+
+  <span class="kn">Let</span> <span class="nf">coprod</span> : BinCoproduct (cod_dom f) (cod_dom g)
+    := make_BinCoproduct _ _ _ _ _ _ H.
+
+  <span class="kn">Section</span> <span class="nf">UMP</span>.
+    <span class="kn">Context</span> {<span class="nv">h</span> : C / y}
+            (<span class="nv">ρ₁</span> : f --&gt; h)
+            (<span class="nv">ρ₂</span> : g --&gt; h).
+
+    <span class="kn">Proposition</span> <span class="nf">to_bincoproduct_slice_unique</span>
+      : isaprop (∑ fg, ι₁ · fg = ρ₁ × ι₂ · fg = ρ₂).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+      }
+      use eq_mor_cod_fib.
+      use (BinCoproductArrowsEq _ _ _ coprod).
+      - <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (_ @ maponpaths dom_mor (pr12 φ₁ @ !(pr12 φ₂)) @ _).
+        + <span class="nb">rewrite</span> comp_in_cod_fib.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> comp_in_cod_fib.
+          <span class="nb">apply</span> idpath.
+      - <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (_ @ maponpaths dom_mor (pr22 φ₁ @ !(pr22 φ₂)) @ _).
+        + <span class="nb">rewrite</span> comp_in_cod_fib.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> comp_in_cod_fib.
+          <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">to_bincoproduct_slice_mor_mor</span>
+      : cod_dom s --&gt; cod_dom h.
+    <span class="kn">Proof</span>.
+      use (BinCoproductArrow coprod).
+      - <span class="bp">exact</span> (dom_mor ρ₁).
+      - <span class="bp">exact</span> (dom_mor ρ₂).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">to_bincoproduct_slice_mor_eq</span>
+      : to_bincoproduct_slice_mor_mor · cod_mor h = cod_mor s.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> to_bincoproduct_slice_mor_mor.
+      use (BinCoproductArrowsEq _ _ _ coprod).
+      - <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> (BinCoproductIn1Commutes _ _ _ coprod) ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> (mor_eq ρ₁), (mor_eq ι₁).
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> (BinCoproductIn2Commutes _ _ _ coprod) ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> (mor_eq ρ₂), (mor_eq ι₂).
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">to_bincoproduct_slice_mor</span>
+      : s --&gt; h.
+    <span class="kn">Proof</span>.
+      use make_cod_fib_mor.
+      - <span class="bp">exact</span> to_bincoproduct_slice_mor_mor.
+      - <span class="bp">exact</span> to_bincoproduct_slice_mor_eq.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">to_bincoproduct_slice_mor_in1</span>
+      : ι₁ · to_bincoproduct_slice_mor = ρ₁.
+    <span class="kn">Proof</span>.
+      use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (BinCoproductIn1Commutes _ _ _ coprod).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">to_bincoproduct_slice_mor_in2</span>
+      : ι₂ · to_bincoproduct_slice_mor = ρ₂.
+    <span class="kn">Proof</span>.
+      use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (BinCoproductIn2Commutes _ _ _ coprod).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">UMP</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_bincoproduct_slice</span>
+    : isBinCoproduct (C/y) _ _ _ ι₁ ι₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> h ρ₁ ρ₂.
+    use iscontraprop1.
+    - <span class="bp">exact</span> (to_bincoproduct_slice_unique ρ₁ ρ₂).
+    - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="bp">exact</span> (to_bincoproduct_slice_mor ρ₁ ρ₂).
+      + <span class="nb">apply</span> to_bincoproduct_slice_mor_in1.
+      + <span class="nb">apply</span> to_bincoproduct_slice_mor_in2.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">IsBinCoproductSlice</span>.
+
+<span class="kn">Section</span> <span class="nf">BinCoproductSlice</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">y</span> : C}
+          (<span class="nv">f</span> <span class="nv">g</span> : C/y)
+          (<span class="nv">coprod</span> : BinCoproduct (cod_dom f) (cod_dom g)).
+
+  <span class="kn">Definition</span> <span class="nf">cod_fib_coproduct_ob_mor</span>
+    : coprod --&gt; y.
+  <span class="kn">Proof</span>.
+    use (BinCoproductArrow coprod).
+    - <span class="bp">exact</span> (cod_mor f).
+    - <span class="bp">exact</span> (cod_mor g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_fib_coproduct_ob</span>
+    : C/y.
+  <span class="kn">Proof</span>.
+    use make_cod_fib_ob.
+    - <span class="bp">exact</span> coprod.
+    - <span class="bp">exact</span> cod_fib_coproduct_ob_mor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_fib_coproduct_in1</span>
+    : f --&gt; cod_fib_coproduct_ob.
+  <span class="kn">Proof</span>.
+    use make_cod_fib_mor.
+    - <span class="bp">exact</span> (BinCoproductIn1 coprod).
+    - <span class="kp">abstract</span>
+        (<span class="nb">apply</span> BinCoproductIn1Commutes).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_fib_coproduct_in2</span>
+    : g --&gt; cod_fib_coproduct_ob.
+  <span class="kn">Proof</span>.
+    use make_cod_fib_mor.
+    - <span class="bp">exact</span> (BinCoproductIn2 coprod).
+    - <span class="kp">abstract</span>
+        (<span class="nb">apply</span> BinCoproductIn2Commutes).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">BinCoproductSlice</span>.
+
+<span class="kn">Definition</span> <span class="nf">bincoproducts_cod_fib</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">y</span> : C)
+           (<span class="nv">H</span> : BinCoproducts C)
+  : BinCoproducts (C/y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f g.
+  <span class="nb">pose</span> (coprod := H (cod_dom f) (cod_dom g)).
+  use make_BinCoproduct.
+  - <span class="bp">exact</span> (cod_fib_coproduct_ob f g coprod).
+  - <span class="bp">exact</span> (cod_fib_coproduct_in1 f g coprod).
+  - <span class="bp">exact</span> (cod_fib_coproduct_in2 f g coprod).
+  - use to_bincoproduct_slice.
+    <span class="bp">exact</span> (isBinCoproduct_BinCoproduct _ coprod).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_bincoproducts_slice_dom</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">y</span> : C)
+           (<span class="nv">H</span> : BinCoproducts C)
+  : preserves_bincoproduct (slice_dom y).
+<span class="kn">Proof</span>.
+  use preserves_bincoproduct_if_preserves_chosen.
+  {
+    <span class="bp">exact</span> (bincoproducts_cod_fib y H).
+  }
+  <span class="nb">intros</span> x₁ x₂.
+  <span class="nb">apply</span> isBinCoproduct_BinCoproduct.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. Coequalizers in the slice *)</span>
+<span class="kn">Section</span> <span class="nf">CoequalizerSlice</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">y</span> : C)
+          {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : C / y}
+          (<span class="nv">ρ₁</span> <span class="nv">ρ₂</span> : f --&gt; g)
+          (<span class="nv">i</span> : g --&gt; h)
+          (<span class="nv">p</span> : ρ₁ · i = ρ₂ · i)
+          (<span class="nv">p'</span> : dom_mor ρ₁ · dom_mor i = dom_mor ρ₂ · dom_mor i)
+          (<span class="nv">H</span> : isCoequalizer (dom_mor ρ₁) (dom_mor ρ₂) (dom_mor i) p').
+
+  <span class="kn">Let</span> <span class="nf">coeq</span> : Coequalizer (dom_mor ρ₁) (dom_mor ρ₂)
+    := make_Coequalizer _ _ _ _ H.
+
+  <span class="kn">Section</span> <span class="nf">UMP</span>.
+    <span class="kn">Context</span> {<span class="nv">wφ</span> : C/y}
+            (<span class="nv">k</span> : g --&gt; wφ)
+            (<span class="nv">q</span> : ρ₁ · k = ρ₂ · k).
+
+    <span class="kn">Proposition</span> <span class="nf">is_coequalizer_cod_fib_unique</span>
+      : isaprop (∑ φ, i · φ = k).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      use eq_mor_cod_fib.
+      use (CoequalizerOutsEq coeq).
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- !comp_in_cod_fib.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (pr2 φ₁ @ !(pr2 φ₂)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_coequalizer_cod_fib_mor</span>
+      : h --&gt; wφ.
+    <span class="kn">Proof</span>.
+      use make_cod_fib_mor.
+      - use (CoequalizerOut coeq).
+        + <span class="bp">exact</span> (dom_mor k).
+        + <span class="kp">abstract</span>
+            (<span class="nb">rewrite</span> &lt;- !comp_in_cod_fib ;
+             <span class="bp">exact</span> (maponpaths dom_mor q)).
+      - <span class="kp">abstract</span>
+          (use (CoequalizerOutsEq coeq) ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">rewrite</span> (CoequalizerCommutes coeq) ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> (mor_eq k), (mor_eq i) ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">is_coequalizer_cod_fib_eq</span>
+      : i · is_coequalizer_cod_fib_mor = k.
+    <span class="kn">Proof</span>.
+      use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (CoequalizerCommutes coeq).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">UMP</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_coequalizer_cod_fib</span>
+    : isCoequalizer ρ₁ ρ₂ i p.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> wφ k q.
+    use iscontraprop1.
+    - <span class="nb">apply</span> is_coequalizer_cod_fib_unique.
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (is_coequalizer_cod_fib_mor k q).
+      + <span class="nb">apply</span> is_coequalizer_cod_fib_eq.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CoequalizerSlice</span>.
+
+<span class="kn">Section</span> <span class="nf">Coequalizer</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">y</span> : C}
+          (<span class="nv">H</span> : Coequalizers C)
+          {<span class="nv">f</span> <span class="nv">g</span> : C/y}
+          (<span class="nv">ρ₁</span> <span class="nv">ρ₂</span> : f --&gt; g).
+
+  <span class="kn">Let</span> <span class="nf">coeq</span> : Coequalizer (dom_mor ρ₁) (dom_mor ρ₂) := H _ _ (dom_mor ρ₁) (dom_mor ρ₂).
+
+  <span class="kn">Definition</span> <span class="nf">coequalizers_cod_fib_coeq</span>
+    : C/y.
+  <span class="kn">Proof</span>.
+    use make_cod_fib_ob.
+    - <span class="bp">exact</span> coeq.
+    - use CoequalizerOut.
+      + <span class="bp">exact</span> (cod_mor g).
+      + <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> (mor_eq ρ₁), (mor_eq ρ₂) ;
+           <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coequalizers_cod_fib_map</span>
+    : g --&gt; coequalizers_cod_fib_coeq.
+  <span class="kn">Proof</span>.
+    use make_cod_fib_mor.
+    - <span class="nb">apply</span> CoequalizerArrow.
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">apply</span> (CoequalizerCommutes coeq)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">coequalizers_cod_fib_eq</span>
+    : ρ₁ · coequalizers_cod_fib_map = ρ₂ · coequalizers_cod_fib_map.
+  <span class="kn">Proof</span>.
+    use eq_mor_cod_fib.
+    <span class="nb">rewrite</span> !comp_in_cod_fib.
+    <span class="nb">apply</span> CoequalizerEqAr.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Coequalizer</span>.
+
+<span class="kn">Definition</span> <span class="nf">coequalizers_cod_fib</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">y</span> : C)
+           (<span class="nv">H</span> : Coequalizers C)
+  : Coequalizers (C/y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f g ρ₁ ρ₂.
+  use make_Coequalizer.
+  - <span class="bp">exact</span> (coequalizers_cod_fib_coeq H ρ₁ ρ₂).
+  - <span class="nb">apply</span> coequalizers_cod_fib_map.
+  - <span class="nb">apply</span> coequalizers_cod_fib_eq.
+  - use is_coequalizer_cod_fib.
+    + <span class="kp">abstract</span>
+        (<span class="nb">apply</span> CoequalizerEqAr).
+    + <span class="nb">apply</span> isCoequalizer_Coequalizer.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Codomain/CodColimits.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Coequalizers in the slice
+  &gt;
+  &gt;  ***************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

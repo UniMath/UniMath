@@ -1,0 +1,883 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MappingCylinder.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Mapping cylinder in C(A) *)</span>
+<span class="sd">(** ** Introduction</span>
+<span class="sd">- Mapping cylinder</span>
+<span class="sd">- Let f : X -&gt; Y be a morphism of complexes, then Y is isomorphic to Cyl(f) in K(A)</span>
+<span class="sd">*)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.UnivalenceAxiom.
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.Foundations.NaturalNumbers.
+
+<span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+
+<span class="kn">Require Import</span> UniMath.NumberSystems.Integers.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.TransportMorphisms.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Zero.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Kernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Cokernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pushouts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinDirectSums.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoriesWithBinOps.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoriesWithAbgrops.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PreAdditive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Additive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Abelian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.AbelianToAdditive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.AdditiveFunctors.
+
+<span class="kn">Require Import</span> UniMath.HomologicalAlgebra.Complexes.
+<span class="kn">Require Import</span> UniMath.HomologicalAlgebra.KA.
+<span class="kn">Require Import</span> UniMath.HomologicalAlgebra.TranslationFunctors.
+<span class="kn">Require Import</span> UniMath.HomologicalAlgebra.MappingCone.
+
+<span class="kn">Unset</span> Kernel Term Sharing.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hz_scope.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Local</span> <span class="kn">Opaque</span> hz isdecrelhzeq hzplus iscommringops ZeroArrow.
+
+<span class="sd">(** * Mapping cylinder *)</span>
+<span class="sd">(** ** Introduction</span>
+<span class="sd">In this section we construct the mapping cylinder, which is a complex, of a morphism f : C_1 -&gt; C_2</span>
+<span class="sd">of complexes. We denote mapping cylinder of f by Cyl(f). The objects of mapping cylinder are given</span>
+<span class="sd">by C_1^i ⊕ Cone(f)^i. The ith differential of Cyl(f) is given by</span>
+<span class="sd">         #  p_1 · d^i_X · i_1 - p_2 · p1 · i_1 + p_2 · d^i_C(f) · i_2 #</span>
+
+<span class="sd">Here d^i_C(F) is the ith differential of the mapping cone of f, see section [mapping_cone].</span>
+<span class="sd">We split the definition of the ith differential into a sum of 3 morphisms. These are constructed in</span>
+<span class="sd">[MappingCylinderDiff1], [MappingCylinderDiff3], and [MappingCylinderDiff3], and correspond the</span>
+<span class="sd">morphisms of the above formula, respectively. In [MappingCylinderDiff] we construct the</span>
+<span class="sd">differential. In [MappingCylinder_comp] we show that composition of two consecutive differentials</span>
+<span class="sd">is 0. The complex Cyl(f) is constructed in [MappingCylinder].</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">mapping_cylinder</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : CategoryWithAdditiveStructure.
+
+  <span class="sd">(**  # p_1 · d^i_X · i_1 # *)</span>
+  <span class="kn">Definition</span> <span class="nf">MappingCylinderDiff1</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : Morphism C1 C2) (<span class="nv">i</span> : hz) :
+    <span class="k">let</span> <span class="nv">DS1'</span> := to_BinDirectSums A (TranslationComplex A C1 i) (C2 i) <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">DS1</span> := to_BinDirectSums A (C1 i) DS1' <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">DS2'</span> := to_BinDirectSums A (TranslationComplex A C1 (i + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>)) <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">DS2</span> := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) DS2' <span class="k">in</span>
+    A ⟦ DS1, DS2 ⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> DS1' DS1 DS2' DS2.
+    use compose.
+    - <span class="bp">exact</span> (C1 i).
+    - <span class="bp">exact</span> (to_Pr1 DS1).
+    - use compose.
+      + <span class="bp">exact</span> (C1 (i + <span class="mi">1</span>)).
+      + <span class="bp">exact</span> (Diff C1 i).
+      + <span class="bp">exact</span> (to_In1 DS2).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**  # p_2 · (- p1) · i_1 # *)</span>
+  <span class="kn">Definition</span> <span class="nf">MappingCylinderDiff2</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : Morphism C1 C2) (<span class="nv">i</span> : hz) :
+    <span class="k">let</span> <span class="nv">DS1'</span> := to_BinDirectSums A (TranslationComplex A C1 i) (C2 i) <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">DS1</span> := to_BinDirectSums A (C1 i) DS1' <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">DS2'</span> := to_BinDirectSums A (TranslationComplex A C1 (i + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>)) <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">DS2</span> := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) DS2' <span class="k">in</span>
+    A ⟦ DS1, DS2 ⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> DS1' DS1 DS2' DS2.
+    use compose.
+    - <span class="bp">exact</span> (DS1').
+    - <span class="bp">exact</span> (to_Pr2 DS1).
+    - use compose.
+      + <span class="bp">exact</span> ((TranslationComplex A C1) i).
+      + <span class="bp">exact</span> (to_inv (to_Pr1 DS1')).
+      + <span class="bp">exact</span> (to_In1 DS2).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** p_2 · d^i_C(f) · i_2 *)</span>
+  <span class="kn">Definition</span> <span class="nf">MappingCylinderDiff3</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : Morphism C1 C2) (<span class="nv">i</span> : hz) :
+    <span class="k">let</span> <span class="nv">DS1'</span> := to_BinDirectSums A (TranslationComplex A C1 i) (C2 i) <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">DS1</span> := to_BinDirectSums A (C1 i) DS1' <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">DS2'</span> := to_BinDirectSums A (TranslationComplex A C1 (i + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>)) <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">DS2</span> := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) DS2' <span class="k">in</span>
+    A ⟦ DS1, DS2 ⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> DS1' DS1 DS2' DS2.
+    use compose.
+    - <span class="bp">exact</span> DS1'.
+    - <span class="bp">exact</span> (to_Pr2 DS1).
+    - use compose.
+      + <span class="bp">exact</span> DS2'.
+      + <span class="bp">exact</span> (MappingConeDiff A f i).
+      + <span class="bp">exact</span> (to_In2 DS2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">MappingCylinderDiff</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : Morphism C1 C2) (<span class="nv">i</span> : hz) :
+    <span class="k">let</span> <span class="nv">DS1'</span> := to_BinDirectSums A (TranslationComplex A C1 i) (C2 i) <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">DS1</span> := to_BinDirectSums A (C1 i) DS1' <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">DS2'</span> := to_BinDirectSums A (TranslationComplex A C1 (i + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>)) <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">DS2</span> := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) DS2' <span class="k">in</span>
+    A ⟦ DS1, DS2 ⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> DS1 DS2.
+    use to_binop.
+    - <span class="bp">exact</span> (MappingCylinderDiff1 f i).
+    - use to_binop.
+      +  <span class="bp">exact</span> (MappingCylinderDiff2 f i).
+      +  <span class="bp">exact</span> (MappingCylinderDiff3 f i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MappingCylinder_Diff1_Diff1</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : Morphism C1 C2) (<span class="nv">i</span> : hz) :
+    <span class="k">let</span> <span class="nv">DS1</span> := to_BinDirectSums A (C1 i) (MappingCone A f i) <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">DS2</span> := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (MappingCone A f i) <span class="k">in</span>
+    (MappingCylinderDiff1 f i) · (MappingCylinderDiff1 f (i + <span class="mi">1</span>)) =
+    ZeroArrow (Additive.to_Zero A) _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> DS1 DS2. <span class="nb">unfold</span> MappingCylinderDiff1. <span class="nb">unfold</span> MappingCylinderDiff2. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr1 _)).
+    <span class="nb">set</span> (DS3 := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (to_BinDirectSums A (C1 (i + <span class="mi">1</span> + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>)))).
+    <span class="nb">rewrite</span> (to_IdIn1 DS3). <span class="nb">rewrite</span> id_right. <span class="nb">rewrite</span> &lt;- (assoc _ _ (Diff C1 (i + <span class="mi">1</span>))).
+    <span class="nb">rewrite</span> (DSq A C1 i). <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> ZeroArrow_comp_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MappingCylinder_Diff1_Diff2</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : Morphism C1 C2) (<span class="nv">i</span> : hz) :
+    (MappingCylinderDiff1 f i) · (MappingCylinderDiff2 f (i + <span class="mi">1</span>)) =
+    ZeroArrow (Additive.to_Zero A) _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> MappingCylinderDiff1. <span class="nb">unfold</span> MappingCylinderDiff2. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr2 _)).
+    <span class="nb">set</span> (DS := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (to_BinDirectSums A (C1 (i + <span class="mi">1</span> + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>)))).
+    <span class="nb">rewrite</span> (to_Unel1' DS). <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> ZeroArrow_comp_left.
+    <span class="nb">apply</span> ZeroArrow_comp_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MappingCylinder_Diff1_Diff3</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : Morphism C1 C2) (<span class="nv">i</span> : hz) :
+    (MappingCylinderDiff1 f i) · (MappingCylinderDiff3 f (i + <span class="mi">1</span>)) =
+    ZeroArrow (Additive.to_Zero A) _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> MappingCylinderDiff1. <span class="nb">unfold</span> MappingCylinderDiff3. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr2 _)).
+    <span class="nb">set</span> (DS := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (to_BinDirectSums A (C1 (i + <span class="mi">1</span> + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>)))).
+    <span class="nb">rewrite</span> (to_Unel1' DS). <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> ZeroArrow_comp_left.
+    <span class="nb">apply</span> ZeroArrow_comp_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MappingCylinder_Diff2_Diff2</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : Morphism C1 C2) (<span class="nv">i</span> : hz) :
+    (MappingCylinderDiff2 f i) · (MappingCylinderDiff2 f (i + <span class="mi">1</span>)) =
+    ZeroArrow (Additive.to_Zero A) _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> MappingCylinderDiff2. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr2 _)).
+    <span class="nb">set</span> (DS := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (to_BinDirectSums A (C1 (i + <span class="mi">1</span> + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>)))).
+    <span class="nb">rewrite</span> (to_Unel1' DS). <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> ZeroArrow_comp_left.
+    <span class="nb">apply</span> ZeroArrow_comp_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MappingCylinder_Diff2_Diff3</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : Morphism C1 C2) (<span class="nv">i</span> : hz) :
+    (MappingCylinderDiff2 f i) · (MappingCylinderDiff3 f (i + <span class="mi">1</span>)) =
+    ZeroArrow (Additive.to_Zero A) _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> MappingCylinderDiff2. <span class="nb">unfold</span> MappingCylinderDiff3. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr2 _)).
+    <span class="nb">set</span> (DS := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (to_BinDirectSums A (C1 (i + <span class="mi">1</span> + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>)))).
+    <span class="nb">rewrite</span> (to_Unel1' DS). <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> ZeroArrow_comp_left.
+    <span class="nb">apply</span> ZeroArrow_comp_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MapingCylinder_Diff3_Diff3</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : Morphism C1 C2) (<span class="nv">i</span> : hz) :
+    (MappingCylinderDiff3 f i) · (MappingCylinderDiff3 f (i + <span class="mi">1</span>)) =
+    ZeroArrow (Additive.to_Zero A) _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> MappingCylinderDiff3. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr2 _)).
+    <span class="nb">set</span> (DS := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (to_BinDirectSums A (C1 (i + <span class="mi">1</span> + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>)))).
+    <span class="nb">rewrite</span> (to_IdIn2 DS). <span class="nb">rewrite</span> id_right. <span class="nb">rewrite</span> &lt;- (assoc _ (MappingConeDiff A f i)).
+    <span class="nb">set</span> (tmp := DSq A (MappingCone A f) i). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">cbn</span>. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+    <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MappingCylinder_comp</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : Morphism C1 C2) (<span class="nv">i</span> : hz) :
+    MappingCylinderDiff f i · MappingCylinderDiff f (i + <span class="mi">1</span>) =
+    ZeroArrow (Additive.to_Zero A) _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> MappingCylinderDiff. <span class="nb">cbn</span>.
+    <span class="nb">set</span> (D11 := MappingCylinder_Diff1_Diff1 f i).
+    <span class="nb">set</span> (D12 := MappingCylinder_Diff1_Diff2 f i).
+    <span class="nb">set</span> (D13 := MappingCylinder_Diff1_Diff3 f i).
+    <span class="nb">set</span> (D22 := MappingCylinder_Diff2_Diff2 f i).
+    <span class="nb">set</span> (D23 := MappingCylinder_Diff2_Diff3 f i).
+    <span class="nb">set</span> (D33 := MapingCylinder_Diff3_Diff3 f i).
+    <span class="nb">rewrite</span> to_premor_linear'. <span class="nb">rewrite</span> to_premor_linear'.
+    <span class="nb">rewrite</span> to_postmor_linear'. <span class="nb">rewrite</span> to_postmor_linear'. <span class="nb">rewrite</span> to_postmor_linear'.
+    <span class="nb">rewrite</span> to_postmor_linear'. <span class="nb">rewrite</span> to_postmor_linear'. <span class="nb">rewrite</span> to_postmor_linear'.
+    <span class="nb">cbn</span>. <span class="nb">cbn</span> <span class="k">in</span> D11. <span class="nb">rewrite</span> D11. <span class="nb">cbn</span> <span class="k">in</span> D12. <span class="nb">rewrite</span> D12. <span class="nb">cbn</span> <span class="k">in</span> D13. <span class="nb">rewrite</span> D13.
+    <span class="nb">cbn</span> <span class="k">in</span> D22. <span class="nb">rewrite</span> D22. <span class="nb">cbn</span> <span class="k">in</span> D23. <span class="nb">rewrite</span> D23. <span class="nb">cbn</span> <span class="k">in</span> D33. <span class="nb">rewrite</span> D33.
+    <span class="nb">rewrite</span> to_lunax''. <span class="nb">rewrite</span> to_lunax''. <span class="nb">rewrite</span> to_runax''. <span class="nb">rewrite</span> to_runax''.
+    <span class="nb">rewrite</span> to_lunax''. <span class="nb">rewrite</span> to_runax''.
+    <span class="nb">unfold</span> MappingCylinderDiff1. <span class="nb">unfold</span> MappingCylinderDiff2. <span class="nb">unfold</span> MappingCylinderDiff3.
+    <span class="nb">cbn</span>. <span class="nb">clear</span> D11 D12 D13 D22 D23 D33.
+    <span class="nb">set</span> (DS1 := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (C2 i)).
+    <span class="nb">set</span> (DS1' := to_BinDirectSums A (C1 i) DS1).
+    <span class="nb">set</span> (DS2 := to_BinDirectSums A (C1 (i + <span class="mi">1</span> + <span class="mi">1</span> + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span> + <span class="mi">1</span>))).
+    <span class="nb">set</span> (DS2' := to_BinDirectSums A (C1 (i + <span class="mi">1</span> + <span class="mi">1</span>)) DS2).
+    <span class="nb">set</span> (DS3 := to_BinDirectSums A (C1 (i + <span class="mi">1</span> + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>))).
+    <span class="nb">set</span> (DS3' := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) DS3). <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_invrcomp. <span class="nb">rewrite</span> &lt;- PreAdditive_invrcomp.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp. <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp. <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr1 DS3')). <span class="nb">rewrite</span> (to_IdIn1 DS3'). <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr1 DS3')). <span class="nb">rewrite</span> (to_Unel2' DS3').
+    <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> ZeroArrow_comp_left.
+    <span class="nb">rewrite</span> to_runax''.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr2 DS3')). <span class="nb">rewrite</span> (to_IdIn2 DS3').
+    <span class="nb">rewrite</span> id_right. <span class="nb">rewrite</span> to_binop_inv_inv.
+    <span class="nb">apply</span> cancel_inv. <span class="nb">rewrite</span> inv_inv_eq. <span class="nb">rewrite</span> to_inv_zero.
+    <span class="nb">rewrite</span> &lt;- to_postmor_linear'.
+    <span class="nb">rewrite</span> &lt;- (ZeroArrow_comp_left _ _ _ _ _ (to_In1 DS2')). <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- to_premor_linear'.
+    <span class="nb">rewrite</span> &lt;- (ZeroArrow_comp_right _ _ _ _ _ (to_Pr2 DS1')). <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">unfold</span> MappingConeDiff.
+    <span class="nb">unfold</span> MappingConeDiff1. <span class="nb">unfold</span> MappingConeDiff2. <span class="nb">unfold</span> MappingConeDiff3.
+    <span class="nb">cbn</span> <span class="k">in</span> *. <span class="nb">fold</span> DS1 DS1' DS2 DS2' DS3 DS3'. <span class="nb">unfold</span> DiffTranslationComplex.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> &lt;- PreAdditive_invrcomp.
+    <span class="nb">rewrite</span> to_postmor_linear'. <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr1 DS3)).
+    <span class="nb">rewrite</span> (to_IdIn1 DS3). <span class="nb">rewrite</span> id_right. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> to_postmor_linear'. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr1 DS3)). <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr1 DS3)).
+    <span class="nb">rewrite</span> (to_Unel2' DS3). <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> ZeroArrow_comp_right.
+    <span class="nb">rewrite</span> to_runax''. <span class="nb">rewrite</span> to_runax''. <span class="nb">rewrite</span> (@to_rinvax' A (Additive.to_Zero A)).
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">MappingCylinder</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : Morphism C1 C2) : Complex A.
+  <span class="kn">Proof</span>.
+    use make_Complex.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (to_BinDirectSums
+                         A (C1 i) (to_BinDirectSums A (TranslationComplex A C1 i) (C2 i))).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (MappingCylinderDiff f i).
+    - <span class="nb">intros</span> i. <span class="nb">cbn</span> beta. <span class="bp">exact</span> (MappingCylinder_comp f i).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">mapping_cylinder</span>.
+
+
+<span class="sd">(** * Let f : X -&gt; Y, then Y is isomorphic to Cyl(f) in K(A) *)</span>
+<span class="sd">(** ** Introduction</span>
+<span class="sd">We show that in K(A) Y and Cyl(f) are isomorphic. The isomorphism is given by the morphisms</span>
+<span class="sd">α := i_2 · i_2 and β := p_1 · f + p_2 · p_2. We have α · β = id in C(A), but</span>
+<span class="sd">β · α ≠ id_{Cyl(f)} in C(A). We define a homotopy by χ^i := p_1 · i_1 · i_2 : Cyl(f)^i --&gt;</span>
+<span class="sd">Cyl(f)^{i-1}. We show that</span>
+<span class="sd">       # id_{Cyl(f)} - β · α = χ^i · d^{i-1}_{Cyl(f)} + d^i_{Cyl(f)} · χ^{i-1} #</span>
+<span class="sd">       $ id_{Cyl(f)} - β · α = χ^i · d^{i-1}_{Cyl(f)} + d^i_{Cyl(f)} · χ^{i-1} $  ( * )</span>
+<span class="sd">This means that β · α = id_{Cyl(f)} in K(A) by the definition of homotopy of morphisms.</span>
+<span class="sd">Hence Y and C(f) are isomorphic.</span>
+
+<span class="sd">The morphisms α and β are defined in [MappingCylinderMor1_mor] and [MappingCylinderMor2_mor].</span>
+<span class="sd">The equality α · β = id is proven in [MappingCylinderIso_eq1]. The homotopy χ is constructed</span>
+<span class="sd">in [MappingCylinderIsoHomot]. The equality ( * ) is proven in 4 steps. These steps are</span>
+<span class="sd">[MappingCylinderIsoHomot_eq1], [MappingCylinderIsoHomot_eq2], [MappingCylinderIsoHomot_eq3],</span>
+<span class="sd">and [MappingCylinderIsoHomot_eq4]. The equality β · α = id is proved in [MappingCylinderIso_eq2].</span>
+<span class="sd">The fact that Y and Cyl(f) are isomorphic in K(A) is proved in [MappingCylinderIso].</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">mapping_cylinder_KA_iso</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : CategoryWithAdditiveStructure.
+
+
+  <span class="kn">Definition</span> <span class="nf">MappingCylinderMor1_mor</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧)
+             (<span class="nv">i</span> : hz) : A ⟦ C2 i, (MappingCylinder A f) i ⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> MappingCylinder. <span class="nb">cbn</span>.
+    <span class="nb">set</span> (DS1 := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (C2 i)).
+    <span class="nb">set</span> (DS2 := to_BinDirectSums A (C1 i) DS1).
+    use compose.
+    - <span class="bp">exact</span> DS1.
+    - use (to_In2 DS1).
+    - use (to_In2 DS2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MappingCylinderMor1_comm</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧)
+        (<span class="nv">i</span> : hz) :
+    MappingCylinderMor1_mor f i · Diff (MappingCylinder A f) i =
+    Diff C2 i · MappingCylinderMor1_mor f (i + <span class="mi">1</span>).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> MappingCylinderMor1_mor. <span class="nb">cbn</span>.
+    <span class="nb">set</span> (DS1 := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (C2 i)).
+    <span class="nb">set</span> (DS2 := to_BinDirectSums A (C1 i) DS1).
+    <span class="nb">set</span> (DS3 := to_BinDirectSums A (C1 (i + <span class="mi">1</span> + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>))).
+    <span class="nb">set</span> (DS4 := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) DS3). <span class="nb">rewrite</span> assoc.
+    <span class="nb">unfold</span> MappingCylinderDiff. <span class="nb">unfold</span> MappingCylinderDiff1.
+    <span class="nb">unfold</span> MappingCylinderDiff2. <span class="nb">unfold</span> MappingCylinderDiff3.
+    <span class="nb">cbn</span>. <span class="nb">fold</span> DS1 DS2 DS3 DS4. <span class="nb">rewrite</span> to_premor_linear'. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr1 DS2)). <span class="nb">rewrite</span> (to_Unel2' DS2).
+    <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> ZeroArrow_comp_left.
+    <span class="nb">rewrite</span> to_lunax''. <span class="nb">rewrite</span> to_premor_linear'. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr2 DS2)). <span class="nb">rewrite</span> (to_IdIn2 DS2).
+    <span class="nb">rewrite</span> id_right. <span class="nb">rewrite</span> &lt;- PreAdditive_invrcomp.
+    <span class="nb">rewrite</span> (to_Unel2' DS1). <span class="nb">rewrite</span> to_inv_zero. <span class="nb">rewrite</span> ZeroArrow_comp_left.
+    <span class="nb">rewrite</span> to_lunax''. <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">unfold</span> MappingConeDiff. <span class="nb">unfold</span> MappingConeDiff1.
+    <span class="nb">unfold</span> MappingConeDiff2. <span class="nb">unfold</span> MappingConeDiff3.
+    <span class="nb">cbn</span>. <span class="nb">fold</span> DS1 DS2 DS3 DS4. <span class="nb">rewrite</span> to_premor_linear'. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> (to_Unel2' DS1). <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> to_lunax''.
+    <span class="nb">rewrite</span> to_premor_linear'. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> (to_Unel2' DS1).
+    <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> to_lunax''. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> (to_IdIn2 DS1). <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">MappingCylinderMor1</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧) :
+    (ComplexPreCat_Additive A)⟦(ComplexHomotFunctor A C2),
+                              (ComplexHomotFunctor A (MappingCylinder A f))⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>. use make_Morphism.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (MappingCylinderMor1_mor f i).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (MappingCylinderMor1_comm f i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">MappingCylinderMor2_mor</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧)
+             (<span class="nv">i</span> : hz) : A ⟦ (MappingCylinder A f) i, C2 i ⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> MappingCylinder. <span class="nb">cbn</span>.
+    <span class="nb">set</span> (DS1 := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (C2 i)).
+    <span class="nb">set</span> (DS2 := to_BinDirectSums A (C1 i) DS1).
+    use to_binop.
+    - use compose.
+      + <span class="bp">exact</span> (C1 i).
+      + use (to_Pr1 DS2).
+        + <span class="bp">exact</span> (MMor f i).
+    - use compose.
+      + <span class="bp">exact</span> DS1.
+      + use (to_Pr2 DS2).
+      + use (to_Pr2 DS1).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MappingCylinderMor2_comm</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧)
+        (<span class="nv">i</span> : hz) :
+    MappingCylinderMor2_mor f i · Diff C2 i =
+    Diff (MappingCylinder A f) i · MappingCylinderMor2_mor f (i + <span class="mi">1</span>).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> MappingCylinderMor2_mor. <span class="nb">cbn</span>.
+    <span class="nb">set</span> (DS1 := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (C2 i)).
+    <span class="nb">set</span> (DS2 := to_BinDirectSums A (C1 i) DS1).
+    <span class="nb">set</span> (DS3 := to_BinDirectSums A (C1 (i + <span class="mi">1</span> + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>))).
+    <span class="nb">set</span> (DS4 := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) DS3).
+    <span class="nb">unfold</span> MappingCylinderDiff. <span class="nb">unfold</span> MappingCylinderDiff1.
+    <span class="nb">unfold</span> MappingCylinderDiff2. <span class="nb">unfold</span> MappingCylinderDiff3.
+    <span class="nb">cbn</span>. <span class="nb">fold</span> DS1 DS2 DS3 DS4. <span class="nb">rewrite</span> to_postmor_linear'. <span class="nb">rewrite</span> to_postmor_linear'.
+    <span class="nb">rewrite</span> to_postmor_linear'. <span class="nb">rewrite</span> to_premor_linear'. <span class="nb">rewrite</span> to_premor_linear'.
+    <span class="nb">rewrite</span> to_premor_linear'. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr1 DS4)). <span class="nb">rewrite</span> (to_IdIn1 DS4). <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr2 DS4)). <span class="nb">rewrite</span> (to_Unel1' DS4).
+    <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> to_runax''.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr1 DS4)). <span class="nb">rewrite</span> (to_IdIn1 DS4). <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr2 DS4)). <span class="nb">rewrite</span> (to_Unel1' DS4).
+    <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> to_runax''.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr1 DS4)). <span class="nb">rewrite</span> (to_Unel2' DS4).
+    <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> to_lunax''.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr2 DS4)). <span class="nb">rewrite</span> (to_IdIn2 DS4). <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> (MComm f i). <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- to_premor_linear'.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">unfold</span> MappingConeDiff. <span class="nb">unfold</span> MappingConeDiff1.
+    <span class="nb">unfold</span> MappingConeDiff2. <span class="nb">unfold</span> MappingConeDiff3.
+    <span class="nb">cbn</span>. <span class="nb">fold</span> DS1 DS2 DS3 DS4. <span class="nb">rewrite</span> to_postmor_linear'. <span class="nb">rewrite</span> to_postmor_linear'.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr2 DS3)). <span class="nb">rewrite</span> (to_Unel1' DS3).
+    <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> to_lunax''.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr2 DS3)). <span class="nb">rewrite</span> (to_IdIn2 DS3). <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr2 DS3)). <span class="nb">rewrite</span> (to_IdIn2 DS3). <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp. <span class="nb">rewrite</span> &lt;- to_assoc.
+    <span class="nb">rewrite</span> (@to_linvax' A (Additive.to_Zero A)). <span class="nb">rewrite</span> to_lunax''. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">MappingCylinderMor2</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧) :
+    (ComplexPreCat_Additive A)⟦(ComplexHomotFunctor A (MappingCylinder A f)),
+                               (ComplexHomotFunctor A C2)⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>. use make_Morphism.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (MappingCylinderMor2_mor f i).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (MappingCylinderMor2_comm f i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MappingCylinderIso_eq1'</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧) :
+    (MappingCylinderMor1 f) · (MappingCylinderMor2 f) = identity _.
+  <span class="kn">Proof</span>.
+    use MorphismEq. <span class="nb">intros</span> i. <span class="nb">cbn</span>. <span class="nb">unfold</span> MappingCylinderMor1_mor.
+    <span class="nb">unfold</span> MappingCylinderMor2_mor. <span class="nb">cbn</span>.
+    <span class="nb">set</span> (DS1 := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (C2 i)).
+    <span class="nb">set</span> (DS2 := to_BinDirectSums A (C1 i) DS1).
+    <span class="nb">rewrite</span> to_premor_linear'. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr1 DS2)). <span class="nb">rewrite</span> (to_Unel2' DS2).
+    <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> to_lunax''.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr2 DS2)). <span class="nb">rewrite</span> (to_IdIn2 DS2). <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> (to_IdIn2 DS1). <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MappingCylinderIso_eq1</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧) :
+    (# (ComplexHomotFunctor A) (MappingCylinderMor1 f))
+      · (# (ComplexHomotFunctor A) (MappingCylinderMor2 f)) = identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- functor_comp. <span class="nb">rewrite</span> MappingCylinderIso_eq1'. <span class="nb">rewrite</span> functor_id.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MappingCylinderIsoHomot</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧) :
+    ComplexHomot A (MappingCylinder A f) (MappingCylinder A f).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i. <span class="nb">unfold</span> MappingCylinder. <span class="nb">cbn</span>.
+    <span class="nb">set</span> (DS1 := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (C2 i)).
+    <span class="nb">set</span> (DS2 := to_BinDirectSums A (C1 i) DS1).
+    <span class="nb">set</span> (DS3 := to_BinDirectSums A (C1 (i - <span class="mi">1</span> + <span class="mi">1</span>)) (C2 (i - <span class="mi">1</span>))).
+    <span class="nb">set</span> (DS4 := to_BinDirectSums A (C1 (i - <span class="mi">1</span>)) DS3).
+    use compose.
+    - <span class="bp">exact</span> (C1 i).
+    - <span class="bp">exact</span> (to_Pr1 DS2).
+    - use compose.
+      + <span class="bp">exact</span> DS3.
+      + <span class="bp">exact</span> (transportf (<span class="k">λ</span> <span class="nv">x'</span> : ob A, precategory_morphisms x' DS3)
+                          (maponpaths C1 (hzrminusplus i <span class="mi">1</span>)) (to_In1 DS3)).
+      + <span class="bp">exact</span> (to_inv (to_In2 DS4)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">MappingCylinderIsoHomot_mor1</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A}
+             (<span class="nv">f</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧) (<span class="nv">i</span> : hz) :
+    A⟦(MappingCylinder A f) i, (MappingCylinder A f) i⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">set</span> (DS1 := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (C2 i)).
+    <span class="nb">set</span> (DS2 := to_BinDirectSums A (C1 i) DS1).
+    use to_binop.
+    - use compose.
+      + <span class="bp">exact</span> (C1 i).
+      + <span class="bp">exact</span> (to_Pr1 DS2).
+      + <span class="bp">exact</span> (to_In1 DS2).
+    - use to_binop.
+      + use compose.
+        * <span class="bp">exact</span> (C1 i).
+        * <span class="bp">exact</span> (to_Pr1 DS2).
+        * use compose.
+          -- <span class="bp">exact</span> (C1 (i + <span class="mi">1</span>)).
+          -- <span class="bp">exact</span> (Diff C1 i).
+          -- use compose.
+             ++ <span class="bp">exact</span> DS1.
+             ++ <span class="bp">exact</span> (to_In1 DS1).
+             ++ <span class="bp">exact</span> (to_In2 DS2).
+      + use compose.
+        * <span class="bp">exact</span> (C1 i).
+        * <span class="bp">exact</span> (to_Pr1 DS2).
+        * use compose.
+          -- <span class="bp">exact</span> (C2 i).
+          -- <span class="bp">exact</span> (to_inv (MMor f i)).
+          -- use compose.
+             ++ <span class="bp">exact</span> DS1.
+             ++ <span class="bp">exact</span> (to_In2 DS1).
+             ++ <span class="bp">exact</span> (to_In2 DS2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MappingCylinderIsoHomot_eq1</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧)
+        (<span class="nv">i</span> : hz) :
+    (transportf (precategory_morphisms
+                   (to_BinDirectSums A (C1 i) (to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (C2 i))))
+                (maponpaths (<span class="k">λ</span> (<span class="nv">i0</span> : hz),
+                             BinDirectSumOb
+                                (to_BinDirectSums
+                                    A (C1 i0) (to_BinDirectSums A (C1 (i0 + <span class="mi">1</span>)) (C2 i0))))
+                            (hzrminusplus i <span class="mi">1</span>))
+                (MappingCylinderIsoHomot f i · MappingCylinderDiff A f (i - <span class="mi">1</span>))) =
+    MappingCylinderIsoHomot_mor1 f i.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>. <span class="nb">rewrite</span> transport_target_postcompose.
+    <span class="nb">unfold</span> MappingCylinderIsoHomot. <span class="nb">unfold</span> MappingCylinderIsoHomot_mor1. <span class="nb">cbn</span>.
+    <span class="nb">set</span> (DS1 := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (C2 i)).
+    <span class="nb">set</span> (DS2 := to_BinDirectSums A (C1 i) DS1).
+    <span class="nb">set</span> (DS3 := to_BinDirectSums A (C1 (i - <span class="mi">1</span> + <span class="mi">1</span>)) (C2 (i - <span class="mi">1</span>))).
+    <span class="nb">set</span> (DS4 := to_BinDirectSums A (C1 (i - <span class="mi">1</span>)) DS3).
+    <span class="nb">set</span> (DS5 := to_BinDirectSums A (C1 (i - <span class="mi">1</span> + <span class="mi">1</span> + <span class="mi">1</span>)) (C2 (i - <span class="mi">1</span> + <span class="mi">1</span>))).
+    <span class="nb">set</span> (DS6 := to_BinDirectSums A (C1 (i - <span class="mi">1</span> + <span class="mi">1</span>)) DS5). <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- to_premor_linear'. <span class="nb">rewrite</span> &lt;- to_premor_linear'.
+    <span class="nb">apply</span> cancel_precomposition. <span class="nb">rewrite</span> &lt;- transport_target_postcompose.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> &lt;- to_postmor_linear'.
+    <span class="nb">rewrite</span> &lt;- transport_target_postcompose. <span class="nb">rewrite</span> &lt;- transport_source_precompose.
+    <span class="c">(* Unfold MappingCylinderDiff *)</span>
+    <span class="nb">unfold</span> MappingCylinderDiff. <span class="nb">unfold</span> MappingCylinderDiff1.
+    <span class="nb">unfold</span> MappingCylinderDiff2. <span class="nb">unfold</span> MappingCylinderDiff3. <span class="nb">cbn</span>.
+    <span class="nb">fold</span> DS1 DS2 DS3 DS4 DS5 DS6. <span class="nb">cbn</span>. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> assoc.
+    <span class="c">(* simplify *)</span>
+    <span class="nb">rewrite</span> &lt;- PreAdditive_invrcomp. <span class="nb">rewrite</span> &lt;- PreAdditive_invrcomp.
+    <span class="nb">rewrite</span> to_premor_linear'. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp. <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr1 DS4)).
+    <span class="nb">rewrite</span> (to_Unel2' DS4). <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> to_inv_zero.
+    <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> to_lunax''.
+    <span class="nb">rewrite</span> to_premor_linear'. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp. <span class="nb">rewrite</span> &lt;- PreAdditive_invrcomp. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp. <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp. <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr2 DS4)). <span class="nb">rewrite</span> (to_IdIn2 DS4). <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> inv_inv_eq.
+    <span class="c">(* Unfold MappingConeDiff *)</span>
+    <span class="nb">unfold</span> MappingConeDiff. <span class="nb">unfold</span> MappingConeDiff1.
+    <span class="nb">unfold</span> MappingConeDiff2. <span class="nb">unfold</span> MappingConeDiff3. <span class="nb">cbn</span>.
+    <span class="nb">fold</span> DS1 DS2 DS3 DS4 DS5 DS6. <span class="nb">cbn</span>. <span class="nb">rewrite</span> to_premor_linear'.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> to_premor_linear'. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> (to_IdIn1 DS3). <span class="nb">rewrite</span> id_left. <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> (to_Unel1' DS3). <span class="nb">rewrite</span> id_left. <span class="nb">rewrite</span> ZeroArrow_comp_left.
+    <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> to_runax''.
+    <span class="nb">unfold</span> DiffTranslationComplex. <span class="nb">cbn</span>.
+    <span class="c">(* rewrite transports *)</span>
+    <span class="nb">rewrite</span> &lt;- transport_source_to_binop. <span class="nb">rewrite</span> &lt;- transport_target_to_binop.
+    <span class="nb">rewrite</span> &lt;- transport_source_to_inv. <span class="nb">rewrite</span> &lt;- transport_target_to_inv. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> to_postmor_linear'.
+    <span class="nb">rewrite</span> &lt;- transport_source_to_binop. <span class="nb">rewrite</span> &lt;- transport_target_to_binop.
+    <span class="c">(* The first terms of to_binop are equal, cancel them *)</span>
+    <span class="nb">assert</span> (e1 : (transportf
+                    (precategory_morphisms (C1 i))
+                    (maponpaths
+                       (<span class="k">λ</span> (<span class="nv">i0</span> : pr1 hz),
+                        BinDirectSumOb
+                          (to_BinDirectSums
+                               A (C1 i0)
+                               (to_BinDirectSums A (C1 (i0 + <span class="mi">1</span>)) (C2 i0))))
+                       (hzrminusplus i <span class="mi">1</span>))
+                    (transportf (<span class="k">λ</span> <span class="nv">x'</span> : A, A ⟦ x', DS6 ⟧) (maponpaths C1 (hzrminusplus i <span class="mi">1</span>))
+                                (to_In1 DS6))) = (to_In1 DS2)).
+    {
+      <span class="nb">cbn</span>. <span class="nb">unfold</span> DS2, DS1, DS6, DS5.
+      <span class="nb">set</span> (tmp := <span class="k">λ</span> (<span class="nv">i0</span> : hz),
+                    BinDirectSumOb
+                      (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + <span class="mi">1</span>)) (C2 i0)))).
+      <span class="nb">set</span> (tmp'' := (<span class="k">λ</span> (<span class="nv">i0</span> : hz),
+                       to_In1 (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + <span class="mi">1</span>))
+                                                                              (C2 i0))))).
+      <span class="nb">set</span> (tmp' := @transport_hz_double_section_source_target
+                     A C1 tmp tmp'' _ _ (hzrminusplus i <span class="mi">1</span>)).
+      <span class="nb">unfold</span> tmp'' <span class="k">in</span> tmp'.
+      <span class="nb">rewrite</span> tmp'. <span class="nb">unfold</span> tmp. <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">cbn</span> <span class="k">in</span> e1. <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- e1. <span class="nb">clear</span> e1. <span class="nb">apply</span> maponpaths.
+    <span class="c">(* The first term of to_binop are equal, cancel them *)</span>
+    <span class="nb">rewrite</span> &lt;- to_binop_inv_inv. <span class="nb">rewrite</span> transport_target_to_inv. <span class="nb">rewrite</span> transport_source_to_inv.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp. <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp. <span class="nb">rewrite</span> inv_inv_eq.
+    <span class="nb">rewrite</span> transport_target_to_inv. <span class="nb">rewrite</span> transport_source_to_inv. <span class="nb">rewrite</span> PreAdditive_invlcomp.
+    <span class="nb">rewrite</span> PreAdditive_invlcomp. <span class="nb">rewrite</span> to_postmor_linear'.
+    <span class="nb">assert</span> (e1 : (transportf (precategory_morphisms (C1 i))
+                             (maponpaths
+                                (<span class="k">λ</span> (<span class="nv">i0</span> : pr1 hz),
+                                 BinDirectSumOb
+                                   (to_BinDirectSums
+                                        A (C1 i0) (to_BinDirectSums A (C1 (i0 + <span class="mi">1</span>)) (C2 i0))))
+                                (hzrminusplus i <span class="mi">1</span>))
+                             (transportf (<span class="k">λ</span> <span class="nv">x'</span> : A, A ⟦ x', DS6 ⟧)
+                                         (maponpaths C1 (hzrminusplus i <span class="mi">1</span>))
+                                         (Diff C1 (i - <span class="mi">1</span> + <span class="mi">1</span>) · to_In1 DS5 · to_In2 DS6))) =
+                 (Diff C1 i · to_In1 DS1 · to_In2 DS2)).
+    {
+      <span class="nb">cbn</span>. <span class="nb">unfold</span> DS2, DS1, DS6, DS5.
+      <span class="nb">set</span> (tmp := <span class="k">λ</span> <span class="nv">i0</span> : hz, BinDirectSumOb
+                                (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + <span class="mi">1</span>))
+                                                                                (C2 i0)))).
+      <span class="nb">set</span> (tmp'' := (<span class="k">λ</span> (<span class="nv">i0</span> : hz),
+                       (Diff C1 i0)
+                         · (to_In1 (to_BinDirectSums A (C1 (i0 + <span class="mi">1</span>)) (C2 i0)))
+                         · (to_In2 (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + <span class="mi">1</span>))
+                                                                                    (C2 i0)))))).
+      <span class="nb">set</span> (tmp' := @transport_hz_double_section_source_target
+                     A C1 tmp tmp'' _ _ (hzrminusplus i <span class="mi">1</span>)).
+      <span class="nb">unfold</span> tmp'' <span class="k">in</span> tmp'.
+      <span class="nb">rewrite</span> tmp'. <span class="nb">unfold</span> tmp. <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> &lt;- e1. <span class="nb">clear</span> e1. <span class="nb">apply</span> maponpaths.
+    <span class="c">(* Solve the rest *)</span>
+    <span class="nb">cbn</span>. <span class="nb">unfold</span> DS2, DS1, DS6, DS5.
+    <span class="nb">set</span> (tmp := <span class="k">λ</span> <span class="nv">i0</span> : hz, BinDirectSumOb
+                               (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + <span class="mi">1</span>))
+                                                                              (C2 i0)))).
+    <span class="nb">set</span> (tmp'' := (<span class="k">λ</span> (<span class="nv">i0</span> : hz),
+                     (to_inv (MMor f i0))
+                       · (to_In2 (to_BinDirectSums A (C1 (i0 + <span class="mi">1</span>)) (C2 i0)))
+                       · (to_In2 (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + <span class="mi">1</span>))
+                                                                                  (C2 i0)))))).
+    <span class="nb">set</span> (tmp' := @transport_hz_double_section_source_target A C1 tmp tmp'' _ _ (hzrminusplus i <span class="mi">1</span>)).
+    <span class="nb">unfold</span> tmp'' <span class="k">in</span> tmp'.
+    <span class="nb">rewrite</span> tmp'. <span class="nb">unfold</span> tmp. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">MappingCylinderIsoHomot_mor2</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A}
+             (<span class="nv">f</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧) (<span class="nv">i</span> : hz) :
+    A⟦(MappingCylinder A f) i, (MappingCylinder A f) i⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">set</span> (DS1 := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (C2 i)).
+    <span class="nb">set</span> (DS2 := to_BinDirectSums A (C1 i) DS1).
+    use to_binop.
+    - use compose.
+      + <span class="bp">exact</span> (C1 i).
+      + <span class="bp">exact</span> (to_Pr1 DS2).
+      + use compose.
+        * <span class="bp">exact</span> (C1 (i + <span class="mi">1</span>)).
+        * <span class="bp">exact</span> (to_inv (Diff C1 i)).
+        * use compose.
+          -- <span class="bp">exact</span> DS1.
+          -- <span class="bp">exact</span> (to_In1 DS1).
+          -- <span class="bp">exact</span> (to_In2 DS2).
+    - use compose.
+      + <span class="bp">exact</span> DS1.
+      + <span class="bp">exact</span> (to_Pr2 DS2).
+      + use compose.
+        * <span class="bp">exact</span> (C1 (i + <span class="mi">1</span>)).
+        * <span class="bp">exact</span> (to_Pr1 DS1).
+        * use compose.
+          -- <span class="bp">exact</span> DS1.
+          -- <span class="bp">exact</span> (to_In1 DS1).
+          -- <span class="bp">exact</span> (to_In2 DS2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MappyngCylinderIsoHomot_eq2</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧)
+        (<span class="nv">i</span> : hz) :
+    (transportf (precategory_morphisms
+                   (to_BinDirectSums A (C1 i) (to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (C2 i))))
+                (maponpaths (<span class="k">λ</span> (<span class="nv">i0</span> : pr1 hz),
+                             BinDirectSumOb
+                                (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + <span class="mi">1</span>))
+                                                                               (C2 i0))))
+                            (hzrplusminus i <span class="mi">1</span>))
+                (MappingCylinderDiff A f i · MappingCylinderIsoHomot f (i + <span class="mi">1</span>))) =
+    MappingCylinderIsoHomot_mor2 f i.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>. <span class="nb">unfold</span> MappingCylinderIsoHomot. <span class="nb">unfold</span> MappingCylinderIsoHomot_mor2. <span class="nb">cbn</span>.
+    <span class="nb">set</span> (DS1 := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (C2 i)).
+    <span class="nb">set</span> (DS2 := to_BinDirectSums A (C1 i) DS1).
+    <span class="nb">set</span> (DS3 := to_BinDirectSums A (C1 (i + <span class="mi">1</span> + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>))).
+    <span class="nb">set</span> (DS4 := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) DS3).
+    <span class="nb">set</span> (DS5 := to_BinDirectSums A (C1 (i + <span class="mi">1</span> - <span class="mi">1</span> + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span> - <span class="mi">1</span>))).
+    <span class="nb">set</span> (DS6 := to_BinDirectSums A (C1 (i + <span class="mi">1</span> - <span class="mi">1</span>)) DS5). <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> MappingCylinderDiff. <span class="nb">unfold</span> MappingCylinderDiff1.
+    <span class="nb">unfold</span> MappingCylinderDiff2. <span class="nb">unfold</span> MappingCylinderDiff3. <span class="nb">cbn</span>.
+    <span class="nb">fold</span> DS1 DS2 DS3 DS4 DS5 DS6. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> to_postmor_linear'. <span class="nb">rewrite</span> to_postmor_linear'. <span class="nb">rewrite</span> &lt;- transport_target_to_binop.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr1 DS4)). <span class="nb">rewrite</span> (to_IdIn1 DS4). <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr1 DS4)). <span class="nb">rewrite</span> (to_IdIn1 DS4). <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> &lt;- (assoc _ _ (to_Pr1 DS4)). <span class="nb">rewrite</span> (to_Unel2' DS4).
+    <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> ZeroArrow_comp_left.
+    <span class="nb">rewrite</span> to_runax''.
+    <span class="c">(* The first terms of to_binop are equal, cancel them *)</span>
+    <span class="nb">assert</span> (e1 : (transportf (precategory_morphisms DS2)
+                             (maponpaths
+                                (<span class="k">λ</span> (<span class="nv">i0</span> : pr1 hz),
+                                 BinDirectSumOb
+                                    (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + <span class="mi">1</span>))
+                                                                                   (C2 i0))))
+                                (hzrplusminus i <span class="mi">1</span>))
+                             (to_Pr1 DS2 · Diff C1 i · transportf (<span class="k">λ</span> <span class="nv">x'</span> : A, A ⟦ x', DS5 ⟧)
+                                     (maponpaths C1 (hzrminusplus (i + <span class="mi">1</span>) <span class="mi">1</span>))
+                                     (to_In1 DS5) · to_inv (to_In2 DS6))) =
+                 ((to_Pr1 DS2) · (to_inv (Diff C1 i)) · (to_In1 DS1) · (to_In2 DS2))).
+    {
+      <span class="nb">rewrite</span> transport_target_postcompose. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp. <span class="nb">rewrite</span> PreAdditive_invrcomp. <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">rewrite</span> &lt;- transport_target_postcompose. <span class="nb">rewrite</span> &lt;- transport_source_precompose.
+      <span class="nb">rewrite</span> &lt;- PreAdditive_invrcomp.
+      <span class="nb">unfold</span> DS2, DS1, DS6, DS5.
+      <span class="nb">set</span> (tmp := <span class="k">λ</span> <span class="nv">i0</span> : hz, BinDirectSumOb
+                                 (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + <span class="mi">1</span>))
+                                                                                (C2 i0)))).
+      <span class="nb">set</span> (tmp'' := (<span class="k">λ</span> <span class="nv">i0</span> : hz,
+                       (to_inv ((to_In1 (to_BinDirectSums A (C1 (i0 + <span class="mi">1</span>)) (C2 i0)))
+                                  · (to_In2 (to_BinDirectSums
+                                                  A (C1 i0) (to_BinDirectSums A (C1 (i0 + <span class="mi">1</span>))
+                                                                              (C2 i0)))))))).
+      <span class="nb">set</span> (tmp' := @transport_hz_double_section_source_target
+                     A (<span class="k">λ</span> <span class="nv">i0</span> : hz, C1 (i0 + <span class="mi">1</span>)) tmp tmp'' _ _ (hzrplusminus i <span class="mi">1</span>)).
+      <span class="nb">unfold</span> tmp'' <span class="k">in</span> tmp'. <span class="nb">rewrite</span> tmp'. <span class="nb">clear</span> tmp'. <span class="nb">unfold</span> tmp. <span class="nb">clear</span> tmp.
+      <span class="nb">clear</span> tmp''. <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- transport_source_to_inv. <span class="nb">rewrite</span> &lt;- transport_source_to_inv.
+      <span class="nb">apply</span> maponpaths. <span class="nb">rewrite</span> transport_source_precompose. <span class="nb">rewrite</span> transport_source_precompose.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">assert</span> (e2 : maponpaths C1 (hzrminusplus (i + <span class="mi">1</span>) <span class="mi">1</span>) =
+                   maponpaths (<span class="k">λ</span> <span class="nv">i0</span> : hz, C1 (i0 + <span class="mi">1</span>)) (hzrplusminus i <span class="mi">1</span>)).
+      {
+        <span class="nb">assert</span> (e3 : maponpaths (<span class="k">λ</span> <span class="nv">i0</span> : hz, C1 (i0 + <span class="mi">1</span>)) (hzrplusminus i <span class="mi">1</span>) =
+                     maponpaths C1 (maponpaths (<span class="k">λ</span> <span class="nv">i0</span> : hz, i0 + <span class="mi">1</span>) (hzrplusminus i <span class="mi">1</span>))).
+        {
+          <span class="nb">induction</span> (hzrplusminus i <span class="mi">1</span>). <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> e3. <span class="nb">clear</span> e3. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isasethz.
+      }
+      <span class="nb">rewrite</span> &lt;- e2. <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">cbn</span> <span class="k">in</span> e1. <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- e1. <span class="nb">clear</span> e1. <span class="nb">apply</span> maponpaths.
+    <span class="c">(* Use similar technique as above *)</span>
+    <span class="nb">rewrite</span> transport_target_postcompose. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp. <span class="nb">rewrite</span> PreAdditive_invrcomp. <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">rewrite</span> &lt;- transport_target_postcompose. <span class="nb">rewrite</span> &lt;- transport_source_precompose.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_invrcomp.
+    <span class="nb">unfold</span> DS2, DS1, DS6, DS5.
+    <span class="nb">rewrite</span> transport_target_to_inv. <span class="nb">rewrite</span> transport_source_to_inv.
+    <span class="nb">rewrite</span> inv_inv_eq.
+    <span class="nb">set</span> (tmp := <span class="k">λ</span> <span class="nv">i0</span> : hz, BinDirectSumOb
+                               (to_BinDirectSums A (C1 i0) (to_BinDirectSums A (C1 (i0 + <span class="mi">1</span>))
+                                                                              (C2 i0)))).
+    <span class="nb">set</span> (tmp'' := (<span class="k">λ</span> <span class="nv">i0</span> : hz,
+                     (to_In1 (to_BinDirectSums A (C1 (i0 + <span class="mi">1</span>)) (C2 i0)))
+                       · (to_In2 (to_BinDirectSums
+                                       A (C1 i0) (to_BinDirectSums A (C1 (i0 + <span class="mi">1</span>)) (C2 i0)))))).
+    <span class="nb">set</span> (tmp' := @transport_hz_double_section_source_target
+                   A (<span class="k">λ</span> <span class="nv">i0</span> : hz, C1 (i0 + <span class="mi">1</span>)) tmp tmp'' _ _ (hzrplusminus i <span class="mi">1</span>)).
+    <span class="nb">unfold</span> tmp'' <span class="k">in</span> tmp'.
+    <span class="nb">rewrite</span> tmp'. <span class="nb">clear</span> tmp'. <span class="nb">unfold</span> tmp. <span class="nb">clear</span> tmp. <span class="nb">clear</span> tmp''. <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> transport_source_precompose. <span class="nb">rewrite</span> transport_source_precompose.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">assert</span> (e2 : maponpaths C1 (hzrminusplus (i + <span class="mi">1</span>) <span class="mi">1</span>) =
+                 maponpaths (<span class="k">λ</span> <span class="nv">i0</span> : hz, C1 (i0 + <span class="mi">1</span>)) (hzrplusminus i <span class="mi">1</span>)).
+    {
+      <span class="nb">assert</span> (e3 : maponpaths (<span class="k">λ</span> <span class="nv">i0</span> : hz, C1 (i0 + <span class="mi">1</span>)) (hzrplusminus i <span class="mi">1</span>) =
+                   maponpaths C1 (maponpaths (<span class="k">λ</span> <span class="nv">i0</span> : hz, i0 + <span class="mi">1</span>) (hzrplusminus i <span class="mi">1</span>))).
+      {
+        <span class="nb">induction</span> (hzrplusminus i <span class="mi">1</span>). <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> e3. <span class="nb">clear</span> e3. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isasethz.
+    }
+    <span class="nb">rewrite</span> &lt;- e2. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MappingCylinderisoHomot_eq3</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧)
+        (<span class="nv">i</span> : hz) :
+    <span class="k">let</span> <span class="nv">DS1</span> := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (C2 i) <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">DS2</span> := to_BinDirectSums A (C1 i) DS1 <span class="k">in</span>
+    to_binop DS2 DS2
+             (to_binop DS2 DS2 (to_Pr1 DS2 · to_In1 DS2)
+                       (to_Pr2 DS2 · to_Pr1 DS1 · to_In1 DS1 · to_In2 DS2))
+             (to_inv (to_Pr1 DS2 · MMor f i · to_In2 DS1 · to_In2 DS2)) =
+    to_binop DS2 DS2 (MappingCylinderIsoHomot_mor1 f i) (MappingCylinderIsoHomot_mor2 f i).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> DS1 DS2.
+    <span class="nb">unfold</span> MappingCylinderIsoHomot_mor1. <span class="nb">unfold</span> MappingCylinderIsoHomot_mor2.
+    <span class="nb">cbn</span>. <span class="nb">fold</span> DS1 DS2. <span class="nb">cbn</span>. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> to_assoc. <span class="nb">rewrite</span> to_assoc. <span class="nb">apply</span> maponpaths. <span class="nb">rewrite</span> to_commax'.
+    <span class="nb">rewrite</span> (to_commax'
+               _ _ ((to_Pr1 DS2) · (to_inv (MMor f i)) · (to_In2 DS1) · (to_In2 DS2))).
+    <span class="nb">rewrite</span> to_assoc. <span class="nb">rewrite</span> &lt;- PreAdditive_invrcomp. <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp. <span class="nb">apply</span> maponpaths. <span class="nb">rewrite</span> &lt;- to_assoc.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_invrcomp. <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp. <span class="nb">rewrite</span> (@to_rinvax' A (Additive.to_Zero A)).
+    <span class="nb">rewrite</span> to_lunax''. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MappingCylinderIsoHomot_eq</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧) :
+    to_binop _ _ (identity _) (to_inv (MappingCylinderMor2 f · MappingCylinderMor1 f)) =
+    ComplexHomotMorphism A (MappingCylinderIsoHomot f).
+  <span class="kn">Proof</span>.
+    use MorphismEq. <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> MappingCylinderMor1_mor. <span class="nb">unfold</span> MappingCylinderMor2_mor. <span class="nb">cbn</span>.
+    <span class="nb">set</span> (DS1 := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (C2 i)).
+    <span class="nb">set</span> (DS2 := to_BinDirectSums A (C1 i) DS1).
+    <span class="nb">rewrite</span> to_postmor_linear'. <span class="nb">rewrite</span> &lt;- to_binop_inv_inv.
+    <span class="nb">rewrite</span> &lt;- (to_BinOpId DS2).
+    <span class="nb">assert</span> (e : to_Pr2 DS2 · to_In2 DS2 = to_Pr2 DS2 · identity _ · to_In2 DS2).
+    {
+      <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> e. <span class="nb">clear</span> e. <span class="nb">rewrite</span> &lt;- (to_BinOpId DS1). <span class="nb">rewrite</span> to_premor_linear'.
+    <span class="nb">rewrite</span> to_postmor_linear'. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> to_assoc. <span class="nb">rewrite</span> to_assoc.
+    <span class="nb">rewrite</span> (to_commax'
+               _ (to_inv (to_Pr1 DS2 · MMor f i · to_In2 DS1 · to_In2 DS2))).
+    <span class="nb">rewrite</span> &lt;- (to_assoc
+                 _ _ _ (to_inv (to_Pr1 DS2 · MMor f i · to_In2 DS1 · to_In2 DS2))).
+    <span class="nb">rewrite</span> (@to_rinvax' A (Additive.to_Zero A)). <span class="nb">rewrite</span> to_lunax''. <span class="nb">rewrite</span> &lt;- to_assoc.
+    use (pathscomp0 (MappingCylinderisoHomot_eq3 f i)).
+    <span class="nb">rewrite</span> &lt;- (MappingCylinderIsoHomot_eq1 f i). <span class="nb">rewrite</span> &lt;- (MappyngCylinderIsoHomot_eq2 f i).
+    <span class="nb">unfold</span> DS2. <span class="nb">unfold</span> DS1. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MappingCylinderIso_eq2</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧) :
+    (# (ComplexHomotFunctor A) (MappingCylinderMor2 f))
+      · (# (ComplexHomotFunctor A) (MappingCylinderMor1 f)) = identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- functor_comp. <span class="nb">rewrite</span> &lt;- functor_id. <span class="nb">apply</span> pathsinv0.
+    use ComplexHomotFunctor_rel_mor'.
+    - <span class="bp">exact</span> (MappingCylinderIsoHomot f).
+    - <span class="bp">exact</span> (MappingCylinderIsoHomot_eq f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">MappingCylinderIso</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧) :
+    iso (ComplexHomotFunctor A C2) (ComplexHomotFunctor A (MappingCylinder A f)).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> (# (ComplexHomotFunctor A) (MappingCylinderMor1 f)).
+    - use is_iso_qinv.
+      + <span class="bp">exact</span> (# (ComplexHomotFunctor A) (MappingCylinderMor2 f)).
+      + <span class="nb">split</span>.
+        * <span class="bp">exact</span> (MappingCylinderIso_eq1 f).
+        * <span class="bp">exact</span> (MappingCylinderIso_eq2 f).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">mapping_cylinder_KA_iso</span>.
+
+<span class="kn">Local</span> <span class="kn">Transparent</span> hz isdecrelhzeq hzplus iscommringops ZeroArrow.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/HomologicalAlgebra/MappingCylinder.v</tt>, line 6)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/UnivalenceAxiom.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - Mapping cylinder
+  &gt; - Let f : X -&gt; Y be a morphism of complexes, then Y is isomorphic to Cyl(f) in K(A)
+  &gt; *)&gt;&gt;&gt;Require Import UniMath.Foundations.UnivalenceAxiom.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.PartD.
+  &gt; Require Import UniMath.Foundations.Propositions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

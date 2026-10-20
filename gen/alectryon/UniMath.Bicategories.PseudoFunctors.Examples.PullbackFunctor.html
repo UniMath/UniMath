@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PullbackFunctor.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*************************************************************</span>
+
+<span class="sd"> Pullback functors</span>
+
+<span class="sd"> In this file, we look at the change of base functors arising</span>
+<span class="sd"> from pullbacks. We look at two version:</span>
+
+<span class="sd"> 1. Change of base for slice bicategories</span>
+<span class="sd"> 2. Change of base for slices of display map bicategories</span>
+<span class="sd"> 3. Change of base in the discrete case</span>
+
+<span class="sd"> *************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.PullbackFunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Examples.OpCellBicatLimits.
+<span class="kn">Import</span> PullbackFunctions.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Slice.
+<span class="kn">Require Import</span> UniMath.Bicategories.Logic.DisplayMapBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DisplayMapBicatSlice.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Change of base for slice bicategories</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">PullbackFunctor</span>.
+  <span class="kn">Context</span> (<span class="nv">B</span> : bicat_with_pb)
+          {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+          (<span class="nv">f</span> : b₁ --&gt; b₂).
+
+  <span class="kn">Definition</span> <span class="nf">pb_psfunctor_data</span>
+    : psfunctor_data
+        (slice_bicat b₂)
+        (slice_bicat b₁).
+  <span class="kn">Proof</span>.
+    use make_psfunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">g</span>, pb_obj f (pr2 g) ,, pb_pr1 f (pr2 g)).
+    - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">g₁</span> <span class="nv">g₂</span> <span class="nv">α</span>, _ ,, _).
+      + <span class="bp">exact</span> (f /≃₁ pr2 α).
+      + <span class="bp">exact</span> (inv_of_invertible_2cell (pb_on_1cell_pr1 f (pr2 α))).
+    - <span class="nb">intros</span> g₁ g₂ α β p.
+      <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (f /≃₂ pr2 p).
+      + <span class="bp">exact</span> (pb_on_2cell_coh (pr2 α) (pr2 β) (pr1 p) (pr2 p)).
+    - <span class="nb">intro</span> g.
+      <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (pb_1cell_on_id f (pr2 g)).
+      + <span class="bp">exact</span> (pb_1cell_on_id_coh f (pr2 g)).
+    - <span class="nb">intros</span> g₁ g₂ g₃ α β ; <span class="nb">cbn</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (pb_1cell_on_comp f (pr2 α) (pr2 β)).
+      + <span class="bp">exact</span> (pb_1cell_on_comp_coh f (pr2 α) (pr2 β)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pb_psfunctor_laws</span>
+    : psfunctor_laws pb_psfunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> g₁ g₂ α.
+      use eq_2cell_slice ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pb_2cell_on_id.
+    - <span class="nb">intros</span> g₁ g₂ α β γ p q.
+      use eq_2cell_slice ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pb_2cell_on_comp.
+    - <span class="nb">intros</span> g₁ g₂ α.
+      use eq_2cell_slice ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pb_2cell_on_lunitor.
+    - <span class="nb">intros</span> g₁ g₂ α.
+      use eq_2cell_slice ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pb_2cell_on_runitor.
+    - <span class="nb">intros</span> g₁ g₂ g₃ g₄ α β γ.
+      use eq_2cell_slice ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pb_2cell_on_lassociator.
+    - <span class="nb">intros</span> g₁ g₂ g₃ α β₁ β₂ p.
+      use eq_2cell_slice ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pb_2cell_on_lwhisker.
+    - <span class="nb">intros</span> g₁ g₂ g₃ α₁ α₂ β p.
+      use eq_2cell_slice ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pb_2cell_on_rwhisker.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pb_psfunctor_invertible_cells</span>
+    : invertible_cells pb_psfunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> is_invertible_2cell_in_slice_bicat ; <span class="nb">cbn</span>.
+      use is_invertible_2cell_pb_ump_cell.
+      + is_iso.
+      + is_iso.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> is_invertible_2cell_in_slice_bicat ; <span class="nb">cbn</span>.
+      use is_invertible_2cell_pb_ump_cell.
+      + is_iso.
+        * <span class="nb">apply</span> property_from_invertible_2cell.
+        * <span class="nb">apply</span> property_from_invertible_2cell.
+      + is_iso.
+        * <span class="nb">apply</span> property_from_invertible_2cell.
+        * <span class="nb">apply</span> property_from_invertible_2cell.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pb_psfunctor</span>
+    : psfunctor
+        (slice_bicat b₂)
+        (slice_bicat b₁).
+  <span class="kn">Proof</span>.
+    use make_psfunctor.
+    - <span class="bp">exact</span> pb_psfunctor_data.
+    - <span class="bp">exact</span> pb_psfunctor_laws.
+    - <span class="bp">exact</span> pb_psfunctor_invertible_cells.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PullbackFunctor</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Change of base for slices of display map bicategories</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">DispMapPullbackFunctor</span>.
+  <span class="kn">Context</span> (<span class="nv">B</span> : bicat_with_pb)
+          (<span class="nv">D</span> : disp_map_bicat B)
+          {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+          (<span class="nv">f</span> : b₁ --&gt; b₂).
+
+  <span class="kn">Section</span> <span class="nf">PredMor_for_PB_Mor</span>.
+    <span class="kn">Context</span> {<span class="nv">g₁</span> <span class="nv">g₂</span> : disp_map_slice_bicat D b₂}
+            (<span class="nv">α</span> : g₁ --&gt; g₂).
+
+    <span class="kn">Let</span> <span class="nf">γ</span> : invertible_2cell
+              ((π₂ : f /≃ pr12 g₁ --&gt; pr1 g₁) · pr1 α · pr12 g₂)
+              (π₁ · id₁ b₁ · f)
+      := comp_of_invertible_2cell
+           (rassociator_invertible_2cell _ _ _)
+           (comp_of_invertible_2cell
+              (lwhisker_of_invertible_2cell
+                 _
+                 (inv_of_invertible_2cell (pr22 α)))
+              (comp_of_invertible_2cell
+                 (inv_of_invertible_2cell (pb_cell f (pr12 g₁)))
+                 (rwhisker_of_invertible_2cell
+                    _
+                    (rinvunitor_invertible_2cell _)))).
+
+    <span class="kn">Definition</span> <span class="nf">help_pred_mor_pb_on_1cell</span>
+      : pb_ump_mor
+          (mirror_has_pb_ump (pb_obj_has_pb_ump f (pr12 g₂)))
+          (make_pb_cone
+             (f /≃ pr12 g₁)
+             ((π₂ : B ⟦ f /≃ pr12 g₁, pr1 g₁ ⟧) · pr1 α)
+             (π₁ · id₁ b₁)
+             γ)
+        ==&gt;
+        f /≃₁ pr22 α.
+    <span class="kn">Proof</span>.
+      use pb_ump_cell.
+      - <span class="nb">apply</span> (mirror_has_pb_ump (pb_obj_has_pb_ump f (pr12 g₂))).
+      - <span class="bp">exact</span> (pb_ump_mor_pr2
+                 (pb_obj_has_pb_ump f (pr12 g₂))
+                 (mirror_cone (make_pb_cone (f /≃ pr12 g₁) (π₂ · pr1 α) (π₁ · id₁ b₁) γ))
+               • (pb_on_1cell_pr2 _ _)^-<span class="mi">1</span>).
+      - <span class="bp">exact</span> (pb_ump_mor_pr1
+                 (pb_obj_has_pb_ump f (pr12 g₂))
+                 (mirror_cone (make_pb_cone (f /≃ pr12 g₁) (π₂ · pr1 α) (π₁ · id₁ b₁) γ))
+               • runitor _
+               • (pb_on_1cell_pr1 _ _)^-<span class="mi">1</span>).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp ;
+           <span class="nb">rewrite</span> !vassocl ;
+           use vcomp_move_R_pM ; [ is_iso | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">refine</span> (!_) ;
+           etrans ;
+           [ <span class="nb">apply</span> maponpaths_2 ;
+             <span class="bp">exact</span> (pb_ump_mor_cell
+                      (pb_obj_has_pb_ump f (pr12 g₂))
+                      (mirror_cone
+                         (make_pb_cone
+                            (f /≃ pr12 g₁)
+                            (π₂ · pr1 α)
+                            (π₁ · id₁ b₁)
+                            γ)))
+           | ] ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           etrans ;
+           [ <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="nb">rewrite</span> rassociator_lassociator ;
+             <span class="nb">rewrite</span> id2_left ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">apply</span> idpath
+           | ] ;
+           etrans ;
+           [ <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="nb">rewrite</span> rwhisker_vcomp ;
+             <span class="nb">rewrite</span> vcomp_linv ;
+             <span class="nb">rewrite</span> id2_rwhisker ;
+             <span class="nb">rewrite</span> id2_left ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">apply</span> idpath
+           | ] ;
+           <span class="nb">rewrite</span> !vassocr ;
+           use vcomp_move_R_Mp ; [ is_iso | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> pb_on_1cell_cell ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">refine</span> (!_) ;
+           etrans ;
+           [ <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="nb">rewrite</span> rassociator_lassociator ;
+             <span class="nb">rewrite</span> id2_left ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">apply</span> idpath
+           | ] ;
+           etrans ;
+           [ <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="nb">rewrite</span> rwhisker_vcomp ;
+             <span class="nb">rewrite</span> vcomp_linv ;
+             <span class="nb">rewrite</span> id2_rwhisker ;
+             <span class="nb">rewrite</span> id2_left ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">apply</span> idpath
+           | ];
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">pred_mor_pb_on_1cell</span>
+      : pred_mor D π₁ π₁ (f /≃₁ pr22 α).
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (pred_mor_closed_under_pb_ump_mor
+              D
+              _ _ _ _ _ _ _ _ _
+              (mirror_has_pb_ump (pb_obj_has_pb_ump f (pr12 g₂)))
+              _
+              _
+              _ _
+              (id₁ _)
+              γ
+              (pr22 g₂)
+              (mor_of_pb_preserves_pred_ob
+                 D
+                 (pr22 g₂)
+                 (mirror_has_pb_ump (pb_obj_has_pb_ump f (pr12 g₂))))
+              (comp_pred_mor
+                 D
+                 (mor_of_pb_preserves_pred_ob
+                    D
+                    (pr22 g₁)
+                    (mirror_has_pb_ump (pb_obj_has_pb_ump f (pr12 g₁))))
+                 (pr12 α)))
+        <span class="k">as</span> c.
+      use (invertible_pred_mor_3 _ _ c).
+      use make_invertible_2cell.
+      - <span class="nb">apply</span> help_pred_mor_pb_on_1cell.
+      - use is_invertible_2cell_pb_ump_cell.
+        + is_iso.
+          <span class="nb">apply</span> property_from_invertible_2cell.
+        + is_iso.
+          <span class="nb">apply</span> property_from_invertible_2cell.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">PredMor_for_PB_Mor</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_pb_psfunctor_data</span>
+    : psfunctor_data
+        (disp_map_slice_bicat D b₂)
+        (disp_map_slice_bicat D b₁).
+  <span class="kn">Proof</span>.
+    use make_psfunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">g</span>,
+             pb_obj f (pr12 g)
+             ,,
+             pb_pr1 f (pr12 g)
+             ,,
+             pb_preserves_pred_ob
+               D
+               (pr22 g)
+               (mirror_has_pb_ump (pb_obj_has_pb_ump f (pr12 g)))).
+    - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">g₁</span> <span class="nv">g₂</span> <span class="nv">α</span>, _ ,, _ ,, _).
+      + <span class="bp">exact</span> (f /≃₁ pr22 α).
+      + <span class="nb">apply</span> pred_mor_pb_on_1cell.
+      + <span class="bp">exact</span> (inv_of_invertible_2cell (pb_on_1cell_pr1 f (pr22 α))).
+    - <span class="nb">intros</span> g₁ g₂ α β p.
+      <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (f /≃₂ pr2 p).
+      + <span class="bp">exact</span> (pb_on_2cell_coh (pr22 α) (pr22 β) (pr1 p) (pr2 p)).
+    - <span class="nb">intro</span> g.
+      <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (pb_1cell_on_id f (pr12 g)).
+      + <span class="bp">exact</span> (pb_1cell_on_id_coh f (pr12 g)).
+    - <span class="nb">intros</span> g₁ g₂ g₃ α β ; <span class="nb">cbn</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (pb_1cell_on_comp f (pr22 α) (pr22 β)).
+      + <span class="bp">exact</span> (pb_1cell_on_comp_coh f (pr22 α) (pr22 β)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_pb_psfunctor_laws</span>
+    : psfunctor_laws disp_map_pb_psfunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> g₁ g₂ α.
+      use eq_2cell_disp_map_slice ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pb_2cell_on_id.
+    - <span class="nb">intros</span> g₁ g₂ α β γ p q.
+      use eq_2cell_disp_map_slice ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pb_2cell_on_comp.
+    - <span class="nb">intros</span> g₁ g₂ α.
+      use eq_2cell_disp_map_slice ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pb_2cell_on_lunitor.
+    - <span class="nb">intros</span> g₁ g₂ α.
+      use eq_2cell_disp_map_slice ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pb_2cell_on_runitor.
+    - <span class="nb">intros</span> g₁ g₂ g₃ g₄ α β γ.
+      use eq_2cell_disp_map_slice ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pb_2cell_on_lassociator.
+    - <span class="nb">intros</span> g₁ g₂ g₃ α β₁ β₂ p.
+      use eq_2cell_disp_map_slice ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pb_2cell_on_lwhisker.
+    - <span class="nb">intros</span> g₁ g₂ g₃ α₁ α₂ β p.
+      use eq_2cell_disp_map_slice ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pb_2cell_on_rwhisker.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_pb_psfunctor_invertible_cells</span>
+    : invertible_cells disp_map_pb_psfunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> is_invertible_2cell_in_disp_map_slice_bicat ; <span class="nb">cbn</span>.
+      use is_invertible_2cell_pb_ump_cell.
+      + is_iso.
+      + is_iso.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> is_invertible_2cell_in_disp_map_slice_bicat ; <span class="nb">cbn</span>.
+      use is_invertible_2cell_pb_ump_cell.
+      + is_iso.
+        * <span class="nb">apply</span> property_from_invertible_2cell.
+        * <span class="nb">apply</span> property_from_invertible_2cell.
+      + is_iso.
+        * <span class="nb">apply</span> property_from_invertible_2cell.
+        * <span class="nb">apply</span> property_from_invertible_2cell.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_pb_psfunctor</span>
+    : psfunctor
+        (disp_map_slice_bicat D b₂)
+        (disp_map_slice_bicat D b₁).
+  <span class="kn">Proof</span>.
+    use make_psfunctor.
+    - <span class="bp">exact</span> disp_map_pb_psfunctor_data.
+    - <span class="bp">exact</span> disp_map_pb_psfunctor_laws.
+    - <span class="bp">exact</span> disp_map_pb_psfunctor_invertible_cells.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">DispMapPullbackFunctor</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Change of base in the discrete case</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">DiscreteDispMapPullbackFunctor</span>.
+  <span class="kn">Context</span> (<span class="nv">B</span> : bicat_with_pb)
+          (<span class="nv">HB</span> : is_univalent_2_1 B)
+          (<span class="nv">D</span> : disp_map_bicat B)
+          (<span class="nv">HD₁</span> : arrow_subbicat_props D)
+          (<span class="nv">HD₂</span> : contained_in_discrete D)
+          {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+          (<span class="nv">f</span> : b₁ --&gt; b₂).
+
+  <span class="kn">Definition</span> <span class="nf">discrete_disp_map_pb_functor_data</span>
+    : functor_data
+        (discrete_disp_map_slice HB HD₁ HD₂ b₂)
+        (discrete_disp_map_slice HB HD₁ HD₂ b₁).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">g</span>, disp_map_pb_psfunctor B D f g).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">g₁</span> <span class="nv">g₂</span> <span class="nv">α</span>, #(disp_map_pb_psfunctor B D f) α).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">discrete_disp_map_pb_is_functor</span>
+    : is_functor discrete_disp_map_pb_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> g.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> isotoid_2_1.
+      + <span class="nb">apply</span> is_univalent_2_1_disp_map_slice.
+        * <span class="bp">exact</span> HB.
+        * <span class="bp">exact</span> HD₁.
+      + <span class="bp">exact</span> (psfunctor_id (disp_map_pb_psfunctor B D f) g).
+    - <span class="nb">intros</span> g₁ g₂ g₃ α β.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> isotoid_2_1.
+      + <span class="nb">apply</span> is_univalent_2_1_disp_map_slice.
+        * <span class="bp">exact</span> HB.
+        * <span class="bp">exact</span> HD₁.
+      + <span class="bp">exact</span> (psfunctor_comp (disp_map_pb_psfunctor B D f) α β).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">discrete_disp_map_pb_functor</span>
+    : discrete_disp_map_slice HB HD₁ HD₂ b₂
+      ⟶
+      discrete_disp_map_slice HB HD₁ HD₂ b₁.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> discrete_disp_map_pb_functor_data.
+    - <span class="bp">exact</span> discrete_disp_map_pb_is_functor.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">DiscreteDispMapPullbackFunctor</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/PseudoFunctors/Examples/PullbackFunctor.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Change of base in the discrete case
+  &gt;
+  &gt;  *************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,910 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PathGroupoid.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">Bequivalence between 1-types and univalent groupoids</span>
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Groupoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Base.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Map1Cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Map2Cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.StrictIdentitor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.StrictCompositor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Biequivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Biadjunction.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.Examples.Whiskering.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.Examples.Unitality.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.Examples.Associativity.
+<span class="kn">Require Import</span> UniMath.Bicategories.Modifications.Modification.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.OneTypes.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.Groupoids.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Definition</span> <span class="nf">one_type_to_groupoid</span>
+           (<span class="nv">X</span> : one_type)
+  : univalent_groupoid
+  := path_univalent_groupoid (pr2 X).
+
+<span class="sd">(** Action on morphisms *)</span>
+<span class="kn">Definition</span> <span class="nf">function_to_functor_data</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : one_type}
+           (<span class="nv">f</span> : X → Y)
+  : functor_data (one_type_to_groupoid X) (one_type_to_groupoid Y).
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="bp">exact</span> f.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">p</span>, maponpaths f p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">function_to_functor_laws</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : one_type}
+           (<span class="nv">f</span> : X → Y)
+  : is_functor (function_to_functor_data f).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x y z p q ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> maponpathscomp0.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">function_to_functor</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : one_type}
+           (<span class="nv">f</span> : X → Y)
+  : one_type_to_groupoid X ⟶ one_type_to_groupoid Y.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - <span class="bp">exact</span> (function_to_functor_data f).
+  - <span class="bp">exact</span> (function_to_functor_laws f).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Action on cells *)</span>
+<span class="kn">Definition</span> <span class="nf">path_to_nattrans</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : one_type}
+           {<span class="nv">f</span> <span class="nv">g</span> : X → Y}
+           (<span class="nv">p</span> : homotsec f g)
+  : function_to_functor f ⟹ function_to_functor g.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> p.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y q ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+       <span class="nb">induction</span> q ; <span class="nb">simpl</span> ;
+       <span class="nb">refine</span> (!_) ;
+       <span class="nb">apply</span> pathscomp0rid).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Identitor *)</span>
+<span class="kn">Definition</span> <span class="nf">path_groupoid_identitor</span>
+           (<span class="nv">X</span> : one_type)
+  : functor_identity _ ⟹ function_to_functor (<span class="k">λ</span> (<span class="nv">x</span> : X), x).
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> idpath.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y p ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+       <span class="nb">induction</span> p ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Compositor *)</span>
+<span class="kn">Definition</span> <span class="nf">path_groupoid_compositor</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : one_type}
+           (<span class="nv">f</span> : X → Y)
+           (<span class="nv">g</span> : Y → Z)
+  : (function_to_functor f ∙ function_to_functor g)
+      ⟹
+      function_to_functor (<span class="k">λ</span> <span class="nv">x</span>, g(f x)).
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, idpath (g(f x))).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y p ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+       <span class="nb">induction</span> p ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Data of path groupoid pseudofunctor *)</span>
+<span class="kn">Definition</span> <span class="nf">path_groupoid_data</span>
+  : psfunctor_data one_types grpds.
+<span class="kn">Proof</span>.
+  use make_psfunctor_data.
+  - <span class="bp">exact</span> one_type_to_groupoid.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, function_to_functor f ,, tt).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">p</span>, path_to_nattrans p ,, tt).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, path_groupoid_identitor X ,, tt).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span> <span class="nv">g</span>, path_groupoid_compositor f g ,, tt).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Laws *)</span>
+<span class="kn">Definition</span> <span class="nf">path_groupoid_laws</span>
+  : psfunctor_laws path_groupoid_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> X Y f.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit. }
+    <span class="nb">apply</span> nat_trans_eq.
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y f g h p q.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit. }
+    <span class="nb">apply</span> nat_trans_eq.
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y f.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit. }
+    <span class="nb">apply</span> nat_trans_eq.
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y f.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit. }
+    <span class="nb">apply</span> nat_trans_eq.
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> W X Y Z f g h.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit. }
+    <span class="nb">apply</span> nat_trans_eq.
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y Z f g₁ g₂ p.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit. }
+    <span class="nb">apply</span> nat_trans_eq.
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> pathscomp0rid.
+  - <span class="nb">intros</span> X Y Z f₁ f₂ g p.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit. }
+    <span class="nb">apply</span> nat_trans_eq.
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> pathscomp0rid.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** The identitor and compositor are invertible *)</span>
+<span class="kn">Definition</span> <span class="nf">path_groupoid_invertible_cells</span>
+  : invertible_cells path_groupoid_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> locally_groupoid_grpds.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The pseudofunctor *)</span>
+<span class="kn">Definition</span> <span class="nf">path_groupoid</span>
+  : psfunctor one_types grpds.
+<span class="kn">Proof</span>.
+  use make_psfunctor.
+  - <span class="bp">exact</span> path_groupoid_data.
+  - <span class="bp">exact</span> path_groupoid_laws.
+  - <span class="bp">exact</span> path_groupoid_invertible_cells.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The adjoint *)</span>
+<span class="kn">Definition</span> <span class="nf">objects_of_grpd_data</span>
+  : psfunctor_data grpds one_types.
+<span class="kn">Proof</span>.
+  use make_psfunctor_data.
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">G</span>, make_one_type _ (univalent_category_has_groupoid_ob _)).
+    <span class="nb">apply</span> G.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">F</span> <span class="nv">x</span>, (pr1 F : _ ⟶ _) x).
+  - <span class="nb">intros</span> G₁ G₂ F₁ F₂ α ; <span class="nb">simpl</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> isotoid.
+    { <span class="nb">apply</span> (pr1 G₂). }
+    use make_z_iso'.
+    + <span class="bp">exact</span> ((pr1 α : _ ⟹ _) x).
+    + <span class="bp">exact</span> (pr2 G₂ _ _ ((pr1 α : _ ⟹ _) x)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, idpath _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, idpath _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">objects_of_grpd_is_psfunctor</span>
+  : psfunctor_laws objects_of_grpd_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> G₁ G₂ F ; <span class="nb">cbn</span>.
+    use funextsec.
+    <span class="nb">intro</span> x.
+    <span class="nb">refine</span> (_ @ isotoid_identity_iso _ _ _).
+    <span class="nb">apply</span> maponpaths.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism. }
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> G₁ G₂ F₁ F₂ F₃ α₁ α₂ ; <span class="nb">cbn</span>.
+    use funextsec.
+    <span class="nb">intro</span> x ; <span class="nb">unfold</span> homotcomp.
+    <span class="nb">rewrite</span> &lt;- isotoid_comp.
+    <span class="nb">apply</span> maponpaths.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism. }
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> G₁ G₂ F ; <span class="nb">cbn</span>.
+    use funextsec.
+    <span class="nb">intro</span> x ; <span class="nb">unfold</span> homotcomp, homotfun ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">refine</span> (_ @ isotoid_identity_iso _ _ _).
+    <span class="nb">apply</span> maponpaths.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism. }
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> G₁ G₂ F ; <span class="nb">cbn</span>.
+    use funextsec.
+    <span class="nb">intro</span> x ; <span class="nb">unfold</span> homotcomp, homotfun ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">refine</span> (_ @ isotoid_identity_iso _ _ _).
+    <span class="nb">apply</span> maponpaths.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism. }
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> G₁ G₂ G₃ G₄ F₁ F₂ F₃ ; <span class="nb">cbn</span>.
+    use funextsec.
+    <span class="nb">intro</span> x ; <span class="nb">unfold</span> homotcomp, homotfun ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ @ isotoid_identity_iso _ _ _).
+    <span class="nb">apply</span> maponpaths.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism. }
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> G₁ G₂ G₃ F₁ F₂ F₃ α ; <span class="nb">cbn</span>.
+    use funextsec.
+    <span class="nb">intro</span> x ; <span class="nb">unfold</span> homotcomp, homotfun, funhomotsec ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> pathscomp0rid.
+    <span class="nb">apply</span> maponpaths.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism. }
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> G₁ G₂ G₃ F₁ F₂ F₃ α ; <span class="nb">cbn</span>.
+    use funextsec.
+    <span class="nb">intro</span> x ; <span class="nb">unfold</span> homotcomp, homotfun, funhomotsec ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> pathscomp0rid.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_isotoid.
+    }
+    <span class="nb">apply</span> maponpaths.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism. }
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">objects_of_grpd</span>
+  : psfunctor grpds one_types.
+<span class="kn">Proof</span>.
+  use make_psfunctor.
+  - <span class="bp">exact</span> objects_of_grpd_data.
+  - <span class="bp">exact</span> objects_of_grpd_is_psfunctor.
+  - <span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> one_type_2cell_iso.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The biadjunction *)</span>
+<span class="kn">Definition</span> <span class="nf">path_groupoid_unit_data</span>
+  : pstrans_data
+      (id_psfunctor one_types)
+      (comp_psfunctor objects_of_grpd path_groupoid).
+<span class="kn">Proof</span>.
+  use make_pstrans_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">x</span>, x).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, id2_invertible_2cell _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">eq_isotoid</span>
+      {<span class="nv">C</span> : univalent_category}
+      {<span class="nv">X</span> <span class="nv">Y</span> : C}
+      (<span class="nv">f</span> : z_iso X Y) (<span class="nv">p</span> : X = Y)
+  : f = idtoiso p → isotoid C (pr2 C) f = p.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">rewrite</span> H.
+  <span class="nb">apply</span> isotoid_idtoiso.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_inv_is_pstrans</span>
+  : is_pstrans path_groupoid_unit_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> X Y f g p.
+    use funextsec ; <span class="nb">intro</span> x.
+    <span class="nb">refine</span> (pathscomp0rid _ @ _ @ !(maponpathsidfun _)).
+    <span class="nb">cbn</span> ; <span class="nb">unfold</span> funhomotsec.
+    <span class="nb">apply</span> (@eq_isotoid (path_univalent_groupoid _)).
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism. }
+    <span class="nb">cbn</span>.
+    <span class="nb">induction</span> (p x).
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X ; <span class="nb">cbn</span>.
+    use funextsec ; <span class="nb">intro</span> x.
+    <span class="nb">unfold</span> homotcomp, funhomotsec, homotfun, homotrefl ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> pathscomp0rid ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> (@eq_isotoid (path_univalent_groupoid _)).
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism. }
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y Z f g ; <span class="nb">cbn</span>.
+    use funextsec ; <span class="nb">intro</span> x.
+    <span class="nb">unfold</span> homotcomp, funhomotsec, homotfun, homotrefl ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> pathscomp0rid ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> (@eq_isotoid (path_univalent_groupoid _)).
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism. }
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_unit</span>
+  : pstrans
+      (id_psfunctor one_types)
+      (comp_psfunctor objects_of_grpd path_groupoid).
+<span class="kn">Proof</span>.
+  use make_pstrans.
+  - <span class="bp">exact</span> path_groupoid_unit_data.
+  - <span class="bp">exact</span> path_groupoid_inv_is_pstrans.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_counit_data_functor_data</span>
+           (<span class="nv">G</span> : univalent_groupoid)
+  : functor_data (path_groupoid (objects_of_grpd G) : univalent_groupoid) G.
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, x).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">p</span>, idtoiso p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_counit_data_functor_is_functor</span>
+           (<span class="nv">G</span> : univalent_groupoid)
+  : is_functor (path_groupoid_counit_data_functor_data G).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x ; <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x y z f g ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (maponpaths pr1 (idtoiso_concat _ _ _ _ f g)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_counit_data_functor</span>
+           (<span class="nv">G</span> : univalent_groupoid)
+  : (path_groupoid (objects_of_grpd G) : univalent_groupoid) ⟶ G.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - <span class="bp">exact</span> (path_groupoid_counit_data_functor_data G).
+  - <span class="bp">exact</span> (path_groupoid_counit_data_functor_is_functor G).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_counit_data_nat_trans_data</span>
+           (<span class="nv">G₁</span> <span class="nv">G₂</span> : grpds)
+           (<span class="nv">F</span> : G₁ --&gt; G₂)
+  : nat_trans_data
+      (path_groupoid_counit_data_functor G₁ ∙ pr1 F)
+      ((function_to_functor (# objects_of_grpd F))
+         ∙ path_groupoid_counit_data_functor G₂)
+  := <span class="k">λ</span> <span class="nv">_</span>, id₁ _.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_counit_data_nat_trans_is_nat_trans</span>
+           (<span class="nv">G₁</span> <span class="nv">G₂</span> : grpds)
+           (<span class="nv">F</span> : G₁ --&gt; G₂)
+  : is_nat_trans _ _ (path_groupoid_counit_data_nat_trans_data G₁ G₂ F).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_left, id_right.
+  <span class="nb">refine</span> (!_).
+  <span class="bp">exact</span> (maponpaths pr1 (maponpaths_idtoiso _ _ _ _ _ _)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_counit_data_nat_trans</span>
+           (<span class="nv">G₁</span> <span class="nv">G₂</span> : grpds)
+           (<span class="nv">F</span> : G₁ --&gt; G₂)
+  : (path_groupoid_counit_data_functor G₁ ∙ pr1 F)
+      ⟹
+      function_to_functor (#objects_of_grpd F)
+      ∙ path_groupoid_counit_data_functor G₂.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (path_groupoid_counit_data_nat_trans_data G₁ G₂ F).
+  - <span class="bp">exact</span> (path_groupoid_counit_data_nat_trans_is_nat_trans G₁ G₂ F).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_counit_data</span>
+  : pstrans_data
+      (comp_psfunctor path_groupoid objects_of_grpd)
+      (id_psfunctor grpds).
+<span class="kn">Proof</span>.
+  use make_pstrans_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">G</span>, path_groupoid_counit_data_functor G ,, tt).
+  - <span class="nb">intros</span> G₁ G₂ F.
+    use make_invertible_2cell.
+    + <span class="bp">exact</span> (path_groupoid_counit_data_nat_trans G₁ G₂ F ,, tt).
+    + <span class="nb">apply</span> locally_groupoid_grpds.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_counit_is_pstrans</span>
+  : is_pstrans path_groupoid_counit_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> G₁ G₂ F₁ F₂ α.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit. }
+    use nat_trans_eq.
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">rewrite</span> idtoiso_isotoid.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> G.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit. }
+    use nat_trans_eq.
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_left, !id_right.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> G₁ G₂ G₃ F₁ F₂.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit. }
+    use nat_trans_eq.
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !id_left, !id_right.
+    <span class="nb">rewrite</span> (functor_id (pr1 F₂)).
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_counit</span>
+  : pstrans
+      (comp_psfunctor path_groupoid objects_of_grpd)
+      (id_psfunctor grpds).
+<span class="kn">Proof</span>.
+  use make_pstrans.
+  - <span class="bp">exact</span> path_groupoid_counit_data.
+  - <span class="bp">exact</span> path_groupoid_counit_is_pstrans.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_biadj_unit_counit</span>
+  : left_biadj_unit_counit path_groupoid.
+<span class="kn">Proof</span>.
+  use make_biadj_unit_counit.
+  - <span class="bp">exact</span> objects_of_grpd.
+  - <span class="bp">exact</span> path_groupoid_unit.
+  - <span class="bp">exact</span> path_groupoid_counit.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_biadj_triangle_l_data</span>
+  : invertible_modification_data
+      (biadj_triangle_l_lhs path_groupoid_biadj_unit_counit)
+      (id_pstrans path_groupoid).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X.
+  use make_invertible_2cell.
+  - <span class="nb">refine</span> (_ ,, tt).
+    use make_nat_trans.
+    + <span class="bp">exact</span> idpath.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y p ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+         <span class="nb">induction</span> p ; <span class="nb">simpl</span> ;
+         <span class="nb">apply</span> idpath).
+  - <span class="nb">apply</span> locally_groupoid_grpds.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_biadj_triangle_l_is_modification</span>
+  : is_modification path_groupoid_biadj_triangle_l_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y f.
+  use subtypePath.
+  { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit. }
+  use nat_trans_eq.
+  { <span class="nb">apply</span> homset_property. }
+  <span class="nb">intro</span> x.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_biadj_triangle_l</span>
+  : biadj_triangle_l_law path_groupoid_biadj_unit_counit.
+<span class="kn">Proof</span>.
+  use make_invertible_modification.
+  - <span class="bp">exact</span> path_groupoid_biadj_triangle_l_data.
+  - <span class="bp">exact</span> path_groupoid_biadj_triangle_l_is_modification.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_biadj_triangle_r_data</span>
+  : invertible_modification_data
+      (biadj_triangle_r_lhs path_groupoid_biadj_unit_counit)
+      (id_pstrans path_groupoid_biadj_unit_counit).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> G.
+  use make_invertible_2cell.
+  - <span class="bp">exact</span> idpath.
+  - <span class="nb">apply</span> one_type_2cell_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_biadj_triangle_r_is_modification</span>
+  : is_modification path_groupoid_biadj_triangle_r_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> G₁ G₂ F.
+  use funextsec.
+  <span class="nb">intro</span> x.
+  <span class="kp">repeat</span> (<span class="nb">refine</span> (pathscomp0rid _ @ _)).
+  <span class="nb">refine</span> (maponpathsidfun _ @ _).
+  <span class="nb">refine</span> (pathscomp0rid _ @ _).
+  <span class="nb">cbn</span> ; <span class="nb">unfold</span> path_groupoid_counit_data_nat_trans_data.
+  use eq_isotoid.
+  use subtypePath.
+  { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism. }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_biadj_triangle_r</span>
+  : biadj_triangle_r_law path_groupoid_biadj_unit_counit.
+<span class="kn">Proof</span>.
+  use make_invertible_modification.
+  - <span class="bp">exact</span> path_groupoid_biadj_triangle_r_data.
+  - <span class="bp">exact</span> path_groupoid_biadj_triangle_r_is_modification.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_biadj_data</span>
+  : left_biadj_data path_groupoid.
+<span class="kn">Proof</span>.
+  use make_biadj_data.
+  - <span class="bp">exact</span> path_groupoid_biadj_unit_counit.
+  - <span class="bp">exact</span> path_groupoid_biadj_triangle_l.
+  - <span class="bp">exact</span> path_groupoid_biadj_triangle_r.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Inverse of unit *)</span>
+<span class="kn">Definition</span> <span class="nf">path_groupoid_unit_inv_data</span>
+  : pstrans_data
+      (comp_psfunctor objects_of_grpd path_groupoid)
+      (id_psfunctor one_types).
+<span class="kn">Proof</span>.
+  use make_pstrans_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">x</span>, x).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, id2_invertible_2cell _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_unit_inv_is_pstrans</span>
+  : is_pstrans path_groupoid_unit_inv_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> X Y f g p.
+    use funextsec ; <span class="nb">intro</span> x.
+    <span class="nb">refine</span> (pathscomp0rid _ @ _ @ !(maponpathsidfun _)).
+    <span class="nb">cbn</span> ; <span class="nb">unfold</span> funhomotsec.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> (@eq_isotoid (path_univalent_groupoid _)).
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism. }
+    <span class="nb">cbn</span>.
+    <span class="nb">induction</span> (p x).
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X ; <span class="nb">cbn</span>.
+    use funextsec ; <span class="nb">intro</span> x.
+    <span class="nb">unfold</span> homotcomp, funhomotsec, homotfun, homotrefl ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> maponpathsidfun.
+    <span class="nb">apply</span> (@eq_isotoid (path_univalent_groupoid _)).
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism. }
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y Z f g ; <span class="nb">cbn</span>.
+    use funextsec ; <span class="nb">intro</span> x.
+    <span class="nb">unfold</span> homotcomp, funhomotsec, homotfun, homotrefl ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> maponpathsidfun.
+    <span class="nb">apply</span> (@eq_isotoid (path_univalent_groupoid _)).
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism. }
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_unit_inv</span>
+  : pstrans
+      (comp_psfunctor objects_of_grpd path_groupoid)
+      (id_psfunctor one_types).
+<span class="kn">Proof</span>.
+  use make_pstrans.
+  - <span class="bp">exact</span> path_groupoid_unit_inv_data.
+  - <span class="bp">exact</span> path_groupoid_unit_inv_is_pstrans.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_unit_unit_inv</span>
+  : invertible_modification
+      (comp_pstrans path_groupoid_unit path_groupoid_unit_inv)
+      (id_pstrans _).
+<span class="kn">Proof</span>.
+  use make_invertible_modification.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> id2_invertible_2cell.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> X Y f ;
+       use funextsec ;
+       <span class="nb">intro</span> ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_unit_inv_unit</span>
+  : invertible_modification
+      (comp_pstrans path_groupoid_unit_inv path_groupoid_unit)
+      (id_pstrans _).
+<span class="kn">Proof</span>.
+  use make_invertible_modification.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> id2_invertible_2cell.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> X Y f ;
+       use funextsec ;
+       <span class="nb">intro</span> x ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Inverse of counit *)</span>
+<span class="kn">Definition</span> <span class="nf">path_groupoid_counit_inv_data_functor_data</span>
+           (<span class="nv">G</span> : univalent_groupoid)
+  : functor_data G (path_groupoid (objects_of_grpd G) : univalent_groupoid).
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, x).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">p</span>, isotoid G (pr21 G) (p ,, pr2 G _ _ p)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_counit_inv_data_functor_is_functor</span>
+           (<span class="nv">G</span> : univalent_groupoid)
+  : is_functor (path_groupoid_counit_inv_data_functor_data G).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> eq_isotoid.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism. }
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x y z f g ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> eq_isotoid.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism. }
+    <span class="nb">rewrite</span> idtoiso_concat.
+    <span class="nb">rewrite</span> !idtoiso_isotoid.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_counit_inv_data_functor</span>
+           (<span class="nv">G</span> : univalent_groupoid)
+  : G ⟶ (path_groupoid (objects_of_grpd G) : univalent_groupoid).
+<span class="kn">Proof</span>.
+  use make_functor.
+  - <span class="bp">exact</span> (path_groupoid_counit_inv_data_functor_data G).
+  - <span class="bp">exact</span> (path_groupoid_counit_inv_data_functor_is_functor G).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_counit_inv_data_nat_trans_data</span>
+           (<span class="nv">G₁</span> <span class="nv">G₂</span> : grpds)
+           (<span class="nv">F</span> : G₁ --&gt; G₂)
+  : nat_trans_data
+      ((path_groupoid_counit_inv_data_functor G₁)
+         ∙ function_to_functor (# objects_of_grpd F))
+      (pr1 F ∙ path_groupoid_counit_inv_data_functor G₂)
+  := <span class="k">λ</span> <span class="nv">_</span>, id₁ _.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_counit_inv_data_nat_trans_is_nat_trans</span>
+           (<span class="nv">G₁</span> <span class="nv">G₂</span> : grpds)
+           (<span class="nv">F</span> : G₁ --&gt; G₂)
+  : is_nat_trans _ _ (path_groupoid_counit_inv_data_nat_trans_data G₁ G₂ F).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> pathscomp0rid.
+  <span class="nb">rewrite</span> (maponpaths_isotoid _ _ (pr1 F) _ (pr21 G₂)).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> subtypePath.
+  { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism. }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_counit_inv_data_nat_trans</span>
+           (<span class="nv">G₁</span> <span class="nv">G₂</span> : grpds)
+           (<span class="nv">F</span> : G₁ --&gt; G₂)
+  : ((path_groupoid_counit_inv_data_functor G₁)
+       ∙ function_to_functor (#objects_of_grpd F))
+      ⟹
+      (pr1 F∙ path_groupoid_counit_inv_data_functor G₂).
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (path_groupoid_counit_inv_data_nat_trans_data G₁ G₂ F).
+  - <span class="bp">exact</span> (path_groupoid_counit_inv_data_nat_trans_is_nat_trans G₁ G₂ F).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_counit_inv_data</span>
+  : pstrans_data
+      (id_psfunctor grpds)
+      (comp_psfunctor path_groupoid objects_of_grpd).
+<span class="kn">Proof</span>.
+  use make_pstrans_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">G</span>, path_groupoid_counit_inv_data_functor G ,, tt).
+  - <span class="nb">intros</span> G₁ G₂ F.
+    use make_invertible_2cell.
+    + <span class="bp">exact</span> (path_groupoid_counit_inv_data_nat_trans G₁ G₂ F ,, tt).
+    + <span class="nb">apply</span> locally_groupoid_grpds.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_counit_inv_is_pstrans</span>
+  : is_pstrans path_groupoid_counit_inv_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> G₁ G₂ F₁ F₂ α.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit. }
+    use nat_trans_eq.
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> pathscomp0rid.
+    <span class="nb">apply</span> maponpaths.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism. }
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> G.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit. }
+    use nat_trans_eq.
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> eq_isotoid.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism. }
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> G₁ G₂ G₃ F₁ F₂.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit. }
+    use nat_trans_eq.
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> eq_isotoid.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism. }
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_counit_inv</span>
+  : pstrans
+      (id_psfunctor grpds)
+      (comp_psfunctor path_groupoid objects_of_grpd).
+<span class="kn">Proof</span>.
+  use make_pstrans.
+  - <span class="bp">exact</span> path_groupoid_counit_inv_data.
+  - <span class="bp">exact</span> path_groupoid_counit_inv_is_pstrans.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_counit_counit_inv</span>
+  : invertible_modification
+      (comp_pstrans path_groupoid_counit path_groupoid_counit_inv)
+      (id_pstrans _).
+<span class="kn">Proof</span>.
+  use make_invertible_modification.
+  - <span class="nb">intro</span>.
+    use make_invertible_2cell.
+    + <span class="nb">refine</span> (_ ,, tt).
+      use make_nat_trans.
+      * <span class="bp">exact</span> idpath.
+      * <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y p ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> pathscomp0rid ;
+           <span class="nb">apply</span> eq_isotoid ;
+           use subtypePath ; <span class="kp">try</span> (<span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism) ;
+           <span class="nb">apply</span> idpath).
+    + <span class="nb">apply</span> locally_groupoid_grpds.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> G₁ G₂ F ;
+       use subtypePath ; <span class="kp">try</span> (<span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit) ;
+       use nat_trans_eq ; <span class="kp">try</span> (<span class="nb">apply</span> homset_property) ;
+       <span class="nb">intro</span> ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !pathscomp0rid ;
+       <span class="nb">apply</span> eq_isotoid ;
+       use subtypePath ; <span class="kp">try</span> (<span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism) ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_counit_inv_counit</span>
+  : invertible_modification
+      (comp_pstrans path_groupoid_counit_inv path_groupoid_counit)
+      (id_pstrans _).
+<span class="kn">Proof</span>.
+  use make_invertible_modification.
+  - <span class="nb">intro</span>.
+    use make_invertible_2cell.
+    + <span class="nb">refine</span> (_ ,, tt).
+      use make_nat_trans.
+      * <span class="bp">exact</span> identity.
+      * <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y p ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id_right, id_left, idtoiso_isotoid ;
+           <span class="nb">apply</span> idpath).
+    + <span class="nb">apply</span> locally_groupoid_grpds.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> G₁ G₂ F ;
+       use subtypePath ; <span class="kp">try</span> (<span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit) ;
+       use nat_trans_eq ; <span class="kp">try</span> (<span class="nb">apply</span> homset_property) ;
+       <span class="nb">intro</span> ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !id_left, id_right ;
+       <span class="nb">rewrite</span> (functor_id (pr1 F)) ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_biequiv_path_groupoid</span> : is_biequivalence path_groupoid.
+<span class="kn">Proof</span>.
+  use make_is_biequivalence.
+  - <span class="bp">exact</span> objects_of_grpd.
+  - <span class="bp">exact</span> path_groupoid_unit.
+  - <span class="bp">exact</span> path_groupoid_unit_inv.
+  - <span class="bp">exact</span> path_groupoid_counit.
+  - <span class="bp">exact</span> path_groupoid_counit_inv.
+  - <span class="bp">exact</span> (inv_of_invertible_2cell path_groupoid_unit_inv_unit).
+  - <span class="bp">exact</span> path_groupoid_unit_unit_inv.
+  - <span class="bp">exact</span> (inv_of_invertible_2cell path_groupoid_counit_counit_inv).
+  - <span class="bp">exact</span> path_groupoid_counit_inv_counit.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">biequiv_path_groupoid</span> : biequivalence one_types grpds
+  := path_groupoid ,, is_biequiv_path_groupoid.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/PseudoFunctors/Examples/PathGroupoid.v</tt>, line 4)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (**
+  &gt; Bequivalence between 1-types and univalent groupoids
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

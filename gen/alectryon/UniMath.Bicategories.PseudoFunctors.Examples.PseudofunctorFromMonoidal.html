@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PseudofunctorFromMonoidal.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">- Construction of a pseudofunctor from a strong monoidal functor - between the bicategories (trivially)</span>
+<span class="sd">  generated from the monoidal categories.</span>
+<span class="sd">- And the opposite direction: We fix two bicategories and a pseudofunctor between them and an object in</span>
+<span class="sd">  the domain bicategory. This gives rise to a strong monoidal functor between the associated monoidal</span>
+<span class="sd">  categories of endomorphisms for the fixed object and its image.</span>
+
+<span class="sd">Author: Ralph Matthes 2021</span>
+
+<span class="sd">*)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorsTensored.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicategoryFromMonoidal.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.MonoidalFromBicategory.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">monoidal_functor_to_psfunctor</span>.
+
+  <span class="kn">Context</span> (<span class="nv">M</span> <span class="nv">N</span> : monoidal_cat).
+
+  <span class="kn">Local Definition</span> <span class="nf">M_as_bicat</span> := bicat_from_monoidal M.
+  <span class="kn">Local Definition</span> <span class="nf">N_as_bicat</span> := bicat_from_monoidal N.
+
+  <span class="kn">Context</span> (<span class="nv">smF</span> : strong_monoidal_functor M N).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_functor_to_psfunctor_map_data</span>: psfunctor_data M_as_bicat N_as_bicat.
+<span class="kn">Proof</span>.
+  use make_psfunctor_data.
+  - <span class="nb">cbn</span>. <span class="bp">exact</span> (<span class="k">fun</span> <span class="nv">x</span> =&gt; x).
+  - <span class="nb">intros</span> a b. <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (functor_on_objects smF).
+  - <span class="nb">intros</span> a b f g. <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (functor_on_morphisms smF).
+  - <span class="nb">intros</span> a. <span class="nb">cbn</span>. <span class="bp">exact</span> (lax_monoidal_functor_ϵ smF).
+  - <span class="nb">intros</span> a b c f g. <span class="nb">cbn</span>. <span class="nb">apply</span> (lax_monoidal_functor_μ smF (f,g)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_functor_to_psfunctor_map_laws</span>: psfunctor_laws monoidal_functor_to_psfunctor_map_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">cbn</span>.
+  - <span class="nb">intros</span> H0 H1 a. <span class="nb">apply</span> functor_id.
+  - <span class="nb">intros</span> H0 H1 a b c f g. <span class="nb">apply</span> functor_comp.
+  - <span class="nb">intros</span> H0 H1 a. <span class="nb">apply</span> lax_monoidal_functor_unital.
+  - <span class="nb">intros</span> H0 H1 a. <span class="nb">apply</span> (lax_monoidal_functor_unital smF a).
+  - <span class="nb">intros</span> H0 H1 H2 H3 a b c.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (nat_z_iso_pointwise_z_iso (monoidal_cat_associator N) ((smF a, smF b), smF c))).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> functor_on_inv_from_z_iso'. }
+    <span class="nb">apply</span> z_iso_inv_on_left.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> lax_monoidal_functor_assoc.
+  - <span class="nb">intros</span> H0 H1 H2 a b1 b2 g. <span class="nb">red</span> <span class="k">in</span> g.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">assert</span> (Heq := nat_trans_ax (lax_monoidal_functor_μ smF) (a,,b1) (a,,b2) (id a,,g)).
+    <span class="nb">cbn</span> <span class="k">in</span> Heq.
+    <span class="nb">rewrite</span> functor_id <span class="k">in</span> Heq.
+    <span class="bp">exact</span> Heq.
+  - <span class="nb">intros</span> H0 H1 H2 a1 a2 b f.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">assert</span> (Heq := nat_trans_ax (lax_monoidal_functor_μ smF) (a1,,b) (a2,,b) (f,,id b)).
+    <span class="nb">cbn</span> <span class="k">in</span> Heq.
+    <span class="nb">rewrite</span> functor_id <span class="k">in</span> Heq.
+    <span class="bp">exact</span> Heq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_functor_to_psfunctor</span>: psfunctor M_as_bicat N_as_bicat.
+<span class="kn">Proof</span>.
+  use make_psfunctor.
+    - <span class="bp">exact</span> (monoidal_functor_to_psfunctor_map_data).
+    - <span class="bp">exact</span> (monoidal_functor_to_psfunctor_map_laws).
+    - <span class="nb">split</span> ; <span class="nb">red</span>; <span class="nb">cbn</span>.
+      + <span class="nb">intros</span> H0. <span class="nb">unfold</span> two_cells_from_monoidal.
+        <span class="k">exists</span> (<span class="nv">strong_monoidal_functor_ϵ_inv</span> <span class="nv">smF</span>).
+        <span class="bp">exact</span> (pr2 (strong_monoidal_functor_ϵ_is_z_iso smF)).
+      + <span class="nb">intros</span> H0 H1 H2 a b. <span class="nb">unfold</span> two_cells_from_monoidal.
+        <span class="k">exists</span> (<span class="nv">strong_monoidal_functor_μ_inv</span> <span class="nv">smF</span> (a,,b)).
+        <span class="bp">exact</span> (pr2 (strong_monoidal_functor_μ_is_nat_z_iso smF (a,,b))).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">monoidal_functor_to_psfunctor</span>.
+
+<span class="sd">(** *** Going into the opposite direction *)</span>
+<span class="sd">(** see the description in the file header *)</span>
+
+<span class="kn">Section</span> <span class="nf">psfunctor_to_monoidal_functor</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> bicategory_scope.
+<span class="kn">Import</span> Bicat.Notations.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : bicat}.
+<span class="kn">Context</span> (<span class="nv">c0</span>: ob C).
+<span class="kn">Context</span> {<span class="nv">D</span> : bicat}.
+<span class="kn">Context</span> (<span class="nv">psF</span>: psfunctor C D).
+
+<span class="kn">Local Definition</span> <span class="nf">d0</span> : D := psF c0.
+<span class="kn">Local Definition</span> <span class="nf">M</span> : monoidal_cat := monoidal_cat_from_bicat_and_ob c0.
+<span class="kn">Local Definition</span> <span class="nf">N</span> : monoidal_cat := monoidal_cat_from_bicat_and_ob d0.
+
+<span class="kn">Definition</span> <span class="nf">psfunctor_to_lax_monoidal_functor_data</span>: functor_data M N.
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="nb">cbn</span>. <span class="nb">intro</span> f. <span class="bp">exact</span> (# psF f).
+  - <span class="nb">intros</span> a b f. <span class="nb">red</span> <span class="k">in</span> f. <span class="nb">cbn</span> <span class="k">in</span> f.
+    <span class="nb">cbn</span>. <span class="bp">exact</span> (##psF f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">psfunctor_to_lax_monoidal_functor_data_is_functor</span> : is_functor psfunctor_to_lax_monoidal_functor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">cbn</span>.
+  - <span class="nb">intros</span> a. <span class="nb">apply</span> psF.
+  - <span class="nb">intros</span> a b c f g. <span class="nb">apply</span> psF.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">psfunctor_to_lax_monoidal_functor_functor</span> : M ⟶ N.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - <span class="bp">exact</span> psfunctor_to_lax_monoidal_functor_data.
+  - <span class="bp">exact</span> psfunctor_to_lax_monoidal_functor_data_is_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">auxμ</span> : nat_trans_data (monoidal_functor_map_dom M N psfunctor_to_lax_monoidal_functor_functor)
+                                       (monoidal_functor_map_codom M N psfunctor_to_lax_monoidal_functor_functor).
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>. <span class="nb">cbn</span>. <span class="nb">intro</span> fg.
+  <span class="bp">exact</span> (psfunctor_comp psF (pr1 fg) (pr2 fg)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">auxμ_is_nat_trans</span>: is_nat_trans _ _ auxμ.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>. <span class="nb">cbn</span>. <span class="nb">intros</span> gh gh' αβ.
+  <span class="nb">red</span> <span class="k">in</span> αβ. <span class="nb">cbn</span> <span class="k">in</span> αβ.
+  <span class="nb">change</span> (## psF (pr2 αβ) ⋆⋆ ## psF (pr1 αβ) • psfunctor_comp psF (pr1 gh') (pr2 gh') =
+          psfunctor_comp psF (pr1 gh) (pr2 gh) • ## psF (pr2 αβ ⋆⋆ pr1 αβ)).
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (psfunctor_comp_natural psF).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">μ</span> : monoidal_functor_map M N psfunctor_to_lax_monoidal_functor_functor
+  := (auxμ,, auxμ_is_nat_trans).
+
+<span class="kn">Lemma</span> <span class="nf">psfunctor_to_lax_monoidal_functor_laws</span> :
+  monoidal_functor_associativity M N psfunctor_to_lax_monoidal_functor_functor μ
+  × monoidal_functor_unitality M N psfunctor_to_lax_monoidal_functor_functor (pr1(psfunctor_id psF c0)) μ.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  * <span class="nb">red</span>. <span class="nb">cbn</span>. <span class="nb">intros</span> x y z. <span class="nb">unfold</span> rassociator_fun'. <span class="nb">cbn</span>.
+    <span class="nb">assert</span> (Hyp := psfunctor_rassociator psF x y z).
+    <span class="nb">change</span> ((id₂ (# psF z) ⋆⋆  psfunctor_comp psF x y • psfunctor_comp psF (x · y) z)
+              • ## psF (rassociator x y z) =
+            (rassociator (# psF x) (# psF y) (# psF z) •  psfunctor_comp psF y z ⋆⋆ id₂ (# psF x))
+              •  psfunctor_comp psF x (y · z)).
+    <span class="nb">rewrite</span> hcomp_identity_right.
+    <span class="nb">rewrite</span> hcomp_identity_left.
+    <span class="bp">exact</span> Hyp.
+  * <span class="nb">red</span>. <span class="nb">cbn</span>. <span class="nb">intro</span> x.
+    <span class="nb">split</span>.
+    -- <span class="nb">change</span> (lunitor (# psF x) =
+               (id₂ (# psF x) ⋆⋆ psfunctor_id psF c0 • psfunctor_comp psF (id₁ c0) x)
+                 • ## psF (lunitor x)).
+       <span class="nb">rewrite</span> hcomp_identity_right.
+       <span class="nb">apply</span> psfunctor_lunitor.
+    -- <span class="nb">change</span> (runitor (# psF x) =
+               (psfunctor_id psF c0 ⋆⋆ id₂ (# psF x) • psfunctor_comp psF x (id₁ c0))
+                 • ## psF (runitor x)).
+       <span class="nb">rewrite</span> hcomp_identity_left.
+       <span class="nb">apply</span> psfunctor_runitor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">psfunctor_to_lax_monoidal_functor</span>: lax_monoidal_functor M N.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">psfunctor_to_lax_monoidal_functor_functor</span>.
+  <span class="nb">cbn</span>.
+    <span class="k">exists</span> (<span class="nv">psfunctor_id</span> <span class="nv">psF</span> <span class="nv">c0</span>).
+    <span class="k">exists</span> <span class="nv">μ</span>.
+    <span class="bp">exact</span> psfunctor_to_lax_monoidal_functor_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">psfunctor_to_monoidal_functor</span>: strong_monoidal_functor M N.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">psfunctor_to_lax_monoidal_functor</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (pr2 (psfunctor_id psF c0)).
+  - <span class="nb">intro</span> c. <span class="bp">exact</span> (pr2 (psfunctor_comp psF (pr1 c) (pr2 c))).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">End</span> <span class="nf">psfunctor_to_monoidal_functor</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/PseudoFunctors/Examples/PseudofunctorFromMonoidal.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Author: Ralph Matthes 2021
+  &gt;
+  &gt; *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

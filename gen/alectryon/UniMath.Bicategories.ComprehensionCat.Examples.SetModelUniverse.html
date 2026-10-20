@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SetModelUniverse.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Universe in the set model of type theory</span>
+
+<span class="sd"> We show how to construct a universe type in the set model. We start with a set `u`</span>
+<span class="sd"> and a map that assigns a set to terms of type `u` (this is called a `set_universe`</span>
+<span class="sd"> in the file `Combinatorics.SetUniverses`), and we show that this data gives rise</span>
+<span class="sd"> to an universe type in the comprehension category of sets and families of sets. We</span>
+<span class="sd"> also provide various calculational lemmas that are useful when showing that the</span>
+<span class="sd"> resulting universe is closed under various type formers.</span>
+
+<span class="sd"> Note that we can instantiate this construction with either the universe of iterative</span>
+<span class="sd"> sets and with an inductive-recursive universe.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The universe type</span>
+<span class="sd"> 2. The elements map</span>
+<span class="sd"> 3. Stability</span>
+<span class="sd"> 4. The comprehension category with a universe</span>
+<span class="sd"> 5. Useful calculational lemmas</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.Combinatorics.SetUniverses.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.SetFams.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Examples.SetModel.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="kn">Section</span> <span class="nf">SetUniverseToUniverse</span>.
+  <span class="kn">Context</span> (<span class="nv">u</span> : set_universe).
+
+  <span class="sd">(** * 1. The universe type *)</span>
+  <span class="kn">Definition</span> <span class="nf">set_comp_cat_universe</span>
+    : ty ([] : set_comp_cat)
+    := <span class="k">λ</span> <span class="nv">_</span>, u.
+
+  <span class="kn">Definition</span> <span class="nf">set_comp_cat_with_ob</span>
+    : comp_cat_with_ob
+    := set_comp_cat ,, set_comp_cat_universe.
+
+  <span class="sd">(** * 2. The elements map *)</span>
+  <span class="kn">Definition</span> <span class="nf">set_comp_cat_el_map</span>
+    : comp_cat_el_map set_comp_cat_with_ob
+    := <span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">t</span> <span class="nv">γ</span>, set_universe_el (set_comp_cat_tm_to_sec t γ).
+
+  <span class="kn">Arguments</span> set_comp_cat_el_map /.
+
+  <span class="sd">(** * 3. Stability *)</span>
+  <span class="kn">Lemma</span> <span class="nf">set_comp_cat_stable_eq</span>
+        {<span class="nv">Γ</span> <span class="nv">Δ</span> : set_comp_cat_with_ob}
+        (<span class="nv">s</span> : Γ --&gt; Δ)
+        (<span class="nv">t</span> : tm Δ (comp_cat_univ Δ))
+        (<span class="nv">γ</span> : (Γ : hSet))
+    : set_comp_cat_tm_to_sec t (s γ)
+      =
+      set_comp_cat_tm_to_sec (t [[ s ]]tm ↑ sub_comp_cat_univ s) γ.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> set_comp_cat_tm_coerce.
+    <span class="nb">rewrite</span> set_comp_cat_sec_to_tm_to_sec.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (set_comp_cat_tm_subst t s).
+    }
+    <span class="nb">rewrite</span> set_comp_cat_sec_to_tm_to_sec.
+    <span class="nb">cbn</span> -[set_comp_cat_tm_to_sec eq_subst_ty_iso comp_subst_ty_iso fiber_category].
+    <span class="nb">rewrite</span> fam_disp_cat_fiber_comp.
+    etrans.
+    {
+      <span class="bp">exact</span> (set_comp_cat_eq_subst_ty set_comp_cat_universe _ _).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (set_comp_cat_comp_subst_ty _ _ set_comp_cat_universe _).
+    }
+    <span class="nb">apply</span> (transportf_set set_comp_cat_universe).
+    <span class="nb">apply</span> setproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">set_comp_cat_stable_el_map</span>
+    : comp_cat_stable_el_map set_comp_cat_el_map.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Γ Δ s t.
+    use make_z_iso.
+    - <span class="nb">intros</span> γ x.
+      <span class="nb">refine</span> (set_universe_eq _ x).
+      <span class="bp">exact</span> (set_comp_cat_stable_eq s t γ).
+    - <span class="nb">intros</span> γ x.
+      <span class="nb">refine</span> (set_universe_eq _ x).
+      <span class="nb">refine</span> (!(set_comp_cat_stable_eq s t γ)).
+    - <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (use funextsec ; <span class="nb">intro</span> γ ;
+           use funextsec ; <span class="nb">intro</span>  ;
+           <span class="nb">rewrite</span> fam_disp_cat_fiber_comp ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> set_universe_eq_comp ;
+           <span class="nb">apply</span> set_universe_eq_idpath).
+      + <span class="kp">abstract</span>
+          (use funextsec ; <span class="nb">intro</span> γ ;
+           use funextsec ; <span class="nb">intro</span> a ;
+           <span class="nb">rewrite</span> fam_disp_cat_fiber_comp ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> set_universe_eq_comp ;
+           <span class="nb">apply</span> set_universe_eq_idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">set_comp_cat_el_map_on_eq</span>
+              {<span class="nv">Γ</span> : set_comp_cat_with_ob}
+              {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ (comp_cat_univ Γ)}
+              (<span class="nv">p</span> : t₁ = t₂)
+              {<span class="nv">γ</span> : (Γ : hSet)}
+              (<span class="nv">x</span> : set_comp_cat_el_map Γ t₁ γ)
+    : comp_cat_el_map_on_eq set_comp_cat_el_map p γ x
+      =
+      set_universe_eq (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, set_comp_cat_tm_to_sec z γ) p) x.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">set_comp_cat_el_map_on_eq'</span>
+              {<span class="nv">Γ</span> : set_comp_cat_with_ob}
+              {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ (comp_cat_univ Γ)}
+              (<span class="nv">p</span> : t₁ = t₂)
+    : comp_cat_el_map_on_eq set_comp_cat_el_map p
+      =
+      <span class="k">λ</span> <span class="nv">γ</span> <span class="nv">x</span>, set_universe_eq (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, set_comp_cat_tm_to_sec z γ) p) x.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">set_comp_cat_coherent_el_map</span>
+    : comp_cat_coherent_el_map set_comp_cat_stable_el_map.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> Γ t.
+      use funextsec ; <span class="nb">intro</span> γ.
+      use funextsec ; <span class="nb">intro</span> x.
+      <span class="nb">rewrite</span> fam_disp_cat_fiber_comp.
+      <span class="nb">rewrite</span> set_comp_cat_id_subst_ty.
+      <span class="nb">rewrite</span> set_comp_cat_el_map_on_eq.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> set_universe_eq_path.
+    - <span class="nb">intros</span> Γ₁ Γ₂ Γ₃ s₁ s₂ t.
+      use funextsec ; <span class="nb">intro</span> γ.
+      use funextsec ; <span class="nb">intro</span> x.
+      <span class="nb">rewrite</span> !fam_disp_cat_fiber_comp.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> set_comp_cat_comp_subst_ty.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> set_comp_cat_coerce_subst_ty.
+      }
+      <span class="nb">rewrite</span> set_comp_cat_el_map_on_eq.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !set_universe_eq_comp.
+      <span class="nb">apply</span> set_universe_eq_path.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 4. The comprehension category with a universe *)</span>
+  <span class="kn">Definition</span> <span class="nf">set_comp_cat_univ_type</span>
+    : comp_cat_univ_type set_comp_cat_with_ob.
+  <span class="kn">Proof</span>.
+    use make_comp_cat_univ_type.
+    - <span class="bp">exact</span> set_comp_cat_el_map.
+    - <span class="bp">exact</span> set_comp_cat_stable_el_map.
+    - <span class="bp">exact</span> set_comp_cat_coherent_el_map.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">set_dfl_full_comp_cat_with_univ</span>
+    : dfl_full_comp_cat_with_univ
+    := make_dfl_full_comp_cat_with_univ
+         set_dfl_full_comp_cat
+         _
+         set_comp_cat_univ_type.
+
+  <span class="sd">(** * 5. Useful calculational lemmas *)</span>
+  <span class="kn">Definition</span> <span class="nf">set_sub_dfl_comp_cat_univ</span>
+             {<span class="nv">Γ</span> <span class="nv">Δ</span> : hSet}
+             (<span class="nv">s</span> : Γ → Δ)
+    : sub_dfl_comp_cat_univ
+        (C := set_dfl_full_comp_cat_with_univ)
+        s
+      =
+      <span class="k">λ</span> <span class="nv">γ</span> <span class="nv">z</span>, z.
+  <span class="kn">Proof</span>.
+    use funextsec ; <span class="nb">intro</span> γ.
+    use funextsec ; <span class="nb">intro</span> z.
+    <span class="nb">refine</span> (fam_disp_cat_fiber_comp _ _ _ @ _).
+    <span class="nb">cbn</span> -[eq_subst_ty_iso comp_subst_ty_iso].
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (set_comp_cat_comp_subst_ty s _ set_comp_cat_universe z).
+    }
+    <span class="nb">refine</span> (set_comp_cat_eq_subst_ty set_comp_cat_universe (TerminalArrowEq _ _) _ @ _).
+    <span class="nb">rewrite</span> transportf_set.
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> setproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">set_univ_tm_subst_eq</span>
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> : set_dfl_full_comp_cat_with_univ}
+              (<span class="nv">s</span> : Γ --&gt; Δ)
+              (<span class="nv">t</span> : tm Δ (dfl_full_comp_cat_univ Δ))
+    : t [[ s ]]tm ↑ sub_dfl_comp_cat_univ s
+      =
+      set_comp_cat_sec_to_tm (<span class="k">λ</span> <span class="nv">γ</span>, set_comp_cat_tm_to_sec t (s γ)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z ↑ _) (set_comp_cat_tm_subst _ _) @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ↑ z) (set_sub_dfl_comp_cat_univ s) @ _).
+    <span class="nb">refine</span> (set_comp_cat_tm_coerce _ _ @ _).
+    <span class="nb">rewrite</span> set_comp_cat_sec_to_tm_to_sec.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">set_comp_cat_univ_el_stable_inv_path</span>
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> : set_dfl_full_comp_cat_with_univ}
+              (<span class="nv">s</span> : Γ --&gt; Δ)
+              (<span class="nv">t</span> : tm Δ (dfl_full_comp_cat_univ Δ))
+              (<span class="nv">γ</span> : (Γ : hSet))
+    : set_comp_cat_tm_to_sec (t [[ s ]]tm ↑ sub_dfl_comp_cat_univ s) γ
+      =
+      set_comp_cat_tm_to_sec t (s γ).
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, set_comp_cat_tm_to_sec z γ) _).
+      <span class="bp">exact</span> (set_univ_tm_subst_eq s t).
+    }
+    <span class="nb">rewrite</span> set_comp_cat_sec_to_tm_to_sec.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">set_comp_cat_univ_el_stable_inv</span>
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> : set_dfl_full_comp_cat_with_univ}
+              (<span class="nv">s</span> : Γ --&gt; Δ)
+              (<span class="nv">t</span> : tm Δ (dfl_full_comp_cat_univ Δ))
+    : comp_cat_univ_el_stable_inv
+        (dfl_full_comp_cat_el set_dfl_full_comp_cat_with_univ)
+        s
+        t
+      =
+      <span class="k">λ</span> <span class="nv">γ</span>, set_universe_eq (set_comp_cat_univ_el_stable_inv_path s t γ).
+  <span class="kn">Proof</span>.
+    use funextsec ; <span class="nb">intro</span> γ.
+    use funextsec ; <span class="nb">intro</span> x.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> set_universe_eq_path.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">set_comp_cat_univ_el_stable_mor</span>
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> : set_dfl_full_comp_cat_with_univ}
+              (<span class="nv">s</span> : Γ --&gt; Δ)
+              (<span class="nv">t</span> : tm Δ (dfl_full_comp_cat_univ Δ))
+              (<span class="nv">γ</span> : (Γ : hSet))
+    : comp_cat_univ_el_stable_mor
+        (dfl_full_comp_cat_el set_dfl_full_comp_cat_with_univ)
+        s
+        t
+        γ
+      =
+      set_universe_eq (!(set_comp_cat_univ_el_stable_inv_path s t γ)).
+  <span class="kn">Proof</span>.
+    use funextsec ; <span class="nb">intro</span> x.
+    <span class="nb">apply</span> set_universe_eq_path.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">SetUniverseToUniverse</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Examples/SetModelUniverse.v</tt>, line 23)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Useful calculational lemmas
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Combinatorics.SetUniverses.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

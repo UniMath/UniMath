@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>category_binops.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* The category of sets with binary operations. *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.Foundations.UnivalenceAxiom.
+
+<span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+
+<span class="kn">Section</span> <span class="nf">BINOPS_precategory</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binops_fun_space</span> (<span class="nv">A</span> <span class="nv">B</span> : setwithbinop) : hSet :=
+    make_hSet _ (isasetbinopfun A B).
+
+  <span class="kn">Definition</span> <span class="nf">binops_precategory_ob_mor</span> : precategory_ob_mor :=
+    tpair (<span class="k">λ</span> <span class="nv">ob</span> : UU, ob -&gt; ob -&gt; UU) setwithbinop
+          (<span class="k">λ</span> <span class="nv">A</span> <span class="nv">B</span> : setwithbinop, binops_fun_space A B).
+
+  <span class="kn">Definition</span> <span class="nf">idbinopfun</span> (<span class="nv">A</span> : setwithbinop) : binopfun A A.
+  <span class="kn">Proof</span>.
+    use make_binopfun. <span class="nb">intros</span> a. <span class="bp">exact</span> a.
+    <span class="nb">intros</span> a a'.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">idbinopfun_remove_left</span> (<span class="nv">A</span> <span class="nv">B</span> : setwithbinop) (<span class="nv">f</span> : binopfun A B) :
+    binopfuncomp (idbinopfun A) f = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> binopfuncomp. <span class="nb">unfold</span> idbinopfun.
+    use total2_paths_f. <span class="nb">cbn</span>. <span class="nb">apply</span> idpath.
+    <span class="nb">apply</span> proofirrelevance. <span class="nb">apply</span> isapropisbinopfun.
+  <span class="kn">Defined</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">idbinopfun_remove_right</span> (<span class="nv">A</span> <span class="nv">B</span> : setwithbinop) (<span class="nv">f</span> : binopfun A B) :
+    binopfuncomp f (idbinopfun B) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> binopfuncomp. <span class="nb">unfold</span> idbinopfun.
+    use total2_paths_f. <span class="nb">cbn</span>. <span class="nb">apply</span> idpath.
+    <span class="nb">apply</span> proofirrelevance. <span class="nb">apply</span> isapropisbinopfun.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binopfuncomp_assoc</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : setwithbinop) (<span class="nv">f</span> : binopfun A B)
+             (<span class="nv">g</span> : binopfun B C) (<span class="nv">h</span> : binopfun C D) :
+    binopfuncomp (binopfuncomp f g) h = binopfuncomp f (binopfuncomp g h).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> binopfuncomp. <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> isapropisbinopfun.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binop_precategory_data</span> : precategory_data :=
+    make_precategory_data binops_precategory_ob_mor
+                          (<span class="k">λ</span> (<span class="nv">A</span> : setwithbinop), idbinopfun A )
+                          (<span class="k">fun</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : setwithbinop) (<span class="nv">f</span> : binopfun A B)
+                             (<span class="nv">g</span> : binopfun B C) =&gt; binopfuncomp f g).
+
+  <span class="kn">Lemma</span> <span class="nf">is_precategory_binop_precategory_data</span> :
+    is_precategory binop_precategory_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">cbn</span>.
+
+    <span class="nb">intros</span> a b f. <span class="nb">apply</span> idbinopfun_remove_left.
+    <span class="nb">intros</span> a b f. <span class="nb">apply</span> idbinopfun_remove_right.
+
+    <span class="nb">intros</span> a b c d f g h. <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (binopfuncomp_assoc a b c d f g h).
+
+    <span class="nb">intros</span> a b c d f g h.
+    <span class="nb">apply</span> (binopfuncomp_assoc a b c d f g h).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binop_precategory</span> : precategory :=
+    tpair _ _ is_precategory_binop_precategory_data.
+
+  <span class="kn">Lemma</span> <span class="nf">has_homsets_BINOP</span> : has_homsets binop_precategory.
+  <span class="kn">Proof</span>. <span class="nb">intros</span> a b; <span class="nb">apply</span> isasetbinopfun. <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">BINOPS_precategory</span>.
+
+<span class="kn">Section</span> <span class="nf">BINOP_category</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binop_category</span> : category := make_category _ has_homsets_BINOP.
+  <span class="kn">Notation</span> <span class="nf">BINOP</span> := binop_category.
+
+  <span class="sd">(** ** Equivalence between isomorphisms and binopisos *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">binop_iso_is_equiv</span> (<span class="nv">A</span> <span class="nv">B</span> : ob BINOP)
+        (<span class="nv">f</span> : z_iso A B) : isweq (pr1 (pr1 f)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (isweq_iso _ (pr1binopfun _ _ (inv_from_z_iso f))).
+    - <span class="nb">intro</span> x.
+      <span class="nb">set</span> (T:=z_iso_inv_after_z_iso f).
+      <span class="nb">apply</span> subtypeInjectivity <span class="k">in</span> T.
+      <span class="nb">set</span> (T':=toforallpaths _ _ _ T). <span class="nb">apply</span> T'.
+      <span class="nb">intro</span> x0.
+      <span class="nb">apply</span> isapropisbinopfun.
+    - <span class="nb">intros</span> y.
+
+      <span class="nb">set</span> (T:=z_iso_after_z_iso_inv f).
+      <span class="nb">apply</span> subtypeInjectivity <span class="k">in</span> T.
+      <span class="nb">set</span> (T':=toforallpaths _ _ _ T). <span class="nb">apply</span> T'.
+      <span class="nb">intros</span> x0.
+      <span class="nb">apply</span> isapropisbinopfun.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">binop_iso_equiv</span> (<span class="nv">A</span> <span class="nv">B</span> : ob BINOP) : z_iso A B -&gt; binopiso A B.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> f.
+    use make_binopiso.
+    <span class="nb">set</span> (X := binop_iso_is_equiv A B f).
+    <span class="nb">apply</span> (make_weq (pr1 (pr1 f)) X).
+    <span class="nb">apply</span> (pr2 (pr1 f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">binop_equiv_is_z_iso</span> (<span class="nv">A</span> <span class="nv">B</span> : setwithbinop)
+        (<span class="nv">f</span> : binopiso A B) :
+    @is_z_isomorphism BINOP A B (make_binopfun (pr1 (pr1 f)) (pr2 f)).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">make_binopfun</span> (pr1 (pr1 (invbinopiso f)))
+                                                  (pr2 (invbinopiso f))).
+    <span class="nb">split</span>; <span class="nb">cbn</span>.
+    - <span class="nb">unfold</span> compose, identity. <span class="nb">cbn</span>. <span class="nb">unfold</span> binopfuncomp, idbinopfun.
+      <span class="nb">cbn</span>. use total2_paths_f. <span class="nb">cbn</span>. <span class="nb">apply</span> funextfun. <span class="nb">intros</span> x.
+      <span class="nb">apply</span> homotinvweqweq. <span class="nb">cbn</span>. <span class="nb">apply</span> impred_isaprop. <span class="nb">intros</span> t.
+      <span class="nb">apply</span> impred_isaprop. <span class="nb">intros</span> t0. <span class="nb">apply</span> (pr2 (pr1 A)).
+
+    - use total2_paths_f. <span class="nb">cbn</span>. <span class="nb">apply</span> funextfun. <span class="nb">intros</span> x.
+      <span class="nb">apply</span> homotweqinvweq. <span class="nb">cbn</span>. <span class="nb">apply</span> impred_isaprop. <span class="nb">intros</span> yt.
+      <span class="nb">apply</span> impred_isaprop. <span class="nb">intros</span> t0. <span class="nb">apply</span> (pr2 (pr1 B)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">binop_equiv_iso</span> (<span class="nv">A</span> <span class="nv">B</span> : BINOP) : binopiso A B -&gt; z_iso A B.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> f.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">set</span> (T := binop_equiv_is_z_iso A B f).
+    <span class="bp">exact</span> (_,,T).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">binop_iso_equiv_is_equiv</span> (<span class="nv">A</span> <span class="nv">B</span> : BINOP) : isweq (binop_iso_equiv A B).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (isweq_iso _ (binop_equiv_iso A B)).
+    - <span class="nb">intro</span>; <span class="nb">apply</span> z_iso_eq. <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> binop_equiv_iso, binop_iso_equiv. <span class="nb">cbn</span>.
+      use total2_paths_f.
+      + <span class="nb">cbn</span>. <span class="nb">unfold</span> make_binopfun.
+        <span class="nb">apply</span> subtypePath.
+        * <span class="nb">intros</span> y. <span class="nb">apply</span> isapropisbinopfun.
+        * <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> subtypePath.
+          -- <span class="nb">unfold</span> isPredicate.
+             <span class="nb">intros</span> x0. <span class="nb">apply</span> isapropisbinopfun.
+          -- <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> proofirrelevance.
+        <span class="nb">apply</span> (isaprop_is_z_isomorphism(C:=BINOP)).
+    - <span class="nb">intros</span> y. <span class="nb">unfold</span> binop_iso_equiv, binop_equiv_iso. <span class="nb">cbn</span>.
+      use total2_paths_f.
+      + <span class="nb">cbn</span>. <span class="nb">unfold</span> make_binopfun.
+        <span class="nb">apply</span> subtypePath.
+        * <span class="nb">intros</span> x. <span class="nb">apply</span> isapropisweq.
+        * <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> proofirrelevance.
+        <span class="nb">apply</span> isapropisbinopfun.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binop_iso_equiv_weq</span> (<span class="nv">A</span> <span class="nv">B</span> : BINOP) : (z_iso A B) ≃ (binopiso A B).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">binop_iso_equiv</span> <span class="nv">A</span> <span class="nv">B</span>).
+    <span class="nb">apply</span> binop_iso_equiv_is_equiv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">binop_equiv_iso_is_equiv</span> (<span class="nv">A</span> <span class="nv">B</span> : BINOP) : isweq (binop_equiv_iso A B).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (isweq_iso _ (binop_iso_equiv A B)).
+    <span class="nb">intros</span> x. <span class="nb">apply</span> subtypePath.
+    <span class="nb">intros</span> y. <span class="nb">apply</span> isapropisbinopfun.
+
+    <span class="nb">unfold</span> binop_equiv_iso, binop_iso_equiv. <span class="nb">cbn</span>.
+    use total2_paths_f. <span class="nb">cbn</span>. <span class="nb">apply</span> idpath.
+    <span class="nb">apply</span> isapropisweq.
+
+    <span class="nb">intros</span> y. <span class="nb">unfold</span> binop_equiv_iso, binop_iso_equiv. <span class="nb">cbn</span>.
+    use total2_paths_f. <span class="nb">cbn</span>. <span class="nb">unfold</span> make_binopfun. <span class="nb">cbn</span>.
+    <span class="nb">apply</span> subtypePath. <span class="nb">intros</span> x. <span class="nb">apply</span> isapropisbinopfun.
+    <span class="nb">apply</span> idpath. <span class="nb">apply</span> proofirrelevance.
+    <span class="nb">apply</span> (isaprop_is_z_isomorphism(C:=BINOP)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binop_equiv_weq_iso</span> (<span class="nv">A</span> <span class="nv">B</span> : BINOP) :
+    (binopiso A B) ≃ (z_iso A B).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">binop_equiv_iso</span> <span class="nv">A</span> <span class="nv">B</span>).
+    <span class="nb">apply</span> binop_equiv_iso_is_equiv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binop_precategory_isweq</span> (<span class="nv">a</span> <span class="nv">b</span> : BINOP) :
+    isweq (<span class="k">λ</span> <span class="nv">p</span> : a = b, idtoiso p).
+  <span class="kn">Proof</span>.
+    use (@isweqhomot
+           (a = b) (z_iso a b)
+           (pr1weq (weqcomp (setwithbinop_univalence a b) (binop_equiv_weq_iso a b)))
+           _ _ (weqproperty (weqcomp (setwithbinop_univalence a b) (binop_equiv_weq_iso a b)))).
+    <span class="nb">intros</span> e. <span class="nb">induction</span> e.
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    use total2_paths_f.
+    - use idpath.
+    - use proofirrelevance. use isaprop_is_z_isomorphism.
+  <span class="kn">Defined</span>.
+  <span class="kn">Opaque</span> binop_precategory_isweq.
+
+
+
+  <span class="kn">Definition</span> <span class="nf">binop_precategory_is_univalent</span> : is_univalent binop_category.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b. <span class="bp">exact</span> (binop_precategory_isweq a b).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">BINOP_category</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/category_binops.v</tt>, line 2)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (* The category of sets with binary operations. *)&gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

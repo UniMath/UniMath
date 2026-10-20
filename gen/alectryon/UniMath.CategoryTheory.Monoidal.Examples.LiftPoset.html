@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LiftPoset.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Lifting posets as a monoidal comonad</span>
+
+<span class="sd"> We show that the lifting operation on posets (i.e., adding a new</span>
+<span class="sd"> bottom element) gives rise to a monoidal comonad on the monoidal</span>
+<span class="sd"> category of pointed posets with the smash product.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Lifting as a functor</span>
+<span class="sd"> 2. Extraction and duplication</span>
+<span class="sd"> 3. The comonad</span>
+<span class="sd"> 4. Lifting is symmetric monoidal</span>
+<span class="sd"> 5. The natural transformations are monoidal</span>
+<span class="sd"> 6. Every object has a natural comonoid structure</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.PointedPosetStrict.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.FunctorCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.SmashProductMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.PosetsMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.CategoryOfPosets.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Comonads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.Category.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Lifting as a functor</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">lift_poset_functor_data</span>
+  : functor_data
+      category_of_pointed_poset_strict
+      category_of_pointed_poset_strict.
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, _ ,, lift_pointed_PartialOrder (pr12 X)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span>, _ ,, lift_strict_and_monotone_map (pr12 f)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lift_poset_functor_laws</span>
+  : is_functor lift_poset_functor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> X.
+    use eq_mor_hset_struct ; <span class="nb">cbn</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">induction</span> x <span class="k">as</span> [ x | ] ; <span class="nb">cbn</span>.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y Z f g.
+    use eq_mor_hset_struct ; <span class="nb">cbn</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">induction</span> x <span class="k">as</span> [ x | ] ; <span class="nb">cbn</span>.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lift_poset_functor</span>
+  : category_of_pointed_poset_strict ⟶ category_of_pointed_poset_strict.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - <span class="bp">exact</span> lift_poset_functor_data.
+  - <span class="bp">exact</span> lift_poset_functor_laws.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Extraction and duplication</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">lift_poset_dupl</span>
+  : lift_poset_functor ⟹ lift_poset_functor ∙ lift_poset_functor.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, _ ,, is_strict_and_monotone_lift_pointed_PartialOrder_dupl _).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> X Y f ;
+       use eq_mor_hset_struct ; <span class="nb">cbn</span> ;
+       <span class="nb">intros</span> [ x | [] ] ; <span class="nb">cbn</span> ; <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lift_poset_extract</span>
+  : lift_poset_functor ⟹ functor_identity _.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, _ ,, is_strict_and_monotone_lift_pointed_PartialOrder_extract _).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> X Y f ;
+       use eq_mor_hset_struct ; <span class="nb">cbn</span> ;
+       <span class="nb">intros</span> [ x | [] ] ; [ <span class="nb">apply</span> idpath | ] ; <span class="nb">cbn</span> ;
+       <span class="nb">refine</span> (!_) ;
+       <span class="nb">apply</span> f).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. The comonad</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">lift_poset_comonad_laws</span>
+  : disp_Comonad_laws (lift_poset_dupl,, lift_poset_extract).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intro</span> X.
+    use eq_mor_hset_struct.
+    <span class="nb">intros</span> [ x | [] ] ; <span class="nb">cbn</span>.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> idpath.
+  - <span class="nb">intro</span> X.
+    use eq_mor_hset_struct.
+    <span class="nb">intros</span> [ x | [] ] ; <span class="nb">cbn</span>.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> idpath.
+  - <span class="nb">intro</span> X.
+    use eq_mor_hset_struct.
+    <span class="nb">intros</span> [ x | [] ] ; <span class="nb">cbn</span>.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lift_poset_comonad</span>
+  : Comonad pointed_poset_sym_mon_closed_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (lift_poset_functor ,, ((lift_poset_dupl ,, lift_poset_extract) ,, _)).
+  <span class="bp">exact</span> lift_poset_comonad_laws.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Lifting is symmetric monoidal</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">lift_poset_comonad_smash</span>
+           (<span class="nv">X</span> <span class="nv">Y</span> : pointed_poset_sym_mon_closed_cat)
+  : lift_poset_comonad X ∧* lift_poset_comonad Y --&gt; lift_poset_comonad (X ∧* Y).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - use map_from_smash.
+    + <span class="nb">intros</span> x y.
+      <span class="nb">induction</span> x <span class="k">as</span> [ x | ] ; <span class="nb">induction</span> y <span class="k">as</span> [ y | ].
+      * <span class="nb">refine</span> (inl _).
+        use setquotpr.
+        <span class="bp">exact</span> (x ,, y).
+      * <span class="bp">exact</span> (inr tt).
+      * <span class="bp">exact</span> (inr tt).
+      * <span class="bp">exact</span> (inr tt).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> [ y₁ | ] [ y₂ | ] ; <span class="nb">cbn</span> ; <span class="nb">apply</span> idpath).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> [ x | ] [ y | ] ; <span class="nb">cbn</span> ; <span class="nb">apply</span> idpath).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> [ x₁ | ] [ x₂ | ] ; <span class="nb">cbn</span> ; <span class="nb">apply</span> idpath).
+  - use hset_struct_with_smash_map_from_smash.
+    <span class="nb">split</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> xy₁ xy₂ p ;
+         <span class="nb">induction</span> xy₁ <span class="k">as</span> [ x₁ y₁ ] ; <span class="nb">induction</span> xy₂ <span class="k">as</span> [ x₂ y₂ ] ;
+         <span class="nb">induction</span> x₁ <span class="k">as</span> [ x₁ | ], y₁ <span class="k">as</span> [ y₁ | ], x₂ <span class="k">as</span> [ x₂ | ], y₂ <span class="k">as</span> [ y₂ | ] ;
+         <span class="nb">cbn</span> <span class="k">in</span> * ;
+         <span class="kp">try</span> (<span class="nb">apply</span> tt) ;
+         <span class="kp">try</span> (<span class="nb">apply</span> p) ;
+         <span class="nb">apply</span> hinhpr ;
+         use inr ;
+         <span class="bp">exact</span> p ).
+    + <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lax_monoidal_data_lift_poset_comonad</span>
+  : fmonoidal_data
+      pointed_poset_sym_mon_closed_cat
+      pointed_poset_sym_mon_closed_cat
+      lift_poset_comonad.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> lift_poset_comonad_smash.
+  - <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">b</span>, <span class="k">if</span> b <span class="k">then</span> inl true <span class="k">else</span> inr tt).
+    + <span class="nb">split</span>.
+      * <span class="kp">abstract</span>
+          (<span class="nb">intros</span> b₁ b₂ p ; <span class="nb">cbn</span> ;
+           <span class="nb">induction</span> b₁, b₂ ; <span class="nb">cbn</span> <span class="k">in</span> * ; <span class="kp">try</span> (<span class="bp">exact</span> tt) ;
+           <span class="bp">exact</span> p).
+      * <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lax_monoidal_lift_poset_comonad_laws</span>
+  : fmonoidal_laxlaws lax_monoidal_data_lift_poset_comonad.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> X Y₁ Y₂ g.
+    use eq_mor_hset_struct.
+    use setquotunivprop' ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ].
+    <span class="nb">intros</span> xy.
+    <span class="nb">induction</span> xy <span class="k">as</span> [ x y ].
+    <span class="nb">induction</span> x <span class="k">as</span> [ x | ] ; <span class="nb">induction</span> y <span class="k">as</span> [ y | ] ; <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X₁ X₂ Y f.
+    use eq_mor_hset_struct.
+    use setquotunivprop' ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ].
+    <span class="nb">intros</span> xy.
+    <span class="nb">induction</span> xy <span class="k">as</span> [ x y ].
+    <span class="nb">induction</span> x <span class="k">as</span> [ x | ] ; <span class="nb">induction</span> y <span class="k">as</span> [ y | ] ; <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y Z.
+    use eq_mor_hset_struct.
+    use setquotunivprop' ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ].
+    <span class="nb">intros</span> xy.
+    <span class="nb">induction</span> xy <span class="k">as</span> [ xy z ].
+    <span class="nb">revert</span> xy.
+    use setquotunivprop' ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ].
+    <span class="nb">intros</span> xy.
+    <span class="nb">induction</span> xy <span class="k">as</span> [ x y ].
+    <span class="nb">induction</span> x <span class="k">as</span> [ x | ] ; <span class="nb">induction</span> y <span class="k">as</span> [ y | ] ; <span class="nb">induction</span> z <span class="k">as</span> [ z | ] ; <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X.
+    use eq_mor_hset_struct.
+    use setquotunivprop' ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ].
+    <span class="nb">intros</span> xy.
+    <span class="nb">cbn</span> <span class="k">in</span> xy.
+    <span class="nb">induction</span> xy <span class="k">as</span> [ b x ].
+    <span class="nb">induction</span> b ; <span class="nb">induction</span> x <span class="k">as</span> [ x | [] ] ; <span class="nb">cbn</span> ; <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X.
+    use eq_mor_hset_struct.
+    use setquotunivprop' ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ].
+    <span class="nb">intros</span> xy.
+    <span class="nb">cbn</span> <span class="k">in</span> xy.
+    <span class="nb">induction</span> xy <span class="k">as</span> [ x b ].
+    <span class="nb">induction</span> b ; <span class="nb">induction</span> x <span class="k">as</span> [ x | [] ] ; <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lax_monoidal_lift_poset_comonad</span>
+  : fmonoidal_lax
+      pointed_poset_sym_mon_closed_cat
+      pointed_poset_sym_mon_closed_cat
+      lift_poset_comonad.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> lax_monoidal_data_lift_poset_comonad.
+  - <span class="bp">exact</span> lax_monoidal_lift_poset_comonad_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_symmetric_lift_poset_comonad</span>
+  : is_symmetric_monoidal_functor
+      (pr21 pointed_poset_sym_mon_closed_cat)
+      (pr21 pointed_poset_sym_mon_closed_cat)
+      lax_monoidal_lift_poset_comonad.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y.
+  use eq_mor_hset_struct.
+  use setquotunivprop' ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ].
+  <span class="nb">intros</span> xy.
+  <span class="nb">induction</span> xy <span class="k">as</span> [ x y ].
+  <span class="nb">induction</span> x <span class="k">as</span> [ x | ] ; <span class="nb">induction</span> y <span class="k">as</span> [ y | ] ; <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. The natural transformations are monoidal</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_mon_nat_trans_lift_poset_extract</span>
+  : is_mon_nat_trans
+      lax_monoidal_lift_poset_comonad
+      (identity_fmonoidal _)
+      lift_poset_extract.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> X Y.
+    use eq_mor_hset_struct.
+    use setquotunivprop' ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ].
+    <span class="nb">intros</span> xy.
+    <span class="nb">induction</span> xy <span class="k">as</span> [ x y ].
+    <span class="nb">induction</span> x <span class="k">as</span> [ x | ] ; <span class="nb">induction</span> y <span class="k">as</span> [ y | ].
+    + use iscompsetquotpr ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> hinhpr.
+      <span class="nb">apply</span> inl.
+      <span class="nb">apply</span> idpath.
+    + use iscompsetquotpr ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> hinhpr.
+      <span class="nb">apply</span> inr.
+      <span class="nb">split</span>.
+      * <span class="nb">apply</span> inl.
+        <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> inr.
+        <span class="nb">apply</span> idpath.
+    + use iscompsetquotpr ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> hinhpr.
+      <span class="nb">apply</span> inr.
+      <span class="nb">split</span>.
+      * <span class="nb">apply</span> inl.
+        <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> inl.
+        <span class="nb">apply</span> idpath.
+    + use iscompsetquotpr ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> hinhpr.
+      <span class="nb">apply</span> inr.
+      <span class="nb">split</span>.
+      * <span class="nb">apply</span> inl.
+        <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> inr.
+        <span class="nb">apply</span> idpath.
+  - use eq_mor_hset_struct.
+    <span class="nb">intro</span> x.
+    <span class="nb">induction</span> x ; <span class="nb">cbn</span> ; <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_mon_nat_trans_lift_poset_dupl</span>
+  : is_mon_nat_trans
+      lax_monoidal_lift_poset_comonad
+      (comp_fmonoidal_lax
+         lax_monoidal_lift_poset_comonad
+         lax_monoidal_lift_poset_comonad)
+      lift_poset_dupl.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> X Y.
+    use eq_mor_hset_struct.
+    use setquotunivprop' ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ].
+    <span class="nb">intros</span> xy.
+    <span class="nb">induction</span> xy <span class="k">as</span> [ x y ].
+    <span class="nb">induction</span> x <span class="k">as</span> [ x | ] ; <span class="nb">induction</span> y <span class="k">as</span> [ y | ].
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> idpath.
+  - use eq_mor_hset_struct.
+    <span class="nb">intro</span> x.
+    <span class="nb">induction</span> x ; <span class="nb">cbn</span> ; <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lift_poset_symmetric_monoidal_comonad</span> :
+  symmetric_monoidal_comonad pointed_poset_sym_mon_closed_cat.
+<span class="kn">Proof</span>.
+  use make_symmetric_monoidal_comonad.
+  - <span class="bp">exact</span> lift_poset_comonad.
+  - <span class="bp">exact</span> lax_monoidal_lift_poset_comonad.
+  - <span class="bp">exact</span> is_symmetric_lift_poset_comonad.
+  - <span class="nb">apply</span> is_mon_nat_trans_lift_poset_dupl.
+  - <span class="nb">apply</span> is_mon_nat_trans_lift_poset_extract.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Every object has a natural comonoid structure</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">lift_poset_comult_map</span>
+           {<span class="nv">X</span> : pointed_poset_sym_mon_closed_cat}
+           (<span class="nv">x</span> : pr11 X ⨿ unit)
+  : pr11 (lift_poset_comonad X ∧* lift_poset_comonad X).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> x <span class="k">as</span> [ x | ].
+  - <span class="bp">exact</span> (setquotpr _ (inl x ,, inl x)).
+  - <span class="bp">exact</span> (setquotpr _ (inr tt ,, inr tt)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_strict_and_monotone_lift_poset_comult_map</span>
+            (<span class="nv">X</span> : pointed_poset_sym_mon_closed_cat)
+  : is_strict_and_monotone
+      (pr2 (lift_poset_comonad X))
+      (pr2 (lift_poset_comonad X ∧* lift_poset_comonad X))
+      (@lift_poset_comult_map X).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x₁ x₂ p.
+    <span class="nb">induction</span> x₁ <span class="k">as</span> [ x₁ | ], x₂ <span class="k">as</span> [ x₂ | ] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    + <span class="nb">refine</span> (hinhpr (inr _)).
+      <span class="bp">exact</span> (p ,, p).
+    + <span class="bp">exact</span> (fromempty p).
+    + <span class="nb">refine</span> (hinhpr (inr _)).
+      <span class="bp">exact</span> (tt ,, tt).
+    + <span class="nb">refine</span> (hinhpr (inr _)).
+      <span class="bp">exact</span> (tt ,, tt).
+  - <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lift_poset_comult</span>
+  : lift_poset_functor
+    ⟹
+    bindelta_pair_functor lift_poset_functor lift_poset_functor
+    ∙
+    bifunctor_to_functorfromproductcat pointed_poset_sym_mon_closed_cat.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">X</span>, lift_poset_comult_map ,, _).
+    <span class="bp">exact</span> (is_strict_and_monotone_lift_poset_comult_map X).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> X Y f ;
+       use eq_mor_hset_struct ;
+       <span class="nb">intro</span> x ;
+       <span class="nb">induction</span> x <span class="k">as</span> [ x | ] ; <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lift_poset_counit</span>
+  : lift_poset_functor
+    ⟹
+    constant_functor _ _ (monoidal_unit pointed_poset_sym_mon_closed_cat).
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">X</span>, _ ,, _).
+    + <span class="nb">intro</span> x.
+      <span class="nb">induction</span> x <span class="k">as</span> [ x | ].
+      * <span class="bp">exact</span> true.
+      * <span class="bp">exact</span> false.
+    + <span class="nb">split</span>.
+      * <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x₁ x₂ p ;
+           <span class="nb">induction</span> x₁ <span class="k">as</span> [ x₁ | ], x₂ <span class="k">as</span> [ x₂ | ] ; <span class="kp">try</span> (<span class="bp">exact</span> tt) ;
+           <span class="nb">cbn</span> <span class="k">in</span> * ;
+           <span class="bp">exact</span> p).
+      * <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> X Y f ;
+       use eq_mor_hset_struct ;
+       <span class="nb">intro</span> x ;
+       <span class="nb">induction</span> x <span class="k">as</span> [ x | ] ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lift_commutative_comonoid</span>
+           (<span class="nv">X</span> : pointed_poset_sym_mon_closed_cat)
+  : commutative_comonoid pointed_poset_sym_mon_closed_cat.
+<span class="kn">Proof</span>.
+  use make_commutative_comonoid.
+  - <span class="bp">exact</span> (lift_poset_functor X).
+  - <span class="bp">exact</span> (lift_poset_comult X).
+  - <span class="bp">exact</span> (lift_poset_counit X).
+  - <span class="kp">abstract</span>
+      (use eq_mor_hset_struct ;
+       <span class="nb">intro</span> x ; <span class="nb">cbn</span> <span class="k">in</span> x ;
+       <span class="nb">induction</span> x <span class="k">as</span> [ x | [ ] ] ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (use eq_mor_hset_struct ;
+       <span class="nb">intro</span> x ; <span class="nb">cbn</span> <span class="k">in</span> x ;
+       <span class="nb">induction</span> x <span class="k">as</span> [ x | [ ] ] ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (use eq_mor_hset_struct ;
+       <span class="nb">intro</span> x ; <span class="nb">cbn</span> <span class="k">in</span> x ;
+       <span class="nb">induction</span> x <span class="k">as</span> [ x | [ ] ] ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Examples/LiftPoset.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Every object has a natural comonoid structure
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Posets.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

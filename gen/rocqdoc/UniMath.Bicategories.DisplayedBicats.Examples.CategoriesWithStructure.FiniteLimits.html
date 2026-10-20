@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.FiniteLimits</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.FiniteLimits</h1>
+
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Equalizers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Pullbacks.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Pullbacks</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Preservation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>. <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfCats.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.BicatOfCats</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.DispBicat</span></a>. <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#Notations"><span class="id" title="module">DispBicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Prod.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.Prod</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Terminal.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.BinProducts.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Pullbacks.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Pullbacks</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Equalizers.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Equalizers</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="CategoriesWithChosenFiniteLimitsAndPreservationUpToIso" class="idref" href="#CategoriesWithChosenFiniteLimitsAndPreservationUpToIso"><span class="id" title="section">CategoriesWithChosenFiniteLimitsAndPreservationUpToIso</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="disp_bicat_limits" class="idref" href="#disp_bicat_limits"><span class="id" title="definition">disp_bicat_limits</span></a> : <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_bicat"><span class="id" title="definition">disp_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfCats.html#bicat_of_cats"><span class="id" title="definition">bicat_of_cats</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Prod.html#disp_dirprod_bicat"><span class="id" title="definition">disp_dirprod_bicat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Terminal.html#disp_bicat_terminal"><span class="id" title="definition">disp_bicat_terminal</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Prod.html#disp_dirprod_bicat"><span class="id" title="definition">disp_dirprod_bicat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.BinProducts.html#disp_bicat_binproducts"><span class="id" title="definition">disp_bicat_binproducts</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Prod.html#disp_dirprod_bicat"><span class="id" title="definition">disp_dirprod_bicat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Pullbacks.html#disp_bicat_pullbacks"><span class="id" title="definition">disp_bicat_pullbacks</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Equalizers.html#disp_bicat_equalizers"><span class="id" title="definition">disp_bicat_equalizers</span></a>)).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="disp_2cells_iscontr_limits" class="idref" href="#disp_2cells_iscontr_limits"><span class="id" title="lemma">disp_2cells_iscontr_limits</span></a> : <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_2cells_iscontr"><span class="id" title="definition">disp_2cells_iscontr</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.FiniteLimits.html#disp_bicat_limits"><span class="id" title="definition">disp_bicat_limits</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Prod.html#disp_2cells_of_dirprod_iscontr"><span class="id" title="lemma">disp_2cells_of_dirprod_iscontr</span></a> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#disp_2cells_iscontr_subbicat"><span class="id" title="definition">disp_2cells_iscontr_subbicat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.FiniteLimits.html#CategoriesWithChosenFiniteLimitsAndPreservationUpToIso"><span class="id" title="section">CategoriesWithChosenFiniteLimitsAndPreservationUpToIso</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="CategoriesWithChosenFiniteLimitsAndPreservationUpToEquality" class="idref" href="#CategoriesWithChosenFiniteLimitsAndPreservationUpToEquality"><span class="id" title="section">CategoriesWithChosenFiniteLimitsAndPreservationUpToEquality</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="disp_bicat_chosen_limits" class="idref" href="#disp_bicat_chosen_limits"><span class="id" title="definition">disp_bicat_chosen_limits</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_bicat"><span class="id" title="definition">disp_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfCats.html#bicat_of_cats"><span class="id" title="definition">bicat_of_cats</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Prod.html#disp_dirprod_bicat"><span class="id" title="definition">disp_dirprod_bicat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Terminal.html#disp_bicat_chosen_terminal"><span class="id" title="definition">disp_bicat_chosen_terminal</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Prod.html#disp_dirprod_bicat"><span class="id" title="definition">disp_dirprod_bicat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.BinProducts.html#disp_bicat_chosen_binproducts"><span class="id" title="definition">disp_bicat_chosen_binproducts</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Prod.html#disp_dirprod_bicat"><span class="id" title="definition">disp_dirprod_bicat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Pullbacks.html#disp_bicat_chosen_pullbacks"><span class="id" title="definition">disp_bicat_chosen_pullbacks</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Equalizers.html#disp_bicat_chosen_equalizers"><span class="id" title="definition">disp_bicat_chosen_equalizers</span></a>)).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="disp_2cells_iscontr_chosen_limits" class="idref" href="#disp_2cells_iscontr_chosen_limits"><span class="id" title="lemma">disp_2cells_iscontr_chosen_limits</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_2cells_iscontr"><span class="id" title="definition">disp_2cells_iscontr</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.FiniteLimits.html#disp_bicat_chosen_limits"><span class="id" title="definition">disp_bicat_chosen_limits</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Prod.html#disp_2cells_of_dirprod_iscontr"><span class="id" title="lemma">disp_2cells_of_dirprod_iscontr</span></a> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#disp_2cells_iscontr_subbicat"><span class="id" title="definition">disp_2cells_iscontr_subbicat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.FiniteLimits.html#CategoriesWithChosenFiniteLimitsAndPreservationUpToEquality"><span class="id" title="section">CategoriesWithChosenFiniteLimitsAndPreservationUpToEquality</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="CategoriesWithExistingFiniteLimitsAndPreservationUpToIso" class="idref" href="#CategoriesWithExistingFiniteLimitsAndPreservationUpToIso"><span class="id" title="section">CategoriesWithExistingFiniteLimitsAndPreservationUpToIso</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="disp_bicat_have_limits" class="idref" href="#disp_bicat_have_limits"><span class="id" title="definition">disp_bicat_have_limits</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_bicat"><span class="id" title="definition">disp_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfCats.html#bicat_of_cats"><span class="id" title="definition">bicat_of_cats</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Prod.html#disp_dirprod_bicat"><span class="id" title="definition">disp_dirprod_bicat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Terminal.html#disp_bicat_have_terminal"><span class="id" title="definition">disp_bicat_have_terminal</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Prod.html#disp_dirprod_bicat"><span class="id" title="definition">disp_dirprod_bicat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.BinProducts.html#disp_bicat_have_binproducts"><span class="id" title="definition">disp_bicat_have_binproducts</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Prod.html#disp_dirprod_bicat"><span class="id" title="definition">disp_dirprod_bicat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Pullbacks.html#disp_bicat_have_pullbacks"><span class="id" title="definition">disp_bicat_have_pullbacks</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Equalizers.html#disp_bicat_have_equalizers"><span class="id" title="definition">disp_bicat_have_equalizers</span></a>)).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="disp_2cells_iscontr_have_limits" class="idref" href="#disp_2cells_iscontr_have_limits"><span class="id" title="lemma">disp_2cells_iscontr_have_limits</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_2cells_iscontr"><span class="id" title="definition">disp_2cells_iscontr</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.FiniteLimits.html#disp_bicat_have_limits"><span class="id" title="definition">disp_bicat_have_limits</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Prod.html#disp_2cells_of_dirprod_iscontr"><span class="id" title="lemma">disp_2cells_of_dirprod_iscontr</span></a> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#disp_2cells_iscontr_subbicat"><span class="id" title="definition">disp_2cells_iscontr_subbicat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.FiniteLimits.html#CategoriesWithExistingFiniteLimitsAndPreservationUpToIso"><span class="id" title="section">CategoriesWithExistingFiniteLimitsAndPreservationUpToIso</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

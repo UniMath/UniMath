@@ -1,0 +1,768 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Matrices.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"> <span class="sd">(** * Matrices</span>
+
+<span class="sd">Some matrix background material for [Algebra.GaussianElimination]</span>
+
+<span class="sd">Primary Author: Daniel @Skantz (November 2022)</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Vectors.
+
+<span class="kn">Require Import</span> UniMath.Algebra.RigsAndRings.
+<span class="kn">Require Import</span> UniMath.Algebra.IteratedBinaryOperations.
+<span class="kn">Require Import</span> UniMath.Algebra.Matrix.
+<span class="kn">Require Import</span> UniMath.Algebra.Domains_and_Fields.
+
+<span class="kn">Require Import</span> UniMath.Algebra.GaussianElimination.Auxiliary.
+<span class="kn">Require Import</span> UniMath.Algebra.GaussianElimination.Vectors.
+
+
+<span class="kn">Local Notation</span> <span class="nf">Σ</span> := (iterop_fun rigunel1 op1).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"A ** B"</span> := (matrix_mult A B) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"R1 *pw R2"</span> := ((pointwise _ op2) R1 R2) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>).
+
+<span class="sd">(** * Arbitrary types *)</span>
+<span class="sd">(** Purely structural facts about matrices over arbitary types *)</span>
+<span class="kn">Section</span> <span class="nf">Arbitrary_Types</span>.
+
+<span class="kn">Section</span> <span class="nf">Misc</span>.
+  <span class="kn">Lemma</span> <span class="nf">col_inj</span> {<span class="nv">X</span> : UU} (<span class="nv">m</span> <span class="nv">n</span> : nat) (<span class="nv">mat1</span> <span class="nv">mat2</span> : Matrix X m n)
+    : (∏ i : (stn n), col mat1 i = col mat2 i) -&gt; mat1 = mat2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> H. <span class="nb">apply</span> funextfun; <span class="nb">intro</span> i; <span class="nb">apply</span> funextfun; <span class="nb">intro</span> j.
+    <span class="nb">specialize</span> (H j). <span class="nb">apply</span> toforallpaths <span class="k">in</span> H. <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Misc</span>.
+
+<span class="kn">Section</span> <span class="nf">Vectors_as_Matrices</span>.
+  <span class="sd">(** Vectors as column and row vectors *)</span>
+  <span class="kn">Lemma</span> <span class="nf">weq_rowvec</span>
+    : ∏ X : UU, ∏ n : nat, Vector X n ≃ Matrix X <span class="mi">1</span> n.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>; <span class="nb">apply</span> weq_vector_1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">row_vec_inj</span> { <span class="nv">X</span> : rig } { <span class="nv">n</span> : nat } (<span class="nv">v1</span> <span class="nv">v2</span> : Vector X n)
+    : row_vec v1 = row_vec v2 -&gt; v1 = v2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H; <span class="nb">apply</span> (invmaponpathsweq (@weq_rowvec X n)  _ _ H).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weq_colvec</span>
+    : ∏ X : UU, ∏ n : nat, weq (Vector X n) (Matrix X n <span class="mi">1</span>).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>; <span class="nb">apply</span> weqffun, weq_vector_1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">col_vec_inj</span> { <span class="nv">X</span> : rig } { <span class="nv">n</span> : nat } (<span class="nv">v1</span> <span class="nv">v2</span> : Vector X n)
+    : col_vec v1 = col_vec v2 -&gt; v1 = v2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H; <span class="nb">apply</span> (invmaponpathsweq (@weq_colvec X n)  _ _ H).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">col_vec_inj_pointwise</span> { <span class="nv">X</span> : rig } { <span class="nv">n</span> : nat } (<span class="nv">v1</span> <span class="nv">v2</span> : Vector X n)
+    : <span class="k">forall</span> <span class="nv">i</span> : (stn n), (col_vec v1 i) = (col_vec v2 i) -&gt; (v1 i) = (v2 i).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i eq; <span class="nb">apply</span> (invmaponpathsweq (@weq_vector_1 X)  _ _ eq).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">col_vec_eq</span> {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat} (<span class="nv">v</span> : Vector X n)
+  : ∏ i : (stn <span class="mi">1</span>), v = col (col_vec v) i.
+  <span class="kn">Proof</span>.
+    <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Vectors_as_Matrices</span>.
+
+<span class="kn">Section</span> <span class="nf">Transposition</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transpose_transpose</span> {<span class="nv">X</span> : UU} {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">mat</span> : Matrix X m n)
+    : transpose (transpose mat) = mat.
+  <span class="kn">Proof</span>. <span class="bp">easy</span>. <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transpose_inj</span> {<span class="nv">X</span> : UU} {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">mat1</span> <span class="nv">mat2</span> : Matrix X m n)
+    : transpose mat1 = transpose mat2 -&gt; mat1 = mat2.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (maponpaths transpose).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_symmetric_mat</span> {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat} (<span class="nv">mat</span> : Matrix X n n)
+    := transpose mat = mat.
+
+  <span class="kn">Lemma</span> <span class="nf">symmetric_mat_row_eq_col</span> {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat} (<span class="nv">mat</span> : Matrix X n n)
+        (<span class="nv">i</span> : ⟦ n ⟧%stn)
+    : is_symmetric_mat mat -&gt; row mat i = col mat i.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H. <span class="nb">unfold</span> col, row.
+    <span class="bp">exact</span> (toforallpaths _ _ _ (!H) i).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Transposition</span>.
+
+<span class="kn">End</span> <span class="nf">Arbitrary_Types</span>.
+
+<span class="sd">(** * Arbitary rigs</span>
+<span class="sd">  Matrix algebra facts that hold over an arbitrary rig, not yet assumed commutative. *)</span>
+
+<span class="kn">Section</span> <span class="nf">General_Rigs</span>.
+
+<span class="kn">Context</span> {<span class="nv">R</span> : rig}.
+
+<span class="kn">Section</span> <span class="nf">General</span>.
+
+  <span class="kn">Definition</span> <span class="nf">matrix_mult_unf</span> {<span class="nv">m</span> <span class="nv">n</span> <span class="nv">p</span>} (<span class="nv">mat1</span> : Matrix R m n) (<span class="nv">mat2</span> : Matrix R n p)
+    : Matrix R m p
+  := <span class="k">λ</span> <span class="nv">i</span> <span class="nv">j</span>, Σ (<span class="k">λ</span> <span class="nv">k</span>, (mat1 i k * mat2 k j))%rig.
+
+  <span class="kn">Lemma</span> <span class="nf">matrix_mult_eq</span> {<span class="nv">m</span> <span class="nv">n</span> <span class="nv">p</span>} (<span class="nv">mat1</span> : Matrix R m n) (<span class="nv">mat2</span> : Matrix R n p)
+    : mat1 ** mat2 = matrix_mult_unf mat1 mat2.
+  <span class="kn">Proof</span>.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">matrix_add</span> {<span class="nv">m</span> <span class="nv">n</span>} (<span class="nv">mat1</span> : Matrix R m n) (<span class="nv">mat2</span> : Matrix R m n)
+    : Matrix R m n
+  := entrywise _ _ op1 mat1 mat2.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"A ++' B"</span> := (matrix_add A B) (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).
+
+  <span class="kn">Lemma</span> <span class="nf">matrix_add_comm</span> {<span class="nv">m</span> <span class="nv">n</span>} (<span class="nv">mat1</span> : Matrix R m n) (<span class="nv">mat2</span> : Matrix R m n)
+    : matrix_add mat1 mat2 = matrix_add mat2 mat1.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> entrywise_comm, rigcomm1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">matrix_add_assoc</span> {<span class="nv">m</span> <span class="nv">n</span> : nat}
+      (<span class="nv">mat1</span> : Matrix R m n) (<span class="nv">mat2</span> : Matrix R m n) (<span class="nv">mat3</span> : Matrix R m n)
+    : matrix_add (matrix_add mat1 mat2) mat3
+      = matrix_add mat1 (matrix_add mat2 mat3).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> entrywise_assoc, rigassoc1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">matrix_mult_assoc</span> {<span class="nv">m</span> <span class="nv">n</span> <span class="nv">p</span> <span class="nv">q</span>}
+      (<span class="nv">mat1</span> : Matrix R m n) (<span class="nv">mat2</span> : Matrix R n p) (<span class="nv">mat3</span> : Matrix R p q)
+    : (mat1 ** mat2) ** mat3 = mat1 ** (mat2 ** mat3).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>; <span class="nb">unfold</span> matrix_mult.
+    <span class="nb">apply</span> funextfun; <span class="nb">intro</span> i; <span class="nb">apply</span> funextfun; <span class="nb">intro</span> j.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">symmetry</span>.
+         <span class="nb">apply</span> maponpaths, funextfun. <span class="nb">intros</span> k.
+         <span class="nb">apply</span> vecsum_ldistr. }
+    etrans.
+      { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> funextfun. <span class="nb">intros</span> k.
+        <span class="nb">apply</span> vecsum_rdistr. }
+    <span class="nb">rewrite</span> vecsum_interchange.
+    <span class="nb">apply</span> maponpaths, funextfun; <span class="nb">intros</span> k.
+    <span class="nb">apply</span> maponpaths, funextfun; <span class="nb">intros</span> l.
+    <span class="nb">apply</span> rigassoc2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">matrix_mult_ldistr</span> {<span class="nv">m</span> <span class="nv">n</span> <span class="nv">p</span>}
+        (<span class="nv">mat1</span> : Matrix R m n) (<span class="nv">mat2</span> : Matrix R n p) (<span class="nv">mat3</span> : Matrix R n p)
+    : mat1 ** (mat2 ++' mat3) = (mat1 ** mat2) ++' (mat1 ** mat3).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">rewrite</span> matrix_mult_eq.
+    <span class="nb">unfold</span> matrix_mult_unf, matrix_add
+    , entrywise, pointwise.
+    <span class="nb">apply</span> funextfun. <span class="nb">intros</span> i.
+    <span class="nb">apply</span> funextfun. <span class="nb">intros</span> j.
+    etrans. {
+      <span class="nb">apply</span> maponpaths, funextfun; <span class="nb">intros</span> k.
+      <span class="nb">rewrite</span> rigldistr; <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">apply</span> vecsum_add.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">matrix_mult_rdistr</span> {<span class="nv">m</span> <span class="nv">n</span> <span class="nv">p</span>}
+        (<span class="nv">mat1</span> : Matrix R m n) (<span class="nv">mat2</span> : Matrix R m n) (<span class="nv">mat3</span> : Matrix R n p)
+    : (mat1 ++' mat2) ** mat3 = (mat1 ** mat3) ++' (mat2 ** mat3).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">rewrite</span> matrix_mult_eq.
+    <span class="nb">unfold</span> matrix_mult_unf, matrix_add.
+    <span class="nb">unfold</span> entrywise, pointwise.
+    <span class="nb">apply</span> funextfun. <span class="nb">intros</span> i.
+    <span class="nb">apply</span> funextfun. <span class="nb">intros</span> j.
+    etrans. {
+      <span class="nb">apply</span> maponpaths, funextfun; <span class="nb">intros</span> k.
+      <span class="nb">rewrite</span> rigrdistr.
+      <span class="bp">exact</span> (idpath _).
+    }
+    <span class="nb">apply</span> vecsum_add.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">matrix_mult_zero_vec_eq</span> {<span class="nv">m</span> <span class="nv">n</span> : nat} {<span class="nv">mat</span> : Matrix R m n}
+    : mat ** col_vec (const_vec <span class="mi">0</span>%rig)
+      = col_vec (const_vec <span class="mi">0</span>%rig).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> matrix_mult_eq; <span class="nb">unfold</span> matrix_mult_unf.
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> i.
+    <span class="nb">unfold</span> col_vec.
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> _.
+    <span class="nb">apply</span> vecsum_eq_zero.
+    <span class="nb">intros</span> k.
+    <span class="nb">apply</span> rigmultx0.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">General</span>.
+
+<span class="kn">Section</span> <span class="nf">Identity_Matrix</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">identity_matrix_symmetric</span>  {<span class="nv">n</span> : nat}
+    : is_symmetric_mat (@identity_matrix R n).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_symmetric_mat.
+    <span class="nb">apply</span> funextfun. <span class="nb">intros</span> i.
+    <span class="nb">apply</span> funextfun. <span class="nb">intros</span> j.
+    <span class="nb">unfold</span> identity_matrix, transpose, flip.
+    <span class="nb">apply</span> stn_eq_or_neq_symm_nondep.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">id_row_stdb_vector</span> {<span class="nv">n</span>} (<span class="nv">i</span> : ⟦n⟧%stn)
+    : row (@identity_matrix R n) i = stdb_vector i.
+  <span class="kn">Proof</span>. <span class="bp">easy</span>. <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">id_col_stdb_vector</span> {<span class="nv">n</span>} (<span class="nv">i</span> : ⟦n⟧%stn)
+    : col (@identity_matrix R n) i = stdb_vector i.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> j.
+    <span class="nb">apply</span> stn_eq_or_neq_symm_nondep.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">id_pointwise_prod</span> { <span class="nv">n</span> : nat } (<span class="nv">v</span> : Vector R n) (<span class="nv">i</span> : ⟦ n ⟧%stn)
+    : (@identity_matrix R n i) *pw v
+      = (@scalar_lmult_vec R (v i) n (identity_matrix i)).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> identity_matrix, scalar_lmult_vec, pointwise, vector_fmap.
+    <span class="nb">apply</span> funextfun. <span class="nb">intros</span> k.
+    <span class="nb">destruct</span> (stn_eq_or_neq i k) <span class="k">as</span> [eq | neq].
+    - <span class="bp">now</span> <span class="nb">rewrite</span> riglunax2, rigrunax2, eq.
+    - <span class="bp">now</span> <span class="nb">rewrite</span> rigmultx0, rigmult0x.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">sum_id_pointwise_prod</span> { <span class="nv">n</span> : nat } (<span class="nv">v</span> : Vector R n) (<span class="nv">i</span> : ⟦ n ⟧%stn) :
+    Σ ((identity_matrix i) *pw v) = (v i).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> sum_stdb_vector_pointwise_prod.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">matlunel2</span> (<span class="nv">n</span> : nat) := @identity_matrix R n.
+  <span class="kn">Definition</span> <span class="nf">matrunel2</span> (<span class="nv">n</span> : nat) := @identity_matrix R n.
+
+  <span class="kn">Lemma</span> <span class="nf">matlunax2</span> : ∏ (m n: nat) (mat : Matrix R n m),
+    (identity_matrix ** mat) = mat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> funextfun. <span class="nb">intros</span> i.
+    <span class="nb">apply</span> funextfun. <span class="nb">intros</span> j.
+    <span class="nb">unfold</span> matrix_mult, row.
+    use sum_id_pointwise_prod.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">col_vec_mult_eq</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat } (<span class="nv">mat</span> : Matrix R m n) (<span class="nv">v1</span> : Vector R n) (<span class="nv">v2</span> : Vector R m)
+    (<span class="nv">e</span> : (mat ** (col_vec v1)) = col_vec v2)
+    : ∏ i : (stn m),
+    Σ ((mat i) *pw v1) = v2 i.
+  <span class="kn">Proof</span>.
+    <span class="bp">now</span> <span class="nb">apply</span> toforallpaths; use col_vec_inj.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">idmat_i_to_idvec</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span> : ⟦ n ⟧%stn)
+    : (@identity_matrix R) i = (@stdb_vector R i).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> funextfun. <span class="nb">intros</span> j.
+    <span class="nb">apply</span> funextfun. <span class="nb">intros</span> k.
+    <span class="bp">now</span> <span class="nb">destruct</span> (stn_eq_or_neq j k).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">id_mat_ii</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span> : ⟦ n ⟧%stn)
+     : (@identity_matrix R n) i i = rigunel2.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> identity_matrix;
+    <span class="bp">now</span> <span class="nb">rewrite</span> (stn_eq_or_neq_refl).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">id_mat_ij</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span> <span class="nv">j</span> : ⟦ n ⟧%stn)
+    : i ≠ j -&gt; (@identity_matrix R n) i j = rigunel1.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i_neq_j.
+    <span class="nb">unfold</span> identity_matrix.
+    <span class="bp">now</span> <span class="nb">rewrite</span> (stn_eq_or_neq_right i_neq_j).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">matrunax2</span> : ∏ (m n : nat) (mat : Matrix R m n),
+    (mat ** identity_matrix) = mat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> m n mat.
+    <span class="nb">apply</span> funextfun. <span class="nb">intros</span> i.
+    <span class="nb">apply</span> funextfun. <span class="nb">intros</span> j.
+    <span class="nb">unfold</span> matrix_mult.
+    <span class="nb">rewrite</span> (pulse_function_sums_to_point _ j);
+    <span class="nb">rewrite</span> &lt;- (symmetric_mat_row_eq_col _ _ identity_matrix_symmetric);
+    <span class="nb">unfold</span> pointwise, row.
+    - <span class="bp">now</span> <span class="nb">rewrite</span> id_mat_ii, rigrunax2.
+    - <span class="nb">intros</span> k j_neq_k;
+      <span class="bp">now</span> <span class="nb">rewrite</span> (id_mat_ij _ _ j_neq_k), rigmultx0.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">identity_matrix_unique_left</span> {<span class="nv">m</span> : nat}
+    (<span class="nv">Z</span> : Matrix R m m)
+    : (∏ n : nat, ∏ A : (Matrix R m n),
+      (Z ** A) = A)
+    -&gt; Z = identity_matrix.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> impl.
+    etrans. { <span class="nb">apply</span> pathsinv0, matrunax2. }
+    <span class="nb">apply</span> impl.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">identity_matrix_unique_right</span> {<span class="nv">n</span> : nat}
+    (<span class="nv">Z</span> : Matrix R n n)
+    : (∏ m : nat, ∏ A : (Matrix R m n),
+      (A ** Z) = A)
+    -&gt; Z = identity_matrix.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> impl.
+    etrans. { <span class="nb">apply</span> pathsinv0, matlunax2. }
+    <span class="nb">apply</span> impl.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">idrow_sums_to_1</span> { <span class="nv">n</span> : nat } (<span class="nv">i</span> : ⟦ n ⟧%stn) :
+    Σ ((@identity_matrix R n ) i) = <span class="mi">1</span>%rig.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> stdb_vector_sums_to_1.
+  <span class="kn">Defined</span>.
+
+
+<span class="kn">End</span> <span class="nf">Identity_Matrix</span>.
+
+<span class="kn">Section</span> <span class="nf">Inverses</span>.
+
+  <span class="kn">Definition</span> <span class="nf">matrix_left_inverse</span> {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">A</span> : Matrix R m n) :=
+    ∑ (B : Matrix R n m), ((B ** A) = identity_matrix).
+
+  <span class="kn">Definition</span> <span class="nf">matrix_right_inverse</span> {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">A</span> : Matrix R m n) :=
+    ∑ (B : Matrix R n m), ((A ** B) = identity_matrix).
+
+  <span class="kn">Definition</span> <span class="nf">matrix_inverse</span> {<span class="nv">n</span> : nat} (<span class="nv">A</span> : Matrix R n n) :=
+    ∑ (B : Matrix R n n),
+      ((A ** B) = identity_matrix)
+    × ((B ** A) = identity_matrix).
+
+  <span class="kn">Coercion</span> <span class="nf">matrix_left_inverse_of_inverse</span> {n : nat}
+    (A : Matrix R n n)
+    : @matrix_inverse n A -&gt; @matrix_left_inverse n n A.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [y [xy yx]]. <span class="nb">esplit</span>; <span class="nb">eauto</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Coercion</span> <span class="nf">matrix_right_inverse_of_inverse</span> {n : nat}
+    (A : Matrix R n n)
+    : @matrix_inverse n A -&gt; @matrix_right_inverse n n A.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [y [xy yx]]. <span class="nb">esplit</span>; <span class="nb">eauto</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">matrix_inverse_to_right_and_left_inverse</span>
+    {<span class="nv">n</span> : nat} (<span class="nv">A</span> : Matrix R n n)
+    : (matrix_inverse A)
+      -&gt; matrix_left_inverse A × matrix_right_inverse A.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> inv; <span class="nb">split</span>.
+    - <span class="nb">apply</span> matrix_left_inverse_of_inverse; <span class="bp">exact</span> inv.
+    - <span class="nb">apply</span> matrix_right_inverse_of_inverse; <span class="bp">exact</span> inv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">make_matrix_left_inverse</span>
+    {<span class="nv">m</span> <span class="nv">n</span> <span class="nv">k</span>: nat}
+    (<span class="nv">A</span> : Matrix R m n) (<span class="nv">B</span> : Matrix R n m)
+    (<span class="nv">eq</span> : matrix_mult A B = identity_matrix)
+    : matrix_left_inverse B.
+  <span class="kn">Proof</span>. <span class="bp">now</span> <span class="k">exists</span> <span class="nv">A</span>. <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">make_matrix_right_inverse</span>
+    {<span class="nv">m</span> <span class="nv">n</span> <span class="nv">k</span>: nat}
+    (<span class="nv">A</span> : Matrix R m n) (<span class="nv">B</span> : Matrix R n m)
+    (<span class="nv">eq</span> : matrix_mult A B = identity_matrix)
+    : matrix_right_inverse A.
+  <span class="kn">Proof</span>. <span class="bp">now</span> <span class="k">exists</span> <span class="nv">B</span>. <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">matrix_left_inverse_equals_right_inverse</span>
+  {<span class="nv">m</span> <span class="nv">n</span> <span class="nv">k</span>: nat} (<span class="nv">A</span> : Matrix R n n)
+  (<span class="nv">lft</span> : matrix_left_inverse A) (<span class="nv">rght</span> : matrix_right_inverse A)
+  : pr1 lft = pr1 rght.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> lft <span class="k">as</span> [? islft].
+    <span class="nb">destruct</span> rght <span class="k">as</span> [rght isrght]; <span class="nb">simpl</span>.
+    <span class="nb">pose</span> (H0 := matlunax2 n n rght).
+    <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- islft, matrix_mult_assoc, isrght, matrunax2 <span class="k">in</span> H0.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">matrix_right_left_inverse_to_inverse</span>
+    {<span class="nv">n</span> : nat} (<span class="nv">A</span> : Matrix R n n)
+    : matrix_left_inverse A -&gt; matrix_right_inverse A -&gt; (matrix_inverse A).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> lft rght.
+    use tpair; <span class="nb">simpl</span>. {<span class="nb">apply</span> lft. }
+    <span class="nb">split</span>. <span class="mi">2</span>: {<span class="nb">apply</span> lft. }
+    <span class="nb">rewrite</span> (@matrix_left_inverse_equals_right_inverse n _ n _ lft rght).
+    <span class="nb">apply</span> rght.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">matrix_inverse_unique</span> {<span class="nv">n</span> : nat} (<span class="nv">A</span> : Matrix R n n)
+    (<span class="nv">B</span> <span class="nv">C</span> : matrix_inverse A) : pr1 B = pr1 C.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (eq : pr1 B = ((pr1 B) ** (A ** (pr1 C)))).
+    { <span class="nb">rewrite</span> (pr1 (pr2 C)).
+      <span class="bp">now</span> <span class="nb">rewrite</span> matrunax2. }
+    <span class="nb">rewrite</span> eq, &lt;- matrix_mult_assoc, (pr2 (pr2 B)).
+    <span class="bp">now</span> <span class="nb">rewrite</span> matlunax2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">left_inv_matrix_prod_is_left_inv</span> {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">A</span> : Matrix R m n)
+    (<span class="nv">A'</span> : Matrix R n n) (<span class="nv">pa</span> : matrix_left_inverse A) (<span class="nv">pb</span> : matrix_left_inverse A') :
+    (matrix_left_inverse (A ** A')).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="k">exists</span> ((pr1 pb) ** (pr1 pa)); <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> matrix_mult_assoc, &lt;- (matrix_mult_assoc _ A _).
+    <span class="bp">now</span> <span class="nb">rewrite</span> (pr2 pa), matlunax2, (pr2 pb).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">right_inv_matrix_prod_is_right_inv</span> {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">A</span> : Matrix R m n)
+    (<span class="nv">A'</span> : Matrix R n n) (<span class="nv">pa</span> : matrix_right_inverse A) (<span class="nv">pb</span> : matrix_right_inverse A') :
+    (matrix_right_inverse (A ** A')).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    use tpair; <span class="nb">simpl</span>. { <span class="bp">exact</span> ((pr1 pb) ** (pr1 pa)). }
+    <span class="nb">rewrite</span> matrix_mult_assoc,
+    &lt;- (matrix_mult_assoc _ (pr1 pb) _).
+    <span class="bp">now</span> <span class="nb">rewrite</span> (pr2 pb), matlunax2, (pr2 pa).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inv_matrix_prod_invertible</span> {<span class="nv">n</span> : nat} (<span class="nv">A</span> : Matrix R n n)
+    (<span class="nv">A'</span> : Matrix R n n) (<span class="nv">pa</span> : matrix_inverse A) (<span class="nv">pb</span> : matrix_inverse A') :
+    (matrix_inverse (A ** A')).
+  <span class="kn">Proof</span>.
+    use tpair; <span class="nb">simpl</span>. { <span class="bp">exact</span> ((pr1 pb) ** (pr1 pa)). }
+    use tpair.
+    - <span class="nb">rewrite</span> matrix_mult_assoc.
+      <span class="nb">rewrite</span> &lt;- (matrix_mult_assoc _ (pr1 pb) _).
+      <span class="nb">rewrite</span> (pr1 (pr2 pb)), matlunax2.
+      <span class="bp">now</span> <span class="nb">rewrite</span> (pr1 (pr2 pa)).
+    - <span class="nb">simpl</span>; <span class="nb">rewrite</span> matrix_mult_assoc.
+      <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (matrix_mult_assoc _ A _),
+      (pr2 (pr2 pa)), matlunax2, (pr2 (pr2 pb)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">identity_matrix_invertible</span> { <span class="nv">n</span> : nat } : matrix_inverse (@identity_matrix _ n).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">identity_matrix</span>.
+    use tpair; <span class="nb">apply</span> matrunax2.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Inverses</span>.
+
+<span class="kn">Section</span> <span class="nf">Nil_Matrices</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iscontr_nil_row_matrix</span> {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat} : iscontr (Matrix X <span class="mi">0</span> n).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> iscontr_nil_vector.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iscontr_nil_col_matrix</span> {<span class="nv">X</span> : UU} {<span class="nv">m</span> : nat} : iscontr (Matrix X m <span class="mi">0</span>).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> impred_iscontr; <span class="nb">intro</span>; <span class="nb">apply</span> iscontr_nil_vector.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">nil_matrix_invertible</span> {<span class="nv">n</span> : nat} (<span class="nv">A</span> : Matrix R <span class="mi">0</span> <span class="mi">0</span>): matrix_inverse A.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">identity_matrix</span>.
+    use tpair.
+    - etrans. <span class="nb">apply</span> matrunax2.
+      <span class="nb">apply</span> funextfun; <span class="nb">intro</span> i.
+      <span class="bp">now</span> <span class="nb">apply</span>(@iscontr_nil_row_matrix _ <span class="mi">0</span>).
+    - etrans. <span class="nb">apply</span> matlunax2.
+      <span class="nb">apply</span> funextfun; <span class="nb">intro</span>.
+      <span class="bp">now</span> <span class="nb">apply</span> (@iscontr_nil_row_matrix _ <span class="mi">0</span>).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Nil_Matrices</span>.
+
+<span class="kn">Section</span> <span class="nf">Diagonal</span>.
+
+  <span class="kn">Definition</span> <span class="nf">diagonal_sq</span> { <span class="nv">n</span> : nat } (<span class="nv">mat</span> : Matrix R n n) :=
+    <span class="k">λ</span> <span class="nv">i</span> : (stn n), mat i i.
+
+  <span class="kn">Definition</span> <span class="nf">is_diagonal</span> { <span class="nv">m</span> <span class="nv">n</span> : nat } (<span class="nv">mat</span> : Matrix R m n) :=
+    ∏ (i : ⟦ m ⟧%stn) (j : ⟦ n ⟧%stn), (stntonat _ i ≠ (stntonat _ j)) -&gt; (mat i j) = <span class="mi">0</span>%rig.
+
+  <span class="kn">Definition</span> <span class="nf">diagonal_all_nonzero</span> { <span class="nv">n</span> : nat } (<span class="nv">mat</span> : Matrix R n n) :=
+    ∏ i : ⟦ n ⟧%stn, mat i i != <span class="mi">0</span>%rig.
+
+  <span class="kn">Lemma</span> <span class="nf">diagonal_nonzero_iff_transpose_nonzero</span>
+    { <span class="nv">n</span> : nat } (<span class="nv">A</span> : Matrix R n n)
+    : diagonal_all_nonzero A
+    &lt;-&gt; diagonal_all_nonzero (transpose A).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">intros</span> H; <span class="nb">unfold</span> diagonal_all_nonzero, transpose, flip; <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Diagonal</span>.
+
+<span class="kn">Section</span> <span class="nf">Triangular</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_upper_triangular</span> { <span class="nv">m</span> <span class="nv">n</span> : nat } (<span class="nv">mat</span> : Matrix R m n) :=
+    ∏ (i : ⟦ m ⟧%stn ) (j : ⟦ n ⟧%stn ),  (stntonat _ i &gt; (stntonat _ j)) -&gt; (mat i j) = <span class="mi">0</span>%rig.
+
+  <span class="kn">Definition</span> <span class="nf">is_lower_triangular</span> { <span class="nv">m</span> <span class="nv">n</span> : nat } (<span class="nv">mat</span> : Matrix R m n) :=
+    ∏ (i : ⟦ m ⟧%stn ) (j : ⟦ n ⟧%stn ), (stntonat _ i &lt; (stntonat _ j)) -&gt; (mat i j) = <span class="mi">0</span>%rig.
+
+  <span class="kn">Definition</span> <span class="nf">is_upper_triangular_partial</span> { <span class="nv">m</span> <span class="nv">n</span> <span class="nv">k</span> : nat } (<span class="nv">mat</span> : Matrix R m n) :=
+    ∏ (i : ⟦ m ⟧%stn ) (j : ⟦ n ⟧%stn ),  (stntonat _ i &gt; (stntonat _ j)) -&gt; i &lt; k -&gt; (mat i j) = <span class="mi">0</span>%rig.
+
+  <span class="kn">Lemma</span> <span class="nf">upper_triangular_iff_transpose_lower_triangular</span>
+  { <span class="nv">m</span> <span class="nv">n</span> : nat } ( <span class="nv">iter</span> : ⟦ n ⟧%stn ) (<span class="nv">mat</span> : Matrix R m n)
+  : is_upper_triangular mat &lt;-&gt; is_lower_triangular (transpose mat).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span>  is_upper_triangular, is_lower_triangular, transpose, flip.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> inv i j i_lt_j.
+      <span class="nb">rewrite</span> inv; <span class="kp">try</span> <span class="bp">assumption</span>; <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> inv i j i_gt_j.
+      <span class="nb">rewrite</span> inv; <span class="kp">try</span> <span class="bp">assumption</span>; <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Triangular</span>.
+
+<span class="kn">Section</span> <span class="nf">Misc</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ij_minor</span> {<span class="nv">X</span> : rig} {<span class="nv">n</span> : nat} ( <span class="nv">i</span> <span class="nv">j</span> : ⟦ S n ⟧%stn )
+    (<span class="nv">mat</span> : Matrix X (S n) (S n)) : Matrix X n n.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i' j'.
+    <span class="bp">exact</span> (mat (dni i i') (dni j j')).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">zero_row_product</span> { <span class="nv">m</span> <span class="nv">n</span> <span class="nv">p</span> : nat }
+      (<span class="nv">A</span> : Matrix R m n) (<span class="nv">B</span> : Matrix R n p)
+      (<span class="nv">i</span> : ⟦m⟧%stn) (<span class="nv">Ai_zero</span> : row A i = const_vec <span class="mi">0</span>%rig)
+    : row (A ** B) i = const_vec <span class="mi">0</span>%rig.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> toforallpaths <span class="k">in</span> Ai_zero.
+    <span class="nb">apply</span> funextfun; <span class="nb">intro</span> k.
+    <span class="nb">apply</span> vecsum_eq_zero.
+    <span class="nb">intro</span> j; <span class="nb">unfold</span> pointwise.
+    etrans. { <span class="nb">apply</span> maponpaths_2, Ai_zero. }
+    <span class="nb">apply</span> rigmult0x.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Misc</span>.
+
+<span class="kn">End</span> <span class="nf">General_Rigs</span>.
+
+<span class="sd">(** * Commutative rigs *)</span>
+<span class="kn">Section</span> <span class="nf">MatricesCommrig</span>.
+
+  <span class="kn">Context</span> {<span class="nv">CR</span> : commrig }.
+
+  <span class="kn">Lemma</span> <span class="nf">matrix_product_transpose</span>
+      { <span class="nv">m</span> <span class="nv">n</span> <span class="nv">p</span> : nat } (<span class="nv">A</span> : Matrix CR m n) (<span class="nv">B</span> : Matrix CR n p)
+    : (transpose (A ** B)) = ((transpose B) ** (transpose A)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> funextfun. <span class="nb">intros</span> i.
+    <span class="nb">apply</span> funextfun. <span class="nb">intros</span> k.
+    <span class="nb">apply</span> vecsum_eq. <span class="nb">intros</span> j.
+    <span class="nb">unfold</span> col, row, pointwise, transpose, flip; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> rigcomm2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">row_vec_col_vec_mult_eq</span> {<span class="nv">m</span> <span class="nv">n</span>} (<span class="nv">A</span> : Matrix CR m n) (<span class="nv">x</span> : Vector CR n)
+  : transpose ((row_vec x) ** (transpose A)) = A ** (col_vec x).
+  <span class="kn">Proof</span>.
+    etrans. { <span class="nb">apply</span> matrix_product_transpose. }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">invertible_to_transpose_invertible</span> { <span class="nv">n</span> } (<span class="nv">mat</span> : Matrix CR n n)
+    : (@matrix_inverse CR n mat)
+    -&gt; (@matrix_inverse CR n (transpose mat)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [mat_inv [e_mi e_im]].
+    <span class="k">exists</span> (<span class="nv">transpose</span> <span class="nv">mat_inv</span>).
+    <span class="nb">split</span>;
+      <span class="nb">refine</span> (!matrix_product_transpose _ _
+               @ maponpaths _ _
+               @ identity_matrix_symmetric);
+      <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transpose_invertible_to_invertible</span> { <span class="nv">n</span> } (<span class="nv">mat</span> : Matrix CR n n)
+    : (@matrix_inverse CR n (transpose mat))
+    -&gt; (@matrix_inverse CR n mat).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> invertible_to_transpose_invertible.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">matrix_left_inverse_to_transpose_right_inverse</span>
+    {<span class="nv">m</span> <span class="nv">n</span>} (<span class="nv">A</span> : Matrix CR m n)
+    (<span class="nv">inv</span>: @matrix_left_inverse CR m n A)
+    : (@matrix_right_inverse CR n m (@transpose CR n m A)).
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> inv <span class="k">as</span> [inv isinv].
+    <span class="k">exists</span> (<span class="nv">transpose</span> <span class="nv">inv</span>).
+    etrans. { <span class="nb">apply</span> pathsinv0, matrix_product_transpose. }
+    etrans. { <span class="nb">apply</span> maponpaths, isinv. }
+    <span class="nb">apply</span> identity_matrix_symmetric.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">MatricesCommrig</span>.
+
+<span class="kn">Section</span> <span class="nf">MatricesIntDom</span>.
+
+  <span class="kn">Context</span> {<span class="nv">R</span> : intdom}.
+
+  <span class="sd">(** Note: these results don’t really require that R is an integral domain, just that R is non-trivial. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">zero_row_to_non_right_invertibility</span> { <span class="nv">m</span> <span class="nv">n</span> : nat } (<span class="nv">A</span> : Matrix R m n)
+      (<span class="nv">i</span> : ⟦ m ⟧%stn) (<span class="nv">zero_row</span> : A i = (const_vec <span class="mi">0</span>%<span class="bp">ring</span>))
+    : (@matrix_right_inverse R m n A) -&gt; empty.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [inv isrightinv].
+    <span class="bp">contradiction</span> (@nonzeroax R).
+    etrans. { <span class="nb">apply</span> pathsinv0, (@id_mat_ii R). }
+    <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> toforallpaths <span class="k">in</span> isrightinv; <span class="nb">specialize</span> (isrightinv i)).
+    etrans. { <span class="nb">apply</span> pathsinv0, isrightinv. }
+    <span class="nb">refine</span> (toforallpaths _ _ _ _ i).
+    <span class="nb">apply</span> (@zero_row_product R).
+    <span class="nb">apply</span> zero_row.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">zero_row_to_non_invertibility</span> { <span class="nv">n</span> : nat } (<span class="nv">A</span> : Matrix R n n)
+    (<span class="nv">i</span> : ⟦ n ⟧%stn) (<span class="nv">zero_row</span> : A i = (const_vec <span class="mi">0</span>%<span class="bp">ring</span>)) :
+    (@matrix_inverse R n A) -&gt; empty.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> invA.
+    <span class="nb">apply</span> matrix_inverse_to_right_and_left_inverse <span class="k">in</span> invA.
+    <span class="nb">destruct</span> invA <span class="k">as</span> [? rinvA].
+    <span class="nb">apply</span> (zero_row_to_non_right_invertibility A i); <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">MatricesIntDom</span>.
+
+<span class="sd">(** * Matrices representing permutations *)</span>
+<span class="kn">Section</span> <span class="nf">Transpositions</span>.
+
+  <span class="kn">Context</span> { <span class="nv">R</span> : rig }.
+
+  <span class="kn">Definition</span> <span class="nf">transposition_fun</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span> <span class="nv">j</span> : ⟦ n ⟧%stn)
+    : ⟦ n ⟧%stn -&gt; ⟦ n ⟧%stn.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> k.
+    <span class="nb">destruct</span> (stn_eq_or_neq i k).
+    - <span class="bp">exact</span> j.
+    - <span class="nb">destruct</span> (stn_eq_or_neq j k).
+      + <span class="bp">exact</span> i.
+      + <span class="bp">exact</span> k.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transposition_self_inverse</span> {<span class="nv">n</span>} (<span class="nv">i</span> <span class="nv">j</span> : ⟦ n ⟧%stn)
+    : transposition_fun i j ∘ transposition_fun i j = idfun _.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> funextsec; <span class="nb">intros</span> k; <span class="nb">simpl</span>; <span class="nb">unfold</span> transposition_fun.
+    <span class="nb">destruct</span> (stn_eq_or_neq i k) <span class="k">as</span> [i_eq_k | i_neq_k];
+      <span class="nb">destruct</span> (stn_eq_or_neq i j) <span class="k">as</span> [i_eq_j | i_neq_j].
+    - <span class="bp">now</span> <span class="nb">destruct</span> i_eq_j.
+    - <span class="bp">now</span> <span class="nb">rewrite</span> stn_eq_or_neq_refl.
+    - <span class="nb">destruct</span> i_eq_j.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (stn_eq_or_neq_right i_neq_k).
+      <span class="bp">reflexivity</span>.
+    - <span class="nb">destruct</span> (stn_eq_or_neq j k) <span class="k">as</span> [j_eq_k | j_neq_k].
+      + <span class="bp">now</span> <span class="nb">rewrite</span> stn_eq_or_neq_refl.
+      + <span class="nb">rewrite</span> (stn_eq_or_neq_right i_neq_k).
+        <span class="nb">rewrite</span> (stn_eq_or_neq_right j_neq_k).
+        <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transposition_perm</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span> <span class="nv">j</span> : ⟦ n ⟧%stn)
+    : ⟦ n ⟧%stn ≃ ⟦ n ⟧%stn.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">transposition_fun</span> <span class="nv">i</span> <span class="nv">j</span>).
+    use isweq_iso.
+    - <span class="bp">exact</span> (transposition_fun i j).
+    - <span class="nb">apply</span> toforallpaths, transposition_self_inverse.
+    - <span class="nb">apply</span> toforallpaths, transposition_self_inverse.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* Note: can be generalize to functions on rows? *)</span>
+  <span class="kn">Definition</span> <span class="nf">transposition_mat_rows</span> {<span class="nv">X</span> : UU} {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">i</span> <span class="nv">j</span> : ⟦ m ⟧%stn)
+    : (Matrix X m n) -&gt; Matrix X m n.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> mat k.
+    <span class="nb">destruct</span> (stn_eq_or_neq i k).
+    - <span class="nb">apply</span> (mat j).
+    - <span class="nb">destruct</span> (stn_eq_or_neq j k).
+      + <span class="bp">exact</span> (mat i).
+      + <span class="bp">exact</span> (mat k).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tranposition_mat_rows_perm_stmt</span> {<span class="nv">X</span> : UU} {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">i</span> <span class="nv">j</span> : ⟦ m ⟧%stn)
+    := (Matrix X m n) ≃ Matrix X m n.
+
+  <span class="kn">Definition</span> <span class="nf">is_permutation_fun</span> {<span class="nv">n</span> : nat} (<span class="nv">p</span> : ⟦ n ⟧%stn -&gt; ⟦ n ⟧%stn) :=
+    ∏ i j: ⟦ n ⟧%stn, (p i = p j) -&gt; i = j.
+
+  <span class="kn">Definition</span> <span class="nf">id_permutation_fun</span> (<span class="nv">n</span> : nat) : ⟦ n ⟧%stn -&gt; ⟦ n ⟧%stn :=
+    <span class="k">λ</span> <span class="nv">i</span> : ⟦ n ⟧%stn, i.
+
+  <span class="kn">Lemma</span> <span class="nf">idp_is_permutation_fun</span> {<span class="nv">n</span> : nat} : is_permutation_fun (id_permutation_fun n).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_permutation_fun, id_permutation_fun.
+    <span class="nb">intros</span>; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Transpositions</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/GaussianElimination/Matrices.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Primary Author: Daniel &#64;Skantz (November 2022)
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

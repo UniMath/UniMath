@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CartesianAsComonoids.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(*</span>
+<span class="c">In this file, we show:</span>
+<span class="c">   if a symmetric monoidal category is cartesian, the forgetful functor from the category of commutative comonoids is an isomorphism of categories.</span>
+
+<span class="c">The converse of this statement remains to be done.</span>
+<span class="c"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.catiso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Projection.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.CatIsoDisplayed.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.SymmetricDiagonal.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.Category.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.Tensor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.Monoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.Symmetric.
+
+
+<span class="kn">Import</span> MonoidalNotations.
+<span class="kn">Import</span> ComonoidNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Section</span> <span class="nf">CartesianToCartesianAsComonoids</span>.
+
+  <span class="kn">Context</span> {<span class="nv">M</span> : monoidal_cat} (<span class="nv">Ccart</span> : is_cartesian M).
+  <span class="kn">Let</span> <span class="nf">V</span> : sym_monoidal_cat := M,, cartesian_to_symmetric Ccart.
+
+  <span class="kn">Let</span> <span class="nf">diag</span> (<span class="nv">x</span> : V) : V⟦x, x ⊗ x⟧
+      := diagonalMap' (is_cartesian_BinProduct Ccart) x.
+
+  <span class="kn">Let</span> <span class="nf">aug</span> (<span class="nv">x</span> : V) : V⟦x, monoidal_unit M⟧
+      := (semi_cart_to_unit Ccart x).
+
+  <span class="kn">Lemma</span> <span class="nf">identity_of_lwhisker_with_unit</span> (<span class="nv">x</span> : V)
+    : monoidal_cat_tensor_mor (aug (monoidal_unit M)) (identity x)
+       = identity (_ ⊗ x).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ tensor_id_id _ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> (semi_cart_to_unit_eq Ccart).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">identity_of_rwhisker_with_unit</span> (<span class="nv">x</span> : V)
+    : monoidal_cat_tensor_mor (identity x) (aug I_{M})
+       = identity (x ⊗ I_{V}).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ tensor_id_id _ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (semi_cart_to_unit_eq Ccart).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">cartesian_lunitor</span> (<span class="nv">x</span> : V)
+    : semi_cart_tensor_pr2 (pr1 Ccart) I_{ M} x = mon_lunitor x.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">unfold</span> semi_cart_tensor_pr2.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> identity_of_lwhisker_with_unit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">cartesian_runitor</span> (<span class="nv">x</span> : V)
+    : semi_cart_tensor_pr1 (pr1 Ccart) x I_{M} = mon_runitor x.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">unfold</span> semi_cart_tensor_pr1.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> identity_of_rwhisker_with_unit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">cartesian_linvunitor</span> (<span class="nv">x</span> : V)
+    : BinProductArrow V (is_cartesian_BinProduct Ccart I_{ M} x)
+        (semi_cart_to_unit Ccart x)
+        (identity x)
+      = mon_linvunitor x.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0.
+    use BinProductArrowUnique.
+    - <span class="nb">apply</span> (semi_cart_to_unit_eq Ccart).
+    - etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> cartesian_lunitor.
+      }
+      <span class="nb">apply</span> monoidal_leftunitorisolaw.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">cartesian_linvunitor'</span> (<span class="nv">x</span> : V)
+    : diag x
+         · semi_cart_to_unit Ccart x ⊗^{M}_{r} x
+       = mon_linvunitor x.
+  <span class="kn">Proof</span>.
+    etrans. {
+      <span class="nb">refine</span> (_ @ postcompWithBinProductArrow _
+                (is_cartesian_BinProduct Ccart _ _)
+                (is_cartesian_BinProduct Ccart _ _)
+                (semi_cart_to_unit Ccart x)
+                (identity x)
+                (identity x) (identity x)).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_rightwhiskering M).
+      <span class="bp">exact</span> (cartesian_tensor_mor Ccart (semi_cart_to_unit Ccart x) (identity x)).
+    }
+
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.
+    <span class="bp">exact</span> (cartesian_linvunitor x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">cartesian_rinvunitor</span> (<span class="nv">x</span> : V)
+    : BinProductArrow V (is_cartesian_BinProduct Ccart x I_{ M})
+        (identity x)
+        (semi_cart_to_unit Ccart x)
+      = mon_rinvunitor x.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0.
+    use BinProductArrowUnique.
+    - etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> cartesian_runitor.
+      }
+      <span class="nb">apply</span> monoidal_rightunitorisolaw.
+    - <span class="nb">apply</span> (semi_cart_to_unit_eq Ccart).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">cartesian_rinvunitor'</span> (<span class="nv">x</span> : V)
+    : diag x · x ⊗^{ M}_{l} aug x = mon_rinvunitor x.
+  <span class="kn">Proof</span>.
+    etrans. {
+      <span class="nb">refine</span> (_ @ postcompWithBinProductArrow _
+                (is_cartesian_BinProduct Ccart _ _)
+                (is_cartesian_BinProduct Ccart _ _)
+                (identity x)
+                (semi_cart_to_unit Ccart x)
+                (identity x) (identity x)).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_leftwhiskering M).
+      <span class="bp">exact</span> (cartesian_tensor_mor Ccart (identity x) (semi_cart_to_unit Ccart x)).
+    }
+
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.
+    <span class="bp">exact</span> (cartesian_rinvunitor x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">cartesian_associator</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : V)
+    : mon_lassociator x y z
+      = BinProductArrow V
+          (is_cartesian_BinProduct Ccart _ _)
+          (semi_cart_tensor_pr1 Ccart _ _ · semi_cart_tensor_pr1 Ccart _ _)
+          (semi_cart_tensor_pr2 Ccart _ _ ⊗^{M}_{r} z).
+  <span class="kn">Proof</span>.
+    use (BinProductArrowUnique _ _ _ (is_cartesian_BinProduct Ccart _ _)).
+    - <span class="nb">apply</span> (mon_lassociator_pr1 Ccart).
+    - <span class="nb">refine</span> (mon_lassociator_pr2 Ccart x y z @ _).
+      <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+      <span class="bp">now</span> <span class="nb">apply</span> (when_bifunctor_becomes_rightwhiskering M).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">BinProductArrow_as_diag</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : V) (<span class="nv">f</span> : V⟦x,y⟧) (<span class="nv">g</span> : V⟦x,z⟧)
+    : diag x · f #⊗ g
+      = BinProductArrow V (is_cartesian_BinProduct Ccart y z) f g.
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (cartesian_tensor_mor Ccart).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> (postcompWithBinProductArrow _
+               (is_cartesian_BinProduct Ccart y z) (is_cartesian_BinProduct Ccart x x)).
+    }
+    <span class="bp">now</span> <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">diag_is_symmetric</span> (<span class="nv">x</span> : V)
+    : diag x · cartesian_to_braiding_data Ccart x x = diag x.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (BinProductArrowsEq _ _ _ (is_cartesian_BinProduct Ccart x x)).
+    - <span class="nb">rewrite</span> assoc'.
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (BinProductPr1Commutes _ _ _ (is_cartesian_BinProduct Ccart x x)). }
+      etrans.
+      { <span class="nb">apply</span> (BinProductPr2Commutes _ _ _ (is_cartesian_BinProduct Ccart x x)). }
+      <span class="nb">apply</span> pathsinv0, (BinProductPr1Commutes _ _ _ (is_cartesian_BinProduct Ccart x x)).
+    - <span class="nb">rewrite</span> assoc'.
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (BinProductPr2Commutes _ _ _ (is_cartesian_BinProduct Ccart x x)). }
+      etrans.
+      { <span class="nb">apply</span> (BinProductPr1Commutes _ _ _ (is_cartesian_BinProduct Ccart x x)). }
+      <span class="nb">apply</span> pathsinv0, (BinProductPr2Commutes _ _ _ (is_cartesian_BinProduct Ccart x x)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">diagonal_commutes_with_assoc</span> (<span class="nv">x</span> : V)
+    : diag x · diag x ⊗^{M}_{r} x · mon_lassociator x x x = diag x · x ⊗^{M}_{l} diag x.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> cartesian_associator.
+    etrans.
+    { <span class="nb">apply</span> cancel_postcomposition.
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0, (when_bifunctor_becomes_rightwhiskering M). }
+      <span class="nb">apply</span> BinProductArrow_as_diag.
+    }
+    etrans.
+    <span class="mi">2</span>: { etrans.
+         <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> (when_bifunctor_becomes_leftwhiskering M). }
+         <span class="nb">apply</span> pathsinv0, BinProductArrow_as_diag.
+    }
+    etrans.
+    { <span class="nb">apply</span> (precompWithBinProductArrow _ (is_cartesian_BinProduct Ccart x (x ⊗ x))). }
+    <span class="nb">apply</span> maponpaths_12.
+    - <span class="nb">rewrite</span> assoc.
+      etrans.
+      { <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">apply</span> (BinProductPr1Commutes _ _ _ (is_cartesian_BinProduct Ccart _ _)). }
+      <span class="nb">apply</span> (BinProductPr1Commutes _ _ _ (is_cartesian_BinProduct Ccart x x)).
+    - etrans.
+      { <span class="nb">apply</span> maponpaths.
+        etrans.
+        { <span class="nb">apply</span> pathsinv0, (when_bifunctor_becomes_rightwhiskering M). }
+        <span class="nb">apply</span> (cartesian_tensor_mor Ccart). }
+      etrans.
+      { <span class="nb">apply</span> (postcompWithBinProductArrow _
+                 (is_cartesian_BinProduct Ccart x x)
+                 (is_cartesian_BinProduct Ccart (is_cartesian_BinProduct Ccart x x) x)). }
+      <span class="nb">unfold</span> diag <span class="nb">at</span> <span class="mi">2</span>; <span class="nb">unfold</span> diagonalMap'; <span class="nb">apply</span> maponpaths_12.
+      + <span class="nb">apply</span> (BinProductPr2Commutes _ _ _ (is_cartesian_BinProduct Ccart _ _)).
+      + <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cartesian_comonoid_data</span> (<span class="nv">x</span> : V)
+    : comonoid_data V := x ,, diag x ,, aug x.
+
+  <span class="kn">Lemma</span> <span class="nf">cartesian_comonoid_laws</span> (<span class="nv">x</span> : V)
+    : comonoid_laws M (cartesian_comonoid_data x).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">unfold</span> comonoid_laws_unit_left.
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ mon_linvunitor_lunitor x).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (cartesian_linvunitor' x).
+    - <span class="nb">unfold</span> comonoid_laws_unit_right.
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ mon_rinvunitor_runitor x).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (cartesian_rinvunitor' x).
+    - <span class="nb">unfold</span> comonoid_laws_assoc.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> diagonal_commutes_with_assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cartesian_monoidal_has_enough_comonoids</span>
+    : ∏ x : V, comonoid M.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">refine</span> (x ,, _ ,, _).
+    <span class="bp">exact</span> (cartesian_comonoid_laws x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cartesian_monoidal_has_enough_comm_comonoids</span>
+    : ∏ x : V, disp_cat_of_commutative_comonoids V x.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="k">exists</span> (<span class="nv">comonoid_to_struct</span> <span class="nv">V</span> (cartesian_monoidal_has_enough_comonoids x)).
+    <span class="nb">apply</span> diag_is_symmetric.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">cartesian_monoidal_has_unique_comonoids</span>
+    : ∏ x : V,  iscontr (disp_cat_of_comonoids V x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="k">exists</span> (<span class="nv">comonoid_to_struct</span> <span class="nv">V</span> (cartesian_monoidal_has_enough_comonoids x)).
+    <span class="nb">intro</span> m.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_comonoid_laws. }
+
+    <span class="nb">apply</span> dirprodeq.
+    - use (BinProductArrowUnique _ _ _ (is_cartesian_BinProduct Ccart x x)).
+      + <span class="nb">refine</span> (_ @ comonoid_to_law_unit_right _ (_,,m)).
+        <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> semi_cart_tensor_pr1.
+        <span class="nb">rewrite</span> ! assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+        <span class="nb">rewrite</span> (when_bifunctor_becomes_leftwhiskering M).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (semi_cart_to_unit_eq Ccart).
+      + <span class="nb">refine</span> (_ @ comonoid_to_law_unit_left _ (_,,m)).
+        <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> semi_cart_tensor_pr2.
+        <span class="nb">rewrite</span> ! assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+        <span class="nb">rewrite</span> (when_bifunctor_becomes_rightwhiskering M).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (semi_cart_to_unit_eq Ccart).
+    - <span class="nb">apply</span> (semi_cart_to_unit_eq Ccart).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">cartesian_monoidal_has_unique_comm_comonoids</span>
+    : ∏ x : V, iscontr (disp_cat_of_commutative_comonoids V x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> iscontraprop1.
+    - <span class="nb">apply</span> isaproptotal2.
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property.
+      + <span class="nb">intro</span> ; <span class="nb">intros</span>.
+        <span class="nb">apply</span> proofirrelevance.
+        <span class="nb">apply</span> isapropifcontr.
+        <span class="nb">apply</span> cartesian_monoidal_has_unique_comonoids.
+    - <span class="nb">apply</span> cartesian_monoidal_has_enough_comm_comonoids.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">cartesian_monoidal_has_enough_comonoids_mor_comult</span>
+    {<span class="nv">x</span> <span class="nv">y</span> : V} (<span class="nv">f</span> : V⟦x, y⟧)
+    : is_comonoid_mor_comult V
+        (cartesian_monoidal_has_enough_comonoids x)
+        (cartesian_monoidal_has_enough_comonoids y)
+        f.
+  <span class="kn">Proof</span>.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> (precompWithBinProductArrow _ (is_cartesian_BinProduct Ccart y y)).
+    }
+    <span class="nb">rewrite</span> id_right.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (cartesian_tensor_mor Ccart).
+    }
+
+    etrans. {
+      <span class="nb">apply</span> (postcompWithBinProductArrow _
+               (is_cartesian_BinProduct Ccart _ _)
+               (is_cartesian_BinProduct Ccart _ _)
+               f f
+            ).
+    }
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cartesian_monoidal_has_enough_comonoids_mor</span>
+    {<span class="nv">x</span> <span class="nv">y</span> : V} (<span class="nv">f</span> : V⟦x, y⟧)
+    : comonoid_mor_struct V
+        (cartesian_monoidal_has_enough_comonoids x)
+        (cartesian_monoidal_has_enough_comonoids y)
+        f.
+  <span class="kn">Proof</span>.
+    use make_is_comonoid_mor.
+    - <span class="bp">exact</span> (cartesian_monoidal_has_enough_comonoids_mor_comult f).
+    - <span class="nb">apply</span> (semi_cart_to_unit_eq Ccart).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">cartesian_monoidal_has_enough_comonoids_mor'</span>
+    {<span class="nv">x</span> <span class="nv">y</span> : V} (<span class="nv">f</span> : V⟦x, y⟧)
+    : diag x · f #⊗ f
+      = f · diag y × aug x · identity (monoidal_unit V) = f · aug y.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> (cartesian_monoidal_has_enough_comonoids_mor_comult f).
+    - <span class="nb">apply</span> (semi_cart_to_unit_eq Ccart).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">comult_is_diag</span>
+    {<span class="nv">c</span> : V} (<span class="nv">m</span> : disp_cat_of_commutative_comonoids V c)
+    : δ_{(_ ,, pr1 m) : comonoid V} = diag c.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (idpath (pr111 m) @ _). <span class="c">(* the triple projection is presented to apply maponpaths without an argument *)</span>
+    etrans. {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (proofirrelevancecontr (cartesian_monoidal_has_unique_comm_comonoids c)
+               m (cartesian_monoidal_has_enough_comm_comonoids c)).
+    }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">cartesian_monoidal_has_enough_comm_comonoids_mor_mult_diag</span>
+    {<span class="nv">c1</span> <span class="nv">c2</span> : V}
+    (<span class="nv">m1</span> : disp_cat_of_commutative_comonoids V c1)
+    (<span class="nv">m2</span> : disp_cat_of_commutative_comonoids V c2)
+    (<span class="nv">f</span> : V ⟦ c1, c2 ⟧)
+    : δ_{(_ ,, pr1 m1) : comonoid V} · f #⊗ f = f · δ_{(_ ,, pr1 m2) : comonoid V}.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ cartesian_monoidal_has_enough_comonoids_mor_comult f @ _).
+    -- <span class="nb">apply</span> maponpaths_2.
+       <span class="nb">apply</span> comult_is_diag.
+    -- <span class="nb">apply</span> maponpaths.
+       <span class="nb">apply</span> pathsinv0, comult_is_diag.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cartesian_mon_is_comm_comonoids</span>
+    : is_catiso (pr1_category (disp_cat_of_commutative_comonoids V)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> forgetful_is_iso_univ.
+    - <span class="nb">apply</span> disp_cat_of_commutative_comonoids_is_univalent.
+    - <span class="nb">apply</span> cartesian_monoidal_has_enough_comm_comonoids.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      use (iscontrweqf (weqtodirprodwithunit _)).
+      use (iscontrweqf (weqtodirprodwithunit _)).
+      <span class="nb">apply</span> iscontraprop1.
+      { <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property. }
+      <span class="nb">split</span>.
+      + <span class="nb">apply</span> cartesian_monoidal_has_enough_comm_comonoids_mor_mult_diag.
+      + <span class="nb">apply</span> (semi_cart_to_unit_eq Ccart).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">CartesianToCartesianAsComonoids</span>.
+
+<span class="c">(* Section CartesianFromComonoidsToCartesian.</span>
+
+<span class="c">  Context {C : category} {M : monoidal C} (S : symmetric M).</span>
+
+<span class="c">  Context (i_i : is_catiso (pr1_category</span>
+<span class="c">                              (commutative_comonoids_disp_cat_over_base S))).</span>
+
+<span class="c">  Let inv_i := inv_catiso (_ ,, i_i).</span>
+<span class="c">  Let F_i := functor_from_catiso _ _ (_ ,, i_i).</span>
+
+<span class="c">  Definition cartesian_mon_from_comm_comonoids</span>
+<span class="c">    : is_cartesian (C,,M).</span>
+<span class="c">  Proof.</span>
+<span class="c">    use symm_monoidal_is_cartesian_from_comonoid.</span>
+<span class="c">    - exact S.</span>
+<span class="c">    - intro ; apply (catiso_is_globally_contr i_i).</span>
+<span class="c">    - intro ; intros.</span>
+<span class="c">      (* apply catiso_is_locally_contr. *)</span>
+<span class="c">      admit.</span>
+<span class="c">    - admit.</span>
+<span class="c">    - intro ; intro.</span>
+<span class="c">      admit.</span>
+<span class="c">  Admitted.</span>
+
+<span class="c">End CartesianFromComonoidsToCartesian. *)</span></span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Comonoids/CartesianAsComonoids.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; The converse of this statement remains to be done.
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

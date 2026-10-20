@@ -1,0 +1,680 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>AdditiveFunctors.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Additive functors *)</span>
+<span class="sd">(** ** Contents</span>
+<span class="sd">- Definition of additive functors</span>
+<span class="sd">- Additive functor preserves BinDirectSums</span>
+<span class="sd"> - Definition of PreservesBinDirectSums</span>
+<span class="sd">   - Additive funtor preserves zero.</span>
+<span class="sd"> - Preserves IdIn1, IdIn2, Unit1, Unit2, and Id of BinDirectSum</span>
+<span class="sd"> - Preserves BinDirectCoproducts</span>
+<span class="sd"> - Preserves BinDirectProducts</span>
+<span class="sd"> - Preserves BinDirectSums</span>
+<span class="sd">- If a functor preserves BinDirectSums, then it is additive</span>
+<span class="sd"> - Preserves unel</span>
+<span class="sd"> - Commutes with BinOp</span>
+<span class="sd"> - isAdditiveFunctor</span>
+<span class="sd">- The natural additive functor to quotient</span>
+<span class="sd">- Additive equivalences</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoriesWithBinOps.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoriesWithAbgrops.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PreAdditive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Additive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Zero.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinDirectSums.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Definition of additive functor</span>
+<span class="sd">   Functor is additive if for any two objects a1 a2 of an additive category A, the map on morphisms</span>
+<span class="sd">   A⟦a1, a2⟧ -&gt; B⟦F a1, F a2⟧ is a morphism of abelian groups. *)</span>
+<span class="kn">Section</span> <span class="nf">def_additivefunctor</span>.
+
+  <span class="sd">(** ** isAdditiveFunctor *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">isAdditiveFunctor</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : functor A B) : UU :=
+    ∏ (a1 a2 : A), @ismonoidfun (to_abgr a1 a2) (to_abgr (F a1) (F a2)) (# F).
+
+  <span class="kn">Definition</span> <span class="nf">make_isAdditiveFunctor</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : functor A B)
+             (<span class="nv">H</span> : ∏ (a1 a2 : A),
+                  @ismonoidfun (to_abgr a1 a2) (to_abgr (F a1) (F a2)) (# F)) :
+    isAdditiveFunctor F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a1 a2.
+    <span class="bp">exact</span> (H a1 a2).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_isAdditiveFunctor'</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : functor A B)
+             (<span class="nv">H1</span> : ∏ (a1 a2 : A), (# F (ZeroArrow (to_Zero A) a1 a2)) =
+                                  ZeroArrow (to_Zero B) (F a1) (F a2))
+             (<span class="nv">H2</span> : ∏ (a1 a2 : A) (f g : A⟦a1, a2⟧), # F (to_binop _ _ f g) =
+                                                    to_binop _ _ (# F f) (# F g)) :
+    isAdditiveFunctor F.
+  <span class="kn">Proof</span>.
+    use make_isAdditiveFunctor.
+    <span class="nb">intros</span> a1 a2.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> f g. <span class="nb">apply</span> (H2 a1 a2 f g).
+    - <span class="nb">set</span> (tmp := PreAdditive_unel_zero A (to_Zero A) a1 a2).
+      <span class="nb">unfold</span> to_unel <span class="k">in</span> tmp. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+      <span class="nb">set</span> (tmp := PreAdditive_unel_zero B (to_Zero B) (F a1) (F a2)).
+      <span class="nb">unfold</span> to_unel <span class="k">in</span> tmp. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+      <span class="nb">apply</span> (H1 a1 a2).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_isAdditiveFunctor</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : functor A B) :
+    isaprop (isAdditiveFunctor F).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> impred_isaprop. <span class="nb">intros</span> t.
+    <span class="nb">apply</span> impred_isaprop. <span class="nb">intros</span> t0.
+    <span class="nb">apply</span> isapropismonoidfun.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** Additive functor *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">AdditiveFunctor</span> (<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure) : UU := ∑ F : (functor A B), isAdditiveFunctor F.
+
+  <span class="kn">Definition</span> <span class="nf">make_AdditiveFunctor</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : functor A B) (<span class="nv">H</span> : isAdditiveFunctor F) :
+    AdditiveFunctor A B := tpair _ F H.
+
+  <span class="sd">(** Accessor functions *)</span>
+  <span class="kn">Definition</span> <span class="nf">AdditiveFunctor_Functor</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : AdditiveFunctor A B) :
+    functor A B := pr1 F.
+  <span class="kn">Coercion</span> <span class="nf">AdditiveFunctor_Functor</span> : AdditiveFunctor &gt;-&gt; functor.
+
+  <span class="kn">Definition</span> <span class="nf">AdditiveFunctor_isAdditiveFunctor</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : AdditiveFunctor A B) :
+    isAdditiveFunctor (AdditiveFunctor_Functor F) := pr2 F.
+
+  <span class="sd">(** ** Basics of additive functors *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">AdditiveFunctorUnel</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : AdditiveFunctor A B)
+        (<span class="nv">a1</span> <span class="nv">a2</span> : A) : # F (to_unel a1 a2) = to_unel (F a1) (F a2).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> to_unel.
+    <span class="nb">apply</span> (pr2 (pr2 F a1 a2)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AdditiveFunctorZeroArrow</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : AdditiveFunctor A B)
+        (<span class="nv">a1</span> <span class="nv">a2</span> : A) : # F (ZeroArrow (to_Zero A) a1 a2) = ZeroArrow (to_Zero B) (F a1) (F a2).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_unel_zero. <span class="nb">rewrite</span> &lt;- PreAdditive_unel_zero.
+    <span class="nb">apply</span> AdditiveFunctorUnel.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AdditiveFunctorLinear</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : AdditiveFunctor A B) {<span class="nv">a1</span> <span class="nv">a2</span> : A}
+        (<span class="nv">f</span> <span class="nv">g</span> : a1 --&gt; a2) : # F (to_binop _ _ f g) = to_binop _ _ (# F f) (# F g).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (pr1 (pr2 F a1 a2)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AdditiveFunctorInv</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : AdditiveFunctor A B) {<span class="nv">a1</span> <span class="nv">a2</span> : A} (<span class="nv">f</span> : a1 --&gt; a2) :
+    # F (to_inv f) = to_inv (# F f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (to_lcan _ (# F f)). <span class="nb">rewrite</span> &lt;- AdditiveFunctorLinear.
+    <span class="nb">rewrite</span> rinvax. <span class="nb">rewrite</span> AdditiveFunctorUnel. <span class="nb">rewrite</span> rinvax.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">CompositionIsAdditive</span> {<span class="nv">A1</span> <span class="nv">A2</span> <span class="nv">A3</span> : CategoryWithAdditiveStructure} (<span class="nv">F1</span> : AdditiveFunctor A1 A2)
+             (<span class="nv">F2</span> : AdditiveFunctor A2 A3) : isAdditiveFunctor (functor_composite F1 F2).
+  <span class="kn">Proof</span>.
+    use make_isAdditiveFunctor'.
+    - <span class="nb">intros</span> a1 a2. <span class="nb">cbn</span>. <span class="nb">rewrite</span> AdditiveFunctorZeroArrow. use AdditiveFunctorZeroArrow.
+    - <span class="nb">intros</span> a1 a2 f g. <span class="nb">cbn</span>. <span class="nb">rewrite</span> AdditiveFunctorLinear. use AdditiveFunctorLinear.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">AdditiveComposite</span> {<span class="nv">A1</span> <span class="nv">A2</span> <span class="nv">A3</span> : CategoryWithAdditiveStructure}(<span class="nv">F1</span> : AdditiveFunctor A1 A2)
+             (<span class="nv">F2</span> : AdditiveFunctor A2 A3) : AdditiveFunctor A1 A3 :=
+    make_AdditiveFunctor (functor_composite F1 F2) (CompositionIsAdditive F1 F2).
+
+<span class="kn">End</span> <span class="nf">def_additivefunctor</span>.
+
+
+<span class="sd">(** * Additive functor preserves BinDirectSums</span>
+<span class="sd">   We say that a functor F between additive categories A and B preserves BinDirectSums if for any</span>
+<span class="sd">   BinDirectSum (a1 ⊕ a2, in1, in2, pr1, pr2) in A, the data (F(a1 ⊕ a2), F(in1), F(in2), F(pr1),</span>
+<span class="sd">   F(pr2)) is a BinDirectSum in B. *)</span>
+<span class="kn">Section</span> <span class="nf">additivefunctor_preserves_bindirectsums</span>.
+
+  <span class="kn">Definition</span> <span class="nf">PreservesBinDirectSums</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : functor A B) : hProp :=
+    <span class="k">∀</span> (<span class="nv">a1</span> <span class="nv">a2</span> : A) (<span class="nv">DS</span> : BinDirectSum a1 a2),
+    isBinDirectSum
+                       (# F (to_In1 DS)) (# F (to_In2 DS))
+                       (# F (to_Pr1 DS)) (# F (to_Pr2 DS)).
+
+  <span class="sd">(** Additive functor preserves zeros. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">AdditiveFunctorPreservesBinDirectSums_zero</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : AdditiveFunctor A B) :
+    isZero (F (to_Zero A)).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (isadd0 := AdditiveFunctor_isAdditiveFunctor F (to_Zero A) (to_Zero A)).
+    <span class="nb">set</span> (unel := to_unel (to_Zero A) (to_Zero A)).
+    <span class="nb">set</span> (tmp := (pr2 isadd0)). <span class="nb">cbn</span> <span class="k">in</span> tmp.
+    <span class="nb">set</span> (tmp1 := PreAdditive_unel_zero A (to_Zero A) (to_Zero A) (to_Zero A)).
+    <span class="nb">unfold</span> to_unel <span class="k">in</span> tmp1. <span class="nb">rewrite</span> tmp1 <span class="k">in</span> tmp. <span class="nb">clear</span> tmp1.
+    <span class="nb">assert</span> (tmp2 : identity (to_Zero A) = ZeroArrow (to_Zero A) _ _) <span class="bp">by</span> <span class="nb">apply</span> ArrowsToZero.
+    <span class="nb">rewrite</span> &lt;- tmp2 <span class="k">in</span> tmp. <span class="nb">clear</span> tmp2.
+    <span class="nb">assert</span> (X : # F (identity (to_Zero A)) = identity (F (to_Zero A))) <span class="bp">by</span> <span class="nb">apply</span> functor_id.
+    <span class="nb">set</span> (tmp2 := PreAdditive_unel_zero B (to_Zero B) (F (to_Zero A)) (F (to_Zero A))).
+    <span class="nb">unfold</span> to_unel <span class="k">in</span> tmp2. <span class="nb">rewrite</span> tmp2 <span class="k">in</span> tmp. <span class="nb">clear</span> tmp2.
+    <span class="nb">assert</span> (X0 : z_iso (F (to_Zero A)) (to_Zero B)).
+    { <span class="k">exists</span> (<span class="nv">ZeroArrowTo</span> (F (to_Zero A))).
+      <span class="k">exists</span> (<span class="nv">ZeroArrowFrom</span> (F (to_Zero A))).
+      <span class="nb">split</span>.
+      + <span class="nb">rewrite</span> &lt;- X. <span class="nb">rewrite</span> tmp. <span class="nb">apply</span> ZeroArrowEq.
+      + <span class="nb">apply</span> ArrowsToZero.
+    }
+    <span class="nb">apply</span> (ZIsoToisZero B (to_Zero B) X0).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** F preserves IdIn1, IdIn2, IdUnit1, IdUnit2, and Id of BinDirectSum *)</span>
+
+  <span class="kn">Local Lemma</span> <span class="nf">AdditiveFunctorPreservesBinDirectSums_idin1</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : AdditiveFunctor A B)
+        {<span class="nv">a1</span> <span class="nv">a2</span> : A} (<span class="nv">DS</span> : BinDirectSum a1 a2) :
+    (# F (to_In1 DS)) · (# F (to_Pr1 DS)) = identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- functor_comp. <span class="nb">rewrite</span> (to_IdIn1 DS). <span class="nb">apply</span> functor_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">AdditiveFunctorPreservesBinDirectSums_idin2</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : AdditiveFunctor A B)
+        {<span class="nv">a1</span> <span class="nv">a2</span> : A} (<span class="nv">DS</span> : BinDirectSum a1 a2) :
+    (# F (to_In2 DS)) · (# F (to_Pr2 DS)) = identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- functor_comp. <span class="nb">rewrite</span> (to_IdIn2 DS). <span class="nb">apply</span> functor_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">AdditiveFunctorPreservesBinDirectSums_unit1</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure}
+        (<span class="nv">F</span> : AdditiveFunctor A B) {<span class="nv">a1</span> <span class="nv">a2</span> : A} (<span class="nv">DS</span> : BinDirectSum a1 a2) :
+    (# F (to_In1 DS)) · (# F (to_Pr2 DS)) = to_unel (F a1) (F a2).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- functor_comp. <span class="nb">rewrite</span> (to_Unel1 DS). <span class="nb">apply</span> AdditiveFunctorUnel.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">AdditiveFunctorPreservesBinDirectSums_unit2</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure}
+        (<span class="nv">F</span> : AdditiveFunctor A B) {<span class="nv">a1</span> <span class="nv">a2</span> : A} (<span class="nv">DS</span> : BinDirectSum a1 a2) :
+    (# F (to_In2 DS)) · (# F (to_Pr1 DS)) = to_unel (F a2) (F a1).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- functor_comp. <span class="nb">rewrite</span> (to_Unel2 DS). <span class="nb">apply</span> AdditiveFunctorUnel.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">AdditiveFunctorPreservesBinDirectSums_id</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure}
+        (<span class="nv">F</span> : AdditiveFunctor A B) {<span class="nv">a1</span> <span class="nv">a2</span> : A} (<span class="nv">DS</span> : BinDirectSum a1 a2) :
+    to_binop _ _
+             ((# F (to_Pr1 DS)) · (# F (to_In1 DS)))
+             ((# F (to_Pr2 DS)) · (# F (to_In2 DS))) = identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- functor_comp. <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">rewrite</span> &lt;- AdditiveFunctorLinear. <span class="nb">rewrite</span> (to_BinOpId DS). <span class="nb">apply</span> functor_id.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** An additive functor preserves BinDirectSums *)</span>
+  <span class="kn">Lemma</span> <span class="nf">AdditiveFunctorPreservesBinDirectSums</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : AdditiveFunctor A B) :
+    PreservesBinDirectSums F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a1 a2 DS.
+    use make_isBinDirectSum.
+    - use (AdditiveFunctorPreservesBinDirectSums_idin1 F DS).
+    - use (AdditiveFunctorPreservesBinDirectSums_idin2 F DS).
+    - use (AdditiveFunctorPreservesBinDirectSums_unit1 F DS).
+    - use (AdditiveFunctorPreservesBinDirectSums_unit2 F DS).
+    - use (AdditiveFunctorPreservesBinDirectSums_id F DS).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">additivefunctor_preserves_bindirectsums</span>.
+
+
+<span class="sd">(** * Additive criteria</span>
+<span class="sd">   In this section we show that a functor between additive categories which preserves BinDirectSums</span>
+<span class="sd">   is additive. *)</span>
+<span class="kn">Section</span> <span class="nf">additivefunctor_criteria</span>.
+
+
+  <span class="sd">(** ** Preserves unel *)</span>
+
+  <span class="sd">(** A functor which preserves binary direct sums preserves zero objects. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">isAdditiveCriteria_isZero</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : functor A B)
+        (<span class="nv">H</span> : PreservesBinDirectSums F) : isZero (F (to_Zero A)).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (DS := to_BinDirectSums A (to_Zero A) (to_Zero A)).
+    <span class="nb">set</span> (isBDS := H (to_Zero A) (to_Zero A) DS).
+    <span class="nb">assert</span> (e1 : (# F (to_In1 DS)) = (# F (to_In2 DS))).
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> ArrowsFromZero.
+    }
+    <span class="nb">assert</span> (e2 : (# F (to_Pr1 DS)) = (# F (to_Pr2 DS))).
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> ArrowsToZero.
+    }
+    <span class="nb">cbn</span> <span class="k">in</span> isBDS.
+    <span class="nb">rewrite</span> e1 <span class="k">in</span> isBDS. <span class="nb">rewrite</span> e2 <span class="k">in</span> isBDS. <span class="nb">clear</span> e1 e2.
+    <span class="nb">set</span> (BDS := make_BinDirectSum _ _ _ _ _ _ _ _ isBDS).
+    use make_isZero.
+    - <span class="nb">intros</span> b.
+      use tpair.
+      + <span class="nb">apply</span> (ZeroArrow (to_Zero B) _ _).
+      + <span class="nb">cbn</span>. <span class="nb">intros</span> t.
+        use (pathscomp0 (!(BinDirectSumIn1Commutes B BDS _ t (ZeroArrow (to_Zero B) _ _)))).
+        use (pathscomp0 _ (BinDirectSumIn2Commutes B BDS _ t (ZeroArrow (to_Zero B) _ _))).
+        <span class="nb">cbn</span>. <span class="nb">apply</span> cancel_precomposition. <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> a.
+      use tpair.
+      + <span class="nb">apply</span> (ZeroArrow (to_Zero B) _ _).
+      + <span class="nb">cbn</span>. <span class="nb">intros</span> t.
+        use (pathscomp0 (!(BinDirectSumPr1Commutes B BDS _ t (ZeroArrow (to_Zero B) _ _)))).
+        use (pathscomp0 _ (BinDirectSumPr2Commutes B BDS _ t (ZeroArrow (to_Zero B) _ _))).
+        <span class="nb">cbn</span>. <span class="nb">apply</span> cancel_postcomposition. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** F preserves unel *)</span>
+  <span class="kn">Local Corollary</span> <span class="nf">isAdditiveCriteria_preservesUnel</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : functor A B)
+        (<span class="nv">H</span> : PreservesBinDirectSums F) (<span class="nv">a1</span> <span class="nv">a2</span> : A) :
+    (# F (to_unel a1 a2)) = (to_unel (F a1) (F a2)).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (Z := make_Zero (F (to_Zero A)) (isAdditiveCriteria_isZero F H)).
+    <span class="nb">rewrite</span> (PreAdditive_unel_zero A (to_Zero A) a1 a2).
+    <span class="nb">rewrite</span> (PreAdditive_unel_zero B Z (F a1) (F a2)).
+    <span class="nb">unfold</span> ZeroArrow. <span class="nb">rewrite</span> functor_comp. <span class="nb">cbn</span>.
+    <span class="nb">assert</span> (e1 : # F (ZeroArrowTo a1) = @ZeroArrowTo B Z (F a1)).
+    {
+      <span class="nb">apply</span> (ArrowsToZero B Z).
+    }
+    <span class="nb">assert</span> (e2 : # F (ZeroArrowFrom a2) = @ZeroArrowFrom B Z (F a2)).
+    {
+      <span class="nb">apply</span> (ArrowsFromZero B Z).
+    }
+    <span class="nb">rewrite</span> e1. <span class="nb">rewrite</span> e2. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+
+  <span class="sd">(** ** Commutes with binop *)</span>
+
+  <span class="sd">(** F commutes with addition of projections from a1 ⊕ a1 *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">isAdditiveCriteria_isBinopFun_Pr</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : functor A B)
+        (<span class="nv">H</span> : PreservesBinDirectSums F) {<span class="nv">a1</span> <span class="nv">a2</span> : A} (<span class="nv">DS</span> : BinDirectSum a1 a1):
+    # F (to_binop DS a1 (to_Pr1 DS) (to_Pr2 DS)) =
+    to_binop (F DS) (F a1) (# F (to_Pr1 DS)) (# F (to_Pr2 DS)).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (isBDS := H a1 a1 DS).
+    <span class="nb">set</span> (BDS := make_BinDirectSum _ _ _ _ _ _ _ _ isBDS).
+    use (FromBinDirectSumsEq B BDS); <span class="nb">cbn</span>.
+    - <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">rewrite</span> to_premor_linear'.
+      <span class="nb">rewrite</span> (to_IdIn1 DS). <span class="nb">rewrite</span> (to_Unel1 DS).
+      <span class="nb">rewrite</span> to_runax'. <span class="nb">rewrite</span> functor_id.
+      <span class="nb">rewrite</span> to_premor_linear'.
+      <span class="nb">rewrite</span> &lt;- functor_comp. <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">rewrite</span> (to_IdIn1 DS). <span class="nb">rewrite</span> (to_Unel1 DS).
+      <span class="nb">rewrite</span> functor_id. <span class="nb">rewrite</span> (isAdditiveCriteria_preservesUnel _ H).
+      <span class="nb">rewrite</span> to_runax'. <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">rewrite</span> to_premor_linear'.
+      <span class="nb">rewrite</span> (to_Unel2 DS). <span class="nb">rewrite</span> (to_IdIn2 DS). <span class="nb">rewrite</span> to_lunax'. <span class="nb">rewrite</span> functor_id.
+      <span class="nb">rewrite</span> to_premor_linear'.
+      <span class="nb">rewrite</span> &lt;- functor_comp. <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">rewrite</span> (to_Unel2 DS). <span class="nb">rewrite</span> (to_IdIn2 DS).
+      <span class="nb">rewrite</span> (isAdditiveCriteria_preservesUnel _ H). <span class="nb">rewrite</span> functor_id. <span class="nb">rewrite</span> to_lunax'.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">isAdditiveCriteria_BinOp_eq</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : functor A B)
+        (<span class="nv">H</span> : PreservesBinDirectSums F) {<span class="nv">a1</span> <span class="nv">a2</span> : A} (<span class="nv">f</span> <span class="nv">g</span> : A⟦a1, a2⟧)
+        (<span class="nv">DS</span> := to_BinDirectSums A a2 a2) :
+    to_binop a1 a2 f g = (to_binop a1 DS (f · (to_In1 DS)) (g · (to_In2 DS)))
+                           · (to_binop DS a2 (to_Pr1 DS) (to_Pr2 DS)).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (isBDS := H a2 a2 DS).
+    <span class="nb">set</span> (BDS := make_BinDirectSum _ _ _ _ _ _ _ _ isBDS).
+    <span class="c">(* First term of to_binop *)</span>
+    <span class="nb">rewrite</span> to_premor_linear'. <span class="nb">rewrite</span> to_postmor_linear'.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">rewrite</span> (to_IdIn1 DS). <span class="nb">rewrite</span> (to_Unel2 DS).
+    <span class="nb">rewrite</span> id_right. <span class="nb">rewrite</span> to_premor_unel'. <span class="nb">rewrite</span> to_runax'.
+    <span class="c">(* Second term of to_binop *)</span>
+    <span class="nb">rewrite</span> to_postmor_linear'. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">rewrite</span> (to_Unel1 DS). <span class="nb">rewrite</span> (to_IdIn2 DS).
+    <span class="nb">rewrite</span> id_right. <span class="nb">rewrite</span> to_premor_unel'. <span class="nb">rewrite</span> to_lunax'.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** F commutes with addition of morphisms *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">isAdditiveCriteria_BinOp</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : functor A B)
+        (<span class="nv">H</span> : PreservesBinDirectSums F) {<span class="nv">a1</span> <span class="nv">a2</span> : A} (<span class="nv">f</span> <span class="nv">g</span> : A⟦a1, a2⟧) :
+    # F (to_binop a1 a2 f g) = to_binop (F a1) (F a2) (# F f) (# F g).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (DS := to_BinDirectSums A a2 a2).
+    <span class="nb">set</span> (isBDS := H a2 a2 DS).
+    <span class="nb">set</span> (BDS := make_BinDirectSum _ _ _ _ _ _ _ _ isBDS).
+    <span class="nb">rewrite</span> (isAdditiveCriteria_BinOp_eq F H f g). <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> (@isAdditiveCriteria_isBinopFun_Pr A B F H a2 DS).
+    <span class="nb">rewrite</span> to_premor_linear'.
+    <span class="c">(* First term of the first to_binop *)</span>
+    <span class="nb">rewrite</span> &lt;- functor_comp. <span class="nb">rewrite</span> to_postmor_linear'.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">fold</span> DS. <span class="nb">rewrite</span> (to_IdIn1 DS). <span class="nb">rewrite</span> (to_Unel2 DS).
+    <span class="nb">rewrite</span> id_right. <span class="nb">rewrite</span> to_premor_unel'. <span class="nb">rewrite</span> to_runax'.
+    <span class="c">(* Second term of the first to_binop *)</span>
+    <span class="nb">rewrite</span> &lt;- functor_comp. <span class="nb">rewrite</span> to_postmor_linear'.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">rewrite</span> (to_IdIn2 DS). <span class="nb">rewrite</span> (to_Unel1 DS).
+    <span class="nb">rewrite</span> id_right. <span class="nb">rewrite</span> to_premor_unel'. <span class="nb">rewrite</span> to_lunax'.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isAdditiveCriteria</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : functor A B) (<span class="nv">H</span> : PreservesBinDirectSums F) :
+    isAdditiveFunctor F.
+  <span class="kn">Proof</span>.
+    use make_isAdditiveFunctor.
+    <span class="nb">intros</span> a1 a2.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> f g. <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (isAdditiveCriteria_BinOp F H f g).
+    - <span class="nb">set</span> (tmp := isAdditiveCriteria_preservesUnel F H a1 a2). <span class="nb">unfold</span> to_unel <span class="k">in</span> tmp.
+      <span class="nb">apply</span> tmp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">AdditiveFunctorCriteria</span> {<span class="nv">A</span> <span class="nv">B</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : functor A B)
+             (<span class="nv">H</span> : PreservesBinDirectSums F) : AdditiveFunctor A B.
+  <span class="kn">Proof</span>.
+    use make_AdditiveFunctor.
+    - <span class="bp">exact</span> F.
+    - <span class="bp">exact</span> (isAdditiveCriteria F H).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">additivefunctor_criteria</span>.
+
+
+<span class="sd">(** * The functor [QuotcategoryFunctor] is additive *)</span>
+<span class="kn">Section</span> <span class="nf">def_additive_quot_functor</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : CategoryWithAdditiveStructure.
+  <span class="kn">Variable</span> <span class="nv">PAS</span> : PreAdditiveSubabgrs A.
+  <span class="kn">Variable</span> <span class="nv">PAC</span> : PreAdditiveComps A PAS.
+
+  <span class="kn">Local Lemma</span> <span class="nf">QuotcategoryAdditiveFunctor_isAdditiveFunctor</span> :
+    @isAdditiveFunctor A (Quotcategory_Additive A PAS PAC)
+                       (QuotcategoryFunctor (Additive_PreAdditive A) PAS PAC).
+  <span class="kn">Proof</span>.
+    use make_isAdditiveFunctor.
+    <span class="nb">intros</span> X Y.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> f g. <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">QuotcategoryAdditiveFunctor</span> :
+    AdditiveFunctor A (Quotcategory_Additive A PAS PAC).
+  <span class="kn">Proof</span>.
+    use make_AdditiveFunctor.
+    - <span class="bp">exact</span> (QuotcategoryFunctor A PAS PAC).
+    - <span class="bp">exact</span> QuotcategoryAdditiveFunctor_isAdditiveFunctor.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">def_additive_quot_functor</span>.
+
+
+<span class="sd">(** * Equivalences of additive categories *)</span>
+<span class="kn">Section</span> <span class="nf">def_additive_equivalence</span>.
+
+  <span class="kn">Definition</span> <span class="nf">AddEquiv</span> (<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure) : UU :=
+    ∑ D : (∑ F : (AdditiveFunctor A1 A2 × AdditiveFunctor A2 A1),
+                 are_adjoints (dirprod_pr1 F) (dirprod_pr2 F)),
+          (∏ a : A1, is_z_isomorphism (unit_from_left_adjoint (pr2 D) a))
+            × (∏ b : A2, is_z_isomorphism (counit_from_left_adjoint (pr2 D) b)).
+
+  <span class="kn">Definition</span> <span class="nf">make_AddEquiv</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">F</span> : AdditiveFunctor A1 A2)
+             (<span class="nv">G</span> : AdditiveFunctor A2 A1) (<span class="nv">H</span> : are_adjoints F G)
+             (<span class="nv">H1</span> : ∏ a : A1, is_z_isomorphism (unit_from_left_adjoint H a))
+             (<span class="nv">H2</span> : ∏ b : A2, is_z_isomorphism (counit_from_left_adjoint H b)) :
+    AddEquiv A1 A2 := (((F,,G),,H),,(H1,,H2)).
+
+  <span class="sd">(** Accessor functions *)</span>
+  <span class="kn">Definition</span> <span class="nf">AddEquiv1</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) : AdditiveFunctor A1 A2 :=
+    dirprod_pr1 (pr1 (pr1 AE)).
+
+  <span class="kn">Definition</span> <span class="nf">AddEquiv2</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) : AdditiveFunctor A2 A1 :=
+    dirprod_pr2 (pr1 (pr1 AE)).
+
+  <span class="kn">Definition</span> <span class="nf">AddEquiv_are_adjoints</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) :
+    are_adjoints (AddEquiv1 AE) (AddEquiv2 AE) := pr2 (pr1 AE).
+  <span class="kn">Coercion</span> <span class="nf">AddEquiv_are_adjoints</span> : AddEquiv &gt;-&gt; are_adjoints.
+
+  <span class="kn">Definition</span> <span class="nf">AddEquivUnit</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) :
+    nat_trans (functor_identity A1) (functor_composite (AddEquiv1 AE) (AddEquiv2 AE)) :=
+    unit_from_left_adjoint AE.
+
+  <span class="kn">Definition</span> <span class="nf">AddEquivCounit</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) :
+    nat_trans (functor_composite (AddEquiv2 AE) (AddEquiv1 AE)) (functor_identity A2) :=
+    counit_from_left_adjoint AE.
+
+  <span class="kn">Definition</span> <span class="nf">AddEquivUnitInvMor</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) (<span class="nv">X</span> : A1) :
+    A1⟦(AddEquiv2 AE (AddEquiv1 AE X)), X⟧ := pr1 ((dirprod_pr1 (pr2 AE)) X).
+
+  <span class="kn">Definition</span> <span class="nf">AddEquivUnitInvMor_is_iso_with_inv_data</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2)
+             (<span class="nv">X</span> : A1) : is_z_isomorphism (unit_from_left_adjoint AE X) :=
+    ((dirprod_pr1 (pr2 AE)) X).
+
+  <span class="kn">Definition</span> <span class="nf">AddEquivUnitInvMor_is_inverse_in_precat</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2)
+             (<span class="nv">X</span> : A1) :
+    is_inverse_in_precat (unit_from_left_adjoint AE X) (AddEquivUnitInvMor AE X) :=
+    pr2 ((dirprod_pr1 (pr2 AE)) X).
+
+  <span class="kn">Definition</span> <span class="nf">AddEquivCounitInvMor</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) (<span class="nv">X</span> : A2) :
+    A2⟦X, (AddEquiv1 AE (AddEquiv2 AE X))⟧ := pr1 ((dirprod_pr2 (pr2 AE)) X).
+
+  <span class="kn">Definition</span> <span class="nf">AddEquivCounitInvMor_is_iso_with_inv_data</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2)
+             (<span class="nv">X</span> : A2) : is_z_isomorphism (counit_from_left_adjoint AE X) :=
+    ((dirprod_pr2 (pr2 AE)) X).
+
+  <span class="kn">Definition</span> <span class="nf">AddEquivCounitInvMor_is_inverse_in_precat</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2)
+             (<span class="nv">X</span> : A2) :
+    is_inverse_in_precat (counit_from_left_adjoint AE X) (AddEquivCounitInvMor AE X) :=
+    pr2 ((dirprod_pr2 (pr2 AE)) X).
+
+  <span class="kn">Definition</span> <span class="nf">AddEquivUnitIso</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) (<span class="nv">X</span> : A1) :
+    z_iso X (AddEquiv2 AE (AddEquiv1 AE X)).
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    - <span class="bp">exact</span> (AddEquivUnit AE X).
+    - <span class="bp">exact</span> (AddEquivUnitInvMor AE X).
+    - <span class="bp">exact</span> (AddEquivUnitInvMor_is_inverse_in_precat AE X).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">AddEquivCounitIso</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) (<span class="nv">X</span> : A2) :
+    z_iso (AddEquiv1 AE (AddEquiv2 AE X)) X.
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    - <span class="bp">exact</span> (AddEquivCounit AE X).
+    - <span class="bp">exact</span> (AddEquivCounitInvMor AE X).
+    - <span class="bp">exact</span> (AddEquivCounitInvMor_is_inverse_in_precat AE X).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">AddEquivLeftTriangle</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) :
+    ∏ (a : ob A1), # (AddEquiv1 AE) (AddEquivUnitIso AE a)
+                     · AddEquivCounitIso AE (AddEquiv1 AE a) =
+                   identity (AddEquiv1 AE a) := triangle_id_left_ad AE.
+
+  <span class="kn">Definition</span> <span class="nf">AddEquivRightTriangle</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) :
+    ∏ (b : ob A2), (AddEquivUnitIso AE (AddEquiv2 AE b))
+                     · # (AddEquiv2 AE) (AddEquivCounitIso AE b) =
+                   identity (AddEquiv2 AE b) := triangle_id_right_ad AE.
+
+  <span class="kn">Definition</span> <span class="nf">AddEquivUnitComm</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) :
+    ∏ (x x' : ob A1) (f : x --&gt; x'),
+    f · (AddEquivUnitIso AE x') =
+    (AddEquivUnitIso AE x) · # (functor_composite (AddEquiv1 AE) (AddEquiv2 AE)) f :=
+    nat_trans_ax (AddEquivUnit AE).
+
+  <span class="kn">Definition</span> <span class="nf">AddEquivCounitComm</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) :
+    ∏ (x x' : A2) (f : x --&gt; x'),
+    # (functor_composite (AddEquiv2 AE) (AddEquiv1 AE)) f · (AddEquivCounitIso AE x') =
+    (AddEquivCounitIso AE x) · f := nat_trans_ax (AddEquivCounit AE).
+
+  <span class="kn">Lemma</span> <span class="nf">AddEquivUnitMorComm</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) {<span class="nv">x</span> <span class="nv">x'</span> : ob A1} (<span class="nv">f</span> : x --&gt; x') :
+    f = (AddEquivUnitIso AE x)
+          · (# (functor_composite (AddEquiv1 AE) (AddEquiv2 AE)) f)
+          · (inv_from_z_iso (AddEquivUnitIso AE x')).
+  <span class="kn">Proof</span>.
+    use (post_comp_with_z_iso_is_inj (AddEquivUnitIso AE x')).
+    use (pathscomp0 (AddEquivUnitComm AE _ _ f)).
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">set</span> (tmp := is_inverse_in_precat2 (AddEquivUnitIso AE x')). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp. <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AddEquivCounitMorComm</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) {<span class="nv">x</span> <span class="nv">x'</span> : ob A2} (<span class="nv">f</span> : x --&gt; x') :
+    f = (inv_from_z_iso (AddEquivCounitIso AE x))
+          · (# (functor_composite (AddEquiv2 AE) (AddEquiv1 AE)) f)
+          · (AddEquivCounitIso AE x').
+  <span class="kn">Proof</span>.
+    use (pre_comp_with_z_iso_is_inj (AddEquivCounitIso AE x)).
+    use (pathscomp0 (! AddEquivCounitComm AE _ _ f)).
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">set</span> (tmp := is_inverse_in_precat1 (AddEquivCounitIso AE x)). <span class="nb">rewrite</span> tmp.
+    <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">AddEquivUnitInv</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) {<span class="nv">x</span> <span class="nv">x'</span> : ob A1} (<span class="nv">f</span> : x --&gt; x') :
+    inv_from_z_iso (AddEquivUnitIso AE x) · f =
+    # (functor_composite (AddEquiv1 AE) (AddEquiv2 AE)) f
+      · inv_from_z_iso (AddEquivUnitIso AE x').
+  <span class="kn">Proof</span>.
+    use (pre_comp_with_z_iso_is_inj (AddEquivUnitIso AE x)). <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> (is_inverse_in_precat1 (AddEquivUnitIso AE x)). <span class="nb">rewrite</span> id_left.
+    use (post_comp_with_z_iso_is_inj (AddEquivUnitIso AE x')).
+    <span class="nb">rewrite</span> AddEquivUnitComm. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> cancel_precomposition. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">set</span> (tmp := is_inverse_in_precat2 (AddEquivUnitIso AE x')). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">cbn</span>. <span class="nb">rewrite</span> tmp.
+    <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">AddEquivCounitInv</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) {<span class="nv">x</span> <span class="nv">x'</span> : ob A2}
+             (<span class="nv">f</span> : x --&gt; x') :
+    (inv_from_z_iso (AddEquivCounitIso AE x))
+      · # (functor_composite (AddEquiv2 AE) (AddEquiv1 AE)) f =
+    f · inv_from_z_iso (AddEquivCounitIso AE x').
+  <span class="kn">Proof</span>.
+    use (pre_comp_with_z_iso_is_inj (AddEquivCounitIso AE x)). <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> (is_inverse_in_precat1 (AddEquivCounitIso AE x)). <span class="nb">rewrite</span> id_left.
+    use (post_comp_with_z_iso_is_inj (AddEquivCounitIso AE x')).
+    use (pathscomp0 (AddEquivCounitComm AE _ _ f)). <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> cancel_precomposition. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">set</span> (tmp := is_inverse_in_precat2 (AddEquivCounitIso AE x')). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">cbn</span>. <span class="nb">rewrite</span> tmp.
+    <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AddEquivCounitUnit</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) (<span class="nv">x</span> : A1) :
+    inv_from_z_iso (AddEquivCounitIso AE (AddEquiv1 AE x)) =
+    # (AddEquiv1 AE) (AddEquivUnitIso AE x).
+  <span class="kn">Proof</span>.
+    use (post_comp_with_z_iso_is_inj (AddEquivCounitIso AE (AddEquiv1 AE x))).
+    <span class="nb">apply</span> pathsinv0. <span class="nb">rewrite</span> (is_inverse_in_precat2 (AddEquivCounitIso AE ((AddEquiv1 AE) x))).
+    <span class="bp">exact</span> (AddEquivLeftTriangle AE x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AddEquivCounitUnit'</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) (<span class="nv">x</span> : A1) :
+    ((AddEquivCounitIso AE (AddEquiv1 AE x)) : A2⟦_, _⟧) =
+    # (AddEquiv1 AE) (inv_from_z_iso (AddEquivUnitIso AE x)).
+  <span class="kn">Proof</span>.
+    use (post_comp_with_z_iso_inv_is_inj (AddEquivCounitIso AE (AddEquiv1 AE x))).
+    <span class="nb">apply</span> pathsinv0. <span class="nb">rewrite</span> (is_inverse_in_precat1 (AddEquivCounitIso AE ((AddEquiv1 AE) x))).
+    <span class="nb">rewrite</span> AddEquivCounitUnit. <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">rewrite</span> (is_inverse_in_precat2 (AddEquivUnitIso AE x)). <span class="nb">apply</span> functor_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AddEquivUnitCounit</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) (<span class="nv">x</span> : A2) :
+    inv_from_z_iso (AddEquivUnitIso AE (AddEquiv2 AE x)) =
+    # (AddEquiv2 AE) (AddEquivCounitIso AE x).
+  <span class="kn">Proof</span>.
+    use (pre_comp_with_z_iso_is_inj (AddEquivUnitIso AE (AddEquiv2 AE x))).
+    <span class="nb">apply</span> pathsinv0. <span class="nb">rewrite</span> (is_inverse_in_precat1 (AddEquivUnitIso AE ((AddEquiv2 AE) x))).
+    <span class="bp">exact</span> (AddEquivRightTriangle AE x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AddEquivUnitCounit'</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) (<span class="nv">x</span> : A2) :
+    ((AddEquivUnitIso AE (AddEquiv2 AE x)) : A1⟦_, _⟧) =
+    # (AddEquiv2 AE) (inv_from_z_iso (AddEquivCounitIso AE x)).
+  <span class="kn">Proof</span>.
+    use (pre_comp_with_z_iso_inv_is_inj (AddEquivUnitIso AE (AddEquiv2 AE x))).
+    <span class="nb">apply</span> pathsinv0. <span class="nb">rewrite</span> (is_inverse_in_precat2 (AddEquivUnitIso AE ((AddEquiv2 AE) x))).
+    <span class="nb">rewrite</span> AddEquivUnitCounit. <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">rewrite</span> (is_inverse_in_precat1 (AddEquivCounitIso AE x)). <span class="nb">apply</span> functor_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AddEquiv1Inj</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) {<span class="nv">x</span> <span class="nv">y</span> : A1} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+        (<span class="nv">H</span> : # (AddEquiv1 AE) f = # (AddEquiv1 AE) g) : f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (maponpaths (# (AddEquiv2 AE))) <span class="k">in</span> H.
+    use (post_comp_with_z_iso_is_inj (AddEquivUnitIso AE y)).
+    use (pathscomp0 (AddEquivUnitComm AE _ _ f)).
+    use (pathscomp0 _ (! (AddEquivUnitComm AE _ _ g))).
+    <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">gg</span> : _, (AddEquivUnit AE) x · gg) H).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">AddEquiv2Inj</span> {<span class="nv">A1</span> <span class="nv">A2</span> : CategoryWithAdditiveStructure} (<span class="nv">AE</span> : AddEquiv A1 A2) {<span class="nv">x</span> <span class="nv">y</span> : A2} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+        (<span class="nv">H</span> : # (AddEquiv2 AE) f = # (AddEquiv2 AE) g) : f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (maponpaths (# (AddEquiv1 AE))) <span class="k">in</span> H.
+    use (pre_comp_with_z_iso_is_inj (AddEquivCounitIso AE x)).
+    use (pathscomp0 (! AddEquivCounitComm AE _ _ f)).
+    use (pathscomp0 _ (AddEquivCounitComm AE _ _ g)).
+    <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">gg</span> : _, gg · (AddEquivCounit AE) y) H).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">def_additive_equivalence</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/AdditiveFunctors.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - Additive equivalences
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

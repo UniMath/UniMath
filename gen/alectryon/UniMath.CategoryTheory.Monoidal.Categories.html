@@ -1,0 +1,2094 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Categories.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***************************************************************************</span>
+
+<span class="sd"> Monoidal categories</span>
+
+<span class="sd"> In this file, we define the notion of monoidal category. In addition, we</span>
+<span class="sd"> prove the important laws for monoidal categories.</span>
+
+<span class="sd"> The main definition in this file, takes a so-called displayed approach.</span>
+<span class="sd"> More specifically, we define the notion of a monoidal structure on a</span>
+<span class="sd"> category. For this notion, we define suitable accessors and we prove the</span>
+<span class="sd"> laws. Finally, we also provide a bundled notion of monoidal category, which</span>
+<span class="sd"> is a category together with a monoidal structure for it. The necessary</span>
+<span class="sd"> accessors and laws are derived from the other notion.</span>
+
+<span class="sd"> In this file, we use a whiskered approach. This means that we have two</span>
+<span class="sd"> operations to tensor with morphisms: a left and a right whiskering. Both of</span>
+<span class="sd"> these take an object and a morphism as input and they return a morphism as</span>
+<span class="sd"> output.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Monoidal structures</span>
+<span class="sd"> 2. Opposite monoidal category</span>
+<span class="sd"> 3. Equivalences from the tensor and unit</span>
+<span class="sd"> 4. The unitors coincide</span>
+<span class="sd"> 5. Swapping the tensor</span>
+<span class="sd"> 6. More monoidal laws</span>
+<span class="sd"> 7. Bundled approach to monoidal categories</span>
+
+<span class="sd">Note: after refactoring on March 10, 2023, the prior Git history of this development is found via</span>
+<span class="sd">git log -- UniMath/CategoryTheory/Monoidal/MonoidalCategoriesWhiskered.v</span>
+
+<span class="sd"> ***************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Notations.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Import</span> BifunctorNotations.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Monoidal structures</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">A</span>.
+
+<span class="sd">(** Data **)</span>
+<span class="kn">Definition</span> <span class="nf">tensor_data</span> (<span class="nv">C</span> : category) : UU :=
+  bifunctor_data C C C.
+<span class="kn">Identity Coercion</span> <span class="nf">tensorintobifunctor</span> : tensor_data &gt;-&gt; bifunctor_data.
+
+<span class="kn">Definition</span> <span class="nf">leftunitor_data</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">T</span> : tensor_data C)
+           (<span class="nv">I</span> : C)
+  : UU
+  := ∏ (x : C), C⟦I ⊗_{T} x, x⟧.
+
+<span class="kn">Definition</span> <span class="nf">leftunitorinv_data</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">T</span> : tensor_data C)
+           (<span class="nv">I</span> : C)
+  : UU
+  := ∏ (x : C), C⟦x, I ⊗_{T} x⟧.
+
+<span class="kn">Definition</span> <span class="nf">rightunitor_data</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">T</span> : tensor_data C)
+           (<span class="nv">I</span> : C)
+  : UU
+  := ∏ (x : C), C⟦x ⊗_{T} I, x⟧.
+
+<span class="kn">Definition</span> <span class="nf">rightunitorinv_data</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">T</span> : tensor_data C)
+           (<span class="nv">I</span> : C)
+  : UU
+  := ∏ (x : C), C⟦x, x ⊗_{T} I⟧.
+
+<span class="kn">Definition</span> <span class="nf">associator_data</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">T</span> : tensor_data C)
+  : UU
+  := ∏ (x y z : C), C ⟦(x ⊗_{T} y) ⊗_{T} z, x ⊗_{T} (y ⊗_{T} z)⟧.
+
+<span class="kn">Definition</span> <span class="nf">associatorinv_data</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">T</span> : tensor_data C)
+  : UU
+  := ∏ (x y z : C), C ⟦x ⊗_{T} (y ⊗_{T} z), (x ⊗_{T} y) ⊗_{T} z⟧.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_data</span> (<span class="nv">C</span> : category): UU :=
+    ∑ (T : tensor_data C) (I : C),
+    (leftunitor_data T I) × (leftunitorinv_data T I) ×
+    (rightunitor_data T I) × (rightunitorinv_data T I) ×
+    (associator_data T) × (associatorinv_data T).
+
+<span class="kn">Definition</span> <span class="nf">make_monoidal_data</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           {<span class="nv">I</span> : C}
+           (<span class="nv">lu</span> : leftunitor_data T I)
+           (<span class="nv">luinv</span> : leftunitorinv_data T I)
+           (<span class="nv">ru</span> : rightunitor_data T I)
+           (<span class="nv">ruinv</span> : rightunitorinv_data T I)
+           (<span class="nv">α</span> : associator_data T)
+           (<span class="nv">αinv</span> : associatorinv_data T)
+  : monoidal_data C
+  := (T,,I,,lu,,luinv,,ru,,ruinv,,α,,αinv).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_tensor_data</span> {<span class="nv">C</span> : category} (<span class="nv">MD</span> : monoidal_data C) : tensor_data C := pr1 MD.
+<span class="kn">Coercion</span> <span class="nf">monoidal_tensor_data</span> : monoidal_data &gt;-&gt; tensor_data.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_unit</span> {<span class="nv">C</span> : category} (<span class="nv">MD</span> : monoidal_data C) : C := pr12 MD.
+<span class="kn">Notation</span> <span class="s2">"I_{ MD }"</span> := (monoidal_unit MD).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_leftunitordata</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">MD</span> : monoidal_data C)
+  : leftunitor_data MD I_{MD}
+  := pr1 (pr22 MD).
+<span class="kn">Notation</span> <span class="s2">"lu_{ MD }"</span> := (monoidal_leftunitordata MD).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_leftunitorinvdata</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">MD</span> : monoidal_data C)
+  : leftunitorinv_data MD I_{MD}
+  := pr12 (pr22 MD).
+<span class="kn">Notation</span> <span class="s2">"luinv_{ MD }"</span> := (monoidal_leftunitorinvdata MD).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_rightunitordata</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">MD</span> : monoidal_data C)
+  : rightunitor_data MD I_{MD}
+  := pr122 (pr22 MD).
+<span class="kn">Notation</span> <span class="s2">"ru_{ MD }"</span> := (monoidal_rightunitordata MD).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_rightunitorinvdata</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">MD</span> : monoidal_data C)
+  : rightunitorinv_data MD I_{MD}
+  := pr1 (pr222 (pr22 MD)).
+<span class="kn">Notation</span> <span class="s2">"ruinv_{ MD }"</span> := (monoidal_rightunitorinvdata MD).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_associatordata</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">MD</span> : monoidal_data C)
+  : associator_data MD
+  := pr12 (pr222 (pr22 MD)).
+<span class="kn">Notation</span> <span class="s2">"α_{ MD }"</span> := (monoidal_associatordata MD).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_associatorinvdata</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">MD</span> : monoidal_data C)
+  : associatorinv_data MD
+  := pr22 (pr222 (pr22 MD)).
+<span class="kn">Notation</span> <span class="s2">"αinv_{ MD }"</span> := (monoidal_associatorinvdata MD).
+
+<span class="sd">(** Axioms **)</span>
+<span class="kn">Definition</span> <span class="nf">leftunitor_nat</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           {<span class="nv">I</span> : C}
+           (<span class="nv">lu</span> : leftunitor_data T I)
+  : UU
+  := ∏ (x y : C), ∏ (f : C ⟦x,y⟧),  I ⊗^{ T}_{l} f · lu y = lu x · f.
+
+<span class="kn">Definition</span> <span class="nf">leftunitorinv_nat</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           {<span class="nv">I</span> : C}
+           (<span class="nv">luinv</span> : leftunitorinv_data T I)
+  : UU
+  := ∏ (x y : C), ∏ (f : C ⟦x,y⟧),  luinv x · I ⊗^{ T}_{l} f = f · luinv y.
+
+<span class="kn">Definition</span> <span class="nf">leftunitor_iso_law</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           {<span class="nv">I</span> : C}
+           (<span class="nv">lu</span> : leftunitor_data T I)
+           (<span class="nv">luinv</span> : leftunitorinv_data T I)
+  : UU
+  := ∏ (x : C), is_inverse_in_precat (lu x) (luinv x).
+
+<span class="kn">Definition</span> <span class="nf">leftunitor_law</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           {<span class="nv">I</span> : C}
+           (<span class="nv">lu</span> : leftunitor_data T I)
+           (<span class="nv">luinv</span> : leftunitorinv_data T I)
+  : UU
+  := leftunitor_nat lu × leftunitor_iso_law lu luinv.
+
+<span class="kn">Definition</span> <span class="nf">leftunitorlaw_nat</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">T</span> : tensor_data C}
+            {<span class="nv">I</span> : C}
+            {<span class="nv">lu</span> : leftunitor_data T I}
+            {<span class="nv">luinv</span> : leftunitorinv_data T I}
+            (<span class="nv">lu_law</span> : leftunitor_law lu luinv)
+  : leftunitor_nat lu
+  := pr1 lu_law.
+
+<span class="kn">Definition</span> <span class="nf">leftunitorlaw_iso_law</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           {<span class="nv">I</span> : C}
+           {<span class="nv">lu</span> : leftunitor_data T I}
+           {<span class="nv">luinv</span> : leftunitorinv_data T I}
+           (<span class="nv">lu_law</span> : leftunitor_law lu luinv)
+  : leftunitor_iso_law lu luinv
+  := pr2 lu_law.
+
+<span class="kn">Definition</span> <span class="nf">rightunitor_nat</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           {<span class="nv">I</span> : C}
+           (<span class="nv">ru</span> : rightunitor_data T I)
+  : UU
+  := ∏ (x y : C), ∏ (f : C ⟦x,y⟧),  f ⊗^{ T}_{r} I · ru y = ru x · f.
+
+<span class="kn">Definition</span> <span class="nf">rightunitorinv_nat</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           {<span class="nv">I</span> : C}
+           (<span class="nv">ruinv</span> : rightunitorinv_data T I)
+  : UU
+  := ∏ (x y : C), ∏ (f : C ⟦x,y⟧),  ruinv x · f ⊗^{ T}_{r} I = f · ruinv y.
+
+<span class="kn">Definition</span> <span class="nf">rightunitor_iso_law</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           {<span class="nv">I</span> : C}
+           (<span class="nv">ru</span> : rightunitor_data T I)
+           (<span class="nv">ruinv</span> : rightunitorinv_data T I)
+  : UU
+  := ∏ (x : C), is_inverse_in_precat (ru x) (ruinv x).
+
+<span class="kn">Definition</span> <span class="nf">rightunitor_law</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           {<span class="nv">I</span> : C}
+           (<span class="nv">ru</span> : rightunitor_data T I)
+           (<span class="nv">ruinv</span> : rightunitorinv_data T I)
+  : UU
+  := rightunitor_nat ru × rightunitor_iso_law ru ruinv.
+
+<span class="kn">Definition</span> <span class="nf">rightunitorlaw_nat</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           {<span class="nv">I</span> : C}
+           {<span class="nv">ru</span> : rightunitor_data T I}
+           {<span class="nv">ruinv</span> : rightunitorinv_data T I}
+           (<span class="nv">rul</span> : rightunitor_law ru ruinv)
+  : rightunitor_nat ru
+  := pr1 rul.
+
+<span class="kn">Definition</span> <span class="nf">rightunitorlaw_iso_law</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           {<span class="nv">I</span> : C}
+           {<span class="nv">ru</span> : rightunitor_data T I}
+           {<span class="nv">ruinv</span> : rightunitorinv_data T I}
+           (<span class="nv">rul</span> : rightunitor_law ru ruinv)
+  : rightunitor_iso_law ru ruinv
+  := pr2 rul.
+
+<span class="kn">Definition</span> <span class="nf">associator_nat_leftwhisker</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           (<span class="nv">α</span> : associator_data T)
+  : UU
+  := ∏ (x y z z' : C) (h : C⟦z,z'⟧),
+     (α x y z) · (x ⊗^{ T}_{l} (y ⊗^{ T}_{l} h))
+     =
+     ((x ⊗_{ T} y) ⊗^{ T}_{l} h) · (α x y z').
+
+<span class="kn">Definition</span> <span class="nf">associator_nat_rightwhisker</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           (<span class="nv">α</span> : associator_data T)
+  : UU
+  := ∏ (x x' y z : C) (f : C⟦x,x'⟧),
+     (α x y z) · (f ⊗^{ T}_{r} (y ⊗_{ T} z))
+     =
+     ((f ⊗^{ T}_{r} y) ⊗^{ T}_{r} z) · (α x' y z).
+
+<span class="kn">Definition</span> <span class="nf">associator_nat_leftrightwhisker</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           (<span class="nv">α</span> : associator_data T)
+  : UU
+  := ∏ (x y y' z : C) (g : C⟦y,y'⟧),
+     (α x y z) · (x ⊗^{ T}_{l} (g ⊗^{ T}_{r} z))
+     =
+     ((x ⊗^{ T}_{l} g) ⊗^{ T}_{r} z) · (α x y' z).
+
+<span class="kn">Definition</span> <span class="nf">associator_iso_law</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           (<span class="nv">α</span> : associator_data T)
+           (<span class="nv">αinv</span> : associatorinv_data T)
+  : UU
+  := ∏ (x y z : C), is_inverse_in_precat (α x y z) (αinv x y z).
+
+<span class="kn">Definition</span> <span class="nf">associator_law</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           (<span class="nv">α</span> : associator_data T)
+           (<span class="nv">αinv</span> : associatorinv_data T)
+  : UU
+  := (associator_nat_leftwhisker α) × (associator_nat_rightwhisker α) ×
+     (associator_nat_leftrightwhisker α) × (associator_iso_law α αinv).
+
+<span class="kn">Definition</span> <span class="nf">associatorlaw_natleft</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           {<span class="nv">α</span> : associator_data T}
+           {<span class="nv">αinv</span> : associatorinv_data T}
+           (<span class="nv">αl</span> : associator_law α αinv)
+  : associator_nat_leftwhisker α
+  := pr1 αl.
+
+<span class="kn">Definition</span> <span class="nf">associatorlaw_natright</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           {<span class="nv">α</span> : associator_data T}
+           {<span class="nv">αinv</span> : associatorinv_data T}
+           (<span class="nv">αl</span> : associator_law α αinv)
+  : associator_nat_rightwhisker α
+  := pr1 (pr2 αl).
+
+<span class="kn">Definition</span> <span class="nf">associatorlaw_natleftright</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           {<span class="nv">α</span> : associator_data T}
+           {<span class="nv">αinv</span> : associatorinv_data T}
+           (<span class="nv">αl</span> : associator_law α αinv)
+  : associator_nat_leftrightwhisker α
+  := pr1 (pr2 (pr2 αl)).
+
+<span class="kn">Definition</span> <span class="nf">associatorlaw_iso_law</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           {<span class="nv">α</span> : associator_data T}
+           {<span class="nv">αinv</span> : associatorinv_data T}
+           (<span class="nv">αl</span> : associator_law α αinv)
+  : associator_iso_law α αinv
+  := pr2 (pr2 (pr2 αl)).
+
+<span class="kn">Definition</span> <span class="nf">triangle_identity</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           {<span class="nv">I</span> : C}
+           (<span class="nv">lu</span> : leftunitor_data T I)
+           (<span class="nv">ru</span> : rightunitor_data T I)
+           (<span class="nv">α</span> : associator_data T)
+  : UU
+  := ∏ (x y : C), α x I y · x ⊗^{T}_{l} (lu y) = ru x ⊗^{T}_{r} y.
+
+<span class="sd">(** more triangle laws that are redundant in the axiomatisation *)</span>
+<span class="kn">Definition</span> <span class="nf">triangle_identity'</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           {<span class="nv">I</span> : C}
+           (<span class="nv">lu</span> : leftunitor_data T I)
+           (<span class="nv">α</span> : associator_data T)
+  : UU
+  := ∏ (x y : C), α I x y · lu (x ⊗_{T} y) = lu x ⊗^{T}_{r} y.
+
+<span class="kn">Definition</span> <span class="nf">triangle_identity''</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           {<span class="nv">I</span> : C}
+           (<span class="nv">ru</span> : rightunitor_data T I)
+           (<span class="nv">α</span> : associator_data T)
+  : UU
+  := ∏ (x y : C), α x y I · x ⊗^{T}_{l} (ru y) = ru (x ⊗_{T} y).
+
+<span class="kn">Definition</span> <span class="nf">pentagon_identity</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : tensor_data C}
+           (<span class="nv">α</span> : associator_data T)
+  : UU
+  := ∏ (w x y z : C),
+     ((α w x y) ⊗^{T}_{r} z) · (α w (x⊗_{T} y) z) · (w ⊗^{T}_{l} (α x y z))
+     =
+     (α (w⊗_{T}x) y z) · (α w x (y ⊗_{T} z)).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_laws</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">MD</span> : monoidal_data C)
+  : UU
+  := is_bifunctor MD
+     × (leftunitor_law lu_{MD} luinv_{MD})
+     × (rightunitor_law ru_{MD} ruinv_{MD})
+     × (associator_law α_{MD} αinv_{MD})
+     × (triangle_identity lu_{MD} ru_{MD} α_{MD})
+     × (pentagon_identity α_{MD}).
+
+<span class="kn">Definition</span> <span class="nf">monoidal</span> (<span class="nv">C</span> : category) : UU :=
+  ∑ (MD : monoidal_data C), (monoidal_laws MD).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_mondata</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C) : monoidal_data C := pr1 M.
+<span class="kn">Coercion</span> <span class="nf">monoidal_mondata</span> : monoidal &gt;-&gt; monoidal_data.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_monlaws</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C) : monoidal_laws M := pr2 M.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_tensor_is_bifunctor</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : monoidal C)
+  : is_bifunctor M
+  := pr12 M.
+
+<span class="kn">Coercion</span> <span class="nf">monoidal_tensor</span>
+         {C : category}
+         (M : monoidal C)
+  : bifunctor C C C
+  := _ ,, monoidal_tensor_is_bifunctor M.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_leftunitorlaw</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : monoidal C)
+  : leftunitor_law lu_{M} luinv_{M}
+  := pr12 (monoidal_monlaws M).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_leftunitornat</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : monoidal C)
+  : leftunitor_nat lu_{M}
+  := leftunitorlaw_nat (monoidal_leftunitorlaw M).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_leftunitorisolaw</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : monoidal C)
+  : leftunitor_iso_law lu_{M} luinv_{M}
+  := leftunitorlaw_iso_law (monoidal_leftunitorlaw M).
+
+<span class="kn">Lemma</span> <span class="nf">monoidal_leftunitorinvnat</span>
+      {<span class="nv">C</span> : category}
+      (<span class="nv">M</span> : monoidal C)
+  : leftunitorinv_nat luinv_{M}.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f.
+  <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (_,,_,,monoidal_leftunitorisolaw M x)).
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ (_,,_,,monoidal_leftunitorisolaw M y)).
+  <span class="nb">apply</span> pathsinv0, monoidal_leftunitornat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_rightunitorlaw</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : monoidal C)
+  : rightunitor_law ru_{M} ruinv_{M}
+  := pr122 (monoidal_monlaws M).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_rightunitornat</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : monoidal C)
+  : rightunitor_nat ru_{M}
+  := rightunitorlaw_nat (monoidal_rightunitorlaw M).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_rightunitorisolaw</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : monoidal C)
+  : rightunitor_iso_law ru_{M} ruinv_{M}
+  := rightunitorlaw_iso_law (monoidal_rightunitorlaw M).
+
+<span class="kn">Lemma</span> <span class="nf">monoidal_rightunitorinvnat</span>
+      {<span class="nv">C</span> : category}
+      (<span class="nv">M</span> : monoidal C)
+  : rightunitorinv_nat ruinv_{M}.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f.
+  <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (_,,_,,monoidal_rightunitorisolaw M x)).
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ (_,,_,,monoidal_rightunitorisolaw M y)).
+  <span class="nb">apply</span> pathsinv0, monoidal_rightunitornat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_associatorlaw</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : monoidal C)
+  : associator_law α_{M} αinv_{M}
+  := pr1 (pr222 (monoidal_monlaws M)).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_associatornatleft</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : monoidal C)
+  : associator_nat_leftwhisker α_{M}
+  := associatorlaw_natleft (monoidal_associatorlaw M).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_associatornatright</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : monoidal C)
+  : associator_nat_rightwhisker α_{M}
+  := associatorlaw_natright (monoidal_associatorlaw M).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_associatornatleftright</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : monoidal C)
+  : associator_nat_leftrightwhisker α_{M}
+  := associatorlaw_natleftright (monoidal_associatorlaw M).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_associatorisolaw</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : monoidal C)
+  : associator_iso_law α_{M} αinv_{M}
+  := associatorlaw_iso_law (monoidal_associatorlaw M).
+
+<span class="kn">Lemma</span> <span class="nf">associator_nat1</span>
+      {<span class="nv">C</span> : category}
+      (<span class="nv">M</span> : monoidal C)
+      {<span class="nv">x</span> <span class="nv">x'</span> <span class="nv">y</span> <span class="nv">y'</span> <span class="nv">z</span> <span class="nv">z'</span> : C}
+      (<span class="nv">f</span> : C⟦x,x'⟧) (<span class="nv">g</span> : C⟦y,y'⟧) (<span class="nv">h</span> : C⟦z,z'⟧)
+  : (monoidal_associatordata M x y z)
+    · ((f ⊗^{M}_{r} (y ⊗_{M} z))
+    · (x' ⊗^{M}_{l} ((g ⊗^{M}_{r} z) · (y' ⊗^{M}_{l} h))))
+    =
+    (((f ⊗^{M}_{r} y)
+    · (x' ⊗^{M}_{l} g))  ⊗^{M}_{r} z)
+      · ((x' ⊗_{M} y') ⊗^{M}_{l} h) · (monoidal_associatordata M x' y' z').
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">rewrite</span> (monoidal_associatornatright M).
+  <span class="nb">rewrite</span> assoc'.
+  etrans. {
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">rewrite</span> (bifunctor_leftcomp M).
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> (monoidal_associatornatleftright M).
+    <span class="nb">apply</span> idpath.
+  }
+
+  etrans. {
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> (monoidal_associatornatleft M).
+  }
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">rewrite</span> (bifunctor_rightcomp M).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">associator_nat2</span>
+      {<span class="nv">C</span> : category}
+      (<span class="nv">M</span> : monoidal C)
+      {<span class="nv">x</span> <span class="nv">x'</span> <span class="nv">y</span> <span class="nv">y'</span> <span class="nv">z</span> <span class="nv">z'</span> : C} (<span class="nv">f</span> : C⟦x,x'⟧)
+      (<span class="nv">g</span> : C⟦y,y'⟧) (<span class="nv">h</span> : C⟦z,z'⟧)
+  : (monoidal_associatordata M x y z) · (f ⊗^{M} (g ⊗^{M} h))
+    =
+    ((f ⊗^{M} g) ⊗^{M} h) · (monoidal_associatordata M x' y' z').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">unfold</span> functoronmorphisms1.
+  <span class="bp">exact</span> (associator_nat1 M f g h).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_triangleidentity</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : monoidal C)
+  : triangle_identity lu_{M} ru_{M} α_{M}
+  := pr12 (pr222 (monoidal_monlaws M)).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_pentagonidentity</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : monoidal C)
+  : pentagon_identity α_{M}
+  := pr22 (pr222 (monoidal_monlaws M)).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_monoidal_laws</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal_data C)
+  : isaprop (monoidal_laws M).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod)
+  ; <span class="kp">repeat</span> (<span class="nb">apply</span> impred ; <span class="nb">intro</span>)
+  ; <span class="kp">repeat</span> (<span class="kp">try</span> <span class="nb">apply</span> C)
+  ; <span class="kp">repeat</span> (<span class="nb">apply</span> isaprop_is_inverse_in_precat).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Some additional data and properties which one deduces from monoidal categories **)</span>
+<span class="c">(* Not the best name though, but here my creativity fails *)</span>
+<span class="kn">Lemma</span> <span class="nf">swap_nat_along_zisos</span>
+      {<span class="nv">C</span> : category} {<span class="nv">x1</span> <span class="nv">x2</span> <span class="nv">y1</span> <span class="nv">y2</span> : C}
+      (<span class="nv">p1</span> : z_iso x1 y1) (<span class="nv">p2</span> : z_iso x2 y2)
+  : ∏ (f: C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
+    (pr1 p1) · g = f · (pr1 p2) -&gt; g · (inv_from_z_iso p2) = (inv_from_z_iso p1) · f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f g p.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> z_iso_inv_on_right.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> z_iso_inv_on_left.
+  <span class="nb">apply</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">leftunitor_nat_z_iso</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C)
+  : nat_z_iso
+      (leftwhiskering_functor M I_{M})
+      (functor_identity C).
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - use make_nat_trans.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, lu_{M} x).
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, monoidal_leftunitornat M x y f).
+  - <span class="nb">intro</span> x. <span class="k">exists</span> (<span class="nv">luinv_</span>{M} x).
+    <span class="nb">apply</span> (monoidal_leftunitorisolaw M x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">rightunitor_nat_z_iso</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C)
+  : nat_z_iso
+      (rightwhiskering_functor M I_{M})
+      (functor_identity C).
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - use make_nat_trans.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, ru_{M} x).
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, monoidal_rightunitornat M x y f).
+  - <span class="nb">intro</span> x. <span class="k">exists</span> (<span class="nv">ruinv_</span>{M} x).
+    <span class="nb">apply</span> (monoidal_rightunitorisolaw M x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">z_iso_from_associator_iso</span>
+           {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C) (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C)
+  : z_iso ((x ⊗_{ M} y) ⊗_{ M} z) (x ⊗_{ M} (y ⊗_{ M} z))
+  := make_z_iso
+       (α_{M} x y z)
+       (αinv_{M} x y z)
+       (monoidal_associatorisolaw M x y z).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_associatorinvnatleft</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : monoidal C)
+  : ∏ (x y z z' : C) (h : C⟦z,z'⟧),
+    (x ⊗^{M}_{l} (y ⊗^{M}_{l} h)) · (αinv_{M} x y z')
+    =
+    (αinv_{M} x y z) · ((x ⊗_{M} y) ⊗^{M}_{l} h) .
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z z' h.
+  <span class="nb">apply</span> (swap_nat_along_zisos (z_iso_from_associator_iso M x y z) (z_iso_from_associator_iso M x y z')).
+  <span class="nb">apply</span> monoidal_associatornatleft.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_associatorinvnatright</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : monoidal C)
+  : ∏ (x x' y z: C) (f : C⟦x,x'⟧),
+    (f ⊗^{M}_{r} (y ⊗_{M} z)) · (αinv_{M} x' y z)
+    =
+    (αinv_{M} x y z) · ((f ⊗^{M}_{r} y) ⊗^{M}_{r} z).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x x' y z f.
+  <span class="nb">apply</span> (swap_nat_along_zisos (z_iso_from_associator_iso M x y z) (z_iso_from_associator_iso M x' y z)).
+  <span class="nb">apply</span> monoidal_associatornatright.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_associatorinvnatleftright</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : monoidal C)
+  : ∏ (x y y' z : C) (g : C⟦y,y'⟧),
+    (x ⊗^{M}_{l} (g ⊗^{M}_{r} z)) · (αinv_{M} x y' z)
+    =
+    (αinv_{M} x y z) · ((x ⊗^{M}_{l} g) ⊗^{M}_{r} z).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y y' z g.
+  <span class="nb">apply</span> (swap_nat_along_zisos (z_iso_from_associator_iso M x y z) (z_iso_from_associator_iso M x y' z)).
+  <span class="nb">apply</span> monoidal_associatornatleftright.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_associatorinv_nat1</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">M</span> : monoidal C)
+           {<span class="nv">x</span> <span class="nv">x'</span> <span class="nv">y</span> <span class="nv">y'</span> <span class="nv">z</span> <span class="nv">z'</span> : C}
+           (<span class="nv">f</span> : C⟦x,x'⟧)
+           (<span class="nv">g</span> : C⟦y,y'⟧)
+           (<span class="nv">h</span> : C⟦z,z'⟧)
+  : ((f ⊗^{M}_{r} (y ⊗_{M} z))
+    · (x' ⊗^{M}_{l} ((g ⊗^{M}_{r} z) · (y' ⊗^{M}_{l} h))))
+    · (αinv_{M} x' y' z')
+    =
+    (αinv_{M} x y z)
+    · ((((f ⊗^{M}_{r} y)
+    · (x' ⊗^{M}_{l} g))  ⊗^{M}_{r} z)
+    · ((x' ⊗_{M} y') ⊗^{ M}_{l} h)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (swap_nat_along_zisos
+           (z_iso_from_associator_iso M x y z)
+           (z_iso_from_associator_iso M x' y' z')
+        ).
+  <span class="nb">unfold</span> z_iso_from_associator_iso.
+  <span class="nb">unfold</span> make_z_iso.
+  <span class="nb">unfold</span> make_is_z_isomorphism.
+  <span class="nb">unfold</span> pr1.
+  <span class="nb">apply</span> associator_nat1.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">monoidal_associatorinv_nat2</span>
+      {<span class="nv">C</span> : category}
+      (<span class="nv">M</span> : monoidal C)
+      {<span class="nv">x</span> <span class="nv">x'</span> <span class="nv">y</span> <span class="nv">y'</span> <span class="nv">z</span> <span class="nv">z'</span> : C}
+      (<span class="nv">f</span> : C⟦x,x'⟧) (<span class="nv">g</span> : C⟦y,y'⟧) (<span class="nv">h</span> : C⟦z,z'⟧)
+  : (f ⊗^{M} (g ⊗^{M} h)) · (αinv_{M} x' y' z')
+    =
+    (αinv_{M} x y z) · ((f ⊗^{M} g) ⊗^{M} h).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">unfold</span> functoronmorphisms1.
+  <span class="nb">apply</span> monoidal_associatorinv_nat1.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">monoidal_triangle_identity_inv</span>
+      {<span class="nv">C</span> : category}
+      (<span class="nv">M</span> : monoidal C)
+      (<span class="nv">x</span> <span class="nv">y</span> : C)
+  : x ⊗^{M}_{l} luinv_{M} y · αinv_{M} x I_{ M} y = ruinv_{M} x ⊗^{ M}_{r} y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ ((z_iso_from_associator_iso M _ _ _))).
+  <span class="nb">cbn</span>.
+  <span class="nb">set</span> (luiy := make_z_iso _ _ (monoidal_leftunitorisolaw M y)).
+  <span class="nb">set</span> (luixy := functor_on_z_iso (leftwhiskering_functor M x) luiy).
+  <span class="nb">set</span> (ruix := make_z_iso _ _ (monoidal_rightunitorisolaw M x)).
+  <span class="nb">set</span> (ruixy := functor_on_z_iso (rightwhiskering_functor M y) ruix).
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ ruixy).
+  <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ luixy).
+  <span class="bp">exact</span> (! (monoidal_triangleidentity M) x y).
+<span class="kn">Qed</span>.
+
+<span class="c">(* another proof of the same law - could be deleted in some future: *)</span>
+<span class="kn">Lemma</span> <span class="nf">monoidal_triangle_identity_inv_alt</span>
+      {<span class="nv">C</span> : category}
+      (<span class="nv">M</span> : monoidal C)
+      (<span class="nv">x</span> <span class="nv">y</span> : C)
+  : x ⊗^{M}_{l} (luinv_{M} y) · αinv_{M} x I_{M} y  = (ruinv_{M} x) ⊗^{M}_{r} y.
+<span class="kn">Proof</span>.
+  transparent <span class="nb">assert</span> (auxiso1 : (z_iso (x ⊗_{ M} y) (x ⊗_{ M} (I_{ M} ⊗_{ M} y)))).
+  { <span class="k">exists</span> (<span class="nv">x</span> ⊗^{M}_{l} (luinv_{M} y)).
+    <span class="nb">apply</span> (is_z_iso_leftwhiskering_z_iso M).
+    <span class="k">exists</span> (<span class="nv">lu_</span>{ M} y).
+    <span class="nb">split</span>; <span class="nb">apply</span> monoidal_leftunitorisolaw. }
+  transparent <span class="nb">assert</span> (auxiso2 : (z_iso (x ⊗_{ M} y) ((x ⊗_{ M} I_{ M}) ⊗_{ M} y))).
+  { <span class="k">exists</span> (<span class="nv">ruinv_</span>{ M} x ⊗^{ M}_{r} y).
+    <span class="nb">apply</span> (is_z_iso_rightwhiskering_z_iso M).
+    <span class="k">exists</span> (<span class="nv">ru_</span>{ M} x).
+    <span class="nb">split</span>; <span class="nb">apply</span> monoidal_rightunitorisolaw. }
+  <span class="nb">apply</span> pathsinv0, (z_iso_inv_on_left _ _ _ _ (z_iso_from_associator_iso M _ _ _)).
+  <span class="nb">apply</span> (z_iso_inv_to_left _ _ _ auxiso2).
+  <span class="nb">apply</span> (z_iso_inv_to_right _ _ _ _ auxiso1).
+  <span class="nb">apply</span> pathsinv0, monoidal_triangleidentity.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">monoidal_pentagon_identity_inv</span>
+      {<span class="nv">C</span> : category}
+      (<span class="nv">M</span> : monoidal C)
+      (<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C)
+  : w ⊗^{ M}_{l} (αinv_{M} x y z)
+    · αinv_{M} w (x ⊗_{ M} y) z
+    · αinv_{M} w x y ⊗^{ M}_{r} z
+    =
+    αinv_{M} w x (y ⊗_{ M} z)
+    · αinv_{M} (w ⊗_{ M} x) y z.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (z_iso_from_associator_iso M _ _ _)).
+  <span class="nb">unfold</span> z_iso_from_associator_iso.
+  <span class="nb">unfold</span> make_z_iso.
+  <span class="nb">unfold</span> make_is_z_isomorphism.
+  etrans. { <span class="nb">apply</span> (pathsinv0 (id_right _)). }
+  <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (z_iso_from_associator_iso M _ _ _)).
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. {
+   <span class="nb">rewrite</span> assoc.
+   <span class="nb">apply</span> cancel_postcomposition.
+   <span class="nb">apply</span> (pathsinv0 (monoidal_pentagonidentity M w x y z)).
+  }
+  etrans. {
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> (pathsinv0 (bifunctor_leftcomp M _ _ _ _ _ _)).
+  }
+  etrans. {
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (pr2 (z_iso_from_associator_iso M x y z)).
+  }
+  etrans. {
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> (bifunctor_leftid M).
+  }
+  etrans. {
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> id_right.
+  }
+  etrans. {
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> (pr2 (z_iso_from_associator_iso M w (x⊗_{M}y) z)).
+  }
+  etrans. {
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> id_right.
+  }
+  etrans. {
+    <span class="nb">apply</span> (pathsinv0 (bifunctor_rightcomp M _ _ _ _ _ _)).
+  }
+  etrans. {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (pr2 (pr2 (z_iso_from_associator_iso M w x y))).
+  }
+  <span class="nb">apply</span> (bifunctor_rightid M).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">A</span>.
+
+<span class="kn">Module</span> <span class="nf">MonoidalNotations</span>.
+  <span class="kn">Notation</span> <span class="s2">"I_{ M }"</span> := (monoidal_unit M) : cat.
+  <span class="kn">Notation</span> <span class="s2">"lu_{ M }"</span> := (monoidal_leftunitordata M) : cat.
+  <span class="kn">Notation</span> <span class="s2">"luinv_{ M }"</span> := (monoidal_leftunitorinvdata M) : cat.
+  <span class="kn">Notation</span> <span class="s2">"ru_{ M }"</span> := (monoidal_rightunitordata M) : cat.
+  <span class="kn">Notation</span> <span class="s2">"ruinv_{ M }"</span> := (monoidal_rightunitorinvdata M) : cat.
+  <span class="kn">Notation</span> <span class="s2">"α_{ M }"</span> := (monoidal_associatordata M) : cat.
+  <span class="kn">Notation</span> <span class="s2">"αinv_{ M }"</span> := (monoidal_associatorinvdata M) : cat.
+  <span class="kn">Notation</span> <span class="s2">"lu^{ M }_{ x }"</span> := (monoidal_leftunitordata M x ) : cat.
+  <span class="kn">Notation</span> <span class="s2">"ru^{ M }_{ x }"</span> := ( monoidal_rightunitordata M x ) : cat.
+  <span class="kn">Notation</span> <span class="s2">"α^{ M }_{ x , y , z }"</span> := (monoidal_associatordata M x y z) : cat.
+  <span class="kn">Notation</span> <span class="s2">"luinv^{ M }_{ x }"</span> := (monoidal_leftunitorinvdata M x ) : cat.
+  <span class="kn">Notation</span> <span class="s2">"ruinv^{ M }_{ x }"</span> := ( monoidal_rightunitorinvdata M x ) : cat.
+  <span class="kn">Notation</span> <span class="s2">"αinv^{ M }_{ x , y , z }"</span> := (monoidal_associatorinvdata M x y z) : cat.
+<span class="kn">End</span> <span class="nf">MonoidalNotations</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Opposite monoidal category</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">OppositeMonoidal</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C).
+
+  <span class="kn">Import</span> MonoidalNotations.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_opp_tensor_data</span> : bifunctor_data C^op C^op C^op.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">pr11</span> (monoidal_tensor M)).
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">x</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">g</span>, <span class="nv">x</span> ⊗^{M}_{l} g).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, f ⊗^{M}_{r} x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">monoidal_opp_is_tensor</span> : is_bifunctor monoidal_opp_tensor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; (<span class="kp">try</span> (<span class="nb">intro</span> ; <span class="nb">intros</span>) ; <span class="kp">try</span> <span class="nb">apply</span> (pr2 (monoidal_tensor M))).
+    <span class="bp">exact</span> (! bifunctor_equalwhiskers M a2 a1 b2 b1 f g).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_opp_tensor</span> : bifunctor C^op C^op C^op
+    := monoidal_opp_tensor_data ,, monoidal_opp_is_tensor.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_opp_data</span> : monoidal_data C^op.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">monoidal_opp_tensor_data</span>.
+    <span class="k">exists</span> <span class="nv">I_</span>{<span class="nv">M</span>}.
+    <span class="k">exists</span> <span class="nv">luinv_</span>{<span class="nv">M</span>}.
+    <span class="k">exists</span> <span class="nv">lu_</span>{<span class="nv">M</span>}.
+    <span class="k">exists</span> <span class="nv">ruinv_</span>{<span class="nv">M</span>}.
+    <span class="k">exists</span> <span class="nv">ru_</span>{<span class="nv">M</span>}.
+    <span class="k">exists</span> <span class="nv">αinv_</span>{<span class="nv">M</span>}.
+    <span class="bp">exact</span> α_{M}.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_opp_laws</span> : monoidal_laws monoidal_opp_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> (bifunctor_leftid M).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> (bifunctor_rightid M).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> (bifunctor_leftcomp M).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> (bifunctor_rightcomp M).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="bp">exact</span> (!(bifunctor_equalwhiskers M _ _ _ _ f g)).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> monoidal_leftunitorinvnat.
+    - <span class="nb">apply</span> (monoidal_leftunitorisolaw M).
+    - <span class="nb">apply</span> (monoidal_leftunitorisolaw M).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> monoidal_rightunitorinvnat.
+    - <span class="nb">apply</span> (monoidal_rightunitorisolaw M).
+    - <span class="nb">apply</span> (monoidal_rightunitorisolaw M).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> monoidal_associatorinvnatleft.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> monoidal_associatorinvnatright.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> monoidal_associatorinvnatleftright.
+    - <span class="nb">apply</span> (monoidal_associatorisolaw M).
+    - <span class="nb">apply</span> (monoidal_associatorlaw M).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> monoidal_triangle_identity_inv.
+    - <span class="nb">intros</span> w x y z.
+      <span class="nb">refine</span> (_ @ monoidal_pentagon_identity_inv M w x y z).
+      <span class="nb">simpl</span> ; <span class="nb">apply</span> assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_opp</span> : monoidal C^op
+    := monoidal_opp_data ,, monoidal_opp_laws.
+<span class="kn">End</span> <span class="nf">OppositeMonoidal</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Equivalences from the tensor and unit</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">EquivalenceFromTensorWithUnit</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C).
+
+  <span class="kn">Import</span> MonoidalNotations.
+
+  <span class="kn">Definition</span> <span class="nf">ladjunction_data_from_tensor_with_unit</span>
+    : adjunction_data C C.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">leftwhiskering_functor</span> <span class="nv">M</span> <span class="nv">I_</span>{M}).
+    <span class="k">exists</span> (<span class="nv">functor_identity</span> <span class="nv">C</span>).
+    use tpair.
+    - <span class="nb">apply</span> (nat_z_iso_inv (leftunitor_nat_z_iso M)).
+    - <span class="nb">apply</span> (leftunitor_nat_z_iso M).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lequivalence_from_tensor_with_unit</span>
+    : equivalence_of_cats C C.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">ladjunction_data_from_tensor_with_unit</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> (nat_z_iso_inv (leftunitor_nat_z_iso M)).
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> (leftunitor_nat_z_iso M).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">radjunction_data_from_tensor_with_unit</span>
+    : adjunction_data C C.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">rightwhiskering_functor</span> <span class="nv">M</span> <span class="nv">I_</span>{M}).
+    <span class="k">exists</span> (<span class="nv">functor_identity</span> <span class="nv">C</span>).
+    use tpair.
+    - <span class="nb">apply</span> (nat_z_iso_inv (rightunitor_nat_z_iso M)).
+    - <span class="nb">apply</span> (rightunitor_nat_z_iso M).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">requivalence_from_tensor_with_unit</span>
+    : equivalence_of_cats C C.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">radjunction_data_from_tensor_with_unit</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> (nat_z_iso_inv (rightunitor_nat_z_iso M)).
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> (rightunitor_nat_z_iso M).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">leftwhiskering_fullyfaithful</span>
+    : fully_faithful (leftwhiskering_functor M I_{M}).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> fully_faithful_from_equivalence.
+    <span class="bp">exact</span> (adjointification lequivalence_from_tensor_with_unit).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">rightwhiskering_fullyfaithful</span>
+    : fully_faithful (rightwhiskering_functor M I_{M}).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> fully_faithful_from_equivalence.
+    <span class="bp">exact</span> (adjointification requivalence_from_tensor_with_unit).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">leftwhiskering_faithful</span>
+    : faithful (leftwhiskering_functor M I_{M}).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 (fully_faithful_implies_full_and_faithful _ _ _ leftwhiskering_fullyfaithful)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">rightwhiskering_faithful</span>
+    : faithful (rightwhiskering_functor M I_{M}).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 (fully_faithful_implies_full_and_faithful _ _ _ rightwhiskering_fullyfaithful)).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">EquivalenceFromTensorWithUnit</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. The unitors coincide</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">UnitorsCoincide</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C).
+
+  <span class="kn">Import</span> MonoidalNotations.
+
+  <span class="kn">Local Lemma</span> <span class="nf">lemma0</span> (<span class="nv">x</span> <span class="nv">y</span> : C) :
+    ((α_{M} I_{M} I_{M} x) ⊗^{M}_{r} y) · ((I_{M} ⊗^{M}_{l} lu_{M} x) ⊗^{M}_{r} y) =
+    (ru_{M} I_{M} ⊗^{M}_{r} x) ⊗^{M}_{r} y.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (! bifunctor_rightcomp M _ _ _ _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (monoidal_triangleidentity M I_{M} x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">lemma1</span> (<span class="nv">x</span> <span class="nv">y</span> : C) :
+    α_{M} I_{M} (I_{M} ⊗_{M} x) y · (I_{M} ⊗^{M}_{l} (lu_{M} x ⊗^{M}_{r} y)) =
+      ((I_{M} ⊗^{M}_{l} lu_{M} x) ⊗^{M}_{r} y) · α_{M} I_{M} x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> monoidal_associatornatleftright.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">lemma2</span> (<span class="nv">x</span> <span class="nv">y</span> : C) :
+    I_{M} ⊗^{M}_{l} (lu_{M} x ⊗^{M}_{r} y) = αinv_{M} I_{M} (I_{M} ⊗_{M} x) y · (((I_{M} ⊗^{M}_{l} lu_{M} x) ⊗^{M}_{r} y) · α_{M} I_{M} x y).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (αiso := make_z_iso _ _ (monoidal_associatorisolaw M  I_{ M} (I_{ M} ⊗_{ M} x) y)).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ αiso).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> lemma1.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">lemma2'</span> (<span class="nv">x</span> <span class="nv">y</span> : C) :
+    (I_{M} ⊗^{M}_{l} lu_{M} x) ⊗^{M}_{r} y =
+      ((αinv_{M} I_{M} I_{M} x) ⊗^{M}_{r} y) · (ru_{M} I_{M} ⊗^{M}_{r} x) ⊗^{M}_{r} y.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">set</span> (αiso := make_z_iso _ _ (monoidal_associatorisolaw M  I_{ M} I_{ M} x)).
+    <span class="nb">set</span> (αisor := functor_on_z_iso (rightwhiskering_functor M y) αiso).
+    <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ αisor).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> lemma0.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">lemma3</span> (<span class="nv">x</span> <span class="nv">y</span> : C) :
+    I_{M} ⊗^{M}_{l} (lu_{M} x ⊗^{M}_{r} y) =
+      αinv_{M} I_{M} (I_{M} ⊗_{M} x) y
+        · ((((αinv_{M} I_{M} I_{M} x) ⊗^{M}_{r} y)
+        · (ru_{M} I_{M} ⊗^{M}_{r} x) ⊗^{M}_{r} y)
+        · α_{M} I_{M} x y).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (lemma2 x y @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> lemma2'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">right_whisker_with_lunitor'</span> (<span class="nv">x</span> <span class="nv">y</span> : C)
+    : I_{M} ⊗^{M}_{l} (lu_{M} x ⊗^{M}_{r} y)
+      =
+      I_{M} ⊗^{M}_{l} (α_{M} I_{M} x y · lu_{M} (x ⊗_{M} y)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (lemma3 x y @ _).
+    <span class="nb">set</span> (αiso := make_z_iso _ _ (monoidal_associatorisolaw M  I_{ M} (I_{ M} ⊗_{M} x) y)).
+    <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ αiso).
+    <span class="nb">set</span> (αiso' := make_z_iso _ _ (monoidal_associatorisolaw M  I_{ M} I_{ M} x)).
+    <span class="nb">set</span> (αisor := functor_on_z_iso (rightwhiskering_functor M y) αiso').
+    etrans. { <span class="nb">apply</span> assoc'. }
+    <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ αisor).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">simpl</span>.
+
+    etrans. { <span class="nb">apply</span> assoc. }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (bifunctor_leftcomp M _ _ _ _ _ _).
+    }
+
+    etrans. { <span class="nb">apply</span> assoc. }
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (monoidal_pentagonidentity M I_{M} I_{M} x y).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> (associatorlaw_natright (monoidal_associatorlaw M)).
+    }
+
+    etrans. { <span class="nb">apply</span> assoc'. }
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> monoidal_triangleidentity.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">right_whisker_with_lunitor</span> : triangle_identity' lu_{M} α_{M}.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use faithful_reflects_commutative_triangle.
+    <span class="mi">3</span>: { <span class="nb">apply</span> leftwhiskering_faithful. }
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">refine</span> (right_whisker_with_lunitor' _ _ @ _).
+    <span class="nb">apply</span> (bifunctor_leftcomp (monoidal_tensor M)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_triangleidentity'</span> := right_whisker_with_lunitor.
+
+  <span class="kn">Lemma</span> <span class="nf">monoidal_triangle_identity'_inv</span> (<span class="nv">x</span> <span class="nv">y</span> : C)
+  : luinv_{M} (x ⊗_{M} y) · αinv_{M} I_{M} x y = luinv_{M} x ⊗^{M}_{r} y.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ ((z_iso_from_associator_iso M _ _ _))).
+    <span class="nb">cbn</span>.
+    <span class="nb">set</span> (luix := make_z_iso _ _ (monoidal_leftunitorisolaw M x)).
+    <span class="nb">set</span> (luixy := functor_on_z_iso (rightwhiskering_functor M y) luix).
+    <span class="nb">set</span> (luipxy := make_z_iso _ _ (monoidal_leftunitorisolaw M (x ⊗_{ M} y))).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ luixy).
+    <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ luipxy).
+    <span class="bp">exact</span> (! monoidal_triangleidentity' x y).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lunitor_preserves_leftwhiskering_with_unit</span>
+    : lu^{M}_{I_{ M} ⊗_{M} I_{M}} = I_{M} ⊗^{ M}_{l} lu^{M}_{I_{ M}}.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">set</span> (lun := monoidal_leftunitornat M _ _ (lu_{M} (I_{M}))).
+    etrans. { <span class="nb">apply</span> (! id_right _). }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> id_right. }
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (! pr1 (monoidal_leftunitorisolaw M I_{ M})).
+    }
+    etrans. { <span class="nb">apply</span> assoc. }
+    etrans. { <span class="nb">apply</span> maponpaths_2 ; <span class="bp">exact</span> lun. }
+    etrans. { <span class="nb">apply</span> assoc'. }
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> monoidal_leftunitorisolaw.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">unitors_coincide_on_unit'</span>
+    : lu_{M} I_{M} ⊗^{M}_{r} I_{M} = ru_{M} I_{M} ⊗^{M}_{r} I_{M}.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (! right_whisker_with_lunitor I_{M} I_{M} @ _).
+    <span class="nb">refine</span> (_ @ monoidal_triangleidentity M I_{M} I_{M}).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> lunitor_preserves_leftwhiskering_with_unit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">unitors_coincide_on_unit</span>
+    : lu_{M} I_{M} = ru_{M} I_{M}.
+  <span class="kn">Proof</span>.
+    use faithful_reflects_morphism_equality.
+    <span class="mi">3</span>: { <span class="nb">apply</span> rightwhiskering_faithful. }
+    <span class="nb">apply</span> unitors_coincide_on_unit'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">unitorsinv_coincide_on_unit</span>
+    : luinv_{M} I_{M} = ruinv_{M} I_{M}.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (cancel_z_iso _ _ (lu_{M} I_{M},,(luinv_{M} I_{M},,monoidal_leftunitorisolaw M I_{M}))).
+    <span class="nb">cbn</span>.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">rewrite</span> unitors_coincide_on_unit.
+         <span class="nb">apply</span> pathsinv0, (monoidal_rightunitorisolaw M I_{M}). }
+    <span class="nb">apply</span> (monoidal_leftunitorisolaw M I_{M}).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">UnitorsCoincide</span>.
+
+<span class="c">(* Using the lemma for a different category, hence outside of the section. *)</span>
+
+<span class="kn">Section</span> <span class="nf">UnitorsCoincideAlternative</span>.
+  <span class="kn">Import</span> MonoidalNotations.
+
+  <span class="kn">Lemma</span> <span class="nf">unitorsinv_coincide_on_unit_alt</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C)
+    : luinv_{M} I_{M} = ruinv_{M} I_{M}.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (unitors_coincide_on_unit (monoidal_opp M)).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">UnitorsCoincideAlternative</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Swapping the tensor</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">MonoidalSwapped</span>.
+  <span class="kn">Import</span> MonoidalNotations.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_swapped</span> {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V)
+    : tensor_data V.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use tpair).
+    - <span class="nb">intros</span> v w.
+      <span class="bp">exact</span> (w ⊗_{Mon_V} v).
+    - <span class="nb">intros</span> v w1 w2 f.
+      <span class="bp">exact</span> (f ⊗^{Mon_V}_{r} v).
+    - <span class="nb">intros</span> v w1 w2 f.
+      <span class="bp">exact</span> (v ⊗^{Mon_V}_{l} f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_swapped_data</span> {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V)
+    : monoidal_data V.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">tensor_swapped</span> <span class="nv">Mon_V</span>).
+    <span class="k">exists</span> <span class="nv">I_</span>{<span class="nv">Mon_V</span>}.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">v</span>, <span class="nv">ru_</span>{Mon_V} v).
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">v</span>, <span class="nv">ruinv_</span>{Mon_V} v).
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">v</span>, <span class="nv">lu_</span>{Mon_V} v).
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">v</span>, <span class="nv">luinv_</span>{Mon_V} v).
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">v1</span> <span class="nv">v2</span> <span class="nv">v3</span>, <span class="nv">αinv_</span>{Mon_V} v3 v2 v1).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">v1</span> <span class="nv">v2</span> <span class="nv">v3</span>, α_{Mon_V} v3 v2 v1).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">monoidal_swapped_laws</span> {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V)
+    : monoidal_laws (monoidal_swapped_data Mon_V).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intro</span> ; <span class="nb">apply</span> (bifunctor_rightid Mon_V).
+    - <span class="nb">intro</span> ; <span class="nb">intro</span> ; <span class="nb">apply</span> (bifunctor_leftid Mon_V).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> (bifunctor_rightcomp Mon_V).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> (bifunctor_leftcomp Mon_V).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> (! bifunctor_equalwhiskers Mon_V _ _ _ _ _ _).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> monoidal_rightunitornat.
+    - <span class="nb">apply</span> monoidal_rightunitorisolaw.
+    - <span class="nb">apply</span> monoidal_rightunitorisolaw.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> monoidal_leftunitornat.
+    - <span class="nb">apply</span> monoidal_leftunitorisolaw.
+    - <span class="nb">apply</span> monoidal_leftunitorisolaw.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> (! monoidal_associatorinvnatright Mon_V _ _ _ _ _).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> (! monoidal_associatorinvnatleft Mon_V _ _ _ _ _).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> (! monoidal_associatorinvnatleftright Mon_V _ _ _ _ _).
+    - <span class="nb">apply</span> monoidal_associatorisolaw.
+    - <span class="nb">apply</span> monoidal_associatorisolaw.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> (! monoidal_triangleidentity Mon_V _ _).
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> (pr2 (monoidal_associatorisolaw Mon_V _ _ _)).
+      <span class="nb">apply</span> id_left.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> monoidal_pentagon_identity_inv.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_swapped</span> {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V)
+    : monoidal V
+    := monoidal_swapped_data Mon_V ,, monoidal_swapped_laws Mon_V.
+
+
+  <span class="kn">Lemma</span> <span class="nf">monoidal_swapped_whiskering</span>
+    {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V)
+    {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : V} {<span class="nv">f</span> : w --&gt; x} {<span class="nv">g</span> : y --&gt; z} 
+    : f ⊗^{monoidal_swapped Mon_V} g = g ⊗^{Mon_V} f.
+  <span class="kn">Proof</span>.
+    use (!bifunctor_equalwhiskers Mon_V _ _ _ _ _ _).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">MonoidalSwapped</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. More monoidal laws</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">MonoidalLaws</span>.
+  <span class="kn">Import</span> MonoidalNotations.
+
+  <span class="kn">Lemma</span> <span class="nf">left_whisker_with_runitor</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C)
+    : triangle_identity'' ru_{M} α_{M}.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">intros</span> x y.
+    <span class="nb">assert</span> (aux := right_whisker_with_lunitor (monoidal_swapped M) y x).
+    <span class="nb">cbn</span> <span class="k">in</span> aux.
+    <span class="nb">rewrite</span> &lt;- aux.
+    <span class="nb">rewrite</span> assoc.
+    etrans.
+    { <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> monoidal_associatorisolaw. }
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">monoidal_triangle_identity''_inv</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C) (<span class="nv">x</span> <span class="nv">y</span> : C)
+    : x ⊗^{M}_{l} (ruinv_{M} y) · αinv_{M} x y I_{M} = ruinv_{M} (x ⊗_{M} y).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ ((z_iso_from_associator_iso M _ _ _))).
+    <span class="nb">cbn</span>.
+    <span class="nb">set</span> (ruiy := make_z_iso _ _ (monoidal_rightunitorisolaw M y)).
+    <span class="nb">set</span> (ruiyx := functor_on_z_iso (leftwhiskering_functor M x) ruiy).
+    <span class="nb">set</span> (ruipxy := make_z_iso _ _ (monoidal_rightunitorisolaw M (x ⊗_{ M} y))).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ ruipxy).
+    <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ ruiyx).
+    <span class="bp">exact</span> (! (left_whisker_with_runitor M) x y).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lunitorinv_preserves_leftwhiskering_with_unit</span>
+    {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C)
+    : luinv^{M}_{I_{ M}} ⊗^{ M}_{r} I_{ M} · α^{ M }_{ I_{ M}, I_{ M}, I_{ M}}
+      = I_{ M} ⊗^{ M}_{l} luinv^{M}_{I_{ M}}.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (t := monoidal_triangle_identity_inv_alt M I_{M} I_{M}).
+
+    use (_ @ ! z_iso_inv_on_left _ _ _ _ (_,, α^{M}_{_,_,_} ,, _) _ (! t)).
+    - <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> unitorsinv_coincide_on_unit_alt.
+    - <span class="nb">split</span> ; <span class="nb">apply</span> (monoidal_associatorisolaw M).
+  <span class="kn">Qed</span>.
+ <span class="kn">End</span> <span class="nf">MonoidalLaws</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 7. Bundled approach to monoidal categories</span>
+<span class="sd"> *)</span>
+<span class="sd">(** Accessors and notations for monoidal categories *)</span>
+<span class="kn">Declare Scope</span> moncat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_cat</span> : UU := ∑ (C : category), monoidal C.
+
+<span class="kn">Coercion</span> <span class="nf">monoidal_cat_to_cat</span> (V : monoidal_cat) : category := pr1 V.
+<span class="kn">Coercion</span> <span class="nf">monoidal_cat_to_monoidal</span> (V : monoidal_cat) : monoidal V := pr2 V.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_cat_tensor_pt</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           (<span class="nv">x</span> <span class="nv">y</span> : V)
+  : V
+  := x ⊗_{ pr2 V } y.
+
+<span class="kn">Notation</span> <span class="s2">"x ⊗ y"</span> :=  (monoidal_cat_tensor_pt x y) : moncat.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_cat_tensor_mor</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : V}
+           (<span class="nv">f</span> : x₁ --&gt; x₂)
+           (<span class="nv">g</span> : y₁ --&gt; y₂)
+  : x₁ ⊗ y₁ --&gt; x₂ ⊗ y₂
+  := f ⊗^{ pr2 V } g.
+
+<span class="kn">Notation</span> <span class="s2">"f #⊗ g"</span> := (monoidal_cat_tensor_mor f g) (<span class="kn">at level</span> <span class="mi">31</span>) : moncat.
+
+<span class="kn">Proposition</span> <span class="nf">tensor_mor_left</span>
+            {<span class="nv">V</span> : monoidal_cat}
+            (<span class="nv">x</span> : V)
+            {<span class="nv">y</span> <span class="nv">z</span> : V}
+            (<span class="nv">f</span> : y --&gt; z)
+  : x ⊗^{V}_{l} f = identity x #⊗ f.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+  <span class="nb">unfold</span> functoronmorphisms1.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> (bifunctor_rightid V).
+  }
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">tensor_mor_right</span>
+            {<span class="nv">V</span> : monoidal_cat}
+            (<span class="nv">x</span> : V)
+            {<span class="nv">y</span> <span class="nv">z</span> : V}
+            (<span class="nv">f</span> : y --&gt; z)
+  : f ⊗^{V}_{r} x = f #⊗ identity x.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+  <span class="nb">unfold</span> functoronmorphisms1.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (bifunctor_leftid V).
+  }
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">MonoidalCatAccessors</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : monoidal_cat}.
+
+  <span class="kn">Import</span> MonoidalNotations.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_id_id</span>
+             (<span class="nv">x</span> <span class="nv">y</span> : V)
+    : identity x #⊗ identity y = identity (x ⊗ y).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> bifunctor_distributes_over_id.
+    - <span class="nb">apply</span> (bifunctor_leftid V).
+    - <span class="nb">apply</span> (bifunctor_rightid V).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_comp_mor</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">y₃</span> : V}
+             (<span class="nv">f</span> : x₁ --&gt; x₂) (<span class="nv">f'</span> : x₂ --&gt; x₃)
+             (<span class="nv">g</span> : y₁ --&gt; y₂) (<span class="nv">g'</span> : y₂ --&gt; y₃)
+    : (f · f') #⊗ (g · g') = f #⊗ g · f' #⊗ g'.
+  <span class="kn">Proof</span>.
+    use bifunctor_distributes_over_comp.
+    - <span class="nb">apply</span> (bifunctor_leftcomp V).
+    - <span class="nb">apply</span> (bifunctor_rightcomp V).
+    - <span class="nb">apply</span> (bifunctor_equalwhiskers V).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_comp_id_l</span>
+             {<span class="nv">x</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">y₃</span> : V}
+             (<span class="nv">g</span> : y₁ --&gt; y₂) (<span class="nv">g'</span> : y₂ --&gt; y₃)
+    : (identity x) #⊗ (g · g') = (identity x) #⊗ g · (identity x) #⊗ g'.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_comp_l_id_l</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">y₃</span> : V}
+             (<span class="nv">f</span> : x₁ --&gt; x₂)
+             (<span class="nv">g</span> : y₁ --&gt; y₂) (<span class="nv">g'</span> : y₂ --&gt; y₃)
+    : f #⊗ (g · g') = (identity _) #⊗ g · f #⊗ g'.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_comp_l_id_r</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">y₃</span> : V}
+             (<span class="nv">f</span> : x₁ --&gt; x₂)
+             (<span class="nv">g</span> : y₁ --&gt; y₂) (<span class="nv">g'</span> : y₂ --&gt; y₃)
+    : f #⊗ (g · g') = f #⊗ g · (identity _) #⊗ g'.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_comp_id_r</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> <span class="nv">y</span> : V}
+             (<span class="nv">f</span> : x₁ --&gt; x₂) (<span class="nv">f'</span> : x₂ --&gt; x₃)
+    : (f · f') #⊗ (identity y) = f #⊗ (identity y) · f' #⊗ (identity y).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_comp_r_id_l</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : V}
+             (<span class="nv">f</span> : x₁ --&gt; x₂) (<span class="nv">f'</span> : x₂ --&gt; x₃)
+             (<span class="nv">g</span> : y₁ --&gt; y₂)
+    : (f · f') #⊗ g = f #⊗ (identity _) · f' #⊗ g.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_comp_r_id_r</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : V}
+             (<span class="nv">f</span> : x₁ --&gt; x₂) (<span class="nv">f'</span> : x₂ --&gt; x₃)
+             (<span class="nv">g</span> : y₁ --&gt; y₂)
+    : (f · f') #⊗ g = f #⊗ g · f' #⊗ (identity _).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_split</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : V}
+             (<span class="nv">f</span> : x₁ --&gt; x₂)
+             (<span class="nv">g</span> : y₁ --&gt; y₂)
+    : f #⊗ g = identity _ #⊗ g · f #⊗ identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ tensor_comp_mor _ _ _ _).
+    <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_split'</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : V}
+             (<span class="nv">f</span> : x₁ --&gt; x₂)
+             (<span class="nv">g</span> : y₁ --&gt; y₂)
+    : f #⊗ g = f #⊗ identity _ · identity _ #⊗ g.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ tensor_comp_mor _ _ _ _).
+    <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_swap</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : V}
+             (<span class="nv">f</span> : x₁ --&gt; x₂)
+             (<span class="nv">g</span> : y₁ --&gt; y₂)
+    : f #⊗ identity _ · identity _ #⊗ g = identity _ #⊗ g · f #⊗ identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- tensor_split, &lt;- tensor_split'.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_swap'</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : V}
+             (<span class="nv">f</span> : x₁ --&gt; x₂)
+             (<span class="nv">g</span> : y₁ --&gt; y₂)
+    : identity _ #⊗ g · f #⊗ identity _ = f #⊗ identity _ · identity _ #⊗ g.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- tensor_split, &lt;- tensor_split'.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_lunitor</span>
+             (<span class="nv">x</span> : V)
+    : I_{V} ⊗ x --&gt; x
+    := monoidal_leftunitordata V x.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_lunitor</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : V}
+             (<span class="nv">f</span> : x --&gt; y)
+    : identity _ #⊗ f · mon_lunitor y
+      =
+      mon_lunitor x · f.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ pr1 (monoidal_leftunitorlaw V) x y f).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+    <span class="nb">unfold</span> functoronmorphisms1.
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> (bifunctor_rightid V).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_linvunitor</span>
+             (<span class="nv">x</span> : V)
+    : x --&gt; I_{V} ⊗ x
+    := monoidal_leftunitorinvdata V x.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_linvunitor</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : V}
+             (<span class="nv">f</span> : x --&gt; y)
+    : f · mon_linvunitor y
+      =
+      mon_linvunitor x · identity _ #⊗ f.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!(monoidal_leftunitorinvnat V x y f) @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+    <span class="nb">unfold</span> functoronmorphisms1.
+    <span class="nb">refine</span> (!(id_left _) @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> (bifunctor_rightid V).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_lunitor_linvunitor</span>
+             (<span class="nv">x</span> : V)
+    : mon_lunitor x · mon_linvunitor x = identity _.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (monoidal_leftunitorisolaw V x)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_linvunitor_lunitor</span>
+             (<span class="nv">x</span> : V)
+    : mon_linvunitor x · mon_lunitor x = identity _.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 (monoidal_leftunitorisolaw V x)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_runitor</span>
+             (<span class="nv">x</span> : V)
+    : x ⊗ I_{V} --&gt; x
+    := monoidal_rightunitordata V x.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_runitor</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : V}
+             (<span class="nv">f</span> : x --&gt; y)
+    : f #⊗ identity _ · mon_runitor y
+      =
+      mon_runitor x · f.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ pr1 (monoidal_rightunitorlaw V) x y f).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+    <span class="nb">unfold</span> functoronmorphisms1.
+    <span class="nb">refine</span> (_ @ id_right _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (bifunctor_leftid V).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_rinvunitor</span>
+             (<span class="nv">x</span> : V)
+    : x --&gt; x ⊗ I_{V}
+    := monoidal_rightunitorinvdata V x.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_rinvunitor</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : V}
+             (<span class="nv">f</span> : x --&gt; y)
+    : f · mon_rinvunitor y
+      =
+      mon_rinvunitor x · f #⊗ identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!(monoidal_rightunitorinvnat V x y f) @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+    <span class="nb">unfold</span> functoronmorphisms1.
+    <span class="nb">refine</span> (!(id_right _) @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> (bifunctor_leftid V).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_runitor_rinvunitor</span>
+             (<span class="nv">x</span> : V)
+    : mon_runitor x · mon_rinvunitor x = identity _.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (monoidal_rightunitorisolaw V x)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_rinvunitor_runitor</span>
+             (<span class="nv">x</span> : V)
+    : mon_rinvunitor x · mon_runitor x = identity _.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 (monoidal_rightunitorisolaw V x)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_lassociator</span>
+             (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : V)
+    : (x ⊗ y) ⊗ z --&gt; x ⊗ (y ⊗ z)
+    := α_{ V } x y z.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_lassociator</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : V}
+             (<span class="nv">f</span> : x₁ --&gt; x₂)
+             (<span class="nv">g</span> : y₁ --&gt; y₂)
+             (<span class="nv">h</span> : z₁ --&gt; z₂)
+    : (f #⊗ g) #⊗ h · mon_lassociator _ _ _
+      =
+      mon_lassociator _ _ _ · f #⊗ (g #⊗ h).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> associator_nat2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_rassociator</span>
+             (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : V)
+    : x ⊗ (y ⊗ z) --&gt; (x ⊗ y) ⊗ z
+    := αinv_{ V } x y z.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_rassociator</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : V}
+             (<span class="nv">f</span> : x₁ --&gt; x₂)
+             (<span class="nv">g</span> : y₁ --&gt; y₂)
+             (<span class="nv">h</span> : z₁ --&gt; z₂)
+    : f #⊗ (g #⊗ h) · mon_rassociator _ _ _
+      =
+      mon_rassociator _ _ _ · (f #⊗ g) #⊗ h.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (monoidal_associatorinv_nat2 V f g h).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_lassociator_rassociator</span>
+             (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : V)
+    : mon_lassociator x y z · mon_rassociator x y z = identity _.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (monoidal_associatorisolaw V x y z)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_rassociator_lassociator</span>
+             (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : V)
+    : mon_rassociator x y z · mon_lassociator x y z = identity _.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 (monoidal_associatorisolaw V x y z)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_triangle</span>
+             (<span class="nv">x</span> <span class="nv">y</span> : V)
+    : mon_runitor x #⊗ identity y
+      =
+      mon_lassociator x I_{V} y · (identity x #⊗ mon_lunitor y).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ !(monoidal_triangleidentity V x y) @ _).
+    - <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+      <span class="nb">unfold</span> functoronmorphisms1.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (bifunctor_leftid V).
+    - <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+      <span class="nb">unfold</span> functoronmorphisms1.
+      <span class="nb">refine</span> (!(id_left _) @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (bifunctor_rightid V).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_inv_triangle</span>
+             (<span class="nv">x</span> <span class="nv">y</span> : V)
+    : identity x #⊗ mon_linvunitor y
+      =
+      mon_rinvunitor x #⊗ identity y · mon_lassociator x (I_{V}) y.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (_ @ !(monoidal_triangle_identity_inv V x y)).
+      <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+      <span class="nb">unfold</span> functoronmorphisms1.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (bifunctor_leftid V).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> mon_rassociator_lassociator.
+    }
+    <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+    <span class="nb">unfold</span> functoronmorphisms1.
+    <span class="nb">rewrite</span> (whiskerscommutes V).
+    - <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (bifunctor_rightid V).
+    - <span class="nb">apply</span> (bifunctor_equalwhiskers V).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_lunitor_triangle</span>
+             (<span class="nv">x</span> <span class="nv">y</span> : V)
+    : mon_lassociator (I_{V}) x y · mon_lunitor (x ⊗ y)
+      =
+      mon_lunitor x #⊗ identity y.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (right_whisker_with_lunitor V x y @ _).
+    <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+    <span class="nb">unfold</span> functoronmorphisms1.
+    <span class="nb">refine</span> (!(id_right _) @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> (bifunctor_leftid V).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_linvunitor_triangle</span>
+             (<span class="nv">x</span> <span class="nv">y</span> : V)
+    : mon_linvunitor x #⊗ identity y · mon_lassociator (I_{V}) x y
+      =
+      mon_linvunitor (x ⊗ y).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!(id_right _) @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (!(mon_lunitor_linvunitor _)).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> mon_lunitor_triangle.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+    <span class="nb">rewrite</span> mon_linvunitor_lunitor.
+    <span class="nb">apply</span> tensor_id_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_runitor_triangle</span>
+             (<span class="nv">x</span> <span class="nv">y</span> : V)
+    : mon_rassociator x y (I_{V}) · mon_runitor (x ⊗ y)
+      =
+      identity x #⊗ mon_runitor y.
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (!(left_whisker_with_runitor V x y)).
+    }
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> mon_rassociator_lassociator.
+    }
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+    <span class="nb">unfold</span> functoronmorphisms1.
+    <span class="nb">refine</span> (!(id_left _) @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> (bifunctor_rightid V).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_rinvunitor_triangle</span>
+             (<span class="nv">x</span> <span class="nv">y</span> : V)
+    : identity x #⊗ mon_rinvunitor y · mon_rassociator x y (I_{V})
+      =
+      mon_rinvunitor (x ⊗ y).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!(id_right _) @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (!(mon_runitor_rinvunitor _)).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> mon_runitor_triangle.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+    <span class="nb">rewrite</span> mon_rinvunitor_runitor.
+    <span class="nb">apply</span> tensor_id_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_runitor_I_mon_lunitor_I</span>
+    : mon_runitor (I_{V}) = mon_lunitor (I_{V}).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> unitors_coincide_on_unit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_lunitor_I_mon_runitor_I</span>
+    : mon_lunitor (I_{V}) = mon_runitor (I_{V}).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> mon_runitor_I_mon_lunitor_I.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_rinvunitor_I_mon_linvunitor_I</span>
+    : mon_rinvunitor (I_{V}) = mon_linvunitor (I_{V}).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> unitorsinv_coincide_on_unit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_linvunitor_I_mon_rinvunitor_I</span>
+    : mon_linvunitor (I_{V}) = mon_rinvunitor (I_{V}).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> mon_rinvunitor_I_mon_linvunitor_I.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">mon_lassociator_lassociator</span>
+              {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : V}
+    : mon_lassociator (w ⊗ x) y z
+      · mon_lassociator w x (y ⊗ z)
+      =
+      mon_lassociator w x y #⊗ identity z
+      · mon_lassociator w (x ⊗ y) z
+      · identity w #⊗ mon_lassociator x y z.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!(monoidal_pentagonidentity V w x y z) @ _).
+    <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+    <span class="nb">unfold</span> functoronmorphisms1.
+    <span class="nb">rewrite</span> (bifunctor_rightid V).
+    <span class="nb">rewrite</span> (bifunctor_leftid V).
+    <span class="nb">rewrite</span> !id_left, id_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">mon_lassociator_lassociator'</span>
+              {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : V}
+    : mon_lassociator (w ⊗ x) y z
+        · mon_lassociator w x (y ⊗ z)
+        · w ⊗^{V}_{l} mon_rassociator x y z
+      = mon_lassociator w x y ⊗^{V}_{r} z
+      · mon_lassociator w (x ⊗ y) z.
+  <span class="kn">Proof</span>.
+     etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> mon_lassociator_lassociator.
+      }
+      <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_leftwhiskering V).
+      <span class="nb">rewrite</span> ! assoc'.
+      etrans. {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0, tensor_comp_id_l.
+      }
+      etrans. {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> mon_lassociator_rassociator.
+      }
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (when_bifunctor_becomes_rightwhiskering V).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">mon_rassociator_rassociator</span>
+              {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : V}
+    : mon_rassociator w x (y ⊗ z)
+      · mon_rassociator (w ⊗ x) y z
+      =
+      identity w #⊗ mon_rassociator x y z
+      · mon_rassociator w (x ⊗ y) z
+      · mon_rassociator w x y #⊗ identity z.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!(monoidal_pentagon_identity_inv V w x y z) @ _).
+    <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+    <span class="nb">unfold</span> functoronmorphisms1.
+    <span class="nb">rewrite</span> (bifunctor_rightid V).
+    <span class="nb">rewrite</span> (bifunctor_leftid V).
+    <span class="nb">rewrite</span> !id_left, id_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">z_iso_from_mon_lunitor</span> (<span class="nv">x</span> : V) : 
+    z_iso (I_{V} ⊗ x) x.
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    + <span class="nb">apply</span> mon_lunitor.
+    + <span class="nb">apply</span> mon_linvunitor.
+    + <span class="nb">split</span>.
+      * <span class="nb">apply</span> mon_lunitor_linvunitor.
+      * <span class="nb">apply</span> mon_linvunitor_lunitor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">z_iso_from_mon_runitor</span> (<span class="nv">x</span> : V) : 
+    z_iso (x ⊗ I_{V}) x.
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    + <span class="nb">apply</span> mon_runitor.
+    + <span class="nb">apply</span> mon_rinvunitor.
+    + <span class="nb">split</span>.
+      * <span class="nb">apply</span> mon_runitor_rinvunitor.
+      * <span class="nb">apply</span> mon_rinvunitor_runitor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">z_iso_from_mon_lassociator</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : V) : z_iso (x ⊗ y ⊗ z) (x ⊗ (y ⊗ z)).
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    - <span class="nb">apply</span> mon_lassociator.
+    - <span class="nb">apply</span> mon_rassociator.
+    - <span class="nb">split</span>.
+      * <span class="nb">apply</span> mon_lassociator_rassociator.    
+      * <span class="nb">apply</span> mon_rassociator_lassociator.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">z_iso_from_mon_rassociator</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : V) : z_iso (x ⊗ (y ⊗ z)) (x ⊗ y ⊗ z)
+    :=  z_iso_inv (z_iso_from_mon_lassociator x y z).
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_left_tensor_data</span>
+             (<span class="nv">x</span> : V)
+    : functor_data V V.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>, x ⊗ y).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">f</span>, identity x #⊗ f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_functor_monoidal_left_tensor</span>
+              (<span class="nv">x</span> : V)
+    : is_functor (monoidal_left_tensor_data x).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> y ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> tensor_id_id.
+    - <span class="nb">intros</span> y₁ y₂ y₃ f g ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> tensor_comp_id_l.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_left_tensor</span>
+             (<span class="nv">x</span> : V)
+    : V ⟶ V.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> (monoidal_left_tensor_data x).
+    - <span class="bp">exact</span> (is_functor_monoidal_left_tensor x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_right_tensor_data</span>
+             (<span class="nv">y</span> : V)
+    : functor_data V V.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, x ⊗ y).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">f</span>, f #⊗ identity y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_functor_monoidal_right_tensor</span>
+              (<span class="nv">y</span> : V)
+    : is_functor (monoidal_right_tensor_data y).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> tensor_id_id.
+    - <span class="nb">intros</span> x₁ x₂ x₃ f g ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> tensor_comp_id_r.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_right_tensor</span>
+             (<span class="nv">y</span> : V)
+    : V ⟶ V.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> (monoidal_right_tensor_data y).
+    - <span class="bp">exact</span> (is_functor_monoidal_right_tensor y).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">MonoidalCatAccessors</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_cat_tensor_data</span>
+           (<span class="nv">V</span> : monoidal_cat)
+  : functor_data (category_binproduct V V) V.
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, pr1 x ⊗ pr2 x).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, pr1 f #⊗ pr2 f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_functor_monoidal_cat_tensor</span>
+            (<span class="nv">V</span> : monoidal_cat)
+  : is_functor (monoidal_cat_tensor_data V).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> tensor_id_id.
+  - <span class="nb">intros</span> x y z f g ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> tensor_comp_mor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_cat_tensor</span>
+           (<span class="nv">V</span> : monoidal_cat)
+  : category_binproduct V V ⟶ V.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - <span class="bp">exact</span> (monoidal_cat_tensor_data V).
+  - <span class="bp">exact</span> (is_functor_monoidal_cat_tensor V).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">tensor_is_z_iso</span>
+            {<span class="nv">C</span> : monoidal_cat}
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            {<span class="nv">f</span> : x₁ --&gt; x₂}
+            {<span class="nv">g</span> : y₁ --&gt; y₂}
+            (<span class="nv">Hf</span> : is_z_isomorphism f)
+            (<span class="nv">Hg</span> : is_z_isomorphism g)
+  : is_z_isomorphism (f #⊗ g).
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (fiso := (f ,, Hf) : z_iso _ _).
+  <span class="nb">pose</span> (giso := (g ,, Hg) : z_iso _ _).
+  use make_is_z_isomorphism.
+  - <span class="bp">exact</span> (inv_from_z_iso fiso #⊗ inv_from_z_iso giso).
+  - <span class="kp">abstract</span>
+      (<span class="nb">split</span> ; <span class="nb">rewrite</span> &lt;- tensor_comp_mor ; <span class="nb">rewrite</span> &lt;- tensor_id_id ;
+       [ <span class="nb">rewrite</span> &lt;- (z_iso_inv_after_z_iso fiso), &lt;- (z_iso_inv_after_z_iso giso)
+       | <span class="nb">rewrite</span> &lt;- (z_iso_after_z_iso_inv fiso), &lt;- (z_iso_after_z_iso_inv giso) ] ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Categories.v</tt>, line 33)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; git log -- UniMath/CategoryTheory/Monoidal/MonoidalCategoriesWhiskered.v
+  &gt;
+  &gt;  ***************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Notations.
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

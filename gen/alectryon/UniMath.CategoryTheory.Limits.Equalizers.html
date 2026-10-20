@@ -1,0 +1,712 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Equalizers.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">Direct implementation of equalizers together with:</span>
+
+<span class="sd">- Definition</span>
+<span class="sd">- Proof that the equalizer arrow is monic ([EqualizerArrowisMonic])</span>
+<span class="sd">- Proof that the equalizer arrow of equal morphism</span>
+<span class="sd">  is an isomorphism ([z_iso_Equalizer_of_same_map])</span>
+<span class="sd">- Alternative universal property</span>
+
+<span class="sd">Written by Tomi Pannila</span>
+<span class="sd">Extended by Langston Barrett (Nov 2018)</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
+
+<span class="sd">(** ** Definition *)</span>
+<span class="kn">Section</span> <span class="nf">def_equalizers</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+  <span class="sd">(** Definition and construction of isEqualizer. *)</span>
+  <span class="kn">Definition</span> <span class="nf">isEqualizer</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z) (<span class="nv">e</span> : x --&gt; y)
+             (<span class="nv">H</span> : e · f = e · g) : UU :=
+    ∏ (w : C) (h : w --&gt; y) (H : h · f = h · g),
+      <span class="k">∃</span>! φ : w --&gt; x, φ · e = h.
+
+  <span class="kn">Definition</span> <span class="nf">make_isEqualizer</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z) (<span class="nv">e</span> : x --&gt; y)
+             (<span class="nv">H</span> : e · f = e · g) :
+    (∏ (w : C) (h : w --&gt; y) (H' : h · f = h · g),
+        <span class="k">∃</span>! ψ : w --&gt; x, ψ · e = h) -&gt; isEqualizer f g e H.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X. <span class="nb">unfold</span> isEqualizer. <span class="bp">exact</span> X.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_isEqualizer</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z) (<span class="nv">e</span> : x --&gt; y)
+        (<span class="nv">H</span> : e · f = e · g) :
+    isaprop (isEqualizer f g e H).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isapropiscontr.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isEqualizer_path</span> {<span class="nv">hs</span> : has_homsets C} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} {<span class="nv">e</span> : x --&gt; y}
+        {<span class="nv">H</span> <span class="nv">H'</span> : e · f = e · g} (<span class="nv">iC</span> : isEqualizer f g e H) :
+    isEqualizer f g e H'.
+  <span class="kn">Proof</span>.
+    use make_isEqualizer.
+    <span class="nb">intros</span> w0 h H'0.
+    use unique_exists.
+    - <span class="bp">exact</span> (pr1 (pr1 (iC w0 h H'0))).
+    - <span class="bp">exact</span> (pr2 (pr1 (iC w0 h H'0))).
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+    - <span class="nb">intros</span> y0 X. <span class="bp">exact</span> (base_paths _ _ (pr2 (iC w0 h H'0) (tpair _ y0 X))).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Proves that the arrow to the equalizer object with the right</span>
+<span class="sd">    commutativity property is unique. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">isEqualizerInUnique</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z) (<span class="nv">e</span> : x --&gt; y)
+        (<span class="nv">H</span> : e · f = e · g) (<span class="nv">E</span> : isEqualizer f g e H)
+        (<span class="nv">w</span> : C) (<span class="nv">h</span> : w --&gt; y) (<span class="nv">H'</span> : h · f = h · g)
+        (<span class="nv">φ</span> : w --&gt; x) (<span class="nv">H''</span> : φ · e = h) :
+    φ = (pr1 (pr1 (E w h H'))).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (T := tpair (<span class="k">fun</span> <span class="nv">ψ</span> : w --&gt; x =&gt; ψ · e = h) φ H'').
+    <span class="nb">set</span> (T' := pr2 (E w h H') T).
+    <span class="nb">apply</span> (base_paths _ _ T').
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Definition and construction of equalizers. *)</span>
+  <span class="kn">Definition</span> <span class="nf">Equalizer</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z) : UU :=
+    ∑ e : (∑ w : C, w --&gt; y),
+          (∑ H : (pr2 e) · f = (pr2 e) · g, isEqualizer f g (pr2 e) H).
+
+  <span class="kn">Definition</span> <span class="nf">make_Equalizer</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z) (<span class="nv">e</span> : x --&gt; y)
+             (<span class="nv">H</span> : e · f = e · g) (<span class="nv">isE</span> : isEqualizer f g e H) :
+    Equalizer f g.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - use tpair.
+      + <span class="nb">apply</span> x.
+      + <span class="nb">apply</span> e.
+    - <span class="nb">simpl</span>. <span class="bp">exact</span> (tpair _ H isE).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Equalizers in precategories. *)</span>
+  <span class="kn">Definition</span> <span class="nf">Equalizers</span> : UU := ∏ (y z : C) (f g : y --&gt; z), Equalizer f g.
+  <span class="kn">Definition</span> <span class="nf">hasEqualizers</span> : UU := ∏ (y z : C) (f g : y --&gt; z),
+      ishinh (Equalizer f g).
+
+  <span class="sd">(** Returns the equalizer object. *)</span>
+  <span class="kn">Definition</span> <span class="nf">EqualizerObject</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} (<span class="nv">E</span> : Equalizer f g) :
+    C := pr1 (pr1 E).
+  <span class="kn">Coercion</span> <span class="nf">EqualizerObject</span> : Equalizer &gt;-&gt; ob.
+
+  <span class="sd">(** Returns the equalizer arrow. *)</span>
+  <span class="kn">Definition</span> <span class="nf">EqualizerArrow</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} (<span class="nv">E</span> : Equalizer f g) :
+    C⟦E, y⟧ := pr2 (pr1 E).
+
+  <span class="sd">(** The equality on morphisms that equalizers must satisfy. *)</span>
+  <span class="kn">Definition</span> <span class="nf">EqualizerEqAr</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} (<span class="nv">E</span> : Equalizer f g) :
+    EqualizerArrow E · f = EqualizerArrow E · g := pr1 (pr2 E).
+
+  <span class="sd">(** Returns the property isEqualizer from Equalizer. *)</span>
+  <span class="kn">Definition</span> <span class="nf">isEqualizer_Equalizer</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z}
+             (<span class="nv">E</span> : Equalizer f g) :
+    isEqualizer f g (EqualizerArrow E) (EqualizerEqAr E) := pr2 (pr2 E).
+
+  <span class="sd">(** Every morphism which satisfy the equalizer equality on morphism factors</span>
+<span class="sd">    uniquely through the EqualizerArrow. *)</span>
+  <span class="kn">Definition</span> <span class="nf">EqualizerIn</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} (<span class="nv">E</span> : Equalizer f g)
+             (<span class="nv">w</span> : C) (<span class="nv">h</span> : w --&gt; y) (<span class="nv">H</span> : h · f = h · g) :
+    C⟦w, E⟧ := pr1 (pr1 (isEqualizer_Equalizer E w h H)).
+
+  <span class="kn">Lemma</span> <span class="nf">EqualizerCommutes</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} (<span class="nv">E</span> : Equalizer f g)
+        (<span class="nv">w</span> : C) (<span class="nv">h</span> : w --&gt; y) (<span class="nv">H</span> : h · f = h · g) :
+    (EqualizerIn E w h H) · (EqualizerArrow E) = h.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 (pr1 ((isEqualizer_Equalizer E) w h H))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isEqualizerInsEq</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span>: C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} {<span class="nv">e</span> : x --&gt; y}
+        {<span class="nv">H</span> : e · f = e · g} (<span class="nv">E</span> : isEqualizer f g e H)
+        {<span class="nv">w</span> : C} (<span class="nv">φ1</span> <span class="nv">φ2</span>: w --&gt; x) (<span class="nv">H'</span> : φ1 · e = φ2 · e) : φ1 = φ2.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (H'1 : φ1 · e · f = φ1 · e · g).
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> H. <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> idpath.
+    <span class="nb">set</span> (E' := make_Equalizer _ _ _ _ E).
+    <span class="nb">set</span> (E'ar := EqualizerIn E' w (φ1 · e) H'1).
+    intermediate_path E'ar.
+    <span class="nb">apply</span> isEqualizerInUnique. <span class="nb">apply</span> idpath.
+    <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> isEqualizerInUnique. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> H'.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">EqualizerInsEq</span> {<span class="nv">y</span> <span class="nv">z</span>: C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} (<span class="nv">E</span> : Equalizer f g)
+        {<span class="nv">w</span> : C} (<span class="nv">φ1</span> <span class="nv">φ2</span>: C⟦w, E⟧)
+        (<span class="nv">H'</span> : φ1 · (EqualizerArrow E) = φ2 · (EqualizerArrow E)) : φ1 = φ2.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (isEqualizerInsEq (isEqualizer_Equalizer E) _ _ H').
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">EqualizerInComp</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} (<span class="nv">E</span> : Equalizer f g) {<span class="nv">x</span> <span class="nv">x'</span> : C}
+        (<span class="nv">h1</span> : x --&gt; x') (<span class="nv">h2</span> : x' --&gt; y)
+        (<span class="nv">H1</span> : h1 · h2 · f = h1 · h2 · g) (<span class="nv">H2</span> : h2 · f = h2 · g) :
+    EqualizerIn E x (h1 · h2) H1 = h1 · EqualizerIn E x' h2 H2.
+  <span class="kn">Proof</span>.
+    use EqualizerInsEq. <span class="nb">rewrite</span> EqualizerCommutes.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> EqualizerCommutes.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Morphisms between equalizer objects with the right commutativity</span>
+<span class="sd">    equalities. *)</span>
+  <span class="kn">Definition</span> <span class="nf">identity_is_EqualizerIn</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z}
+             (<span class="nv">E</span> : Equalizer f g) :
+    ∑ φ : C⟦E, E⟧, φ · (EqualizerArrow E) = (EqualizerArrow E).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">E</span>).
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">EqualizerEndo_is_identity</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} {<span class="nv">E</span> : Equalizer f g}
+        (<span class="nv">φ</span> : C⟦E, E⟧) (<span class="nv">H</span> : φ · (EqualizerArrow E) = EqualizerArrow E) :
+    identity E = φ.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (H1 := tpair ((<span class="k">fun</span> <span class="nv">φ'</span> : C⟦E, E⟧ =&gt; φ' · _ = _)) φ H).
+    <span class="nb">assert</span> (H2 : identity_is_EqualizerIn E = H1).
+    - <span class="nb">apply</span> proofirrelevancecontr.
+      <span class="nb">apply</span> (isEqualizer_Equalizer E).
+      <span class="nb">apply</span> EqualizerEqAr.
+    - <span class="nb">apply</span> (base_paths _ _ H2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_Equalizer_to_Equalizer</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z}
+             (<span class="nv">E</span> <span class="nv">E'</span>: Equalizer f g) : C⟦E, E'⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (EqualizerIn E' E (EqualizerArrow E)).
+    <span class="nb">apply</span> EqualizerEqAr.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">are_inverses_from_Equalizer_to_Equalizer</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z}
+        {<span class="nv">E</span> <span class="nv">E'</span>: Equalizer f g} :
+    is_inverse_in_precat (from_Equalizer_to_Equalizer E E')
+                         (from_Equalizer_to_Equalizer E' E).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">apply</span> pathsinv0; use EqualizerEndo_is_identity;
+    <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">unfold</span> from_Equalizer_to_Equalizer;
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> EqualizerCommutes; <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isiso_from_Equalizer_to_Equalizer</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z}
+        (<span class="nv">E</span> <span class="nv">E'</span> : Equalizer f g) :
+    is_iso (from_Equalizer_to_Equalizer E E').
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (is_iso_qinv _ (from_Equalizer_to_Equalizer E' E)).
+    <span class="nb">apply</span> are_inverses_from_Equalizer_to_Equalizer.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_from_Equalizer_to_Equalizer</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z}
+             (<span class="nv">E</span> <span class="nv">E'</span> : Equalizer f g) : iso E E' :=
+    tpair _ _ (isiso_from_Equalizer_to_Equalizer E E').
+
+  <span class="kn">Lemma</span> <span class="nf">z_iso_from_Equalizer_to_Equalizer_inverses</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z}
+        (<span class="nv">E</span> <span class="nv">E'</span> : Equalizer f g) :
+    is_inverse_in_precat (from_Equalizer_to_Equalizer E E') (from_Equalizer_to_Equalizer E' E).
+  <span class="kn">Proof</span>.
+    use make_is_inverse_in_precat.
+    - <span class="nb">apply</span> pathsinv0. use EqualizerEndo_is_identity.
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">unfold</span> from_Equalizer_to_Equalizer. <span class="nb">rewrite</span> EqualizerCommutes.
+      <span class="nb">rewrite</span> EqualizerCommutes. <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> pathsinv0. use EqualizerEndo_is_identity.
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">unfold</span> from_Equalizer_to_Equalizer. <span class="nb">rewrite</span> EqualizerCommutes.
+      <span class="nb">rewrite</span> EqualizerCommutes. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">z_iso_from_Equalizer_to_Equalizer</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z}
+             (<span class="nv">E</span> <span class="nv">E'</span> : Equalizer f g) : z_iso E E'.
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    - <span class="bp">exact</span> (from_Equalizer_to_Equalizer E E').
+    - <span class="bp">exact</span> (from_Equalizer_to_Equalizer E' E).
+    - <span class="bp">exact</span> (z_iso_from_Equalizer_to_Equalizer_inverses E E').
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** ** Proof that the equalizer arrow is monic ([EqualizerArrowisMonic]) *)</span>
+
+  <span class="sd">(** We prove that EqualizerArrow is a monic. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">EqualizerArrowisMonic</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} (<span class="nv">E</span> : Equalizer f g ) :
+    isMonic (EqualizerArrow E).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_isMonic.
+    <span class="nb">intros</span> z0 g0 h X.
+    <span class="nb">apply</span> (EqualizerInsEq E).
+    <span class="nb">apply</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">EqualizerArrowMonic</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} (<span class="nv">E</span> : Equalizer f g ) :
+    Monic _ E y.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (make_Monic C (EqualizerArrow E) (EqualizerArrowisMonic E)).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(*Definition of the trivial equalizer of f and f*)</span>
+  <span class="kn">Definition</span> <span class="nf">identity_asEqualizer</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : y --&gt; z) : (Equalizer f f).
+  <span class="kn">Proof</span>.
+    use make_Equalizer.
+    + <span class="bp">exact</span> y.
+    + <span class="bp">exact</span> (identity y).
+    + <span class="nb">apply</span> idpath.
+    + use make_isEqualizer.
+      <span class="nb">intros</span> x h p.
+      use unique_exists.
+      - <span class="bp">exact</span> h.
+      - use id_right.
+      - <span class="nb">intro</span>.
+        use homset_property.
+      - <span class="nb">intros</span> t t_tri.
+        <span class="nb">rewrite</span> &lt;-(id_right t).
+        <span class="bp">exact</span> t_tri.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* The equalizer is a z-isomorphism if f = g *)</span>
+  <span class="kn">Lemma</span> <span class="nf">z_iso_Equalizer_of_same_map</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} (<span class="nv">E</span> : Equalizer f g) (<span class="nv">p</span>:f = g) : is_z_isomorphism (EqualizerArrow E).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    use (make_is_z_isomorphism _ (from_Equalizer_to_Equalizer (identity_asEqualizer f) E)).
+    use z_iso_from_Equalizer_to_Equalizer_inverses.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">def_equalizers</span>.
+
+<span class="sd">(** Make the C not implicit for Equalizers *)</span>
+<span class="kn">Arguments</span> Equalizers : <span class="kn">clear implicits</span>.
+
+<span class="sd">(** ** Alternative universal property *)</span>
+
+<span class="kn">Section</span> <span class="nf">Equalizers'</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} {<span class="nv">c</span> <span class="nv">d</span> : ob C} (<span class="nv">f</span> <span class="nv">g</span> : C⟦c, d⟧).
+  <span class="kn">Context</span> (<span class="nv">E</span> : ob C) (<span class="nv">h</span> : E --&gt; c) (<span class="nv">H</span> : h · f = h · g).
+
+  <span class="sd">(** A map into an equalizer can be turned into a map into [c]</span>
+<span class="sd">      such that its composites with [f] and [g] are equal. *)</span>
+  <span class="kn">Definition</span> <span class="nf">postcomp_with_equalizer_mor</span> (<span class="nv">a</span> : ob C) (<span class="nv">j</span> : a --&gt; E) :
+    ∑ (k : a --&gt; c), (k · f = k · g).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">j</span> · h).
+    <span class="nb">refine</span> (!assoc _ _ _ @ _).
+    <span class="nb">refine</span> (_ @ assoc _ _ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isEqualizer'</span> : UU :=
+    ∏ (a : ob C), isweq (postcomp_with_equalizer_mor a).
+
+  <span class="kn">Definition</span> <span class="nf">isEqualizer'_weq</span> (<span class="nv">isc</span> : isEqualizer') :
+    ∏ a, (a --&gt; E) ≃ (∑ k : a --&gt; c, (k · f = k · g)) :=
+    <span class="k">λ</span> <span class="nv">a</span>, make_weq (postcomp_with_equalizer_mor a) (isc a).
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_isEqualizer'</span> : isaprop isEqualizer'.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> isEqualizer'.
+    <span class="nb">apply</span> impred; <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropisweq.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Can [isEqualizer'_to_isEqualizer] be generalized to arbitrary precategories?</span>
+
+<span class="sd">      Compare to [isBinProduct'_to_isBinProduct].</span>
+<span class="sd">   *)</span>
+  <span class="kn">Lemma</span> <span class="nf">isEqualizer'_to_isEqualizer</span> :
+    isEqualizer' -&gt; isEqualizer f g h H.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> isEq' E' h' H'.
+    <span class="nb">apply</span> (@iscontrweqf (hfiber (isEqualizer'_weq isEq' _) (h',, H'))).
+    - <span class="nb">cbn</span>; <span class="nb">unfold</span> hfiber.
+      use weqfibtototal; <span class="nb">intros</span> j; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> postcomp_with_equalizer_mor.
+      <span class="nb">apply</span> subtypeInjectivity.
+      <span class="nb">intro</span>; <span class="nb">apply</span> C.
+    - <span class="nb">apply</span> weqproperty.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isEqualizer_to_isEqualizer'</span> :
+    isEqualizer f g h H -&gt; isEqualizer'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> isEq E'.
+    <span class="nb">unfold</span> postcomp_with_equalizer_mor.
+    <span class="nb">unfold</span> isweq, hfiber.
+    <span class="nb">intros</span> hH'.
+    <span class="nb">apply</span> (@iscontrweqf (∑ u : C ⟦ E', E ⟧, u · h = pr1 hH')).
+    - use weqfibtototal; <span class="nb">intro</span>; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> invweq.
+      use subtypeInjectivity.
+      <span class="nb">intro</span>; <span class="nb">apply</span> C.
+    - <span class="bp">exact</span> (isEq E' (pr1 hH') (pr2 hH')).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isEqualizer'_weq_isEqualizer</span> :
+    isEqualizer f g h H ≃ isEqualizer'.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqimplimpl.
+    - <span class="nb">apply</span> isEqualizer_to_isEqualizer'; <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> isEqualizer'_to_isEqualizer; <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> isaprop_isEqualizer.
+    - <span class="nb">apply</span> isaprop_isEqualizer'.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Equalizers'</span>.
+
+<span class="kn">Definition</span> <span class="nf">isEqualizer_eq</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">e</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">f'</span> <span class="nv">g'</span> : x --&gt; y}
+           {<span class="nv">i</span> <span class="nv">i'</span> : e --&gt; x}
+           (<span class="nv">p</span> : i · f = i · g)
+           (<span class="nv">q</span> : i' · f' = i' · g')
+           (<span class="nv">s₁</span> : f = f')
+           (<span class="nv">s₂</span> : g = g')
+           (<span class="nv">s₃</span> : i = i')
+           (<span class="nv">He</span> : isEqualizer f g i p)
+  : isEqualizer f' g' i' q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w h r.
+  use iscontraprop1.
+  - <span class="kp">abstract</span>
+      (<span class="nb">induction</span> s₁, s₂, s₃ ;
+       <span class="nb">apply</span> (isapropifcontr (He w h r))).
+  - <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="nb">refine</span> (EqualizerIn (make_Equalizer _ _ _ _ He) _ h _).
+      <span class="kp">abstract</span>
+        (<span class="nb">induction</span> s₁, s₂ ;
+         <span class="bp">exact</span> r).
+    + <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">induction</span> s₁, s₂, s₃ ;
+         <span class="nb">apply</span> (EqualizerCommutes (make_Equalizer _ _ _ _ He))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> Equalizers are closed under iso</span>
+<span class="sd"> *)</span>
+<span class="kn">Lemma</span> <span class="nf">isEqualizer_z_iso</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">e₁</span> <span class="nv">e₂</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           {<span class="nv">p₁</span> : e₁ --&gt; x}
+           {<span class="nv">q₁</span> : p₁ · f = p₁ · g}
+           {<span class="nv">p₂</span> : e₂ --&gt; x}
+           {<span class="nv">q₂</span> : p₂ · f = p₂ · g}
+           (<span class="nv">H</span> : isEqualizer f g p₁ q₁)
+           (<span class="nv">h</span> : z_iso e₂ e₁)
+           (<span class="nv">r</span> : p₂ = h · p₁)
+  : isEqualizer f g p₂ q₂.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a k s.
+  use iscontraprop1.
+  - <span class="kp">abstract</span>
+      (use invproofirrelevance ;
+       <span class="nb">intros</span> φ₁ φ₂ ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ] ;
+       use (cancel_z_iso _ _ h) ;
+       use (isEqualizerInsEq H) ;
+       <span class="nb">rewrite</span> !assoc' ;
+       <span class="nb">rewrite</span> &lt;- !r ;
+       <span class="bp">exact</span> (pr2 φ₁ @ !(pr2 φ₂))).
+  - <span class="nb">refine</span> (EqualizerIn (make_Equalizer _ _ _ _ H) _ k s · inv_from_z_iso h ,, _).
+    <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> r ;
+       <span class="nb">rewrite</span> !assoc' ;
+       <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)) ;
+       <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · (z · _)) (z_iso_after_z_iso_inv h) @ _) ;
+       <span class="nb">rewrite</span> id_left ;
+       <span class="nb">apply</span> (EqualizerCommutes (make_Equalizer _ _ _ _ H))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Equalizer_eq</span>
+  {<span class="nv">C</span> : category}
+  (<span class="nv">E</span> : Equalizers C)
+  {<span class="nv">x</span> <span class="nv">x'</span> <span class="nv">y</span> <span class="nv">y'</span> : ob C}
+  {<span class="nv">f</span> <span class="nv">g</span> : C⟦x, y⟧}
+  {<span class="nv">f'</span> <span class="nv">g'</span> : C⟦x', y'⟧}
+  (<span class="nv">i_x</span> : x' = x) (<span class="nv">i_y</span> : y = y')
+  (<span class="nv">p1</span> : idtoiso i_x · f · idtoiso i_y = f')
+  (<span class="nv">p2</span> : idtoiso i_x · g · idtoiso i_y = g')
+  : z_iso (E _ _ f g) (E _ _ f' g').
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> i_x, i_y, p1, p2.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> ! id_left, ! id_right.
+  <span class="nb">apply</span> identity_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">IsEqualizerUnderIso</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+  {<span class="nv">a</span> <span class="nv">a'</span> <span class="nv">x</span> <span class="nv">x'</span> <span class="nv">y</span> <span class="nv">y'</span> : ob C}
+  {<span class="nv">e</span> : C⟦a, x⟧} {<span class="nv">f</span> <span class="nv">g</span> : C⟦x, y⟧} {<span class="nv">p</span> : e · f = e · g}
+  {<span class="nv">e'</span> : C⟦a', x'⟧} {<span class="nv">f'</span> <span class="nv">g'</span> : C⟦x', y'⟧}
+  (<span class="nv">p'</span> : e' · f' = e' · g')
+  (<span class="nv">i_a</span> : z_iso a a') (<span class="nv">i_x</span> : z_iso x x') (<span class="nv">i_y</span> : z_iso y y')
+  (<span class="nv">pd_e</span> : e = i_a · e' · pr1 (pr2 i_x))
+  (<span class="nv">pd_f</span> : f' · pr1 (pr2 i_y) = pr1 (pr2 i_x) · f)
+  (<span class="nv">pd_g</span> : g' · pr1 (pr2 i_y) = pr1 (pr2 i_x) · g)
+  (<span class="nv">E</span> : isEqualizer f g e p).
+
+  <span class="kn">Section</span> <span class="nf">Aux</span>.
+
+    <span class="kn">Context</span> {<span class="nv">w</span> : C} {<span class="nv">h</span> : C⟦w, x'⟧} (<span class="nv">q</span> : h · f' = h · g').
+
+    <span class="kn">Lemma</span> <span class="nf">t</span> : h · pr1 (pr2 i_x) · f = h · pr1 (pr2 i_x) · g.
+    <span class="kn">Proof</span>.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc'.
+      <span class="nb">rewrite</span> &lt;- pd_f.
+      <span class="nb">rewrite</span> &lt;- pd_g.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> q.
+      <span class="nb">apply</span> assoc'.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Let</span> <span class="nf">E'</span> := E w (h · pr1 (pr2 i_x)) t.
+
+    <span class="kn">Lemma</span> <span class="nf">pfq</span> :  pr1 (pr1 E') · i_a · e' = h.
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (pr2 (pr1 E')) <span class="k">as</span> W.
+      <span class="nb">simpl</span> <span class="k">in</span> W.
+      <span class="nb">rewrite</span> pd_e <span class="k">in</span> W.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc <span class="k">in</span> W.
+      <span class="nb">pose</span> (z_iso_inv_to_right _ _ _ _ _ _ W) <span class="k">as</span> V.
+      <span class="nb">refine</span> (_ @ V).
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (! id_right _ @ _).
+      <span class="nb">apply</span> maponpaths, pathsinv0.
+      <span class="nb">apply</span> (pr2 (pr2 (pr2 i_x))).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">isEqualizerUnderIso_uvp_existence</span>
+      : ∑ φ : C ⟦ w, a' ⟧, φ · e' = h
+      := pr1 (pr1 E') · i_a ,, pfq.
+
+    <span class="kn">Lemma</span> <span class="nf">isEqualizerUnderIso_uvp_uniqueness</span>
+      : isaprop (∑ φ : C ⟦ w, a' ⟧, φ · e' = h).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ].
+      use (cancel_z_iso _ _ (z_iso_inv i_a)).
+      use (isEqualizerInsEq E).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> ! pd_e.
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> ! assoc.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (_ @ idpath (identity _)).
+        <span class="nb">apply</span> z_iso_after_z_iso_inv.
+      }
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> (pr2 φ₁).
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> ! assoc.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (idpath (identity _) @ _).
+        <span class="nb">apply</span> pathsinv0, z_iso_after_z_iso_inv.
+      }
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> PartA.maponpaths_2.
+      <span class="bp">exact</span> (!(pr2 φ₂)).
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">Aux</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isEqualizerUnderIso</span> : isEqualizer f' g' e' p'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w h q.
+    use iscontraprop1.
+    - <span class="nb">apply</span> isEqualizerUnderIso_uvp_uniqueness.
+    - <span class="bp">exact</span> (isEqualizerUnderIso_uvp_existence q).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">IsEqualizerUnderIso</span>.
+
+<span class="kn">Section</span> <span class="nf">EqualizerOfIso</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+    {<span class="nv">x'</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">y'</span> : ob C}
+    (<span class="nv">f</span> <span class="nv">g</span> : C⟦x, y⟧)
+    (<span class="nv">i</span> : z_iso x' x)
+    (<span class="nv">j</span> : z_iso y y')
+    (<span class="nv">E</span> : Equalizer (i · f · j) (i · g · j)).
+
+  <span class="kn">Lemma</span> <span class="nf">EqualizerOfIso_diagram_proof</span>
+    : EqualizerArrow E · i · f = EqualizerArrow E · i · g.
+  <span class="kn">Proof</span>.
+    use (cancel_z_iso _ _ j) ;
+      <span class="nb">refine</span> (_ @ EqualizerEqAr E @ _) ;
+      [ <span class="nb">refine</span> (assoc' _ _ _ @ _) ;
+        <span class="nb">refine</span> (assoc' _ _ _ @ _) ;
+        <span class="nb">apply</span> maponpaths ;
+        <span class="nb">apply</span> assoc
+      | <span class="nb">refine</span> (_ @ assoc _ _ _);
+        <span class="nb">refine</span> (_ @ assoc _ _ _);
+        <span class="nb">apply</span> maponpaths;
+        <span class="nb">apply</span> assoc'].
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">EqualizerOfIso_diagram_proof_pd_e</span>
+    : pr21 E = identity_z_iso E · (EqualizerArrow E · i) · pr12 i.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0 ;
+      <span class="nb">refine</span> (assoc' _ _ _ @ _);
+      <span class="nb">refine</span> (id_left _ @ _);
+      <span class="nb">refine</span> (_ @ id_right _);
+      <span class="nb">refine</span> (assoc' _ _ _ @ _);
+      <span class="nb">apply</span> maponpaths;
+      <span class="nb">apply</span> z_iso_inv_after_z_iso.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span>  <span class="nf">EqualizerOfIso_diagram_proof_pd_f</span>
+    : f · pr12 (z_iso_inv j) = pr12 i · (i · f · j).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+    etrans. {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (pr2 i).
+    }
+    <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span>  <span class="nf">EqualizerOfIso_diagram_proof_pd_g</span>
+    : g · pr12 (z_iso_inv j) = pr12 i · (i · g · j).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+    etrans. {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (pr2 i).
+    }
+    <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">EqualizerOfIso</span> : Equalizer f g.
+  <span class="kn">Proof</span>.
+    use (make_Equalizer f g (EqualizerArrow E · i)).
+    - <span class="nb">apply</span> EqualizerOfIso_diagram_proof.
+    - use (isEqualizerUnderIso _ _ _ _ _ _ _ (pr2 (pr2 E))).
+      + <span class="nb">apply</span> identity_z_iso.
+      + <span class="bp">exact</span> i.
+      + <span class="bp">exact</span> (z_iso_inv j).
+      + <span class="nb">apply</span> EqualizerOfIso_diagram_proof_pd_e.
+      + <span class="nb">apply</span> EqualizerOfIso_diagram_proof_pd_f.
+      + <span class="nb">apply</span> EqualizerOfIso_diagram_proof_pd_g.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">EqualizerOfIso</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> In univalent categories, equalizers are unique up to equality</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">isaprop_Equalizer</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">HC</span> : is_univalent C)
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+  : isaprop (Equalizer f g).
+<span class="kn">Proof</span>.
+  use invproofirrelevance.
+  <span class="nb">intros</span> φ₁ φ₂.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, (_ ,, _))).
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">simpl</span>.
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> isapropiscontr.
+  }
+  use total2_paths_f.
+  - use (isotoid _ HC).
+    use z_iso_from_Equalizer_to_Equalizer.
+  - <span class="nb">rewrite</span> transportf_isotoid ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> EqualizerCommutes.
+<span class="kn">Qed</span>.
+
+<span class="c">(* For a section-retraction pair (g, f) between b and a, b is the equalizer of id_a and f · g *)</span>
+<span class="kn">Lemma</span> <span class="nf">retract_is_equalizer</span>
+  {<span class="nv">C</span> : category}
+  {<span class="nv">a</span> <span class="nv">b</span> : C}
+  (<span class="nv">f</span> : retraction b a)
+  : Equalizer (f · retraction_section f) (identity a).
+<span class="kn">Proof</span>.
+  use make_Equalizer.
+  - <span class="bp">exact</span> b.
+  - <span class="bp">exact</span> (retraction_section f).
+  - <span class="kp">abstract</span> (
+      <span class="nb">refine</span> (_ @ !id_right _);
+      <span class="nb">refine</span> (assoc _ _ _ @ _);
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (retraction_is_retraction f) @ _);
+      <span class="nb">apply</span> id_left
+    ).
+  - <span class="nb">apply</span> make_isEqualizer.
+    <span class="nb">intros</span> d f' Hf'.
+    use unique_exists.
+    + <span class="bp">exact</span> (f' · f).
+    + <span class="kp">abstract</span> <span class="bp">exact</span> (assoc' _ _ _ @ Hf' @ id_right _).
+    + <span class="kp">abstract</span> (
+        <span class="nb">intro</span> y;
+        <span class="nb">apply</span> homset_property
+      ).
+    + <span class="kp">abstract</span> (
+        <span class="nb">intros</span> g' Hg';
+        <span class="nb">refine</span> (!id_right _ @ _);
+        <span class="nb">refine</span> (!maponpaths _ (retraction_is_retraction f) @ _);
+        <span class="nb">refine</span> (assoc _ _ _ @ _);
+        <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _));
+        <span class="bp">exact</span> Hg'
+      ).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Equalizers.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Extended by Langston Barrett (Nov 2018)
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

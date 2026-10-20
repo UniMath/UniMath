@@ -1,0 +1,813 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Nat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">  Natural Numbers</span>
+
+<span class="sd">  This file gives further basic results on the natural numbers extending those provided in</span>
+<span class="sd">  [Foundations.NaturalNumbers]:</span>
+
+<span class="sd">  1. Formulation of the recursion property as a unique existence statement for functions on ℕ</span>
+<span class="sd">    [hNatRecursionUniq, hNatRecursion_weq]</span>
+<span class="sd">  2. The recursive definition of the path family over ℕ [nat_discern]</span>
+<span class="sd">  3. Definition and properties of the distance function on ℕ [nat_dist]</span>
+<span class="sd">  4. Miscellaneous arithmetic lemmas</span>
+<span class="sd">  5. Bounded quantification over ℕ, including uniqueness/searchibility of (minimal) witnesses</span>
+<span class="sd">  6. Complete (or strong) induction, where the induction step for N assumes that the property holds</span>
+<span class="sd">      for all n &lt; N [complete_induction]</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Propositions.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> nat.
+
+<span class="kn">Notation</span> <span class="nf">ℕ</span> := nat.
+
+<span class="sd">(** * 1. Formulation of the recursion property as a unique existence statement for functions on ℕ *)</span>
+<span class="kn">Section</span> <span class="nf">Uniqueness</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">nat_recursion_helper_A</span> (<span class="nv">P</span>: nat → <span class="kt">Type</span>) (<span class="nv">p0</span>: P <span class="mi">0</span>) (<span class="nv">IH</span>: ∏ n, P n → P(S n))
+        (<span class="nv">f</span>: ∏ n, P n) :
+    (∏ n, f n = nat_rect P p0 IH n)
+    ≃ (f <span class="mi">0</span> = p0 × ∏ n, f (S n) = IH n (f n)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>. <span class="nb">simple refine</span> (_,, isweq_iso _ _ _ _).
+    { <span class="nb">intros</span> h. <span class="nb">split</span>.
+      { <span class="bp">exact</span> (h <span class="mi">0</span>). } { <span class="nb">intros</span>. <span class="bp">exact</span> (h (S n) @ maponpaths (IH n) (! h n)). } }
+    { <span class="nb">intros</span> [h0 h'] ?. <span class="nb">induction</span> n <span class="k">as</span> [|n' IHn'].
+      { <span class="bp">exact</span> h0. } { <span class="bp">exact</span> (h' n' @ maponpaths (IH n') IHn'). } }
+    { <span class="nb">simpl</span>. <span class="nb">intros</span> h. <span class="nb">apply</span> funextsec; <span class="nb">intros</span> n; <span class="nb">simpl</span>. <span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+      { <span class="nb">simpl</span>. <span class="bp">reflexivity</span>. }
+      { <span class="nb">simpl</span>. <span class="nb">rewrite</span> &lt;- path_assoc. <span class="nb">simple refine</span> (_ @ pathscomp0rid _).
+        <span class="nb">rewrite</span> &lt;- maponpathscomp0. <span class="nb">rewrite</span> IHn. <span class="nb">rewrite</span> pathsinv0l.
+        <span class="nb">simpl</span>. <span class="bp">reflexivity</span>. } }
+    { <span class="nb">intros</span> [h0 h']. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> funextsec; <span class="nb">intro</span> n; <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> &lt;- path_assoc. <span class="nb">rewrite</span> &lt;- maponpathscomp0. <span class="nb">rewrite</span> pathsinv0r.
+      <span class="nb">apply</span> pathscomp0rid. }
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">nat_recursion_helper_B</span> (<span class="nv">P</span>: nat → <span class="kt">Type</span>) (<span class="nv">p0</span>: P <span class="mi">0</span>) (<span class="nv">IH</span>: ∏ n, P n → P(S n))
+        (<span class="nv">f</span>: ∏ n, P n) :
+    (f = nat_rect P p0 IH)
+    ≃ ((f <span class="mi">0</span> = p0) × (∏ n, f (S n) = IH n (f n))).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="bp">exact</span> (weqcomp (weqtoforallpaths _ _ _) (nat_recursion_helper_A _ _ _ _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">nat_recursion_helper_C</span> (<span class="nv">P</span>: nat → <span class="kt">Type</span>) (<span class="nv">p0</span>: P <span class="mi">0</span>) (<span class="nv">IH</span>: ∏ n, P n → P(S n)) :
+    (∑ f: ∏ n, P n, f = nat_rect P p0 IH)
+    ≃ (∑ f: ∏ n, P n, f <span class="mi">0</span> = p0 × ∏ n, f (S n) = IH n (f n)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>. <span class="nb">apply</span> weqfibtototal. <span class="nb">intros</span> f. <span class="nb">apply</span> nat_recursion_helper_B.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">hNatRecursionUniq</span> (<span class="nv">P</span>: nat → <span class="kt">Type</span>) (<span class="nv">p0</span>: P <span class="mi">0</span>) (<span class="nv">IH</span>: ∏ n, P n → P(S n)) :
+    <span class="k">∃</span>! (f: ∏ n, P n), f <span class="mi">0</span>=p0 × ∏ n, f(S n) = IH n (f n).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>. <span class="bp">exact</span> (iscontrweqf (nat_recursion_helper_C _ _ _) (iscontrcoconustot _ _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">nat_recursion_helper_D</span> (<span class="nv">P</span>: nat → <span class="kt">Type</span>) (<span class="nv">p0</span>: P <span class="mi">0</span>) (<span class="nv">IH</span>: ∏ n, P n → P(S n)) :
+     (∑ f: ∏ n, P n, (f <span class="mi">0</span>=p0) × (∏ n, f(S n)=IH n (f n)))
+       ≃
+        (@hfiber
+           (∑ (f: ∏ n, P n), ∏ n, f(S n)=IH n (f n))
+           (P <span class="mi">0</span>)
+           (<span class="k">λ</span> <span class="nv">fh</span>, pr1 fh <span class="mi">0</span>)
+           p0).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>. <span class="nb">simple refine</span> (make_weq _ (isweq_iso _ _ _ _)).
+    { <span class="nb">intros</span> [f [h0 h']]. <span class="bp">exact</span> ((f,,h'),,h0). }
+    { <span class="nb">intros</span> [[f h'] h0]. <span class="bp">exact</span> (f,,(h0,,h')). }
+    { <span class="nb">intros</span> [f [h0 h']]. <span class="bp">reflexivity</span>. }
+    { <span class="nb">intros</span> [[f h'] h0]. <span class="bp">reflexivity</span>. }
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">hNatRecursion_weq</span> (<span class="nv">P</span>: nat → <span class="kt">Type</span>) (<span class="nv">IH</span>: ∏ n, P n → P(S n)) :
+    (∑ (f: ∏ n, P n), ∏ n, f (S n) = IH n (f n)) ≃ P <span class="mi">0</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">f</span>, <span class="nv">pr1</span> <span class="nv">f</span> <span class="mi">0</span>). <span class="nb">intro</span> p0.
+    <span class="nb">apply</span> (iscontrweqf (nat_recursion_helper_D _ _ _)). <span class="nb">apply</span> hNatRecursionUniq.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Uniqueness</span>.
+
+<span class="sd">(** * 2. The recursive definition of the path family over ℕ *)</span>
+<span class="sd">(** The standard recursive definition of a type family equivalent to equality on ℕ — that is, a</span>
+<span class="sd">      code-decode method characterisation of equality on ℕ *)</span>
+
+<span class="kn">Section</span> <span class="nf">NatDiscern</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_discern</span> (<span class="nv">m</span> <span class="nv">n</span>: nat) : UU.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> n.
+  <span class="nb">induction</span> m <span class="k">as</span> [| m IHm];
+    <span class="nb">intro</span> n;
+    <span class="nb">induction</span> n <span class="k">as</span> [| n IHn].
+  - <span class="bp">exact</span> unit.
+  - <span class="bp">exact</span> empty.
+  - <span class="bp">exact</span> empty.
+  - <span class="bp">exact</span> (IHm n).
+<span class="kn">Defined</span>.
+
+<span class="kn">Goal</span> ∏ m n, nat_discern m n → nat_discern (S m) (S n).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ? e.
+  <span class="bp">exact</span> e.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_discern_inj</span> <span class="nv">m</span> <span class="nv">n</span> : nat_discern (S m) (S n) → nat_discern m n.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> e. <span class="nb">induction</span> m.
+  { <span class="nb">induction</span> n. { <span class="bp">exact</span> tt. } { <span class="nb">simpl</span> <span class="k">in</span> e. <span class="bp">exact</span> (fromempty e). } }
+  { <span class="nb">induction</span> n. { <span class="nb">simpl</span> <span class="k">in</span> e. <span class="bp">exact</span> (fromempty e). } { <span class="nb">simpl</span> <span class="k">in</span> e. <span class="bp">exact</span> e. } }
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_discern_isaprop</span> <span class="nv">m</span> <span class="nv">n</span> : isaprop (nat_discern m n).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> n; <span class="nb">induction</span> m <span class="k">as</span> [|m IHm].
+  { <span class="nb">intros</span> n. <span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+    { <span class="nb">apply</span> isapropifcontr. <span class="nb">apply</span> iscontrunit. }
+    { <span class="nb">simpl</span>. <span class="nb">apply</span> isapropempty. } }
+  { <span class="nb">intros</span> n. <span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+    { <span class="nb">simpl</span>. <span class="nb">apply</span> isapropempty. }
+    { <span class="nb">simpl</span>. <span class="nb">apply</span> IHm. } }
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_discern_unit</span> <span class="nv">m</span> : nat_discern m m = unit.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> m <span class="k">as</span> [|m IHm]. { <span class="bp">reflexivity</span>. } { <span class="nb">simpl</span>. <span class="nb">apply</span> IHm. }
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_discern_iscontr</span> <span class="nv">m</span> : iscontr (nat_discern m m).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> iscontraprop1.
+  { <span class="nb">apply</span> nat_discern_isaprop. }
+  { <span class="nb">induction</span> m <span class="k">as</span> [|m IHm]. { <span class="bp">exact</span> tt. } { <span class="nb">simpl</span>. <span class="bp">exact</span> IHm. } }
+<span class="kn">Defined</span>.
+
+<span class="kn">Fixpoint</span> <span class="nf">nat_discern_to_eq</span> <span class="nv">m</span> <span class="nv">n</span> : nat_discern m n → m = n.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> m <span class="k">as</span> [|m'].
+  { <span class="nb">destruct</span> n <span class="k">as</span> [|n'].
+    { <span class="nb">intros</span> _. <span class="bp">reflexivity</span>. } { <span class="nb">simpl</span>. <span class="bp">exact</span> fromempty. } }
+  { <span class="nb">destruct</span> n <span class="k">as</span> [|n'].
+    { <span class="nb">simpl</span>. <span class="bp">exact</span> fromempty. }
+    { <span class="nb">simpl</span>. <span class="nb">intro</span> i. <span class="nb">assert</span>(b := nat_discern_to_eq _ _ i); <span class="nb">clear</span> i.
+      <span class="nb">destruct</span> b. <span class="bp">reflexivity</span>. } }
+<span class="kn">Defined</span>.
+
+<span class="kn">Goal</span> ∏ m n (e: nat_discern m n), maponpaths S (nat_discern_to_eq m n e) = nat_discern_to_eq (S m) (S n) e.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Fixpoint</span> <span class="nf">eq_to_nat_discern</span> <span class="nv">m</span> <span class="nv">n</span> : m = n → nat_discern m n.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> e. <span class="nb">destruct</span> e.
+       <span class="c">(* alternatively:</span>
+<span class="c">        destruct m. { exact tt. } { simpl. exact (the (nat_discern_iscontr _)). }</span>
+<span class="c">        *)</span>
+  <span class="bp">exact</span> (cast (! nat_discern_unit m) tt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">apSC</span> <span class="nv">m</span> <span class="nv">n</span> (<span class="nv">e</span>: m=n) : eq_to_nat_discern m n e = eq_to_nat_discern (S m) (S n) (maponpaths S e).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> proofirrelevance. <span class="nb">apply</span> nat_discern_isaprop.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isweq_nat_discern_to_eq</span> <span class="nv">m</span> <span class="nv">n</span> : isweq (nat_discern_to_eq m n).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (isweq_iso _ (eq_to_nat_discern _ _) _ _).
+  { <span class="nb">intro</span> e. <span class="nb">assert</span>(p := ! nat_discern_to_eq _ _ e). <span class="nb">destruct</span> p.
+    <span class="nb">apply</span> proofirrelevancecontr. <span class="nb">apply</span> nat_discern_iscontr. }
+  { <span class="nb">intro</span> e. <span class="nb">destruct</span> e. <span class="nb">induction</span> m <span class="k">as</span> [|m IHm].
+    { <span class="bp">reflexivity</span>. }
+    { <span class="bp">exact</span> ( maponpaths (nat_discern_to_eq (S m) (S m)) (! apSC _ _ (idpath m))
+                          @ maponpaths (maponpaths S) IHm). } }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weq_nat_discern_eq</span> <span class="nv">m</span> <span class="nv">n</span> : (nat_discern m n) ≃ (m = n).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (make_weq (nat_discern_to_eq _ _) (isweq_nat_discern_to_eq _ _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">NatDiscern</span>.
+
+<span class="sd">(** * 3. Definition and properties of the distance function on ℕ *)</span>
+<span class="kn">Section</span> <span class="nf">NatDist</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_dist</span> (<span class="nv">m</span> <span class="nv">n</span>: nat) : nat.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> n.
+  <span class="nb">induction</span> m <span class="k">as</span> [| m IHm];
+    <span class="nb">intro</span> n.
+  - <span class="bp">exact</span> n.
+  - <span class="nb">induction</span> n <span class="k">as</span> [| n IHn].
+    + <span class="bp">exact</span> (S m).
+    + <span class="bp">exact</span> (IHm n).
+<span class="kn">Defined</span>.
+
+<span class="kn">Fixpoint</span> <span class="nf">nat_dist_helper_A</span> <span class="nv">m</span> <span class="nv">n</span> : nat_dist m n = <span class="mi">0</span> → nat_discern m n.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> m <span class="k">as</span> [|m'].
+  { <span class="nb">destruct</span> n <span class="k">as</span> [|n'].
+    { <span class="nb">intros</span> _. <span class="bp">exact</span> tt. } { <span class="nb">simpl</span>. <span class="bp">exact</span> (negpathssx0 n'). } }
+  { <span class="nb">destruct</span> n <span class="k">as</span> [|n'].
+    { <span class="nb">simpl</span>. <span class="bp">exact</span> (negpathssx0 m'). } { <span class="nb">simpl</span>. <span class="bp">exact</span> (nat_dist_helper_A m' n'). } }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_dist_anti</span> <span class="nv">m</span> <span class="nv">n</span> : nat_dist m n = <span class="mi">0</span> → m = n.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> i. <span class="bp">exact</span> (nat_discern_to_eq _ _ (nat_dist_helper_A _ _ i)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Fixpoint</span> <span class="nf">nat_dist_symm</span> <span class="nv">m</span> <span class="nv">n</span> : nat_dist m n = nat_dist n m.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> m <span class="k">as</span> [|m'].
+  { <span class="nb">destruct</span> n <span class="k">as</span> [|n']. { <span class="bp">reflexivity</span>. } { <span class="nb">simpl</span>. <span class="bp">reflexivity</span>. } }
+  { <span class="nb">destruct</span> n <span class="k">as</span> [|n'].
+    { <span class="nb">simpl</span>. <span class="bp">reflexivity</span>. }
+    { <span class="nb">simpl</span>. <span class="nb">apply</span> nat_dist_symm. } }
+<span class="kn">Defined</span>.
+
+<span class="kn">Fixpoint</span> <span class="nf">nat_dist_ge</span> <span class="nv">m</span> <span class="nv">n</span> : m ≥ n → nat_dist m n = m-n.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> m <span class="k">as</span> [|m'].
+  { <span class="nb">induction</span> n <span class="k">as</span> [|n']. { <span class="bp">reflexivity</span>. } { <span class="nb">intro</span> f. <span class="bp">now</span> <span class="nb">induction</span> (!natleh0tois0 f). } }
+  { <span class="nb">induction</span> n <span class="k">as</span> [|n']. { <span class="bp">reflexivity</span>. } { <span class="bp">exact</span> (nat_dist_ge m' n'). } }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_dist_0m</span> <span class="nv">m</span> : nat_dist <span class="mi">0</span> m = m.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_dist_m0</span> <span class="nv">m</span> : nat_dist m <span class="mi">0</span> = m.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> m. { <span class="bp">reflexivity</span>. } { <span class="bp">reflexivity</span>. }
+<span class="kn">Defined</span>.
+
+<span class="kn">Fixpoint</span> <span class="nf">nat_dist_plus</span> <span class="nv">m</span> <span class="nv">n</span> : nat_dist (m + n) m = n.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m n; <span class="nb">intros</span> [|m'] ?.
+  { <span class="nb">simpl</span>. <span class="nb">apply</span> nat_dist_m0. }
+  { <span class="nb">simpl</span>. <span class="nb">apply</span> nat_dist_plus. }
+<span class="kn">Defined</span>.
+
+<span class="kn">Fixpoint</span> <span class="nf">nat_dist_le</span> <span class="nv">m</span> <span class="nv">n</span> : m ≤ n → nat_dist m n = n-m.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> m <span class="k">as</span> [|m'].
+  { <span class="nb">destruct</span> n <span class="k">as</span> [|n']. { <span class="bp">reflexivity</span>. } { <span class="nb">simpl</span>. <span class="nb">intros</span> _. <span class="bp">reflexivity</span>. } }
+  { <span class="nb">destruct</span> n <span class="k">as</span> [|n'].
+    { <span class="nb">intro</span> f. <span class="bp">now</span> <span class="nb">induction</span> (!natleh0tois0 f). }
+    { <span class="bp">exact</span> (nat_dist_le m' n'). } }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_dist_minus</span> <span class="nv">m</span> <span class="nv">n</span> : m ≤ n → nat_dist (n - m) n = m.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> e. <span class="nb">set</span> (k := n-m). <span class="nb">assert</span>(b := ! minusplusnmm n m e).
+  <span class="nb">rewrite</span> (idpath _ : n-m = k) <span class="k">in</span> b. <span class="nb">rewrite</span> b.
+  <span class="nb">rewrite</span> nat_dist_symm. <span class="nb">apply</span> nat_dist_plus.
+<span class="kn">Qed</span>.
+
+<span class="kn">Fixpoint</span> <span class="nf">nat_dist_gt</span> <span class="nv">m</span> <span class="nv">n</span> : m &gt; n → S (nat_dist m (S n)) = nat_dist m n.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> m <span class="k">as</span> [|m'].
+  { <span class="nb">unfold</span> natgth; <span class="nb">simpl</span>. <span class="nb">intro</span> x.
+    <span class="nb">apply</span> fromempty. <span class="nb">apply</span> nopathsfalsetotrue. <span class="bp">exact</span> x. }
+  { <span class="nb">intro</span> i. <span class="nb">simpl</span>.
+    <span class="nb">destruct</span> n <span class="k">as</span> [|n'].
+    { <span class="nb">apply</span> (maponpaths S). <span class="nb">apply</span> nat_dist_m0. }
+    { <span class="nb">simpl</span>. <span class="nb">apply</span> nat_dist_gt. <span class="bp">exact</span> i. } }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_dist_S</span> <span class="nv">m</span> <span class="nv">n</span> : nat_dist (S m) (S n) = nat_dist m n.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natminuseqlr</span> <span class="nv">m</span> <span class="nv">n</span> <span class="nv">x</span> : m≤n → n-m = x → n = x+m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i j.
+  <span class="nb">rewrite</span> &lt;- (minusplusnmm _ _ i). <span class="nb">rewrite</span> j. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_dist_between_le</span> <span class="nv">m</span> <span class="nv">n</span> <span class="nv">a</span> <span class="nv">b</span> : m ≤ n → nat_dist m n = a + b →
+  ∑ x, nat_dist x m = a × nat_dist x n = b.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i j. <span class="k">exists</span> (<span class="nv">m</span>+a). <span class="nb">split</span>.
+  { <span class="nb">apply</span> nat_dist_plus. }
+  { <span class="nb">rewrite</span> (nat_dist_le m n i) <span class="k">in</span> j.
+    <span class="nb">assert</span> (k := natminuseqlr _ _ _ i j); <span class="nb">clear</span> j.
+    <span class="nb">assert</span> (l := nat_dist_plus (m+a) b).
+    <span class="nb">rewrite</span> nat_dist_symm. <span class="nb">rewrite</span> (natpluscomm (a+b) m) <span class="k">in</span> k.
+    <span class="nb">rewrite</span> (natplusassoc m a b) <span class="k">in</span> l. <span class="nb">rewrite</span> &lt;- k <span class="k">in</span> l. <span class="bp">exact</span> l. }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_dist_between_ge</span> <span class="nv">m</span> <span class="nv">n</span> <span class="nv">a</span> <span class="nv">b</span> :
+  n ≤ m → nat_dist m n = a + b → ∑ x: nat, nat_dist x m = a × nat_dist x n = b.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i j.
+  <span class="nb">rewrite</span> nat_dist_symm <span class="k">in</span> j.
+  <span class="nb">rewrite</span> natpluscomm <span class="k">in</span> j.
+  <span class="k">exists</span> (<span class="nv">pr1</span> (nat_dist_between_le n m b a i j)).
+  <span class="nb">apply</span> (weqdirprodcomm _ _).
+  <span class="bp">exact</span> (pr2 (nat_dist_between_le n m b a i j)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_dist_between</span> <span class="nv">m</span> <span class="nv">n</span> <span class="nv">a</span> <span class="nv">b</span> :
+  nat_dist m n = a + b → ∑ x: nat, nat_dist x m = a × nat_dist x n = b.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> j.
+  <span class="nb">induction</span> (natgthorleh m n) <span class="k">as</span> [r|s].
+  { <span class="nb">apply</span> nat_dist_between_ge. <span class="nb">apply</span> natlthtoleh. <span class="bp">exact</span> r. <span class="bp">exact</span> j. }
+  { <span class="nb">apply</span> nat_dist_between_le. <span class="bp">exact</span> s. <span class="bp">exact</span> j. }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natleorle</span> <span class="nv">m</span> <span class="nv">n</span> : (m≤n) ⨿ (n≤m).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> (natgthorleh m n) <span class="k">as</span> [r|s].
+  { <span class="nb">apply</span> ii2. <span class="nb">apply</span> natlthtoleh. <span class="bp">exact</span> r. }
+  { <span class="nb">apply</span> ii1. <span class="bp">exact</span> s. }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_dist_trans</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : nat_dist x z ≤ nat_dist x y + nat_dist y z.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> (natleorle x y) <span class="k">as</span> [r|s].
+  { <span class="nb">rewrite</span> (nat_dist_le _ _ r).
+    <span class="nb">induction</span> (natleorle y z) <span class="k">as</span> [t|u].
+    { <span class="nb">assert</span> (u := istransnatgeh _ _ _ t r). <span class="nb">rewrite</span> (nat_dist_le _ _ t).
+      <span class="nb">rewrite</span> (nat_dist_le _ _ u). <span class="nb">apply</span> (natlehandplusrinv _ _ x).
+      <span class="nb">rewrite</span> (minusplusnmm _ _ u). <span class="nb">rewrite</span> (natpluscomm _ x).
+      <span class="nb">rewrite</span> &lt;- natplusassoc. <span class="nb">rewrite</span> (natpluscomm x).
+      <span class="nb">rewrite</span> (minusplusnmm _ _ r). <span class="nb">rewrite</span> (natpluscomm y).
+      <span class="nb">rewrite</span> (minusplusnmm _ _ t). <span class="nb">apply</span> isreflnatleh. }
+    { <span class="nb">rewrite</span> (nat_dist_ge _ _ u).
+      <span class="nb">induction</span> (natleorle x z) <span class="k">as</span> [p|q].
+      { <span class="nb">rewrite</span> (nat_dist_le _ _ p). <span class="nb">apply</span> (natlehandplusrinv _ _ x).
+        <span class="nb">rewrite</span> (minusplusnmm _ _ p). <span class="nb">rewrite</span> natpluscomm.
+        <span class="nb">rewrite</span> &lt;- natplusassoc. <span class="nb">rewrite</span> (natpluscomm x).
+        <span class="nb">rewrite</span> (minusplusnmm _ _ r). <span class="nb">apply</span> (natlehandplusrinv _ _ z).
+        <span class="nb">rewrite</span> natplusassoc. <span class="nb">rewrite</span> (minusplusnmm _ _ u).
+        <span class="nb">apply</span> (istransnatleh (m := y+z)).
+        { <span class="nb">apply</span> natlehandplusr. <span class="bp">exact</span> u. }
+        { <span class="nb">apply</span> natlehandplusl. <span class="bp">exact</span> u. } }
+      { <span class="nb">rewrite</span> (nat_dist_ge _ _ q). <span class="nb">apply</span> (natlehandplusrinv _ _ z).
+        <span class="nb">rewrite</span> (minusplusnmm _ _ q). <span class="nb">rewrite</span> natplusassoc.
+        <span class="nb">rewrite</span> (minusplusnmm _ _ u). <span class="nb">rewrite</span> natpluscomm.
+        <span class="nb">apply</span> (natlehandplusrinv _ _ x). <span class="nb">rewrite</span> natplusassoc.
+        <span class="nb">rewrite</span> (minusplusnmm _ _ r). <span class="nb">apply</span> (istransnatleh (m := x+y)).
+        { <span class="nb">apply</span> natlehandplusl. <span class="bp">assumption</span>. }
+        { <span class="nb">apply</span> natlehandplusr. <span class="bp">assumption</span>. } } } }
+  { <span class="nb">rewrite</span> (nat_dist_ge _ _ s).
+    <span class="nb">induction</span> (natleorle z y) <span class="k">as</span> [u|t].
+    { <span class="nb">assert</span> (w := istransnatleh u s). <span class="nb">rewrite</span> (nat_dist_ge _ _ w).
+      <span class="nb">rewrite</span> (nat_dist_ge _ _ u). <span class="nb">apply</span> (natlehandplusrinv _ _ z).
+      <span class="nb">rewrite</span> (minusplusnmm _ _ w). <span class="nb">rewrite</span> natplusassoc.
+      <span class="nb">rewrite</span> (minusplusnmm _ _ u). <span class="nb">rewrite</span> (minusplusnmm _ _ s).
+      <span class="nb">apply</span> isreflnatleh. }
+    { <span class="nb">rewrite</span> (nat_dist_le _ _ t).
+      <span class="nb">induction</span> (natleorle x z) <span class="k">as</span> [p|q].
+      { <span class="nb">rewrite</span> (nat_dist_le _ _ p). <span class="nb">apply</span> (natlehandplusrinv _ _ x).
+        <span class="nb">rewrite</span> (minusplusnmm _ _ p). <span class="nb">apply</span> (natlehandpluslinv _ _ y).
+        <span class="nb">rewrite</span> (natplusassoc (x-y)). <span class="nb">rewrite</span> &lt;- (natplusassoc y).
+        <span class="nb">rewrite</span> (natpluscomm y (x-y)). <span class="nb">rewrite</span> (minusplusnmm _ _ s).
+        <span class="nb">apply</span> (natlehandplusrinv _ _ y). <span class="nb">rewrite</span> (natplusassoc x).
+        <span class="nb">rewrite</span> (natplusassoc _ x y). <span class="nb">rewrite</span> (natpluscomm x y).
+        <span class="nb">rewrite</span> &lt;- (natplusassoc _ y x). <span class="nb">rewrite</span> (minusplusnmm _ _ t).
+        <span class="nb">rewrite</span> (natpluscomm z x). <span class="nb">rewrite</span> &lt;- (natplusassoc x).
+        <span class="nb">rewrite</span> (natplusassoc y). <span class="nb">rewrite</span> (natpluscomm z y).
+        <span class="nb">rewrite</span> &lt;- (natplusassoc y). <span class="nb">apply</span> (natlehandplusr _ _ z).
+        <span class="nb">apply</span> (istransnatleh (m := x+y)).
+        { <span class="nb">apply</span> natlehandplusr. <span class="bp">assumption</span>. }
+        { <span class="nb">apply</span> natlehandplusl. <span class="bp">assumption</span>. } }
+      { <span class="nb">rewrite</span> (nat_dist_ge _ _ q). <span class="nb">apply</span> (natlehandplusrinv _ _ z).
+        <span class="nb">rewrite</span> (minusplusnmm _ _ q). <span class="nb">apply</span> (natlehandpluslinv _ _ y).
+        <span class="nb">rewrite</span> (natplusassoc (x-y)). <span class="nb">rewrite</span> &lt;- (natplusassoc y).
+        <span class="nb">rewrite</span> (natpluscomm y (x-y)). <span class="nb">rewrite</span> (minusplusnmm _ _ s).
+        <span class="nb">apply</span> (natlehandplusrinv _ _ y). <span class="nb">rewrite</span> (natplusassoc x).
+        <span class="nb">rewrite</span> (natplusassoc _ z y). <span class="nb">rewrite</span> (natpluscomm z y).
+        <span class="nb">rewrite</span> &lt;- (natplusassoc _ y z). <span class="nb">rewrite</span> (minusplusnmm _ _ t).
+        <span class="nb">rewrite</span> (natpluscomm y x). <span class="nb">rewrite</span> (natplusassoc x).
+        <span class="nb">apply</span> natlehandplusl. <span class="nb">apply</span> (istransnatleh (m := z+y)).
+        { <span class="nb">apply</span> natlehandplusr. <span class="bp">assumption</span>. }
+        { <span class="nb">apply</span> natlehandplusl. <span class="bp">assumption</span>. } } } }
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">NatDist</span>.
+
+<span class="sd">(** * 4. Miscellaneous arithmetic lemmas *)</span>
+<span class="kn">Section</span> <span class="nf">Arithmetic</span>.
+
+<span class="kn">Lemma</span> <span class="nf">plusmn0n0</span> <span class="nv">m</span> <span class="nv">n</span> : m + n = <span class="mi">0</span> → n = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i. <span class="nb">assert</span> (a := natlehmplusnm m n). <span class="nb">rewrite</span> i <span class="k">in</span> a.
+  <span class="nb">apply</span> natleh0tois0. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">plusmn0m0</span> <span class="nv">m</span> <span class="nv">n</span> : m + n = <span class="mi">0</span> → m = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i. <span class="nb">assert</span> (a := natlehnplusnm m n). <span class="nb">rewrite</span> i <span class="k">in</span> a.
+  <span class="nb">apply</span> natleh0tois0. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natminus0le</span> {<span class="nv">m</span> <span class="nv">n</span>} : m-n = <span class="mi">0</span> → n ≥ m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i. <span class="nb">apply</span> negnatgthtoleh. <span class="nb">intro</span> k.
+  <span class="nb">assert</span> (r := minusgth0 _ _ k); <span class="nb">clear</span> k.
+  <span class="nb">induction</span> (!i); <span class="nb">clear</span> i. <span class="bp">exact</span> (negnatgth0n <span class="mi">0</span> r).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">minusxx</span> <span class="nv">m</span> : m - m = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> m <span class="k">as</span> [|m IHm]. <span class="bp">reflexivity</span>. <span class="nb">simpl</span>. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">minusSxx</span> <span class="nv">m</span> : S m - m = <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> m <span class="k">as</span> [|m IHm]. <span class="bp">reflexivity</span>. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natminusminus</span> <span class="nv">n</span> <span class="nv">m</span> : m ≤ n → n - (n - m) = m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i. <span class="nb">assert</span> (b := plusminusnmm m (n-m)).
+  <span class="nb">rewrite</span> natpluscomm <span class="k">in</span> b. <span class="nb">rewrite</span> (minusplusnmm _ _ i) <span class="k">in</span> b.
+  <span class="bp">exact</span> b.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natplusminus</span> <span class="nv">m</span> <span class="nv">n</span> <span class="nv">k</span> : k = m + n → k - n = m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i. <span class="nb">rewrite</span> i. <span class="nb">apply</span> plusminusnmm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natleplusminus</span> <span class="nv">k</span> <span class="nv">m</span> <span class="nv">n</span> : k + m ≤ n → k ≤ n - m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i.
+  <span class="nb">apply</span> (natlehandplusrinv _ _ m).
+  <span class="nb">rewrite</span> minusplusnmm.
+  { <span class="bp">exact</span> i. }
+  { <span class="nb">change</span> (m ≤ n).
+    <span class="nb">simple refine</span> (istransnatleh _ i); <span class="nb">clear</span> i.
+    <span class="nb">apply</span> natlehmplusnm. }
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natltminus1</span> <span class="nv">m</span> <span class="nv">n</span> : m &lt; n → m ≤ n - <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i. <span class="nb">assert</span> (a := natlthp1toleh m (n - <span class="mi">1</span>)).
+  <span class="nb">assert</span> (b := natleh0n m). <span class="nb">assert</span> (c := natlehlthtrans _ _ _ b i).
+  <span class="nb">assert</span> (d := natlthtolehsn _ _ c). <span class="nb">assert</span> (e := minusplusnmm _ _ d).
+  <span class="nb">rewrite</span> e <span class="k">in</span> a. <span class="bp">exact</span> (a i).
+<span class="kn">Defined</span>.
+
+<span class="kn">Fixpoint</span> <span class="nf">natminusminusassoc</span> <span class="nv">m</span> <span class="nv">n</span> <span class="nv">k</span> : (m - n) - k = m - (n + k).
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> m. { <span class="bp">reflexivity</span>. }
+                      { <span class="nb">destruct</span> n. { <span class="nb">rewrite</span> natminuseqn. <span class="bp">reflexivity</span>. }
+                                    { <span class="nb">simpl</span>. <span class="nb">apply</span> natminusminusassoc. } }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natminusplusltcomm</span> <span class="nv">m</span> <span class="nv">n</span> <span class="nv">k</span> : k ≤ n → m ≤ n - k → k ≤ n - m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i p.
+  <span class="nb">assert</span> (a := natlehandplusr m (n-k) k p); <span class="nb">clear</span> p.
+  <span class="nb">assert</span> (b := minusplusnmm n k i); <span class="nb">clear</span> i.
+  <span class="nb">rewrite</span> b <span class="k">in</span> a; <span class="nb">clear</span> b. <span class="nb">apply</span> natleplusminus.
+  <span class="nb">rewrite</span> natpluscomm. <span class="bp">exact</span> a.
+<span class="kn">Qed</span>.
+
+<span class="kn">Theorem</span> <span class="nf">nat_le_diff</span>
+        {<span class="nv">n</span> <span class="nv">m</span> : ℕ}
+        (<span class="nv">p</span> : n ≤ m)
+  : ∑ (k : ℕ), n + k = m.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">m</span> - n).
+  <span class="nb">rewrite</span> natpluscomm.
+  <span class="bp">exact</span> (minusplusnmm _ _ p).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Arithmetic</span>.
+
+<span class="sd">(** * 5. Bounded quantification over ℕ, including uniqueness/searchibility of (minimal) witnesses *)</span>
+
+<span class="sd">(** ** Some results on bounded quantification *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">weqforallnatlehn0</span> (<span class="nv">F</span> : nat → hProp) :
+  (∏ (n : nat), n ≤ <span class="mi">0</span> → F n) ≃ F <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  use (weqimplimpl _ _ _ (propproperty (F <span class="mi">0</span>))).
+  - <span class="nb">intro</span> f.
+    <span class="nb">apply</span> (f <span class="mi">0</span> (isreflnatleh <span class="mi">0</span>)).
+  - <span class="nb">intros</span> f0 n l.
+    <span class="nb">set</span> (e := natleh0tois0 l).
+    <span class="nb">rewrite</span> e.
+    <span class="nb">apply</span> f0.
+  - <span class="nb">apply</span> impred.
+    <span class="nb">intro</span> n.
+    <span class="nb">apply</span> impred.
+    <span class="nb">intro</span> l.
+    <span class="nb">apply</span> (pr2 (F n)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqforallnatlehnsn'</span> (<span class="nv">n'</span> : nat) (<span class="nv">F</span> : nat → hProp) :
+  (∏ (n : nat), n ≤ S n' → F n)
+  ≃ (∏ (n : nat), n ≤ n' → F n) × F (S n').
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="nb">intro</span> f.
+    <span class="nb">apply</span> (make_dirprod (<span class="k">λ</span> <span class="nv">n</span>, <span class="k">λ</span> <span class="nv">l</span>, (f n (natlehtolehs _ _ l)))
+                        (f (S n') (isreflnatleh _))).
+  - <span class="nb">intro</span> d2.
+    <span class="nb">intro</span> n. <span class="nb">intro</span> l.
+    <span class="nb">destruct</span> (natlehchoice2 _ _ l) <span class="k">as</span> [ h | e ].
+    + <span class="nb">simpl</span> <span class="k">in</span> h.
+      <span class="nb">apply</span> (pr1 d2 n h).
+    + <span class="nb">destruct</span> d2 <span class="k">as</span> [ f2 d2 ].
+      <span class="nb">rewrite</span> e.
+      <span class="nb">apply</span> d2.
+  - <span class="nb">apply</span> impred.
+    <span class="nb">intro</span> n.
+    <span class="nb">apply</span> impred.
+    <span class="nb">intro</span> l.
+    <span class="nb">apply</span> (pr2 (F n)).
+  - <span class="nb">apply</span> isapropdirprod.
+    + <span class="nb">apply</span> impred.
+      <span class="nb">intro</span> n.
+      <span class="nb">apply</span> impred.
+      <span class="nb">intro</span> l.
+      <span class="nb">apply</span> (pr2 (F n)).
+    + <span class="nb">apply</span> (pr2 (F (S n'))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqexistsnatlehn0</span> (<span class="nv">P</span> : nat → hProp ) :
+  (<span class="k">∃</span> (<span class="nv">n</span> : nat), n ≤ <span class="mi">0</span> × P n) ≃ P <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (weqimplimpl _ _ (propproperty _) (propproperty _)).
+  - <span class="nb">simpl</span>.
+    <span class="nb">apply</span> (@hinhuniv _ (P <span class="mi">0</span>)).
+    <span class="nb">intro</span> t2.
+    <span class="nb">destruct</span> t2 <span class="k">as</span> [ n d2 ].
+    <span class="nb">destruct</span> d2 <span class="k">as</span> [ l p ].
+    <span class="nb">set</span> (e := natleh0tois0 l).
+    <span class="nb">clearbody</span> e.
+    <span class="nb">destruct</span> e.
+    <span class="nb">apply</span> p.
+  - <span class="nb">intro</span> p.
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">split with</span> <span class="mi">0</span>.
+    <span class="nb">split with</span> (isreflnatleh <span class="mi">0</span>).
+    <span class="nb">apply</span> p.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqexistsnatlehnsn'</span> (<span class="nv">n'</span> : nat) (<span class="nv">P</span> : nat → hProp ) :
+  (<span class="k">∃</span> (<span class="nv">n</span> : nat), n ≤ S n' × P n)
+  ≃ ((<span class="k">∃</span> (<span class="nv">n</span> : nat), n ≤ n' × P n) ∨ P (S n')).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (weqimplimpl _ _ (propproperty _) (propproperty _)).
+  - <span class="nb">apply</span> hinhfun.
+    <span class="nb">intro</span> t2.
+    <span class="nb">destruct</span> t2 <span class="k">as</span> [ n d2 ].
+    <span class="nb">destruct</span> d2 <span class="k">as</span> [ l p ].
+    <span class="nb">destruct</span> (natlehchoice2 _ _ l) <span class="k">as</span> [ h | nh ].
+    + <span class="nb">simpl</span> <span class="k">in</span> h.
+      <span class="nb">apply</span> ii1.
+      <span class="nb">apply</span> hinhpr.
+      <span class="nb">split with</span> n.
+      <span class="nb">apply</span> (make_dirprod h p).
+    + <span class="nb">destruct</span> nh.
+      <span class="nb">apply</span> (ii2 p).
+  - <span class="nb">simpl</span>.
+    <span class="nb">apply</span> (@hinhuniv _ (ishinh _)).
+    <span class="nb">intro</span> c.
+    <span class="nb">destruct</span> c <span class="k">as</span> [ t | p ].
+    + <span class="nb">generalize</span> t.
+      <span class="nb">simpl</span>.
+      <span class="nb">apply</span> hinhfun.
+      <span class="nb">clear</span> t.
+      <span class="nb">intro</span> t.
+      <span class="nb">destruct</span> t <span class="k">as</span> [ n d2 ].
+      <span class="nb">destruct</span> d2 <span class="k">as</span> [ l p ].
+      <span class="nb">split with</span> n.
+      <span class="nb">split with</span> (natlehtolehs _ _ l).
+      <span class="nb">apply</span> p.
+    + <span class="nb">apply</span> hinhpr.
+      <span class="nb">split with</span> (S n').
+      <span class="nb">split with</span> (isreflnatleh _).
+      <span class="nb">apply</span> p.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">isdecbexists</span> (<span class="nv">n</span> : nat) (<span class="nv">P</span> : nat → UU) (<span class="nv">isd</span> : ∏ n', isdecprop (P n')) :
+  isdecprop (<span class="k">∃</span> <span class="nv">n'</span>, n' ≤ n × P n').
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (P' := <span class="k">λ</span> <span class="nv">n'</span> : nat, make_hProp _ (isd n')).
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">apply</span> (isdecpropweqb (weqexistsnatlehn0 P')).
+    <span class="nb">apply</span> (isd <span class="mi">0</span>).
+  - <span class="nb">apply</span> (isdecpropweqb (weqexistsnatlehnsn' _ P')).
+    <span class="nb">apply</span> isdecprophdisj.
+    + <span class="nb">apply</span> IHn.
+    + <span class="nb">apply</span> (isd (S n)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isdecbforall</span> (<span class="nv">n</span> : nat) (<span class="nv">P</span> : nat → UU) (<span class="nv">isd</span> : ∏ n', isdecprop (P n')) :
+  isdecprop (∏ n', n' ≤ n → P n').
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (P' := <span class="k">λ</span> <span class="nv">n'</span> : nat, make_hProp _ (isd n')).
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">apply</span> (isdecpropweqb (weqforallnatlehn0 P')).
+    <span class="nb">apply</span> (isd <span class="mi">0</span>).
+  - <span class="nb">apply</span> (isdecpropweqb (weqforallnatlehnsn' _ P')).
+    <span class="nb">apply</span> isdecpropdirprod.
+    + <span class="nb">apply</span> IHn.
+    + <span class="nb">apply</span> (isd (S n)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The following lemma finds the largest [ n' ] such that [ neg (P n') ]. It is a stronger form of (neg ∏) → (exists neg) in the case of bounded quantification of decidable propositions. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">negbforalldectototal2neg</span> (<span class="nv">n</span> : nat) (<span class="nv">P</span> : nat → UU)
+  (<span class="nv">isd</span> : ∏ (n' : nat), isdecprop (P n')) :
+  ¬ (∏ (n' : nat), n' ≤ n → P n') →
+  ∑ n', (n' ≤ n × ¬ P n').
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (P' := <span class="k">λ</span> <span class="nv">n'</span> : nat, make_hProp _ (isd n')).
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intro</span> nf.
+    <span class="nb">set</span> (nf0 := negf (invweq (weqforallnatlehn0 P')) nf).
+    <span class="nb">split with</span> <span class="mi">0</span>.
+    <span class="nb">apply</span> (make_dirprod (isreflnatleh <span class="mi">0</span>) nf0).
+  - <span class="nb">intro</span> nf.
+    <span class="nb">set</span> (nf2 := negf (invweq (weqforallnatlehnsn' n P')) nf).
+    <span class="nb">set</span> (nf3 := fromneganddecy (isd (S n)) nf2).
+    <span class="nb">destruct</span> nf3 <span class="k">as</span> [ f1 | f2 ].
+    + <span class="nb">set</span> (int := IHn f1).
+      <span class="nb">destruct</span> int <span class="k">as</span> [ n' d2 ].
+      <span class="nb">destruct</span> d2 <span class="k">as</span> [ l np ].
+      <span class="nb">split with</span> n'.
+      <span class="nb">split with</span> (natlehtolehs _ _ l).
+      <span class="nb">apply</span> np.
+    + <span class="nb">split with</span> (S n).
+      <span class="nb">split with</span> (isreflnatleh _).
+      <span class="nb">apply</span> f2.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** ** Accessibility - the least element of an inhabited decidable subset of [nat] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natdecleast</span> (<span class="nv">F</span> : nat → UU) (<span class="nv">isd</span> : ∏ n, isdecprop (F n)) :=
+  ∑ (n : nat), (F n × ∏ (n' : nat), F n' → n ≤ n').
+
+<span class="kn">Lemma</span> <span class="nf">isapropnatdecleast</span> (<span class="nv">F</span> : nat → UU) (<span class="nv">isd</span> : ∏ n, isdecprop (F n)) :
+  isaprop (natdecleast F isd).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (P := <span class="k">λ</span> <span class="nv">n'</span> : nat, make_hProp _ (isd n')).
+  <span class="nb">assert</span> (int1 : ∏ n : nat, isaprop ((F n) × (∏ n' : nat, F n' → n ≤ n'))).
+  { <span class="nb">intro</span> n.
+    <span class="nb">apply</span> isapropdirprod.
+    - <span class="nb">apply</span> (pr2 (P n)).
+    - <span class="nb">apply</span> impred.
+      <span class="nb">intro</span> t.
+      <span class="nb">apply</span> impred.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> (pr2 (n ≤ t)).
+  }
+  <span class="nb">change</span> (isaprop (∑ (n : nat), make_hProp _ (int1 n))).
+  <span class="nb">apply</span> isapropsubtype.
+  <span class="nb">intros</span> x1 x2. <span class="nb">intros</span> c1 c2.
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">destruct</span> c1 <span class="k">as</span> [ e1 c1 ].
+  <span class="nb">destruct</span> c2 <span class="k">as</span> [ e2 c2 ].
+  <span class="nb">set</span> (l1 := c1 x2 e2).
+  <span class="nb">set</span> (l2 := c2 x1 e1).
+  <span class="nb">apply</span> (isantisymmnatleh _ _ l1 l2).
+<span class="kn">Defined</span>.
+
+<span class="c">(* Print isapropnatdecleast. *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">accth</span> (<span class="nv">F</span> : nat → UU) (<span class="nv">isd</span> : ∏ n, isdecprop (F n))
+        (<span class="nv">is'</span> : <span class="k">∃</span> <span class="nv">n</span>, F n) : natdecleast F isd.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> is'.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> (@hinhuniv _ (make_hProp _ (isapropnatdecleast F isd))).
+  <span class="nb">intro</span> t2.
+  <span class="nb">destruct</span> t2 <span class="k">as</span> [ n l ].
+  <span class="nb">simpl</span>.
+  <span class="nb">set</span> (F' := <span class="k">λ</span> <span class="nv">n'</span> : nat, <span class="k">∃</span> <span class="nv">n''</span>, (n'' ≤ n') × (F n'')).
+  <span class="nb">assert</span> (X : ∏ n', F' n' → natdecleast F isd).
+  { <span class="nb">intro</span> n'.
+    <span class="nb">induction</span> n' <span class="k">as</span> [ | n' IHn' ].
+    - <span class="nb">apply</span> (@hinhuniv _  (make_hProp _ (isapropnatdecleast F isd))).
+      <span class="nb">intro</span> t2.
+      <span class="nb">destruct</span> t2 <span class="k">as</span> [ n'' is'' ].
+      <span class="nb">destruct</span> is'' <span class="k">as</span> [ l'' d'' ].
+      <span class="nb">split with</span> <span class="mi">0</span>.
+      <span class="nb">split</span>.
+      + <span class="nb">set</span> (e := natleh0tois0 l'').
+        <span class="nb">clearbody</span> e.
+        <span class="nb">destruct</span> e.
+        <span class="nb">apply</span> d''.
+      + <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">n'</span>, <span class="k">λ</span> <span class="nv">f</span> : _, natleh0n n').
+    - <span class="nb">apply</span> (@hinhuniv _  (make_hProp _ (isapropnatdecleast F isd))).
+      <span class="nb">intro</span> t2.
+      <span class="nb">destruct</span> t2 <span class="k">as</span> [ n'' is'' ].
+      <span class="nb">set</span> (j := natlehchoice2 _ _ (pr1 is'')).
+      <span class="nb">destruct</span> j <span class="k">as</span> [ jl | je ].
+      + <span class="nb">simpl</span>.
+        <span class="nb">apply</span> (IHn' (hinhpr (tpair _ n'' (make_dirprod jl (pr2 is''))))).
+      + <span class="nb">simpl</span>.
+        <span class="nb">rewrite</span> je <span class="k">in</span> is''.
+        <span class="nb">destruct</span> is'' <span class="k">as</span> [ nn is'' ].
+        <span class="nb">clear</span> nn. <span class="nb">clear</span> je. <span class="nb">clear</span> n''.
+        <span class="nb">assert</span> (is' : isdecprop (F' n')) <span class="bp">by</span> <span class="nb">apply</span> (isdecbexists n' F isd).
+        <span class="nb">destruct</span> (pr1 is') <span class="k">as</span> [ f | nf ].
+        * <span class="nb">apply</span> (IHn'  f).
+        * <span class="nb">split with</span> (S n').
+          <span class="nb">split with</span> is''.
+          <span class="nb">intros</span> n0 fn0.
+          <span class="nb">destruct</span> (natlthorgeh n0 (S n'))  <span class="k">as</span> [ l' | g' ].
+          -- <span class="nb">set</span> (i' := natlthtolehsn _ _ l').
+             <span class="nb">destruct</span> (nf (hinhpr (tpair _ n0 (make_dirprod i' fn0)))).
+          -- <span class="nb">apply</span> g'.
+  }
+  <span class="nb">apply</span> (X n (hinhpr (tpair _ n (make_dirprod (isreflnatleh n) l)))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 6. Complete (or strong) induction, where the induction step for N assumes that the property</span>
+<span class="sd">          holds for all n &lt; N *)</span>
+<span class="kn">Lemma</span> <span class="nf">complete_induction</span>
+  (<span class="nv">P</span> : nat → UU)
+  (<span class="nv">H</span> : ∏ n, (∏ m, m &lt; n → P m) → P n)
+  : ∏ n, P n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> n.
+  <span class="nb">apply</span> H.
+  <span class="nb">induction</span> n <span class="k">as</span> [| n IHn].
+  - <span class="nb">intros</span> m Hm.
+    <span class="nb">induction</span> (negnatlthn0 _ Hm).
+  - <span class="nb">intros</span> m Hm.
+    <span class="nb">apply</span> H.
+    <span class="nb">intros</span> l Hl.
+    <span class="nb">apply</span> IHn.
+    <span class="nb">apply</span> (natlthlehtrans _ m).
+    + <span class="bp">exact</span> Hl.
+    + <span class="bp">exact</span> Hm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">complete_induction_to_induction</span>
+  (<span class="nv">P</span> : nat → UU)
+  (<span class="nv">H0</span> : P <span class="mi">0</span>)
+  (<span class="nv">Hn</span> : ∏ n, P n → P (S n))
+  : ∏ n, P n.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> n.
+  <span class="nb">apply</span> complete_induction.
+  <span class="nb">intros</span> m IHm.
+  <span class="nb">induction</span> (natchoice0 m) <span class="k">as</span> [Hm' | Hm'].
+  - <span class="nb">induction</span> Hm'.
+    <span class="bp">exact</span> H0.
+  - <span class="nb">induction</span> m <span class="k">as</span> [| m Hm].
+    + <span class="nb">induction</span> (negnatlthn0 _ Hm').
+    + <span class="nb">apply</span> Hn.
+      <span class="nb">apply</span> IHm.
+      <span class="nb">apply</span> natlthnsn.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/MoreFoundations/Nat.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;       for all n &lt; N [complete_induction]
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

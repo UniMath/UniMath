@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Categories.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">DaggerCategories</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_structure</span> (<span class="nv">C</span> : category) : UU
+    := ∏ x y : C, C⟦x,y⟧ → C⟦y,x⟧.
+
+  <span class="kn">Identity Coercion</span> <span class="nf">dagger_structure_to_family_of_morphisms</span>
+    : dagger_structure &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaset_dagger_structure</span> (<span class="nv">C</span> : category)
+    : isaset (dagger_structure C).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred_isaset ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> funspace_isaset.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_law_id</span> {<span class="nv">C</span> : category} (<span class="nv">dag</span> : dagger_structure C)
+    : UU
+    := ∏ x : C, dag x x (identity x) = identity x.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_law_comp</span> {<span class="nv">C</span> : category} (<span class="nv">dag</span> : dagger_structure C)
+    : UU
+    := ∏ (x y z : C) (f: C⟦x,y⟧) (g : C⟦y,z⟧), dag x z (f · g) = dag y z g · dag x y f.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_law_idemp</span> {<span class="nv">C</span> : category} (<span class="nv">dag</span> : dagger_structure C)
+    : UU
+    := ∏ (x y : C) (f : C⟦x,y⟧), dag y x (dag x y f) = f.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_laws</span> {<span class="nv">C</span> : category} (<span class="nv">dag</span> : dagger_structure C)
+    : UU := dagger_law_id dag × dagger_law_comp dag × dagger_law_idemp dag.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_dagger_laws</span> {<span class="nv">C</span> : category} (<span class="nv">dag</span> : dagger_structure C)
+    : isaprop (dagger_laws dag).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod)
+    ; <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>)
+    ; <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dagger</span> (<span class="nv">C</span> : category)
+    : UU
+    := ∑ d : dagger_structure C, dagger_laws d.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_to_struct</span> {<span class="nv">C</span> : category} (<span class="nv">dag</span> : dagger C)
+    : dagger_structure C := pr1 dag.
+  <span class="kn">Coercion</span> <span class="nf">dagger_to_struct</span> : dagger &gt;-&gt; dagger_structure.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_to_laws</span> {<span class="nv">C</span> : category} (<span class="nv">dag</span> : dagger C)
+    : dagger_laws dag := pr2 dag.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_to_law_id</span>
+             {<span class="nv">C</span> : category} (<span class="nv">dag</span> : dagger C)
+    : dagger_law_id dag := pr1 (dagger_to_laws dag).
+
+  <span class="kn">Definition</span> <span class="nf">dagger_to_law_comp</span>
+             {<span class="nv">C</span> : category} (<span class="nv">dag</span> : dagger C)
+    : dagger_law_comp dag := pr12 (dagger_to_laws dag).
+
+  <span class="kn">Definition</span> <span class="nf">dagger_to_law_idemp</span>
+             {<span class="nv">C</span> : category} (<span class="nv">dag</span> : dagger C)
+    : dagger_law_idemp dag := pr22 (dagger_to_laws dag).
+
+  <span class="kn">Lemma</span> <span class="nf">isaset_dagger</span> (<span class="nv">C</span> : category)
+    : isaset (dagger C).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaset_total2.
+    - <span class="nb">apply</span> isaset_dagger_structure.
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> isasetaprop ; <span class="nb">apply</span> isaprop_dagger_laws.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dagger_equality</span>
+        {<span class="nv">C</span> : category} (<span class="nv">dag1</span> <span class="nv">dag2</span> : dagger C)
+    : dagger_to_struct dag1 = dagger_to_struct dag2
+      -&gt; dag1 = dag2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    <span class="nb">apply</span> (total2_paths_f p).
+    <span class="nb">apply</span> isaprop_dagger_laws.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_injective</span>
+             {<span class="nv">C</span> : category} (<span class="nv">dag</span> : dagger C)
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">f</span> <span class="nv">g</span> : C⟦x,y⟧)
+    : dag _ _ f = dag _ _ g -&gt; f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    <span class="nb">refine</span> (_ @ maponpaths (dag y x) p @ _).
+    - <span class="nb">apply</span> pathsinv0, dagger_to_law_idemp.
+    - <span class="nb">apply</span> dagger_to_law_idemp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_dagger_laws</span>
+             {<span class="nv">C</span> : category} {<span class="nv">d</span> : dagger_structure C}
+             (<span class="nv">lid</span> : dagger_law_id d)
+             (<span class="nv">lcomp</span> : dagger_law_comp d)
+             (<span class="nv">lidemp</span> : dagger_law_idemp d)
+    : dagger_laws d
+    := lid ,, lcomp ,, lidemp.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_category</span> : UU
+    := ∑ C : category, dagger C.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_category_to_cat</span> (<span class="nv">C</span> : dagger_category)
+    : category := pr1 C.
+  <span class="kn">Coercion</span> <span class="nf">dagger_category_to_cat</span> : dagger_category &gt;-&gt; category.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_category_to_dagger</span> (<span class="nv">C</span> : dagger_category) : dagger C
+    := pr2 C.
+  <span class="kn">Coercion</span> <span class="nf">dagger_category_to_dagger</span> : dagger_category &gt;-&gt; dagger.
+
+  <span class="kn">Lemma</span> <span class="nf">dagger_category_equality</span> (<span class="nv">C1</span> <span class="nv">C2</span> : dagger_category)
+    : ∏ p : precategory_data_from_precategory C1 = precategory_data_from_precategory C2,
+        (∏ x y : C2, ∏ f : C2⟦x,y⟧,
+         pr1 (transportf dagger (category_eq C1 C2 p) C1) x y f = C2 x y f)
+      -&gt; C1 = C2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p q.
+    use total2_paths_f.
+    - <span class="bp">exact</span> (category_eq _ _ p).
+    - use subtypePath.
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_dagger_laws.
+      + <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> q.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_dagger_category</span>
+    {<span class="nv">C</span> : category}
+    {<span class="nv">d</span> : dagger_structure C}
+    (<span class="nv">dl</span> : dagger_laws d)
+    : dagger_category := C ,, d ,, dl.
+
+<span class="kn">End</span> <span class="nf">DaggerCategories</span>.
+
+<span class="kn">Notation</span> <span class="s2">"{ f }_ C ^†"</span> := (dagger_category_to_dagger C _ _ f): cat.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DaggerCategories/Categories.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Projection.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************</span>
+
+<span class="sd"> The projection</span>
+
+<span class="sd"> Given a strict functor `F : C ⟶ StrictCat`, then we have a projection going</span>
+<span class="sd"> from `∫ F` to `C`.</span>
+<span class="sd"> In addition, the Grothendieck construction is pseudofunctorial.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The projection</span>
+<span class="sd"> 2. Action on 1-cells</span>
+<span class="sd"> 3. Action on 2-cells</span>
+<span class="sd"> 4. Identitor</span>
+<span class="sd"> 5. Compositor</span>
+
+<span class="sd"> *******************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.GrothendieckConstruction.TotalCategory.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. The projection</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">pr1_total_category_of_set_functor_data</span>
+           {<span class="nv">C</span> : setcategory}
+           (<span class="nv">F</span> : C ⟶ cat_of_setcategory)
+  : functor_data
+      (total_setcategory_of_set_functor F)
+      C.
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, pr1 x).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, pr1 f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr1_total_category_of_set_is_functor</span>
+           {<span class="nv">C</span> : setcategory}
+           (<span class="nv">F</span> : C ⟶ cat_of_setcategory)
+  : is_functor (pr1_total_category_of_set_functor_data F).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr1_total_category_of_set_functor</span>
+           {<span class="nv">C</span> : setcategory}
+           (<span class="nv">F</span> : C ⟶ cat_of_setcategory)
+  : total_setcategory_of_set_functor F ⟶ C.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - <span class="bp">exact</span> (pr1_total_category_of_set_functor_data F).
+  - <span class="bp">exact</span> (pr1_total_category_of_set_is_functor F).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Action on 1-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">FunctorTotalCategoryFromSetFunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : setcategory}
+          (<span class="nv">F</span> : C₁ ⟶ C₂)
+          {<span class="nv">G₁</span> : C₁ ⟶ cat_of_setcategory}
+          {<span class="nv">G₂</span> : C₂ ⟶ cat_of_setcategory}
+          (<span class="nv">α</span> : G₁ ⟹ F ∙ G₂).
+
+  <span class="kn">Definition</span> <span class="nf">functor_total_category_of_set_functor_eq</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : total_precategory_of_set_functor G₁}
+             (<span class="nv">f</span> : x --&gt; y)
+    : pr1 (# G₂ (# F (pr1 f))) (pr1 (pr1 α (pr1 x)) (pr2 x))
+      =
+      pr1 (α (pr1 y)) (pr1 (# G₁ (pr1 f)) (pr2 x)).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (!(eqtohomot (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr11 z) (nat_trans_ax α _ _ (pr1 f))) (pr2 x))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_total_category_of_set_functor_data</span>
+    : functor_data
+        (total_setcategory_of_set_functor G₁)
+        (total_setcategory_of_set_functor G₂).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, F (pr1 x) ,, pr1 (pr1 α (pr1 x)) (pr2 x)).
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, #F (pr1 f) ,, _).
+      <span class="bp">exact</span> (idtoiso (functor_total_category_of_set_functor_eq f)
+             · # (pr1 (α (pr1 y))) (pr2 f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_functor_functor_total_category_of_set_functor</span>
+    : is_functor functor_total_category_of_set_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> x.
+      use eq_mor_category_of_set_functor ; <span class="nb">cbn</span>.
+      + <span class="nb">apply</span> functor_id.
+      + etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          <span class="bp">exact</span> (pr1_maponpaths_idtoiso
+                   (α (pr1 x))
+                   (eq_in_set_fiber (functor_id G₁ (pr1 x)) (pr2 x))).
+        }
+        etrans.
+        {
+          <span class="nb">refine</span> (!_).
+          <span class="bp">exact</span> (pr1_idtoiso_concat
+                   _
+                   (maponpaths
+                      (pr1 (α (pr1 x)))
+                      (eq_in_set_fiber (functor_id G₁ (pr1 x)) (pr2 x)))).
+        }
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">refine</span> (!_).
+          <span class="bp">exact</span> (pr1_idtoiso_concat
+                   _
+                   (eq_in_set_fiber
+                      (functor_id G₂ (F (pr1 x))) (pr1 (pr1 α (pr1 x)) (pr2 x)))).
+        }
+        <span class="nb">apply</span> setcategory_eq_idtoiso.
+    - <span class="nb">intros</span> x y z f g.
+      use eq_mor_category_of_set_functor ; <span class="nb">cbn</span>.
+      + <span class="nb">apply</span> functor_comp.
+      + <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!_).
+          <span class="bp">exact</span> (pr1_idtoiso_concat
+                   _
+                   (eq_in_set_fiber
+                      (functor_comp G₂ (# F (pr1 f)) (# F (pr1 g)))
+                      (pr1 (pr1 α (pr1 x)) (pr2 x)))).
+        }
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">apply</span> functor_comp.
+          }
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span>  (pr1_maponpaths_idtoiso
+                    (# G₂ (# F (pr1 g)))
+                    (functor_total_category_of_set_functor_eq f)).
+        }
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!_).
+          <span class="bp">exact</span> (pr1_idtoiso_concat
+                   (maponpaths
+                      (<span class="k">λ</span> <span class="nv">q</span>, pr1 (# G₂ q) (pr1 (pr1 α (pr1 x)) (pr2 x)))
+                      (functor_comp F (pr1 f) (pr1 g))
+                       @ eq_in_set_fiber
+                           (functor_comp G₂ (# F (pr1 f)) (# F (pr1 g)))
+                           (pr1 (pr1 α (pr1 x)) (pr2 x)))
+                   (maponpaths
+                      (pr1 (# G₂ (# F (pr1 g))))
+                      (functor_total_category_of_set_functor_eq f))).
+        }
+        <span class="nb">refine</span> (!_).
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> functor_comp.
+          }
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> functor_comp.
+        }
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (!_).
+            <span class="bp">exact</span> (pr1_maponpaths_idtoiso
+                     (α (pr1 z))
+                     (eq_in_set_fiber (functor_comp G₁ (pr1 f) (pr1 g)) (pr2 x))).
+          }
+          <span class="nb">refine</span> (!_).
+          <span class="bp">exact</span> (pr1_idtoiso_concat
+                   _
+                   (maponpaths
+                      (pr1 (α (pr1 z)))
+                      (eq_in_set_fiber (functor_comp G₁ (pr1 f) (pr1 g)) (pr2 x)))).
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (path_functor_mor_right
+                   (nat_trans_ax α _ _ (pr1 g))
+                   (pr2 f)).
+        }
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> pr1_idtoiso_concat.
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> setcategory_eq_idtoiso_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_total_category_of_set_functor</span>
+    : total_setcategory_of_set_functor G₁ ⟶ total_setcategory_of_set_functor G₂.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> functor_total_category_of_set_functor_data.
+    - <span class="bp">exact</span> is_functor_functor_total_category_of_set_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_total_category_of_set_functor_comm</span>
+    : pr1_total_category_of_set_functor G₁ ∙ F
+      ⟹
+      functor_total_category_of_set_functor ∙ pr1_total_category_of_set_functor G₂.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, identity _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> (id_right _ @ !(id_left _))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_nat_z_iso_functor_total_category_of_set_functor_comm</span>
+    : is_nat_z_iso functor_total_category_of_set_functor_comm.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> identity_is_z_iso.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FunctorTotalCategoryFromSetFunctor</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Action on 2-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">NatTransTotalCategoryFromNatTrans</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : setcategory}
+          {<span class="nv">F₁</span> <span class="nv">F₂</span> : C₁ ⟶ C₂}
+          (<span class="nv">α</span> : F₁ ⟹ F₂)
+          {<span class="nv">G₁</span> : C₁ ⟶ cat_of_setcategory}
+          {<span class="nv">G₂</span> : C₂ ⟶ cat_of_setcategory}
+          (<span class="nv">β₁</span> : G₁ ⟹ F₁ ∙ G₂)
+          (<span class="nv">β₂</span> : G₁ ⟹ F₂ ∙ G₂)
+          (<span class="nv">p</span> : ∏ (x : C₁), pr1 β₁ x ∙ # (pr1 G₂) (pr1 α x) = pr1 β₂ x).
+
+  <span class="kn">Definition</span> <span class="nf">nat_trans_total_category_of_set_functor_eq</span>
+             (<span class="nv">x</span> : total_precategory_of_set_functor G₁)
+    : pr1 (# G₂ (α (pr1 x))) (pr1 (pr1 β₁ (pr1 x)) (pr2 x))
+      =
+      pr1 (pr1 β₂ (pr1 x)) (pr2 x).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (eqtohomot (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr11 z) (p (pr1 x))) (pr2 x)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nat_trans_total_category_of_set_functor_data</span>
+    : nat_trans_data
+        (functor_total_category_of_set_functor F₁ β₁)
+        (functor_total_category_of_set_functor F₂ β₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span>, α (pr1 x) ,, _).
+    <span class="bp">exact</span> (idtoiso (nat_trans_total_category_of_set_functor_eq x)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nat_trans_total_category_of_set_functor_is_nat_trans</span>
+    : is_nat_trans
+        _ _
+        nat_trans_total_category_of_set_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    use eq_mor_category_of_set_functor.
+    - <span class="nb">apply</span> nat_trans_ax.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> functor_comp.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# G₂ (α (pr1 y)))).
+        }
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat
+                 (eq_in_set_fiber
+                    (functor_comp G₂ (# F₁ (pr1 f)) (α (pr1 y)))
+                    (pr1 (pr1 β₁ (pr1 x)) (pr2 x)))).
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (!_).
+            <span class="bp">exact</span> (pr1_idtoiso_concat
+                     _
+                     (eq_in_set_fiber
+                        (functor_comp G₂ (α (pr1 x)) (# F₂ (pr1 f)))
+                        (pr1 (pr1 β₁ (pr1 x)) (pr2 x)))).
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# G₂ (# F₂ (pr1 f)))).
+          }
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_idtoiso_concat
+                   (_
+                    @ eq_in_set_fiber
+                        (functor_comp G₂ (α (pr1 x)) (# F₂ (pr1 f)))
+                        (pr1 (pr1 β₁ (pr1 x)) (pr2 x)))).
+        }
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat
+                 ((_
+                  @ eq_in_set_fiber
+                      (functor_comp G₂ (α (pr1 x)) (# F₂ (pr1 f)))
+                      (pr1 (pr1 β₁ (pr1 x)) (pr2 x)))
+                  @ _)).
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (path_functor_mor_right (p (pr1 y)) (pr2 f)).
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="bp">exact</span> (pr1_idtoiso_concat
+                 _
+                 (nat_trans_total_category_of_set_functor_eq y)).
+      }
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> pr1_idtoiso_concat.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> setcategory_refl_idtoiso.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> id_right.
+      }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> setcategory_eq_idtoiso.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nat_trans_total_category_of_set_functor</span>
+    : functor_total_category_of_set_functor F₁ β₁
+        ⟹
+        functor_total_category_of_set_functor F₂ β₂.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> nat_trans_total_category_of_set_functor_data.
+    - <span class="bp">exact</span> nat_trans_total_category_of_set_functor_is_nat_trans.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">NatTransTotalCategoryFromNatTrans</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Identitor</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">functor_total_category_of_set_functor_on_id_data</span>
+           {<span class="nv">C</span> : setcategory}
+           (<span class="nv">F</span> : C ⟶ cat_of_setcategory)
+  : nat_trans_data
+      (functor_identity _)
+      (functor_total_category_of_set_functor
+         (functor_identity C)
+         (nat_trans_id F))
+  := <span class="k">λ</span> <span class="nv">_</span>, identity _.
+
+<span class="kn">Definition</span> <span class="nf">functor_total_category_of_set_functor_on_id_is_nat_trans</span>
+           {<span class="nv">C</span> : setcategory}
+           (<span class="nv">F</span> : C ⟶ cat_of_setcategory)
+  : is_nat_trans
+      _ _
+      (functor_total_category_of_set_functor_on_id_data F).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f.
+  <span class="nb">refine</span> (id_right _ @ _ @ !(id_left _)).
+  use eq_mor_category_of_set_functor.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> setcategory_refl_idtoiso.
+    }
+    <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_total_category_of_set_functor_on_id</span>
+           {<span class="nv">C</span> : setcategory}
+           (<span class="nv">F</span> : C ⟶ cat_of_setcategory)
+  : functor_identity _
+    ⟹
+    functor_total_category_of_set_functor
+      (functor_identity C)
+      (nat_trans_id F).
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (functor_total_category_of_set_functor_on_id_data F).
+  - <span class="bp">exact</span> (functor_total_category_of_set_functor_on_id_is_nat_trans F).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_nat_z_iso_functor_total_category_of_set_functor_on_id</span>
+          {<span class="nv">C</span> : setcategory}
+          (<span class="nv">F</span> : C ⟶ cat_of_setcategory)
+  : is_nat_z_iso (functor_total_category_of_set_functor_on_id_data F).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>.
+  <span class="nb">apply</span> identity_is_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Compositor</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">functor_total_category_of_set_functor_on_comp_data</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : setcategory}
+           {<span class="nv">F₁</span> : C₁ ⟶ C₂}
+           {<span class="nv">F₂</span> : C₂ ⟶ C₃}
+           {<span class="nv">G₁</span> : C₁ ⟶ cat_of_setcategory}
+           {<span class="nv">G₂</span> : C₂ ⟶ cat_of_setcategory}
+           {<span class="nv">G₃</span> : C₃ ⟶ cat_of_setcategory}
+           (<span class="nv">α</span> : G₁ ⟹ F₁ ∙ G₂)
+           (<span class="nv">β</span> : G₂ ⟹ F₂ ∙ G₃)
+  : nat_trans_data
+      (functor_total_category_of_set_functor F₁ α
+       ∙ functor_total_category_of_set_functor F₂ β)
+      (functor_total_category_of_set_functor
+         (F₁ ∙ F₂)
+         (nat_trans_comp _ _ _ α (pre_whisker F₁ β)))
+  := <span class="k">λ</span> <span class="nv">_</span>, identity _.
+
+<span class="kn">Definition</span> <span class="nf">functor_total_category_of_set_functor_on_comp_is_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : setcategory}
+           {<span class="nv">F₁</span> : C₁ ⟶ C₂}
+           {<span class="nv">F₂</span> : C₂ ⟶ C₃}
+           {<span class="nv">G₁</span> : C₁ ⟶ cat_of_setcategory}
+           {<span class="nv">G₂</span> : C₂ ⟶ cat_of_setcategory}
+           {<span class="nv">G₃</span> : C₃ ⟶ cat_of_setcategory}
+           (<span class="nv">α</span> : G₁ ⟹ F₁ ∙ G₂)
+           (<span class="nv">β</span> : G₂ ⟹ F₂ ∙ G₃)
+  : is_nat_trans
+      _ _
+      (functor_total_category_of_set_functor_on_comp_data α β).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f.
+  <span class="nb">refine</span> (id_right _ @ _ @ !(id_left _)).
+  use eq_mor_category_of_set_functor ; <span class="nb">cbn</span>.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ @ !(id_left _)).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> functor_comp.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (pr1_maponpaths_idtoiso (β (F₁ (pr1 y)))).
+    }
+    etrans.
+    {
+      <span class="nb">refine</span> (!_).
+      <span class="bp">exact</span> (pr1_idtoiso_concat
+               _
+               (maponpaths
+                  (pr1 (β (F₁ (pr1 y))))
+                  (functor_total_category_of_set_functor_eq F₁ α f))).
+    }
+    <span class="nb">apply</span> setcategory_eq_idtoiso.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_total_category_of_set_functor_on_comp</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : setcategory}
+           {<span class="nv">F₁</span> : C₁ ⟶ C₂}
+           {<span class="nv">F₂</span> : C₂ ⟶ C₃}
+           {<span class="nv">G₁</span> : C₁ ⟶ cat_of_setcategory}
+           {<span class="nv">G₂</span> : C₂ ⟶ cat_of_setcategory}
+           {<span class="nv">G₃</span> : C₃ ⟶ cat_of_setcategory}
+           (<span class="nv">α</span> : G₁ ⟹ F₁ ∙ G₂)
+           (<span class="nv">β</span> : G₂ ⟹ F₂ ∙ G₃)
+  : functor_total_category_of_set_functor F₁ α
+    ∙ functor_total_category_of_set_functor F₂ β
+    ⟹
+    functor_total_category_of_set_functor
+      (F₁ ∙ F₂)
+      (nat_trans_comp _ _ _ α (pre_whisker F₁ β)).
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (functor_total_category_of_set_functor_on_comp_data α β).
+  - <span class="bp">exact</span> (functor_total_category_of_set_functor_on_comp_is_nat_trans α β).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_nat_z_iso_functor_total_category_of_set_functor_on_comp</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : setcategory}
+           {<span class="nv">F₁</span> : C₁ ⟶ C₂}
+           {<span class="nv">F₂</span> : C₂ ⟶ C₃}
+           {<span class="nv">G₁</span> : C₁ ⟶ cat_of_setcategory}
+           {<span class="nv">G₂</span> : C₂ ⟶ cat_of_setcategory}
+           {<span class="nv">G₃</span> : C₃ ⟶ cat_of_setcategory}
+           (<span class="nv">α</span> : G₁ ⟹ F₁ ∙ G₂)
+           (<span class="nv">β</span> : G₂ ⟹ F₂ ∙ G₃)
+  : is_nat_z_iso
+      (functor_total_category_of_set_functor_on_comp α β).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>.
+  <span class="nb">apply</span> identity_is_z_iso.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/GrothendieckConstruction/Projection.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Compositor
+  &gt;
+  &gt;  *******************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

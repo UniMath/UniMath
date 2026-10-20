@@ -1,0 +1,792 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>BinarySums.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(****************************************************************</span>
+
+<span class="sd"> Coproducts of DCPOs</span>
+
+<span class="sd"> We construct coproducts of DCPOs, and we show that the</span>
+<span class="sd"> inclusion functions are Scott continuous. In addition, we show</span>
+<span class="sd"> that the map coming from the universal property is Scott</span>
+<span class="sd"> continuous.</span>
+
+<span class="sd"> To construct the coproduct, we take the coproduct of the</span>
+<span class="sd"> underlying posets, and then it remains to prove completeness.</span>
+<span class="sd"> The idea of this proof as follows: a directed set in the</span>
+<span class="sd"> coproduct of `X` and `Y` is either a directed set in `X` or a</span>
+<span class="sd"> directed set in `Y`. The main statement for this is proven in</span>
+<span class="sd"> [directed_set_all_inl_or_all_inr].</span>
+<span class="sd"> It says that either every value of the directed set is in `X`</span>
+<span class="sd"> or that every value is in `Y`. We can determine in which of</span>
+<span class="sd"> these cases we are by looking at the element of the directed</span>
+<span class="sd"> set and since every two elements have an upper bound, all other</span>
+<span class="sd"> elements must be in the same one. Note that it is essential here</span>
+<span class="sd"> to use propositional truncations, because they are necessary to</span>
+<span class="sd"> make use of directedness.</span>
+
+<span class="sd"> The statement [directed_set_all_inl_or_all_inr] gives us two</span>
+<span class="sd"> cases to consider, and these are treated similarly. In the first</span>
+<span class="sd"> case, we construct a directed set in `X`:</span>
+<span class="sd"> [all_inl_directed_set_to_left]</span>
+<span class="sd"> while in the second case, we construct a directed set in `Y`:</span>
+<span class="sd"> [all_inr_directed_set_to_right].</span>
+<span class="sd"> We also prove that the least upperbound of these directed sets</span>
+<span class="sd"> correspond to the least upperbound of the original directed set.</span>
+
+<span class="sd"> Afterwards, we prove two statements:</span>
+<span class="sd"> 1. [directed_set_coproduct_with_eq]</span>
+<span class="sd"> 2. [directed_set_coproduct]</span>
+<span class="sd"> These collect all the facts about directed sets in the</span>
+<span class="sd"> coproduct. The first is a bit stronger, because it also gives</span>
+<span class="sd"> equality between members of the two directed sets.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Directed sets in the coproduct</span>
+<span class="sd"> 2. Coproduct of DCPOs</span>
+<span class="sd"> 3. Scott continuity of inclusion</span>
+<span class="sd"> 4. The sum of Scott continuous maps is Scott continuous</span>
+
+<span class="sd"> ****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.ScottContinuous.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> dcpo.
+
+<span class="kn">Section</span> <span class="nf">CoproductOfDCPO</span>.
+  <span class="kn">Context</span> (<span class="nv">X</span> <span class="nv">Y</span> : dcpo).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Directed sets in the coproduct</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">DirectedSetInCoproduct</span>.
+    <span class="kn">Context</span> (<span class="nv">D</span> : directed_set (coproduct_PartialOrder X Y)).
+
+    <span class="kn">Definition</span> <span class="nf">directed_set_all_inl_or_all_inr</span>
+      : (<span class="k">∀</span> (<span class="nv">i</span> : D), <span class="k">∃</span> (<span class="nv">x</span> : X), D i = inl x)
+        ∨
+        (<span class="k">∀</span> (<span class="nv">i</span> : D), <span class="k">∃</span> (<span class="nv">y</span> : Y), D i = inr y).
+    <span class="kn">Proof</span>.
+      <span class="nb">assert</span> (h := directed_set_el D).
+      <span class="nb">revert</span> h.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> i.
+      <span class="nb">pose</span> (d := D i).
+      <span class="nb">assert</span> (p : d = D i) <span class="bp">by</span> <span class="nb">apply</span> idpath.
+      <span class="nb">induction</span> d <span class="k">as</span> [ x | y ].
+      - <span class="nb">refine</span> (hinhpr (inl (<span class="k">λ</span> <span class="nv">j</span>, _))).
+        <span class="nb">assert</span> (t := directed_set_top D i j).
+        <span class="nb">revert</span> t.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">intros</span> k.
+        <span class="nb">induction</span> k <span class="k">as</span> [ t [ H₁ H₂ ]].
+        <span class="nb">pose</span> (Dt := D t).
+        <span class="nb">assert</span> (q : Dt = D t) <span class="bp">by</span> <span class="nb">apply</span> idpath.
+        <span class="nb">induction</span> Dt <span class="k">as</span> [ x' | y' ].
+        + use hinhpr.
+          <span class="nb">pose</span> (w := D j).
+          <span class="nb">assert</span> (r : w = D j) <span class="bp">by</span> <span class="nb">apply</span> idpath.
+          <span class="nb">induction</span> w <span class="k">as</span> [ x'' | y'' ].
+          * <span class="bp">exact</span> (x'' ,, !r).
+          * <span class="nb">rewrite</span> &lt;- q, &lt;- r <span class="k">in</span> H₂.
+            <span class="nb">cbn</span> <span class="k">in</span> H₂.
+            <span class="nb">apply</span> fromempty.
+            <span class="bp">exact</span> H₂.
+        + <span class="nb">rewrite</span> &lt;- p, &lt;- q <span class="k">in</span> H₁.
+          <span class="nb">cbn</span> <span class="k">in</span> H₁.
+          <span class="nb">apply</span> fromempty.
+          <span class="bp">exact</span> H₁.
+      - <span class="nb">refine</span> (hinhpr (inr (<span class="k">λ</span> <span class="nv">j</span>, _))).
+        <span class="nb">assert</span> (t := directed_set_top D i j).
+        <span class="nb">revert</span> t.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">intros</span> k.
+        <span class="nb">induction</span> k <span class="k">as</span> [ t [ H₁ H₂ ]].
+        <span class="nb">pose</span> (Dt := D t).
+        <span class="nb">assert</span> (q : Dt = D t) <span class="bp">by</span> <span class="nb">apply</span> idpath.
+        <span class="nb">induction</span> Dt <span class="k">as</span> [ x' | y' ].
+        + use hinhpr.
+          <span class="nb">pose</span> (w := D j).
+          <span class="nb">rewrite</span> &lt;- p, &lt;- q <span class="k">in</span> H₁.
+          <span class="nb">cbn</span> <span class="k">in</span> H₁.
+          <span class="nb">apply</span> fromempty.
+          <span class="bp">exact</span> H₁.
+        + use hinhpr.
+          <span class="nb">pose</span> (w := D j).
+          <span class="nb">assert</span> (r : w = D j) <span class="bp">by</span> <span class="nb">apply</span> idpath.
+          <span class="nb">induction</span> w <span class="k">as</span> [ x'' | y'' ].
+          * <span class="nb">rewrite</span> &lt;- q, &lt;- r <span class="k">in</span> H₂.
+            <span class="nb">cbn</span> <span class="k">in</span> H₂.
+            <span class="nb">apply</span> fromempty.
+            <span class="bp">exact</span> H₂.
+          * <span class="bp">exact</span> (y'' ,, !r).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Section</span> <span class="nf">LeftDirectedSet</span>.
+      <span class="kn">Context</span> (<span class="nv">H</span> : <span class="k">∀</span> (<span class="nv">i</span> : D), <span class="k">∃</span> (<span class="nv">x</span> : X), D i = inl x).
+
+      <span class="kn">Definition</span> <span class="nf">all_inl_directed_set_map_help</span>
+                 (<span class="nv">i</span> : D)
+                 (<span class="nv">w</span> : X ⨿ Y)
+                 (<span class="nv">r</span> : w = D i)
+        : X.
+      <span class="kn">Proof</span>.
+        <span class="nb">induction</span> w <span class="k">as</span> [ x | y ].
+        - <span class="bp">exact</span> x.
+        - <span class="kp">abstract</span>
+            (<span class="nb">apply</span> fromempty ;
+             <span class="nb">assert</span> (bot := H i) ;
+             <span class="nb">revert</span> bot ;
+             use factor_through_squash ; [ <span class="nb">apply</span> isapropempty | ] ;
+             <span class="nb">intros</span> dx ;
+             <span class="nb">destruct</span> dx <span class="k">as</span> [ x p ] ;
+             <span class="bp">exact</span> (negpathsii1ii2 x y (!p @ !r))).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">all_inl_directed_set_map_eq_help</span>
+                  (<span class="nv">i</span> : D)
+                  (<span class="nv">x</span> : X)
+                  (<span class="nv">r</span> : inl x = D i)
+        : all_inl_directed_set_map_help i (inl x) r = x.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> idpath.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">all_inl_directed_set_map</span>
+                 (<span class="nv">i</span> : D)
+        : X
+        := all_inl_directed_set_map_help i (D i) (idpath _).
+
+      <span class="kn">Proposition</span> <span class="nf">all_inl_directed_set_map_eq</span>
+                  (<span class="nv">i</span> : D)
+                  (<span class="nv">x</span> : X)
+                  (<span class="nv">p</span> : D i = inl x)
+        : all_inl_directed_set_map i = x.
+      <span class="kn">Proof</span>.
+        <span class="nb">unfold</span> all_inl_directed_set_map.
+        <span class="nb">refine</span> (_ @ all_inl_directed_set_map_eq_help i x (!p)).
+        <span class="nb">induction</span> p.
+        <span class="nb">apply</span> idpath.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">is_directed_all_inl_directed_set_to_left</span>
+        : is_directed X all_inl_directed_set_map.
+      <span class="kn">Proof</span>.
+        <span class="nb">split</span>.
+        - <span class="bp">exact</span> (directed_set_el D).
+        - <span class="nb">intros</span> i j.
+          <span class="nb">assert</span> (w := directed_set_top D i j).
+          <span class="nb">revert</span> w.
+          use factor_through_squash.
+          {
+            <span class="nb">apply</span> propproperty.
+          }
+          <span class="nb">intros</span> t.
+          <span class="nb">induction</span> t <span class="k">as</span> [ t [ H₁ H₂ ]].
+          <span class="nb">assert</span> (q := H t).
+          <span class="nb">revert</span> q.
+          use factor_through_squash.
+          {
+            <span class="nb">apply</span> propproperty.
+          }
+          <span class="nb">intros</span> [ x Hx ].
+          <span class="nb">rewrite</span> Hx <span class="k">in</span> H₁, H₂.
+          <span class="nb">pose</span> (wi := D i).
+          <span class="nb">assert</span> (pi : wi = D i) <span class="bp">by</span> <span class="nb">apply</span> idpath.
+          <span class="nb">pose</span> (wj := D j).
+          <span class="nb">assert</span> (pj : wj = D j) <span class="bp">by</span> <span class="nb">apply</span> idpath.
+          <span class="nb">induction</span> wi <span class="k">as</span> [ xi | yi ].
+          + <span class="nb">induction</span> wj <span class="k">as</span> [ xj | yj ].
+            * <span class="nb">rewrite</span> &lt;- pi <span class="k">in</span> H₁.
+              <span class="nb">rewrite</span> &lt;- pj <span class="k">in</span> H₂.
+              <span class="nb">cbn</span> <span class="k">in</span> H₁, H₂.
+              <span class="nb">refine</span> (hinhpr (t ,, _)).
+              <span class="nb">rewrite</span> (all_inl_directed_set_map_eq t x Hx).
+              <span class="nb">rewrite</span> (all_inl_directed_set_map_eq i xi (!pi)).
+              <span class="nb">rewrite</span> (all_inl_directed_set_map_eq j xj (!pj)).
+              <span class="nb">split</span>.
+              ** <span class="bp">exact</span> H₁.
+              ** <span class="bp">exact</span> H₂.
+            * <span class="nb">rewrite</span> &lt;- pj <span class="k">in</span> H₂.
+              <span class="nb">cbn</span> <span class="k">in</span> H₂.
+              <span class="bp">exact</span> (fromempty H₂).
+          + <span class="nb">rewrite</span> &lt;- pi <span class="k">in</span> H₁.
+            <span class="nb">cbn</span> <span class="k">in</span> H₁.
+            <span class="bp">exact</span> (fromempty H₁).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">all_inl_directed_set_to_left</span>
+        : directed_set X.
+      <span class="kn">Proof</span>.
+        use make_directed_set.
+        - <span class="bp">exact</span> D.
+        - <span class="bp">exact</span> all_inl_directed_set_map.
+        - <span class="bp">exact</span> is_directed_all_inl_directed_set_to_left.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">is_lub_all_inl_directed_set_to_left</span>
+        : is_least_upperbound
+            (coproduct_PartialOrder X Y)
+            D
+            (inl (⨆ all_inl_directed_set_to_left)).
+      <span class="kn">Proof</span>.
+        <span class="nb">split</span>.
+        - <span class="nb">intros</span> i.
+          <span class="nb">assert</span> (p := H i).
+          <span class="nb">revert</span> p.
+          use factor_through_squash.
+          {
+            <span class="nb">apply</span> propproperty.
+          }
+          <span class="nb">intro</span> p.
+          <span class="nb">induction</span> p <span class="k">as</span> [ x p ].
+          <span class="nb">rewrite</span> p.
+          use (less_than_dcpo_lub all_inl_directed_set_to_left _ i).
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> (all_inl_directed_set_map_eq i x p).
+          <span class="nb">apply</span> refl_dcpo.
+        - <span class="nb">intros</span> y Hy.
+          <span class="nb">induction</span> y <span class="k">as</span> [ x | y ].
+          + use dcpo_lub_is_least ; <span class="nb">cbn</span>.
+            <span class="nb">intro</span> i.
+            <span class="nb">pose</span> (Hy i) <span class="k">as</span> p.
+            <span class="nb">cbn</span> <span class="k">in</span> p.
+            <span class="nb">assert</span> (H' := H i).
+            <span class="nb">revert</span> H'.
+            use factor_through_squash.
+            {
+              <span class="nb">apply</span> propproperty.
+            }
+            <span class="nb">intros</span> H'.
+            <span class="nb">induction</span> H' <span class="k">as</span> [ x' H' ].
+            <span class="nb">rewrite</span> H' <span class="k">in</span> p.
+            <span class="nb">cbn</span> <span class="k">in</span> p.
+            <span class="nb">rewrite</span> (all_inl_directed_set_map_eq i x' H').
+            <span class="bp">exact</span> p.
+          + <span class="nb">cbn</span>.
+            <span class="nb">assert</span> (el := directed_set_el D).
+            <span class="nb">revert</span> el.
+            use factor_through_squash.
+            {
+              <span class="nb">apply</span> isapropempty.
+            }
+            <span class="nb">intro</span> i.
+            <span class="nb">assert</span> (H' := H i).
+            <span class="nb">revert</span> H'.
+            use factor_through_squash.
+            {
+              <span class="nb">apply</span> isapropempty.
+            }
+            <span class="nb">intros</span> H'.
+            <span class="nb">induction</span> H' <span class="k">as</span> [ x H' ].
+            <span class="nb">pose</span> (Hy i) <span class="k">as</span> p.
+            <span class="nb">cbn</span> <span class="k">in</span> p.
+            <span class="nb">rewrite</span> H' <span class="k">in</span> p.
+            <span class="bp">exact</span> p.
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">LeftDirectedSet</span>.
+
+    <span class="kn">Section</span> <span class="nf">RightDirectedSet</span>.
+      <span class="kn">Context</span> (<span class="nv">H</span> : <span class="k">∀</span> (<span class="nv">i</span> : D), <span class="k">∃</span> (<span class="nv">y</span> : Y), D i = inr y).
+
+      <span class="kn">Definition</span> <span class="nf">all_inr_directed_set_map_help</span>
+                 (<span class="nv">i</span> : D)
+                 (<span class="nv">w</span> : X ⨿ Y)
+                 (<span class="nv">r</span> : w = D i)
+        : Y.
+      <span class="kn">Proof</span>.
+        <span class="nb">induction</span> w <span class="k">as</span> [ x | y ].
+        - <span class="kp">abstract</span>
+            (<span class="nb">apply</span> fromempty ;
+             <span class="nb">assert</span> (bot := H i) ;
+             <span class="nb">revert</span> bot ;
+             use factor_through_squash ; [ <span class="nb">apply</span> isapropempty | ] ;
+             <span class="nb">intros</span> dy ;
+             <span class="nb">destruct</span> dy <span class="k">as</span> [ y p ] ;
+             <span class="bp">exact</span> (negpathsii1ii2 _ _ (r @ p))).
+        - <span class="bp">exact</span> y.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">all_inr_directed_set_map_eq_help</span>
+                  (<span class="nv">i</span> : D)
+                  (<span class="nv">y</span> : Y)
+                  (<span class="nv">r</span> : inr y = D i)
+        : all_inr_directed_set_map_help i (inr y) r = y.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> idpath.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">all_inr_directed_set_map</span>
+                 (<span class="nv">i</span> : D)
+        : Y
+        := all_inr_directed_set_map_help i (D i) (idpath _).
+
+      <span class="kn">Proposition</span> <span class="nf">all_inr_directed_set_map_eq</span>
+                  (<span class="nv">i</span> : D)
+                  (<span class="nv">y</span> : Y)
+                  (<span class="nv">p</span> : D i = inr y)
+        : all_inr_directed_set_map i = y.
+      <span class="kn">Proof</span>.
+        <span class="nb">unfold</span> all_inr_directed_set_map.
+        <span class="nb">refine</span> (_ @ all_inr_directed_set_map_eq_help i y (!p)).
+        <span class="nb">induction</span> p.
+        <span class="nb">apply</span> idpath.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">is_directed_all_inr_directed_set_to_right</span>
+        : is_directed Y all_inr_directed_set_map.
+      <span class="kn">Proof</span>.
+        <span class="nb">split</span>.
+        - <span class="bp">exact</span> (directed_set_el D).
+        - <span class="nb">intros</span> i j.
+          <span class="nb">assert</span> (w := directed_set_top D i j).
+          <span class="nb">revert</span> w.
+          use factor_through_squash.
+          {
+            <span class="nb">apply</span> propproperty.
+          }
+          <span class="nb">intros</span> t.
+          <span class="nb">induction</span> t <span class="k">as</span> [ t [ H₁ H₂ ]].
+          <span class="nb">assert</span> (q := H t).
+          <span class="nb">revert</span> q.
+          use factor_through_squash.
+          {
+            <span class="nb">apply</span> propproperty.
+          }
+          <span class="nb">intros</span> [ y Hy ].
+          <span class="nb">rewrite</span> Hy <span class="k">in</span> H₁, H₂.
+          <span class="nb">pose</span> (wi := D i).
+          <span class="nb">assert</span> (pi : wi = D i) <span class="bp">by</span> <span class="nb">apply</span> idpath.
+          <span class="nb">pose</span> (wj := D j).
+          <span class="nb">assert</span> (pj : wj = D j) <span class="bp">by</span> <span class="nb">apply</span> idpath.
+          <span class="nb">induction</span> wi <span class="k">as</span> [ xi | yi ].
+          + <span class="nb">rewrite</span> &lt;- pi <span class="k">in</span> H₁.
+            <span class="nb">cbn</span> <span class="k">in</span> H₁.
+            <span class="bp">exact</span> (fromempty H₁).
+          + <span class="nb">induction</span> wj <span class="k">as</span> [ xj | yj ].
+            * <span class="nb">rewrite</span> &lt;- pj <span class="k">in</span> H₂.
+              <span class="nb">cbn</span> <span class="k">in</span> H₂.
+              <span class="bp">exact</span> (fromempty H₂).
+            * <span class="nb">rewrite</span> &lt;- pi <span class="k">in</span> H₁.
+              <span class="nb">rewrite</span> &lt;- pj <span class="k">in</span> H₂.
+              <span class="nb">cbn</span> <span class="k">in</span> H₁, H₂.
+              <span class="nb">refine</span> (hinhpr (t ,, _)).
+              <span class="nb">rewrite</span> (all_inr_directed_set_map_eq t y Hy).
+              <span class="nb">rewrite</span> (all_inr_directed_set_map_eq i yi (!pi)).
+              <span class="nb">rewrite</span> (all_inr_directed_set_map_eq j yj (!pj)).
+              <span class="nb">split</span>.
+              ** <span class="bp">exact</span> H₁.
+              ** <span class="bp">exact</span> H₂.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">all_inr_directed_set_to_right</span>
+        : directed_set Y.
+      <span class="kn">Proof</span>.
+        use make_directed_set.
+        - <span class="bp">exact</span> D.
+        - <span class="bp">exact</span> all_inr_directed_set_map.
+        - <span class="bp">exact</span> is_directed_all_inr_directed_set_to_right.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">is_lub_all_inr_directed_set_to_right</span>
+        : is_least_upperbound
+            (coproduct_PartialOrder X Y)
+            D
+            (inr (⨆ all_inr_directed_set_to_right)).
+      <span class="kn">Proof</span>.
+        <span class="nb">split</span>.
+        - <span class="nb">intros</span> i.
+          <span class="nb">assert</span> (p := H i).
+          <span class="nb">revert</span> p.
+          use factor_through_squash.
+          {
+            <span class="nb">apply</span> propproperty.
+          }
+          <span class="nb">intro</span> p.
+          <span class="nb">induction</span> p <span class="k">as</span> [ y p ].
+          <span class="nb">rewrite</span> p.
+          use (less_than_dcpo_lub all_inr_directed_set_to_right _ i).
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> (all_inr_directed_set_map_eq i y p).
+          <span class="nb">apply</span> refl_dcpo.
+        - <span class="nb">intros</span> y Hy.
+          <span class="nb">induction</span> y <span class="k">as</span> [ x | y ].
+          + <span class="nb">cbn</span>.
+            <span class="nb">assert</span> (el := directed_set_el D).
+            <span class="nb">revert</span> el.
+            use factor_through_squash.
+            {
+              <span class="nb">apply</span> isapropempty.
+            }
+            <span class="nb">intro</span> i.
+            <span class="nb">assert</span> (H' := H i).
+            <span class="nb">revert</span> H'.
+            use factor_through_squash.
+            {
+              <span class="nb">apply</span> isapropempty.
+            }
+            <span class="nb">intros</span> H'.
+            <span class="nb">induction</span> H' <span class="k">as</span> [ y' H' ].
+            <span class="nb">pose</span> (Hy i) <span class="k">as</span> p.
+            <span class="nb">cbn</span> <span class="k">in</span> p.
+            <span class="nb">rewrite</span> H' <span class="k">in</span> p.
+            <span class="bp">exact</span> p.
+          + use dcpo_lub_is_least ; <span class="nb">cbn</span>.
+            <span class="nb">intro</span> i.
+            <span class="nb">pose</span> (Hy i) <span class="k">as</span> p.
+            <span class="nb">cbn</span> <span class="k">in</span> p.
+            <span class="nb">assert</span> (H' := H i).
+            <span class="nb">revert</span> H'.
+            use factor_through_squash.
+            {
+              <span class="nb">apply</span> propproperty.
+            }
+            <span class="nb">intros</span> H'.
+            <span class="nb">induction</span> H' <span class="k">as</span> [ y' H' ].
+            <span class="nb">rewrite</span> H' <span class="k">in</span> p.
+            <span class="nb">cbn</span> <span class="k">in</span> p.
+            <span class="nb">rewrite</span> (all_inr_directed_set_map_eq i y' H').
+            <span class="bp">exact</span> p.
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">RightDirectedSet</span>.
+
+    <span class="kn">Definition</span> <span class="nf">directed_set_coproduct_with_eq</span>
+      : ((∑ (D' : D → X) (HD : is_directed X D'),
+          <span class="k">let</span> <span class="nv">DX</span> := make_directed_set _ D D' HD <span class="k">in</span>
+          (is_least_upperbound (coproduct_PartialOrder X Y) D (inl (⨆ DX)))
+          ×
+          (∏ (i : D), D i = inl (D' i)))
+        ∨
+        (∑ (D' : D → Y) (HD : is_directed Y D'),
+         <span class="k">let</span> <span class="nv">DY</span> := make_directed_set _ D D' HD <span class="k">in</span>
+         is_least_upperbound (coproduct_PartialOrder X Y) D (inr (⨆ DY))
+         ×
+         (∏ (i : D), D i = inr (D' i))))%type.
+    <span class="kn">Proof</span>.
+      <span class="nb">assert</span> (h := directed_set_all_inl_or_all_inr).
+      <span class="nb">revert</span> h.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> H.
+      <span class="nb">destruct</span> H <span class="k">as</span> [ H | H ].
+      - use hinhpr.
+        use inl.
+        <span class="nb">refine</span> (all_inl_directed_set_map H ,, _).
+        <span class="nb">refine</span> (is_directed_all_inl_directed_set_to_left H ,, _).
+        <span class="nb">split</span>.
+        + <span class="nb">apply</span> is_lub_all_inl_directed_set_to_left.
+        + <span class="nb">intro</span> i.
+          <span class="nb">assert</span> (p := H i).
+          <span class="nb">revert</span> p.
+          use factor_through_squash.
+          {
+            <span class="nb">apply</span> setproperty.
+          }
+          <span class="nb">intros</span> xH.
+          <span class="nb">induction</span> xH <span class="k">as</span> [ x p ].
+          <span class="nb">rewrite</span> (all_inl_directed_set_map_eq H i x p).
+          <span class="bp">exact</span> p.
+      - use hinhpr.
+        use inr.
+        <span class="nb">refine</span> (all_inr_directed_set_map H ,, _).
+        <span class="nb">refine</span> (is_directed_all_inr_directed_set_to_right H ,, _).
+        <span class="nb">split</span>.
+        + <span class="nb">apply</span> is_lub_all_inr_directed_set_to_right.
+        + <span class="nb">intro</span> i.
+          <span class="nb">assert</span> (p := H i).
+          <span class="nb">revert</span> p.
+          use factor_through_squash.
+          {
+            <span class="nb">apply</span> setproperty.
+          }
+          <span class="nb">intros</span> xH.
+          <span class="nb">induction</span> xH <span class="k">as</span> [ x p ].
+          <span class="nb">rewrite</span> (all_inr_directed_set_map_eq H i x p).
+          <span class="bp">exact</span> p.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">directed_set_coproduct</span>
+      : (∑ (D' : directed_set X),
+         is_least_upperbound (coproduct_PartialOrder X Y) D (inl (⨆ D')))
+        ∨
+        (∑ (D' : directed_set Y),
+         is_least_upperbound (coproduct_PartialOrder X Y) D (inr (⨆ D'))).
+    <span class="kn">Proof</span>.
+      <span class="nb">assert</span> (h := directed_set_all_inl_or_all_inr).
+      <span class="nb">revert</span> h.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> H.
+      <span class="nb">destruct</span> H <span class="k">as</span> [ H | H ].
+      - <span class="nb">refine</span> (hinhpr (inl (all_inl_directed_set_to_left H ,, _))).
+        <span class="nb">apply</span> is_lub_all_inl_directed_set_to_left.
+      - <span class="nb">refine</span> (hinhpr (inr (all_inr_directed_set_to_right H ,, _))).
+        <span class="nb">apply</span> is_lub_all_inr_directed_set_to_right.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">DirectedSetInCoproduct</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Coproduct of DCPOs</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">coproduct_dcpo_inl_lub</span>
+             (<span class="nv">D</span> : directed_set X)
+    : lub
+        (coproduct_PartialOrder X Y)
+        (directed_set_comp (inl_monotone_function X Y) D).
+  <span class="kn">Proof</span>.
+    use make_lub.
+    - <span class="bp">exact</span> (inl (⨆ D)).
+    - <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> i ;
+           <span class="nb">apply</span> (less_than_dcpo_lub _ _ i (refl_dcpo _))).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> y Hy ;
+           <span class="nb">cbn</span> <span class="k">in</span> y, Hy ;
+           <span class="nb">induction</span> y <span class="k">as</span> [ x' | y' ] ; [ <span class="bp">exact</span> (dcpo_lub_is_least D x' Hy) | ] ;
+           <span class="nb">cbn</span> <span class="k">in</span> * ;
+           <span class="nb">assert</span> (w := directed_set_el D) ;
+           <span class="nb">revert</span> w ;
+           use factor_through_squash ; [ <span class="nb">apply</span> isapropempty | ] ;
+           <span class="bp">exact</span> Hy).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coproduct_dcpo_inr_lub</span>
+             (<span class="nv">D</span> : directed_set Y)
+    : lub
+        (coproduct_PartialOrder X Y)
+        (directed_set_comp (inr_monotone_function X Y) D).
+  <span class="kn">Proof</span>.
+    use make_lub.
+    - <span class="bp">exact</span> (inr (⨆ D)).
+    - <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> i ;
+           <span class="nb">apply</span> (less_than_dcpo_lub _ _ i (refl_dcpo _))).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> y Hy ;
+           <span class="nb">cbn</span> <span class="k">in</span> y, Hy ;
+           <span class="nb">induction</span> y <span class="k">as</span> [ x' | y' ] ; [ | <span class="bp">exact</span> (dcpo_lub_is_least D y' Hy) ] ;
+           <span class="nb">cbn</span> <span class="k">in</span> * ;
+           <span class="nb">assert</span> (w := directed_set_el D) ;
+           <span class="nb">revert</span> w ;
+           use factor_through_squash ; [ <span class="nb">apply</span> isapropempty | ] ;
+           <span class="bp">exact</span> Hy).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coproduct_dcpo_lub</span>
+             (<span class="nv">D</span> : directed_set (coproduct_PartialOrder X Y))
+    : lub (coproduct_PartialOrder X Y) D.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (D' := directed_set_coproduct D).
+    <span class="nb">revert</span> D'.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> isaprop_lub.
+    }
+    <span class="nb">intros</span> D'.
+    <span class="nb">induction</span> D' <span class="k">as</span> [ D' | D' ].
+    - <span class="nb">induction</span> D' <span class="k">as</span> [ D' H ].
+      use make_lub.
+      + <span class="bp">exact</span> (inl (⨆ D')).
+      + <span class="bp">exact</span> H.
+    - <span class="nb">induction</span> D' <span class="k">as</span> [ D' H ].
+      use make_lub.
+      + <span class="bp">exact</span> (inr (⨆ D')).
+      + <span class="bp">exact</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coproduct_dcpo_struct</span>
+    : dcpo_struct (setcoprod X Y).
+  <span class="kn">Proof</span>.
+    use make_dcpo_struct.
+    - <span class="bp">exact</span> (coproduct_PartialOrder X Y).
+    - <span class="nb">intros</span> I Df HDf.
+      <span class="nb">pose</span> (D := make_directed_set _ I Df HDf).
+      <span class="bp">exact</span> (coproduct_dcpo_lub D).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coproduct_dcpo</span>
+    : dcpo
+    := _ ,, coproduct_dcpo_struct.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Scott continuity of inclusion</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">is_scott_continuous_inl</span>
+    : is_scott_continuous X coproduct_dcpo inl.
+  <span class="kn">Proof</span>.
+    use make_is_scott_continuous.
+    - <span class="nb">apply</span> inl_monotone_function.
+    - <span class="nb">intro</span> D ; <span class="nb">cbn</span>.
+      use (eq_lub
+             coproduct_dcpo
+             (directed_set_comp (inl_monotone_function X Y) D)).
+      + <span class="bp">exact</span> (pr2 (coproduct_dcpo_inl_lub D)).
+      + <span class="bp">exact</span> (is_least_upperbound_dcpo_comp_lub
+                 _
+                 D).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">inl_scott_continuous_map</span>
+    : scott_continuous_map X coproduct_dcpo
+    := inl ,, is_scott_continuous_inl.
+
+  <span class="kn">Proposition</span> <span class="nf">is_scott_continuous_inr</span>
+    : is_scott_continuous Y coproduct_dcpo inr.
+  <span class="kn">Proof</span>.
+    use make_is_scott_continuous.
+    - <span class="nb">apply</span> inr_monotone_function.
+    - <span class="nb">intro</span> D ; <span class="nb">cbn</span>.
+      use (eq_lub
+             coproduct_dcpo
+             (directed_set_comp (inr_monotone_function X Y) D)).
+      + <span class="bp">exact</span> (pr2 (coproduct_dcpo_inr_lub D)).
+      + <span class="bp">exact</span> (is_least_upperbound_dcpo_comp_lub
+                 _
+                 D).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">inr_scott_continuous_map</span>
+    : scott_continuous_map Y coproduct_dcpo
+    := inr ,, is_scott_continuous_inr.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. The sum of Scott continuous maps is Scott continuous</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">is_scott_continuous_sumofmaps</span>
+              {<span class="nv">Z</span> : dcpo}
+              {<span class="nv">f</span> : X → Z}
+              (<span class="nv">Pf</span> : is_scott_continuous X Z f)
+              {<span class="nv">g</span> : Y → Z}
+              (<span class="nv">Pg</span> : is_scott_continuous Y Z g)
+    : is_scott_continuous coproduct_dcpo Z (sumofmaps f g).
+  <span class="kn">Proof</span>.
+    use make_is_scott_continuous.
+    - <span class="bp">exact</span> (is_monotone_sumofmaps _ _ (pr1 Pf) (pr1 Pg)).
+    - <span class="nb">intros</span> D.
+      <span class="nb">assert</span> (D' := directed_set_coproduct_with_eq D).
+      <span class="nb">revert</span> D'.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> (pr1 Z).
+      }
+      <span class="nb">intros</span> D'.
+      <span class="nb">induction</span> D' <span class="k">as</span> [ D' | D' ].
+      + <span class="nb">induction</span> D' <span class="k">as</span> [ D' [ HD' [ H p ]]].
+        <span class="nb">pose</span> (DX := make_directed_set _ _ D' HD').
+        <span class="nb">assert</span> (⨆ D = inl (⨆ DX)) <span class="k">as</span> q.
+        {
+          use (eq_lub
+                 coproduct_dcpo
+                 D
+                 _
+                 H).
+          <span class="nb">apply</span> is_least_upperbound_dcpo_lub.
+        }
+        <span class="nb">rewrite</span> q.
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (scott_continuous_map_on_lub (f ,, Pf) DX @ _).
+        use antisymm_dcpo.
+        * use dcpo_lub_is_least.
+          <span class="nb">intro</span> i ; <span class="nb">cbn</span>.
+          use less_than_dcpo_lub.
+          ** <span class="bp">exact</span> i.
+          ** <span class="nb">cbn</span>.
+             <span class="nb">rewrite</span> p ; <span class="nb">cbn</span>.
+             <span class="nb">apply</span> refl_dcpo.
+        * use dcpo_lub_is_least.
+          <span class="nb">intro</span> i ; <span class="nb">cbn</span>.
+          use less_than_dcpo_lub.
+          ** <span class="bp">exact</span> i.
+          ** <span class="nb">cbn</span>.
+             <span class="nb">rewrite</span> p ; <span class="nb">cbn</span>.
+             <span class="nb">apply</span> refl_dcpo.
+      + <span class="nb">induction</span> D' <span class="k">as</span> [ D' [ HD' [ H p ]]].
+        <span class="nb">pose</span> (DY := make_directed_set _ _ D' HD').
+        <span class="nb">assert</span> (⨆ D = inr (⨆ DY)) <span class="k">as</span> q.
+        {
+          use (eq_lub
+                 coproduct_dcpo
+                 D
+                 _
+                 H).
+          <span class="nb">apply</span> is_least_upperbound_dcpo_lub.
+        }
+        <span class="nb">rewrite</span> q.
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (scott_continuous_map_on_lub (g ,, Pg) DY @ _).
+        use antisymm_dcpo.
+        * use dcpo_lub_is_least.
+          <span class="nb">intro</span> i ; <span class="nb">cbn</span>.
+          use less_than_dcpo_lub.
+          ** <span class="bp">exact</span> i.
+          ** <span class="nb">cbn</span>.
+             <span class="nb">rewrite</span> p ; <span class="nb">cbn</span>.
+             <span class="nb">apply</span> refl_dcpo.
+        * use dcpo_lub_is_least.
+          <span class="nb">intro</span> i ; <span class="nb">cbn</span>.
+          use less_than_dcpo_lub.
+          ** <span class="bp">exact</span> i.
+          ** <span class="nb">cbn</span>.
+             <span class="nb">rewrite</span> p ; <span class="nb">cbn</span>.
+             <span class="nb">apply</span> refl_dcpo.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sumof_scott_continuous_maps</span>
+             {<span class="nv">Z</span> : dcpo}
+             (<span class="nv">f</span> : scott_continuous_map X Z)
+             (<span class="nv">g</span> : scott_continuous_map Y Z)
+    : scott_continuous_map coproduct_dcpo Z
+    := sumofmaps f g ,, is_scott_continuous_sumofmaps (pr2 f) (pr2 g).
+<span class="kn">End</span> <span class="nf">CoproductOfDCPO</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/Examples/BinarySums.v</tt>, line 47)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. The sum of Scott continuous maps is Scott continuous
+  &gt;
+  &gt;  ****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.OrderTheory.Posets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

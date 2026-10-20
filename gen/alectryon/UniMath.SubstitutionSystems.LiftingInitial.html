@@ -1,0 +1,892 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LiftingInitial.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Benedikt Ahrens, Ralph Matthes</span>
+
+<span class="sd">SubstitutionSystems</span>
+
+<span class="sd">2015</span>
+
+
+<span class="sd">************************************************************)</span>
+
+
+<span class="sd">(** **********************************************************</span>
+
+<span class="sd">Contents :</span>
+
+<span class="sd">- Construction of a substitution system from an initial algebra</span>
+<span class="sd">- Proof that the substitution system constructed from an</span>
+<span class="sd">  initial algebra is an initial substitution system</span>
+
+
+<span class="sd">************************************************************)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kt">Set</span> Kernel Term Sharing.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-txt">
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.yoneda.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.HorizontalComposition.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctorsComposition.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.Signatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.SubstitutionSystems.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.GenMendlerIteration.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RightKanExtension.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.GenMendlerIteration.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.BicatOfCatsElementary.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.<span class="kn">Notation</span>.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> subsys.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Local Coercion</span> <span class="nf">alg_carrier</span> : algebra_ob &gt;-&gt; ob.
+
+<span class="kn">Section</span> <span class="nf">category_Algebra</span>.
+
+<span class="kn">Context</span>  (<span class="nv">C</span> : category) (<span class="nv">CP</span> : BinCoproducts C).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'EndC'"</span>:= ([C, C]) .
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'Ptd'"</span> := (category_Ptd C).
+
+<span class="kn">Let</span> <span class="nf">CPEndC</span> : BinCoproducts EndC := BinCoproducts_functor_precat _ _ CP.
+<span class="kn">Let</span> <span class="nf">EndEndC</span> := [EndC, EndC].
+<span class="kn">Let</span> <span class="nf">CPEndEndC</span>:= BinCoproducts_functor_precat _ _ CPEndC: BinCoproducts EndEndC.
+
+
+<span class="kn">Context</span> (<span class="nv">KanExt</span> : ∏ Z : Ptd, GlobalRightKanExtensionExists _ _ (U Z) C).
+
+<span class="kn">Context</span> (<span class="nv">H</span> : Presignature C C C).
+<span class="kn">Let</span> <span class="nf">θ</span> := theta H.
+
+<span class="kn">Let</span> <span class="nf">Const_plus_H</span> (<span class="nv">X</span> : EndC) : functor EndC EndC := Const_plus_H C CP H X.
+
+<span class="kn">Let</span> <span class="nf">Id_H</span> :  functor [C, C] [C, C] := Id_H C CP H.
+
+<span class="kn">Let</span> <span class="nf">Alg</span> : category := FunctorAlg Id_H.
+
+
+<span class="kn">Context</span> (<span class="nv">IA</span> : Initial Alg).
+
+<span class="kn">Definition</span> <span class="nf">SpecializedGMIt</span> (<span class="nv">Z</span> : Ptd) (<span class="nv">X</span> : EndC)
+  :  ∏ (G : functor [C, C] [C, C])
+       (ρ : [C, C] ⟦ G X, X ⟧)
+       (θ : functor_composite Id_H (ℓ (U Z)) ⟹ functor_composite (ℓ (U Z)) G),
+     <span class="k">∃</span>! h : [C, C] ⟦ ℓ (U Z) (` (InitialObject IA)), X ⟧,
+            # (ℓ (U Z)) (alg_map Id_H (InitialObject IA)) · h
+            =
+            θ (` (InitialObject IA)) · # G h · ρ
+   :=
+  SpecialGenMendlerIteration _ _ IA EndC X _ (KanExt Z) .
+
+
+<span class="kn">Definition</span> <span class="nf">θ_in_first_arg</span> (<span class="nv">Z</span>: Ptd)
+  : functor_fix_snd_arg [C, C] Ptd [C, C] (θ_source H) Z
+    ⟹
+    functor_fix_snd_arg [C, C] Ptd [C, C] (θ_target H) Z
+  := nat_trans_fix_snd_arg _ _ _ _ _ θ Z.
+
+<span class="kn">Definition</span> <span class="nf">InitAlg</span> : Alg := InitialObject IA.
+
+<span class="kn">Definition</span> <span class="nf">ptdInitAlg</span> : Ptd := ptd_from_alg InitAlg.
+
+<span class="kn">Local Lemma</span> <span class="nf">aux_iso_1_is_nat_trans</span> (<span class="nv">Z</span> : Ptd) :
+   is_nat_trans
+     (functor_composite Id_H (ℓ (U Z)))
+     (pr1 (BinCoproductObject
+        (CPEndEndC (constant_functor [C, C] [C, C] (U Z))
+           (functor_fix_snd_arg [C, C] Ptd [C, C] (θ_source H) Z))))
+     (<span class="k">λ</span> <span class="nv">X</span> : [C, C],
+      BinCoproductOfArrows [C, C]
+        (CPEndC (functor_composite (U Z) (functor_identity C))
+           ((θ_source H) (X ⊗ Z))) (CPEndC (U Z) ((θ_source H) (X ⊗ Z)))
+        (runitor_CAT (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X X' α.
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> c.
+  <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> coproduct_nat_trans_data, coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; <span class="nb">simpl</span>.
+  etrans; [<span class="nb">apply</span> BinCoproductOfArrows_comp |].
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">eapply</span> pathsinv0. <span class="nb">apply</span> BinCoproductOfArrows_comp. }
+  <span class="nb">apply</span> maponpaths_12.
+  - etrans; [ <span class="nb">apply</span> id_left |].
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_right.
+  - <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> (functor_id (H X)).
+    <span class="nb">apply</span> pathsinv0, id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">aux_iso_1</span> (<span class="nv">Z</span> : Ptd)
+  : EndEndC
+    ⟦ functor_composite Id_H (ℓ (U Z)),
+      BinCoproductObject
+           (CPEndEndC (constant_functor [C, C] [C, C] (U Z))
+              (functor_fix_snd_arg [C, C] Ptd [C, C] (θ_source H) Z))⟧.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> X.
+    <span class="bp">exact</span> (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (runitor_CAT (U Z))
+            (nat_trans_id (θ_source H (X⊗Z):functor C C))).
+  - <span class="bp">exact</span> (aux_iso_1_is_nat_trans Z).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">aux_iso_1_inv_is_nat_trans</span> (<span class="nv">Z</span> : Ptd) :
+   is_nat_trans
+     (pr1 (BinCoproductObject
+        (CPEndEndC (constant_functor [C, C] [C, C] (U Z))
+           (functor_fix_snd_arg [C, C] Ptd [C, C] (θ_source H) Z))) )
+     (functor_composite Id_H (ℓ (U Z)))
+     (<span class="k">λ</span> <span class="nv">X</span> : [C, C],
+      BinCoproductOfArrows [C, C]
+        (CPEndC (functor_composite (functor_identity C) (U Z))
+           ((θ_source H) (X ⊗ Z))) (CPEndC (U Z) ((θ_source H) (X ⊗ Z)))
+        (lunitor_CAT (U Z)) (nat_trans_id ((θ_source H) (X ⊗ Z):functor C C))).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X X' α.
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> c; <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> coproduct_nat_trans_data, coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; <span class="nb">simpl</span>.
+  etrans; [<span class="nb">apply</span> BinCoproductOfArrows_comp |].
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">eapply</span> pathsinv0. <span class="nb">apply</span> BinCoproductOfArrows_comp. }
+  <span class="nb">apply</span> maponpaths_12.
+  - <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_right.
+  - <span class="nb">rewrite</span> (functor_id (H X)).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">aux_iso_1_inv</span> (<span class="nv">Z</span>: Ptd)
+  : EndEndC
+    ⟦ BinCoproductObject
+           (CPEndEndC (constant_functor [C, C] [C, C] (U Z))
+              (functor_fix_snd_arg [C, C] Ptd [C, C] (θ_source H) Z)),
+      functor_composite Id_H (ℓ (U Z)) ⟧.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> X.
+    <span class="bp">exact</span> (BinCoproductOfArrows EndC (CPEndC _ _) (CPEndC _ _) (lunitor_CAT (U Z))
+           (nat_trans_id (θ_source H (X⊗Z):functor C C))).
+  - <span class="bp">exact</span> (aux_iso_1_inv_is_nat_trans Z).
+<span class="kn">Defined</span>.
+
+<span class="c">(*</span>
+<span class="c">Definition G_Thm15 (X : EndC) := coproduct_functor _ _ CPEndC</span>
+<span class="c">                       (constant_functor _ _ X)</span>
+<span class="c">                       H.</span>
+<span class="c"> *)</span>
+
+<span class="kn">Local Lemma</span> <span class="nf">aux_iso_2_inv_is_nat_trans</span> (<span class="nv">Z</span> : Ptd) :
+   is_nat_trans
+     (pr1 (BinCoproductObject
+        (CPEndEndC (constant_functor [C, C] [C, C] (U Z))
+           (functor_fix_snd_arg [C, C] Ptd [C, C](θ_target H) Z))) )
+     (functor_composite (ℓ (U Z))
+        (Const_plus_H (U Z)))
+     (<span class="k">λ</span> <span class="nv">X</span> : [C, C],
+      nat_trans_id
+        (BinCoproductObject (CPEndC (U Z) ((θ_target H) (X ⊗ Z)))
+         :functor C C)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X X' α.
+  <span class="nb">rewrite</span> (@id_left EndC).
+  <span class="nb">rewrite</span> (@id_right EndC).
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> c; <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> coproduct_nat_trans_data, coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> (maponpaths_12 (BinCoproductOfArrows _ _ _)).
+  + <span class="nb">apply</span> idpath.
+  + <span class="nb">unfold</span> functor_fix_snd_arg_mor; <span class="nb">simpl</span>.
+    <span class="nb">revert</span> c.
+    <span class="nb">apply</span> nat_trans_eq_pointwise.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> (functor_id X).
+    <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">aux_iso_2_inv</span> (<span class="nv">Z</span> : Ptd)
+  : EndEndC
+    ⟦ BinCoproductObject
+         (CPEndEndC (constant_functor [C, C] [C, C] (U Z))
+                    (functor_fix_snd_arg [C, C] Ptd [C, C] (θ_target H) Z)),
+      functor_composite (ℓ (U Z) )   (Const_plus_H (U Z)) ⟧.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> X.
+    <span class="bp">exact</span> (nat_trans_id ((@BinCoproductObject EndC (U Z) (θ_target H (X⊗Z)) (CPEndC _ _) )
+             : functor C C)).
+  - <span class="bp">exact</span> (aux_iso_2_inv_is_nat_trans Z).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">θ'_Thm15</span> (<span class="nv">Z</span>: Ptd)
+  : EndEndC
+    ⟦ BinCoproductObject
+        (CPEndEndC (constant_functor [C, C] [C, C] (U Z))
+           (functor_fix_snd_arg [C, C] Ptd [C, C] (θ_source H) Z)),
+      BinCoproductObject
+        (CPEndEndC (constant_functor [C, C] [C, C] (U Z))
+            (functor_fix_snd_arg [C, C] Ptd [C, C] (θ_target H) Z)) ⟧
+  := BinCoproductOfArrows
+   EndEndC (CPEndEndC _ _) (CPEndEndC _ _)
+   (identity (constant_functor EndC _ (U Z): functor_category EndC EndC))
+   (θ_in_first_arg Z).
+
+<span class="kn">Definition</span> <span class="nf">ρ_Thm15</span> (<span class="nv">Z</span>: Ptd)(<span class="nv">f</span> : Ptd ⟦ Z, ptdInitAlg ⟧)
+  : [C, C] ⟦ BinCoproductObject (CPEndC (U Z) (H `InitAlg)), `InitAlg ⟧
+  := @BinCoproductArrow
+   EndC _ _  (CPEndC (U Z)
+   (H (alg_carrier _ InitAlg))) (alg_carrier _ InitAlg) (#U f)
+   (BinCoproductIn2 (CPEndC _ _) · (alg_map _ InitAlg)).
+
+<span class="kn">Definition</span> <span class="nf">SpecializedGMIt_Thm15</span> (<span class="nv">Z</span>: Ptd)(<span class="nv">f</span> : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
+  : <span class="k">∃</span>! h : [C, C] ⟦ ℓ (U Z) (` (InitialObject IA)), pr1 InitAlg ⟧,
+           # (ℓ (U Z)) (alg_map Id_H (InitialObject IA)) · h
+           =
+           pr1 ((aux_iso_1 Z · θ'_Thm15 Z · aux_iso_2_inv Z)) (` (InitialObject IA)) ·
+           # (Const_plus_H (U Z)) h · ρ_Thm15 Z f
+  := SpecializedGMIt Z (pr1 InitAlg) (Const_plus_H (U Z))
+     (ρ_Thm15 Z f) (aux_iso_1 Z · θ'_Thm15 Z · aux_iso_2_inv Z).
+
+<span class="kn">Definition</span> <span class="nf">bracket_Thm15</span> (<span class="nv">Z</span>: Ptd)(<span class="nv">f</span> : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
+  : [C, C] ⟦ ℓ (U Z) (` (InitialObject IA)), `InitAlg ⟧
+  := pr1 (pr1 (SpecializedGMIt_Thm15 Z f)).
+
+<span class="kn">Notation</span> <span class="s2">"⦃ f ⦄"</span> := (bracket_Thm15 _ f) (<span class="kn">at level</span> <span class="mi">0</span>).
+
+<span class="c">(* we prove the individual components for ease of compilation *)</span>
+<span class="kn">Lemma</span> <span class="nf">bracket_Thm15_ok_part1</span> (<span class="nv">Z</span>: Ptd)(<span class="nv">f</span> : Ptd ⟦ Z, ptd_from_alg  InitAlg ⟧):
+ # U f
+ =
+ # (pr1 (ℓ (U Z))) (η InitAlg) · ⦃f⦄.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> c.
+  <span class="nb">assert</span> (h_eq := pr2 (pr1 (SpecializedGMIt_Thm15 Z f))).
+  <span class="nb">assert</span> (h_eq' := maponpaths (<span class="k">fun</span> <span class="nv">m</span>:EndC⟦_,pr1 InitAlg⟧ =&gt;
+               (((aux_iso_1_inv Z):(_ ⟹ _)) _)· m) h_eq);
+  <span class="nb">clear</span> h_eq.
+  <span class="nb">simpl</span> <span class="k">in</span> h_eq'.
+  <span class="nb">assert</span> (h_eq1' := maponpaths (<span class="k">fun</span> <span class="nv">m</span>:EndC⟦_,pr1 InitAlg⟧ =&gt;
+               (BinCoproductIn1 (CPEndC _ _))· m) h_eq');
+  <span class="nb">clear</span> h_eq'.
+  <span class="nb">assert</span> (h_eq1'_inst := nat_trans_eq_pointwise h_eq1' c);
+  <span class="nb">clear</span> h_eq1'.
+<span class="c">(* match goal right in the beginning in contrast with earlier approach - suggestion by Benedikt *)</span>
+  <span class="k">match goal with</span> |[ H1 : _  = <span class="nl">?f</span> |- _ = _   ] =&gt;
+         intermediate_path f <span class="k">end</span>.
+
+  - <span class="nb">clear</span> h_eq1'_inst.
+    <span class="nb">unfold</span> coproduct_nat_trans_data; <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> coproduct_nat_trans_in1_data ; <span class="nb">simpl</span>.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc .
+    <span class="nb">apply</span> BinCoproductIn1Commutes_right_in_ctx_dir.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> BinCoproductIn1Commutes_right_in_ctx_dir.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> BinCoproductIn1Commutes_right_in_ctx_dir.
+    <span class="nb">rewrite</span> (@id_left EndC).
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> BinCoproductIn1Commutes_right_in_ctx_dir.
+    <span class="nb">rewrite</span> (@id_left EndC).
+    <span class="nb">apply</span> BinCoproductIn1Commutes_right_dir.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> &lt;- h_eq1'_inst.
+    <span class="nb">clear</span> h_eq1'_inst.
+    <span class="nb">apply</span> BinCoproductIn1Commutes_left_in_ctx_dir.
+    <span class="nb">unfold</span> nat_trans_id; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_left.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> (id_left EndEndC).
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> (id_left EndC).
+    <span class="nb">unfold</span> functor_fix_snd_arg_ob.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+<span class="c">(*    apply maponpaths. *)</span>
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">bracket_Thm15_ok_part2</span> (<span class="nv">Z</span>: Ptd)(<span class="nv">f</span> : Ptd ⟦ Z, ptd_from_alg  InitAlg ⟧):
+ (theta H) ((alg_carrier _  InitAlg) ⊗ Z) ·  # H ⦃f⦄ · τ InitAlg
+  =
+   # (pr1 (ℓ (U Z))) (τ InitAlg) · ⦃f⦄.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> c.
+  <span class="nb">assert</span> (h_eq := pr2 (pr1 (SpecializedGMIt_Thm15 Z f))).
+  <span class="nb">assert</span> (h_eq' := maponpaths (<span class="k">fun</span> <span class="nv">m</span>:EndC⟦_,pr1 InitAlg⟧ =&gt;
+                  (((aux_iso_1_inv Z):(_⟹_)) _)· m) h_eq);
+  <span class="nb">clear</span> h_eq.
+ <span class="c">(*        simpl in h_eq'. (* until here same as in previous lemma *) *)</span>
+
+  <span class="nb">assert</span> (h_eq2' := maponpaths (<span class="k">fun</span> <span class="nv">m</span>:EndC⟦_,pr1 InitAlg⟧ =&gt;
+                (BinCoproductIn2 (CPEndC _ _))· m) h_eq').
+  <span class="nb">clear</span> h_eq'.
+  <span class="nb">assert</span> (h_eq2'_inst := nat_trans_eq_pointwise h_eq2' c).
+  <span class="nb">clear</span> h_eq2'.
+  <span class="k">match goal with</span> |[ H1 : _  = <span class="nl">?f</span> |- _ = _   ] =&gt;
+                   intermediate_path f <span class="k">end</span>.
+  - <span class="nb">clear</span> h_eq2'_inst.
+    <span class="nb">apply</span> BinCoproductIn2Commutes_right_in_ctx_dir.
+    <span class="nb">unfold</span> aux_iso_1; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> id_left.
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> BinCoproductIn2Commutes_right_in_ctx_dir.
+    <span class="nb">unfold</span> nat_trans_id; <span class="nb">simpl</span>. <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> BinCoproductIn2Commutes_right_in_ctx_dir.
+    <span class="nb">unfold</span> nat_trans_fix_snd_arg_data.
+    <span class="nb">apply</span> BinCoproductIn2Commutes_right_in_double_ctx_dir.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">eapply</span> pathscomp0. <span class="mi">2</span>: <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> BinCoproductIn2Commutes.
+
+<span class="c">(* alternative with slightly less precise control: *)</span>
+<span class="c">(*            do 4 rewrite &lt;- assoc. *)</span>
+<span class="c">(*            apply BinCoproductIn2Commutes_right_in_ctx_dir. *)</span>
+<span class="c">(*            rewrite id_left. *)</span>
+<span class="c">(*            apply BinCoproductIn2Commutes_right_in_ctx_dir. *)</span>
+<span class="c">(*            apply BinCoproductIn2Commutes_right_in_ctx_dir. *)</span>
+<span class="c">(*            unfold nat_trans_fix_snd_arg_data. *)</span>
+<span class="c">(*            rewrite id_left. *)</span>
+<span class="c">(*            apply BinCoproductIn2Commutes_right_in_double_ctx_dir. *)</span>
+<span class="c">(*            do 2 rewrite &lt;- assoc. *)</span>
+<span class="c">(*            apply maponpaths. *)</span>
+<span class="c">(*            apply maponpaths. *)</span>
+<span class="c">(*            apply pathsinv0. *)</span>
+<span class="c">(*            apply BinCoproductIn2Commutes. *)</span>
+<span class="c">(* *)</span>
+
+  - <span class="nb">rewrite</span> &lt;- h_eq2'_inst. <span class="nb">clear</span> h_eq2'_inst.
+    <span class="nb">apply</span> BinCoproductIn2Commutes_left_in_ctx_dir.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">bracket_Thm15_ok</span> (<span class="nv">Z</span>: Ptd)(<span class="nv">f</span> : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧):
+ bracket_property_parts (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) _ f ⦃f⦄.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  + <span class="bp">exact</span> (bracket_Thm15_ok_part1 Z f).
+  + <span class="bp">exact</span> (bracket_Thm15_ok_part2 Z f).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">bracket_Thm15_ok_cor</span> (<span class="nv">Z</span>: Ptd)(<span class="nv">f</span> : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧):
+ bracket_property (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) _ f (bracket_Thm15 Z f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> whole_from_parts.
+  <span class="nb">apply</span> bracket_Thm15_ok.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">foo'</span> (<span class="nv">Z</span> : Ptd) (<span class="nv">f</span> : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
+ ∏ t : ∑ h : [C, C] ⟦ functor_composite (U Z) (pr1  InitAlg),
+                         pr1 InitAlg ⟧,
+       bracket_property (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) _ f h,
+   t
+   =
+   tpair
+     (<span class="k">λ</span> <span class="nv">h</span> : [C, C]
+            ⟦ functor_composite (U Z) (pr1 InitAlg),
+              pr1 InitAlg ⟧,
+       bracket_property (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) _ f h)
+      ⦃f⦄ (bracket_Thm15_ok_cor Z f).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> [h' h'_eq].
+  <span class="nb">apply</span> subtypePath.
+  - <span class="nb">intro</span>.
+    <span class="nb">unfold</span> bracket_property.
+    <span class="nb">apply</span> (isaset_nat_trans (homset_property C)).
+  - <span class="nb">simpl</span>.
+    <span class="nb">apply</span> parts_from_whole <span class="k">in</span> h'_eq.
+<span class="c">(*    destruct h'_eq as [h'_eq1 h'_eq2]. *)</span>
+    <span class="nb">unfold</span> bracket_Thm15.
+    <span class="nb">apply</span> path_to_ctr.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c; <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> coproduct_nat_trans_data.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> (@id_left EndC).
+    <span class="nb">rewrite</span> id_right.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- @assoc.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">eapply</span> pathsinv0. <span class="nb">apply</span> postcompWithBinCoproductArrow. }
+    <span class="nb">apply</span> BinCoproductArrowUnique.
+    + <span class="nb">destruct</span> h'_eq <span class="k">as</span> [h'_eq1 _ ]. <span class="c">(*clear h'_eq2.*)</span>
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">assert</span> (h'_eq1_inst := nat_trans_eq_pointwise h'_eq1 c);
+        <span class="nb">clear</span> h'_eq1.
+      <span class="nb">simpl</span> <span class="k">in</span> h'_eq1_inst.
+      <span class="nb">unfold</span> coproduct_nat_trans_in1_data <span class="k">in</span> h'_eq1_inst; <span class="nb">simpl</span> <span class="k">in</span> h'_eq1_inst.
+      <span class="nb">rewrite</span> &lt;- @assoc <span class="k">in</span> h'_eq1_inst.
+      etrans.
+      { <span class="nb">eapply</span> pathsinv0; <span class="bp">exact</span> h'_eq1_inst. }
+      <span class="nb">clear</span> h'_eq1_inst.
+      <span class="nb">apply</span> BinCoproductIn1Commutes_right_in_ctx_dir.
+      <span class="nb">apply</span> BinCoproductIn1Commutes_right_in_ctx_dir.
+      <span class="nb">apply</span> BinCoproductIn1Commutes_right_dir.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">destruct</span> h'_eq <span class="k">as</span> [_ h'_eq2]. <span class="c">(*clear h'_eq2.*)</span>
+      <span class="nb">assert</span> (h'_eq2_inst := nat_trans_eq_pointwise h'_eq2 c);
+        <span class="nb">clear</span> h'_eq2.
+      <span class="nb">simpl</span> <span class="k">in</span> h'_eq2_inst.
+      <span class="nb">unfold</span> coproduct_nat_trans_in2_data <span class="k">in</span> h'_eq2_inst; <span class="nb">simpl</span> <span class="k">in</span> h'_eq2_inst.
+      <span class="nb">apply</span> pathsinv0 <span class="k">in</span> h'_eq2_inst.
+      <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> h'_eq2_inst.
+      etrans; [ <span class="bp">exact</span> h'_eq2_inst |]. <span class="nb">clear</span> h'_eq2_inst.
+      <span class="nb">apply</span> BinCoproductIn2Commutes_right_in_ctx_dir.
+      <span class="nb">apply</span> BinCoproductIn2Commutes_right_in_double_ctx_dir.
+      <span class="nb">unfold</span> nat_trans_fix_snd_arg_data; <span class="nb">simpl</span>.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> BinCoproductIn2Commutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">bracket_for_InitAlg</span> : bracket θ InitAlg.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Z f.
+  use tpair.
+  - use tpair.
+    + <span class="bp">exact</span> (bracket_Thm15 Z f).
+    + <span class="bp">exact</span> (bracket_Thm15_ok_cor Z f).
+       <span class="c">(* B: better to prove the whole outside, and apply it here *)</span>
+     <span class="c">(* when the first components were not opaque, the following proof</span>
+<span class="c">        became extremely slow *)</span>
+  - <span class="nb">simpl</span>; <span class="nb">apply</span> foo'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">InitHSS</span> : hss_category CP H.
+<span class="kn">Proof</span>.
+ <span class="c">(*</span>
+<span class="c">  red. (* FORBIDDEN, otherwise universe problem when checking the definition *)</span>
+<span class="c">  unfold hss_precategory; simpl.</span>
+<span class="c">*)</span>
+  <span class="k">exists</span> (<span class="nv">InitAlg</span>).
+  <span class="bp">exact</span> bracket_for_InitAlg.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Local Definition</span> <span class="nf">Ghat</span> : EndEndC := Const_plus_H (pr1 InitAlg).
+
+<span class="kn">Definition</span> <span class="nf">constant_nat_trans</span> (<span class="nv">C'</span> <span class="nv">D</span> : category)
+   (<span class="nv">d</span> <span class="nv">d'</span> : D)
+   (<span class="nv">m</span> : d --&gt; d')
+    : [C', D] ⟦constant_functor C' D d, constant_functor C' D d'⟧.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">m</span>).
+  <span class="kp">abstract</span> (
+    <span class="nb">intros</span> ? ? ? ;
+    intermediate_path m ;
+    [
+    <span class="nb">apply</span> id_left |
+    <span class="nb">apply</span> pathsinv0 ;
+  <span class="nb">apply</span> id_right] ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">thetahat_0</span> (<span class="nv">Z</span> : Ptd) (<span class="nv">f</span> : Z --&gt; ptdInitAlg):
+EndEndC
+⟦ BinCoproductObject
+    (CPEndEndC (constant_functor [C, C] [C, C] (U Z))
+       (functor_fix_snd_arg [C, C] Ptd [C, C] (θ_source H) Z)),
+BinCoproductObject
+  (CPEndEndC (constant_functor [C, C] [C, C] (pr1 InitAlg))
+             (functor_fix_snd_arg [C, C] Ptd [C, C] (θ_target H) Z)) ⟧ .
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (BinCoproductOfArrows EndEndC (CPEndEndC _ _) (CPEndEndC _ _)
+                           (constant_nat_trans _ _ _ _ (#U f))
+                           (θ_in_first_arg Z)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">iso1'</span> (<span class="nv">Z</span> : Ptd) :  EndEndC ⟦ functor_composite Id_H
+                                        (ℓ (U Z)),
+ BinCoproductObject
+    (CPEndEndC (constant_functor [C, C] [C, C] (U Z))
+               (functor_fix_snd_arg [C, C] Ptd [C, C] (θ_source H) Z)) ⟧.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (aux_iso_1 Z).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Local Lemma</span> <span class="nf">is_nat_trans_iso2'</span> (<span class="nv">Z</span> : Ptd) :
+   is_nat_trans
+     (pr1 (BinCoproductObject
+        (CPEndEndC (constant_functor [C, C] [C, C] (pr1 InitAlg))
+           (functor_fix_snd_arg [C, C] Ptd [C, C] (θ_target H) Z))))
+     (functor_composite (ℓ (U Z)) Ghat)
+     (<span class="k">λ</span> <span class="nv">X</span> : [C, C],
+      nat_trans_id
+        (BinCoproductObject
+           (CPEndC
+              ((constant_functor [C, C] [C, C] (pr1 InitAlg)) X)
+              ((θ_target H) (X ⊗ Z)))
+         : functor C C)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X X' α.
+  <span class="nb">rewrite</span> (@id_left EndC).
+  <span class="nb">rewrite</span> (@id_right EndC).
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> c; <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> coproduct_nat_trans_data, coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> (maponpaths_12 (BinCoproductOfArrows _ _ _)).
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">unfold</span> functor_fix_snd_arg_mor; <span class="nb">simpl</span>.
+    <span class="nb">revert</span> c.
+    <span class="nb">apply</span> nat_trans_eq_pointwise.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> (functor_id X).
+    <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">iso2'</span> (<span class="nv">Z</span> : Ptd) : EndEndC ⟦
+  BinCoproductObject
+  (CPEndEndC (constant_functor [C, C] [C, C] (pr1 InitAlg))
+             (functor_fix_snd_arg [C, C] Ptd [C, C] (θ_target H) Z)),
+  functor_composite (ℓ (U Z)) Ghat ⟧.
+<span class="kn">Proof</span>.
+    use tpair.
+  - <span class="nb">intro</span> X.
+    <span class="bp">exact</span> (nat_trans_id ((@BinCoproductObject EndC _ (θ_target H (X⊗Z)) (CPEndC _ _) )
+            : functor C C)).
+  - <span class="bp">exact</span> (is_nat_trans_iso2' Z).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">thetahat</span> (<span class="nv">Z</span> : Ptd)  (<span class="nv">f</span> : Z --&gt; ptdInitAlg)
+           : EndEndC ⟦ functor_composite Id_H
+                                        (ℓ (U Z)),
+                     functor_composite (ℓ (U Z)) (Ghat) ⟧.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (iso1' Z · thetahat_0 Z f · iso2' Z).
+<span class="kn">Defined</span>.
+
+
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C '^op'"</span> := (opp_precat C) (<span class="kn">format</span> <span class="s2">"C ^op"</span>).
+
+<span class="kn">Let</span> <span class="nf">Yon</span> (<span class="nv">X</span> : EndC) : functor EndC^op HSET := yoneda_objects EndC X.
+
+<span class="kn">Definition</span> <span class="nf">Phi_fusion</span> (<span class="nv">Z</span> : Ptd) (<span class="nv">X</span> : EndC) (<span class="nv">b</span> : pr1 InitAlg --&gt; X) :
+  functor_composite (functor_opp (ℓ (U Z))) (Yon (pr1 InitAlg))
+   ⟹
+  functor_composite (functor_opp (ℓ (U Z))) (Yon X) .
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> Y.
+    <span class="nb">intro</span> a.
+    <span class="bp">exact</span> (a · b).
+  - <span class="kp">abstract</span> (
+    <span class="nb">intros</span> ? ? ?; <span class="nb">simpl</span>;
+    <span class="nb">apply</span> funextsec;
+    <span class="nb">intro</span>;
+    <span class="nb">unfold</span> yoneda_objects_ob; <span class="nb">simpl</span>;
+    <span class="nb">unfold</span> compose;
+    <span class="nb">simpl</span>;
+    <span class="nb">apply</span> nat_trans_eq; [ <span class="nb">apply</span> homset_property |];
+    <span class="nb">simpl</span>; <span class="nb">intro</span>; <span class="nb">apply</span> assoc').
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ishssMor_InitAlg</span> (<span class="nv">T'</span> : hss CP H) :
+  @ishssMor C CP H
+        InitHSS T'
+           (InitialArrow IA (pr1 T') : @algebra_mor EndC Id_H InitAlg T' ).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> ishssMor.
+  <span class="nb">unfold</span> isbracketMor.
+  <span class="nb">intros</span> Z f.
+  <span class="nb">set</span> (β0 := InitialArrow IA (pr1 T')).
+  <span class="k">match goal with</span> | [|- _ · <span class="nl">?b</span> = _ ] =&gt; <span class="nb">set</span> (β := b) <span class="k">end</span>.
+  <span class="nb">set</span> ( rhohat := BinCoproductArrow (CPEndC _ _ )  β (tau_from_alg T')
+                  :  pr1 Ghat T' --&gt; T').
+  <span class="nb">set</span> (X:= SpecializedGMIt Z _ Ghat rhohat (thetahat Z f)).
+  intermediate_path (pr1 (pr1 X)).
+  - <span class="nb">set</span> (TT:= fusion_law _ _ IA _ (pr1 InitAlg) T' _ (KanExt Z)).
+    <span class="nb">set</span> (Psi := ψ_from_comps _ (Id_H) _ _ (ℓ (U Z)) (Const_plus_H (U Z)) (ρ_Thm15 Z f)
+                             (aux_iso_1 Z · θ'_Thm15 Z · aux_iso_2_inv Z) ).
+    <span class="nb">set</span> (T2 := TT Psi).
+    <span class="nb">set</span> (T3 := T2 (ℓ (U Z)) (KanExt Z)).
+    <span class="nb">set</span> (Psi' := ψ_from_comps _ (Id_H) _ _ (ℓ (U Z)) (Ghat) (rhohat)
+                             (iso1' Z · thetahat_0 Z f · iso2' Z) ).
+    <span class="nb">set</span> (T4 := T3 Psi').
+    <span class="nb">set</span> (Φ := (Phi_fusion Z T' β)).
+    <span class="nb">set</span> (T5 := T4 Φ).
+    intermediate_path (Φ _ (fbracket InitHSS f)).
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">eapply</span> pathscomp0.
+      <span class="mi">2</span>: { <span class="nb">apply</span> T5.
+      <span class="c">(* hypothesis of fusion law *)</span>
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> t.
+      <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> compose. <span class="nb">simpl</span>.
+      <span class="nb">apply</span> nat_trans_eq_alt.
+      <span class="nb">simpl</span>.
+      <span class="nb">intro</span> c.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> id_right.
+      <span class="c">(* should be decomposed into two diagrams *)</span>
+      <span class="nb">apply</span> BinCoproductArrow_eq_cor.
+      * <span class="c">(* first diagram *)</span>
+        <span class="nb">clear</span> TT T2 T3 T4 T5.
+        <span class="kp">do</span> <span class="mi">5</span> <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">apply</span> BinCoproductIn1Commutes_left_in_ctx_dir.
+        <span class="nb">apply</span> BinCoproductIn1Commutes_right_in_ctx_dir.
+        <span class="nb">simpl</span>.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> BinCoproductIn1Commutes_left_in_ctx_dir.
+        <span class="nb">apply</span> BinCoproductIn1Commutes_right_in_ctx_dir.
+        <span class="nb">simpl</span>.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> BinCoproductIn1Commutes_left_in_ctx_dir.
+        <span class="nb">simpl</span>.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> BinCoproductIn1Commutes_left_in_ctx_dir.
+        <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> BinCoproductIn1Commutes_right_in_ctx_dir.
+        <span class="nb">simpl</span>.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> BinCoproductIn1Commutes_right_dir.
+        <span class="nb">apply</span> idpath.
+
+      * <span class="c">(* second diagram *)</span>
+        <span class="nb">clear</span> TT T2 T3 T4 T5.
+        <span class="kp">do</span> <span class="mi">5</span> <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">apply</span> BinCoproductIn2Commutes_left_in_ctx_dir.
+        <span class="nb">apply</span> BinCoproductIn2Commutes_right_in_ctx_dir.
+        <span class="nb">rewrite</span> (@id_left EndC).
+        <span class="nb">apply</span> BinCoproductIn2Commutes_left_in_ctx_dir.
+        <span class="nb">apply</span> BinCoproductIn2Commutes_right_in_ctx_dir.
+        <span class="nb">simpl</span>.
+        <span class="nb">unfold</span> nat_trans_fix_snd_arg_data.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> BinCoproductIn2Commutes_left_in_ctx_dir.
+        <span class="nb">apply</span> BinCoproductIn2Commutes_right_in_ctx_dir.
+        <span class="nb">simpl</span>.
+        <span class="nb">assert</span> (H_nat_inst := functor_comp H t β).
+        <span class="nb">assert</span> (H_nat_inst_c := nat_trans_eq_pointwise H_nat_inst c); <span class="nb">clear</span> H_nat_inst.
+        {
+          <span class="k">match goal with</span> |[ H1 : _  = <span class="nl">?f</span> |- _ = _· <span class="nl">?g</span> · <span class="nl">?h</span>  ] =&gt;
+             intermediate_path (f·g·h) <span class="k">end</span>.
+          + <span class="nb">clear</span> H_nat_inst_c.
+            <span class="nb">simpl</span>.
+            <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> BinCoproductIn2Commutes_left_in_ctx_dir.
+            <span class="nb">simpl</span>.
+            <span class="nb">unfold</span> coproduct_nat_trans_in2_data, coproduct_nat_trans_data.
+            <span class="nb">assert</span> (Hyp := τ_part_of_alg_mor _ CP _ _ _ (InitialArrow IA (pr1 T'))).
+            <span class="nb">assert</span> (Hyp_c := nat_trans_eq_pointwise Hyp c); <span class="nb">clear</span> Hyp.
+            <span class="nb">simpl</span> <span class="k">in</span> Hyp_c.
+            etrans; [ <span class="nb">eapply</span> pathsinv0; <span class="bp">exact</span> Hyp_c |].
+            <span class="nb">clear</span> Hyp_c.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> pathsinv0.
+            <span class="nb">apply</span> BinCoproductIn2Commutes.
+          + <span class="nb">rewrite</span> &lt;- H_nat_inst_c.
+            <span class="nb">apply</span> idpath.
+        }
+      }
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> path_to_ctr.
+    <span class="c">(* now a lot of serious verification work to be done *)</span>
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_right.
+    <span class="c">(* look at type: *)</span>
+<span class="c">(*        match goal with | [ |- ?l = _ ] =&gt; let ty:= (type of l) in idtac ty end. *)</span>
+    <span class="nb">apply</span> BinCoproductArrow_eq_cor.
+    + <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> BinCoproductIn1Commutes_right_in_ctx_dir.
+      <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> coproduct_nat_trans_in1_data,
+             coproduct_nat_trans_in2_data,
+             coproduct_nat_trans_data.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> BinCoproductIn1Commutes_right_in_ctx_dir.
+      <span class="nb">simpl</span>.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> BinCoproductIn1Commutes_right_in_ctx_dir.
+           <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> BinCoproductIn1Commutes_right_dir.
+           <span class="nb">apply</span> idpath. }
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+      etrans.
+      { <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">assert</span> (ptd_mor_commutes_inst := ptd_mor_commutes _ (ptd_from_alg_mor _ CP H β0) ((pr1 Z) c)).
+        <span class="nb">apply</span> ptd_mor_commutes_inst. }
+      <span class="nb">assert</span> (fbracket_η_inst := fbracket_η T' (f· ptd_from_alg_mor _ CP H β0)).
+      <span class="nb">assert</span> (fbracket_η_inst_c := nat_trans_eq_pointwise fbracket_η_inst c); <span class="nb">clear</span> fbracket_η_inst.
+      <span class="nb">apply</span> (!fbracket_η_inst_c).
+    + <span class="c">(* now the difficult case *)</span>
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> BinCoproductIn2Commutes_right_in_ctx_dir.
+      <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> coproduct_nat_trans_in1_data, coproduct_nat_trans_in2_data, coproduct_nat_trans_data.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> BinCoproductIn2Commutes_right_in_ctx_dir.
+      <span class="nb">unfold</span> nat_trans_fix_snd_arg_data.
+      <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> coproduct_nat_trans_in2_data.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths.
+           <span class="nb">apply</span> BinCoproductIn2Commutes_right_in_ctx_dir.
+           <span class="nb">rewrite</span> &lt;- assoc.
+           <span class="nb">apply</span> maponpaths.
+           <span class="nb">apply</span> BinCoproductIn2Commutes_right_dir.
+           <span class="nb">apply</span> idpath.
+      }
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+      etrans.
+      { <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">eapply</span> pathsinv0.
+        <span class="nb">assert</span> (τ_part_of_alg_mor_inst := τ_part_of_alg_mor _ CP H _ _ β0).
+        <span class="nb">assert</span> (τ_part_of_alg_mor_inst_Zc :=
+                  nat_trans_eq_pointwise τ_part_of_alg_mor_inst ((pr1 Z) c));
+          <span class="nb">clear</span> τ_part_of_alg_mor_inst.
+        <span class="nb">apply</span> τ_part_of_alg_mor_inst_Zc.
+      }
+      <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> coproduct_nat_trans_in2_data.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">eapply</span> pathsinv0.
+        <span class="nb">assert</span> (fbracket_τ_inst := fbracket_τ T' (f · ptd_from_alg_mor _  CP H β0)).
+        <span class="nb">assert</span> (fbracket_τ_inst_c := nat_trans_eq_pointwise fbracket_τ_inst c); <span class="nb">clear</span> fbracket_τ_inst.
+        <span class="nb">apply</span> fbracket_τ_inst_c.
+      }
+      <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> coproduct_nat_trans_in2_data.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">assert</span> (Hyp:
+                 ((# (pr1 (ℓ(U Z))) (# H β))·
+                 (theta H) ((alg_carrier _  T') ⊗ Z)·
+                 # H (fbracket T' (f · ptd_from_alg_mor C CP H β0))
+                 =
+                 θ (tpair (<span class="k">λ</span> <span class="nv">_</span> : functor C C, ptd_obj C) (alg_carrier _ (InitialObject IA)) Z) ·
+                 # H (# (pr1 (ℓ(U Z))) β ·
+                 fbracket T' (f · ptd_from_alg_mor C CP H β0)))).
+      <span class="mi">2</span>: { <span class="nb">assert</span> (Hyp_c := nat_trans_eq_pointwise Hyp c); <span class="nb">clear</span> Hyp.
+           <span class="bp">exact</span> Hyp_c. }
+      <span class="nb">clear</span> c. <span class="nb">clear</span> X. <span class="nb">clear</span> rhohat.
+      <span class="nb">rewrite</span> (functor_comp H).
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">fold</span> θ.
+      <span class="nb">apply</span> nat_trans_eq_alt.
+      <span class="nb">intro</span> c.
+      <span class="nb">assert</span> (θ_nat_1_pointwise_inst := θ_nat_1_pointwise _ _ _ H θ _ _ β Z c).
+      etrans ; [<span class="bp">exact</span> θ_nat_1_pointwise_inst | ].
+      <span class="nb">clear</span> θ_nat_1_pointwise_inst.
+      <span class="nb">simpl</span>.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> horcomp_id_prewhisker.
+      <span class="nb">apply</span> idpath.
+ <span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">hss_InitMor</span> : ∏ T' : hss CP H, hssMor InitHSS T'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> T'.
+  <span class="k">exists</span> (<span class="nv">InitialArrow</span> <span class="nv">IA</span> (pr1 T')).
+  <span class="nb">apply</span> ishssMor_InitAlg.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hss_InitMor_unique</span> (<span class="nv">T'</span> : hss_category CP H):
+  ∏ t : hss_precategory CP H ⟦ InitHSS, T' ⟧, t = hss_InitMor T'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> t.
+  <span class="nb">apply</span> (invmap (hssMor_eq1 _ _ _ _ _ _ _)).
+  <span class="nb">apply</span> (@InitialArrowUnique _ IA (pr1 T') (pr1 t)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isInitial_InitHSS</span> : isInitial (hss_category CP H) InitHSS.
+<span class="kn">Proof</span>.
+  use make_isInitial.
+  <span class="nb">intro</span> T.
+  <span class="k">exists</span> (<span class="nv">hss_InitMor</span> <span class="nv">T</span>).
+  <span class="nb">apply</span> hss_InitMor_unique.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">InitialHSS</span> : Initial (hss_category CP H).
+<span class="kn">Proof</span>.
+  use (make_Initial InitHSS).
+  <span class="nb">apply</span> isInitial_InitHSS.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">End</span> <span class="nf">category_Algebra</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/LiftingInitial.v</tt>, line 27)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; Set Kernel Term Sharing.
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

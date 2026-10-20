@@ -1,0 +1,850 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>STLC_actegorical.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">Syntax of the simply-typed lambda calculus as a multisorted signature based on the actegorical development.</span>
+<span class="sd">Thanks to that development, the inductive and the coinductive calculus are exposed in parallel.</span>
+<span class="sd">The Church numerals are developed independently from the choice for inductive or coinductive syntax.</span>
+<span class="sd">The entire development is only done for the base category [HSET] and thus profits from having inhabitants of the objects</span>
+<span class="sd">and having functions as morphisms.</span>
+
+<span class="sd">There is a sketch of how the Church numeral for infinity in the coinductive calculus could be obtained.</span>
+
+<span class="sd">A point-free development for an abstract base category in place of [HSET] is found in STLC_actegorical_abstractcat.v.</span>
+<span class="sd">That file includes a completed construction of Church numeral infinity.</span>
+
+<span class="sd">Written by: Ralph Matthes, 2024 (reusing beginnings from STLC_alt.v)</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.Lists.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCoalgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Groupoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Cochains.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Structures.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Univalence.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.SigmaMonoids.
+<span class="kn">Require</span> UniMath.SubstitutionSystems.SortIndexing.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSortedBindingSig.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSorted_alt.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSorted_actegorical.
+<span class="kn">Require</span> UniMath.SubstitutionSystems.MultiSortedMonadConstruction_alt.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSortedMonadConstruction_actegorical.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSortedMonadConstruction_coind_actegorical.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.ContinuitySignature.InstantiateHSET.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSortedEmbeddingIndCoindHSET.
+<span class="kn">Require</span> UniMath.SubstitutionSystems.STLC_alt.
+
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">A</span>.
+
+<span class="kn">Context</span> (<span class="nv">sort</span> : hSet) (<span class="nv">arr</span> : sort → sort → sort).
+
+<span class="kn">Local Definition</span> <span class="nf">Hsort</span> : isofhlevel <span class="mi">3</span> sort := MultiSortedBindingSig.STLC_Hsort sort.
+
+<span class="kn">Let</span> <span class="nf">sortToSet</span> : category := SortIndexing.sortToSet sort Hsort.
+<span class="kn">Let</span> <span class="nf">sortToSetSet</span> : category := SortIndexing.sortToSetSet sort Hsort.
+<span class="kn">Let</span> <span class="nf">sortToSet2</span> : category := SortIndexing.sortToSet2 sort Hsort.
+
+<span class="kn">Let</span> <span class="nf">projSortToSet</span> : sort -&gt; sortToSetSet := MultiSortedMonadConstruction_alt.projSortToSet sort Hsort.
+<span class="kn">Let</span> <span class="nf">projSortToSetvariable</span> : (sort → sort) → sortToSet2 := projSortToCvariable sort Hsort HSET.
+<span class="kn">Let</span> <span class="nf">hat_functorSet</span> : sort -&gt; HSET ⟶ sortToSet := MultiSortedMonadConstruction_alt.hat_functorSet sort Hsort.
+<span class="kn">Let</span> <span class="nf">sorted_option_functorSet</span> : sort → functor sortToSet sortToSet := MultiSortedMonadConstruction_alt.sorted_option_functorSet sort Hsort.
+
+<span class="kn">Local Definition</span> <span class="nf">BCsortToSet</span> : BinCoproducts sortToSet := SortIndexing.BCsortToSet sort Hsort.
+<span class="kn">Local Definition</span> <span class="nf">BPsortToSet</span> : BinProducts sortToSet := SortIndexing.BPsortToSet sort Hsort.
+
+<span class="kn">Local Definition</span> <span class="nf">TsortToSet</span> : Terminal sortToSet := SortIndexing.TsortToSet sort Hsort.
+<span class="kn">Local Definition</span> <span class="nf">TsortToSet2</span> : Terminal sortToSet2 := SortIndexing.TsortToSet2 sort Hsort.
+
+<span class="kn">Local Definition</span> <span class="nf">BPsortToSetSet</span> : BinProducts sortToSetSet := SortIndexing.BPsortToSetSet sort Hsort.
+
+
+<span class="sd">(** Some notations *)</span>
+<span class="c">(* Local Infix "::" := (@cons _).</span>
+<span class="c">Local Notation "[]" := (@nil _) (at level 0, format "[]").</span>
+<span class="c">Local Notation "a + b" := (setcoprod a b) : set. *)</span>
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"s ⇒ t"</span> := (arr s t).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'Id'"</span> := (functor_identity _).
+<span class="c">(*Local Notation "a ⊕ b" := (BinCoproductObject (BinCoprodSortToSet a b)). *)</span>
+<span class="c">(* Local Notation "'1'" := (TerminalObject TerminalSortToSet). *)</span>
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"F ⊗ G"</span> := (BinProduct_of_functors BPsortToSetSet F G).
+
+<span class="kn">Local Lemma</span> <span class="nf">sortToSet2_comp_on_mor</span> (<span class="nv">F</span> <span class="nv">G</span> : sortToSet2) {<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet} (<span class="nv">f</span> : sortToSet⟦ ξ, ξ' ⟧) (<span class="nv">s</span> : sort) (* (elem : pr1 (pr1 (pr1 (functor_compose F G) ξ) s)) *) :
+  pr1 (# (pr1 (functor_compose F G)) f) s = pr1 (# (pr1 G) (# (pr1 F) f)) s.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">postcomp_with_projSortToSet_on_mor</span> (<span class="nv">F</span> : sortToSet2) (<span class="nv">s</span>: sort) (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧)
+  (<span class="nv">arg</span> : pr1 (pr1 (functor_compose F (projSortToSet s)) ξ))
+  : # (pr1 (functor_compose F (projSortToSet s))) f arg = pr1 (# (pr1 F) f) s arg.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">STLC_Sig</span> : MultiSortedSig sort := STLC_Sig sort arr.
+
+<span class="sd">(** the canonical functor associated with STLC_Sig *)</span>
+<span class="kn">Definition</span> <span class="nf">STLC_Functor_H</span> : functor sortToSet2 sortToSet2 :=
+  MultiSorted_actegorical.MultiSortedSigToFunctor' sort Hsort SET
+    TerminalHSET BinProductsHSET BinCoproductsHSET CoproductsHSET STLC_Sig.
+
+<span class="sd">(** the functor of which the fixed points are considered *)</span>
+<span class="kn">Definition</span> <span class="nf">STLC_Functor_Id_H</span> : functor sortToSet2 sortToSet2 :=
+  SubstitutionSystems.Id_H sortToSet BCsortToSet STLC_Functor_H.
+
+<span class="sd">(** the canonical strength associated with STLC_Sig *)</span>
+<span class="kn">Let</span> <span class="nf">θSTLC</span> := MultiSortedMonadConstruction_actegorical.MultiSortedSigToStrength' sort Hsort SET
+               TerminalHSET BinProductsHSET BinCoproductsHSET CoproductsHSET STLC_Sig.
+
+<span class="kn">Definition</span> <span class="nf">ctx_ext</span> (<span class="nv">ξ</span> : sortToSet) (<span class="nv">s</span> : sort) : sortToSet
+  := sorted_option_functorSet s ξ.
+<span class="c">(*  := pr1 (option_list sort Hsort SET TerminalHSET BinCoproductsHSET CoproductsHSET (s :: [])) ξ. *)</span>
+
+<span class="sd">(** the sigma-monoids for wellfounded and non-wellfounded syntax for STLC *)</span>
+<span class="kn">Let</span> <span class="nf">σind</span> : SigmaMonoid θSTLC := MultiSortedEmbeddingIndCoindHSET.σind sort Hsort STLC_Sig.
+<span class="kn">Let</span> <span class="nf">σcoind</span> : SigmaMonoid θSTLC := MultiSortedEmbeddingIndCoindHSET.σcoind sort Hsort STLC_Sig.
+
+<span class="kn">Section</span> <span class="nf">IndAndCoind</span>.
+
+  <span class="kn">Context</span> (<span class="nv">σ</span> : SigmaMonoid θSTLC).
+
+  <span class="sd">(** the functor representing the syntax for STLC *)</span>
+  <span class="kn">Definition</span> <span class="nf">STLC_gen</span> : sortToSet2 := SigmaMonoid_carrier θSTLC σ.
+
+  <span class="sd">(** the type of STLC terms in a context of a sort *)</span>
+  <span class="kn">Definition</span> <span class="nf">STLC_gen_ctx_sort</span> (<span class="nv">ξ</span> : sortToSet) (<span class="nv">s</span> : sort) : UU
+    := pr1 (pr1 (pr1 STLC_gen ξ) s).
+
+  <span class="sd">(** variable inclusion for syntax for STLC *)</span>
+  <span class="kn">Definition</span> <span class="nf">STLC_eta_gen</span> : sortToSet2⟦Id,STLC_gen⟧ := SigmaMonoid_η θSTLC σ.
+
+  <span class="kn">Definition</span> <span class="nf">STLC_eta_gen_natural</span> (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧) :
+    # Id f · pr1 STLC_eta_gen ξ' = pr1 STLC_eta_gen ξ · # (pr1 STLC_gen) f
+    := nat_trans_ax (STLC_eta_gen) ξ ξ' f.
+
+  <span class="kn">Lemma</span> <span class="nf">STLC_eta_gen_natural'</span> (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧) :
+    f · pr1 STLC_eta_gen ξ' = pr1 STLC_eta_gen ξ · # (pr1 STLC_gen) f.
+  <span class="kn">Proof</span>.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> STLC_eta_gen_natural. }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">STLC_eta_gen_natural'_pointwise</span> (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧) (<span class="nv">u</span> : sort) :
+    pr1 f u · pr1 (pr1 STLC_eta_gen ξ') u = pr1 (pr1 STLC_eta_gen ξ) u · pr1 (# (pr1 STLC_gen) f) u.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (nat_trans_eq_weq HSET _ _ (STLC_eta_gen_natural' ξ ξ' f)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">STLC_eta_gen_natural'_ppointwise</span> (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧) (<span class="nv">u</span> : sort) (<span class="nv">elem</span> : pr1 (pr1 (pr1 ξ) u)) :
+    pr1 (pr1 STLC_eta_gen ξ') u (pr1 f u elem) =  pr1 (# (pr1 STLC_gen) f) u (pr1 (pr1 STLC_eta_gen ξ) u elem).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (toforallpaths _ _ _ (STLC_eta_gen_natural'_pointwise ξ ξ' f u)).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** the algebra maps (the "domain-specific constructors") for STLC *)</span>
+  <span class="kn">Definition</span> <span class="nf">STLC_tau_gen</span> : STLC_Functor_H STLC_gen --&gt; STLC_gen  := SigmaMonoid_τ θSTLC σ.
+
+  <span class="sd">(** the individual sorted constructors for application and lambda-abstraction *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">app_source_gen_oldstyle_abstracted</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) : functor sortToSet2 sortToSet2 :=
+    (post_comp_functor (projSortToSet (s ⇒ t)) ⊗ post_comp_functor (projSortToSet s))
+      ∙ (post_comp_functor (hat_functorSet t)).
+
+  <span class="sd">(** this old-style definition coincides with [STLC_alt.v] *)</span>
+  <span class="kn">Lemma</span> <span class="nf">app_source_gen_oldstyle_abstracted_ok</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) :
+    app_source_gen_oldstyle_abstracted s t = SubstitutionSystems.STLC_alt.app_source sort arr s t.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">app_source_gen_newstyle</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) : sortToSet2 :=
+    BinProduct_of_functors BPsortToSet
+      (functor_compose STLC_gen (projSortToSet (s ⇒ t) ∙ hat_functorSet t))
+      (functor_compose STLC_gen (projSortToSet s ∙ hat_functorSet t)).
+
+  <span class="kn">Definition</span> <span class="nf">app_source_gen</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) : sortToSet2 :=
+    ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort SET TerminalHSET
+      BinProductsHSET BinCoproductsHSET CoproductsHSET (arity sort STLC_Sig (inl (s,, t))) STLC_gen.
+
+  <span class="kn">Lemma</span> <span class="nf">app_source_gen_ok</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) : app_source_gen s t  = app_source_gen_newstyle s t.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">app_source_gen_mor_pr1</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧)
+    (<span class="nv">u</span> : sort) (<span class="nv">arg</span> : pr1 (pr1 (pr1 (app_source_gen s t) ξ) u)) :
+    pr1 (pr1 (# (pr1 (app_source_gen s t)) f) u arg) =
+      pr1 (# (pr1 (functor_compose STLC_gen (projSortToSet (s ⇒ t) ∙ hat_functorSet t))) f) u (pr1 arg).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">app_source_gen_mor_pr2</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧)
+    (<span class="nv">u</span> : sort) (<span class="nv">arg</span> : pr1 (pr1 (pr1 (app_source_gen s t) ξ) u)) :
+    pr2 (pr1 (# (pr1 (app_source_gen s t)) f) u arg) =
+      pr1 (# (pr1 (functor_compose STLC_gen (projSortToSet s ∙ hat_functorSet t))) f) u (pr2 arg).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** The application constructor *)</span>
+  <span class="kn">Definition</span> <span class="nf">app_map_gen</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) : sortToSet2⟦app_source_gen s t,STLC_gen⟧ :=
+    CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ (<span class="k">λ</span> <span class="nv">_</span>, _)) (ii1 (s,,t)) · STLC_tau_gen.
+
+  <span class="kn">Definition</span> <span class="nf">app_map_gen_natural</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧)
+    : # (pr1 (app_source_gen s t)) f · pr1 (app_map_gen s t) ξ' = pr1 (app_map_gen s t) ξ · # (pr1 STLC_gen) f
+    := nat_trans_ax (app_map_gen s t) ξ ξ' f.
+
+  <span class="kn">Lemma</span> <span class="nf">app_map_gen_natural_pointwise</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧) (<span class="nv">u</span> : sort)
+    : pr1 (# (pr1 (app_source_gen s t)) f) u · pr1 (pr1 (app_map_gen s t) ξ') u =
+        pr1 (pr1 (app_map_gen s t) ξ) u · pr1 (# (pr1 STLC_gen) f) u.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (nat_trans_eq_weq HSET _ _ (app_map_gen_natural s t ξ ξ' f)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">app_map_gen_natural_ppointwise</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧)
+    (<span class="nv">u</span> : sort) (<span class="nv">elem</span> : pr1 (pr1 (pr1 (app_source_gen s t) ξ) u)) :
+    pr1 (pr1 (app_map_gen s t) ξ') u (pr1 (# (pr1 (app_source_gen s t)) f) u elem) =
+      pr1 (# (pr1 STLC_gen) f) u (pr1 (pr1 (app_map_gen s t) ξ) u elem).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (toforallpaths _ _ _ (app_map_gen_natural_pointwise s t ξ ξ' f u)).
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">lam_source_gen_oldstyle_abstracted</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) : functor sortToSet2 sortToSet2 :=
+    pre_comp_functor (sorted_option_functorSet s)
+      ∙ post_comp_functor (projSortToSet t) ∙ post_comp_functor (hat_functorSet (s ⇒ t)).
+
+  <span class="sd">(** this old-style definition coincides with [STLC_alt.v] *)</span>
+  <span class="kn">Lemma</span> <span class="nf">lam_source_gen_oldstyle_abstracted_ok</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) :
+    lam_source_gen_oldstyle_abstracted s t = SubstitutionSystems.STLC_alt.lam_source sort arr s t.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lam_source_gen_newstyle</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) : sortToSet2 :=
+    functor_compose
+      (functor_compose
+         (sorted_option_functorSet s)
+         STLC_gen)
+      (projSortToSet t ∙ hat_functorSet (s ⇒ t)).
+
+  <span class="kn">Definition</span> <span class="nf">lam_source_gen</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) : sortToSet2 :=
+    ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort SET TerminalHSET
+      BinProductsHSET BinCoproductsHSET CoproductsHSET (arity sort STLC_Sig (inr (s,, t))) STLC_gen.
+
+  <span class="kn">Lemma</span> <span class="nf">lam_source_gen_ok</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) : lam_source_gen s t  = lam_source_gen_newstyle s t.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** the outcome of the second component of the hat functor in this construction: *)</span>
+  <span class="kn">Lemma</span> <span class="nf">lam_source_gen_mor_pr2</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧)
+    (<span class="nv">u</span> : sort) (<span class="nv">pr</span> : pr1 (pr1 (pr1 (lam_source_gen s t) ξ) u))
+    : pr2 (pr1 (# (pr1 (lam_source_gen s t)) f) u pr) =
+        # (pr1 (functor_compose (functor_compose (sorted_option_functorSet s) STLC_gen) (projSortToSet t))) f (pr2 pr).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** The lambda-abstraction constructor *)</span>
+  <span class="kn">Definition</span> <span class="nf">lam_map_gen</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) : sortToSet2⟦lam_source_gen s t,STLC_gen⟧ :=
+    CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ (<span class="k">λ</span> <span class="nv">_</span>, _)) (ii2 (s,,t)) · STLC_tau_gen.
+
+  <span class="kn">Definition</span> <span class="nf">lam_map_gen_natural</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧)
+    : # (pr1 (lam_source_gen s t)) f · pr1 (lam_map_gen s t) ξ' = pr1 (lam_map_gen s t) ξ · # (pr1 STLC_gen) f
+    := nat_trans_ax (lam_map_gen s t) ξ ξ' f.
+
+  <span class="kn">Lemma</span> <span class="nf">lam_map_gen_natural_pointwise</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧) (<span class="nv">u</span> : sort)
+    : pr1 (# (pr1 (lam_source_gen s t)) f) u · pr1 (pr1 (lam_map_gen s t) ξ') u =
+        pr1 (pr1 (lam_map_gen s t) ξ) u · pr1 (# (pr1 STLC_gen) f) u.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (nat_trans_eq_weq HSET _ _ (lam_map_gen_natural s t ξ ξ' f)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lam_map_gen_natural_ppointwise</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧)
+    (<span class="nv">u</span> : sort) (<span class="nv">elem</span> : pr1 (pr1 (pr1 (lam_source_gen s t) ξ) u)) :
+    pr1 (pr1 (lam_map_gen s t) ξ') u (pr1 (# (pr1 (lam_source_gen s t)) f) u elem) =
+      pr1 (# (pr1 STLC_gen) f) u (pr1 (pr1 (lam_map_gen s t) ξ) u elem).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (toforallpaths _ _ _ (lam_map_gen_natural_pointwise s t ξ ξ' f u)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">Church</span>.
+
+    <span class="sd">(** fix a sort, viewed as an atom *)</span>
+    <span class="kn">Context</span> (<span class="nv">s</span> : sort).
+
+    <span class="kn">Definition</span> <span class="nf">ChurchZero_gen</span> (<span class="nv">ξ</span> : sortToSet) : STLC_gen_ctx_sort ξ ((s ⇒ s) ⇒ (s ⇒ s)).
+    <span class="kn">Proof</span>.
+      <span class="sd">(** abstract a first variable - forced to be of type [s ⇒ s] *)</span>
+      <span class="nb">refine</span> (pr1 (pr1 (lam_map_gen _ _) _) _ _).
+      <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+      <span class="nb">change</span> (STLC_gen_ctx_sort (ctx_ext ξ (s ⇒ s)) (s ⇒ s)).
+      <span class="sd">(** abstract a second variable - forced to be of type [s] *)</span>
+      <span class="nb">refine</span> (pr1 (pr1 (lam_map_gen _ _) _) _ _).
+      <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+      <span class="nb">change</span> (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s).
+      <span class="sd">(** take a variable *)</span>
+      <span class="nb">simple refine</span> (pr1 (pr1 STLC_eta_gen _) _ _).
+      <span class="nb">cbn</span>.
+      <span class="sd">(** the available variables are seen, pick the last added variable of type [s] *)</span>
+      <span class="nb">apply</span> ii1.
+      <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+      <span class="bp">exact</span> tt.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">ChurchOne_gen</span> (<span class="nv">ξ</span> : sortToSet) : STLC_gen_ctx_sort ξ ((s ⇒ s) ⇒ (s ⇒ s)).
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (pr1 (pr1 (lam_map_gen _ _) _) _ _).
+      <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+      <span class="nb">refine</span> (pr1 (pr1 (lam_map_gen _ _) _) _ _).
+      <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+      <span class="sd">(** do an application with argument type [s] - not giving this argument would slow down the further steps *)</span>
+      <span class="nb">refine</span> (pr1 (pr1 (app_map_gen s _) _) _ _).
+      <span class="nb">split</span>; <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+      - <span class="nb">change</span> (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) (s ⇒ s)).
+        <span class="nb">simple refine</span> (pr1 (pr1 STLC_eta_gen _) _ _).
+        <span class="nb">cbn</span>.
+        <span class="sd">(** the available variables are seen, pick the first added variable of type [s ⇒ s] *)</span>
+        <span class="nb">apply</span> ii2.
+        <span class="nb">apply</span> ii1.
+        <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+        <span class="bp">exact</span> tt.
+      - <span class="nb">change</span> (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s).
+        <span class="nb">simple refine</span> (pr1 (pr1 STLC_eta_gen _) _ _).
+         <span class="nb">cbn</span>.
+        <span class="sd">(** pick the last added variable of type [s] *)</span>
+        <span class="nb">apply</span> ii1.
+        <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+        <span class="bp">exact</span> tt.
+    <span class="kn">Defined</span>.
+
+
+    <span class="kn">Definition</span> <span class="nf">Church_gen_body</span> (<span class="nv">n</span> : nat) (<span class="nv">ξ</span> : sortToSet) : STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s.
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> n.
+      - <span class="nb">simple refine</span> (pr1 (pr1 STLC_eta_gen _) _ _).
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> ii1.
+        <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+        <span class="bp">exact</span> tt.
+      - <span class="nb">refine</span> (pr1 (pr1 (app_map_gen s _) _) _ _).
+        <span class="nb">split</span>; <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+        + <span class="nb">change</span> (STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) (s ⇒ s)).
+          <span class="nb">simple refine</span> (pr1 (pr1 STLC_eta_gen _) _ _).
+          <span class="nb">cbn</span>.
+          <span class="nb">apply</span> ii2.
+          <span class="nb">apply</span> ii1.
+          <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+          <span class="bp">exact</span> tt.
+        + <span class="bp">exact</span> IHn.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">Church_gen_body_rec_eq</span> (<span class="nv">n</span> : nat) (<span class="nv">ξ</span> : sortToSet) :
+      Church_gen_body (S n) ξ =
+        pr1 (pr1 (app_map_gen s s) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s
+     ((idpath s,,
+         pr1 (pr1 STLC_eta_gen (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s)
+         (inr (inl (idpath (s ⇒ s),, tt)) : pr1 (pr1 (Id (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s)))),,
+        idpath s,, Church_gen_body n ξ).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">Church_gen_header</span> (<span class="nv">ξ</span> : sortToSet) :
+      STLC_gen_ctx_sort (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s -&gt; STLC_gen_ctx_sort ξ ((s ⇒ s) ⇒ (s ⇒ s)).
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> body.
+      <span class="nb">refine</span> (pr1 (pr1 (lam_map_gen _ _) _) _ _).
+      <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+      <span class="nb">refine</span> (pr1 (pr1 (lam_map_gen _ _) _) _ _).
+      <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+      <span class="bp">exact</span> body.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">Church_gen</span> (<span class="nv">n</span> : nat) (<span class="nv">ξ</span> : sortToSet) : STLC_gen_ctx_sort ξ ((s ⇒ s) ⇒ (s ⇒ s))
+      := Church_gen_header ξ (Church_gen_body n ξ).
+
+  <span class="kn">End</span> <span class="nf">Church</span>.
+
+  <span class="kn">Section</span> <span class="nf">Church_functor</span>.
+
+    <span class="kn">Definition</span> <span class="nf">Church_gen_body_target_data</span>: functor_data sortToSet sortToSet.
+    <span class="kn">Proof</span>.
+      use make_functor_data.
+      - <span class="nb">intro</span> ξ.
+        <span class="nb">apply</span> (functor_path_pregroupoid Hsort).
+        <span class="nb">intro</span> s.
+        <span class="bp">exact</span> (pr1 (pr1 STLC_gen (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s).
+        <span class="sd">(** this is the pointwise formula - with context and sort argument *)</span>
+      - <span class="nb">intros</span> ξ ξ' f.
+        <span class="nb">apply</span> nat_trans_functor_path_pregroupoid.
+        <span class="nb">intro</span> s.
+        <span class="nb">simpl</span>.
+        <span class="bp">exact</span> (pr1 (# (pr1 STLC_gen)
+                      (# (sorted_option_functorSet s)
+                         (# (sorted_option_functorSet (s ⇒ s)) f))) s).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">Church_gen_body_target_data_ok</span> : is_functor Church_gen_body_target_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>; <span class="nb">red</span>.
+      - <span class="nb">intro</span> ξ.
+        <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> HSET.
+        <span class="nb">intro</span> s.
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> elem.
+        <span class="nb">unfold</span> functor_on_morphisms.
+        <span class="nb">unfold</span> Church_gen_body_target_data.
+        <span class="nb">unfold</span> pr2.
+        <span class="nb">unfold</span> make_functor_data.
+        <span class="nb">unfold</span> nat_trans_functor_path_pregroupoid.
+        <span class="nb">unfold</span> make_nat_trans.
+        <span class="nb">unfold</span> nat_trans_data_from_nat_trans_funclass.
+        <span class="nb">unfold</span> pr1.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_id.
+        <span class="nb">rewrite</span> (functor_id STLC_gen).
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">intros</span> ξ1 ξ2 ξ3 f g.
+        <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> HSET.
+        <span class="nb">intro</span> s.
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> elem.
+        <span class="nb">unfold</span> functor_on_morphisms.
+        <span class="nb">unfold</span> Church_gen_body_target_data.
+        <span class="nb">unfold</span> make_functor_data.
+        <span class="nb">unfold</span> nat_trans_functor_path_pregroupoid.
+        <span class="nb">unfold</span> make_nat_trans.
+        <span class="nb">unfold</span> pr2.
+        <span class="nb">unfold</span> nat_trans_data_from_nat_trans_funclass.
+        <span class="nb">unfold</span> pr1.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">rewrite</span> (functor_comp STLC_gen).
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">Church_gen_body_target</span> : sortToSet2 := _,, Church_gen_body_target_data_ok.
+
+    <span class="kn">Definition</span> <span class="nf">Church_gen_body_sortToSet_data</span> (<span class="nv">n</span> : nat) (<span class="nv">ξ</span> : sortToSet) : global_element TsortToSet (pr1 Church_gen_body_target ξ).
+    <span class="kn">Proof</span>.
+      use nat_trans_functor_path_pregroupoid.
+      <span class="nb">intros</span> s _.
+      <span class="bp">exact</span> (Church_gen_body s n ξ).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">Church_gen_body_sortToSet_data_ok</span> (<span class="nv">n</span> : nat) (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧) :
+      Church_gen_body_sortToSet_data n ξ · # (pr1 Church_gen_body_target) f = Church_gen_body_sortToSet_data n ξ'.
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> n.
+      - <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> HSET.
+        <span class="nb">intros</span> s. <span class="nb">apply</span> funextfun.
+        <span class="nb">intros</span> one. <span class="nb">cbn</span> <span class="k">in</span> one. <span class="nb">induction</span> one.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, (STLC_eta_gen_natural'_ppointwise _ _
+                                 (# (sorted_option_functorSet s)
+                                    (# (sorted_option_functorSet (s ⇒ s)) f))
+                                 s (inl (idpath s,, tt))). }
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> HSET.
+        <span class="nb">intros</span> s. <span class="nb">apply</span> funextfun.
+        <span class="nb">intros</span> one. <span class="nb">cbn</span> <span class="k">in</span> one. <span class="nb">induction</span> one.
+        <span class="nb">set</span> (aux := (<span class="k">λ</span> (<span class="nv">s0</span> : path_pregroupoid sort Hsort) (<span class="nv">_</span> : pr1 (pr1 (pr1 TsortToSet) s0)),
+                      Church_gen_body s0 (S n) ξ) : ∏ x : path_pregroupoid sort Hsort,
+                   SET ⟦ pr1 (pr1 TsortToSet) x, pr1 (pr1 Church_gen_body_target ξ) x ⟧).
+        <span class="k">match goal with</span> |[ |- _ = <span class="nl">?rhs</span>] =&gt; <span class="nb">set</span> (therhs := rhs) <span class="k">end</span>.
+        <span class="nb">change</span> (pr1 (# (pr1 Church_gen_body_target) f) s (aux s tt) = therhs).
+        <span class="nb">change</span> (pr1 (# (pr1 Church_gen_body_target) f) s (Church_gen_body s (S n) ξ) =
+                  Church_gen_body s (S n) ξ').
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> Church_gen_body_rec_eq.
+        <span class="nb">clear</span> aux therhs.
+        <span class="nb">assert</span> (IHnpointwise : pr1 (# (pr1 Church_gen_body_target) f) s (Church_gen_body s n ξ) =
+                                 Church_gen_body s n ξ').
+        { <span class="nb">apply</span> (toforallpaths _ _ _ (toforallpaths _ _ _ (maponpaths pr1 IHn) s) tt). }
+        <span class="nb">rewrite</span> &lt;- IHnpointwise.
+        <span class="nb">clear</span> IHnpointwise.
+        <span class="nb">unfold</span> Church_gen_body_target.
+        <span class="nb">unfold</span> pr1.
+        <span class="nb">unfold</span> Church_gen_body_target_data.
+        <span class="nb">unfold</span> make_functor_data.
+        <span class="nb">unfold</span> functor_on_morphisms <span class="nb">at</span> <span class="mi">4</span>.
+        <span class="nb">unfold</span> pr2.
+        <span class="nb">unfold</span> nat_trans_functor_path_pregroupoid.
+        <span class="nb">unfold</span> make_nat_trans.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">unfold</span> functor_on_morphisms <span class="nb">at</span> <span class="mi">7</span>.
+        <span class="nb">unfold</span> pr2.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="sd">(** now begins the naturality reasoning *)</span>
+        etrans.
+        <span class="k">match goal with</span> |[ |- _ <span class="nl">?arg</span> = _] =&gt; <span class="nb">set</span> (thearg := arg) <span class="k">end</span>.
+        <span class="nb">unshelve</span> use (maponpaths (<span class="k">fun</span> <span class="nv">x</span> : SET
+                                 ⟦ pr1 (pr1 STLC_gen (sorted_option_functorSet s (sorted_option_functorSet (s ⇒ s) ξ))) s,
+                                   pr1 (pr1 STLC_gen (sorted_option_functorSet s (sorted_option_functorSet (s ⇒ s) ξ'))) s ⟧
+                         =&gt; x thearg)).
+        <span class="mi">2</span>: { <span class="nb">apply</span> sortToSet2_comp_on_mor. }
+        <span class="nb">rewrite</span> &lt;- app_map_gen_natural_ppointwise.
+        <span class="nb">apply</span> maponpaths.
+        use dirprodeq; [<span class="nb">unfold</span> pr1 | <span class="nb">unfold</span> pr2].
+        + <span class="nb">rewrite</span> app_source_gen_mor_pr1.
+          <span class="nb">unfold</span> pr1.
+          use dirprodeq.
+          * <span class="nb">apply</span> idpath.
+          * <span class="nb">unfold</span> pr2.
+            etrans.
+            <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, (STLC_eta_gen_natural'_ppointwise _ _
+                                     (# (pr1 (sorted_option_functorSet s))
+                                        (# (pr1 (sorted_option_functorSet (s ⇒ s))) f))
+                                     (s ⇒ s) (inr (inl (idpath (s ⇒ s),, tt)))). }
+            <span class="nb">apply</span> idpath.
+        + <span class="nb">apply</span> app_source_gen_mor_pr2.
+    <span class="kn">Qed</span>. <span class="c">(* slow *)</span>
+
+    <span class="kn">Definition</span> <span class="nf">Church_gen_body_sortToSet</span> (<span class="nv">n</span> : nat) : global_element TsortToSet2 Church_gen_body_target.
+    <span class="kn">Proof</span>.
+      use make_global_element_functor_precat.
+      - <span class="bp">exact</span> (Church_gen_body_sortToSet_data n).
+      - <span class="bp">exact</span> (Church_gen_body_sortToSet_data_ok n).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">Church_gen_header_sortToSet_data</span> : nat_trans_data (pr1 Church_gen_body_target)
+            (pr1 (functor_compose STLC_gen (projSortToSetvariable (<span class="k">λ</span> <span class="nv">s</span> : sort, (s ⇒ s) ⇒ s ⇒ s)))).
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> ξ.
+      use nat_trans_functor_path_pregroupoid.
+      <span class="nb">intros</span> s body.
+      <span class="bp">exact</span> (Church_gen_header s ξ body).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">Church_gen_header_sortToSet_data_ok</span> : is_nat_trans _ _ Church_gen_header_sortToSet_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> ξ ξ' f.
+      <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> HSET.
+      <span class="nb">intros</span> s. <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> body.
+      <span class="nb">simpl</span>. <span class="nb">unfold</span> compose. <span class="nb">simpl</span>.
+      <span class="sd">(** the following for better readability *)</span>
+      <span class="k">match goal with</span> |[ |- Church_gen_header s ξ' (pr1 (# (pr1 STLC_gen) <span class="nl">?uglyxi</span> ) s body)= _] =&gt; <span class="nb">set</span> (theuglyxi := uglyxi) <span class="k">end</span>.
+      <span class="nb">unfold</span> Church_gen_header.
+      <span class="nb">rewrite</span> &lt;- lam_map_gen_natural_ppointwise.
+      <span class="nb">apply</span> maponpaths.
+      use dirprodeq.
+      - <span class="nb">apply</span> idpath.
+      - <span class="nb">unfold</span> pr2.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, lam_source_gen_mor_pr2. }
+        <span class="nb">unfold</span> pr2.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, postcomp_with_projSortToSet_on_mor. }
+        <span class="nb">unfold</span> functor_compose.
+        etrans.
+        <span class="mi">2</span>: { <span class="k">match goal with</span> |[ |- _= _ <span class="nl">?arg</span> ] =&gt; <span class="nb">set</span> (thearg := arg) <span class="k">end</span>.
+             <span class="nb">unshelve</span> use (maponpaths (<span class="k">fun</span> <span class="nv">x</span> : SET
+                                      ⟦ pr1 (pr1 (sorted_option_functorSet (s ⇒ s) ∙ STLC_gen) ξ) (s ⇒ s),
+                                        pr1 (pr1 (sorted_option_functorSet (s ⇒ s) ∙ STLC_gen) ξ') (s ⇒ s) ⟧
+                              =&gt;  x thearg)).
+              <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, sortToSet2_comp_on_mor. }
+        }
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">apply</span> lam_map_gen_natural_ppointwise. }
+        <span class="nb">apply</span> maponpaths.
+        use dirprodeq.
+        + <span class="nb">apply</span> idpath.
+        + <span class="nb">unfold</span> pr2.
+          etrans.
+          <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, lam_source_gen_mor_pr2. }
+          <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">Church_gen_header_sortToSet</span> : sortToSet2⟦Church_gen_body_target,
+         functor_compose STLC_gen (projSortToSetvariable (<span class="k">fun</span> <span class="nv">s</span> =&gt; (s ⇒ s) ⇒ (s ⇒ s)))⟧
+      := _,, Church_gen_header_sortToSet_data_ok.
+
+     <span class="kn">Definition</span> <span class="nf">Church_gen_sortToSet</span> (<span class="nv">n</span> : nat) : global_element TsortToSet2
+           (functor_compose STLC_gen (projSortToSetvariable (<span class="k">fun</span> <span class="nv">s</span> =&gt; (s ⇒ s) ⇒ (s ⇒ s))))
+      := Church_gen_body_sortToSet n · Church_gen_header_sortToSet.
+
+
+     <span class="sd">(** this makes superfluous the lengthy definitions below that are kept for comparison *)</span>
+
+    <span class="kn">Definition</span> <span class="nf">old_Church_gen_sortToSet_data</span> (<span class="nv">n</span> : nat) (<span class="nv">ξ</span> : sortToSet):
+      global_element TsortToSet
+        (pr1 (functor_compose STLC_gen (projSortToSetvariable (<span class="k">λ</span> <span class="nv">s</span> : sort, (s ⇒ s) ⇒ s ⇒ s))) ξ).
+    <span class="kn">Proof</span>.
+      use nat_trans_functor_path_pregroupoid.
+      <span class="nb">intros</span> s _.
+      <span class="nb">change</span> (STLC_gen_ctx_sort ξ ((s ⇒ s) ⇒ (s ⇒ s))).
+      <span class="bp">exact</span> (Church_gen s n ξ).
+    <span class="kn">Defined</span>.
+
+
+    <span class="kn">Lemma</span> <span class="nf">old_Church_gen_sortToSet_data_ok</span> (<span class="nv">n</span> : nat) (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧):
+      old_Church_gen_sortToSet_data n ξ ·
+        # (pr1 (functor_compose STLC_gen (projSortToSetvariable (<span class="k">λ</span> <span class="nv">s</span> : sort, (s ⇒ s) ⇒ s ⇒ s)))) f =
+        old_Church_gen_sortToSet_data n ξ'.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> HSET.
+      <span class="nb">intros</span> s. <span class="nb">apply</span> funextfun.
+      <span class="nb">intros</span> one. <span class="nb">cbn</span> <span class="k">in</span> one. <span class="nb">induction</span> one.
+      <span class="nb">simpl</span>. <span class="nb">unfold</span> compose. <span class="nb">simpl</span>. <span class="nb">induction</span> n.
+      - <span class="nb">change</span> (pr1 (# (pr1 STLC_gen) f) ((s ⇒ s) ⇒ s ⇒ s) (ChurchZero_gen s ξ) = ChurchZero_gen s ξ').
+        <span class="nb">unfold</span> ChurchZero_gen.
+        <span class="nb">rewrite</span> &lt;- lam_map_gen_natural_ppointwise.
+        <span class="nb">apply</span> maponpaths.
+        use dirprodeq.
+        + <span class="nb">apply</span> idpath.
+        + <span class="nb">unfold</span> pr2.
+          etrans.
+          { <span class="nb">apply</span> lam_source_gen_mor_pr2. }
+          <span class="nb">unfold</span> pr2.
+          etrans.
+          { <span class="nb">apply</span> postcomp_with_projSortToSet_on_mor. }
+          <span class="nb">unfold</span> functor_compose.
+          etrans.
+          <span class="k">match goal with</span> |[ |- _ <span class="nl">?arg</span> = _] =&gt; <span class="nb">set</span> (thearg := arg) <span class="k">end</span>.
+          <span class="nb">unshelve</span> use (maponpaths (<span class="k">fun</span> <span class="nv">x</span> : SET
+                                   ⟦ pr1 (pr1 (sorted_option_functorSet (s ⇒ s) ∙ STLC_gen) ξ) (s ⇒ s),
+                                     pr1 (pr1 (sorted_option_functorSet (s ⇒ s) ∙ STLC_gen) ξ') (s ⇒ s) ⟧
+                           =&gt;  x thearg)).
+          <span class="mi">2</span>: { <span class="nb">apply</span> sortToSet2_comp_on_mor. }
+          etrans.
+          { <span class="nb">apply</span> pathsinv0, lam_map_gen_natural_ppointwise. }
+          <span class="nb">apply</span> maponpaths.
+          use dirprodeq.
+          * <span class="nb">apply</span> idpath.
+          * <span class="nb">unfold</span> pr2.
+            etrans.
+            { <span class="nb">apply</span> lam_source_gen_mor_pr2. }
+            <span class="nb">unfold</span> pr2.
+            etrans.
+            { <span class="nb">apply</span> postcomp_with_projSortToSet_on_mor. }
+            etrans.
+            <span class="k">match goal with</span> |[ |- _ <span class="nl">?arg</span> = _] =&gt; <span class="nb">set</span> (thearg := arg) <span class="k">end</span>.
+            <span class="nb">unshelve</span> use (maponpaths (<span class="k">fun</span> <span class="nv">x</span> : SET
+       ⟦ pr1 (pr1 (functor_compose (sorted_option_functorSet s) STLC_gen) (pr1 (sorted_option_functorSet (s ⇒ s)) ξ)) s,
+        pr1 (pr1 (functor_compose (sorted_option_functorSet s) STLC_gen) (pr1 (sorted_option_functorSet (s ⇒ s)) ξ')) s ⟧
+                             =&gt; x thearg)).
+            <span class="mi">2</span>: { <span class="nb">apply</span> sortToSet2_comp_on_mor. }
+            etrans.
+            { <span class="nb">apply</span> pathsinv0, STLC_eta_gen_natural'_ppointwise. }
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> idpath.
+      - <span class="sd">(** the successor case - this will not go through since there is the common prefix with the two lambda abstractions *)</span>
+        <span class="nb">induction</span> n.
+        + <span class="nb">change</span> (pr1 (# (pr1 STLC_gen) f) ((s ⇒ s) ⇒ s ⇒ s) (ChurchOne_gen s ξ) = ChurchOne_gen s ξ').
+          <span class="nb">unfold</span> ChurchOne_gen.
+          <span class="nb">rewrite</span> &lt;- lam_map_gen_natural_ppointwise.
+          <span class="nb">apply</span> maponpaths.
+          use dirprodeq.
+          * <span class="nb">apply</span> idpath.
+          * <span class="nb">unfold</span> pr2.
+            etrans.
+            { <span class="nb">apply</span> lam_source_gen_mor_pr2. }
+            <span class="nb">unfold</span> pr2.
+            etrans.
+            { <span class="nb">apply</span> postcomp_with_projSortToSet_on_mor. }
+            <span class="nb">unfold</span> functor_compose.
+            etrans.
+            <span class="k">match goal with</span> |[ |- _ <span class="nl">?arg</span> = _] =&gt; <span class="nb">set</span> (thearg := arg) <span class="k">end</span>.
+            <span class="nb">unshelve</span> use (maponpaths (<span class="k">fun</span> <span class="nv">x</span> : SET
+       ⟦ pr1 (pr1 (sorted_option_functor sort Hsort SET TerminalHSET BinCoproductsHSET CoproductsHSET (s ⇒ s) ∙ STLC_gen) ξ) (s ⇒ s),
+       pr1 (pr1 (sorted_option_functor sort Hsort SET TerminalHSET BinCoproductsHSET CoproductsHSET (s ⇒ s) ∙ STLC_gen) ξ') (s ⇒ s) ⟧
+                             =&gt; x thearg)).
+            <span class="mi">2</span>: { <span class="nb">apply</span> sortToSet2_comp_on_mor. }
+            <span class="nb">rewrite</span> &lt;- lam_map_gen_natural_ppointwise.
+            <span class="nb">apply</span> maponpaths.
+            use dirprodeq.
+            -- <span class="nb">apply</span> idpath.
+            -- <span class="nb">unfold</span> pr2.
+               etrans.
+               { <span class="nb">apply</span> lam_source_gen_mor_pr2. }
+               <span class="nb">unfold</span> pr2.
+               etrans.
+               { <span class="nb">apply</span> postcomp_with_projSortToSet_on_mor. }
+               <span class="nb">unfold</span> functor_compose.
+               etrans.
+               <span class="k">match goal with</span> |[ |- _ <span class="nl">?arg</span> = _] =&gt; <span class="nb">set</span> (thearg := arg) <span class="k">end</span>.
+               <span class="nb">unshelve</span> use (maponpaths (<span class="k">fun</span> <span class="nv">x</span> : SET
+       ⟦ pr1 (pr1 (sorted_option_functorSet s ∙ STLC_gen) (pr1 (sorted_option_functorSet (s ⇒ s)) ξ)) s,
+        pr1 (pr1 (sorted_option_functorSet s ∙ STLC_gen) (pr1 (sorted_option_functorSet (s ⇒ s)) ξ')) s ⟧
+                                =&gt; x thearg)).
+               <span class="mi">2</span>: { <span class="nb">apply</span> sortToSet2_comp_on_mor. }
+               <span class="nb">rewrite</span> &lt;- app_map_gen_natural_ppointwise.
+               <span class="nb">apply</span> maponpaths.
+               use dirprodeq; [<span class="nb">unfold</span> pr1 | <span class="nb">unfold</span> pr2].
+               ++ <span class="nb">rewrite</span> app_source_gen_mor_pr1.
+                  <span class="nb">unfold</span> pr1.
+                  use dirprodeq.
+                  --- <span class="nb">apply</span> idpath.
+                  --- <span class="nb">unfold</span> pr2.
+                      etrans.
+                      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, (STLC_eta_gen_natural'_ppointwise _ _
+                                               (# (sorted_option_functorSet s) (# (sorted_option_functorSet (s ⇒ s)) f))
+                                               (s ⇒ s) (inr (inl (idpath (s ⇒ s),, tt)))). }
+                      <span class="nb">apply</span> idpath.
+               ++ <span class="nb">rewrite</span> app_source_gen_mor_pr2.
+                  <span class="nb">unfold</span> pr2.
+                  use dirprodeq.
+                  --- <span class="nb">apply</span> idpath.
+                  --- <span class="nb">unfold</span> pr2.
+                      etrans.
+                      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, (STLC_eta_gen_natural'_ppointwise _ _
+                                               (# (sorted_option_functorSet s) (# (sorted_option_functorSet (s ⇒ s)) f))
+                                               s (inl (idpath s,, tt))). }
+                      <span class="nb">apply</span> idpath.
+        + <span class="sd">(** case of n&gt;=2 *)</span>
+          <span class="nb">admit</span>.
+    <span class="kn">Abort</span>.
+
+<span class="c">(*   Definition old_Church_gen_sortToSet (n : nat) : global_element TsortToSet2</span>
+<span class="c">                                                 (functor_compose STLC_gen (projSortToSetvariable (fun s =&gt; (s ⇒ s) ⇒ (s ⇒ s)))).</span>
+<span class="c">    Proof.</span>
+<span class="c">      use make_global_element_functor_precat.</span>
+<span class="c">      - exact (old_Church_gen_sortToSet_data n).</span>
+<span class="c">      - exact (old_Church_gen_sortToSet_data_ok n).</span>
+<span class="c">    Defined.</span>
+<span class="c">*)</span>
+
+  <span class="kn">End</span> <span class="nf">Church_functor</span>.
+
+<span class="kn">End</span> <span class="nf">IndAndCoind</span>.
+
+<span class="kn">Definition</span> <span class="nf">STLC_ctx_sort_ind</span> (<span class="nv">ξ</span> : sortToSet) (<span class="nv">s</span> : sort) : UU
+  := STLC_gen_ctx_sort σind ξ s.
+<span class="kn">Definition</span> <span class="nf">STLC_ctx_sort_coind</span> (<span class="nv">ξ</span> : sortToSet) (<span class="nv">s</span> : sort) : UU
+  := STLC_gen_ctx_sort σcoind ξ s.
+
+<span class="kn">Definition</span> <span class="nf">STLC_ind</span> : sortToSet2 := STLC_gen σind.
+<span class="kn">Definition</span> <span class="nf">STLC_coind</span> : sortToSet2 := STLC_gen σcoind.
+
+<span class="kn">Definition</span> <span class="nf">STLC_eta_ind</span> : sortToSet2⟦Id,STLC_ind⟧ := STLC_eta_gen σind.
+<span class="kn">Definition</span> <span class="nf">STLC_eta_coind</span> : sortToSet2⟦Id,STLC_coind⟧ := STLC_eta_gen σcoind.
+
+<span class="kn">Definition</span> <span class="nf">STLC_tau_ind</span> : STLC_Functor_H STLC_ind --&gt; STLC_ind  := SigmaMonoid_τ θSTLC σind.
+<span class="kn">Definition</span> <span class="nf">STLC_tau_coind</span> : STLC_Functor_H STLC_coind --&gt; STLC_coind  := SigmaMonoid_τ θSTLC σcoind.
+
+<span class="kn">Definition</span> <span class="nf">app_source_ind</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) : sortToSet2 := app_source_gen σind s t.
+<span class="kn">Definition</span> <span class="nf">app_map_ind</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) : sortToSet2⟦app_source_ind s t,STLC_ind⟧ := app_map_gen σind s t.
+<span class="kn">Definition</span> <span class="nf">lam_source_ind</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) : sortToSet2 := lam_source_gen σind s t.
+<span class="kn">Definition</span> <span class="nf">lam_map_ind</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) : sortToSet2⟦lam_source_ind s t,STLC_ind⟧ := lam_map_gen σind s t.
+
+<span class="kn">Definition</span> <span class="nf">app_source_coind</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) : sortToSet2 := app_source_gen σcoind s t.
+<span class="kn">Definition</span> <span class="nf">app_map_coind</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) : sortToSet2⟦app_source_coind s t,STLC_coind⟧ := app_map_gen σcoind s t.
+<span class="kn">Definition</span> <span class="nf">lam_source_coind</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) : sortToSet2 := lam_source_gen σcoind s t.
+<span class="kn">Definition</span> <span class="nf">lam_map_coind</span> (<span class="nv">s</span> <span class="nv">t</span> : sort) : sortToSet2⟦lam_source_coind s t,STLC_coind⟧ := lam_map_gen σcoind s t.
+
+
+<span class="sd">(** get a handle on the recursion principles *)</span>
+
+<span class="sd">(** the initial algebra *)</span>
+<span class="kn">Definition</span> <span class="nf">STLC_ind_IA</span> : Initial (FunctorAlg STLC_Functor_Id_H)
+  := DatatypeOfMultisortedBindingSig_CAT sort Hsort SET TerminalHSET InitialHSET BinProductsHSET
+       BinCoproductsHSET (<span class="k">fun</span> <span class="nv">s</span> <span class="nv">s'</span> =&gt; ProductsHSET (s=s')) CoproductsHSET (EsortToSet2 sort Hsort)
+       (ColimsHSET_of_shape nat_graph) STLC_Sig.
+<span class="sd">(** notice that this is only the initial algebra and not the initial sigma monoid *)</span>
+
+<span class="sd">(** the final coalgebra *)</span>
+<span class="kn">Definition</span> <span class="nf">STLC_coind_FC</span> : Terminal (CoAlg_category STLC_Functor_Id_H)
+  := coindCodatatypeOfMultisortedBindingSig_CAT sort Hsort HSET TerminalHSET
+         BinProductsHSET BinCoproductsHSET CoproductsHSET (LimsHSET_of_shape conat_graph)
+         I_coproduct_distribute_over_omega_limits_HSET STLC_Sig is_univalent_HSET.
+
+<span class="kn">Section</span> <span class="nf">Church</span>.
+<span class="sd">(** This section compiled when it was commented out so as to avoid [Admitted]. *)</span>
+
+<span class="c">(*</span>
+<span class="c">  Definition ChurchInfinity_body_sortToSet : global_element TsortToSet2 (Church_gen_body_target σcoind).</span>
+<span class="c">  Proof.</span>
+<span class="c">    (** has to use [STLC_coind_FC] in the right way *)</span>
+<span class="c">  Admitted.</span>
+
+<span class="c">  Definition ChurchInfinity_body (ξ : sortToSet) (s: sort) : STLC_gen_ctx_sort σcoind (ctx_ext (ctx_ext ξ (s ⇒ s)) s) s.</span>
+<span class="c">  Proof.</span>
+<span class="c">    exact (pr1 ((pr1 ChurchInfinity_body_sortToSet) ξ) s tt).</span>
+<span class="c">  Defined.</span>
+
+<span class="c">  Definition ChurchInfinity_body_sortToSet_rec_eq_statement (ξ : sortToSet) (s : sort) : UU :=</span>
+<span class="c">    ChurchInfinity_body ξ s =</span>
+<span class="c">      pr1 (pr1 (app_map_coind s s) (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) s</span>
+<span class="c">        ((idpath s,,</span>
+<span class="c">            pr1 (pr1 STLC_eta_coind (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s)</span>
+<span class="c">            (inr (inl (idpath (s ⇒ s),, tt)) : pr1 (pr1 (Id (ctx_ext (ctx_ext ξ (s ⇒ s)) s)) (s ⇒ s)))),,</span>
+<span class="c">           idpath s,, ChurchInfinity_body ξ s).</span>
+
+<span class="c">  Lemma ChurchInfinity_body_sortToSet_rec_eq (ξ : sortToSet) (s : sort) : ChurchInfinity_body_sortToSet_rec_eq_statement ξ s.</span>
+<span class="c">  Proof.</span>
+<span class="c">  Admitted.</span>
+
+<span class="c">  Definition ChurchInfinity_sortToSet : global_element TsortToSet2</span>
+<span class="c">           (functor_compose STLC_coind (projSortToSetvariable (fun s =&gt; (s ⇒ s) ⇒ (s ⇒ s))))</span>
+<span class="c">      := ChurchInfinity_body_sortToSet · (Church_gen_header_sortToSet σcoind).</span>
+
+<span class="c">  Definition ChurchInfinity (s : sort) (ξ : sortToSet) : STLC_ctx_sort_coind ξ ((s ⇒ s) ⇒ (s ⇒ s)).</span>
+<span class="c">  Proof.</span>
+<span class="c">    exact (pr1 ((pr1 ChurchInfinity_sortToSet) ξ) s tt).</span>
+<span class="c">  Defined.</span>
+<span class="c">*)</span>
+<span class="kn">End</span> <span class="nf">Church</span>.
+
+<span class="kn">End</span> <span class="nf">A</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/STLC_actegorical.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Written by: Ralph Matthes, 2024 (reusing beginnings from STLC_alt.v)
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Sets.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

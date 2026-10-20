@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.OrderTheory.Posets.LiftPoset</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.OrderTheory.Posets.LiftPoset</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#"><span class="id" title="library">UniMath.OrderTheory.Posets.Basics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Posets.MonotoneFunctions.html#"><span class="id" title="library">UniMath.OrderTheory.Posets.MonotoneFunctions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Posets.PointedPosets.html#"><span class="id" title="library">UniMath.OrderTheory.Posets.PointedPosets</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 1. The order on the lift
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="lift_hrel" class="idref" href="#lift_hrel"><span class="id" title="definition">lift_hrel</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="X:1" class="idref" href="#X:1"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="PX:2" class="idref" href="#PX:2"><span class="id" title="binder">PX</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hrel"><span class="id" title="definition">hrel</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#X:1"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Sets.html#hrel"><span class="id" title="definition">hrel</span></a> (<a class="idref" href="UniMath.Foundations.Sets.html#setcoprod"><span class="id" title="definition">setcoprod</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#X:1"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#unitset"><span class="id" title="definition">unitset</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x₁</span> <span class="id" title="var">x₂</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">x₁</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">x₁</span> | ].<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">induction</span> <span class="id" title="var">x₂</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">x₂</span> | ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<span class="id" title="var">PX</span> <span class="id" title="var">x₁</span> <span class="id" title="var">x₂</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hfalse"><span class="id" title="definition">hfalse</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Propositions.html#htrue"><span class="id" title="definition">htrue</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Proposition</span> <a id="lift_isPartialOrder" class="idref" href="#lift_isPartialOrder"><span class="id" title="lemma">lift_isPartialOrder</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="X:3" class="idref" href="#X:3"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="PX:4" class="idref" href="#PX:4"><span class="id" title="binder">PX</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#PartialOrder"><span class="id" title="definition">PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#X:3"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Sets.html#isPartialOrder"><span class="id" title="definition">isPartialOrder</span></a> (<a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#lift_hrel"><span class="id" title="definition">lift_hrel</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#PX:4"><span class="id" title="variable">PX</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> [ <span class="id" title="var">x₁</span> | [] ] [ <span class="id" title="var">x₂</span> | [] ] [ <span class="id" title="var">x₃</span> | [] ] <span class="id" title="var">p</span> <span class="id" title="var">q</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#trans_PartialOrder"><span class="id" title="lemma">trans_PartialOrder</span></a> <span class="id" title="var">PX</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#fromempty"><span class="id" title="definition">fromempty</span></a> <span class="id" title="var">p</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> [ <span class="id" title="var">x</span> | [] ] ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#refl_PartialOrder"><span class="id" title="lemma">refl_PartialOrder</span></a> <span class="id" title="var">PX</span> <span class="id" title="var">x</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> [ <span class="id" title="var">x</span> | [] ] [ <span class="id" title="var">y</span> | [] ] <span class="id" title="var">p</span> <span class="id" title="var">q</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#antisymm_PartialOrder"><span class="id" title="lemma">antisymm_PartialOrder</span></a> <span class="id" title="var">PX</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#fromempty"><span class="id" title="definition">fromempty</span></a> <span class="id" title="var">p</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#fromempty"><span class="id" title="definition">fromempty</span></a> <span class="id" title="var">q</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="lift_PartialOrder" class="idref" href="#lift_PartialOrder"><span class="id" title="definition">lift_PartialOrder</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="X:5" class="idref" href="#X:5"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="PX:6" class="idref" href="#PX:6"><span class="id" title="binder">PX</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#PartialOrder"><span class="id" title="definition">PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#X:5"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Sets.html#PartialOrder"><span class="id" title="definition">PartialOrder</span></a> (<a class="idref" href="UniMath.Foundations.Sets.html#setcoprod"><span class="id" title="definition">setcoprod</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#X:5"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#unitset"><span class="id" title="definition">unitset</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Sets.html#make_PartialOrder"><span class="id" title="definition">make_PartialOrder</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#lift_hrel"><span class="id" title="definition">lift_hrel</span></a> <span class="id" title="var">PX</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#lift_isPartialOrder"><span class="id" title="lemma">lift_isPartialOrder</span></a> <span class="id" title="var">PX</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="lift_pointed_PartialOrder" class="idref" href="#lift_pointed_PartialOrder"><span class="id" title="definition">lift_pointed_PartialOrder</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="X:7" class="idref" href="#X:7"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="PX:8" class="idref" href="#PX:8"><span class="id" title="binder">PX</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#PartialOrder"><span class="id" title="definition">PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#X:7"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.Posets.PointedPosets.html#pointed_PartialOrder"><span class="id" title="definition">pointed_PartialOrder</span></a> (<a class="idref" href="UniMath.Foundations.Sets.html#setcoprod"><span class="id" title="definition">setcoprod</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#X:7"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#unitset"><span class="id" title="definition">unitset</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.OrderTheory.Posets.PointedPosets.html#make_pointed_PartialOrder"><span class="id" title="definition">make_pointed_PartialOrder</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#lift_PartialOrder"><span class="id" title="definition">lift_PartialOrder</span></a> <span class="id" title="var">PX</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 2. Action on morphisms
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Proposition</span> <a id="lift_strict_and_monotone_map" class="idref" href="#lift_strict_and_monotone_map"><span class="id" title="lemma">lift_strict_and_monotone_map</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="X:9" class="idref" href="#X:9"><span class="id" title="binder">X</span></a> <a id="Y:10" class="idref" href="#Y:10"><span class="id" title="binder">Y</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="f:11" class="idref" href="#f:11"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#X:9"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#Y:10"><span class="id" title="variable">Y</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="PX:12" class="idref" href="#PX:12"><span class="id" title="binder">PX</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#PartialOrder"><span class="id" title="definition">PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#X:9"><span class="id" title="variable">X</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="PY:13" class="idref" href="#PY:13"><span class="id" title="binder">PY</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#PartialOrder"><span class="id" title="definition">PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#Y:10"><span class="id" title="variable">Y</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Pf:14" class="idref" href="#Pf:14"><span class="id" title="binder">Pf</span></a> : <a class="idref" href="UniMath.OrderTheory.Posets.MonotoneFunctions.html#is_monotone"><span class="id" title="definition">is_monotone</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#PX:12"><span class="id" title="variable">PX</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#PY:13"><span class="id" title="variable">PY</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#f:11"><span class="id" title="variable">f</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.Posets.PointedPosets.html#is_strict_and_monotone"><span class="id" title="definition">is_strict_and_monotone</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#lift_pointed_PartialOrder"><span class="id" title="definition">lift_pointed_PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#PX:12"><span class="id" title="variable">PX</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#lift_pointed_PartialOrder"><span class="id" title="definition">lift_pointed_PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#PY:13"><span class="id" title="variable">PY</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.PartA.html#coprodf1"><span class="id" title="definition">coprodf1</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#f:11"><span class="id" title="variable">f</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> [ <span class="id" title="var">x</span> | [] ] [ <span class="id" title="var">y</span> | [] ] <span class="id" title="var">p</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <span class="id" title="var">Pf</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 3. The comonad structure
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="lift_pointed_PartialOrder_extract" class="idref" href="#lift_pointed_PartialOrder_extract"><span class="id" title="definition">lift_pointed_PartialOrder_extract</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="X:15" class="idref" href="#X:15"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="PX:16" class="idref" href="#PX:16"><span class="id" title="binder">PX</span></a> : <a class="idref" href="UniMath.OrderTheory.Posets.PointedPosets.html#pointed_PartialOrder"><span class="id" title="definition">pointed_PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#X:15"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="x:17" class="idref" href="#x:17"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#setcoprod"><span class="id" title="definition">setcoprod</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#X:15"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#unitset"><span class="id" title="definition">unitset</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#X:15"><span class="id" title="variable">X</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">x</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">x</span> | ].<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.PointedPosets.html#675c8cbbad57e581483bdce6ccf66941"><span class="id" title="notation">⊥</span></a><a class="idref" href="UniMath.OrderTheory.Posets.PointedPosets.html#675c8cbbad57e581483bdce6ccf66941"><span class="id" title="notation">_</span></a><a class="idref" href="UniMath.OrderTheory.Posets.PointedPosets.html#675c8cbbad57e581483bdce6ccf66941"><span class="id" title="notation">{</span></a><span class="id" title="var">PX</span><a class="idref" href="UniMath.OrderTheory.Posets.PointedPosets.html#675c8cbbad57e581483bdce6ccf66941"><span class="id" title="notation">}</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Proposition</span> <a id="is_strict_and_monotone_lift_pointed_PartialOrder_extract" class="idref" href="#is_strict_and_monotone_lift_pointed_PartialOrder_extract"><span class="id" title="lemma">is_strict_and_monotone_lift_pointed_PartialOrder_extract</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="X:18" class="idref" href="#X:18"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="PX:19" class="idref" href="#PX:19"><span class="id" title="binder">PX</span></a> : <a class="idref" href="UniMath.OrderTheory.Posets.PointedPosets.html#pointed_PartialOrder"><span class="id" title="definition">pointed_PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#X:18"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.Posets.PointedPosets.html#is_strict_and_monotone"><span class="id" title="definition">is_strict_and_monotone</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#lift_pointed_PartialOrder"><span class="id" title="definition">lift_pointed_PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#PX:19"><span class="id" title="variable">PX</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#PX:19"><span class="id" title="variable">PX</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#lift_pointed_PartialOrder_extract"><span class="id" title="definition">lift_pointed_PartialOrder_extract</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#PX:19"><span class="id" title="variable">PX</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> [ <span class="id" title="var">x</span> | [] ] [ <span class="id" title="var">y</span> | [] ] <span class="id" title="var">p</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#fromempty"><span class="id" title="definition">fromempty</span></a> <span class="id" title="var">p</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.Posets.PointedPosets.html#pointed_PartialOrder_min_point"><span class="id" title="lemma">pointed_PartialOrder_min_point</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#refl_PartialOrder"><span class="id" title="lemma">refl_PartialOrder</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="lift_pointed_PartialOrder_dupl" class="idref" href="#lift_pointed_PartialOrder_dupl"><span class="id" title="definition">lift_pointed_PartialOrder_dupl</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="X:20" class="idref" href="#X:20"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="PX:21" class="idref" href="#PX:21"><span class="id" title="binder">PX</span></a> : <a class="idref" href="UniMath.OrderTheory.Posets.PointedPosets.html#pointed_PartialOrder"><span class="id" title="definition">pointed_PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#X:20"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="x:22" class="idref" href="#x:22"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#setcoprod"><span class="id" title="definition">setcoprod</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#X:20"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#unitset"><span class="id" title="definition">unitset</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Sets.html#setcoprod"><span class="id" title="definition">setcoprod</span></a> (<a class="idref" href="UniMath.Foundations.Sets.html#setcoprod"><span class="id" title="definition">setcoprod</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#X:20"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#unitset"><span class="id" title="definition">unitset</span></a>) <a class="idref" href="UniMath.Foundations.Sets.html#unitset"><span class="id" title="definition">unitset</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">x</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">x</span> | ].<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#inl"><span class="id" title="abbreviation">inl</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#inl"><span class="id" title="abbreviation">inl</span></a> <span class="id" title="var">x</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Proposition</span> <a id="is_strict_and_monotone_lift_pointed_PartialOrder_dupl" class="idref" href="#is_strict_and_monotone_lift_pointed_PartialOrder_dupl"><span class="id" title="lemma">is_strict_and_monotone_lift_pointed_PartialOrder_dupl</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="X:23" class="idref" href="#X:23"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="PX:24" class="idref" href="#PX:24"><span class="id" title="binder">PX</span></a> : <a class="idref" href="UniMath.OrderTheory.Posets.PointedPosets.html#pointed_PartialOrder"><span class="id" title="definition">pointed_PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#X:23"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.OrderTheory.Posets.PointedPosets.html#is_strict_and_monotone"><span class="id" title="definition">is_strict_and_monotone</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#lift_pointed_PartialOrder"><span class="id" title="definition">lift_pointed_PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#PX:24"><span class="id" title="variable">PX</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#lift_pointed_PartialOrder"><span class="id" title="definition">lift_pointed_PartialOrder</span></a> (<a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#lift_pointed_PartialOrder"><span class="id" title="definition">lift_pointed_PartialOrder</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#PX:24"><span class="id" title="variable">PX</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#lift_pointed_PartialOrder_dupl"><span class="id" title="definition">lift_pointed_PartialOrder_dupl</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.LiftPoset.html#PX:24"><span class="id" title="variable">PX</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> [ <span class="id" title="var">x</span> | [] ] [ <span class="id" title="var">y</span> | [] ] <span class="id" title="var">p</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#fromempty"><span class="id" title="definition">fromempty</span></a> <span class="id" title="var">p</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

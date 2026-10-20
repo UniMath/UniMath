@@ -1,0 +1,1012 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Sheaves.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Sheaves and dependent sheaves</span>
+
+<span class="sd"> In this file, we define two of the key ingredients for the sheaf model of dependent</span>
+<span class="sd"> type theory. Specifically, we define when a presheaf is a sheaf, and when a dependent</span>
+<span class="sd"> presheaf is a dependent sheaf. The first notion is standard and we follow the usual</span>
+<span class="sd"> definition in the literature. The second notion (dependent sheaf) is less standard. The</span>
+<span class="sd"> key idea is that a dependent sheaf over a sheaf `Γ` corresponds to a sheaf over the</span>
+<span class="sd"> category of elements for `Γ`. In the sheaf model of type theory, contexts are interpreted</span>
+<span class="sd"> as sheaves and types as dependent sheaves.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Matching families</span>
+<span class="sd"> 2. Amalgamations of matching families</span>
+<span class="sd"> 3. Sheaves</span>
+<span class="sd"> 4. Dependent matching families</span>
+<span class="sd"> 5. Amalgamations for dependent matching families</span>
+<span class="sd"> 6. Dependent sheaves</span>
+<span class="sd"> 7. The category of sheaves</span>
+<span class="sd"> 8. The displayed category of dependent sheaves</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.FullSubDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Sites.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Matching families *)</span>
+<span class="kn">Definition</span> <span class="nf">matching_family</span>
+           {<span class="nv">C</span> : site}
+           (<span class="nv">F</span> : C^op ⟶ HSET)
+           {<span class="nv">x</span> : C}
+           (<span class="nv">ω</span> : sieve x)
+  : UU
+  := ∑ (z : ∏ (y : C) (f : y --&gt; x), ω y f → (F y : hSet)),
+     ∏ (y₁ y₂ : C)
+       (f₁ : y₁ --&gt; x)
+       (f₂ : y₂ --&gt; x)
+       (g : y₁ --&gt; y₂)
+       (p : g · f₂ = f₁)
+       (q₁ : ω y₁ f₁)
+       (q₂ : ω y₂ f₂),
+     #F g (z y₂ f₂ q₂) = z y₁ f₁ q₁.
+
+<span class="kn">Definition</span> <span class="nf">make_matching_family</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">F</span> : C^op ⟶ HSET}
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           (<span class="nv">z</span> : ∏ (y : C) (f : y --&gt; x), ω y f → (F y : hSet))
+           (<span class="nv">Hz</span> : ∏ (y₁ y₂ : C)
+                   (f₁ : y₁ --&gt; x)
+                   (f₂ : y₂ --&gt; x)
+                   (g : y₁ --&gt; y₂)
+                   (p : g · f₂ = f₁)
+                   (q₁ : ω y₁ f₁)
+                   (q₂ : ω y₂ f₂),
+                 #F g (z y₂ f₂ q₂) = z y₁ f₁ q₁)
+  : matching_family F ω
+  := z ,, Hz.
+
+<span class="kn">Definition</span> <span class="nf">matching_family_fam</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">F</span> : C^op ⟶ HSET}
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           (<span class="nv">z</span> : matching_family F ω)
+           (<span class="nv">y</span> : C)
+           (<span class="nv">f</span> : y --&gt; x)
+           (<span class="nv">p</span> : ω y f)
+  : (F y : hSet)
+  := pr1 z y f p.
+
+<span class="kn">Coercion</span> <span class="nf">matching_family_fam</span> : matching_family &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Proposition</span> <span class="nf">matching_family_restr</span>
+            {<span class="nv">C</span> : site}
+            {<span class="nv">F</span> : C^op ⟶ HSET}
+            {<span class="nv">x</span> : C}
+            {<span class="nv">ω</span> : sieve x}
+            (<span class="nv">z</span> : matching_family F ω)
+            {<span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            {<span class="nv">f₁</span> : y₁ --&gt; x}
+            {<span class="nv">f₂</span> : y₂ --&gt; x}
+            {<span class="nv">g</span> : y₁ --&gt; y₂}
+            (<span class="nv">p</span> : g · f₂ = f₁)
+            (<span class="nv">q₁</span> : ω y₁ f₁)
+            (<span class="nv">q₂</span> : ω y₂ f₂)
+  : #F g (z y₂ f₂ q₂) = z y₁ f₁ q₁.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 z y₁ y₂ f₁ f₂ g p q₁ q₂).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">matching_family_fam_fun_eq</span>
+            {<span class="nv">C</span> : site}
+            {<span class="nv">Γ</span> : C^op ⟶ HSET}
+            {<span class="nv">x</span> : C}
+            {<span class="nv">ω</span> : sieve x}
+            {<span class="nv">z</span> : matching_family Γ ω}
+            {<span class="nv">y</span> : C}
+            {<span class="nv">f₁</span> <span class="nv">f₂</span> : y --&gt; x}
+            (<span class="nv">p</span> : f₁ = f₂)
+            (<span class="nv">q</span> : ω y f₁)
+            (<span class="nv">q'</span> : ω y f₂)
+  : z y f₁ q = z y f₂ q'.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_matching_family</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C^op ⟶ HSET}
+           (<span class="nv">s</span> : Γ ⟹ Δ)
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           (<span class="nv">z</span> : matching_family Γ ω)
+  : matching_family Δ ω.
+<span class="kn">Proof</span>.
+  use make_matching_family.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">p</span>, s y (z y f p)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> y₁ y₂ f₁ f₂ g p q₁ q₂ ;
+       <span class="nb">induction</span> p ; <span class="nb">cbn</span> ;
+       <span class="nb">refine</span> (eqtohomot (!(nat_trans_ax s _ _ g)) _ @ _) ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="nb">apply</span> matching_family_restr ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Amalgamations of matching families *)</span>
+<span class="kn">Definition</span> <span class="nf">amalgamation_law</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">F</span> : C^op ⟶ HSET}
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           (<span class="nv">z</span> : matching_family F ω)
+           (<span class="nv">a</span> : (F x : hSet))
+  : UU
+  := ∏ (y : C) (f : y --&gt; x) (p : ω y f), #F f a = z y f p.
+
+<span class="kn">Definition</span> <span class="nf">amalgamation</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">F</span> : C^op ⟶ HSET}
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           (<span class="nv">z</span> : matching_family F ω)
+  : UU
+  := ∑ (a : (F x : hSet)), amalgamation_law z a.
+
+<span class="kn">Definition</span> <span class="nf">make_amalgamation</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">F</span> : C^op ⟶ HSET}
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           {<span class="nv">z</span> : matching_family F ω}
+           (<span class="nv">a</span> : (F x : hSet))
+           (<span class="nv">H</span> : amalgamation_law z a)
+  : amalgamation z
+  := a ,, H.
+
+<span class="kn">Coercion</span> <span class="nf">amalgamation_el</span>
+         {C : site}
+         {F : C^op ⟶ HSET}
+         {x : C}
+         {ω : sieve x}
+         {z : matching_family F ω}
+         (a : amalgamation z)
+  : (F x : hSet)
+  := pr1 a.
+
+<span class="kn">Proposition</span> <span class="nf">amalgamation_restr</span>
+            {<span class="nv">C</span> : site}
+            {<span class="nv">F</span> : C^op ⟶ HSET}
+            {<span class="nv">x</span> : C}
+            {<span class="nv">ω</span> : sieve x}
+            {<span class="nv">z</span> : matching_family F ω}
+            (<span class="nv">a</span> : amalgamation z)
+            {<span class="nv">y</span> : C}
+            (<span class="nv">f</span> : y --&gt; x)
+            (<span class="nv">p</span> : ω y f)
+  : #F f a = pr1 z y f p.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 a y f p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">amalgamation_eq</span>
+            {<span class="nv">C</span> : site}
+            {<span class="nv">F</span> : C^op ⟶ HSET}
+            {<span class="nv">x</span> : C}
+            {<span class="nv">ω</span> : sieve x}
+            {<span class="nv">z</span> : matching_family F ω}
+            {<span class="nv">a₁</span> <span class="nv">a₂</span> : amalgamation z}
+            (<span class="nv">p</span> : pr1 a₁ = a₂)
+  : a₁ = a₂.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> setproperty.
+  }
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Sheaves *)</span>
+<span class="kn">Definition</span> <span class="nf">is_sheaf</span>
+           {<span class="nv">C</span> : site}
+           (<span class="nv">Γ</span> : C^op ⟶ HSET)
+  : UU
+  := ∏ (x : C) (ω : sieve x) (H : C x ω) (z : matching_family Γ ω),
+     iscontr (amalgamation z).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_is_sheaf</span>
+            {<span class="nv">C</span> : site}
+            (<span class="nv">Γ</span> : C^op ⟶ HSET)
+  : isaprop (is_sheaf Γ).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isapropiscontr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">sheaf_amalgamation</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           (<span class="nv">HΓ</span> : is_sheaf Γ)
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           (<span class="nv">H</span> : C x ω)
+           (<span class="nv">z</span> : matching_family Γ ω)
+  : amalgamation z
+  := pr1 (HΓ x ω H z).
+
+<span class="kn">Definition</span> <span class="nf">sheaf_amalgamation_unique</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           (<span class="nv">HΓ</span> : is_sheaf Γ)
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           (<span class="nv">H</span> : C x ω)
+           {<span class="nv">z</span> : matching_family Γ ω}
+           {<span class="nv">a₁</span> <span class="nv">a₂</span> : (Γ x : hSet)}
+           (<span class="nv">H₁</span> : ∏ (y : C) (f : y --&gt; x) (p : ω y f), #Γ f a₁ = pr1 z y f p)
+           (<span class="nv">H₂</span> : ∏ (y : C) (f : y --&gt; x) (p : ω y f), #Γ f a₂ = pr1 z y f p)
+  : a₁ = a₂.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (maponpaths
+           pr1
+           (proofirrelevance _ (isapropifcontr (HΓ x ω H z)) (a₁ ,, H₁) (a₂ ,, H₂))).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. Dependent matching families *)</span>
+<span class="kn">Definition</span> <span class="nf">matching_family_dep</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           (<span class="nv">A</span> : dep_psh Γ)
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           (<span class="nv">z</span> : matching_family Γ ω)
+  : UU
+  := ∑ (zz : ∏ (y : C) (f : y --&gt; x) (p : ω y f), A y (z y f p)),
+     ∏ (y₁ y₂ : C)
+       (f₁ : y₁ --&gt; x)
+       (f₂ : y₂ --&gt; x)
+       (g : y₁ --&gt; y₂)
+       (p : g · f₂ = f₁)
+       (q₁ : ω y₁ f₁)
+       (q₂ : ω y₂ f₂),
+     #d A g (matching_family_restr z p q₁ q₂) (zz y₂ f₂ q₂)
+     =
+     zz y₁ f₁ q₁.
+
+<span class="kn">Definition</span> <span class="nf">make_matching_family_dep</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           (<span class="nv">A</span> : dep_psh Γ)
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           (<span class="nv">z</span> : matching_family Γ ω)
+           (<span class="nv">zz</span> : ∏ (y : C) (f : y --&gt; x) (p : ω y f), A y (z y f p))
+           (<span class="nv">Hzz</span> : ∏ (y₁ y₂ : C)
+                    (f₁ : y₁ --&gt; x)
+                    (f₂ : y₂ --&gt; x)
+                    (g : y₁ --&gt; y₂)
+                    (p : g · f₂ = f₁)
+                    (q₁ : ω y₁ f₁)
+                    (q₂ : ω y₂ f₂),
+                  #d A g (matching_family_restr z p q₁ q₂) (zz y₂ f₂ q₂)
+                  =
+                  zz y₁ f₁ q₁)
+  : matching_family_dep A z
+  := zz ,, Hzz.
+
+<span class="kn">Definition</span> <span class="nf">matching_family_dep_fam</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           {<span class="nv">A</span> : dep_psh Γ}
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           {<span class="nv">z</span> : matching_family Γ ω}
+           (<span class="nv">zz</span> : matching_family_dep A z)
+           (<span class="nv">y</span> : C)
+           (<span class="nv">f</span> : y --&gt; x)
+           (<span class="nv">p</span> : ω y f)
+  : A y (z y f p)
+  := pr1 zz y f p.
+
+<span class="kn">Coercion</span> <span class="nf">matching_family_dep_fam</span> : matching_family_dep &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Proposition</span> <span class="nf">matching_family_dep_restr</span>
+            {<span class="nv">C</span> : site}
+            {<span class="nv">Γ</span> : C^op ⟶ HSET}
+            {<span class="nv">A</span> : dep_psh Γ}
+            {<span class="nv">x</span> : C}
+            {<span class="nv">ω</span> : sieve x}
+            {<span class="nv">z</span> : matching_family Γ ω}
+            (<span class="nv">zz</span> : matching_family_dep A z)
+            {<span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            {<span class="nv">f₁</span> : y₁ --&gt; x}
+            {<span class="nv">f₂</span> : y₂ --&gt; x}
+            {<span class="nv">g</span> : y₁ --&gt; y₂}
+            (<span class="nv">p</span> : g · f₂ = f₁)
+            (<span class="nv">q₁</span> : ω y₁ f₁)
+            (<span class="nv">q₂</span> : ω y₂ f₂)
+  : #d A g (matching_family_restr z p q₁ q₂) (zz y₂ f₂ q₂)
+    =
+    zz y₁ f₁ q₁.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 zz y₁ y₂ f₁ f₂ g p q₁ q₂).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">matching_family_dep_el_eq_lem</span>
+      {<span class="nv">C</span> : site}
+      {<span class="nv">Γ</span> : C^op ⟶ HSET}
+      {<span class="nv">x</span> : C}
+      {<span class="nv">ω</span> : sieve x}
+      (<span class="nv">z</span> : matching_family Γ ω)
+      (<span class="nv">y</span> : C)
+      (<span class="nv">f</span> : y --&gt; x)
+      (<span class="nv">p</span> <span class="nv">p'</span> : ω y f)
+  : #Γ (identity y) (z y f p') = z y f p.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (p = p') <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> propproperty.
+  }
+  <span class="bp">exact</span> (eqtohomot (functor_id Γ _) _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">matching_family_dep_el_eq</span>
+            {<span class="nv">C</span> : site}
+            {<span class="nv">Γ</span> : C^op ⟶ HSET}
+            {<span class="nv">A</span> : dep_psh Γ}
+            {<span class="nv">x</span> : C}
+            {<span class="nv">ω</span> : sieve x}
+            {<span class="nv">z</span> : matching_family Γ ω}
+            (<span class="nv">zz</span> : matching_family_dep A z)
+            (<span class="nv">y</span> : C)
+            (<span class="nv">f</span> : y --&gt; x)
+            (<span class="nv">p</span> <span class="nv">p'</span> : ω y f)
+  : zz y f p
+    =
+    #d A (identity _) (matching_family_dep_el_eq_lem z y f p p') (zz y f p').
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (p = p') <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> propproperty.
+  }
+  <span class="nb">refine</span> (!_).
+  <span class="nb">apply</span> dep_psh_mor_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">matching_family_dep_fam_fun_eq_lem</span>
+      {<span class="nv">C</span> : site}
+      {<span class="nv">Γ</span> : C^op ⟶ HSET}
+      {<span class="nv">x</span> : C}
+      {<span class="nv">ω</span> : sieve x}
+      {<span class="nv">z</span> : matching_family Γ ω}
+      {<span class="nv">y</span> : C}
+      {<span class="nv">f₁</span> <span class="nv">f₂</span> : y --&gt; x}
+      (<span class="nv">p</span> : f₁ = f₂)
+      (<span class="nv">q</span> : ω y f₁)
+  : #Γ (identity y) (z y f₂ (#ω ω (identity y) (id_left f₁ @ p) q)) = z y f₁ q.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">refine</span> (eqtohomot (functor_id Γ _) _ @ _).
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">matching_family_dep_fam_fun_eq</span>
+            {<span class="nv">C</span> : site}
+            {<span class="nv">Γ</span> : C^op ⟶ HSET}
+            {<span class="nv">A</span> : dep_psh Γ}
+            {<span class="nv">x</span> : C}
+            {<span class="nv">ω</span> : sieve x}
+            {<span class="nv">z</span> : matching_family Γ ω}
+            (<span class="nv">zz</span> : matching_family_dep A z)
+            {<span class="nv">y</span> : C}
+            {<span class="nv">f₁</span> <span class="nv">f₂</span> : y --&gt; x}
+            (<span class="nv">p</span> : f₁ = f₂)
+            (<span class="nv">q</span> : ω y f₁)
+  : zz y f₁ q
+    =
+    #d A (identity _)
+         (matching_family_dep_fam_fun_eq_lem p q)
+         (zz y f₂ (#ω ω (identity _) (id_left _ @ p) q)).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  etrans.
+  {
+    use matching_family_dep_el_eq.
+    <span class="bp">exact</span> (#ω ω (identity y) (id_left f₁ @ idpath f₁) q).
+  }
+  <span class="nb">apply</span> dep_psh_mor_path_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dep_psh_nat_trans_on_matching_family</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           {<span class="nv">A</span> <span class="nv">B</span> : dep_psh Γ}
+           (<span class="nv">τ</span> : dep_psh_nat_trans A B (nat_trans_id Γ))
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           {<span class="nv">z</span> : matching_family Γ ω}
+           (<span class="nv">zz</span> : matching_family_dep A z)
+  : matching_family_dep B z.
+<span class="kn">Proof</span>.
+  use make_matching_family_dep.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">p</span>, τ _ _ (zz y f p)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">intros</span> y₁ y₂ f₁ f₂ g p q₁ q₂ ;
+       <span class="nb">refine</span> (!(dep_psh_nat_trans_ax τ _ (matching_family_restr z p _ _) _ _) @ _) ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="nb">apply</span> matching_family_dep_restr).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 5. Amalgamations for dependent matching families *)</span>
+<span class="kn">Definition</span> <span class="nf">amalgamation_dep_law</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           {<span class="nv">A</span> : dep_psh Γ}
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           {<span class="nv">z</span> : matching_family Γ ω}
+           {<span class="nv">a</span> : amalgamation z}
+           (<span class="nv">zz</span> : matching_family_dep A z)
+           (<span class="nv">aa</span> : A x a)
+  : UU
+  := ∏ (y : C) (f : y --&gt; x) (p : ω y f),
+     #d A f (amalgamation_restr a f p) aa
+     =
+     zz y f p.
+
+<span class="kn">Definition</span> <span class="nf">amalgamation_dep</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           {<span class="nv">A</span> : dep_psh Γ}
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           {<span class="nv">z</span> : matching_family Γ ω}
+           (<span class="nv">a</span> : amalgamation z)
+           (<span class="nv">zz</span> : matching_family_dep A z)
+  : UU
+  := ∑ (aa : A x a), amalgamation_dep_law zz aa.
+
+<span class="kn">Definition</span> <span class="nf">make_amalgamation_dep</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           {<span class="nv">A</span> : dep_psh Γ}
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           {<span class="nv">z</span> : matching_family Γ ω}
+           {<span class="nv">a</span> : amalgamation z}
+           {<span class="nv">zz</span> : matching_family_dep A z}
+           (<span class="nv">aa</span> : A x a)
+           (<span class="nv">H</span> : amalgamation_dep_law zz aa)
+  : amalgamation_dep a zz
+  := aa ,, H.
+
+<span class="kn">Coercion</span> <span class="nf">amalgamation_dep_el</span>
+         {C : site}
+         {Γ : C^op ⟶ HSET}
+         {A : dep_psh Γ}
+         {x : C}
+         {ω : sieve x}
+         {z : matching_family Γ ω}
+         {a : amalgamation z}
+         {zz : matching_family_dep A z}
+         (aa : amalgamation_dep a zz)
+  : A x a
+  := pr1 aa.
+
+<span class="kn">Proposition</span> <span class="nf">amalgamation_dep_restr</span>
+            {<span class="nv">C</span> : site}
+            {<span class="nv">Γ</span> : C^op ⟶ HSET}
+            {<span class="nv">A</span> : dep_psh Γ}
+            {<span class="nv">x</span> : C}
+            {<span class="nv">ω</span> : sieve x}
+            {<span class="nv">z</span> : matching_family Γ ω}
+            {<span class="nv">a</span> : amalgamation z}
+            {<span class="nv">zz</span> : matching_family_dep A z}
+            (<span class="nv">aa</span> : amalgamation_dep a zz)
+            {<span class="nv">y</span> : C}
+            (<span class="nv">f</span> : y --&gt; x)
+            (<span class="nv">p</span> : ω y f)
+  : #d A f (amalgamation_restr a f p) aa
+    =
+    zz y f p.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 aa y f p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">amalgamation_dep_eq</span>
+            {<span class="nv">C</span> : site}
+            {<span class="nv">Γ</span> : C^op ⟶ HSET}
+            {<span class="nv">A</span> : dep_psh Γ}
+            {<span class="nv">x</span> : C}
+            {<span class="nv">ω</span> : sieve x}
+            {<span class="nv">z</span> : matching_family Γ ω}
+            {<span class="nv">a</span> : amalgamation z}
+            {<span class="nv">zz</span> : matching_family_dep A z}
+            {<span class="nv">aa₁</span> <span class="nv">aa₂</span> : amalgamation_dep a zz}
+            (<span class="nv">p</span> : pr1 aa₁ = aa₂)
+  : aa₁ = aa₂.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> setproperty.
+  }
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 6. Dependent sheaves *)</span>
+<span class="kn">Definition</span> <span class="nf">is_dep_sheaf</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           (<span class="nv">A</span> : dep_psh Γ)
+  : UU
+  := ∏ (x : C)
+       (ω : sieve x)
+       (H : C x ω)
+       (z : matching_family Γ ω)
+       (a : amalgamation z)
+       (zz : matching_family_dep A z),
+     iscontr (amalgamation_dep a zz).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_is_dep_sheaf</span>
+            {<span class="nv">C</span> : site}
+            {<span class="nv">Γ</span> : C^op ⟶ HSET}
+            (<span class="nv">A</span> : dep_psh Γ)
+  : isaprop (is_dep_sheaf A).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isapropiscontr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dep_sheaf_amalgamation_dep</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           {<span class="nv">A</span> : dep_psh Γ}
+           (<span class="nv">HA</span> : is_dep_sheaf A)
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           (<span class="nv">H</span> : C x ω)
+           (<span class="nv">z</span> : matching_family Γ ω)
+           (<span class="nv">a</span> : amalgamation z)
+           (<span class="nv">zz</span> : matching_family_dep A z)
+  : amalgamation_dep a zz
+  := pr1 (HA x ω H z a zz).
+
+<span class="kn">Definition</span> <span class="nf">dep_sheaf_amalgamation</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           {<span class="nv">A</span> : dep_psh Γ}
+           (<span class="nv">HA</span> : is_dep_sheaf A)
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           (<span class="nv">H</span> : C x ω)
+           (<span class="nv">z</span> : matching_family Γ ω)
+           (<span class="nv">a</span> : amalgamation z)
+           (<span class="nv">zz</span> : matching_family_dep A z)
+  : A x a
+  := pr1 (HA x ω H z a zz).
+
+<span class="kn">Proposition</span> <span class="nf">dep_sheaf_amalgamation_restr</span>
+            {<span class="nv">C</span> : site}
+            {<span class="nv">Γ</span> : C^op ⟶ HSET}
+            {<span class="nv">A</span> : dep_psh Γ}
+            (<span class="nv">HA</span> : is_dep_sheaf A)
+            {<span class="nv">x</span> : C}
+            {<span class="nv">ω</span> : sieve x}
+            (<span class="nv">H</span> : C x ω)
+            (<span class="nv">z</span> : matching_family Γ ω)
+            (<span class="nv">a</span> : amalgamation z)
+            (<span class="nv">zz</span> : matching_family_dep A z)
+            {<span class="nv">y</span> : C}
+            {<span class="nv">f</span> : y --&gt; x}
+            (<span class="nv">p</span> : ω y f)
+  : #d A f (amalgamation_restr a f p) (dep_sheaf_amalgamation HA H z a zz)
+    =
+    zz y f p.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr21 (HA x ω H z a zz) y f p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dep_sheaf_amalgamation_restr'</span>
+            {<span class="nv">C</span> : site}
+            {<span class="nv">Γ</span> : C^op ⟶ HSET}
+            {<span class="nv">A</span> : dep_psh Γ}
+            (<span class="nv">HA</span> : is_dep_sheaf A)
+            {<span class="nv">x</span> : C}
+            {<span class="nv">ω</span> : sieve x}
+            (<span class="nv">H</span> : C x ω)
+            (<span class="nv">z</span> : matching_family Γ ω)
+            (<span class="nv">a</span> : amalgamation z)
+            (<span class="nv">zz</span> : matching_family_dep A z)
+            {<span class="nv">y</span> : C}
+            {<span class="nv">f</span> : y --&gt; x}
+            (<span class="nv">p</span> : ω y f)
+            (<span class="nv">q</span> : #Γ f a = z y f p)
+  : #d A f q (dep_sheaf_amalgamation HA H z a zz)
+    =
+    zz y f p.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ @ dep_sheaf_amalgamation_restr HA H z a zz p).
+  use dep_psh_mor_path_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dep_sheaf_amalgamation_unique</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           {<span class="nv">A</span> : dep_psh Γ}
+           (<span class="nv">HA</span> : is_dep_sheaf A)
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           (<span class="nv">H</span> : C x ω)
+           {<span class="nv">z</span> : matching_family Γ ω}
+           {<span class="nv">a</span> : amalgamation z}
+           {<span class="nv">zz</span> : matching_family_dep A z}
+           {<span class="nv">aa₁</span> <span class="nv">aa₂</span> : A x a}
+           (<span class="nv">H₁</span> : ∏ (y : C) (f : y --&gt; x) (p : ω y f),
+                 #d A f (amalgamation_restr a f p) aa₁
+                 =
+                 zz y f p)
+           (<span class="nv">H₂</span> : ∏ (y : C) (f : y --&gt; x) (p : ω y f),
+                 #d A f (amalgamation_restr a f p) aa₂
+                 =
+                 zz y f p)
+  : aa₁ = aa₂.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (maponpaths
+           pr1
+           (proofirrelevance
+              _
+              (isapropifcontr (HA x ω H z a zz))
+              (aa₁ ,, H₁)
+              (aa₂ ,, H₂))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dep_sheaf_amalgamation_unique'</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ</span> : C^op ⟶ HSET}
+           {<span class="nv">A</span> : dep_psh Γ}
+           (<span class="nv">HA</span> : is_dep_sheaf A)
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           (<span class="nv">H</span> : C x ω)
+           {<span class="nv">z</span> : matching_family Γ ω}
+           {<span class="nv">a</span> : amalgamation z}
+           {<span class="nv">zz</span> : matching_family_dep A z}
+           {<span class="nv">aa</span> : A x a}
+           (<span class="nv">H₁</span> : ∏ (y : C) (f : y --&gt; x) (p : ω y f),
+                 #d A f (amalgamation_restr a f p) aa
+                 =
+                 zz y f p)
+  : aa = dep_sheaf_amalgamation HA H z a zz.
+<span class="kn">Proof</span>.
+  use (dep_sheaf_amalgamation_unique HA H).
+  - <span class="bp">exact</span> zz.
+  - <span class="bp">exact</span> H₁.
+  - <span class="nb">intros</span> y f p.
+    <span class="bp">exact</span> (dep_sheaf_amalgamation_restr HA H z a zz p).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 7. The category of sheaves *)</span>
+<span class="kn">Definition</span> <span class="nf">cat_of_sheaves</span>
+           (<span class="nv">C</span> : site)
+  : univalent_category.
+<span class="kn">Proof</span>.
+  use make_univalent_category.
+  - <span class="bp">exact</span> (full_subcat (PreShv C) is_sheaf).
+  - <span class="kp">abstract</span>
+      (use is_univalent_full_subcat ;
+       [ | <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_sheaf ] ;
+    use is_univalent_functor_category ;
+       <span class="bp">exact</span> is_univalent_HSET).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">sheaf</span>
+           (<span class="nv">C</span> : site)
+  : UU
+  := cat_of_sheaves C.
+
+<span class="kn">Coercion</span> <span class="nf">sheaf_to_presheaf</span>
+         {C : site}
+         (Γ : sheaf C)
+  : C^op ⟶ HSET
+  := pr1 Γ.
+
+<span class="kn">Proposition</span> <span class="nf">is_sheaf_sheaf</span>
+            {<span class="nv">C</span> : site}
+            (<span class="nv">Γ</span> : sheaf C)
+  : is_sheaf Γ.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 Γ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_sheaf</span>
+           {<span class="nv">C</span> : site}
+           (<span class="nv">Γ</span> : C^op ⟶ HSET)
+           (<span class="nv">HΓ</span> : is_sheaf Γ)
+  : sheaf C
+  := Γ ,, HΓ.
+
+<span class="kn">Definition</span> <span class="nf">sheaf_nat_trans</span>
+           {<span class="nv">C</span> : site}
+           (<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : sheaf C)
+  := Γ₁ --&gt; Γ₂.
+
+<span class="kn">Coercion</span> <span class="nf">nat_trans_of_sheaf_nat_trans</span>
+         {C : site}
+         {Γ₁ Γ₂ : sheaf C}
+         (τ : sheaf_nat_trans Γ₁ Γ₂)
+  : Γ₁ ⟹ Γ₂
+  := pr1 τ.
+
+<span class="kn">Definition</span> <span class="nf">make_sheaf_nat_trans</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : sheaf C}
+           (<span class="nv">τ</span> : Γ₁ ⟹ Γ₂)
+  : sheaf_nat_trans Γ₁ Γ₂
+  := τ ,, tt.
+
+<span class="kn">Proposition</span> <span class="nf">sheaf_nat_trans_eq</span>
+            {<span class="nv">C</span> : site}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : sheaf C}
+            {<span class="nv">τ₁</span> <span class="nv">τ₂</span> : sheaf_nat_trans Γ₁ Γ₂}
+            (<span class="nv">p</span> : (τ₁ : _ ⟹ _) = τ₂)
+  : τ₁ = τ₂.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropunit.
+  }
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">from_sheaf_nat_trans_eq</span>
+            {<span class="nv">C</span> : site}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : sheaf C}
+            {<span class="nv">τ₁</span> <span class="nv">τ₂</span> : sheaf_nat_trans Γ₁ Γ₂}
+            (<span class="nv">p</span> : τ₁ = τ₂)
+            {<span class="nv">x</span> : C}
+            (<span class="nv">xx</span> : (Γ₁ x : hSet))
+  : τ₁ x xx = τ₂ x xx.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">sheaf_incl</span>
+           (<span class="nv">C</span> : site)
+  : cat_of_sheaves C ⟶ PreShv C
+  := pr1_category _.
+
+<span class="sd">(** * 8. The displayed category of dependent sheaves *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_cat_of_dep_sheaves</span>
+           (<span class="nv">C</span> : site)
+  : disp_univalent_category (cat_of_sheaves C).
+<span class="kn">Proof</span>.
+  use make_disp_univalent_category.
+  - use full_sub_disp_cat.
+    + <span class="bp">exact</span> (disp_cat_dep_psh C).
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">HΓ</span> <span class="nv">A</span>, is_dep_sheaf A).
+  - <span class="kp">abstract</span>
+      (use is_univalent_full_sub_disp_cat ;
+       [ <span class="nb">apply</span> is_univalent_disp_disp_cat_dep_psh | ] ;
+       <span class="nb">intros</span> ;
+       <span class="nb">apply</span> isaprop_is_dep_sheaf).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dep_sheaf</span>
+           {<span class="nv">C</span> : site}
+           (<span class="nv">Γ</span> : sheaf C)
+  : UU
+  := disp_cat_of_dep_sheaves C Γ.
+
+<span class="kn">Coercion</span> <span class="nf">dep_sheaf_to_dep_psh</span>
+         {C : site}
+         {Γ : sheaf C}
+         (A : dep_sheaf Γ)
+  : dep_psh Γ
+  := pr1 A.
+
+<span class="kn">Proposition</span> <span class="nf">is_dep_sheaf_dep_sheaf</span>
+            {<span class="nv">C</span> : site}
+            {<span class="nv">Γ</span> : sheaf C}
+            (<span class="nv">A</span> : dep_sheaf Γ)
+  : is_dep_sheaf A.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 A).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_dep_sheaf</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ</span> : sheaf C}
+           (<span class="nv">A</span> : dep_psh Γ)
+           (<span class="nv">HA</span> : is_dep_sheaf A)
+  : dep_sheaf Γ
+  := A ,, HA.
+
+<span class="kn">Definition</span> <span class="nf">dep_sheaf_nat_trans</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : sheaf C}
+           (<span class="nv">A₁</span> : dep_sheaf Γ₁)
+           (<span class="nv">A₂</span> : dep_sheaf Γ₂)
+           (<span class="nv">s</span> : sheaf_nat_trans Γ₁ Γ₂)
+  : UU
+  := A₁ --&gt;[ s ] A₂.
+
+<span class="kn">Coercion</span> <span class="nf">dep_sheaf_nat_trans_to_dep_psh_nat_trans</span>
+         {C : site}
+         {Γ₁ Γ₂ : sheaf C}
+         {A₁ : dep_sheaf Γ₁}
+         {A₂ : dep_sheaf Γ₂}
+         {s : sheaf_nat_trans Γ₁ Γ₂}
+         (τ : dep_sheaf_nat_trans A₁ A₂ s)
+  : dep_psh_nat_trans A₁ A₂ s
+  := τ.
+
+<span class="kn">Definition</span> <span class="nf">make_dep_sheaf_nat_trans</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : sheaf C}
+           {<span class="nv">A₁</span> : dep_sheaf Γ₁}
+           {<span class="nv">A₂</span> : dep_sheaf Γ₂}
+           {<span class="nv">s</span> : sheaf_nat_trans Γ₁ Γ₂}
+           (<span class="nv">τ</span> : dep_psh_nat_trans A₁ A₂ s)
+  : dep_sheaf_nat_trans A₁ A₂ s
+  := τ.
+
+<span class="kn">Proposition</span> <span class="nf">dep_sheaf_nat_trans_eq</span>
+            {<span class="nv">C</span> : site}
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : sheaf C}
+            {<span class="nv">A₁</span> : dep_sheaf Γ₁}
+            {<span class="nv">A₂</span> : dep_sheaf Γ₂}
+            {<span class="nv">s</span> : sheaf_nat_trans Γ₁ Γ₂}
+            {<span class="nv">τ₁</span> <span class="nv">τ₂</span> : dep_sheaf_nat_trans A₁ A₂ s}
+            (<span class="nv">p</span> : ∏ (x : C)
+                   (xx : (Γ₁ x : hSet))
+                   (a : A₁ x xx),
+                 τ₁ x xx a = τ₂ x xx a)
+  : τ₁ = τ₂.
+<span class="kn">Proof</span>.
+  use dep_psh_nat_trans_eq.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dep_sheaf_fiber_comp</span>
+            {<span class="nv">C</span> : site}
+            {<span class="nv">Γ</span> : sheaf C}
+            {<span class="nv">A₁</span> <span class="nv">A₂</span> <span class="nv">A₃</span> : dep_sheaf Γ}
+            (<span class="nv">τ₁</span> : (disp_cat_of_dep_sheaves C)[{ Γ }] ⟦ A₁ , A₂ ⟧)
+            (<span class="nv">τ₂</span> : (disp_cat_of_dep_sheaves C)[{ Γ }] ⟦ A₂ , A₃ ⟧)
+            {<span class="nv">x</span> : C}
+            {<span class="nv">xx</span> : (Γ x : hSet)}
+            (<span class="nv">a</span> : A₁ x xx)
+            (<span class="nv">θ₁</span> := τ₁ : dep_psh_nat_trans A₁ A₂ (nat_trans_id _))
+            (<span class="nv">θ₂</span> := τ₂ : dep_psh_nat_trans A₂ A₃ (nat_trans_id _))
+  : (τ₁ · τ₂ : dep_psh_nat_trans A₁ A₃ (nat_trans_id _)) x xx a
+    =
+    θ₂ x xx (θ₁ x xx a).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="bp">exact</span> (maponpaths
+             (<span class="k">λ</span> (<span class="nv">ζ</span> : dep_psh_nat_trans _ _ _), ζ x xx a)
+             (transportf_full_sub_disp_cat
+                (disp_cat_dep_psh C)
+                is_sheaf
+                (<span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">HΓ</span> <span class="nv">A</span>, is_dep_sheaf A)
+                (id_right _)
+                (dep_psh_comp_nat_trans τ₁ τ₂))).
+  }
+  etrans.
+  {
+    <span class="bp">exact</span> (transportf_dep_psh_nat_trans
+             C
+             (maponpaths pr1 (id_right (identity Γ)))
+             (dep_psh_comp_nat_trans τ₁ τ₂)
+             x
+             xx
+             a).
+  }
+  <span class="nb">apply</span> (transportf_set (A₃ x)).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dep_sheaf_incl</span>
+           (<span class="nv">C</span> : site)
+  : disp_functor
+      (sheaf_incl C)
+      (disp_cat_of_dep_sheaves C)
+      (disp_cat_dep_psh C)
+  := full_sub_disp_cat_incl _ _ _.
+
+<span class="kn">Proposition</span> <span class="nf">fiber_functor_dep_sheaf_incl</span>
+            {<span class="nv">C</span> : site}
+            {<span class="nv">Γ</span> : sheaf C}
+            {<span class="nv">A</span> <span class="nv">B</span> : dep_sheaf Γ}
+            (<span class="nv">τ</span> : dep_psh_nat_trans A B (nat_trans_id _))
+  : #(fiber_functor (dep_sheaf_incl C) Γ) τ = τ.
+<span class="kn">Proof</span>.
+  use dep_psh_nat_trans_eq ; <span class="nb">cbn</span>.
+  <span class="nb">intros</span> x xx a.
+  <span class="nb">rewrite</span> transportf_dep_psh_nat_trans.
+  <span class="nb">apply</span> (transportf_set (B x)).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">fiber_functor_dep_sheaf_incl_pt</span>
+            {<span class="nv">C</span> : site}
+            {<span class="nv">Γ</span> : sheaf C}
+            {<span class="nv">A</span> <span class="nv">B</span> : dep_sheaf Γ}
+            (<span class="nv">τ</span> : dep_psh_nat_trans A B (nat_trans_id _))
+            {<span class="nv">x</span> : C}
+            {<span class="nv">xx</span> : (Γ x : hSet)}
+            (<span class="nv">a</span> : A x xx)
+  : (#(fiber_functor (dep_sheaf_incl C) Γ) τ : dep_psh_nat_trans _ _ _) x xx a
+    =
+    τ x xx a.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> transportf_dep_psh_nat_trans.
+  <span class="nb">apply</span> (transportf_set (B x)).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Presheaves/Sheaves.v</tt>, line 24)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. The displayed category of dependent sheaves
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.opp_precat.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

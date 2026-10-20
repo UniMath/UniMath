@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>StrictToPseudo.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ******************************************************************************* *)</span>
+<span class="sd">(** The inclusion of strict pseudofunctors into pseudofunctors</span>
+<span class="sd"> ********************************************************************************* *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.StrictPseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Base.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Map1Cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Map2Cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.StrictIdentitor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.StrictCompositor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.StrictPseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Import</span> StrictPseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Modifications.Modification.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Inclusion</span>.
+  <span class="kn">Variable</span> (<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat).
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_to_psfunctor_map_data</span>
+    : strict_psfunctor B₁ B₂ → psfunctor_data B₁ B₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> F.
+    use make_psfunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, F X).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, #F f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">α</span>, ##F α).
+    - <span class="bp">exact</span> (strict_psfunctor_id_cell F).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span> <span class="nv">g</span>, strict_psfunctor_comp_cell F f g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_to_psfunctor_map_laws</span>
+             (<span class="nv">F</span> : strict_psfunctor B₁ B₂)
+    : psfunctor_laws (strict_psfunctor_to_psfunctor_map_data F).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">apply</span> F.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_to_psfunctor_map</span>
+    : strict_psfunctor B₁ B₂ → psfunctor B₁ B₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> F.
+    use make_psfunctor.
+    - <span class="bp">exact</span> (strict_psfunctor_to_psfunctor_map_data F).
+    - <span class="bp">exact</span> (strict_psfunctor_to_psfunctor_map_laws F).
+    - <span class="nb">split</span> ; <span class="nb">cbn</span>.
+      + <span class="nb">intro</span> a.
+        <span class="nb">apply</span> (strict_psfunctor_id_cell F a).
+      + <span class="nb">intros</span> a b c f g.
+        <span class="nb">apply</span> (strict_psfunctor_comp_cell F f g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_mor_to_pstrans_data</span>
+             (<span class="nv">F</span> <span class="nv">G</span> : strict_psfunctor_bicat B₁ B₂)
+    : F --&gt; G
+      →
+      pstrans_data
+        (strict_psfunctor_to_psfunctor_map F)
+        (strict_psfunctor_to_psfunctor_map G).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> η.
+    use make_pstrans_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, pr111 η X).
+    - <span class="bp">exact</span> (pr211 η).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_mor_to_pstrans_is_pstrans</span>
+             (<span class="nv">F</span> <span class="nv">G</span> : strict_psfunctor_bicat B₁ B₂)
+             (<span class="nv">η</span> : F --&gt; G)
+    : is_pstrans (strict_psfunctor_mor_to_pstrans_data F G η).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> X Y f g α ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (pr121 η X Y f g α).
+    - <span class="nb">intros</span> X ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (pr1 (pr221 η) X).
+    - <span class="nb">intros</span> X Y Z f g ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (pr2 (pr221 η) X Y Z f g).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_mor_to_pstrans</span>
+             (<span class="nv">F</span> <span class="nv">G</span> : strict_psfunctor_bicat B₁ B₂)
+    : F --&gt; G
+      →
+      pstrans
+        (strict_psfunctor_to_psfunctor_map F)
+        (strict_psfunctor_to_psfunctor_map G).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> η.
+    use make_pstrans.
+    - <span class="bp">exact</span> (strict_psfunctor_mor_to_pstrans_data F G η).
+    - <span class="bp">exact</span> (strict_psfunctor_mor_to_pstrans_is_pstrans F G η).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_cell_to_modification</span>
+             (<span class="nv">F</span> <span class="nv">G</span> : strict_psfunctor_bicat B₁ B₂)
+             (<span class="nv">η₁</span> <span class="nv">η₂</span> : F --&gt; G)
+    : η₁ ==&gt; η₂
+      →
+      modification
+        (strict_psfunctor_mor_to_pstrans _ _ η₁)
+        (strict_psfunctor_mor_to_pstrans _ _ η₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> m.
+    use make_modification.
+    - <span class="nb">intros</span> X.
+      <span class="bp">exact</span> (pr111 m X).
+    - <span class="kp">abstract</span> (<span class="nb">intros</span> X Y f ; <span class="bp">exact</span> (pr211 m X Y f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_to_psfunctor_identitor</span>
+             (<span class="nv">F</span> : strict_psfunctor B₁ B₂)
+    : (id₁ (strict_psfunctor_to_psfunctor_map F))
+      ==&gt;
+        strict_psfunctor_mor_to_pstrans F F (id₁ F).
+  <span class="kn">Proof</span>.
+    use make_modification.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, id₂ _).
+    - <span class="kp">abstract</span> (<span class="nb">intros</span> X Y f ; <span class="nb">cbn</span>
+                ; <span class="nb">rewrite</span> lwhisker_id2, id2_rwhisker, id2_left, id2_right
+                ; <span class="bp">reflexivity</span>).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_to_psfunctor_compositor</span>
+             (<span class="nv">F₁</span> <span class="nv">F₂</span> <span class="nv">F₃</span> : strict_psfunctor_bicat B₁ B₂)
+             (<span class="nv">η₁</span> : F₁ --&gt; F₂)
+             (<span class="nv">η₂</span> : F₂ --&gt; F₃)
+    : (strict_psfunctor_mor_to_pstrans _ _ η₁)
+        · strict_psfunctor_mor_to_pstrans _ _ η₂
+        ==&gt;
+        strict_psfunctor_mor_to_pstrans _ _ (η₁ · η₂).
+  <span class="kn">Proof</span>.
+    use make_modification.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, id₂ _).
+    - <span class="kp">abstract</span> (<span class="nb">intros</span> X Y f ; <span class="nb">cbn</span>
+                ; <span class="nb">rewrite</span> lwhisker_id2, id2_rwhisker, id2_left, id2_right
+                ; <span class="bp">reflexivity</span>).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_to_psfunctor_data</span>
+    : psfunctor_data (strict_psfunctor_bicat B₁ B₂) (psfunctor_bicat B₁ B₂).
+  <span class="kn">Proof</span>.
+    use make_psfunctor_data.
+    - <span class="bp">exact</span> strict_psfunctor_to_psfunctor_map.
+    - <span class="bp">exact</span> strict_psfunctor_mor_to_pstrans.
+    - <span class="bp">exact</span> strict_psfunctor_cell_to_modification.
+    - <span class="bp">exact</span> strict_psfunctor_to_psfunctor_identitor.
+    - <span class="bp">exact</span> strict_psfunctor_to_psfunctor_compositor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_to_psfunctor_laws</span>
+    : psfunctor_laws strict_psfunctor_to_psfunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, (_ ,, (_ ,, (_ ,, (_ ,, (_ ,, _))))))
+    ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; use modification_eq ; <span class="nb">intro</span> ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (idpath _).
+    - <span class="bp">exact</span> (idpath _).
+    - <span class="nb">rewrite</span> id2_rwhisker, !id2_left.
+      <span class="bp">exact</span> (idpath _).
+    - <span class="nb">rewrite</span> lwhisker_id2, !id2_left.
+      <span class="bp">exact</span> (idpath _).
+    - <span class="nb">rewrite</span> id2_rwhisker, lwhisker_id2, !id2_right, id2_left.
+      <span class="bp">exact</span> (idpath _).
+    - <span class="nb">rewrite</span> id2_left, id2_right.
+      <span class="bp">exact</span> (idpath _).
+    - <span class="nb">rewrite</span> id2_left, id2_right.
+      <span class="bp">exact</span> (idpath _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_psfunctor_to_psfunctor</span>
+    : psfunctor (strict_psfunctor_bicat B₁ B₂) (psfunctor_bicat B₁ B₂).
+  <span class="kn">Proof</span>.
+    use make_psfunctor.
+    - <span class="bp">exact</span> strict_psfunctor_to_psfunctor_data.
+    - <span class="bp">exact</span> strict_psfunctor_to_psfunctor_laws.
+    - <span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> make_is_invertible_modification
+      ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ; is_iso.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Inclusion</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/PseudoFunctors/Examples/StrictToPseudo.v</tt>, line 4)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (* ******************************************************************************* *)
+  &gt; (** The inclusion of strict pseudofunctors into pseudofunctors
+  &gt;  ********************************************************************************* *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

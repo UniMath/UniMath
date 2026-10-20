@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>from_precats_to_folds_and_back.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Univalent FOLDS</span>
+
+<span class="sd">    Benedikt Ahrens, following notes by Michael Shulman</span>
+
+<span class="sd">Contents of this file:</span>
+
+<span class="sd">  - Map [folds_precat_from_precat]</span>
+<span class="sd">  - Map [precat_from_folds_precat]</span>
+<span class="sd">  - Identity [folds_precat_from_precat_precat_from_folds_precat]</span>
+<span class="sd">  - Identity [precat_from_folds_precat_folds_precat_from_precat]</span>
+<span class="sd">  - Lemmas to pass between the compositions via predicate [comp] and as function [compose]</span>
+<span class="sd">  - Lemmas to pass between the identities via predicate [id] and as a function [identity]</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Folds.UnicodeNotations.
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.Foundations.UnivalenceAxiom.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+
+<span class="kn">Require Import</span> UniMath.Folds.folds_precat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"a ⇒ b"</span> := (precategory_morphisms a b).
+
+<span class="sd">(** * From precategories to FOLDS precategories *)</span>
+
+<span class="kn">Section</span> <span class="nf">from_precats_to_folds</span>.
+
+<span class="kn">Section</span> <span class="nf">data</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> : precategory_data.
+<span class="kn">Variable</span> <span class="nv">hsC</span> : has_homsets C.
+
+<span class="sd">(** identity as a predicate *)</span>
+<span class="kn">Definition</span> <span class="nf">id_pred</span> {<span class="nv">a</span> : C} : a ⇒ a → hProp :=
+   <span class="k">λ</span> <span class="nv">f</span>, make_hProp (f = identity _ ) (hsC a a _ _) .
+
+<span class="kn">Lemma</span> <span class="nf">id_pred_id</span> (<span class="nv">a</span> : C) : id_pred (identity a).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** composition as a predicate *)</span>
+<span class="kn">Definition</span> <span class="nf">comp_pred</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} : a ⇒ b → b ⇒ c → a ⇒ c → hProp :=
+  <span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">fg</span>, make_hProp (compose f g = fg) (hsC _ _ _ _ ).
+
+<span class="kn">Lemma</span> <span class="nf">comp_pred_comp</span> (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C) (<span class="nv">f</span> : a ⇒ b) (<span class="nv">g</span> : b ⇒ c) : comp_pred f g (compose f g).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">folds_id_comp_from_precat_data</span> : folds_id_T :=
+  tpair (<span class="k">λ</span> <span class="nv">C</span> : folds_ob_mor, (∏ a : C, a ⇒ a → hProp)
+                           × (∏ (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp))
+        (pr1 C) (make_dirprod (@id_pred) (@comp_pred)).
+
+<span class="kn">End</span> <span class="nf">data</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> : precategory.
+<span class="kn">Hypothesis</span> <span class="nv">hs</span>: has_homsets C.
+
+<span class="sd">(** FOLDS precategory from precategory *)</span>
+
+<span class="kn">Definition</span> <span class="nf">folds_precat_from_precat</span> : folds_precat.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">folds_id_comp_from_precat_data</span> <span class="nv">C</span> <span class="nv">hs</span>).
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intro</span> a.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">a</span>).
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span>; <span class="nb">unfold</span> T; <span class="nb">simpl</span>.
+    intermediate_path (compose f (identity _ )).
+    + <span class="nb">apply</span> maponpaths; <span class="bp">assumption</span>.
+    + <span class="nb">apply</span> id_right.
+ - <span class="nb">intros</span>; <span class="nb">unfold</span> T; <span class="nb">simpl</span>.
+   intermediate_path (compose (identity _ ) f).
+   +  <span class="nb">rewrite</span> X. <span class="nb">apply</span> idpath.
+   +  <span class="nb">apply</span> id_left.
+ - <span class="nb">intros</span> a b c f g.
+   <span class="nb">apply</span> hinhpr.
+   <span class="k">exists</span> (<span class="nv">compose</span> <span class="nv">f</span> <span class="nv">g</span>).
+   <span class="nb">apply</span> idpath.
+ - <span class="nb">simpl</span>.
+   <span class="nb">intros</span> a b c f g h k H1 H2.
+   intermediate_path (compose f g).
+   + <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> H1.
+   + <span class="nb">apply</span> H2.
+ - <span class="nb">simpl</span>. <span class="nb">intros</span> a b c d f g h fg gh fg_h f_gh H1 H2 H3 H4.
+   <span class="nb">rewrite</span> &lt;- H4, &lt;- H3, &lt;- H2, &lt;- H1.
+   <span class="nb">apply</span> assoc.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">from_precats_to_folds</span>.
+
+<span class="sd">(** * From FOLDS precategories to precategories *)</span>
+
+<span class="kn">Section</span> <span class="nf">from_folds_to_precats</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> : folds_precat.
+
+<span class="sd">(** precategory from FOLDS precategory *)</span>
+
+<span class="kn">Definition</span> <span class="nf">precat_from_folds_data</span> : precategory_data :=
+  tpair (<span class="k">λ</span> <span class="nv">C</span> : precategory_ob_mor, precategory_id_comp C)
+    (pr1 (pr1 C)) (make_dirprod (I_func C)(@T_func C)).
+
+<span class="kn">Lemma</span> <span class="nf">is_precategory_precat_from_folds_data</span> :
+   is_precategory precat_from_folds_data.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_precategory_one_assoc_to_two.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">apply</span> T_I_r.
+  - <span class="nb">apply</span> T_I_l.
+  - <span class="nb">apply</span> T_assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">precat_from_folds_precat</span> : precategory :=
+  tpair _ _ is_precategory_precat_from_folds_data.
+
+<span class="kn">End</span> <span class="nf">from_folds_to_precats</span>.
+
+<span class="sd">(** * From FOLDS precats to precats to FOLDS precats *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">folds_precat_from_precat_precat_from_folds_precat</span>
+  (<span class="nv">C</span> : folds_precat)(<span class="nv">hs</span>:has_folds_homsets C):
+    folds_precat_from_precat (precat_from_folds_precat C) hs = C.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath'.
+  <span class="mi">2</span>: { <span class="nb">intro</span> a; <span class="nb">apply</span> isapropdirprod.
+    + <span class="nb">apply</span> isaprop_folds_ax_id.
+    + <span class="nb">apply</span> isaprop_folds_ax_T. <span class="nb">apply</span> hs.
+  }
+  <span class="nb">set</span> (Hid := I_contr C).
+  <span class="nb">set</span> (Hcomp := T_contr C).
+  <span class="nb">destruct</span> C <span class="k">as</span> [<span class="kn">Cd</span> CC]; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">destruct</span> <span class="kn">Cd</span> <span class="k">as</span> [Ca Cb]; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">unfold</span> folds_id_comp_from_precat_data.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">destruct</span> CC <span class="k">as</span> [C1 C2]. <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">destruct</span> Cb <span class="k">as</span> [Cid Ccomp]. <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">apply</span> pathsdirprod.
+  +  <span class="nb">apply</span> funextsec.  <span class="nb">intro</span> a.
+     <span class="nb">apply</span> funextsec. <span class="nb">intro</span> f. <span class="nb">unfold</span> id_pred. <span class="nb">simpl</span>.
+     <span class="nb">apply</span> subtypePath.
+     { <span class="nb">intro</span>. <span class="nb">apply</span> isapropisaprop. }
+     <span class="nb">simpl</span>.
+     <span class="nb">apply</span> weqtopaths.
+     <span class="nb">apply</span> weqimplimpl.
+     * <span class="nb">intro</span> H. <span class="nb">rewrite</span> H.
+       <span class="nb">set</span> (Hid' := pr1 (Hid a)).
+       <span class="nb">apply</span> (pr2 (Hid')).
+     * <span class="nb">intro</span> H. <span class="nb">unfold</span> precategory_morphisms <span class="k">in</span> f.
+       <span class="nb">set</span> (H2 := pr2 (Hid a)). <span class="nb">simpl</span> <span class="k">in</span> H2.
+       <span class="nb">apply</span> (path_to_ctr). <span class="bp">assumption</span>.
+     * <span class="nb">apply</span> hs. <span class="c">(* apply (pr2 (precategory_morphisms _ _ )). *)</span>
+     * <span class="nb">apply</span> (pr2 (Cid a f)).
+  + <span class="nb">apply</span> funextsec; <span class="nb">intro</span> a.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> b.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> c.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> g.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> fg.
+    <span class="nb">clear</span> Hid.
+    <span class="nb">apply</span> subtypePath.
+    { <span class="nb">intro</span>; <span class="nb">apply</span> isapropisaprop. }
+    <span class="nb">apply</span> weqtopaths. <span class="nb">apply</span> weqimplimpl.
+    * <span class="nb">intro</span> H. <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">rewrite</span> &lt;- H.
+      <span class="nb">apply</span> (pr2 (pr1 (Hcomp a b c f g))).
+    * <span class="nb">simpl</span>. <span class="nb">intro</span> H. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> path_to_ctr.
+      <span class="bp">assumption</span>.
+    * <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">apply</span> hs. <span class="c">(* apply (pr2 (precategory_morphisms _ _ )). *)</span>
+    * <span class="nb">apply</span> (pr2 (Ccomp _ _ _ _ _ _ )).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * From precats to FOLDS precats to precats *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">precat_from_folds_precat_folds_precat_from_precat</span> (<span class="nv">C</span> : precategory)(<span class="nv">hs</span>: has_homsets C) :
+     precat_from_folds_precat (folds_precat_from_precat C hs) = C.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath'.
+  <span class="mi">2</span>: { <span class="nb">intro</span>; <span class="nb">apply</span> isaprop_is_precategory. <span class="bp">assumption</span>. }
+  <span class="nb">destruct</span> C <span class="k">as</span> [Cdata Cax]; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">destruct</span> Cdata <span class="k">as</span> [Cobmor Cidcomp]; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">unfold</span> precat_from_folds_data.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">destruct</span> Cidcomp <span class="k">as</span> [Cid Ccomp]; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">apply</span> pathsdirprod.
+  - <span class="nb">apply</span> funextsec; <span class="nb">intro</span> a.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> path_to_ctr.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> funextsec; <span class="nb">intro</span> a.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> b.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> c.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> g.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> path_to_ctr.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * Some lemmas to pass from [comp] to [compose] and back **)</span>
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C ^"</span> := (folds_precat_from_precat C) (<span class="kn">at level</span> <span class="mi">3</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C ^^"</span> := (precat_from_folds_precat C) (<span class="kn">at level</span> <span class="mi">3</span>).
+
+<span class="kn">Lemma</span> <span class="nf">comp_compose</span> {<span class="nv">C</span> : precategory} (<span class="nv">hs</span>: has_homsets C) {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : a ⇒ b} {<span class="nv">g</span> : b ⇒ c} {<span class="nv">h</span> : a ⇒ c} :
+   f · g = h -&gt; T (C:=C^hs) f g h.
+<span class="kn">Proof</span>.
+   <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">x</span>, x).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">comp_compose'</span> {<span class="nv">C</span> : precategory} (<span class="nv">hs</span>: has_homsets C){<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : a ⇒ b} {<span class="nv">g</span> : b ⇒ c} {<span class="nv">h</span> : a ⇒ c} :
+    T (C:=C^hs) f g h -&gt; f · g = h.
+<span class="kn">Proof</span>.
+   <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">x</span>, x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">comp_compose2</span> {<span class="nv">C</span> : folds_precat} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+  {<span class="nv">f</span> : folds_morphisms a b} {<span class="nv">g</span> : folds_morphisms b c} {<span class="nv">h</span> : folds_morphisms a c} :
+   compose (C:= C^^) f g = h -&gt; T f g h.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H; <span class="nb">rewrite</span> &lt;- H. <span class="nb">apply</span> T_func_T.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">comp_compose2'</span> {<span class="nv">C</span> : folds_precat} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+  {<span class="nv">f</span> : folds_morphisms a b} {<span class="nv">g</span> : folds_morphisms b c} {<span class="nv">h</span> : folds_morphisms a c} :
+  T f g h -&gt; compose (C:=C^^) f g = h.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> path_to_ctr. <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+
+<span class="sd">(** * Some lemmas to pass from [id] to [identity] and back **)</span>
+
+<span class="kn">Lemma</span> <span class="nf">id_identity</span> {<span class="nv">C</span> : precategory} (<span class="nv">hs</span>: has_homsets C){<span class="nv">a</span> : C} {<span class="nv">f</span> : a ⇒ a} : f = identity _ -&gt; I (C:=C^hs) f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">x</span>, x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">id_identity'</span> {<span class="nv">C</span> : precategory} (<span class="nv">hs</span>: has_homsets C){<span class="nv">a</span> : C} {<span class="nv">f</span> : a ⇒ a} : I (C:=C^hs) f -&gt; f = identity _ .
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">x</span>, x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">id_identity2</span> {<span class="nv">C</span> : folds_precat} {<span class="nv">a</span> : C} {<span class="nv">f</span> : a ⇒ a} : f = identity (C:=C^^)  _ -&gt; I f.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H; <span class="nb">rewrite</span> H.
+  <span class="nb">apply</span> I_func_I.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">id_identity2'</span> {<span class="nv">C</span> : folds_precat} {<span class="nv">a</span> : C} {<span class="nv">f</span> : a ⇒ a} : I f -&gt; f = identity (C:=C^^) _ .
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H. <span class="nb">apply</span> path_to_ctr; <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Folds/from_precats_to_folds_and_back.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Folds/UnicodeNotations.vo has
+  &gt; bad version number 90299 (expected 81601). It is corrupted or was compiled
+  &gt; with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Folds.UnicodeNotations.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.PartD.
+  &gt; Require Import UniMath.Foundations.Propositions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

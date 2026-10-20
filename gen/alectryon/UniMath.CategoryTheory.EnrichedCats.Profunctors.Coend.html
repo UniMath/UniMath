@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Coend.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> Coends of enriched profunctor</span>
+
+<span class="sd"> Suppose that we have a category `C` together with a `V`-enrichment `E` where `V` is a Benaou</span>
+<span class="sd"> cosmos, and suppose that we have an enriched profunctor `P : E ↛e E`. Then `P` gives rise</span>
+<span class="sd"> to a coend. In this file, we construct this coend explicitly, and we give accessors for</span>
+<span class="sd"> this coend.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Construction of the coend of an enriched profunctor</span>
+<span class="sd"> 2. Accessors</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.BenabouCosmos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.Profunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Section</span> <span class="nf">Coend</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : benabou_cosmos}
+          {<span class="nv">C</span> : category}
+          {<span class="nv">E</span> : enrichment C V}
+          (<span class="nv">P</span> : E ↛e E).
+
+  <span class="sd">(** * 1. Construction of the coend of an enriched profunctor *)</span>
+  <span class="kn">Local Definition</span> <span class="nf">ob_coprod</span>
+    : Coproduct _ _ _
+    := benabou_cosmos_coproducts V C (<span class="k">λ</span> <span class="nv">x</span>, P x x).
+
+  <span class="kn">Local Definition</span> <span class="nf">mor_coprod</span>
+    : Coproduct _ _ _
+    := benabou_cosmos_coproducts
+         V
+         (C × C)
+         (<span class="k">λ</span> <span class="nv">xy</span>, E ⦃ pr1 xy , pr2 xy ⦄ ⊗ P (pr2 xy) (pr1 xy)).
+
+  <span class="kn">Local Definition</span> <span class="nf">left_mor</span>
+    : mor_coprod --&gt; ob_coprod.
+  <span class="kn">Proof</span>.
+    use CoproductArrow.
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xy</span>,
+           lmap_e P (pr2 xy) (pr1 xy) (pr1 xy)
+           · CoproductIn _ _ ob_coprod (pr1 xy)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">right_mor</span>
+    : mor_coprod --&gt; ob_coprod.
+  <span class="kn">Proof</span>.
+    use CoproductArrow.
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xy</span>,
+           rmap_e P (pr2 xy) (pr1 xy) (pr2 xy)
+           · CoproductIn _ _ ob_coprod (pr2 xy)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">enriched_profunctor_coend_coequalizer</span>
+    : Coequalizer left_mor right_mor
+    := benabou_cosmos_coequalizers _ _ _ left_mor right_mor.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_profunctor_coend</span>
+    : V
+    := enriched_profunctor_coend_coequalizer.
+
+  <span class="sd">(** * 2. Accessors *)</span>
+  <span class="kn">Definition</span> <span class="nf">enriched_profunctor_coend_in</span>
+             (<span class="nv">x</span> : C)
+    : P x x --&gt; enriched_profunctor_coend
+    := CoproductIn _ _ ob_coprod x
+       · CoequalizerArrow enriched_profunctor_coend_coequalizer.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_profunctor_coend_comm</span>
+              (<span class="nv">x</span> <span class="nv">y</span> : C)
+    : lmap_e P y x x · enriched_profunctor_coend_in x
+      =
+      rmap_e P y x y · enriched_profunctor_coend_in y.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (maponpaths
+            (<span class="k">λ</span> <span class="nv">z</span>, CoproductIn _ _ mor_coprod (x ,, y) · z)
+            (CoequalizerEqAr enriched_profunctor_coend_coequalizer)) <span class="k">as</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">unfold</span> left_mor, right_mor <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !assoc <span class="k">in</span> p.
+    <span class="nb">refine</span> (_ @ p @ _).
+    - <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> (CoproductInCommutes _ _ _ mor_coprod _ _ (x ,, y)).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> (CoproductInCommutes _ _ _ mor_coprod _ _ (x ,, y)).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_profunctor_coend_comm_arr</span>
+              {<span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+              (<span class="nv">g</span> : y₁ --&gt; y₂)
+    : lmap_e_arr P y₁ g · enriched_profunctor_coend_in y₁
+      =
+      rmap_e_arr P g y₂ · enriched_profunctor_coend_in y₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> lmap_e_arr, rmap_e_arr.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> enriched_profunctor_coend_comm.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_enriched_profunctor_coend</span>
+             (<span class="nv">v</span> : V)
+             (<span class="nv">fs</span> : ∏ (x : C), P x x --&gt; v)
+             (<span class="nv">ps</span> : ∏ (x y : C),
+                   lmap_e P y x x · fs x
+                   =
+                   rmap_e P y x y · fs y)
+    : enriched_profunctor_coend --&gt; v.
+  <span class="kn">Proof</span>.
+    use CoequalizerOut.
+    - use CoproductArrow.
+      <span class="bp">exact</span> fs.
+    - <span class="kp">abstract</span>
+        (use CoproductArrow_eq ;
+         <span class="nb">intros</span> xy ;
+         <span class="nb">induction</span> xy <span class="k">as</span> [ x y ] ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">unfold</span> left_mor, right_mor ;
+         <span class="nb">rewrite</span> !(CoproductInCommutes _ _ _ mor_coprod _ _ (x ,, y)) ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">rewrite</span> !(CoproductInCommutes _ _ _ ob_coprod) ;
+         <span class="bp">exact</span> (ps x y)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">from_enriched_profunctor_coend_comm</span>
+              (<span class="nv">v</span> : V)
+              (<span class="nv">fs</span> : ∏ (x : C), P x x --&gt; v)
+              (<span class="nv">ps</span> : ∏ (x y : C),
+                    lmap_e P y x x · fs x
+                    =
+                    rmap_e P y x y · fs y)
+              (<span class="nv">x</span> : C)
+    : enriched_profunctor_coend_in x · from_enriched_profunctor_coend v fs ps
+      =
+      fs x.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> enriched_profunctor_coend_in, from_enriched_profunctor_coend.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> CoequalizerCommutes.
+    <span class="nb">apply</span> (CoproductInCommutes _ _ _ ob_coprod).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_profunctor_coend_eq_mor</span>
+             {<span class="nv">v</span> : V}
+             {<span class="nv">f</span> <span class="nv">g</span> : enriched_profunctor_coend --&gt; v}
+             (<span class="nv">ps</span> : ∏ (x : C),
+                   enriched_profunctor_coend_in x · f
+                   =
+                   enriched_profunctor_coend_in x · g)
+    : f = g.
+  <span class="kn">Proof</span>.
+    use CoequalizerOutsEq.
+    use CoproductArrow_eq.
+    <span class="nb">intro</span> x.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="bp">exact</span> (ps x).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Coend</span>.
+
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> enriched_profunctor_coend.
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> enriched_profunctor_coend_in.
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> from_enriched_profunctor_coend.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Profunctors/Coend.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Accessors
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

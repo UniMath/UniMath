@@ -1,0 +1,987 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PiTypes.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> Comprehension categories with pi-types</span>
+
+<span class="sd"> We define the displayed bicategory of pi-types for comprehension categories. Note that we</span>
+<span class="sd"> only consider right adjoints along weakenings and not arbitrary morphisms. We also provide</span>
+<span class="sd"> the necessary infrastructure to construct comprehension categories with pi-types in case</span>
+<span class="sd"> one has all right adjoints.</span>
+
+<span class="sd"> The main challenge in this file lies in defining when a functor preserves dependent products.</span>
+<span class="sd"> Formulating this requirement is a bit tedious, because weakening is only preserved up to</span>
+<span class="sd"> isomorphism. We need to take this into account, and that makes the formulation of preservation</span>
+<span class="sd"> more convoluted. In addition, we need to work with pseudomorphisms to guarantee that</span>
+<span class="sd"> substitution is actually preserved up to isomorphism. Note that we also make use of univalence</span>
+<span class="sd"> in this development. This is so that we can treat isomorphisms as equalities, and so that</span>
+<span class="sd"> we can use induction on isomorphisms.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Preliminaries on pi-types</span>
+<span class="sd"> 2. Dependent products for morphisms that are isomorphic to projections</span>
+<span class="sd"> 3. Builders for dependent products</span>
+<span class="sd"> 4. Uniqueness of dependent products</span>
+<span class="sd"> 5. Preservation of dependent products</span>
+<span class="sd"> 6. Examples of functors that preserve dependent products</span>
+<span class="sd"> 6.1. Functors that preserve all dependent products</span>
+<span class="sd"> 6.2. The identity</span>
+<span class="sd"> 6.3. Composition</span>
+<span class="sd"> 7. The displayed bicategory of pi-types</span>
+<span class="sd"> 8. This displayed bicategory is univalent</span>
+<span class="sd"> 9. Pi-types for DFL full comprehension categories</span>
+<span class="sd"> 10. Adjoint equivalences</span>
+<span class="sd"> 11. Stability of dependent products for chosen pullbacks</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.MoreFibrations.FiberEquivalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.BeckChevalleyChosenProd.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.UnivalenceOp.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.OpMorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.LiftDispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="sd">(** * 1. Preliminaries on pi-types *)</span>
+<span class="kn">Definition</span> <span class="nf">comp_cat_dependent_prod</span>
+           (<span class="nv">C</span> : comp_cat)
+  : UU
+  := ∑ (prd : ∏ (Γ : C) (A : ty Γ), dependent_product (cleaving_of_types C) (π A)),
+     ∏ (Γ₁ Γ₂ : C)
+       (A₁ : ty Γ₁)
+       (A₂ : ty Γ₂)
+       (s₁ : Γ₁ --&gt; Γ₂)
+       (s₂ : Γ₁ &amp; A₁ --&gt; Γ₂ &amp; A₂)
+       (p : s₂ · π A₂ = π A₁ · s₁)
+       (Hp : isPullback p),
+     right_beck_chevalley
+       _
+       (π A₂) s₁ (π A₁) s₂
+       p
+       (prd _ A₂)
+       (prd _ A₁).
+
+<span class="kn">Section</span> <span class="nf">Projections</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : comp_cat}
+          (<span class="nv">P</span> : comp_cat_dependent_prod C)
+          {<span class="nv">Γ</span> : C}
+          (<span class="nv">A</span> : ty Γ).
+
+  <span class="kn">Definition</span> <span class="nf">dep_prod_cc</span>
+             (<span class="nv">B</span> : ty (Γ &amp; A))
+    : ty Γ
+    := Adjunctions.Core.right_adjoint (pr1 P Γ A) B.
+
+  <span class="kn">Definition</span> <span class="nf">dep_prod_unit_cc</span>
+             (<span class="nv">B</span> : ty Γ)
+    : B --&gt;[ identity _ ] dep_prod_cc (subst_ty (π A) B)
+    := unit_from_left_adjoint (pr1 P Γ A) B.
+
+  <span class="kn">Definition</span> <span class="nf">dep_prod_counit_cc</span>
+             (<span class="nv">B</span> : ty (Γ &amp; A))
+    : subst_ty (π A) (dep_prod_cc B) --&gt;[ identity _ ] B
+    := counit_from_left_adjoint (pr1 P Γ A) B.
+<span class="kn">End</span> <span class="nf">Projections</span>.
+
+<span class="sd">(** * 2. Dependent products for morphisms that are isomorphic to projections *)</span>
+<span class="kn">Definition</span> <span class="nf">dep_prod_comp_cat_iso_help</span>
+           {<span class="nv">C</span> : comp_cat}
+           (<span class="nv">P</span> : comp_cat_dependent_prod C)
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           (<span class="nv">A</span> : ty Γ)
+           (<span class="nv">s</span> : (Γ &amp; A) = Δ)
+           (<span class="nv">s'</span> : Δ --&gt; Γ)
+           (<span class="nv">p</span> : idtoiso (!s) · π A = s')
+  : dependent_product (cleaving_of_types C) s'.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> s ; <span class="nb">cbn</span> <span class="k">in</span> p.
+  <span class="nb">induction</span> p.
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">apply</span> P.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dep_prod_comp_cat_iso</span>
+           {<span class="nv">C</span> : comp_cat}
+           (<span class="nv">P</span> : comp_cat_dependent_prod C)
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           (<span class="nv">A</span> : ty Γ)
+           (<span class="nv">s</span> : z_iso Δ (Γ &amp; A))
+           (<span class="nv">s'</span> : Δ --&gt; Γ)
+           (<span class="nv">p</span> : s · π A = s')
+  : dependent_product (cleaving_of_types C) s'.
+<span class="kn">Proof</span>.
+  use dep_prod_comp_cat_iso_help.
+  - <span class="bp">exact</span> P.
+  - <span class="bp">exact</span> A.
+  - <span class="nb">refine</span> (!(isotoid _ _ s)).
+    <span class="nb">apply</span> univalent_category_is_univalent.
+  - <span class="nb">rewrite</span> pathsinv0inv0.
+    <span class="nb">rewrite</span> idtoiso_isotoid.
+    <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Builders for dependent products *)</span>
+<span class="kn">Definition</span> <span class="nf">make_comp_cat_dependent_prod</span>
+           {<span class="nv">C</span> : comp_cat}
+           (<span class="nv">prd</span> : ∏ (Γ : C) (A : ty Γ),
+                  dependent_product (cleaving_of_types C) (π A))
+           (<span class="nv">stable</span> : ∏ (Γ₁ Γ₂ : C)
+                       (A₁ : ty Γ₁)
+                       (A₂ : ty Γ₂)
+                       (s₁ : Γ₁ --&gt; Γ₂)
+                       (s₂ : Γ₁ &amp; A₁ --&gt; Γ₂ &amp; A₂)
+                       (p : s₂ · π A₂ = π A₁ · s₁)
+                       (Hp : isPullback p),
+                     right_beck_chevalley
+                       _
+                       (π A₂) s₁ (π A₁) s₂
+                       p
+                       (prd _ A₂)
+                       (prd _ A₁))
+  : comp_cat_dependent_prod C
+  := prd ,, stable.
+
+<span class="kn">Definition</span> <span class="nf">make_comp_cat_dependent_prod_all</span>
+           {<span class="nv">C</span> : comp_cat}
+           (<span class="nv">HC</span> : has_dependent_products (cleaving_of_types C))
+  : comp_cat_dependent_prod C.
+<span class="kn">Proof</span>.
+  use make_comp_cat_dependent_prod.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">A</span>, pr1 HC _ _ (π A)).
+  - <span class="nb">intros</span> Γ₁ Γ₂ A₁ A₂ s₁ s₂ p Hp.
+    <span class="bp">exact</span> (pr2 HC _ _ _ _ _ _ _ _ _ Hp).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. Uniqueness of dependent products *)</span>
+<span class="kn">Proposition</span> <span class="nf">isaprop_dependent_product</span>
+            {<span class="nv">C</span> : cat_with_terminal_cleaving}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> : x --&gt; y)
+  : isaprop (dependent_product (cleaving_of_types C) f).
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (D₁ := univalent_fiber_category (disp_cat_of_types C) y : bicat_of_univ_cats).
+  <span class="nb">pose</span> (D₂ := univalent_fiber_category (disp_cat_of_types C) x : bicat_of_univ_cats).
+  <span class="nb">pose</span> (F := (fiber_functor_from_cleaving _ (cleaving_of_types C) f : D₁ --&gt; D₂)).
+  <span class="nb">apply</span> (isaprop_is_left_adjoint F).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_comp_cat_dependent_prod</span>
+            (<span class="nv">C</span> : comp_cat)
+  : isaprop (comp_cat_dependent_prod C).
+<span class="kn">Proof</span>.
+  use isaproptotal2.
+  - <span class="nb">intro</span>.
+    <span class="kp">do</span> <span class="mi">8</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isaprop_right_beck_chevalley.
+  - <span class="nb">intros</span>.
+    <span class="kp">do</span> <span class="mi">2</span> (use funextsec ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isaprop_dependent_product.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 5. Preservation of dependent products *)</span>
+<span class="kn">Definition</span> <span class="nf">preserves_comp_cat_dependent_prod</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+           (<span class="nv">P₁</span> : comp_cat_dependent_prod C₁)
+           (<span class="nv">P₂</span> : comp_cat_dependent_prod C₂)
+  : UU.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (∏ (Γ : C₁)
+                   (A : ty Γ)
+                   (B : ty (Γ &amp; A)),
+                 is_z_isomorphism
+                   (right_beck_chevalley_nat_trans
+                      (pr1 P₁ Γ A)
+                      _
+                      (fiber_functor_natural_nat_z_iso
+                         (cleaving_of_types C₁) (cleaving_of_types C₂)
+                         (cartesian_comp_cat_type_functor F)
+                         _)
+                      B)).
+  use (dep_prod_comp_cat_iso P₂).
+  - <span class="bp">exact</span> (comp_cat_type_functor F Γ A).
+  - <span class="bp">exact</span> (full_comp_cat_functor_z_iso F A).
+  - <span class="nb">apply</span> (comprehension_nat_trans_mor_comm (comp_cat_functor_comprehension F)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_preserves_comp_cat_dependent_prod</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+            (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+            (<span class="nv">P₁</span> : comp_cat_dependent_prod C₁)
+            (<span class="nv">P₂</span> : comp_cat_dependent_prod C₂)
+  : isaprop (preserves_comp_cat_dependent_prod F P₁ P₂).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">3</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaprop_is_z_isomorphism.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 6. Examples of functors that preserve dependent products *)</span>
+
+<span class="sd">(** ** 6.1. Functors that preserve all dependent products *)</span>
+<span class="kn">Lemma</span> <span class="nf">preserves_comp_cat_dependent_prod_all_lemma</span>
+      {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+      (<span class="nv">HC₁</span> : is_univalent C₁)
+      (<span class="nv">HC₂</span> : is_univalent C₂)
+      (<span class="nv">HC₃</span> : is_univalent C₃)
+      (<span class="nv">HC₄</span> : is_univalent C₄)
+      {<span class="nv">F</span> : C₁ ⟶ C₂} {<span class="nv">G</span> : C₁ ⟶ C₃}
+      {<span class="nv">H</span> : C₃ ⟶ C₄} {<span class="nv">K</span> : C₂ ⟶ C₄}
+      {<span class="nv">HF</span> <span class="nv">HF'</span> : is_left_adjoint F} {<span class="nv">HH</span> <span class="nv">HH'</span> : is_left_adjoint H}
+      {<span class="nv">τ</span> : nat_z_iso (G ∙ H) (F ∙ K)}
+      {<span class="nv">x</span> : C₂}
+      (<span class="nv">Hx</span> : is_z_isomorphism (right_beck_chevalley_nat_trans HF HH τ x))
+  : is_z_isomorphism (right_beck_chevalley_nat_trans HF' HH' τ x).
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (C₁' := make_univalent_category C₁ HC₁).
+  <span class="nb">pose</span> (C₂' := make_univalent_category C₂ HC₂).
+  <span class="nb">pose</span> (C₃' := make_univalent_category C₃ HC₃).
+  <span class="nb">pose</span> (C₄' := make_univalent_category C₄ HC₄).
+  <span class="nb">assert</span> (HF = HF') <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> (@isaprop_is_left_adjoint C₁' C₂' F).
+  }
+  <span class="nb">assert</span> (HH = HH') <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> (@isaprop_is_left_adjoint C₃' C₄' H).
+  }
+  <span class="nb">apply</span> Hx.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_comp_cat_dependent_prod_all</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+           (<span class="nv">HC₁</span> : has_dependent_products (cleaving_of_types C₁))
+           (<span class="nv">HC₂</span> : has_dependent_products (cleaving_of_types C₂))
+           (<span class="nv">HF</span> : preserves_dependent_products (cartesian_comp_cat_type_functor F) HC₁ HC₂)
+  : preserves_comp_cat_dependent_prod
+      F
+      (make_comp_cat_dependent_prod_all HC₁)
+      (make_comp_cat_dependent_prod_all HC₂).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Γ A B.
+  <span class="nb">refine</span> (preserves_comp_cat_dependent_prod_all_lemma _ _ _ _ (HF (Γ &amp; A) Γ (π A) B)) ;
+    <span class="nb">apply</span> is_univalent_fiber ;
+    <span class="nb">apply</span> disp_univalent_category_is_univalent_disp.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** 6.2. The identity *)</span>
+<span class="kn">Proposition</span> <span class="nf">id_preserves_comp_cat_dependent_prod_lem</span>
+            {<span class="nv">C</span> : full_comp_cat}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> : x --&gt; y)
+            (<span class="nv">P</span> <span class="nv">P'</span> : dependent_product (cleaving_of_types C) f)
+            (<span class="nv">a</span> : ty x)
+            (<span class="nv">p</span> := pr1 (isaprop_dependent_product f P P') : P = P')
+  : right_beck_chevalley_nat_trans
+      P P'
+      (fiber_functor_natural_nat_z_iso _ _ (id_cartesian_disp_functor _) f)
+      a
+    =
+    idtoiso (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, right_adjoint z _) p).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> right_beck_chevalley_nat_trans_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">id_preserves_comp_cat_dependent_prod</span>
+            (<span class="nv">C</span> : full_comp_cat)
+            (<span class="nv">P</span> : comp_cat_dependent_prod C)
+            (<span class="nv">F</span> := id₁ C : full_comp_cat_functor C C)
+  : preserves_comp_cat_dependent_prod (id₁ C) P P.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Γ A B.
+  <span class="nb">refine</span> (is_z_isomorphism_path _ _).
+  - <span class="nb">refine</span> (!(id_preserves_comp_cat_dependent_prod_lem _ _ _ B) @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, right_beck_chevalley_nat_trans _ _ z _) _).
+    <span class="bp">exact</span> (fiber_functor_natural_nat_z_iso_eq
+             (cleaving_of_types C) (cleaving_of_types C)
+             (disp_functor_identity _)
+             _ _
+             (π A)).
+  - <span class="nb">apply</span> z_iso_is_z_isomorphism.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** 6.3. Composition *)</span>
+<span class="kn">Proposition</span> <span class="nf">preserves_comp_cat_dependent_prod_iso_eq</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+            (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C₁}
+            {<span class="nv">A</span> : ty Γ}
+            {<span class="nv">s</span> : z_iso Δ (Γ &amp; A)}
+            {<span class="nv">s'</span> : Δ --&gt; Γ}
+            (<span class="nv">p</span> : s · π A = s')
+  : z_iso_comp
+      (functor_on_z_iso F s)
+      (full_comp_cat_functor_z_iso F A)
+    · π (comp_cat_type_functor F Γ A)
+    =
+    #F s'.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc'.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> comprehension_nat_trans_mor_comm.
+  }
+  <span class="nb">rewrite</span> &lt;- functor_comp.
+  <span class="nb">apply</span> maponpaths.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">right_beck_chevalley_nat_trans_mor_eq</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+            (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C₁}
+            {<span class="nv">s</span> <span class="nv">s'</span> : Γ₁ --&gt; Γ₂}
+            (<span class="nv">p</span> : s = s')
+            (<span class="nv">P₁</span> : dependent_product (cleaving_of_types C₁) s)
+            (<span class="nv">P₂</span> : dependent_product (cleaving_of_types C₂) (#F s))
+            (<span class="nv">P₁'</span> : dependent_product (cleaving_of_types C₁) s')
+            (<span class="nv">P₂'</span> : dependent_product (cleaving_of_types C₂) (#F s'))
+            (<span class="nv">B</span> : ty Γ₁)
+            (<span class="nv">H</span> : is_z_isomorphism
+                   (right_beck_chevalley_nat_trans
+                      P₁
+                      P₂
+                      (fiber_functor_natural_nat_z_iso
+                         (cleaving_of_types C₁) (cleaving_of_types C₂)
+                         (cartesian_comp_cat_type_functor F)
+                         _)
+                      B))
+  : is_z_isomorphism
+      (right_beck_chevalley_nat_trans
+         P₁'
+         P₂'
+         (fiber_functor_natural_nat_z_iso
+            (cleaving_of_types C₁) (cleaving_of_types C₂)
+            (cartesian_comp_cat_type_functor F)
+            _)
+         B).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">assert</span> (P₁ = P₁') <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> isaprop_dependent_product.
+  }
+  <span class="nb">assert</span> (P₂ = P₂') <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> isaprop_dependent_product.
+  }
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_comp_cat_dependent_prod_iso_help</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+           (<span class="nv">P₁</span> : comp_cat_dependent_prod C₁)
+           (<span class="nv">P₂</span> : comp_cat_dependent_prod C₂)
+           (<span class="nv">HF</span> : preserves_comp_cat_dependent_prod F P₁ P₂)
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C₁}
+           (<span class="nv">A</span> : ty Γ)
+           (<span class="nv">s</span> : (Γ &amp; A) = Δ)
+           (<span class="nv">s'</span> : Δ --&gt; Γ)
+           (<span class="nv">p</span> : idtoiso (!s) · π A = s')
+           (<span class="nv">B</span> : ty Δ)
+  : is_z_isomorphism
+      (right_beck_chevalley_nat_trans
+         (dep_prod_comp_cat_iso P₁ _ _ _ p)
+         (dep_prod_comp_cat_iso P₂ _ _ _ (preserves_comp_cat_dependent_prod_iso_eq F p))
+         (fiber_functor_natural_nat_z_iso
+            (cleaving_of_types C₁) (cleaving_of_types C₂)
+            (cartesian_comp_cat_type_functor F)
+            _)
+         B).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> s ; <span class="nb">cbn</span> <span class="k">in</span> p.
+  <span class="nb">induction</span> p.
+  <span class="nb">refine</span> (right_beck_chevalley_nat_trans_mor_eq _ _ _ _ _ _ _ (HF Γ A B)).
+  <span class="bp">exact</span> (!(id_left _)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_comp_cat_dependent_prod_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+           (<span class="nv">P₁</span> : comp_cat_dependent_prod C₁)
+           (<span class="nv">P₂</span> : comp_cat_dependent_prod C₂)
+           (<span class="nv">HF</span> : preserves_comp_cat_dependent_prod F P₁ P₂)
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C₁}
+           (<span class="nv">A</span> : ty Γ)
+           (<span class="nv">s</span> : z_iso Δ (Γ &amp; A))
+           (<span class="nv">s'</span> : Δ --&gt; Γ)
+           (<span class="nv">p</span> : s · π A = s')
+           (<span class="nv">B</span> : ty Δ)
+           (<span class="nv">q</span> : z_iso_comp (functor_on_z_iso F s) (full_comp_cat_functor_z_iso F A)
+       · π (comp_cat_type_functor F Γ A) = # F s')
+  : is_z_isomorphism
+      (right_beck_chevalley_nat_trans
+         (dep_prod_comp_cat_iso P₁ _ _ _ p)
+         (dep_prod_comp_cat_iso P₂ _ _ _ q)
+         (fiber_functor_natural_nat_z_iso
+            (cleaving_of_types C₁) (cleaving_of_types C₂)
+            (cartesian_comp_cat_type_functor F)
+            _)
+         B).
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (q = preserves_comp_cat_dependent_prod_iso_eq F p) <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> homset_property.
+  }
+  <span class="nb">assert</span> (idtoiso (!(!isotoid C₁ (univalent_category_is_univalent C₁) s)) · π A = s')
+    <span class="k">as</span> r.
+  {
+    <span class="nb">rewrite</span> pathsinv0inv0.
+    <span class="nb">rewrite</span> idtoiso_isotoid.
+    <span class="nb">apply</span> p.
+  }
+  use (preserves_comp_cat_dependent_prod_all_lemma
+         _ _ _ _
+         (preserves_comp_cat_dependent_prod_iso_help _ _ _ HF A _ s' r B)) ;
+    <span class="nb">apply</span> is_univalent_fiber ;
+    <span class="nb">apply</span> disp_univalent_category_is_univalent_disp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">preserves_dependent_products_comp_cartesian</span>
+            (<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : full_comp_cat)
+            (<span class="nv">P₁</span> : comp_cat_dependent_prod C₁)
+            (<span class="nv">P₂</span> : comp_cat_dependent_prod C₂)
+            (<span class="nv">P₃</span> : comp_cat_dependent_prod C₃)
+            (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂)
+            (<span class="nv">G</span> : full_comp_cat_functor C₂ C₃)
+            (<span class="nv">HF</span> : preserves_comp_cat_dependent_prod F P₁ P₂)
+            (<span class="nv">HG</span> : preserves_comp_cat_dependent_prod G P₂ P₃)
+  : preserves_comp_cat_dependent_prod (F · G) P₁ P₃.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Γ A B.
+  <span class="nb">refine</span> (is_z_isomorphism_path _ _).
+  - <span class="nb">refine</span> (!(right_beck_chevalley_nat_trans_comp
+                (cartesian_comp_cat_type_functor F)
+                (cartesian_comp_cat_type_functor G)
+                (π A)
+                B
+                _ _ _) @ _).
+    + use (dep_prod_comp_cat_iso P₂).
+      * <span class="bp">exact</span> (comp_cat_type_functor F Γ A).
+      * <span class="bp">exact</span> (full_comp_cat_functor_z_iso F A).
+      * <span class="bp">exact</span> (comprehension_nat_trans_mor_comm (comp_cat_functor_comprehension F) Γ A).
+    + <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, right_beck_chevalley_nat_trans _ _ z _) _).
+      <span class="bp">exact</span> (fiber_functor_natural_nat_z_iso_eq
+               (cleaving_of_types C₁) (cleaving_of_types C₃)
+               (disp_functor_composite _ _)
+               _ _ _).
+  - use is_z_isomorphism_comp.
+    + use functor_on_is_z_isomorphism.
+      <span class="nb">apply</span> HF.
+    + <span class="bp">exact</span> (preserves_comp_cat_dependent_prod_iso
+               _ _ _
+               HG
+               (comp_cat_type_functor F Γ A)
+               _ _ _ _ _).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 7. The displayed bicategory of pi-types *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bicat_of_pi_type</span>
+  : disp_bicat bicat_full_comp_cat.
+<span class="kn">Proof</span>.
+  use disp_subbicat.
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">C</span> : full_comp_cat), comp_cat_dependent_prod C).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat)
+             (<span class="nv">P₁</span> : comp_cat_dependent_prod C₁)
+             (<span class="nv">P₂</span> : comp_cat_dependent_prod C₂)
+             (<span class="nv">F</span> : full_comp_cat_functor C₁ C₂),
+           preserves_comp_cat_dependent_prod F P₁ P₂).
+  - <span class="bp">exact</span> id_preserves_comp_cat_dependent_prod.
+  - <span class="bp">exact</span> preserves_dependent_products_comp_cartesian.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 8. This displayed bicategory is univalent *)</span>
+<span class="kn">Definition</span> <span class="nf">univalent_2_1_disp_bicat_of_pi_type</span>
+  : disp_univalent_2_1 disp_bicat_of_pi_type.
+<span class="kn">Proof</span>.
+  use disp_subbicat_univalent_2_1.
+  <span class="nb">intros</span> C₁ C₂ P₁ P₂ f.
+  <span class="nb">apply</span> isaprop_preserves_comp_cat_dependent_prod.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_2_0_disp_bicat_of_pi_type</span>
+  : disp_univalent_2_0 disp_bicat_of_pi_type.
+<span class="kn">Proof</span>.
+  use disp_subbicat_univalent_2_0.
+  - <span class="bp">exact</span> is_univalent_2_bicat_full_comp_cat.
+  - <span class="nb">intro</span> C.
+    <span class="nb">apply</span> isaprop_comp_cat_dependent_prod.
+  - <span class="nb">intros</span> C₁ C₂ P₁ P₂ f.
+    <span class="nb">apply</span> isaprop_preserves_comp_cat_dependent_prod.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_2_disp_bicat_of_pi_type</span>
+  : disp_univalent_2 disp_bicat_of_pi_type.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> univalent_2_0_disp_bicat_of_pi_type.
+  - <span class="bp">exact</span> univalent_2_1_disp_bicat_of_pi_type.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop_disp_bicat_of_pi_type</span>
+  : disp_2cells_isaprop disp_bicat_of_pi_type.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_locally_groupoid_disp_bicat_of_pi_type</span>
+  : disp_locally_groupoid disp_bicat_of_pi_type.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_locally_groupoid_subbicat.
+  <span class="nb">apply</span> is_univalent_2_bicat_full_comp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_2cells_iscontr_disp_bicat_of_pi_type</span>
+  : disp_2cells_iscontr disp_bicat_of_pi_type.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_2cells_iscontr_subbicat.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 9. Pi-types for DFL full comprehension categories *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bicat_of_pi_type_dfl_full_comp_cat</span>
+  : disp_bicat bicat_of_dfl_full_comp_cat
+  := lift_disp_bicat _ disp_bicat_of_pi_type.
+
+<span class="kn">Proposition</span> <span class="nf">univalent_2_1_disp_bicat_of_pi_type_dfl_full_comp_cat</span>
+  : disp_univalent_2_1 disp_bicat_of_pi_type_dfl_full_comp_cat.
+<span class="kn">Proof</span>.
+  use disp_univalent_2_1_lift_disp_bicat.
+  <span class="bp">exact</span> univalent_2_1_disp_bicat_of_pi_type.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">univalent_2_0_disp_bicat_of_pi_type_dfl_full_comp_cat</span>
+  : disp_univalent_2_0 disp_bicat_of_pi_type_dfl_full_comp_cat.
+<span class="kn">Proof</span>.
+  use disp_univalent_2_0_lift_disp_bicat.
+  - <span class="bp">exact</span> univalent_2_0_disp_bicat_of_pi_type.
+  - <span class="bp">exact</span> univalent_2_1_disp_bicat_of_pi_type.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_full_comp_cat.
+  - <span class="bp">exact</span> is_univalent_2_1_disp_bicat_of_dfl_full_comp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">univalent_2_disp_bicat_of_pi_type_dfl_full_comp_cat</span>
+  : disp_univalent_2 disp_bicat_of_pi_type_dfl_full_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> univalent_2_0_disp_bicat_of_pi_type_dfl_full_comp_cat.
+  - <span class="bp">exact</span> univalent_2_1_disp_bicat_of_pi_type_dfl_full_comp_cat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_2cells_isaprop_disp_bicat_of_pi_type_dfl_full_comp_cat</span>
+  : disp_2cells_isaprop disp_bicat_of_pi_type_dfl_full_comp_cat.
+<span class="kn">Proof</span>.
+  use disp_2cells_isaprop_lift_disp_bicat.
+  <span class="bp">exact</span> disp_2cells_isaprop_disp_bicat_of_pi_type.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_locally_groupoid_disp_bicat_of_pi_type_dfl_full_comp_cat</span>
+  : disp_locally_groupoid disp_bicat_of_pi_type_dfl_full_comp_cat.
+<span class="kn">Proof</span>.
+  use disp_locally_groupoid_lift_disp_bicat.
+  <span class="bp">exact</span> disp_locally_groupoid_disp_bicat_of_pi_type.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_2cells_iscontr_disp_bicat_of_pi_type_dfl_full_comp_cat</span>
+  : disp_2cells_iscontr disp_bicat_of_pi_type_dfl_full_comp_cat.
+<span class="kn">Proof</span>.
+  use disp_2cells_iscontr_lift_disp_bicat.
+  <span class="bp">exact</span> disp_2cells_iscontr_disp_bicat_of_pi_type.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_of_pi_type_dfl_full_comp_cat</span>
+  : bicat
+  := total_bicat disp_bicat_of_pi_type_dfl_full_comp_cat.
+
+<span class="kn">Proposition</span> <span class="nf">univalent_2_bicat_of_pi_type_dfl_full_comp_cat</span>
+  : is_univalent_2 bicat_of_pi_type_dfl_full_comp_cat.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2.
+  - <span class="bp">exact</span> univalent_2_disp_bicat_of_pi_type_dfl_full_comp_cat.
+  - <span class="bp">exact</span> is_univalent_2_bicat_of_dfl_full_comp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">univalent_2_0_bicat_of_pi_type_dfl_full_comp_cat</span>
+  : is_univalent_2_0 bicat_of_pi_type_dfl_full_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> univalent_2_bicat_of_pi_type_dfl_full_comp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">univalent_2_1_bicat_of_pi_type_dfl_full_comp_cat</span>
+  : is_univalent_2_1 bicat_of_pi_type_dfl_full_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> univalent_2_bicat_of_pi_type_dfl_full_comp_cat.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 10. Adjoint equivalences *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_adjoint_equiv_disp_bicat_of_pi_type_help</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : full_comp_cat}
+           (<span class="nv">F</span> : adjoint_equivalence C₁ C₂)
+           {<span class="nv">P₁</span> : comp_cat_dependent_prod C₁}
+           {<span class="nv">P₂</span> : comp_cat_dependent_prod C₂}
+  : preserves_comp_cat_dependent_prod (pr1 F) P₁ P₂.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> C₁ C₂ F P₁ P₂.
+  use J_2_0.
+  - <span class="bp">exact</span> is_univalent_2_0_bicat_full_comp_cat.
+  - <span class="nb">intros</span> C P₁ P₂.
+    <span class="nb">assert</span> (P₁ = P₂) <span class="k">as</span> p.
+    {
+      <span class="nb">apply</span> isaprop_comp_cat_dependent_prod.
+    }
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> id_preserves_comp_cat_dependent_prod.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_adjoint_equiv_disp_bicat_of_pi_type_dfl_full_comp_cat_help</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+           (<span class="nv">F</span> : adjoint_equivalence C₁ C₂)
+           {<span class="nv">P₁</span> : disp_bicat_of_pi_type_dfl_full_comp_cat C₁}
+           {<span class="nv">P₂</span> : disp_bicat_of_pi_type_dfl_full_comp_cat C₂}
+           (<span class="nv">FF</span> : P₁ --&gt;[ F ] P₂)
+  : disp_left_adjoint_equivalence F FF.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> C₁ C₂ F P₁ P₂ FF.
+  use J_2_0.
+  - <span class="bp">exact</span> is_univalent_2_0_bicat_of_dfl_full_comp_cat.
+  - <span class="nb">intros</span> C P₁ P₂ FF.
+    use to_disp_left_adjoint_equivalence_over_id_lift.
+    use disp_left_adjoint_equivalence_subbicat.
+    + <span class="nb">clear</span> C P₁ P₂ FF.
+      <span class="nb">intros</span> C₁ C₂ P₁ P₂ F HF.
+      <span class="bp">exact</span> (disp_adjoint_equiv_disp_bicat_of_pi_type_help (F ,, HF)).
+    + <span class="bp">exact</span> is_univalent_2_bicat_full_comp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_adjoint_equiv_disp_bicat_of_pi_type_dfl_full_comp_cat</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+           (<span class="nv">F</span> : dfl_full_comp_cat_functor C₁ C₂)
+           (<span class="nv">HF</span> : left_adjoint_equivalence F)
+           {<span class="nv">T₁</span> : disp_bicat_of_pi_type_dfl_full_comp_cat C₁}
+           {<span class="nv">T₂</span> : disp_bicat_of_pi_type_dfl_full_comp_cat C₂}
+           (<span class="nv">FF</span> : T₁ --&gt;[ F ] T₂)
+  : disp_left_adjoint_equivalence HF FF.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (disp_adjoint_equiv_disp_bicat_of_pi_type_dfl_full_comp_cat_help (F ,, HF) FF).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 11. Stability of dependent products for chosen pullbacks *)</span>
+<span class="kn">Definition</span> <span class="nf">comp_cat_dependent_prod_chosen</span>
+           (<span class="nv">C</span> : comp_cat)
+  : UU
+  := ∑ (pi : ∏ (Γ : C) (A : ty Γ), dependent_product (cleaving_of_types C) (π A)),
+     ∏ (Γ₁ Γ₂ : C)
+       (A : ty Γ₂)
+       (s : Γ₁ --&gt; Γ₂),
+     right_beck_chevalley
+       _
+       (π A) s (π (A [[ s ]])) _
+       (comprehension_functor_mor_comm
+          (comp_cat_comprehension C)
+          (cleaving_of_types C _ _ s A))
+       (pi _ A)
+       (pi _ (A [[ s ]])).
+
+<span class="kn">Definition</span> <span class="nf">make_comp_cat_dependent_prod_chosen</span>
+           {<span class="nv">C</span> : comp_cat}
+           (<span class="nv">pi</span> : ∏ (Γ : C) (A : ty Γ), dependent_product (cleaving_of_types C) (π A))
+           (<span class="nv">H</span> : ∏ (Γ₁ Γ₂ : C)
+                  (A : ty Γ₂)
+                  (s : Γ₁ --&gt; Γ₂),
+                right_beck_chevalley
+                  _
+                  (π A) s (π (A [[ s ]])) _
+                  (comprehension_functor_mor_comm
+                     (comp_cat_comprehension C)
+                     (cleaving_of_types C _ _ s A))
+                  (pi _ A)
+                  (pi _ (A [[ s ]])))
+  : comp_cat_dependent_prod_chosen C
+  := pi ,, H.
+
+<span class="kn">Section</span> <span class="nf">DependentProdWithChosenPB</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : comp_cat}
+          (<span class="nv">H</span> : comp_cat_dependent_prod_chosen C)
+          {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+          {<span class="nv">A₁</span> : ty Γ₁}
+          {<span class="nv">A₂</span> : ty Γ₂}
+          {<span class="nv">s₁</span> : Γ₁ --&gt; Γ₂}
+          {<span class="nv">s₂</span> : Γ₁ &amp; A₁ --&gt; Γ₂ &amp; A₂}
+          (<span class="nv">p</span> : s₂ · π A₂ = π A₁ · s₁)
+          (<span class="nv">Hp</span> : isPullback p).
+
+  <span class="kn">Let</span> <span class="nf">D</span> : disp_cat C := disp_cat_of_types C.
+  <span class="kn">Let</span> <span class="nf">HD</span> : cleaving D := cleaving_of_types C.
+  <span class="kn">Let</span> <span class="nf">PBfg</span> : Pullback (π A₂) s₁ := make_Pullback _ Hp.
+  <span class="kn">Let</span> <span class="nf">PBfg'</span> : Pullback (π A₂) s₁ := comp_cat_pullback A₂ s₁.
+
+  <span class="kn">Definition</span> <span class="nf">comp_cat_dependent_prod_from_chosen_adjequiv</span>
+    : D[{PBfg}] ⟶ D[{PBfg'}].
+  <span class="kn">Proof</span>.
+    use (fiber_functor_from_cleaving D HD).
+    <span class="bp">exact</span> (z_iso_from_Pullback_to_Pullback _ PBfg).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_cat_dependent_prod_from_chosen_left</span>
+    : nat_z_iso
+        (fiber_functor_from_cleaving D HD (π A₁)
+         ∙ comp_cat_dependent_prod_from_chosen_adjequiv)
+        (fiber_functor_from_cleaving D HD (PullbackPr2 _)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (nat_z_iso_comp
+              (fiber_functor_from_cleaving_comp_nat_z_iso HD _ _)
+              (fiber_functor_on_eq_nat_z_iso HD _)).
+    <span class="nb">apply</span> (PullbackArrow_PullbackPr2 PBfg).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_cat_dependent_prod_from_chosen_right</span>
+    : nat_z_iso
+        (fiber_functor_from_cleaving D HD s₂
+         ∙ comp_cat_dependent_prod_from_chosen_adjequiv)
+        (fiber_functor_from_cleaving D HD (PullbackPr1 _)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (nat_z_iso_comp
+              (fiber_functor_from_cleaving_comp_nat_z_iso HD _ _)
+              (fiber_functor_on_eq_nat_z_iso HD _)).
+    <span class="nb">apply</span> (PullbackArrow_PullbackPr1 PBfg).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local</span> <span class="kn">Arguments</span> transportf {X P x x' e} _.
+
+  <span class="kn">Proposition</span> <span class="nf">comp_cat_dependent_prod_from_chosen_eq</span>
+    : right_beck_chevalley_adj_equiv_equality
+        (comm_nat_z_iso_inv HD (π A₂) s₁ (π A₁) s₂ p)
+        (comm_nat_z_iso_inv
+           HD
+           (π A₂) s₁ (π (A₂ [[ s₁ ]]))
+           (comprehension_functor_mor
+              (comp_cat_comprehension C)
+              (cleaving_of_types C Γ₂ Γ₁ s₁ A₂))
+           (comprehension_functor_mor_comm (comp_cat_comprehension C)
+              (cleaving_of_types C Γ₂ Γ₁ s₁ A₂)))
+        comp_cat_dependent_prod_from_chosen_adjequiv
+        comp_cat_dependent_prod_from_chosen_left
+        comp_cat_dependent_prod_from_chosen_right.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ww.
+    <span class="nb">cbn</span> -[fiber_functor_from_cleaving_comp_nat_z_iso
+            fiber_functor_on_eq_nat_z_iso
+            fiber_functor_from_cleaving
+            comm_nat_z_iso_inv].
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    use (cartesian_factorisation_unique
+           (cartesian_lift_is_cartesian _ _ (HD _ _ _ _))).
+    <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> !assoc_disp_var.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> fiber_functor_on_eq_comm.
+    }
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> cartesian_factorisation_commutes.
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    etrans.
+    {
+      <span class="nb">cbn</span> -[comm_nat_z_iso_inv].
+      <span class="nb">rewrite</span> !assoc_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> transport_f_f.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> comm_nat_z_iso_inv_ob.
+      }
+      <span class="nb">cbn</span> -[fiber_functor_on_eq].
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> !assoc_disp_var.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> cartesian_factorisation_commutes.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> comm_nat_z_iso_inv_ob.
+    }
+    etrans.
+    {
+      <span class="nb">cbn</span> -[fiber_functor_on_eq].
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> !assoc_disp_var.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> cartesian_factorisation_commutes.
+    }
+    use (cartesian_factorisation_unique
+           (cartesian_lift_is_cartesian _ _ (HD _ _ _ _))).
+    <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> !assoc_disp_var.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> cartesian_factorisation_commutes.
+    }
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> fiber_functor_on_eq_comm.
+    }
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc_disp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> fiber_functor_on_eq_comm.
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> fiber_functor_on_eq_comm.
+    }
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">rewrite</span> !assoc_disp_var.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">DependentProdWithChosenPB</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_comp_cat_dependent_prod_from_chosen</span>
+           {<span class="nv">C</span> : comp_cat}
+           (<span class="nv">H</span> : comp_cat_dependent_prod_chosen C)
+  : comp_cat_dependent_prod C.
+<span class="kn">Proof</span>.
+  use make_comp_cat_dependent_prod.
+  - <span class="bp">exact</span> (pr1 H).
+  - <span class="nb">intros</span> Γ₁ Γ₂ A₁ A₂ s₁ s₂ p Hp B.
+    <span class="nb">pose</span> (PBfg := make_Pullback _ Hp).
+    use (right_beck_chevalley_adj_equiv'
+           _ _ _ _ _ _ _ _ _ _
+           (pr2 H Γ₁ Γ₂ A₂ s₁ B)).
+    + <span class="bp">exact</span> (comp_cat_dependent_prod_from_chosen_adjequiv p Hp).
+    + <span class="nb">apply</span> fiber_functor_cleaving_of_z_iso_adj_equiv.
+    + <span class="nb">apply</span> comp_cat_dependent_prod_from_chosen_left.
+    + <span class="nb">apply</span> comp_cat_dependent_prod_from_chosen_right.
+    + <span class="nb">apply</span> comp_cat_dependent_prod_from_chosen_eq.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/TypeFormers/PiTypes.v</tt>, line 35)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  11. Stability of dependent products for chosen pullbacks
+  &gt;
+  &gt;  *******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

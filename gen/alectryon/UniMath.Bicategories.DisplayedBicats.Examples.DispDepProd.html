@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DispDepProd.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">Dependent product of diplayed bicategories.</span>
+<span class="sd">If we have a type `J` and a family indexed by `J` of displayed bicategories on `J`,</span>
+<span class="sd">then we can assemble this into a displayed bicategory whose objects are dependent functions.</span>
+<span class="sd">*)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp.
+
+<span class="kn">Section</span> <span class="nf">DispDepprod</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">I</span> : UU)
+          (<span class="nv">D</span> : I → disp_bicat B).
+
+  <span class="kn">Definition</span> <span class="nf">disp_depprod_cat_ob_mor</span> : disp_cat_ob_mor B.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, ∏ (i : I), D i x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">f</span>, ∏ (i : I), xx i --&gt;[ f ] yy i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_depprod_cat_data</span> : disp_cat_data B.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> disp_depprod_cat_ob_mor.
+    - <span class="nb">split</span>.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span> <span class="nv">i</span>, id_disp (xx i)).
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">zz</span> <span class="nv">ff</span> <span class="nv">gg</span> <span class="nv">i</span>, ff i;;gg i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_depprod_disp_2cell_struct</span>
+    : disp_2cell_struct disp_depprod_cat_ob_mor
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">α</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">ff</span> <span class="nv">gg</span>, ∏ (i : I), ff i ==&gt;[ α ] gg i.
+
+  <span class="kn">Definition</span> <span class="nf">disp_depprod_disp_prebicat_ops</span>
+    : disp_prebicat_ops (disp_depprod_cat_data,, disp_depprod_disp_2cell_struct).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">f</span> <span class="nv">aa</span> <span class="nv">bb</span> <span class="nv">ff</span> <span class="nv">i</span>, disp_id2 (ff i)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">f</span> <span class="nv">aa</span> <span class="nv">bb</span> <span class="nv">ff</span> <span class="nv">i</span>, disp_lunitor (ff i)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">f</span> <span class="nv">aa</span> <span class="nv">bb</span> <span class="nv">ff</span> <span class="nv">i</span>, disp_runitor (ff i)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">f</span> <span class="nv">aa</span> <span class="nv">bb</span> <span class="nv">ff</span> <span class="nv">i</span>, disp_linvunitor (ff i)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">f</span> <span class="nv">aa</span> <span class="nv">bb</span> <span class="nv">ff</span> <span class="nv">i</span>, disp_rinvunitor (ff i)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">aa</span> <span class="nv">bb</span> <span class="nv">cc</span> <span class="nv">dd</span> <span class="nv">ff</span> <span class="nv">gg</span> <span class="nv">hh</span> <span class="nv">i</span>,
+             disp_rassociator (ff i) (gg i) (hh i)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">aa</span> <span class="nv">bb</span> <span class="nv">cc</span> <span class="nv">dd</span> <span class="nv">ff</span> <span class="nv">gg</span> <span class="nv">hh</span> <span class="nv">i</span>,
+             disp_lassociator (ff i) (gg i) (hh i)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">aa</span> <span class="nv">bb</span> <span class="nv">ff</span> <span class="nv">gg</span> <span class="nv">hh</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">i</span>, xx i •• yy i).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">f</span> <span class="nv">g1</span> <span class="nv">g2</span> <span class="nv">x</span> <span class="nv">aa</span> <span class="nv">bb</span> <span class="nv">cc</span> <span class="nv">ff</span> <span class="nv">gg1</span> <span class="nv">gg2</span> <span class="nv">xx</span> <span class="nv">i</span>, ff i ◃◃ xx i).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">f1</span> <span class="nv">f2</span> <span class="nv">g</span> <span class="nv">x</span> <span class="nv">aa</span> <span class="nv">bb</span> <span class="nv">cc</span> <span class="nv">ff1</span> <span class="nv">ff2</span> <span class="nv">gg</span> <span class="nv">xx</span> <span class="nv">i</span>, xx i ▹▹ gg i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_depprod_prebicat_data</span> : disp_prebicat_data B.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - use tpair.
+      + <span class="bp">exact</span> disp_depprod_cat_data.
+      + <span class="bp">exact</span> disp_depprod_disp_2cell_struct.
+    - <span class="bp">exact</span> disp_depprod_disp_prebicat_ops.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_depprod_prebicat_laws_help</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : B}
+             {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b}
+             {<span class="nv">x</span> <span class="nv">y</span> : f ==&gt; g}
+             {<span class="nv">aa</span> : ∏ (i : I), D i a} {<span class="nv">bb</span> : ∏ (i : I), D i b}
+             {<span class="nv">ff</span> : ∏ (i : I), aa i --&gt;[ f ] bb i}
+             {<span class="nv">gg</span> : ∏ (i : I), aa i --&gt;[ g ] bb i}
+             (<span class="nv">xx</span> : ∏ (i : I), ff i ==&gt;[ y ] gg i)
+             (<span class="nv">p</span> : x = y)
+             (<span class="nv">i</span> : I)
+    : transportb (<span class="k">λ</span> <span class="nv">α</span> : f ==&gt; g, ff i ==&gt;[ α ] gg i) p (xx i)
+      =
+      transportb (<span class="k">λ</span> <span class="nv">α</span> : f ==&gt; g, ∏ (i : I), ff i ==&gt;[ α ] gg i) p xx i.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_depprod_prebicat_laws</span>
+    : disp_prebicat_laws disp_depprod_prebicat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>
+    ; <span class="nb">intro</span> ; <span class="nb">intros</span>
+    ; use funextsec ; <span class="nb">intro</span>
+    ; <span class="nb">refine</span> (_ @ disp_depprod_prebicat_laws_help _ _ _).
+    - <span class="nb">apply</span> disp_id2_left.
+    - <span class="nb">apply</span> disp_id2_right.
+    - <span class="nb">apply</span> disp_vassocr.
+    - <span class="nb">apply</span> disp_lwhisker_id2.
+    - <span class="nb">apply</span> disp_id2_rwhisker.
+    - <span class="nb">apply</span> disp_lwhisker_vcomp.
+    - <span class="nb">apply</span> disp_rwhisker_vcomp.
+    - <span class="nb">apply</span> disp_vcomp_lunitor.
+    - <span class="nb">apply</span> disp_vcomp_runitor.
+    - <span class="nb">apply</span> disp_lwhisker_lwhisker.
+    - <span class="nb">apply</span> disp_rwhisker_lwhisker.
+    - <span class="nb">apply</span> disp_rwhisker_rwhisker.
+    - <span class="nb">apply</span> disp_vcomp_whisker.
+    - <span class="nb">apply</span> disp_lunitor_linvunitor.
+    - <span class="nb">apply</span> disp_linvunitor_lunitor.
+    - <span class="nb">apply</span> disp_runitor_rinvunitor.
+    - <span class="nb">apply</span> disp_rinvunitor_runitor.
+    - <span class="nb">apply</span> disp_lassociator_rassociator.
+    - <span class="nb">apply</span> disp_rassociator_lassociator.
+    - <span class="nb">apply</span> disp_runitor_rwhisker.
+    - <span class="nb">apply</span> disp_lassociator_lassociator.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_depprod_prebicat</span> : disp_prebicat B.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> disp_depprod_prebicat_data.
+    - <span class="bp">exact</span> disp_depprod_prebicat_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_depprod_bicat</span> : disp_bicat B.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> disp_depprod_prebicat.
+    - <span class="nb">intros</span> a b f g x aa bb ff gg.
+      use impred_isaset.
+      <span class="nb">intro</span> i.
+      <span class="nb">apply</span> (D i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop_depprod</span>
+             (<span class="nv">HD</span> : ∏ (i : I), disp_2cells_isaprop (D i))
+    : disp_2cells_isaprop disp_depprod_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>; <span class="nb">intros</span>.
+    use impred.
+    <span class="nb">intro</span> i.
+    <span class="nb">apply</span> HD.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_depprod_bicat_disp_is_invertible_2cell_map</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : B}
+             {<span class="nv">f</span> <span class="nv">g</span> : B ⟦ a, b ⟧}
+             {<span class="nv">x</span> : f ==&gt; g}
+             {<span class="nv">xinv</span> : is_invertible_2cell x}
+             {<span class="nv">aa</span> : disp_depprod_bicat a}
+             {<span class="nv">bb</span> : disp_depprod_bicat b}
+             {<span class="nv">ff</span> : aa --&gt;[ f] bb}
+             {<span class="nv">gg</span> : aa --&gt;[ g ] bb}
+             (<span class="nv">xx</span> : ff ==&gt;[ x ] gg)
+             (<span class="nv">Hx</span> : ∏ (i : I), is_disp_invertible_2cell xinv (xx i))
+    : is_disp_invertible_2cell xinv xx.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, pr1 (Hx i)).
+    - <span class="nb">split</span>.
+      + use funextsec.
+        <span class="nb">intro</span> i.
+        <span class="nb">refine</span> (_ @ disp_depprod_prebicat_laws_help _ _ _).
+        <span class="bp">exact</span> (disp_vcomp_rinv ((xx i ,, Hx i) : disp_invertible_2cell (x ,, xinv) _ _)).
+      + use funextsec.
+        <span class="nb">intro</span> i.
+        <span class="nb">refine</span> (_ @ disp_depprod_prebicat_laws_help _ _ _).
+        <span class="bp">exact</span> (disp_vcomp_linv ((xx i ,, Hx i) : disp_invertible_2cell (x ,, xinv) _ _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_locally_groupoid_depprod</span>
+             (<span class="nv">HD</span> : ∏ (i : I), disp_locally_groupoid (D i))
+    : disp_locally_groupoid disp_depprod_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b f g x aa bb ff gg xx.
+    <span class="nb">apply</span> disp_depprod_bicat_disp_is_invertible_2cell_map.
+    <span class="nb">intro</span> i.
+    <span class="nb">apply</span> HD.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_depprod_bicat_disp_invertible_2cell_map</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : B}
+             {<span class="nv">f</span> : B ⟦ a, b ⟧}
+             {<span class="nv">aa</span> : disp_depprod_bicat a}
+             {<span class="nv">bb</span> : disp_depprod_bicat b}
+             (<span class="nv">ff</span> : aa --&gt;[ f] bb)
+             (<span class="nv">gg</span> : aa --&gt;[ f] bb)
+    : (∏ (i : I), disp_invertible_2cell (id2_invertible_2cell f) (ff i) (gg i))
+        →
+        disp_invertible_2cell (id2_invertible_2cell f) ff gg.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x.
+    use tpair.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, x i).
+    - <span class="nb">apply</span> disp_depprod_bicat_disp_is_invertible_2cell_map.
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, pr2 (x i)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_depprod_bicat_disp_is_invertible_2cell_pr</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : B}
+             {<span class="nv">f</span> <span class="nv">g</span> : B ⟦ a, b ⟧}
+             {<span class="nv">x</span> : f ==&gt; g}
+             {<span class="nv">xinv</span> : is_invertible_2cell x}
+             {<span class="nv">aa</span> : disp_depprod_bicat a}
+             {<span class="nv">bb</span> : disp_depprod_bicat b}
+             {<span class="nv">ff</span> : aa --&gt;[ f] bb}
+             {<span class="nv">gg</span> : aa --&gt;[ g ] bb}
+             (<span class="nv">xx</span> : ff ==&gt;[ x ] gg)
+             (<span class="nv">Hx</span> : is_disp_invertible_2cell xinv xx)
+    : ∏ (i : I), is_disp_invertible_2cell xinv (xx i).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> i.
+    use tpair.
+    - <span class="bp">exact</span> (pr1 Hx i).
+    - <span class="nb">split</span>.
+      + <span class="nb">refine</span> (_ @ !(disp_depprod_prebicat_laws_help (disp_id2 ff) _ _)).
+        <span class="bp">exact</span> (eqtohomot (disp_vcomp_rinv
+                            ((xx ,, Hx) : disp_invertible_2cell (x ,, xinv) _ _)) i).
+      + <span class="nb">refine</span> (_ @ !(disp_depprod_prebicat_laws_help (disp_id2 gg) _ _)).
+        <span class="bp">exact</span> (eqtohomot (disp_vcomp_linv
+                            ((xx ,, Hx) : disp_invertible_2cell (x ,, xinv) _ _)) i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_depprod_bicat_disp_invertible_2cell_inv_map</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : B}
+             {<span class="nv">f</span> : B ⟦ a, b ⟧}
+             {<span class="nv">aa</span> : disp_depprod_bicat a}
+             {<span class="nv">bb</span> : disp_depprod_bicat b}
+             (<span class="nv">ff</span> : aa --&gt;[ f] bb)
+             (<span class="nv">gg</span> : aa --&gt;[ f] bb)
+    : disp_invertible_2cell (id2_invertible_2cell f) ff gg
+      →
+      (∏ (i : I), disp_invertible_2cell (id2_invertible_2cell f) (ff i) (gg i)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x i.
+    use tpair.
+    - <span class="bp">exact</span> (pr1 x i).
+    - <span class="bp">exact</span> (disp_depprod_bicat_disp_is_invertible_2cell_pr _ (pr2 x) i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_depprod_bicat_disp_invertible_2cell_weq</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : B}
+             {<span class="nv">f</span> : B ⟦ a, b ⟧}
+             {<span class="nv">aa</span> : disp_depprod_bicat a}
+             {<span class="nv">bb</span> : disp_depprod_bicat b}
+             (<span class="nv">ff</span> : aa --&gt;[ f] bb)
+             (<span class="nv">gg</span> : aa --&gt;[ f] bb)
+    : (∏ (i : I), disp_invertible_2cell (id2_invertible_2cell f) (ff i) (gg i))
+        ≃
+        disp_invertible_2cell (id2_invertible_2cell f) ff gg.
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="bp">exact</span> (disp_depprod_bicat_disp_invertible_2cell_map ff gg).
+    - use isweq_iso.
+      + <span class="bp">exact</span> (disp_depprod_bicat_disp_invertible_2cell_inv_map ff gg).
+      + <span class="nb">intros</span> x.
+        use funextsec.
+        <span class="nb">intro</span> i.
+        use subtypePath.
+        { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_disp_invertible_2cell. }
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">intros</span> x.
+        use subtypePath.
+        { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_disp_invertible_2cell. }
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">DepProdBicatDispLocallyUnivalent</span>.
+    <span class="kn">Variable</span> (<span class="nv">HD_2_1</span> : ∏ (i : I), disp_univalent_2_1 (D i)).
+
+    <span class="kn">Definition</span> <span class="nf">disp_depprod_bicat_idtotiso_2_1</span>
+               {<span class="nv">a</span> <span class="nv">b</span> : B}
+               {<span class="nv">f</span> : B ⟦ a, b ⟧}
+               {<span class="nv">aa</span> : disp_depprod_bicat a}
+               {<span class="nv">bb</span> : disp_depprod_bicat b}
+               (<span class="nv">ff</span> : aa --&gt;[ f] bb)
+               (<span class="nv">gg</span> : aa --&gt;[ f] bb)
+      : ff = gg ≃ disp_invertible_2cell (id2_invertible_2cell f) ff gg
+      := ((disp_depprod_bicat_disp_invertible_2cell_weq ff gg)
+            ∘ weqonsecfibers
+            _ _ (<span class="k">λ</span> <span class="nv">i</span>, make_weq _ (HD_2_1 i _ _ _ _ (idpath _) _ _ (ff i) (gg i)))
+            ∘ invweq (weqfunextsec _ _ _))%weq.
+
+    <span class="kn">Definition</span> <span class="nf">disp_depprod_univalent_2_1</span>
+      : disp_univalent_2_1 disp_depprod_bicat.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> fiberwise_local_univalent_is_univalent_2_1.
+      <span class="nb">intros</span> a b f aa bb ff gg.
+      use weqhomot.
+      - <span class="bp">exact</span> (disp_depprod_bicat_idtotiso_2_1 ff gg).
+      - <span class="nb">intros</span> p.
+        <span class="nb">induction</span> p.
+        use subtypePath.
+        { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_disp_invertible_2cell. }
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">DepProdBicatDispLocallyUnivalent</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_depprod_bicat_disp_adjequiv_map</span>
+             {<span class="nv">a</span> : B}
+             (<span class="nv">aa</span> <span class="nv">bb</span> : disp_depprod_bicat a)
+    : (∏ (i : I), disp_adjoint_equivalence
+                    (internal_adjoint_equivalence_identity a)
+                    (aa i) (bb i))
+      → disp_adjoint_equivalence (internal_adjoint_equivalence_identity a) aa bb.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> f.
+    use tpair.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, f i).
+    - use tpair.
+      + use tpair.
+        * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, disp_left_adjoint_right_adjoint _ (f i)).
+        * <span class="nb">split</span>.
+          ** <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, disp_left_adjoint_unit _ (f i)).
+          ** <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, disp_left_adjoint_counit _ (f i)).
+      + <span class="nb">split</span>.
+        * <span class="nb">split</span>.
+          ** <span class="kp">abstract</span>
+               (use funextsec ;
+                <span class="nb">intro</span> i ;
+                <span class="nb">refine</span> (pr1 (pr122 (f i)) @ _) ;
+                <span class="nb">refine</span> ((disp_depprod_prebicat_laws_help _ _ _))).
+          ** <span class="kp">abstract</span>
+               (use funextsec ;
+                <span class="nb">intro</span> i ;
+                <span class="nb">refine</span> (pr2 (pr122 (f i)) @ _) ;
+                <span class="nb">refine</span> ((disp_depprod_prebicat_laws_help _ _ _))).
+        * <span class="nb">split</span>.
+          ** <span class="nb">apply</span> disp_depprod_bicat_disp_is_invertible_2cell_map.
+             <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, pr1 (pr222 (f i))).
+          ** <span class="nb">apply</span> disp_depprod_bicat_disp_is_invertible_2cell_map.
+             <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, pr2 (pr222 (f i))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_depprod_bicat_disp_adjequiv_inv</span>
+             {<span class="nv">a</span> : B}
+             (<span class="nv">aa</span> <span class="nv">bb</span> : disp_depprod_bicat a)
+    : disp_adjoint_equivalence (internal_adjoint_equivalence_identity a) aa bb
+      → (∏ (i : I), disp_adjoint_equivalence
+                    (internal_adjoint_equivalence_identity a)
+                    (aa i) (bb i)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> f i.
+    use tpair.
+    - <span class="bp">exact</span> (pr1 f i).
+    - use tpair.
+      + use tpair.
+        * <span class="bp">exact</span> (disp_left_adjoint_right_adjoint _ f i).
+        * <span class="nb">split</span>.
+          ** <span class="bp">exact</span> (disp_left_adjoint_unit _ f i).
+          ** <span class="bp">exact</span> (disp_left_adjoint_counit _ f i).
+      + <span class="nb">split</span>.
+        * <span class="nb">split</span>.
+          ** <span class="kp">abstract</span>
+               (<span class="nb">refine</span> (eqtohomot (pr1 (pr122 f)) i @ _) ;
+                <span class="nb">refine</span> (!(disp_depprod_prebicat_laws_help _ _ _))).
+          ** <span class="kp">abstract</span>
+               (<span class="nb">refine</span> (eqtohomot (pr2 (pr122 f)) i @ _) ;
+                <span class="nb">refine</span> (!(disp_depprod_prebicat_laws_help _ _ _))).
+        * <span class="nb">split</span>.
+          ** <span class="bp">exact</span> (disp_depprod_bicat_disp_is_invertible_2cell_pr
+                      _ (pr1 (pr222 f)) i).
+          ** <span class="bp">exact</span> (disp_depprod_bicat_disp_is_invertible_2cell_pr
+                      _ (pr2 (pr222 f)) i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Variable</span> (<span class="nv">HB</span> : is_univalent_2_1 B)
+           (<span class="nv">HD_2_1</span> : ∏ (i : I), disp_univalent_2_1 (D i)).
+
+  <span class="kn">Definition</span> <span class="nf">disp_depprod_bicat_disp_adjequiv_weq</span>
+             {<span class="nv">a</span> : B}
+             (<span class="nv">aa</span> <span class="nv">bb</span> : disp_depprod_bicat a)
+    : (∏ x : I, disp_adjoint_equivalence
+                  (internal_adjoint_equivalence_identity a)
+                  (aa x) (bb x))
+        ≃ disp_adjoint_equivalence (internal_adjoint_equivalence_identity a) aa bb.
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="bp">exact</span> (disp_depprod_bicat_disp_adjequiv_map aa bb).
+    - use isweq_iso.
+      + <span class="bp">exact</span> (disp_depprod_bicat_disp_adjequiv_inv aa bb).
+      + <span class="nb">intros</span> f.
+        use funextsec.
+        <span class="nb">intros</span> i.
+        use subtypePath.
+        { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence
+          ; [ <span class="bp">exact</span> HB | <span class="bp">exact</span> (HD_2_1 i) ].
+        }
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">intros</span> f.
+        use subtypePath.
+        { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence
+          ; [ <span class="bp">exact</span> HB | <span class="bp">exact</span> (disp_depprod_univalent_2_1 HD_2_1) ].
+        }
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">DepProdBicatDispGloballyUnivalent</span>.
+    <span class="kn">Variable</span> (<span class="nv">HD_2_0</span> : ∏ (i : I), disp_univalent_2_0 (D i)).
+
+    <span class="kn">Definition</span> <span class="nf">disp_depprod_bicat_idtotiso_2_0</span>
+               {<span class="nv">a</span> : B}
+               (<span class="nv">aa</span> <span class="nv">bb</span> : disp_depprod_bicat a)
+      : (aa = bb)
+          ≃
+          disp_adjoint_equivalence (internal_adjoint_equivalence_identity a) aa bb
+      := ((disp_depprod_bicat_disp_adjequiv_weq aa bb)
+            ∘ weqonsecfibers
+              _ _ (<span class="k">λ</span> <span class="nv">i</span>, make_weq _ (HD_2_0 i _ _ (idpath a) _ _))
+            ∘ invweq (weqfunextsec _ _ _))%weq.
+
+    <span class="kn">Definition</span> <span class="nf">disp_depprod_univalent_2_0</span>
+      : disp_univalent_2_0 disp_depprod_bicat.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> fiberwise_univalent_2_0_to_disp_univalent_2_0.
+      <span class="nb">intros</span> a aa bb.
+      use weqhomot.
+      - <span class="bp">exact</span> (disp_depprod_bicat_idtotiso_2_0 aa bb).
+      - <span class="nb">intros</span> p.
+        <span class="nb">induction</span> p.
+        use subtypePath.
+        { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence
+          ; [ <span class="bp">exact</span> HB | <span class="bp">exact</span> (disp_depprod_univalent_2_1 HD_2_1) ].
+        }
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">DepProdBicatDispGloballyUnivalent</span>.
+<span class="kn">End</span> <span class="nf">DispDepprod</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/Examples/DispDepProd.v</tt>, line 6)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; If we have a type `J` and a family indexed by `J` of displayed bicategories on `J`,
+  &gt; then we can assemble this into a displayed bicategory whose objects are dependent functions.
+  &gt; *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

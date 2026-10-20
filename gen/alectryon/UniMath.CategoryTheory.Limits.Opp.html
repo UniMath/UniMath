@@ -1,0 +1,650 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Opp.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Duality between C and C^op *)</span>
+<span class="sd">(** ** Contents</span>
+<span class="sd">- From C^op to C</span>
+<span class="sd"> - Monics and Epis</span>
+<span class="sd"> - Initial, Terminal, and Zero</span>
+<span class="sd"> - Equalizers and Coequalizers</span>
+<span class="sd"> - Kernels and Cokernels</span>
+<span class="sd"> - Pullbacks and Pushouts</span>
+<span class="sd"> - BinProducts and BinCoproducts</span>
+<span class="sd">- From C to C^op</span>
+<span class="sd"> - Monics and Epis</span>
+<span class="sd"> - Initial, Terminal, and Zero</span>
+<span class="sd"> - Equalizers and Coequalizers</span>
+<span class="sd"> - Kernels and Cokernels</span>
+<span class="sd"> - Pullbacks and Pushouts</span>
+<span class="sd"> - BinProducts and BinCoproducts</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Zero.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Kernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Cokernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pushouts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C '^op'"</span> := (op_category C) (<span class="kn">at level</span> <span class="mi">1</span>, <span class="kn">format</span> <span class="s2">"C ^op"</span>) : cat.
+
+<span class="sd">(** * Translation of structures from C^op to C *)</span>
+<span class="kn">Section</span> <span class="nf">def_opposites</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets C := homset_property C.
+
+  <span class="sd">(** ** Monic and Epi *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">opp_isMonic</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">H</span> : @isMonic (op_category C) _ _ f) : @isEpi C _ _ f := H.
+  <span class="kn">Opaque</span> opp_isMonic.
+
+  <span class="kn">Definition</span> <span class="nf">opp_Monic</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : @Monic (op_category C) a b) : @Epi C b a :=
+    @make_Epi C _ _ f (opp_isMonic f (pr2 f)).
+
+  <span class="kn">Definition</span> <span class="nf">opp_isEpi</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">H</span> : @isEpi C^op _ _ f) : @isMonic C _ _ f := H.
+  <span class="kn">Opaque</span> opp_isEpi.
+
+  <span class="kn">Definition</span> <span class="nf">opp_Epi</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : @Epi C^op a b) : @Monic C b a :=
+    @make_Monic C _ _ f (opp_isEpi f (pr2 f)).
+
+
+  <span class="sd">(** ** Initial, Terminal, and Zero *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">opp_isInitial</span> {<span class="nv">x</span> : C} (<span class="nv">H</span> : @isInitial C^op x) : @isTerminal C x := H.
+
+  <span class="kn">Definition</span> <span class="nf">opp_Initial</span> (<span class="nv">I</span> : @Initial C^op) : @Terminal C :=
+    @make_Terminal C _ (opp_isInitial (pr2 I)).
+
+  <span class="kn">Definition</span> <span class="nf">opp_isTerminal</span> {<span class="nv">x</span> : C} (<span class="nv">H</span> : @isTerminal C^op x) : @isInitial C x := H.
+
+  <span class="kn">Definition</span> <span class="nf">opp_Terminal</span> (<span class="nv">T</span> : @Terminal C^op) : @Initial C :=
+    @make_Initial C _ (opp_isTerminal (pr2 T)).
+
+  <span class="kn">Lemma</span> <span class="nf">opp_isZero</span> {<span class="nv">x</span> : C} (<span class="nv">H</span> : @isZero C^op x) : @isZero C x.
+  <span class="kn">Proof</span>.
+    use make_isZero.
+    - <span class="nb">intros</span> a. <span class="bp">exact</span> (dirprod_pr2 H a).
+    - <span class="nb">intros</span> a. <span class="bp">exact</span> (dirprod_pr1 H a).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opp_Zero</span> (<span class="nv">Z</span> : @Zero C^op) : @Zero C := @make_Zero C _ (opp_isZero (pr2 Z)).
+
+
+  <span class="sd">(** ** Equality on ZeroArrows *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">opp_ZeroArrowTo</span> {<span class="nv">x</span> : C} (<span class="nv">Z</span> : @Zero C^op) :
+    @ZeroArrowTo C^op Z x = @ZeroArrowFrom C (opp_Zero Z) x.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> ArrowsToZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">opp_ZeroArrowFrom</span> {<span class="nv">x</span> : C} (<span class="nv">Z</span> : @Zero C^op) :
+    @ZeroArrowFrom C^op Z x = @ZeroArrowTo C (opp_Zero Z) x.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> ArrowsFromZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">opp_ZeroArrow</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">Z</span> : @Zero C^op) :
+    @ZeroArrow C^op Z x y = @ZeroArrow C (opp_Zero Z) y x.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> ZeroArrow.
+    <span class="nb">rewrite</span> opp_ZeroArrowTo.
+    <span class="nb">rewrite</span> opp_ZeroArrowFrom.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local</span> <span class="kn">Opaque</span> ZeroArrow.
+
+
+  <span class="sd">(** ** Equalizers and Coequalizers *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">opp_isEqualizer</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : C^op⟦y, z⟧) (<span class="nv">e</span> : C^op⟦x, y⟧) (<span class="nv">H</span> : e · f = e · g)
+    (<span class="nv">H'</span> : @isEqualizer (op_category C) _ _ _ f g e H) : @isCoequalizer C _ _ _ f g e H.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> H'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">opp_isCoequalizer</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : C^op⟦x, y⟧) (<span class="nv">e</span> : C^op⟦y, z⟧)
+        (<span class="nv">H</span> : f · e = g · e) (<span class="nv">H'</span> : @isCoequalizer C^op _ _ _ f g e H) :
+    @isEqualizer C _ _ _ f g e H.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> H'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opp_Equalizer</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : C^op⟦y, z⟧) (<span class="nv">E</span> : @Equalizer (op_category C) y z f g) :
+    @Coequalizer C z y f g := @make_Coequalizer C _ _ _ f g (EqualizerArrow E) (EqualizerEqAr E)
+                                              (opp_isEqualizer f g (EqualizerArrow E)
+                                                               (EqualizerEqAr E)
+                                                               (isEqualizer_Equalizer E)).
+
+  <span class="kn">Definition</span> <span class="nf">opp_Coequalizer</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : C^op⟦y, z⟧) (<span class="nv">E</span> : @Coequalizer C^op y z f g) :
+    @Equalizer C z y f g := @make_Equalizer C _ _ _ f g (CoequalizerArrow E) (CoequalizerEqAr E)
+                                          (opp_isCoequalizer f g (CoequalizerArrow E)
+                                                             (CoequalizerEqAr E)
+                                                             (isCoequalizer_Coequalizer E)).
+
+  <span class="kn">Definition</span> <span class="nf">opp_Equalizers</span> (<span class="nv">E</span> : @Equalizers (op_category C)) : @Coequalizers C.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f g.
+    use opp_Equalizer.
+    <span class="bp">exact</span> (E y x f g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opp_Coequalizers</span> (<span class="nv">E</span> : @Coequalizers C^op) : @Equalizers C.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f g.
+    use opp_Coequalizer.
+    <span class="bp">exact</span> (E y x f g).
+  <span class="kn">Defined</span>.
+
+
+  <span class="sd">(** ** Kernels and Cokernels *)</span>
+
+
+  <span class="kn">Local Lemma</span> <span class="nf">opp_isCokernel_eq</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C^op} (<span class="nv">f</span> : C^op⟦x, y⟧) (<span class="nv">g</span> : C^op⟦y, z⟧) (<span class="nv">Z</span> : Zero C^op)
+        (<span class="nv">H</span> : f · g = ZeroArrow Z _ _) (<span class="nv">Z'</span> : Zero C) :
+    (g : C⟦z, y⟧) · (f : C⟦y, x⟧) = ZeroArrow Z' _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span> <span class="k">in</span> *. <span class="nb">rewrite</span> H. <span class="nb">rewrite</span> opp_ZeroArrow.
+    <span class="bp">exact</span> (ZerosArrowEq C (opp_Zero Z) Z' z x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">opp_isCokernel</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C^op} {<span class="nv">f</span> : C^op⟦x, y⟧} {<span class="nv">g</span> : C^op⟦y, z⟧} {<span class="nv">Z</span> : Zero C^op}
+        {<span class="nv">H</span> : f · g = ZeroArrow Z _ _} (<span class="nv">K'</span> : isKernel (C:=op_category C) Z f g H) {<span class="nv">Z'</span> : Zero C} :
+    isCokernel Z' (g : C⟦z, y⟧) (f : C⟦y, x⟧) (opp_isCokernel_eq f g Z H Z').
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (K := make_Kernel _ _ _ _ K').
+    use make_isCokernel.
+    - <span class="nb">intros</span> w h H'.
+      <span class="nb">rewrite</span> &lt;- (ZerosArrowEq C (opp_Zero Z) Z' z w) <span class="k">in</span> H'.
+      <span class="nb">rewrite</span> &lt;- opp_ZeroArrow <span class="k">in</span> H'.
+      use unique_exists.
+      + <span class="bp">exact</span> (KernelIn (C:=op_category _ )Z K w h H').
+      + use (KernelCommutes (C:=op_category _) Z K).
+      + <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+      + <span class="nb">cbn</span>. <span class="nb">intros</span> y0 X. use (KernelInsEq (C:=op_category _) Z K). <span class="nb">rewrite</span> (KernelCommutes (C:=op_category _) Z K). <span class="nb">cbn</span>. <span class="nb">rewrite</span> X.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">opp_Kernel_eq</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : C^op⟦y, z⟧) (<span class="nv">Z</span> : Zero C^op)
+             (<span class="nv">K</span> : @Kernel (op_category C) Z y z f) :
+    @compose C^op _ _ _ (KernelArrow K) f = ZeroArrow (opp_Zero Z) z K.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- opp_ZeroArrow. <span class="nb">apply</span> (KernelCompZero (C:= op_category _) Z K).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">opp_Kernel_isCokernel</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : C^op⟦y, z⟧) (<span class="nv">Z</span> : Zero C^op)
+             (<span class="nv">K</span> : @Kernel C^op Z y z f) :
+    isCokernel (opp_Zero Z) f (KernelArrow K) (opp_Kernel_eq f Z K).
+  <span class="kn">Proof</span>.
+    use make_isCokernel.
+    - <span class="nb">intros</span> w h H'. <span class="nb">rewrite</span> &lt;- opp_ZeroArrow <span class="k">in</span> H'.
+      use unique_exists.
+      + <span class="bp">exact</span> (KernelIn Z K w h H').
+      + use (KernelCommutes Z K).
+      + <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+      + <span class="nb">cbn</span>. <span class="nb">intros</span> y0 X. use (@KernelInsEq C^op). <span class="nb">rewrite</span> (KernelCommutes Z K). <span class="nb">cbn</span>. <span class="nb">rewrite</span> X.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opp_Kernel</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : C^op⟦y, z⟧) (<span class="nv">Z</span> : Zero C^op)
+             (<span class="nv">K</span> : @Kernel C^op Z y z f) : @Cokernel C (opp_Zero Z) z y f.
+  <span class="kn">Proof</span>.
+    use make_Cokernel.
+    - <span class="bp">exact</span> K.
+    - <span class="bp">exact</span> (KernelArrow K).
+    - <span class="bp">exact</span> (opp_Kernel_eq f Z K).
+    - <span class="bp">exact</span> (opp_Kernel_isCokernel f Z K).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">opp_isKernel</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : op_category C} {<span class="nv">f</span> : C^op⟦x, y⟧} {<span class="nv">g</span> : C^op⟦y, z⟧} {<span class="nv">Z</span> : Zero C^op}
+        {<span class="nv">H</span> : f · g = ZeroArrow Z _ _} (<span class="nv">CK'</span> : isCokernel Z f g H) {<span class="nv">Z'</span> : Zero C} :
+    isKernel Z' (g : C⟦z, y⟧) (f : C⟦y, x⟧) (opp_isCokernel_eq f g Z H Z').
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (CK := make_Cokernel _ _ _ _ CK').
+    use make_isKernel.
+    <span class="nb">intros</span> w h H'.
+    <span class="nb">rewrite</span> &lt;- (ZerosArrowEq C (opp_Zero Z) Z' w x) <span class="k">in</span> H'.
+    <span class="nb">rewrite</span> &lt;- opp_ZeroArrow <span class="k">in</span> H'.
+    use unique_exists.
+    + <span class="bp">exact</span> (CokernelOut Z CK w h H').
+    + use (CokernelCommutes Z CK).
+    + <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+    + <span class="nb">cbn</span>. <span class="nb">intros</span> y0 X. use (CokernelOutsEq _ CK). <span class="nb">rewrite</span> (CokernelCommutes Z CK). <span class="nb">cbn</span>. <span class="nb">rewrite</span> X.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">opp_Cokernel_eq</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : C^op⟦y, z⟧) (<span class="nv">Z</span> : Zero C^op)
+             (<span class="nv">CK</span> : @Cokernel C^op Z y z f) :
+    @compose C^op _ _ _ f (CokernelArrow CK) = ZeroArrow (opp_Zero Z) CK y.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- opp_ZeroArrow. <span class="nb">apply</span> (CokernelCompZero Z CK).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">opp_Cokernel_isKernel</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : C^op⟦y, z⟧) (<span class="nv">Z</span> : Zero C^op)
+             (<span class="nv">CK</span> : @Cokernel C^op Z y z f) :
+    isKernel (opp_Zero Z) (CokernelArrow CK) f (opp_Cokernel_eq f Z CK).
+  <span class="kn">Proof</span>.
+    use make_isKernel.
+    <span class="nb">intros</span> w h H'. <span class="nb">rewrite</span> &lt;- opp_ZeroArrow <span class="k">in</span> H'.
+    use unique_exists.
+    + <span class="bp">exact</span> (CokernelOut Z CK w h H').
+    + use (CokernelCommutes Z CK).
+    + <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+    + <span class="nb">cbn</span>. <span class="nb">intros</span> y0 X. use (@CokernelOutsEq C^op). <span class="nb">rewrite</span> (CokernelCommutes Z CK). <span class="nb">cbn</span>. <span class="nb">rewrite</span> X.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opp_Cokernel</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : C^op⟦y, z⟧) (<span class="nv">Z</span> : Zero C^op)
+             (<span class="nv">CK</span> : @Cokernel C^op Z y z f) : @Kernel C (opp_Zero Z) z y f.
+  <span class="kn">Proof</span>.
+    use make_Kernel.
+    - <span class="bp">exact</span> CK.
+    - <span class="bp">exact</span> (CokernelArrow CK).
+    - <span class="bp">exact</span> (opp_Cokernel_eq f Z CK).
+    - <span class="bp">exact</span> (opp_Cokernel_isKernel f Z CK).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opp_Kernels</span> (<span class="nv">Z</span> : Zero C^op) (<span class="nv">K</span> : @Kernels C^op Z) : @Cokernels C (opp_Zero Z).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    use opp_Kernel.
+    <span class="nb">apply</span> (K y x f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opp_Cokernels</span> (<span class="nv">Z</span> : Zero C^op) (<span class="nv">CK</span> : @Cokernels C^op Z) : @Kernels C (opp_Zero Z).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    use opp_Cokernel.
+    <span class="nb">apply</span> (CK y x f).
+  <span class="kn">Defined</span>.
+
+
+  <span class="sd">(** ** Pushouts and pullbacks *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">opp_isPushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : C^op⟦a, b⟧) (<span class="nv">g</span> : C^op⟦a, c⟧)
+        (<span class="nv">in1</span> : C^op⟦b, d⟧) (<span class="nv">in2</span> : C^op⟦c, d⟧) (<span class="nv">H</span> : f · in1 = g · in2)
+        (<span class="nv">iPo</span> : @isPushout C^op a b c d f g in1 in2 H) : @isPullback C a b c d f g in1 in2 H.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> iPo.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">opp_isPullback</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : C^op⟦b, a⟧) (<span class="nv">g</span> : C^op⟦c, a⟧)
+        (<span class="nv">p1</span> : C^op⟦d, b⟧) (<span class="nv">p2</span> : C^op⟦d, c⟧) (<span class="nv">H</span> : p1 · f = p2 · g)
+        (<span class="nv">iPb</span> : @isPullback C^op a b c d f g p1 p2 H) : @isPushout C a b c d f g p1 p2 H.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> iPb.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opp_Pushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C^op⟦a, b⟧) (<span class="nv">g</span> : C^op⟦a, c⟧)
+             (<span class="nv">Po</span> : @Pushout C^op a b c f g) : @Pullback C a b c f g.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> Po.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opp_Pullback</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C^op⟦b, a⟧) (<span class="nv">g</span> : C^op⟦c, a⟧)
+             (<span class="nv">Pb</span> : @Pullback C^op a b c f g) : @Pushout C a b c f g.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> Pb.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opp_Pushouts</span> (<span class="nv">Pos</span> : @Pushouts C^op) : @Pullbacks C.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> Pos.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opp_Pullbacks</span> (<span class="nv">Pbs</span> : @Pushouts C^op) : @Pullbacks C.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> Pbs.
+  <span class="kn">Defined</span>.
+
+
+  <span class="sd">(** ** BinProducts and BinCoproducts *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">opp_isBinProduct</span> (<span class="nv">c</span> <span class="nv">d</span> <span class="nv">p</span> : C) (<span class="nv">p1</span> : C^op⟦p, c⟧) (<span class="nv">p2</span> : C^op⟦p, d⟧)
+             (<span class="nv">iBPC</span> : @isBinProduct C^op c d p p1 p2) : @isBinCoproduct C c d p p1 p2 :=
+    iBPC.
+
+  <span class="kn">Definition</span> <span class="nf">opp_isBinCoproduct</span> (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">co</span> : C) (<span class="nv">ia</span> : C^op⟦a, co⟧) (<span class="nv">ib</span> : C^op⟦b, co⟧)
+             (<span class="nv">iBCC</span> : @isBinCoproduct C^op a b co ia ib) :
+    @isBinProduct C a b co ia ib := iBCC.
+
+  <span class="kn">Definition</span> <span class="nf">opp_BinProduct</span> (<span class="nv">c</span> <span class="nv">d</span> : C) (<span class="nv">BPC</span> : @BinProduct C^op c d) :
+    @BinCoproduct C c d := BPC.
+
+  <span class="kn">Definition</span> <span class="nf">opp_BinCoproduct</span> (<span class="nv">c</span> <span class="nv">d</span> : C) (<span class="nv">BCC</span> : @BinCoproduct C^op c d) :
+    @BinProduct C c d := BCC.
+
+  <span class="kn">Definition</span> <span class="nf">opp_BinProducts</span> (<span class="nv">BP</span> : @BinProducts C^op) : @BinCoproducts C := BP.
+
+  <span class="kn">Definition</span> <span class="nf">opp_BinCoproducts</span> (<span class="nv">BC</span> : @BinCoproducts C^op) : @BinProducts C := BC.
+
+<span class="kn">End</span> <span class="nf">def_opposites</span>.
+
+
+<span class="sd">(** * Translation of structures from C to C^op *)</span>
+<span class="kn">Section</span> <span class="nf">def_opposites'</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets C := homset_property C.
+
+  <span class="sd">(** ** Monic and Epi *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">isMonic_opp</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : C⟦a, b⟧} (<span class="nv">H</span> : @isMonic C a b f) : @isEpi C^op b a f := H.
+  <span class="kn">Opaque</span> isMonic_opp.
+
+  <span class="kn">Definition</span> <span class="nf">Monic_opp</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : @Monic C a b) : @Epi C^op b a :=
+    @make_Epi C^op b a f (isMonic_opp (pr2 f)).
+
+  <span class="kn">Definition</span> <span class="nf">isEpi_opp</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : C⟦a, b⟧} (<span class="nv">H</span> : @isEpi C a b f) : @isMonic C^op b a f := H.
+  <span class="kn">Opaque</span> isEpi_opp.
+
+  <span class="kn">Definition</span> <span class="nf">Epi_opp</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : @Epi C a b) : @Monic C^op b a :=
+    @make_Monic C^op b a f (isEpi_opp (pr2 f)).
+
+
+  <span class="sd">(** ** Initial, Terminal, and Zero *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">isInitial_opp</span> {<span class="nv">x</span> : C} (<span class="nv">H</span> : @isInitial C x) : @isTerminal C^op x := H.
+
+  <span class="kn">Definition</span> <span class="nf">Initial_opp</span> (<span class="nv">I</span> : @Initial C) : @Terminal C^op :=
+    @make_Terminal C^op _ (isInitial_opp (pr2 I)).
+
+  <span class="kn">Definition</span> <span class="nf">isTerminal_opp</span> {<span class="nv">x</span> : C} (<span class="nv">H</span> : @isTerminal C x) : @isInitial C^op x := H.
+
+  <span class="kn">Definition</span> <span class="nf">Terminal_opp</span> (<span class="nv">T</span> : @Terminal C) : @Initial C^op :=
+    @make_Initial C^op _ (isTerminal_opp (pr2 T)).
+
+  <span class="kn">Lemma</span> <span class="nf">isZero_opp</span> {<span class="nv">x</span> : C} (<span class="nv">H</span> : @isZero C x) : @isZero C^op x.
+  <span class="kn">Proof</span>.
+    use make_isZero.
+    - <span class="nb">intros</span> a. <span class="nb">apply</span> (pr2 H a).
+    - <span class="nb">intros</span> a. <span class="nb">apply</span> (pr1 H a).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Zero_opp</span> (<span class="nv">T</span> : @Zero C) : @Zero C^op := @make_Zero C^op _ (isZero_opp (pr2 T)).
+
+  <span class="sd">(** ** Equality on ZeroArrows *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">ZeroArrowTo_opp</span> {<span class="nv">x</span> : C} (<span class="nv">Z</span> : @Zero C) :
+    @ZeroArrowTo C Z x = @ZeroArrowFrom C^op (Zero_opp Z) x.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> ArrowsToZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ZeroArrowFrom_opp</span> {<span class="nv">x</span> : C} (<span class="nv">Z</span> : @Zero C) :
+    @ZeroArrowFrom C Z x = @ZeroArrowTo C^op (Zero_opp Z) x.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> ArrowsFromZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ZeroArrow_opp</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">Z</span> : @Zero C) :
+    @ZeroArrow C Z x y = @ZeroArrow C^op (Zero_opp Z) y x.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> ZeroArrow.
+    <span class="nb">rewrite</span> ZeroArrowTo_opp.
+    <span class="nb">rewrite</span> ZeroArrowFrom_opp.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local</span> <span class="kn">Opaque</span> ZeroArrow.
+
+
+  <span class="sd">(** ** Equalizers and Coequalizers *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">isEqualizer_opp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : C⟦y, z⟧) (<span class="nv">e</span> : C⟦x, y⟧) (<span class="nv">H</span> : e · f = e · g)
+             (<span class="nv">isE</span> : @isEqualizer C _ _ _ f g e H) : @isCoequalizer C^op _ _ _ f g e H := isE.
+
+  <span class="kn">Definition</span> <span class="nf">isCoequalizer_opp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : C⟦x, y⟧) (<span class="nv">e</span> : C⟦y, z⟧) (<span class="nv">H</span> : f · e = g · e)
+             (<span class="nv">isC</span> : @isCoequalizer C _ _ _ f g e H) : @isEqualizer C^op _ _ _ f g e H := isC.
+
+  <span class="kn">Definition</span> <span class="nf">Equalizer_opp</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : C⟦y, z⟧) (<span class="nv">E</span> : @Equalizer C y z f g) :
+    @Coequalizer C^op z y f g := @make_Coequalizer C^op _ _ _ f g (EqualizerArrow E)
+                                                   (EqualizerEqAr E)
+                                                   (isEqualizer_opp f g (EqualizerArrow E)
+                                                                    (EqualizerEqAr E)
+                                                                    (isEqualizer_Equalizer E)).
+
+  <span class="kn">Definition</span> <span class="nf">Coequalizer_opp</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : C⟦y, z⟧) (<span class="nv">CE</span> : @Coequalizer C y z f g) :
+    @Equalizer C^op z y f g := @make_Equalizer C^op _ _ _ f g (CoequalizerArrow CE)
+                                               (CoequalizerEqAr CE)
+                                               (isCoequalizer_opp f g (CoequalizerArrow CE)
+                                                                  (CoequalizerEqAr CE)
+                                                                  (isCoequalizer_Coequalizer CE)).
+
+  <span class="kn">Definition</span> <span class="nf">Equalizers_opp</span> (<span class="nv">E</span> : @Equalizers C) : @Coequalizers C^op.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f g.
+    use Equalizer_opp.
+    <span class="bp">exact</span> (E y x f g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Coequalizers_opp</span> (<span class="nv">CE</span> : @Coequalizers C) : @Equalizers C^op.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f g.
+    use Coequalizer_opp.
+    <span class="bp">exact</span> (CE y x f g).
+  <span class="kn">Defined</span>.
+
+
+  <span class="sd">(** ** Kernels and Cokernels *)</span>
+
+  <span class="kn">Local Lemma</span> <span class="nf">isCokernel_opp_eq</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : C⟦x, y⟧) (<span class="nv">g</span> : C⟦y, z⟧) (<span class="nv">Z</span> : Zero C)
+        (<span class="nv">H</span> : f · g = ZeroArrow Z _ _) (<span class="nv">Z'</span> : Zero C^op) :
+    (g : C^op⟦z, y⟧) · (f : C^op⟦y, x⟧) = ZeroArrow Z' _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span> <span class="k">in</span> *. <span class="nb">rewrite</span> H. <span class="nb">rewrite</span> ZeroArrow_opp.
+    <span class="bp">exact</span> (ZerosArrowEq C^op (Zero_opp Z) Z' z x).
+  <span class="kn">Qed</span>.
+
+
+
+  <span class="kn">Lemma</span> <span class="nf">isCokernel_opp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> : C⟦x, y⟧} {<span class="nv">g</span> : C⟦y, z⟧} {<span class="nv">Z</span> : Zero C}
+        {<span class="nv">H</span> : f · g = ZeroArrow Z _ _} (<span class="nv">K'</span> : isKernel Z f g H) {<span class="nv">Z'</span> : Zero C^op} :
+    isCokernel Z' (g : C^op⟦z, y⟧) (f : C^op⟦y, x⟧) (isCokernel_opp_eq f g Z H Z').
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (K := make_Kernel _ _ _ _ K').
+    use make_isCokernel.
+    - <span class="nb">intros</span> w h H'. <span class="nb">cbn</span> <span class="k">in</span> H'.
+      <span class="nb">set</span> (XXX := (ZerosArrowEq C^op (Zero_opp Z) Z' z w)).
+      use unique_exists.
+      + use (KernelIn Z K w h _).
+        <span class="nb">rewrite</span> ZeroArrow_opp.
+        <span class="nb">rewrite</span> XXX.
+        <span class="nb">apply</span> H'.
+      + <span class="nb">cbn</span>. use (KernelCommutes Z K).
+      + <span class="nb">intros</span> y0. <span class="nb">apply</span> (has_homsets_opp hs).
+      + <span class="nb">cbn</span>. <span class="nb">intros</span> y0 X. use (KernelInsEq Z K). <span class="nb">rewrite</span> KernelCommutes. <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+
+
+  <span class="kn">Local Lemma</span> <span class="nf">Kernel_opp_eq</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : C⟦y, z⟧) (<span class="nv">Z</span> : Zero C) (<span class="nv">K</span> : @Kernel C Z y z f) :
+    @compose C^op _ _ _ f (KernelArrow K) = ZeroArrow (Zero_opp Z) z K.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>. <span class="nb">rewrite</span> (KernelCompZero Z K). <span class="nb">apply</span> ZeroArrow_opp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">Kernel_opp_isCokernel</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : C⟦y, z⟧) (<span class="nv">Z</span> : Zero C) (<span class="nv">K</span> : @Kernel C Z y z f) :
+    isCokernel (Zero_opp Z) f (KernelArrow K) (Kernel_opp_eq f Z K).
+  <span class="kn">Proof</span>.
+    use make_isCokernel.
+    - <span class="nb">intros</span> w h H'. <span class="nb">cbn</span> <span class="k">in</span> H'.
+      use unique_exists.
+      + <span class="nb">rewrite</span> &lt;- ZeroArrow_opp <span class="k">in</span> H'. <span class="bp">exact</span> (KernelIn Z K w h H').
+      + <span class="nb">cbn</span>. use KernelCommutes.
+      + <span class="nb">intros</span> y0. <span class="nb">apply</span> (has_homsets_opp hs).
+      + <span class="nb">cbn</span>. <span class="nb">intros</span> y0 X. use KernelInsEq. <span class="nb">rewrite</span> KernelCommutes. <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Kernel_opp</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : C⟦y, z⟧) (<span class="nv">Z</span> : Zero C) (<span class="nv">K</span> : @Kernel C Z y z f) :
+    @Cokernel C^op (Zero_opp Z) z y f.
+  <span class="kn">Proof</span>.
+    use make_Cokernel.
+    - <span class="bp">exact</span> K.
+    - <span class="bp">exact</span> (KernelArrow K).
+    - <span class="bp">exact</span> (Kernel_opp_eq f Z K).
+    - <span class="bp">exact</span> (Kernel_opp_isCokernel f Z K).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isKernel_opp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C^op} {<span class="nv">f</span> : C⟦x, y⟧} {<span class="nv">g</span> : C⟦y, z⟧} {<span class="nv">Z</span> : Zero C}
+        {<span class="nv">H</span> : f · g = ZeroArrow Z _ _} (<span class="nv">CK'</span> : isCokernel Z f g H) {<span class="nv">Z'</span> : Zero C^op} :
+    isKernel Z' (g : C^op⟦z, y⟧) (f : C^op⟦y, x⟧) (isCokernel_opp_eq f g Z H Z').
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (CK := make_Cokernel _ _ _ _ CK').
+    use make_isKernel.
+    - <span class="nb">intros</span> w h H'.
+      <span class="nb">rewrite</span> &lt;- (ZerosArrowEq C^op (Zero_opp Z) Z' w x) <span class="k">in</span> H'.
+      <span class="nb">rewrite</span> &lt;- ZeroArrow_opp <span class="k">in</span> H'.
+      use unique_exists.
+      + <span class="bp">exact</span> (CokernelOut Z CK w h H').
+      + use (CokernelCommutes Z CK).
+      + <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+      + <span class="nb">cbn</span>. <span class="nb">intros</span> y0 X. use (CokernelOutsEq _ CK). <span class="nb">rewrite</span> (CokernelCommutes Z CK). <span class="nb">cbn</span>. <span class="nb">rewrite</span> X.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">Cokernel_opp_eq</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : C⟦y, z⟧) (<span class="nv">Z</span> : Zero C) (<span class="nv">CK</span> : @Cokernel C Z y z f) :
+    @compose C^op _ _ _ (CokernelArrow CK) f = ZeroArrow (Zero_opp Z) CK y.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>. <span class="nb">rewrite</span> (CokernelCompZero Z CK). <span class="nb">apply</span> ZeroArrow_opp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">Cokernel_opp_isKernel</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : C⟦y, z⟧) (<span class="nv">Z</span> : Zero C)
+        (<span class="nv">CK</span> : @Cokernel C Z y z f) :
+    isKernel (Zero_opp Z) (CokernelArrow CK) f (Cokernel_opp_eq f Z CK).
+  <span class="kn">Proof</span>.
+    use make_isKernel.
+
+    - <span class="nb">intros</span> w h H'. <span class="nb">cbn</span> <span class="k">in</span> H'.
+      use unique_exists.
+      + <span class="nb">rewrite</span> &lt;- ZeroArrow_opp <span class="k">in</span> H'. <span class="bp">exact</span> (CokernelOut Z CK w h H').
+      + <span class="nb">cbn</span>. use CokernelCommutes.
+      + <span class="nb">intros</span> y0. <span class="nb">apply</span> (has_homsets_opp hs).
+      + <span class="nb">cbn</span>. <span class="nb">intros</span> y0 X. use CokernelOutsEq. <span class="nb">rewrite</span> CokernelCommutes. <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Cokernel_opp</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : C⟦y, z⟧) (<span class="nv">Z</span> : Zero C) (<span class="nv">CK</span> : @Cokernel C Z y z f) :
+    @Kernel C^op (Zero_opp Z) z y f.
+  <span class="kn">Proof</span>.
+    use make_Kernel.
+    - <span class="bp">exact</span> CK.
+    - <span class="bp">exact</span> (CokernelArrow CK).
+    - <span class="bp">exact</span> (Cokernel_opp_eq f Z CK).
+    - <span class="bp">exact</span> (Cokernel_opp_isKernel f Z CK).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Kernels_opp</span> (<span class="nv">Z</span> : Zero C) (<span class="nv">K</span> : @Kernels C Z) : @Cokernels C^op (Zero_opp Z).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    use Kernel_opp.
+    <span class="nb">apply</span> (K y x f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Cokernels_opp</span> (<span class="nv">Z</span> : Zero C) (<span class="nv">CK</span> : @Cokernels C Z) : @Kernels C^op (Zero_opp Z).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    use Cokernel_opp.
+    <span class="nb">apply</span> (CK y x f).
+  <span class="kn">Defined</span>.
+
+
+  <span class="sd">(** ** Pushouts and pullbacks *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">isPushout_opp</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦a, c⟧) (<span class="nv">in1</span> : C⟦b, d⟧) (<span class="nv">in2</span> : C⟦c, d⟧)
+             (<span class="nv">H</span> : f · in1 = g · in2) (<span class="nv">iPo</span> : @isPushout C a b c d f g in1 in2 H) :
+    @isPullback C^op a b c d f g in1 in2 H := iPo.
+
+  <span class="kn">Definition</span> <span class="nf">isPullback_opp</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : C⟦b, a⟧) (<span class="nv">g</span> : C⟦c, a⟧) (<span class="nv">p1</span> : C⟦d, b⟧) (<span class="nv">p2</span> : C⟦d, c⟧)
+        (<span class="nv">H</span> : p1 · f = p2 · g) (<span class="nv">iPb</span> : @isPullback C a b c d f g p1 p2 H) :
+    @isPushout C^op a b c d f g p1 p2 H := iPb.
+
+  <span class="kn">Definition</span> <span class="nf">Pushout_opp</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦a, c⟧) (<span class="nv">Po</span> : @Pushout C a b c f g) :
+    @Pullback C^op a b c f g := Po.
+
+  <span class="kn">Definition</span> <span class="nf">Pullback_opp</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C⟦b, a⟧) (<span class="nv">g</span> : C⟦c, a⟧) (<span class="nv">Pb</span> : @Pullback C a b c f g) :
+    @Pushout C^op a b c f g := Pb.
+
+  <span class="kn">Definition</span> <span class="nf">Pushouts_opp</span> (<span class="nv">Pos</span> : @Pushouts C) : @Pullbacks C^op := Pos.
+
+  <span class="kn">Definition</span> <span class="nf">Pullbacks_opp</span> (<span class="nv">Pbs</span> : @Pushouts C) : @Pullbacks C^op := Pbs.
+
+
+  <span class="sd">(** ** BinProducts and BinCoproducts *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">isBinProduct_opp</span> (<span class="nv">c</span> <span class="nv">d</span> <span class="nv">p</span> : C) (<span class="nv">p1</span> : C⟦p, c⟧) (<span class="nv">p2</span> : C⟦p, d⟧)
+             (<span class="nv">iBPC</span> : @isBinProduct C c d p p1 p2) :
+    @isBinCoproduct C^op c d p p1 p2 := iBPC.
+
+  <span class="kn">Definition</span> <span class="nf">isBinCoproduct_opp</span> (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">co</span> : C) (<span class="nv">ia</span> : C⟦a, co⟧) (<span class="nv">ib</span> : C⟦b, co⟧)
+             (<span class="nv">iBCC</span> : @isBinCoproduct C a b co ia ib) :
+    @isBinProduct C^op a b co ia ib := iBCC.
+
+  <span class="kn">Definition</span> <span class="nf">BinProduct_opp</span> (<span class="nv">c</span> <span class="nv">d</span> : C) (<span class="nv">iBPC</span> : @BinProduct C c d) :
+    @BinCoproduct C^op c d := iBPC.
+
+  <span class="kn">Definition</span> <span class="nf">BinCoproduct_opp</span> (<span class="nv">c</span> <span class="nv">d</span> : C) (<span class="nv">iBCC</span> : @BinCoproduct C c d) :
+    @BinProduct C^op c d := iBCC.
+
+  <span class="kn">Definition</span> <span class="nf">BinProducts_opp</span> (<span class="nv">BP</span> : @BinProducts C) : @BinCoproducts C^op := BP.
+
+  <span class="kn">Definition</span> <span class="nf">BinCoproducts_opp</span> (<span class="nv">BC</span> : @BinCoproducts C) : @BinProducts C^op := BC.
+
+<span class="kn">End</span> <span class="nf">def_opposites'</span>.
+
+<span class="kn">Definition</span> <span class="nf">opp_zero_lifts</span> {<span class="nv">C</span>:category} {<span class="nv">X</span>:<span class="kt">Type</span>} (<span class="nv">j</span> : X -&gt; ob C) :
+  zero_lifts C j -&gt; zero_lifts C^op j.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> hinhfun; <span class="nb">intros</span> [z iz]. <span class="k">exists</span> <span class="nv">z</span>. <span class="bp">exact</span> (isZero_opp C iz).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Opp.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  - BinProducts and BinCoproducts
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

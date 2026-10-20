@@ -1,0 +1,1727 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FibrationsInBicatOfUnivCats.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd"> Fibrations in the bicat of univalent categories</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Internal Street Fibrations</span>
+<span class="sd"> 2. Internal Street Opfibrations</span>
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.StreetFibration.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.StreetOpFibration.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.InternalStreetFibration.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Internal Street Fibrations</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">InternalSFibToStreetFib</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_univ_cats}
+          {<span class="nv">F</span> : C₁ --&gt; C₂}
+          (<span class="nv">HF</span> : internal_sfib F).
+
+  <span class="kn">Section</span> <span class="nf">InternalSFibToStreetFibFactor</span>.
+    <span class="kn">Context</span> {<span class="nv">G₁</span> <span class="nv">G₂</span> : (unit_category : bicat_of_univ_cats) --&gt; C₁}
+            {<span class="nv">α</span> : G₁ ==&gt; G₂}
+            (<span class="nv">Hα</span> : is_cartesian_2cell_sfib F α)
+            {<span class="nv">z</span> : pr1 C₁}
+            {<span class="nv">g</span> : z --&gt; pr1 G₂ tt}
+            {<span class="nv">h</span> : pr1 F z --&gt; pr1 F (pr1 G₁ tt)}
+            (<span class="nv">q</span> : # (pr1 F) g = h · # (pr1 F) (pr1 α tt)).
+
+    <span class="kn">Let</span> <span class="nf">Φ</span> : unit_category ⟶ pr1 C₁
+      := functor_from_unit z.
+
+    <span class="kn">Local Definition</span> <span class="nf">internal_sfib_is_cartesian_sfib_factor_nat_trans_1</span>
+      : Φ ⟹ pr1 G₂.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="nb">intro</span> x ; <span class="nb">induction</span> x.
+        <span class="bp">exact</span> g.
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+           <span class="nb">induction</span> x ; <span class="nb">induction</span> y ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">assert</span> (p : f = identity _) ; [ <span class="nb">apply</span> isapropunit | ] ;
+           <span class="nb">rewrite</span> p ;
+           <span class="nb">refine</span> (id_left _ @ !(id_right _) @ _) ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">refine</span> (!_) ;
+           <span class="nb">apply</span> functor_id).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">ζ</span> := internal_sfib_is_cartesian_sfib_factor_nat_trans_1.
+
+    <span class="kn">Local Definition</span> <span class="nf">internal_sfib_is_cartesian_sfib_factor_nat_trans_2</span>
+      : Φ ∙ F ⟹ G₁ ∙ F.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="nb">intros</span> x ; <span class="nb">induction</span> x.
+        <span class="bp">exact</span> h.
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+           <span class="nb">induction</span> x ; <span class="nb">induction</span> y ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">assert</span> (p : f = identity _) ; [ <span class="nb">apply</span> isapropunit | ] ;
+           <span class="nb">rewrite</span> p ;
+           <span class="nb">rewrite</span> (functor_id G₁) ;
+           <span class="nb">rewrite</span> !(functor_id F) ;
+           <span class="nb">rewrite</span> id_left, id_right ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">ξ</span> := internal_sfib_is_cartesian_sfib_factor_nat_trans_2.
+
+    <span class="kn">Local Lemma</span> <span class="nf">internal_sfib_is_cartesian_sfib_factor_eq</span>
+      : post_whisker ζ F
+        =
+        nat_trans_comp _ _ _ ξ (post_whisker α F).
+    <span class="kn">Proof</span>.
+      use nat_trans_eq.
+      {
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intro</span> x ; <span class="nb">induction</span> x.
+      <span class="bp">exact</span> q.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Let</span> <span class="nf">p</span> := internal_sfib_is_cartesian_sfib_factor_eq.
+
+    <span class="kn">Definition</span> <span class="nf">internal_sfib_is_cartesian_sfib_factor</span>
+      : z --&gt; pr1 G₁ tt
+      := pr1 (is_cartesian_2cell_sfib_factor _ Hα ζ ξ p) tt.
+
+    <span class="kn">Definition</span> <span class="nf">internal_sfib_is_cartesian_sfib_factor_over</span>
+      : # (pr1 F) internal_sfib_is_cartesian_sfib_factor = h.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (nat_trans_eq_pointwise
+              (is_cartesian_2cell_sfib_factor_over _ Hα p)
+              tt).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">internal_sfib_is_cartesian_sfib_factor_comm</span>
+      : internal_sfib_is_cartesian_sfib_factor · pr1 α tt = g.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (nat_trans_eq_pointwise
+               (is_cartesian_2cell_sfib_factor_comm _ Hα p)
+               tt).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">internal_sfib_is_cartesian_sfib_factor_unique_help</span>
+               (<span class="nv">k</span> : z --&gt; pr1 G₁ tt)
+      : Φ ⟹ pr1 G₁.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="nb">intro</span> x ; <span class="nb">induction</span> x.
+        <span class="bp">exact</span> k.
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y f ;
+           <span class="nb">induction</span> x ; <span class="nb">induction</span> y ; <span class="nb">cbn</span> ;
+           <span class="nb">assert</span> (r : f = identity _) ; [ <span class="nb">apply</span> isapropunit | ] ;
+           <span class="nb">rewrite</span> r ;
+           <span class="nb">rewrite</span> !(functor_id G₁) ;
+           <span class="nb">rewrite</span> id_left, id_right ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">internal_sfib_is_cartesian_sfib_factor_unique</span>
+      : isaprop (∑ φ, # (pr1 F) φ = h × φ · pr1 α tt = g).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">refine</span> (nat_trans_eq_pointwise
+                (is_cartesian_2cell_sfib_factor_unique
+                   _ Hα
+                   Φ ζ ξ p
+                   (internal_sfib_is_cartesian_sfib_factor_unique_help (pr1 φ₁))
+                   (internal_sfib_is_cartesian_sfib_factor_unique_help (pr1 φ₂))
+                   _ _ _ _)
+                tt) ;
+        (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ]) ;
+        <span class="nb">intro</span> x ; <span class="nb">induction</span> x ; <span class="nb">cbn</span>.
+      - <span class="bp">exact</span> (pr12 φ₁).
+      - <span class="bp">exact</span> (pr12 φ₂).
+      - <span class="bp">exact</span> (pr22 φ₁).
+      - <span class="bp">exact</span> (pr22 φ₂).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">InternalSFibToStreetFibFactor</span>.
+
+  <span class="kn">Definition</span> <span class="nf">internal_sfib_is_cartesian_sfib</span>
+             {<span class="nv">G₁</span> <span class="nv">G₂</span> : (unit_category : bicat_of_univ_cats) --&gt; C₁}
+             {<span class="nv">α</span> : G₁ ==&gt; G₂}
+             (<span class="nv">Hα</span> : is_cartesian_2cell_sfib F α)
+    : is_cartesian_sfib F (pr1 α tt).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> z g h q.
+    use iscontraprop1.
+    - <span class="bp">exact</span> (internal_sfib_is_cartesian_sfib_factor_unique Hα q).
+    - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="bp">exact</span> (internal_sfib_is_cartesian_sfib_factor Hα q).
+      + <span class="bp">exact</span> (internal_sfib_is_cartesian_sfib_factor_over Hα q).
+      + <span class="bp">exact</span> (internal_sfib_is_cartesian_sfib_factor_comm Hα q).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">Cleaving</span>.
+    <span class="kn">Context</span> {<span class="nv">e</span> : pr1 C₁}
+            {<span class="nv">b</span> : pr1 C₂}
+            (<span class="nv">f</span> : b --&gt; pr1 F e).
+
+    <span class="kn">Definition</span> <span class="nf">internal_sfib_is_street_fib_nat_trans</span>
+      : functor_from_unit b ⟹ functor_from_unit e ∙ F.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, f).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> z₁ z₂ g ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id_left, functor_id, id_right ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">ℓ</span> := pr1 HF _ _ _ internal_sfib_is_street_fib_nat_trans.
+
+    <span class="kn">Definition</span> <span class="nf">internal_sfib_is_street_fib_lift_ob</span>
+      : pr1 C₁
+      := pr1 (pr1 ℓ) tt.
+
+    <span class="kn">Definition</span> <span class="nf">internal_sfib_is_street_fib_lift_mor</span>
+      : internal_sfib_is_street_fib_lift_ob --&gt; e
+      := pr1 (pr12 ℓ) tt.
+
+    <span class="kn">Definition</span> <span class="nf">internal_sfib_is_street_fib_lift_z_iso</span>
+      : z_iso (pr1 F internal_sfib_is_street_fib_lift_ob) b
+      := nat_z_iso_pointwise_z_iso (invertible_2cell_to_nat_z_iso _ _ (pr122 ℓ)) tt.
+
+    <span class="kn">Definition</span> <span class="nf">internal_sfib_is_street_fib_lift_over</span>
+      : # (pr1 F) internal_sfib_is_street_fib_lift_mor
+        =
+        internal_sfib_is_street_fib_lift_z_iso · f
+      := nat_trans_eq_pointwise (pr2 (pr222 ℓ)) tt.
+
+    <span class="kn">Definition</span> <span class="nf">internal_sfib_is_street_fib_lift_cartesian</span>
+      : is_cartesian_sfib F internal_sfib_is_street_fib_lift_mor
+      := internal_sfib_is_cartesian_sfib (pr1 (pr222 ℓ)).
+  <span class="kn">End</span> <span class="nf">Cleaving</span>.
+
+  <span class="kn">Definition</span> <span class="nf">internal_sfib_is_street_fib</span>
+    : street_fib F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e b f.
+    <span class="nb">simple refine</span> (_ ,, (_ ,, _) ,, _ ,, _) ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (internal_sfib_is_street_fib_lift_ob f).
+    - <span class="bp">exact</span> (internal_sfib_is_street_fib_lift_mor f).
+    - <span class="bp">exact</span> (internal_sfib_is_street_fib_lift_z_iso f).
+    - <span class="bp">exact</span> (internal_sfib_is_street_fib_lift_over f).
+    - <span class="bp">exact</span> (internal_sfib_is_street_fib_lift_cartesian f).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">InternalSFibToStreetFib</span>.
+
+<span class="kn">Section</span> <span class="nf">StreetFibToInternalSFib</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_univ_cats}
+          {<span class="nv">F</span> : C₁ --&gt; C₂}
+          (<span class="nv">HF</span> : street_fib F).
+
+  <span class="kn">Section</span> <span class="nf">IsCartesian</span>.
+    <span class="kn">Context</span> {<span class="nv">C₀</span> : bicat_of_univ_cats}
+            {<span class="nv">G₁</span> <span class="nv">G₂</span> : C₀ --&gt; C₁}
+            (<span class="nv">α</span> : G₁ ==&gt; G₂)
+            (<span class="nv">Hα</span> : ∏ (x : pr1 C₀), is_cartesian_sfib F (pr1 α x)).
+
+    <span class="kn">Section</span> <span class="nf">Factorization</span>.
+      <span class="kn">Context</span> {<span class="nv">H</span> : C₀ --&gt; C₁}
+              {<span class="nv">β</span> : H ==&gt; G₂}
+              {<span class="nv">δp</span> : H · F ==&gt; G₁ · F}
+              (<span class="nv">q</span> : β ▹ F = δp • (α ▹ F)).
+
+      <span class="kn">Definition</span> <span class="nf">pointwise_cartesian_is_cartesian_factor_data</span>
+        : nat_trans_data (pr1 H) (pr1 G₁)
+        := <span class="k">λ</span> <span class="nv">x</span>,
+           cartesian_factorization_sfib
+             _
+             (Hα x)
+             (pr1 β x)
+             (pr1 δp x)
+             (nat_trans_eq_pointwise q x).
+
+      <span class="kn">Definition</span> <span class="nf">pointwise_cartesian_is_cartesian_factor_laws</span>
+        : is_nat_trans _ _ pointwise_cartesian_is_cartesian_factor_data.
+      <span class="kn">Proof</span>.
+        <span class="nb">intros</span> x y f ; <span class="nb">unfold</span> pointwise_cartesian_is_cartesian_factor_data ; <span class="nb">cbn</span>.
+        <span class="nb">pose</span> (cartesian_factorization_sfib_commute
+                F
+                (Hα x) (pr1 β x) (pr1 δp x)
+                (nat_trans_eq_pointwise q x))
+          <span class="k">as</span> p.
+        <span class="nb">pose</span> (cartesian_factorization_sfib_commute
+                F
+                (Hα y) (pr1 β y) (pr1 δp y)
+                (nat_trans_eq_pointwise q y))
+          <span class="k">as</span> p'.
+        use (cartesian_factorization_sfib_unique
+               _
+               (Hα y)
+               (pr1 β x · # (pr1 G₂) f)
+               (pr1 δp x · # (pr1 F) (# (pr1 G₁) f))).
+        - <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">pose</span> (r := nat_trans_eq_pointwise q x) ; <span class="nb">cbn</span> <span class="k">in</span> r.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="bp">exact</span> r.
+          }
+          <span class="nb">clear</span> r.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!(functor_comp _ _ _) @ _ @ functor_comp _ _ _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!(nat_trans_ax α _ _ f)).
+        - <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> cartesian_factorization_sfib_over.
+          <span class="bp">exact</span> (nat_trans_ax δp _ _ f).
+        - <span class="nb">rewrite</span> !functor_comp.
+          <span class="nb">rewrite</span> cartesian_factorization_sfib_over.
+          <span class="nb">apply</span> idpath.
+        - <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> p'.
+          }
+          <span class="bp">exact</span> (nat_trans_ax β _ _ f).
+        - <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (nat_trans_ax α _ _ f).
+          }
+          <span class="nb">rewrite</span> assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> p.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">pointwise_cartesian_is_cartesian_factor</span>
+        : H ==&gt; G₁.
+      <span class="kn">Proof</span>.
+        use make_nat_trans.
+        - <span class="bp">exact</span> pointwise_cartesian_is_cartesian_factor_data.
+        - <span class="bp">exact</span> pointwise_cartesian_is_cartesian_factor_laws.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">pointwise_cartesian_is_cartesian_over</span>
+        : pointwise_cartesian_is_cartesian_factor ▹ F = δp.
+      <span class="kn">Proof</span>.
+        use nat_trans_eq.
+        {
+          <span class="nb">apply</span> homset_property.
+        }
+        <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> cartesian_factorization_sfib_over.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">pointwise_cartesian_is_cartesian_comm</span>
+        : pointwise_cartesian_is_cartesian_factor • α = β.
+      <span class="kn">Proof</span>.
+        use nat_trans_eq.
+        {
+          <span class="nb">apply</span> homset_property.
+        }
+        <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> cartesian_factorization_sfib_commute.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">pointwise_cartesian_is_cartesian_unique</span>
+        : isaprop (∑ (δ : H ==&gt; G₁), δ ▹ F = δp × δ • α = β).
+      <span class="kn">Proof</span>.
+        use invproofirrelevance.
+        <span class="nb">intros</span> δ₁ δ₂.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property.
+        }
+        use nat_trans_eq.
+        {
+          <span class="nb">apply</span> homset_property.
+        }
+        <span class="nb">intro</span> x.
+        use (cartesian_factorization_sfib_unique
+               _ (Hα x)
+               (pr1 β x)
+               (pr1 δp x)).
+        - <span class="bp">exact</span> (nat_trans_eq_pointwise q x).
+        - <span class="bp">exact</span> (nat_trans_eq_pointwise (pr12 δ₁) x).
+        - <span class="bp">exact</span> (nat_trans_eq_pointwise (pr12 δ₂) x).
+        - <span class="bp">exact</span> (nat_trans_eq_pointwise (pr22 δ₁) x).
+        - <span class="bp">exact</span> (nat_trans_eq_pointwise (pr22 δ₂) x).
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">Factorization</span>.
+
+    <span class="kn">Definition</span> <span class="nf">pointwise_cartesian_is_cartesian</span>
+      : is_cartesian_2cell_sfib F α.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> H β δp q.
+      use iscontraprop1.
+      - <span class="bp">exact</span> (pointwise_cartesian_is_cartesian_unique q).
+      - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        + <span class="bp">exact</span> (pointwise_cartesian_is_cartesian_factor q).
+        + <span class="bp">exact</span> (pointwise_cartesian_is_cartesian_over q).
+        + <span class="bp">exact</span> (pointwise_cartesian_is_cartesian_comm q).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">IsCartesian</span>.
+
+  <span class="kn">Section</span> <span class="nf">Cleaving</span>.
+    <span class="kn">Context</span> {<span class="nv">C₀</span> : bicat_of_univ_cats}
+            {<span class="nv">G₁</span> : C₀ --&gt; C₂}
+            {<span class="nv">G₂</span> : C₀ --&gt; C₁}
+            (<span class="nv">α</span> : G₁ ==&gt; G₂ · F).
+
+    <span class="kn">Definition</span> <span class="nf">street_fib_is_internal_sfib_cleaving_lift_data</span>
+      : functor_data (pr1 C₀) (pr1 C₁).
+    <span class="kn">Proof</span>.
+      use make_functor_data.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, pr1 (HF (pr1 G₂ x) (pr1 G₁ x) (pr1 α x))).
+      - <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+        use (cartesian_factorization_sfib
+               _
+               (pr222 (HF (pr1 G₂ y) (pr1 G₁ y) (pr1 α y)))).
+        + <span class="bp">exact</span> (pr112 (HF (pr1 G₂ x) (pr1 G₁ x) (pr1 α x)) · # (pr1 G₂) f).
+        + <span class="bp">exact</span> (pr212 (HF (pr1 G₂ x) (pr1 G₁ x) (pr1 α x))
+                 · # (pr1 G₁) f
+                 · inv_from_z_iso (pr212 (HF (pr1 G₂ y) (pr1 G₁ y) (pr1 α y)))).
+        + <span class="kp">abstract</span>
+            (<span class="nb">rewrite</span> functor_comp ;
+             <span class="nb">rewrite</span> (pr122 (HF (pr1 G₂ x) (pr1 G₁ x) (pr1 α x))) ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">refine</span> (!(nat_trans_ax α _ _ f) @ _) ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">refine</span> (!_) ;
+             use z_iso_inv_on_right ;
+             <span class="nb">rewrite</span> (pr122 (HF (pr1 G₂ y) (pr1 G₁ y) (pr1 α y))) ;
+             <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">street_fib_is_internal_sfib_cleaving_lift_is_functor</span>
+      : is_functor street_fib_is_internal_sfib_cleaving_lift_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+        use (cartesian_factorization_sfib_unique
+               _
+               (pr222 (HF (pr1 G₂ x) (pr1 G₁ x) (pr1 α x)))).
+        + <span class="bp">exact</span> (pr112 (HF (pr1 G₂ x) (pr1 G₁ x) (pr1 α x))).
+        + <span class="nb">apply</span> identity.
+        + <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> cartesian_factorization_sfib_over.
+          <span class="nb">refine</span> (!_).
+          use z_iso_inv_on_left.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">rewrite</span> (functor_id G₁).
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">apply</span> functor_id.
+        + <span class="nb">rewrite</span> cartesian_factorization_sfib_commute.
+          <span class="nb">rewrite</span> (functor_id G₂).
+          <span class="nb">apply</span> id_right.
+        + <span class="nb">apply</span> id_left.
+      - <span class="nb">intros</span> x y z f g ; <span class="nb">cbn</span>.
+        use (cartesian_factorization_sfib_unique
+               _
+               (pr222 (HF (pr1 G₂ z) (pr1 G₁ z) (pr1 α z)))).
+        + <span class="bp">exact</span> (pr112 (HF (pr1 G₂ x) (pr1 G₁ x) (pr1 α x)) · # (pr1 G₂) (f · g)).
+        + <span class="bp">exact</span> (pr212 (HF (pr1 G₂ x) (pr1 G₁ x) (pr1 α x))
+                 · # (pr1 G₁) (f · g)
+                 · inv_from_z_iso (pr212 (HF (pr1 G₂ z) (pr1 G₁ z) (pr1 α z)))).
+        + <span class="nb">rewrite</span> functor_comp.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="bp">exact</span> (pr122 (HF (pr1 G₂ x) (pr1 G₁ x) (pr1 α x))).
+          }
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!(nat_trans_ax α _ _ (f · g)) @ _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          use z_iso_inv_on_right.
+          <span class="bp">exact</span> (pr122 (HF (pr1 G₂ z) (pr1 G₁ z) (pr1 α z))).
+        + <span class="nb">apply</span> cartesian_factorization_sfib_over.
+        + <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> !cartesian_factorization_sfib_over.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> (functor_comp G₁).
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+          <span class="nb">apply</span> id_left.
+        + <span class="nb">apply</span> cartesian_factorization_sfib_commute.
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> cartesian_factorization_sfib_commute.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> cartesian_factorization_sfib_commute.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> (functor_comp G₂).
+          <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">street_fib_is_internal_sfib_cleaving_lift</span>
+      : C₀ --&gt; C₁.
+    <span class="kn">Proof</span>.
+      use make_functor.
+      - <span class="bp">exact</span> street_fib_is_internal_sfib_cleaving_lift_data.
+      - <span class="bp">exact</span> street_fib_is_internal_sfib_cleaving_lift_is_functor.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">street_fib_is_internal_sfib_cleaving_lift_mor_data</span>
+      : nat_trans_data
+          street_fib_is_internal_sfib_cleaving_lift_data
+          (pr1 G₂)
+      := <span class="k">λ</span> <span class="nv">x</span>, pr112 (HF (pr1 G₂ x) (pr1 G₁ x) (pr1 α x)).
+
+    <span class="kn">Definition</span> <span class="nf">street_fib_is_internal_sfib_cleaving_lift_mor_is_nat_trans</span>
+      : is_nat_trans _ _ street_fib_is_internal_sfib_cleaving_lift_mor_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> cartesian_factorization_sfib_commute.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">street_fib_is_internal_sfib_cleaving_lift_mor</span>
+      : street_fib_is_internal_sfib_cleaving_lift ==&gt; G₂.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> street_fib_is_internal_sfib_cleaving_lift_mor_data.
+      - <span class="bp">exact</span> street_fib_is_internal_sfib_cleaving_lift_mor_is_nat_trans.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">street_fib_is_internal_sfib_cleaving_lift_over_nat_trans_data</span>
+      : nat_trans_data (street_fib_is_internal_sfib_cleaving_lift ∙ F) (pr1 G₁)
+      := <span class="k">λ</span> <span class="nv">x</span>, pr212 (HF (pr1 G₂ x) (pr1 G₁ x) (pr1 α x)).
+
+    <span class="kn">Definition</span> <span class="nf">street_fib_is_internal_sfib_cleaving_lift_over_is_nat_trans</span>
+      : is_nat_trans
+          _ _
+          street_fib_is_internal_sfib_cleaving_lift_over_nat_trans_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> street_fib_is_internal_sfib_cleaving_lift_over_nat_trans_data.
+      <span class="nb">rewrite</span> cartesian_factorization_sfib_over.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">street_fib_is_internal_sfib_cleaving_lift_over_nat_trans</span>
+      : street_fib_is_internal_sfib_cleaving_lift ∙ F ⟹ pr1 G₁.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> street_fib_is_internal_sfib_cleaving_lift_over_nat_trans_data.
+      - <span class="bp">exact</span> street_fib_is_internal_sfib_cleaving_lift_over_is_nat_trans.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">street_fib_is_internal_sfib_cleaving_lift_cartesian</span>
+      : is_cartesian_2cell_sfib
+          F
+          street_fib_is_internal_sfib_cleaving_lift_mor.
+    <span class="kn">Proof</span>.
+      use pointwise_cartesian_is_cartesian.
+      <span class="nb">intro</span> x.
+      <span class="bp">exact</span> (pr222 (HF (pr1 G₂ x) (pr1 G₁ x) (pr1 α x))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">street_fib_is_internal_sfib_cleaving_lift_over</span>
+      : invertible_2cell
+          (street_fib_is_internal_sfib_cleaving_lift · F)
+          G₁.
+    <span class="kn">Proof</span>.
+      use nat_z_iso_to_invertible_2cell.
+      use make_nat_z_iso.
+      - <span class="bp">exact</span> street_fib_is_internal_sfib_cleaving_lift_over_nat_trans.
+      - <span class="nb">intro</span> x.
+        <span class="nb">apply</span> z_iso_is_z_isomorphism.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">Cleaving</span>.
+
+  <span class="kn">Definition</span> <span class="nf">street_fib_is_internal_sfib_cleaving</span>
+    : internal_sfib_cleaving F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C₀ G₁ G₂ α.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _).
+    - <span class="bp">exact</span> (street_fib_is_internal_sfib_cleaving_lift α).
+    - <span class="bp">exact</span> (street_fib_is_internal_sfib_cleaving_lift_mor α).
+    - <span class="bp">exact</span> (street_fib_is_internal_sfib_cleaving_lift_over α).
+    - <span class="bp">exact</span> (street_fib_is_internal_sfib_cleaving_lift_cartesian α).
+    - <span class="kp">abstract</span>
+        (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+         <span class="nb">intro</span> x ; <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> (pr122 (HF (pr1 G₂ x) (pr1 G₁ x) (pr1 α x)))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">IsCartesian</span>.
+    <span class="kn">Context</span> {<span class="nv">C₀</span> : bicat_of_univ_cats}
+            {<span class="nv">G₁</span> <span class="nv">G₂</span> : C₀ --&gt; C₁}
+            (<span class="nv">α</span> : G₁ ==&gt; G₂)
+            (<span class="nv">Hα</span> : is_cartesian_2cell_sfib F α).
+
+    <span class="kn">Definition</span> <span class="nf">pointwise_lift_functor_data</span>
+      : functor_data (pr1 C₀) (pr1 C₁).
+    <span class="kn">Proof</span>.
+      use make_functor_data.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, pr1 (HF (pr1 G₂ x) (pr1 F (pr1 G₁ x)) (# (pr1 F) (pr1 α x)))).
+      - <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+        use (cartesian_factorization_sfib
+               _
+               (pr222 (HF (pr1 G₂ y) (pr1 F (pr1 G₁ y)) (# (pr1 F) (pr1 α y))))).
+        + <span class="bp">exact</span> (pr112 (HF (pr1 G₂ x) (pr1 F (pr1 G₁ x)) (# (pr1 F) (pr1 α x)))
+                 · # (pr1 G₂) f).
+        + <span class="bp">exact</span> (pr212 (HF (pr1 G₂ x) (pr1 F (pr1 G₁ x)) (# (pr1 F) (pr1 α x)))
+                 · # (pr1 F) (# (pr1 G₁) f)
+                 · inv_from_z_iso
+                     (pr212 (HF (pr1 G₂ y) (pr1 F (pr1 G₁ y)) (# (pr1 F) (pr1 α y))))).
+        + <span class="kp">abstract</span>
+            (<span class="nb">rewrite</span> functor_comp ;
+             <span class="nb">rewrite</span> (pr122 (HF (pr1 G₂ x) (pr1 F (pr1 G₁ x)) (# (pr1 F) (pr1 α x)))) ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">rewrite</span> &lt;- (functor_comp F) ;
+             etrans ;
+             [ <span class="nb">apply</span> maponpaths ;
+               <span class="bp">exact</span> (!(nat_trans_ax α _ _ f))
+             | ] ;
+             <span class="nb">rewrite</span> functor_comp ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">refine</span> (!_) ;
+             use z_iso_inv_on_right ;
+             <span class="nb">rewrite</span> (pr122 (HF (pr1 G₂ y) (pr1 F (pr1 G₁ y)) (# (pr1 F) (pr1 α y)))) ;
+             <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">pointwise_lift_functor_is_functor</span>
+      : is_functor pointwise_lift_functor_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+        use (cartesian_factorization_sfib_unique
+               _
+               (pr222 (HF (pr1 G₂ x) (pr1 F (pr1 G₁ x)) (# (pr1 F) (pr1 α x))))).
+        + <span class="bp">exact</span> (pr112 (HF (pr1 G₂ x) (pr1 F (pr1 G₁ x)) (# (pr1 F) (pr1 α x)))).
+        + <span class="nb">apply</span> identity.
+        + <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> cartesian_factorization_sfib_over.
+          <span class="nb">refine</span> (!_).
+          use z_iso_inv_on_left.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">rewrite</span> (functor_id G₁).
+          <span class="nb">rewrite</span> (functor_id F).
+          <span class="nb">apply</span> id_right.
+        + <span class="nb">apply</span> functor_id.
+        + <span class="nb">rewrite</span> cartesian_factorization_sfib_commute.
+          <span class="nb">rewrite</span> (functor_id G₂).
+          <span class="nb">apply</span> id_right.
+        + <span class="nb">apply</span> id_left.
+      - <span class="nb">intros</span> x y z f g ; <span class="nb">cbn</span>.
+        use (cartesian_factorization_sfib_unique
+               _
+               (pr222 (HF (pr1 G₂ z) (pr1 F (pr1 G₁ z)) (# (pr1 F) (pr1 α z))))).
+        + <span class="bp">exact</span> (pr112 (HF (pr1 G₂ x) (pr1 F (pr1 G₁ x)) (# (pr1 F) (pr1 α x)))
+                 · # (pr1 G₂) (f · g)).
+        + <span class="bp">exact</span> (pr212 (HF (pr1 G₂ x) (pr1 F (pr1 G₁ x)) (# (pr1 F) (pr1 α x)))
+                 · # (pr1 F) (# (pr1 G₁) (f · g))
+                 · inv_from_z_iso
+                     (pr212 (HF (pr1 G₂ z) (pr1 F (pr1 G₁ z)) (# (pr1 F) (pr1 α z))))).
+        + <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> (pr122 (HF (pr1 G₂ x) (pr1 F (pr1 G₁ x)) (# (pr1 F) (pr1 α x)))).
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> &lt;- (functor_comp F).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (!(nat_trans_ax α _ _ (f · g))).
+          }
+          <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          use z_iso_inv_on_right.
+          <span class="nb">rewrite</span> (pr122 (HF (pr1 G₂ z) (pr1 F (pr1 G₁ z)) (# (pr1 F) (pr1 α z)))).
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">apply</span> cartesian_factorization_sfib_over.
+        + <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> !cartesian_factorization_sfib_over.
+          <span class="nb">rewrite</span> (functor_comp G₁).
+          <span class="nb">rewrite</span> (functor_comp F).
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> !assoc'.
+          use z_iso_inv_on_right.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">apply</span> cartesian_factorization_sfib_commute.
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> cartesian_factorization_sfib_commute.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> cartesian_factorization_sfib_commute.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> (functor_comp G₂).
+          <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">pointwise_lift_functor</span>
+      : C₀ --&gt; C₁.
+    <span class="kn">Proof</span>.
+      use make_functor.
+      - <span class="bp">exact</span> pointwise_lift_functor_data.
+      - <span class="bp">exact</span> pointwise_lift_functor_is_functor.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">pointwise_lift_nat_trans_data</span>
+      : nat_trans_data pointwise_lift_functor_data (pr1 G₂)
+      := <span class="k">λ</span> <span class="nv">x</span>, pr112 (HF (pr1 G₂ x) (pr1 F (pr1 G₁ x)) (# (pr1 F) (pr1 α x))).
+
+    <span class="kn">Definition</span> <span class="nf">pointwise_lift_is_nat_trans</span>
+      : is_nat_trans _ _ pointwise_lift_nat_trans_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> pointwise_lift_nat_trans_data.
+      <span class="nb">apply</span> cartesian_factorization_sfib_commute.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">pointwise_lift_nat_trans</span>
+      : pointwise_lift_functor ==&gt; G₂.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> pointwise_lift_nat_trans_data.
+      - <span class="bp">exact</span> pointwise_lift_is_nat_trans.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">pointwise_lift_nat_trans_is_cartesian_2cell</span>
+      : is_cartesian_2cell_sfib F pointwise_lift_nat_trans.
+    <span class="kn">Proof</span>.
+      use pointwise_cartesian_is_cartesian.
+      <span class="nb">intro</span> x.
+      <span class="bp">exact</span> (pr222 (HF (pr1 G₂ x) (pr1 F (pr1 G₁ x)) (# (pr1 F) (pr1 α x)))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_cartesian_2cell_sfib_pointwise_cartesian_over_data</span>
+      : nat_trans_data (G₁ ∙ F) (pointwise_lift_functor ∙ F).
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> x.
+      <span class="nb">pose</span> (i := pr212 (HF (pr1 G₂ x) (pr1 F (pr1 G₁ x)) (# (pr1 F) (pr1 α x)))).
+      <span class="bp">exact</span> (z_iso_inv_from_z_iso i).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_cartesian_2cell_sfib_pointwise_cartesian_over_laws</span>
+      : is_nat_trans
+          _ _
+          is_cartesian_2cell_sfib_pointwise_cartesian_over_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      use z_iso_inv_on_right.
+      <span class="nb">rewrite</span> !assoc.
+      use z_iso_inv_on_left.
+      <span class="nb">rewrite</span> cartesian_factorization_sfib_over.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_cartesian_2cell_sfib_pointwise_cartesian_over</span>
+      : G₁ ∙ F ⟹ pointwise_lift_functor ∙ F.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> is_cartesian_2cell_sfib_pointwise_cartesian_over_data.
+      - <span class="bp">exact</span> is_cartesian_2cell_sfib_pointwise_cartesian_over_laws.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_cartesian_2cell_sfib_pointwise_cartesian_inv2cell</span>
+      : invertible_2cell (G₁ · F) (pointwise_lift_functor · F).
+    <span class="kn">Proof</span>.
+      use nat_z_iso_to_invertible_2cell.
+      use make_nat_z_iso.
+      - <span class="bp">exact</span> is_cartesian_2cell_sfib_pointwise_cartesian_over.
+      - <span class="nb">intro</span>.
+        <span class="nb">apply</span> z_iso_is_z_isomorphism.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_cartesian_2cell_sfib_pointwise_cartesian_eq</span>
+      : α ▹ F
+        =
+        is_cartesian_2cell_sfib_pointwise_cartesian_inv2cell
+        • (pointwise_lift_nat_trans ▹ F).
+    <span class="kn">Proof</span>.
+      use nat_trans_eq.
+      {
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intro</span> x.
+      <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> pointwise_lift_nat_trans_data.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (pr122 (HF (pr1 G₂ x) (pr1 F (pr1 G₁ x)) (# (pr1 F) (pr1 α x)))).
+      }
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> z_iso_after_z_iso_inv.
+      }
+      <span class="nb">apply</span> id_left.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_cartesian_2cell_sfib_pointwise_cartesian</span>
+               (<span class="nv">x</span> : pr1 C₀)
+      : is_cartesian_sfib F (pr1 α x).
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (i := invertible_between_cartesians
+                   Hα
+                   pointwise_lift_nat_trans_is_cartesian_2cell
+                   is_cartesian_2cell_sfib_pointwise_cartesian_inv2cell
+                   is_cartesian_2cell_sfib_pointwise_cartesian_eq).
+      use is_cartesian_sfib_eq.
+      - <span class="bp">exact</span> (nat_z_iso_pointwise_z_iso (invertible_2cell_to_nat_z_iso _ _ i) x
+              · pr1 pointwise_lift_nat_trans x).
+      - <span class="bp">exact</span> (cartesian_factorization_sfib_commute _ _ _ _ _).
+      - use comp_is_cartesian_sfib.
+        + <span class="nb">apply</span> z_iso_is_cartesian_sfib.
+          <span class="nb">apply</span> z_iso_is_z_isomorphism.
+        + <span class="bp">exact</span> (pr222 (HF (pr1 G₂ x) (pr1 F (pr1 G₁ x)) (# (pr1 F) (pr1 α x)))).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">IsCartesian</span>.
+
+  <span class="kn">Definition</span> <span class="nf">street_fib_is_internal_sfib_lwhisker_is_cartesian</span>
+    : lwhisker_is_cartesian F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C₀ C₀' G H₁ H₂ α Hα.
+    use pointwise_cartesian_is_cartesian.
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> is_cartesian_2cell_sfib_pointwise_cartesian.
+    <span class="bp">exact</span> Hα.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">street_fib_is_internal_sfib</span>
+    : internal_sfib F.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> street_fib_is_internal_sfib_cleaving.
+    - <span class="bp">exact</span> street_fib_is_internal_sfib_lwhisker_is_cartesian.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">StreetFibToInternalSFib</span>.
+
+<span class="kn">Definition</span> <span class="nf">internal_sfib_weq_street_fib</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_univ_cats}
+           (<span class="nv">F</span> : C₁ --&gt; C₂)
+  : internal_sfib F ≃ street_fib F.
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="bp">exact</span> internal_sfib_is_street_fib.
+  - <span class="bp">exact</span> street_fib_is_internal_sfib.
+  - <span class="nb">apply</span> isaprop_internal_sfib.
+    <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+  - <span class="nb">apply</span> isaprop_street_fib.
+    <span class="nb">apply</span> C₁.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Internal Street Opfibrations</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">InternalSOpFibToStreetOpFib</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_univ_cats}
+          {<span class="nv">F</span> : C₁ --&gt; C₂}
+          (<span class="nv">HF</span> : internal_sopfib F).
+
+  <span class="kn">Section</span> <span class="nf">InternalSOpFibToStreetOpFibFactor</span>.
+    <span class="kn">Context</span> {<span class="nv">G₁</span> <span class="nv">G₂</span> : (unit_category : bicat_of_univ_cats) --&gt; C₁}
+            {<span class="nv">α</span> : G₁ ==&gt; G₂}
+            (<span class="nv">Hα</span> : is_opcartesian_2cell_sopfib F α)
+            {<span class="nv">z</span> : pr1 C₁}
+            {<span class="nv">g</span> : pr1 G₁ tt --&gt; z}
+            {<span class="nv">h</span> : pr1 F (pr1 G₂ tt) --&gt; pr1 F z}
+            (<span class="nv">q</span> : # (pr1 F) g = # (pr1 F) (pr1 α tt) · h).
+
+    <span class="kn">Let</span> <span class="nf">Φ</span> : unit_category ⟶ pr1 C₁
+      := functor_from_unit z.
+
+    <span class="kn">Local Definition</span> <span class="nf">internal_sopfib_is_opcartesian_sopfib_factor_nat_trans_1</span>
+      : pr1 G₁ ⟹ Φ.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="nb">intro</span> x ; <span class="nb">induction</span> x.
+        <span class="bp">exact</span> g.
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+           <span class="nb">induction</span> x ; <span class="nb">induction</span> y ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">assert</span> (p : f = identity _) ; [ <span class="nb">apply</span> isapropunit | ] ;
+           <span class="nb">rewrite</span> p ;
+           <span class="nb">rewrite</span> (functor_id G₁) ;
+           <span class="nb">rewrite</span> id_left, id_right ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">ζ</span> := internal_sopfib_is_opcartesian_sopfib_factor_nat_trans_1.
+
+    <span class="kn">Local Definition</span> <span class="nf">internal_sopfib_is_opcartesian_sopfib_factor_nat_trans_2</span>
+      : G₂ · F ==&gt; Φ ∙ F.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="nb">intros</span> x ; <span class="nb">induction</span> x.
+        <span class="bp">exact</span> h.
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+           <span class="nb">induction</span> x ; <span class="nb">induction</span> y ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">assert</span> (p : f = identity _) ; [ <span class="nb">apply</span> isapropunit | ] ;
+           <span class="nb">rewrite</span> p ;
+           <span class="nb">rewrite</span> (functor_id G₂) ;
+           <span class="nb">rewrite</span> !(functor_id F) ;
+           <span class="nb">rewrite</span> id_left, id_right ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">ξ</span> := internal_sopfib_is_opcartesian_sopfib_factor_nat_trans_2.
+
+    <span class="kn">Local Lemma</span> <span class="nf">internal_sopfib_is_opcartesian_sopfib_factor_eq</span>
+      : post_whisker ζ F
+        =
+        nat_trans_comp _ _ _ (post_whisker α F) ξ.
+    <span class="kn">Proof</span>.
+      use nat_trans_eq.
+      {
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intro</span> x ; <span class="nb">induction</span> x.
+      <span class="bp">exact</span> q.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Let</span> <span class="nf">p</span> := internal_sopfib_is_opcartesian_sopfib_factor_eq.
+
+    <span class="kn">Definition</span> <span class="nf">internal_sopfib_is_opcartesian_sopfib_factor</span>
+      : pr1 G₂ tt --&gt; z
+      := pr1 (is_opcartesian_2cell_sopfib_factor _ Hα ζ ξ p) tt.
+
+    <span class="kn">Definition</span> <span class="nf">internal_sopfib_is_opcartesian_sopfib_factor_over</span>
+      : # (pr1 F) internal_sopfib_is_opcartesian_sopfib_factor = h.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (nat_trans_eq_pointwise
+               (is_opcartesian_2cell_sopfib_factor_over _ Hα _ _ p)
+               tt).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">internal_sopfib_is_opcartesian_sopfib_factor_comm</span>
+      : pr1 α tt · internal_sopfib_is_opcartesian_sopfib_factor = g.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (nat_trans_eq_pointwise
+               (is_opcartesian_2cell_sopfib_factor_comm _ Hα _ _ p)
+               tt).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">internal_sopfib_is_opcartesian_sopfib_factor_unique_help</span>
+               (<span class="nv">k</span> : pr1 G₂ tt --&gt; z)
+      : pr1 G₂ ⟹ Φ.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="nb">intro</span> x ; <span class="nb">induction</span> x.
+        <span class="bp">exact</span> k.
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y f ;
+           <span class="nb">induction</span> x ; <span class="nb">induction</span> y ; <span class="nb">cbn</span> ;
+           <span class="nb">assert</span> (r : f = identity _) ; [ <span class="nb">apply</span> isapropunit | ] ;
+           <span class="nb">rewrite</span> r ;
+           <span class="nb">rewrite</span> !(functor_id G₂) ;
+           <span class="nb">rewrite</span> id_left, id_right ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">internal_sopfib_is_opcartesian_sopfib_factor_unique</span>
+      : isaprop (∑ φ, # (pr1 F) φ = h × pr1 α tt · φ = g).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">refine</span> (nat_trans_eq_pointwise
+                (is_opcartesian_2cell_sopfib_factor_unique
+                   _ Hα
+                   Φ ζ ξ p
+                   (internal_sopfib_is_opcartesian_sopfib_factor_unique_help (pr1 φ₁))
+                   (internal_sopfib_is_opcartesian_sopfib_factor_unique_help (pr1 φ₂))
+                   _ _ _ _)
+                tt) ;
+        (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ]) ;
+        <span class="nb">intro</span> x ; <span class="nb">induction</span> x ; <span class="nb">cbn</span>.
+      - <span class="bp">exact</span> (pr12 φ₁).
+      - <span class="bp">exact</span> (pr12 φ₂).
+      - <span class="bp">exact</span> (pr22 φ₁).
+      - <span class="bp">exact</span> (pr22 φ₂).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">InternalSOpFibToStreetOpFibFactor</span>.
+
+  <span class="kn">Definition</span> <span class="nf">internal_sopfib_is_opcartesian_sopfib</span>
+             {<span class="nv">G₁</span> <span class="nv">G₂</span> : (unit_category : bicat_of_univ_cats) --&gt; C₁}
+             {<span class="nv">α</span> : G₁ ==&gt; G₂}
+             (<span class="nv">Hα</span> : is_opcartesian_2cell_sopfib F α)
+    : is_opcartesian_sopfib F (pr1 α tt).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> z g h q.
+    use iscontraprop1.
+    - <span class="bp">exact</span> (internal_sopfib_is_opcartesian_sopfib_factor_unique Hα q).
+    - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="bp">exact</span> (internal_sopfib_is_opcartesian_sopfib_factor Hα q).
+      + <span class="bp">exact</span> (internal_sopfib_is_opcartesian_sopfib_factor_over Hα q).
+      + <span class="bp">exact</span> (internal_sopfib_is_opcartesian_sopfib_factor_comm Hα q).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">OpCleaving</span>.
+    <span class="kn">Context</span> {<span class="nv">e</span> : pr1 C₁}
+            {<span class="nv">b</span> : pr1 C₂}
+            (<span class="nv">f</span> : pr1 F e --&gt; b).
+
+    <span class="kn">Definition</span> <span class="nf">internal_sopfib_is_street_opfib_nat_trans</span>
+      : functor_from_unit e ∙ F ⟹ functor_from_unit b.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, f).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> z₁ z₂ g ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> functor_id, id_left, id_right ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">ℓ</span> := pr1 HF _ _ _ internal_sopfib_is_street_opfib_nat_trans.
+
+    <span class="kn">Definition</span> <span class="nf">internal_sopfib_is_street_opfib_lift_ob</span>
+      : pr1 C₁
+      := pr1 (pr1 ℓ) tt.
+
+    <span class="kn">Definition</span> <span class="nf">internal_sopfib_is_street_opfib_lift_mor</span>
+      : e --&gt; internal_sopfib_is_street_opfib_lift_ob
+      := pr1 (pr12 ℓ) tt.
+
+    <span class="kn">Definition</span> <span class="nf">internal_sopfib_is_street_opfib_lift_z_iso</span>
+      : z_iso b (pr1 F internal_sopfib_is_street_opfib_lift_ob)
+      := nat_z_iso_pointwise_z_iso (invertible_2cell_to_nat_z_iso _ _ (pr122 ℓ)) tt.
+
+    <span class="kn">Definition</span> <span class="nf">internal_sopfib_is_street_opfib_lift_over</span>
+      : # (pr1 F) internal_sopfib_is_street_opfib_lift_mor
+        =
+        f · internal_sopfib_is_street_opfib_lift_z_iso
+      := nat_trans_eq_pointwise (pr2 (pr222 ℓ)) tt.
+
+    <span class="kn">Definition</span> <span class="nf">internal_sopfib_is_street_opfib_lift_cartesian</span>
+      : is_opcartesian_sopfib F internal_sopfib_is_street_opfib_lift_mor
+      := internal_sopfib_is_opcartesian_sopfib (pr1 (pr222 ℓ)).
+  <span class="kn">End</span> <span class="nf">OpCleaving</span>.
+
+  <span class="kn">Definition</span> <span class="nf">internal_sopfib_is_street_opfib</span>
+    : street_opfib F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e b f.
+    <span class="nb">simple refine</span> (_ ,, (_ ,, _) ,, _ ,, _) ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (internal_sopfib_is_street_opfib_lift_ob f).
+    - <span class="bp">exact</span> (internal_sopfib_is_street_opfib_lift_mor f).
+    - <span class="bp">exact</span> (internal_sopfib_is_street_opfib_lift_z_iso f).
+    - <span class="bp">exact</span> (internal_sopfib_is_street_opfib_lift_over f).
+    - <span class="bp">exact</span> (internal_sopfib_is_street_opfib_lift_cartesian f).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">InternalSOpFibToStreetOpFib</span>.
+
+<span class="kn">Section</span> <span class="nf">StreetOpFibToInternalSOpFib</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_univ_cats}
+          {<span class="nv">F</span> : C₁ --&gt; C₂}
+          (<span class="nv">HF</span> : street_opfib F).
+
+  <span class="kn">Section</span> <span class="nf">IsOpCartesian</span>.
+    <span class="kn">Context</span> {<span class="nv">C₀</span> : bicat_of_univ_cats}
+            {<span class="nv">G₁</span> <span class="nv">G₂</span> : C₀ --&gt; C₁}
+            (<span class="nv">α</span> : G₁ ==&gt; G₂)
+            (<span class="nv">Hα</span> : ∏ (x : pr1 C₀), is_opcartesian_sopfib F (pr1 α x)).
+
+    <span class="kn">Section</span> <span class="nf">Factorization</span>.
+      <span class="kn">Context</span> {<span class="nv">H</span> : C₀ --&gt; C₁}
+              {<span class="nv">β</span> : G₁ ==&gt; H}
+              {<span class="nv">δp</span> : G₂ · F ==&gt; H · F}
+              (<span class="nv">q</span> : β ▹ F = (α ▹ F) • δp).
+
+      <span class="kn">Definition</span> <span class="nf">pointwise_opcartesian_is_opcartesian_factor_data</span>
+        : nat_trans_data (pr1 G₂) (pr1 H)
+        := <span class="k">λ</span> <span class="nv">x</span>,
+           opcartesian_factorization_sopfib
+             _
+             (Hα x)
+             (pr1 β x)
+             (pr1 δp x)
+             (nat_trans_eq_pointwise q x).
+
+      <span class="kn">Definition</span> <span class="nf">pointwise_opcartesian_is_opcartesian_factor_laws</span>
+        : is_nat_trans _ _ pointwise_opcartesian_is_opcartesian_factor_data.
+      <span class="kn">Proof</span>.
+        <span class="nb">intros</span> x y f ; <span class="nb">unfold</span> pointwise_opcartesian_is_opcartesian_factor_data ; <span class="nb">cbn</span>.
+        <span class="nb">pose</span> (opcartesian_factorization_sopfib_commute
+                F
+                (Hα x) (pr1 β x) (pr1 δp x)
+                (nat_trans_eq_pointwise q x))
+          <span class="k">as</span> p.
+        <span class="nb">pose</span> (opcartesian_factorization_sopfib_commute
+                F
+                (Hα y) (pr1 β y) (pr1 δp y)
+                (nat_trans_eq_pointwise q y))
+          <span class="k">as</span> p'.
+        use (opcartesian_factorization_sopfib_unique
+               _
+               (Hα x)
+               (pr1 β x · # (pr1 H) f)
+               (pr1 δp x · # (pr1 F) (# (pr1 H) f))).
+        - <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">pose</span> (r := nat_trans_eq_pointwise q x) ; <span class="nb">cbn</span> <span class="k">in</span> r.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="bp">exact</span> r.
+          }
+          <span class="nb">clear</span> r.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> idpath.
+        - <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> opcartesian_factorization_sopfib_over.
+          <span class="bp">exact</span> (nat_trans_ax δp _ _ f).
+        - <span class="nb">rewrite</span> !functor_comp.
+          <span class="nb">rewrite</span> opcartesian_factorization_sopfib_over.
+          <span class="nb">apply</span> idpath.
+        - <span class="nb">rewrite</span> !assoc.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="bp">exact</span> (!(nat_trans_ax α _ _ f)).
+          }
+          <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> p'.
+          }
+          <span class="bp">exact</span> (nat_trans_ax β _ _ f).
+        - <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> p.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">pointwise_opcartesian_is_opcartesian_factor</span>
+        : G₂ ==&gt; H.
+      <span class="kn">Proof</span>.
+        use make_nat_trans.
+        - <span class="bp">exact</span> pointwise_opcartesian_is_opcartesian_factor_data.
+        - <span class="bp">exact</span> pointwise_opcartesian_is_opcartesian_factor_laws.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">pointwise_opcartesian_is_opcartesian_over</span>
+        : pointwise_opcartesian_is_opcartesian_factor ▹ F = δp.
+      <span class="kn">Proof</span>.
+        use nat_trans_eq.
+        {
+          <span class="nb">apply</span> homset_property.
+        }
+        <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> opcartesian_factorization_sopfib_over.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">pointwise_opcartesian_is_opcartesian_comm</span>
+        : α • pointwise_opcartesian_is_opcartesian_factor = β.
+      <span class="kn">Proof</span>.
+        use nat_trans_eq.
+        {
+          <span class="nb">apply</span> homset_property.
+        }
+        <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> opcartesian_factorization_sopfib_commute.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">pointwise_opcartesian_is_opcartesian_unique</span>
+        : isaprop (∑ (δ : G₂ ==&gt; H), δ ▹ F = δp × α • δ = β).
+      <span class="kn">Proof</span>.
+        use invproofirrelevance.
+        <span class="nb">intros</span> δ₁ δ₂.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property.
+        }
+        use nat_trans_eq.
+        {
+          <span class="nb">apply</span> homset_property.
+        }
+        <span class="nb">intro</span> x.
+        use (opcartesian_factorization_sopfib_unique
+               _ (Hα x)
+               (pr1 β x)
+               (pr1 δp x)).
+        - <span class="bp">exact</span> (nat_trans_eq_pointwise q x).
+        - <span class="bp">exact</span> (nat_trans_eq_pointwise (pr12 δ₁) x).
+        - <span class="bp">exact</span> (nat_trans_eq_pointwise (pr12 δ₂) x).
+        - <span class="bp">exact</span> (nat_trans_eq_pointwise (pr22 δ₁) x).
+        - <span class="bp">exact</span> (nat_trans_eq_pointwise (pr22 δ₂) x).
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">Factorization</span>.
+
+    <span class="kn">Definition</span> <span class="nf">pointwise_opcartesian_is_opcartesian</span>
+      : is_opcartesian_2cell_sopfib F α.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> H β δp q.
+      use iscontraprop1.
+      - <span class="bp">exact</span> (pointwise_opcartesian_is_opcartesian_unique q).
+      - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        + <span class="bp">exact</span> (pointwise_opcartesian_is_opcartesian_factor q).
+        + <span class="bp">exact</span> (pointwise_opcartesian_is_opcartesian_over q).
+        + <span class="bp">exact</span> (pointwise_opcartesian_is_opcartesian_comm q).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">IsOpCartesian</span>.
+
+  <span class="kn">Section</span> <span class="nf">OpCleaving</span>.
+    <span class="kn">Context</span> {<span class="nv">C₀</span> : bicat_of_univ_cats}
+            {<span class="nv">G₁</span> : C₀ --&gt; C₁}
+            {<span class="nv">G₂</span> : C₀ --&gt; C₂}
+            (<span class="nv">α</span> : G₁ · F ==&gt; G₂).
+
+    <span class="kn">Definition</span> <span class="nf">street_opfib_is_internal_sopfib_opcleaving_lift_data</span>
+      : functor_data (pr1 C₀) (pr1 C₁).
+    <span class="kn">Proof</span>.
+      use make_functor_data.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, pr1 (HF _ _ (pr1 α x))).
+      - <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+        use (opcartesian_factorization_sopfib
+               _
+               (pr222 (HF _ _ (pr1 α x)))).
+        + <span class="bp">exact</span> (# (pr1 G₁) f · pr112 (HF _ _ (pr1 α y))).
+        + <span class="bp">exact</span> (inv_from_z_iso (pr212 (HF _ _ (pr1 α x)))
+                 · # (pr1 G₂) f
+                 · pr212 (HF _ _ (pr1 α y))).
+        + <span class="kp">abstract</span>
+            (<span class="nb">rewrite</span> functor_comp ;
+             <span class="nb">rewrite</span> (pr122 (HF _ _ (pr1 α x))) ;
+             <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (pr122 (HF _ _ (pr1 α y))) @ _) ;
+             <span class="nb">rewrite</span> !assoc ;
+             <span class="nb">apply</span> maponpaths_2 ;
+             <span class="nb">refine</span> (nat_trans_ax α _ _ f @ _) ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">rewrite</span> !assoc ;
+             <span class="nb">rewrite</span> z_iso_inv_after_z_iso ;
+             <span class="nb">rewrite</span> id_left ;
+             <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">street_opfib_is_internal_sopfib_opcleaving_lift_is_functor</span>
+      : is_functor street_opfib_is_internal_sopfib_opcleaving_lift_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+        use (opcartesian_factorization_sopfib_unique
+               _
+               (pr222 (HF _ _ (pr1 α x)))).
+        + <span class="bp">exact</span> (pr112 (HF _ _ (pr1 α x))).
+        + <span class="nb">apply</span> identity.
+        + <span class="nb">rewrite</span> id_right.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> opcartesian_factorization_sopfib_over.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">rewrite</span> (functor_id G₂).
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">apply</span> functor_id.
+        + <span class="nb">rewrite</span> opcartesian_factorization_sopfib_commute.
+          <span class="nb">rewrite</span> (functor_id G₁).
+          <span class="nb">apply</span> id_left.
+        + <span class="nb">apply</span> id_right.
+      - <span class="nb">intros</span> x y z f g ; <span class="nb">cbn</span>.
+        use (opcartesian_factorization_sopfib_unique
+               _
+               (pr222 (HF _ _ (pr1 α x)))).
+        + <span class="bp">exact</span> (# (pr1 G₁) (f · g) · pr112 (HF _ _ (pr1 α z))).
+        + <span class="bp">exact</span> (inv_from_z_iso (pr212 (HF _ _ (pr1 α x)))
+                 · # (pr1 G₂) (f · g)
+                 · pr212 (HF _ _ (pr1 α z))).
+        + <span class="nb">rewrite</span> functor_comp.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (pr122 (HF _ _ (pr1 α z))).
+          }
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (nat_trans_ax α _ _ (f · g) @ _).
+          <span class="nb">apply</span> maponpaths_2.
+          use z_iso_inv_on_left.
+          <span class="bp">exact</span> (pr122 (HF _ _ (pr1 α x))).
+        + <span class="nb">apply</span> opcartesian_factorization_sopfib_over.
+        + <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> !opcartesian_factorization_sopfib_over.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> (functor_comp G₂).
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+          <span class="nb">apply</span> id_left.
+        + <span class="nb">apply</span> opcartesian_factorization_sopfib_commute.
+        + <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> opcartesian_factorization_sopfib_commute.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> opcartesian_factorization_sopfib_commute.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> (functor_comp G₁).
+          <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">street_opfib_is_internal_sopfib_opcleaving_lift</span>
+      : C₀ --&gt; C₁.
+    <span class="kn">Proof</span>.
+      use make_functor.
+      - <span class="bp">exact</span> street_opfib_is_internal_sopfib_opcleaving_lift_data.
+      - <span class="bp">exact</span> street_opfib_is_internal_sopfib_opcleaving_lift_is_functor.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">street_opfib_is_internal_sopfib_opcleaving_lift_mor_data</span>
+      : nat_trans_data
+          (pr1 G₁)
+          street_opfib_is_internal_sopfib_opcleaving_lift_data
+      := <span class="k">λ</span> <span class="nv">x</span>, pr112 (HF _ _ (pr1 α x)).
+
+    <span class="kn">Definition</span> <span class="nf">street_opfib_is_internal_sopfib_opcleaving_lift_mor_is_nat_trans</span>
+      : is_nat_trans _ _ street_opfib_is_internal_sopfib_opcleaving_lift_mor_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> opcartesian_factorization_sopfib_commute.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">street_opfib_is_internal_sopfib_opcleaving_lift_mor</span>
+      : G₁ ==&gt; street_opfib_is_internal_sopfib_opcleaving_lift.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> street_opfib_is_internal_sopfib_opcleaving_lift_mor_data.
+      - <span class="bp">exact</span> street_opfib_is_internal_sopfib_opcleaving_lift_mor_is_nat_trans.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">street_opfib_is_internal_sopfib_opcleaving_lift_over_nat_trans_data</span>
+      : nat_trans_data (pr1 G₂) (street_opfib_is_internal_sopfib_opcleaving_lift ∙ F)
+      := <span class="k">λ</span> <span class="nv">x</span>, pr212 (HF _ _ (pr1 α x)).
+
+    <span class="kn">Definition</span> <span class="nf">street_opfib_is_internal_sopfib_opcleaving_lift_over_is_nat_trans</span>
+      : is_nat_trans
+          _ _
+          street_opfib_is_internal_sopfib_opcleaving_lift_over_nat_trans_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> street_opfib_is_internal_sopfib_opcleaving_lift_over_nat_trans_data.
+      <span class="nb">rewrite</span> opcartesian_factorization_sopfib_over.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">street_opfib_is_internal_sopfib_opcleaving_lift_over_nat_trans</span>
+      : pr1 G₂ ⟹ street_opfib_is_internal_sopfib_opcleaving_lift ∙ F.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> street_opfib_is_internal_sopfib_opcleaving_lift_over_nat_trans_data.
+      - <span class="bp">exact</span> street_opfib_is_internal_sopfib_opcleaving_lift_over_is_nat_trans.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">street_opfib_is_internal_sopfib_opcleaving_lift_opcartesian</span>
+      : is_opcartesian_2cell_sopfib
+          F
+          street_opfib_is_internal_sopfib_opcleaving_lift_mor.
+    <span class="kn">Proof</span>.
+      use pointwise_opcartesian_is_opcartesian.
+      <span class="nb">intro</span> x.
+      <span class="bp">exact</span> (pr222 (HF _ _ (pr1 α x))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">street_opfib_is_internal_sopfib_opcleaving_lift_over</span>
+      : invertible_2cell
+          G₂
+          (street_opfib_is_internal_sopfib_opcleaving_lift · F).
+    <span class="kn">Proof</span>.
+      use nat_z_iso_to_invertible_2cell.
+      use make_nat_z_iso.
+      - <span class="bp">exact</span> street_opfib_is_internal_sopfib_opcleaving_lift_over_nat_trans.
+      - <span class="nb">intro</span> x.
+        <span class="nb">apply</span> z_iso_is_z_isomorphism.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">OpCleaving</span>.
+
+  <span class="kn">Definition</span> <span class="nf">street_opfib_is_internal_sopfib_opcleaving</span>
+    : internal_sopfib_opcleaving F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C₀ G₁ G₂ α.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _).
+    - <span class="bp">exact</span> (street_opfib_is_internal_sopfib_opcleaving_lift α).
+    - <span class="bp">exact</span> (street_opfib_is_internal_sopfib_opcleaving_lift_mor α).
+    - <span class="bp">exact</span> (street_opfib_is_internal_sopfib_opcleaving_lift_over α).
+    - <span class="bp">exact</span> (street_opfib_is_internal_sopfib_opcleaving_lift_opcartesian α).
+    - <span class="kp">abstract</span>
+        (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+         <span class="nb">intro</span> x ; <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> (pr122 (HF _ _ (pr1 α x)))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">IsOpCartesian</span>.
+    <span class="kn">Context</span> {<span class="nv">C₀</span> : bicat_of_univ_cats}
+            {<span class="nv">G₁</span> <span class="nv">G₂</span> : C₀ --&gt; C₁}
+            (<span class="nv">α</span> : G₁ ==&gt; G₂)
+            (<span class="nv">Hα</span> : is_opcartesian_2cell_sopfib F α).
+
+    <span class="kn">Definition</span> <span class="nf">pointwise_oplift_functor_data</span>
+      : functor_data (pr1 C₀) (pr1 C₁).
+    <span class="kn">Proof</span>.
+      use make_functor_data.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, pr1 (HF _ _ (# (pr1 F) (pr1 α x)))).
+      - <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+        use (opcartesian_factorization_sopfib
+               _
+               (pr222 (HF _ _ (# (pr1 F) (pr1 α x))))).
+        + <span class="bp">exact</span> (# (pr1 G₁) f · pr112 (HF _ _ (# (pr1 F) (pr1 α y)))).
+        + <span class="bp">exact</span> (inv_from_z_iso (pr212 (HF _ _ (# (pr1 F) (pr1 α x))))
+                 · # (pr1 F) (# (pr1 G₂) f)
+                 · pr212 (HF _ _ (# (pr1 F) (pr1 α y)))).
+        + <span class="kp">abstract</span>
+            (<span class="nb">rewrite</span> functor_comp ;
+             <span class="nb">rewrite</span> (pr122 (HF _ _ (# (pr1 F) (pr1 α x)))) ;
+             <span class="nb">rewrite</span> !assoc ;
+             etrans ;
+             [ <span class="nb">apply</span> maponpaths ;
+               <span class="bp">exact</span> (pr122 (HF _ _ (# (pr1 F) (pr1 α y))))
+             | ] ;
+             <span class="nb">rewrite</span> !assoc ;
+             <span class="nb">apply</span> maponpaths_2 ;
+             <span class="nb">rewrite</span> &lt;- !functor_comp ;
+             etrans ;
+             [ <span class="nb">apply</span> maponpaths ;
+               <span class="bp">exact</span> (nat_trans_ax α _ _ f)
+             | ] ;
+             <span class="nb">rewrite</span> functor_comp ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">rewrite</span> !assoc ;
+             <span class="nb">rewrite</span> z_iso_inv_after_z_iso ;
+             <span class="nb">rewrite</span> id_left ;
+             <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">pointwise_oplift_functor_is_functor</span>
+      : is_functor pointwise_oplift_functor_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+        use (opcartesian_factorization_sopfib_unique
+               _
+               (pr222 (HF _ _ (# (pr1 F) (pr1 α x))))).
+        + <span class="bp">exact</span> (pr112 (HF _ _ (# (pr1 F) (pr1 α x)))).
+        + <span class="nb">apply</span> identity.
+        + <span class="nb">rewrite</span> id_right.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> opcartesian_factorization_sopfib_over.
+          <span class="nb">rewrite</span> !assoc'.
+          use z_iso_inv_on_right.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">rewrite</span> (functor_id G₂).
+          <span class="nb">rewrite</span> (functor_id F).
+          <span class="nb">apply</span> id_left.
+        + <span class="nb">apply</span> functor_id.
+        + <span class="nb">rewrite</span> opcartesian_factorization_sopfib_commute.
+          <span class="nb">rewrite</span> (functor_id G₁).
+          <span class="nb">apply</span> id_left.
+        + <span class="nb">apply</span> id_right.
+      - <span class="nb">intros</span> x y z f g ; <span class="nb">cbn</span>.
+        use (opcartesian_factorization_sopfib_unique
+               _
+               (pr222 (HF _ _ (# (pr1 F) (pr1 α x))))).
+        + <span class="bp">exact</span> (# (pr1 G₁) (f · g)
+                 · pr112 (HF _ _ (# (pr1 F) (pr1 α z)))).
+        + <span class="bp">exact</span> (inv_from_z_iso
+                   (pr212 (HF _ _ (# (pr1 F) (pr1 α x))))
+                 · # (pr1 F) (# (pr1 G₂) (f · g))
+                 · pr212 (HF _ _ (# (pr1 F) (pr1 α z)))).
+        + <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> (pr122 (HF _ _ (# (pr1 F) (pr1 α x)))).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (pr122 (HF _ _ (# (pr1 F) (pr1 α z)))).
+          }
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> &lt;- (functor_comp F).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (nat_trans_ax α _ _ (f · g)).
+          }
+          <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">apply</span> opcartesian_factorization_sopfib_over.
+        + <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> !opcartesian_factorization_sopfib_over.
+          <span class="nb">rewrite</span> (functor_comp G₂).
+          <span class="nb">rewrite</span> (functor_comp F).
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+          <span class="nb">apply</span> id_left.
+        + <span class="nb">apply</span> opcartesian_factorization_sopfib_commute.
+        + <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> opcartesian_factorization_sopfib_commute.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> opcartesian_factorization_sopfib_commute.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> (functor_comp G₁).
+          <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">pointwise_oplift_functor</span>
+      : C₀ --&gt; C₁.
+    <span class="kn">Proof</span>.
+      use make_functor.
+      - <span class="bp">exact</span> pointwise_oplift_functor_data.
+      - <span class="bp">exact</span> pointwise_oplift_functor_is_functor.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">pointwise_oplift_nat_trans_data</span>
+      : nat_trans_data (pr1 G₁) pointwise_oplift_functor_data
+      := <span class="k">λ</span> <span class="nv">x</span>, pr112 (HF _ _ (# (pr1 F) (pr1 α x))).
+
+    <span class="kn">Definition</span> <span class="nf">pointwise_oplift_is_nat_trans</span>
+      : is_nat_trans _ _ pointwise_oplift_nat_trans_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> pointwise_oplift_nat_trans_data.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> opcartesian_factorization_sopfib_commute.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">pointwise_oplift_nat_trans</span>
+      : G₁ ==&gt; pointwise_oplift_functor.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> pointwise_oplift_nat_trans_data.
+      - <span class="bp">exact</span> pointwise_oplift_is_nat_trans.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">pointwise_oplift_nat_trans_is_opcartesian_2cell</span>
+      : is_opcartesian_2cell_sopfib F pointwise_oplift_nat_trans.
+    <span class="kn">Proof</span>.
+      use pointwise_opcartesian_is_opcartesian.
+      <span class="nb">intro</span> x.
+      <span class="bp">exact</span> (pr222 (HF _ _ (# (pr1 F) (pr1 α x)))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_opcartesian_2cell_sopfib_pointwise_opcartesian_over_data</span>
+      : nat_trans_data (pointwise_oplift_functor ∙ F) (G₂ ∙ F).
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> x.
+      <span class="nb">pose</span> (i := pr212 (HF _ _ (# (pr1 F) (pr1 α x)))).
+      <span class="bp">exact</span> (z_iso_inv_from_z_iso i).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_opcartesian_2cell_sopfib_pointwise_opcartesian_over_laws</span>
+      : is_nat_trans
+          _ _
+          is_opcartesian_2cell_sopfib_pointwise_opcartesian_over_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      use z_iso_inv_on_right.
+      <span class="nb">rewrite</span> !assoc.
+      use z_iso_inv_on_left.
+      <span class="nb">rewrite</span> opcartesian_factorization_sopfib_over.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_opcartesian_2cell_sopfib_pointwise_opcartesian_over</span>
+      : pointwise_oplift_functor ∙ F ⟹ G₂ ∙ F.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> is_opcartesian_2cell_sopfib_pointwise_opcartesian_over_data.
+      - <span class="bp">exact</span> is_opcartesian_2cell_sopfib_pointwise_opcartesian_over_laws.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_opcartesian_2cell_sopfib_pointwise_opcartesian_inv2cell</span>
+      : invertible_2cell (pointwise_oplift_functor · F) (G₂ · F).
+    <span class="kn">Proof</span>.
+      use nat_z_iso_to_invertible_2cell.
+      use make_nat_z_iso.
+      - <span class="bp">exact</span> is_opcartesian_2cell_sopfib_pointwise_opcartesian_over.
+      - <span class="nb">intro</span>.
+        <span class="nb">apply</span> z_iso_is_z_isomorphism.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_opcartesian_2cell_sopfib_pointwise_opcartesian_eq</span>
+      : α ▹ F
+        =
+        (pointwise_oplift_nat_trans ▹ F)
+        • is_opcartesian_2cell_sopfib_pointwise_opcartesian_inv2cell.
+    <span class="kn">Proof</span>.
+      use nat_trans_eq.
+      {
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intro</span> x.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> pointwise_oplift_nat_trans_data.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (pr122 (HF _ _ (# (pr1 F) (pr1 α x)))).
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> z_iso_inv_after_z_iso.
+      }
+      <span class="nb">apply</span> id_right.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_opcartesian_2cell_sfib_pointwise_opcartesian</span>
+               (<span class="nv">x</span> : pr1 C₀)
+      : is_opcartesian_sopfib F (pr1 α x).
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (i := invertible_between_opcartesians
+                   Hα
+                   pointwise_oplift_nat_trans_is_opcartesian_2cell
+                   is_opcartesian_2cell_sopfib_pointwise_opcartesian_inv2cell
+                   is_opcartesian_2cell_sopfib_pointwise_opcartesian_eq).
+      use is_opcartesian_sopfib_eq.
+      - <span class="bp">exact</span> (pr1 pointwise_oplift_nat_trans x
+               · nat_z_iso_pointwise_z_iso (invertible_2cell_to_nat_z_iso _ _ i) x).
+      - <span class="bp">exact</span> (opcartesian_factorization_sopfib_commute _ _ _ _ _).
+      - use comp_is_opcartesian_sopfib.
+        + <span class="bp">exact</span> (pr222 (HF _ _ (# (pr1 F) (pr1 α x)))).
+        + <span class="nb">apply</span> iso_is_opcartesian_sopfib.
+          <span class="nb">apply</span> z_iso_is_z_isomorphism.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">IsOpCartesian</span>.
+
+  <span class="kn">Definition</span> <span class="nf">street_opfib_is_internal_sopfib_lwhisker_is_opcartesian</span>
+    : lwhisker_is_opcartesian F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C₀ C₀' G H₁ H₂ α Hα.
+    use pointwise_opcartesian_is_opcartesian.
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> is_opcartesian_2cell_sfib_pointwise_opcartesian.
+    <span class="bp">exact</span> Hα.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">street_opfib_is_internal_sopfib</span>
+    : internal_sopfib F.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> street_opfib_is_internal_sopfib_opcleaving.
+    - <span class="bp">exact</span> street_opfib_is_internal_sopfib_lwhisker_is_opcartesian.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">StreetOpFibToInternalSOpFib</span>.
+
+<span class="kn">Definition</span> <span class="nf">internal_sopfib_weq_street_opfib</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_univ_cats}
+           (<span class="nv">F</span> : C₁ --&gt; C₂)
+  : internal_sopfib F ≃ street_opfib F.
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="bp">exact</span> internal_sopfib_is_street_opfib.
+  - <span class="bp">exact</span> street_opfib_is_internal_sopfib.
+  - <span class="nb">apply</span> isaprop_internal_sopfib.
+    <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+  - <span class="nb">apply</span> isaprop_street_opfib.
+    <span class="nb">apply</span> C₁.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Morphisms/Examples/FibrationsInBicatOfUnivCats.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  1. Internal Street Fibrations
+  &gt;  2. Internal Street Opfibrations
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

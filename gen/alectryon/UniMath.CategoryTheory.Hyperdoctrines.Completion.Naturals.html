@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Naturals.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Natural numbers in the completion of a hyperdoctrine</span>
+
+<span class="sd"> In a preorder tripos, we have a preorder of formulas in every context. However,</span>
+<span class="sd"> in practice it is easier to work with a partial order since various laws of</span>
+<span class="sd"> formulas then hold up to equality rather than up to isomorphism. We already</span>
+<span class="sd"> showed that every preorder tripos can be completed to a weak tripos. Here we</span>
+<span class="sd"> extend this result to include natural numbers.</span>
+
+<span class="sd"> Recall that a natural numbers type in a first-order hyperdoctrine consists of</span>
+<span class="sd"> - a type `N`</span>
+<span class="sd"> - a term `z : N`</span>
+<span class="sd"> - a term `s : N → N`</span>
+<span class="sd"> such that we can prove in the first-order hyperdoctrine that `s` is injective</span>
+<span class="sd"> and that `z` isn't the successor of any number.</span>
+
+<span class="sd"> If we take the completion of a first-order hyperdoctrine, then the category of</span>
+<span class="sd"> types and terms stays the same: we only change the formulas since we quotient</span>
+<span class="sd"> them by isomorphism. For this reason, we can almost directly show that the</span>
+<span class="sd"> completion comes with natural numbers. The work lies in showing that the required</span>
+<span class="sd"> axioms still hold in the completion. These axioms can also be proved in a rather</span>
+<span class="sd"> direct manner, because the functor from a preorder hyperdoctrine to its completion</span>
+<span class="sd"> preserves all connectives in first-order logic.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The data</span>
+<span class="sd"> 2. The laws</span>
+<span class="sd"> 3. The natural numbers</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Tripos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.HyperdoctrineNat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Completion.WeakEquivs.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Completion.Construction.
+
+<span class="kn">Section</span> <span class="nf">Naturals</span>.
+  <span class="kn">Context</span> {<span class="nv">H</span> : first_order_preorder_hyperdoctrine}
+          (<span class="nv">N</span> : first_order_preorder_hyperdoctrine_nats H).
+
+  <span class="kn">Let</span> <span class="nf">Hc</span> : first_order_hyperdoctrine
+    := first_order_preorder_hyperdoctrine_completion H.
+
+  <span class="sd">(** * 1. The data *)</span>
+  <span class="kn">Definition</span> <span class="nf">first_order_preorder_hyperdoctrine_completion_nats_data</span>
+    : first_order_hyperdoctrine_nats_data Hc.
+  <span class="kn">Proof</span>.
+    use make_first_order_hyperdoctrine_nats_data.
+    - <span class="bp">exact</span> N.
+    - <span class="bp">exact</span> (pr121 N).
+    - <span class="bp">exact</span> (pr221 N).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. The laws *)</span>
+  <span class="kn">Proposition</span> <span class="nf">first_order_preorder_hyperdoctrine_completion_nats_axioms</span>
+    : first_order_hyperdoctrine_nats_axioms
+        first_order_preorder_hyperdoctrine_completion_nats_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">unfold</span> first_order_hyperdoctrine_nats_zs_axiom.
+      <span class="nb">pose</span> (to_completion_proof H (pr12 N)) <span class="k">as</span> p.
+      <span class="nb">rewrite</span> to_completion_truth <span class="k">in</span> p.
+      <span class="nb">rewrite</span> to_completion_forall <span class="k">in</span> p.
+      <span class="nb">rewrite</span> to_completion_impl <span class="k">in</span> p.
+      <span class="nb">rewrite</span> to_completion_false <span class="k">in</span> p.
+      <span class="nb">rewrite</span> to_completion_equal <span class="k">in</span> p.
+      <span class="bp">exact</span> p.
+    - <span class="nb">unfold</span> first_order_hyperdoctrine_nats_zs_axiom.
+      <span class="nb">pose</span> (to_completion_proof H (pr22 N)) <span class="k">as</span> p.
+      <span class="nb">rewrite</span> to_completion_truth <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !to_completion_forall <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !to_completion_impl <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !to_completion_equal <span class="k">in</span> p.
+      <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 3. The natural numbers *)</span>
+  <span class="kn">Definition</span> <span class="nf">first_order_preorder_hyperdoctrine_completion_nats</span>
+    : first_order_hyperdoctrine_nats Hc.
+  <span class="kn">Proof</span>.
+    use make_first_order_hyperdoctrine_nats.
+    - <span class="bp">exact</span> first_order_preorder_hyperdoctrine_completion_nats_data.
+    - <span class="bp">exact</span> first_order_preorder_hyperdoctrine_completion_nats_axioms.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Naturals</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/Completion/Naturals.v</tt>, line 32)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. The natural numbers
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

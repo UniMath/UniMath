@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Circle.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Unset</span> Kernel Term Sharing.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-txt">
+<span class="sd">(** * Construction of the circle *)</span>
+
+<span class="sd">(** We will show that [B ℤ] has the universal property of the circle. *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+
+<span class="kn">Require Import</span> UniMath.NumberSystems.Integers
+               UniMath.SyntheticHomotopyTheory.AffineLine
+               UniMath.Algebra.GroupAction
+               UniMath.MoreFoundations.MoreEquivalences.
+<span class="kn">Declare Scope</span> paths_scope.
+<span class="kn">Delimit Scope</span> paths_scope <span class="k">with</span> paths.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> paths_scope.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> action_scope.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"g + x"</span> := (ac_mult _ g x) : action_scope.
+
+<span class="kn">Definition</span> <span class="nf">circle</span> := B ℤ.
+
+<span class="kn">Theorem</span> <span class="nf">loops_circle</span> : ℤ ≃ Ω circle.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> loopsBG.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hz.
+
+<span class="kn">Definition</span> <span class="nf">circle_loop</span> := ! loops_circle <span class="mi">1</span> : Ω circle.
+
+<span class="kn">Lemma</span> <span class="nf">loop_compute</span> <span class="nv">t</span> : castTorsor (!circle_loop) t = one + t.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> circle_loop. <span class="nb">rewrite</span> pathsinv0inv0.
+  <span class="bp">exact</span> (loopsBG_comp_2 _ one t @ commax _ t one).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** The total space of guided homotopies over BZ *)</span>
+
+<span class="kn">Definition</span> <span class="nf">ZGuidedHomotopy</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) (<span class="nv">T</span>:Torsor ℤ) :=
+  GuidedHomotopy (confun T l).
+
+<span class="kn">Definition</span> <span class="nf">GH</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) := ∑ T:Torsor ℤ, ZGuidedHomotopy l T.
+
+<span class="kn">Definition</span> <span class="nf">make_GH</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) (<span class="nv">T</span>:Torsor ℤ) (<span class="nv">g</span>:ZGuidedHomotopy l T) :=
+  T,,g : GH l.
+
+<span class="kn">Definition</span> <span class="nf">pr1_GH</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} {<span class="nv">l</span>:y = y} := pr1 : GH l -&gt; Torsor ℤ.
+
+<span class="kn">Definition</span> <span class="nf">pr2_GH</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) (<span class="nv">u</span>:GH l)
+  := pr2 u : ZGuidedHomotopy l (pr1_GH u).
+
+<span class="kn">Definition</span> <span class="nf">GH_path3</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) {<span class="nv">T</span>:Torsor ℤ} {<span class="nv">y'</span>:Y}
+           {<span class="nv">g</span> <span class="nv">g'</span>:GHomotopy (confun T l) y'} (<span class="nv">u</span>:g = g') :
+  make_GH l T (y',, g) = make_GH l T (y',,g').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> u. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr12_GH</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} {<span class="nv">l</span>:y = y} (<span class="nv">u</span>:GH l) := pr1 (pr2_GH l u) : Y.
+
+<span class="kn">Definition</span> <span class="nf">pr22_GH</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} {<span class="nv">l</span>:y = y} (<span class="nv">u</span>:GH l)
+     := pr2 (pr2_GH l u)
+     : GHomotopy (confun (pr1_GH u) l) (pr12_GH u).
+
+<span class="kn">Definition</span> <span class="nf">GH_path3_comp1</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) {<span class="nv">T</span>:Torsor ℤ} {<span class="nv">y'</span>:Y}
+           {<span class="nv">g</span> <span class="nv">g'</span>:GHomotopy (confun T l) y'} (<span class="nv">u</span>:g = g') :
+  maponpaths pr1_GH (GH_path3 l u) = idpath T.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> u. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">GH_path3_comp2</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) {<span class="nv">T</span>:Torsor ℤ} {<span class="nv">y'</span>:Y}
+           {<span class="nv">g</span> <span class="nv">g'</span>:GHomotopy (confun T l) y'} (<span class="nv">u</span>:g = g') :
+  maponpaths pr12_GH (GH_path3 l u) = idpath y'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> u. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">irr</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) (<span class="nv">T</span>:Torsor ℤ) :
+  ∏ (v w : GuidedHomotopy (confun T l)), v = w
+  :=
+    (<span class="k">λ</span> <span class="nv">v</span> <span class="nv">w</span>, proofirrGuidedHomotopy v w).
+
+<span class="kn">Local Definition</span> <span class="nf">sec</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) (<span class="nv">T</span>:Torsor ℤ) := makeGuidedHomotopy2 (confun T l).
+
+<span class="kn">Definition</span> <span class="nf">pr1_GH_weq</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} {<span class="nv">l</span>:y = y} : (GH l) ≃ (Torsor ℤ) := weqpr1_irr_sec (irr l) (sec l).
+
+<span class="kn">Definition</span> <span class="nf">homotinvweqweq_GH_comp</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} {<span class="nv">l</span>:y = y}
+           (<span class="nv">T</span>:Torsor ℤ) (<span class="nv">gh</span>:ZGuidedHomotopy l T) :
+  @paths (@paths (GH l)
+             (invweq (@pr1_GH_weq _ _ l) T) (T,,gh))
+            (homotinvweqweq' (irr l) (sec l) (T,,gh))
+            (@pair_path_in2 _ (ZGuidedHomotopy l)
+                            _ (sec l T) gh
+                            (irr l T (sec l T) gh)).
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.             <span class="c">(* don't change the proof *)</span>
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">makeGH</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) (<span class="nv">T</span>:Torsor ℤ) (<span class="nv">t</span>:T) {<span class="nv">y'</span>:Y} (<span class="nv">h</span>:y' = y) : GH l
+  := make_GH l T (makeGuidedHomotopy (t0:=t) _ h).
+
+<span class="kn">Definition</span> <span class="nf">makeGH1</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) (<span class="nv">T</span>:Torsor ℤ) (<span class="nv">t</span>:T) : GH l
+  := makeGH l T t (idpath y).
+
+<span class="kn">Definition</span> <span class="nf">pr12_pair_path_in2</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) (<span class="nv">T</span>:Torsor ℤ)
+           {<span class="nv">gh</span> <span class="nv">gh'</span>:ZGuidedHomotopy l T} (<span class="nv">w</span> : gh = gh') :
+  maponpaths pr12_GH (pair_path_in2 (ZGuidedHomotopy l) w) = maponpaths pr1 w.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> w. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr1_GH_weq_compute</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) :
+  <span class="k">let</span> <span class="nv">T0</span> := trivialTorsor ℤ <span class="k">in</span>
+  <span class="k">let</span> <span class="nv">t0</span> := <span class="mi">0</span> : T0 <span class="k">in</span>
+    @paths (y = y)
+              (maponpaths pr12_GH (homotinvweqweq' (irr l) (sec l) (makeGH1 l T0 t0)))
+              (idpath y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">unfold</span> makeGH1,makeGH,make_GH.
+  <span class="nb">refine</span> (maponpaths (maponpaths pr12_GH)
+                     (homotinvweqweq_GH_comp
+                        T0
+                        (makeGuidedHomotopy (confun T0 l) (idpath y)))
+                     @ _).
+  <span class="nb">refine</span> (pr12_pair_path_in2
+            l T0
+            (irr l T0 (sec l T0)
+                 (makeGuidedHomotopy (confun T0 l) (idpath y)))
+            @ _).
+  <span class="nb">unfold</span> sec.
+  <span class="nb">change</span> (makeGuidedHomotopy (confun T0 l) (idpath y)) <span class="k">with</span> (sec l T0).
+  <span class="nb">change</span> (makeGuidedHomotopy2 (confun T0 l)) <span class="k">with</span> (sec l T0).
+  <span class="nb">change</span> (idpath y) <span class="k">with</span> (maponpaths pr1 (idpath (sec l T0))).
+  <span class="nb">apply</span> (maponpaths (maponpaths pr1)). <span class="nb">apply</span> irrel_paths. <span class="nb">apply</span> (irr l).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Various paths in GH *)</span>
+
+<span class="kn">Definition</span> <span class="nf">makeGH_localPath</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y=y) (<span class="nv">T</span>:Torsor ℤ) {<span class="nv">t</span> <span class="nv">t'</span>:T} (<span class="nv">r</span>:t = t')
+           {<span class="nv">y'</span>} {<span class="nv">h</span> <span class="nv">h'</span>:y' = y} (<span class="nv">q</span>:h = h')
+  : makeGH l T t h = makeGH l T t' h'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> q, r. <span class="bp">reflexivity</span>.
+  <span class="c">(* compare with [makeGuidedHomotopy_localPath] *)</span>
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">makeGH_localPath_comp1</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) (<span class="nv">T</span>:Torsor ℤ) {<span class="nv">t</span> <span class="nv">t'</span>:T} (<span class="nv">r</span>:t = t')
+           {<span class="nv">y'</span>} {<span class="nv">h</span> <span class="nv">h'</span>:y' = y} (<span class="nv">q</span>:h = h') :
+  maponpaths pr1_GH (makeGH_localPath l T r q) = idpath T.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> q,r. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">makeGH_localPath_comp2</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) (<span class="nv">T</span>:Torsor ℤ) {<span class="nv">t</span> <span class="nv">t'</span>:T} (<span class="nv">r</span>:t = t')
+           {<span class="nv">y'</span>} {<span class="nv">h</span> <span class="nv">h'</span>:y' = y} (<span class="nv">q</span>:h = h') :
+  maponpaths pr12_GH (makeGH_localPath l T r q) = idpath y'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> q,r. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">makeGH_verticalPath</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) {<span class="nv">T</span>:Torsor ℤ} (<span class="nv">t</span>:T)
+           {<span class="nv">y'</span> <span class="nv">y''</span>} (<span class="nv">h</span>:y' = y) (<span class="nv">p</span>:y'' = y')
+  : makeGH l T t (p@h) = makeGH l T t h.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> p. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="c">(* could also use [makeGuidedHomotopy_verticalPath] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">makeGH_verticalPath_comp1</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) {<span class="nv">T</span>:Torsor ℤ} (<span class="nv">t</span>:T)
+           {<span class="nv">y'</span> <span class="nv">y''</span>} (<span class="nv">h</span>:y' = y) (<span class="nv">p</span>:y'' = y')
+  : maponpaths pr1_GH (makeGH_verticalPath l t h p) = idpath T.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> p. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">makeGH_verticalPath_comp2</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) {<span class="nv">T</span>:Torsor ℤ} (<span class="nv">t</span>:T)
+           {<span class="nv">y'</span> <span class="nv">y''</span>} (<span class="nv">h</span>:y' = y) (<span class="nv">p</span>:y'' = y')
+  : maponpaths pr12_GH (makeGH_verticalPath l t h p) = p.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> p. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">makeGH_horizontalPath</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) {<span class="nv">T</span> <span class="nv">T'</span>:Torsor ℤ} (<span class="nv">q</span>:T = T')
+           (<span class="nv">t</span>:T) {<span class="nv">y'</span>} (<span class="nv">h</span>:y' = y)
+  : makeGH l T t h = makeGH l T' (castTorsor q t) h.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> q. <span class="bp">reflexivity</span>.
+  <span class="c">(* compare with [makeGuidedHomotopy_horizontalPath] *)</span>
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">makeGH_horizontalPath_comp1</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) {<span class="nv">T</span> <span class="nv">T'</span>:Torsor ℤ} (<span class="nv">q</span>:T = T')
+           (<span class="nv">t</span>:T) {<span class="nv">y'</span>} (<span class="nv">h</span>:y' = y)
+  : maponpaths pr1_GH (makeGH_horizontalPath l q t h) = q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> q. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">makeGH_horizontalPath_comp2</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) {<span class="nv">T</span> <span class="nv">T'</span>:Torsor ℤ} (<span class="nv">q</span>:T = T')
+           (<span class="nv">t</span>:T) {<span class="nv">y'</span>} (<span class="nv">h</span>:y' = y)
+  : maponpaths pr12_GH (makeGH_horizontalPath l q t h) = idpath y'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> q. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> action_scope.
+
+<span class="kn">Definition</span> <span class="nf">makeGH_transPath</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) {<span class="nv">T</span>:Torsor ℤ} (<span class="nv">t</span>:T) {<span class="nv">y'</span>} (<span class="nv">h</span>:y' = y)
+  : makeGH l T t h = makeGH l T (one+t) (h@l).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> GH_path3.
+  <span class="c">(* copied from the proof of [makeGuidedHomotopy_transPath] *)</span>
+  <span class="bp">exact</span> (ℤTorsorRecursion_transition_inv (<span class="k">λ</span> <span class="nv">_</span>, weq_pathscomp0r _ l) (t:=t) h).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">makeGH_transPath_comp1</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) {<span class="nv">T</span>:Torsor ℤ} (<span class="nv">t</span>:T) {<span class="nv">y'</span>} (<span class="nv">h</span>:y' = y)
+  : maponpaths pr1_GH (makeGH_transPath l t h) = idpath T.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="bp">exact</span> (GH_path3_comp1 l _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">makeGH_transPath_comp2</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) {<span class="nv">T</span>:Torsor ℤ} (<span class="nv">t</span>:T) {<span class="nv">y'</span>} (<span class="nv">h</span>:y' = y)
+  : maponpaths pr12_GH (makeGH_transPath l t h) = idpath y'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="bp">exact</span> (GH_path3_comp2 l _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">makeGH_diagonalLoop</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) {<span class="nv">T</span>:Torsor ℤ} (<span class="nv">t</span>:T)
+           (<span class="nv">q</span>:T = T) (<span class="nv">r</span>:castTorsor q t = one + t) :
+  makeGH1 l T t = makeGH1 l T t.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> (p2 := makeGH_transPath l t (idpath y)).
+  <span class="nb">assert</span> (p0:= makeGH_localPath l T (!r) (idpath l)); <span class="nb">clear</span> r.
+  <span class="nb">assert</span> (ph := makeGH_horizontalPath l q t l).
+  <span class="nb">assert</span> (p1 := makeGH_localPath l T (idpath t) (! pathscomp0rid l)).
+  <span class="nb">assert</span> (pv := makeGH_verticalPath l t (idpath y) l).
+  <span class="nb">assert</span> (p := p2 @ p0 @ !ph @ p1 @ pv); <span class="nb">clear</span> p2 p0 ph p1 pv.
+  <span class="bp">exact</span> p.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">makeGH_diagonalLoop_comp1</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) {<span class="nv">T</span>:Torsor ℤ} (<span class="nv">t</span>:T)
+           (<span class="nv">q</span>:T = T) (<span class="nv">r</span>:castTorsor q t = one + t) :
+  maponpaths pr1_GH (makeGH_diagonalLoop l t q r) = !q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> makeGH_diagonalLoop.
+  <span class="nb">refine</span> (maponpaths_naturality (makeGH_transPath_comp1 _ _ _) _).
+  <span class="nb">refine</span> (maponpaths_naturality (makeGH_localPath_comp1 _ _ _ _) _).
+  <span class="nb">rewrite</span> &lt;- (pathscomp0rid (paths_rect _ _ (<span class="k">λ</span> <span class="nv">b</span> <span class="nv">_</span>, b = T) _ _ q)). <span class="c">(* Used to be "rewrite &lt;- (pathscomp0rid (! q))", which was more perspicuous. *)</span>
+  <span class="nb">refine</span> (maponpaths_naturality' (makeGH_horizontalPath_comp1 _ _ _ _) _).
+  <span class="nb">rewrite</span> &lt;- (pathscomp0rid (idpath T)).
+  <span class="nb">refine</span> (maponpaths_naturality (makeGH_localPath_comp1 _ _ _ _) _).
+  <span class="bp">exact</span> (makeGH_verticalPath_comp1 _ _ _ _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">makeGH_diagonalLoop_comp2</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) {<span class="nv">T</span>:Torsor ℤ} (<span class="nv">t</span>:T)
+           (<span class="nv">q</span>:T = T) (<span class="nv">r</span>:castTorsor q t = one + t) :
+  maponpaths pr12_GH (makeGH_diagonalLoop l t q r) = l.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> makeGH_diagonalLoop.
+  <span class="nb">refine</span> (maponpaths_naturality (makeGH_transPath_comp2 _ _ _) _).
+  <span class="nb">refine</span> (maponpaths_naturality (makeGH_localPath_comp2 _ _ _ _) _).
+  <span class="nb">refine</span> (maponpaths_naturality' (makeGH_horizontalPath_comp2 _ _ _ _) _).
+  <span class="nb">refine</span> (maponpaths_naturality (makeGH_localPath_comp2 _ _ _ _) _).
+  <span class="bp">exact</span> (makeGH_verticalPath_comp2 _ _ _ _).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** The universal property of the circle *)</span>
+
+<span class="sd">(** *** The recursion principle (non-dependent functions) *)</span>
+
+<span class="kn">Definition</span> <span class="nf">circle_map</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) : circle -&gt; Y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (funcomp (invmap (@pr1_GH_weq _ _ l)) pr12_GH).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">circle_map_check_values</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) :
+  circle_map l (basepoint circle) = y.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+  <span class="c">(* don't change the proof *)</span>
+  <span class="c">(* This proof works because the trivial torsor has an actual point that provides the accompanying proof of nonemptiness. *)</span>
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">circle_map_check_paths</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) :
+  maponpaths (circle_map l) circle_loop = l.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">assert</span> (p := pr1_GH_weq_compute l).
+  <span class="nb">refine</span> (_ @ loop_correspondence' (irr l) (sec l) pr12_GH
+            (makeGH_diagonalLoop_comp1 l _ _ (loop_compute <span class="mi">0</span>))
+            (makeGH_diagonalLoop_comp2 l _ _ (loop_compute <span class="mi">0</span>)) @ _).
+  { intermediate_path (maponpaths (circle_map l) circle_loop @ idpath y).
+    { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> pathscomp0rid. }
+    { <span class="nb">apply</span> pathsinv0. <span class="nb">rewrite</span> pathsinv0inv0.
+      <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">r</span>, maponpaths (circle_map l) circle_loop @ r) p). } }
+  { <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">r</span>, r @ l) p). }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">circle_map_conjugation</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) {<span class="nv">y'</span>:Y} (<span class="nv">e</span>:y=y') :
+  circle_map l = circle_map (!e @ l @ e).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e.
+  <span class="nb">change</span> (circle_map l = circle_map (l @ idpath y)).
+  <span class="nb">rewrite</span> pathscomp0rid.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** The induction principle (dependent functions) *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> transport.
+
+<span class="kn">Definition</span> <span class="nf">CircleInduction</span> : <span class="kt">Type</span>
+  := ∏ (Y:circle-&gt;<span class="kt">Type</span>) (y:Y(basepoint circle)) (l:circle_loop#y = y),
+     ∏ c:circle, Y c.
+
+<span class="kn">Definition</span> <span class="nf">circle_map'</span> : CircleInduction.
+<span class="kn">Proof</span>.
+  <span class="sd">(** (not proved yet) *)</span>
+<span class="kn">Abort</span>.
+
+<span class="c">(* One approach to the theorem above would be through the results of the paper</span>
+<span class="c"> "Higher Inductive Types as Homotopy-Initial Algebras", by Kristina Sojakova,</span>
+<span class="c"> http://arxiv.org/abs/1402.0761 *)</span>
+
+<span class="kn">Section</span> <span class="nf">A</span>.
+
+  <span class="kn">Context</span> (<span class="nv">circle_map'</span>: CircleInduction).
+
+  <span class="kn">Lemma</span> <span class="nf">circle_map_check_paths'</span> {<span class="nv">Y</span>} (<span class="nv">f</span>:circle-&gt;Y) : circle_map (maponpaths f circle_loop) = f .
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>. <span class="nb">apply</span> funextsec.
+    <span class="nb">simple refine</span> (circle_map' _ _ _).
+    { <span class="bp">reflexivity</span>. }
+    { <span class="nb">set</span> (y := f (basepoint circle)). <span class="nb">set</span> (l := maponpaths f circle_loop).
+      <span class="nb">set</span> (P := <span class="k">λ</span> <span class="nv">T</span> : underlyingType circle, circle_map _ T = f T).
+      <span class="nb">apply</span> transport_fun_path. <span class="nb">rewrite</span> pathscomp0rid.
+      <span class="nb">change</span> (idpath y @ maponpaths f circle_loop) <span class="k">with</span> (maponpaths f circle_loop).
+      <span class="bp">exact</span> (! circle_map_check_paths l). }
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">circle_map_uniqueness</span> {<span class="nv">Y</span>} (<span class="nv">f</span> <span class="nv">g</span>:circle-&gt;Y)
+        (<span class="nv">e</span> : f (basepoint circle) = g (basepoint circle))
+        (<span class="nv">q</span> : maponpaths f circle_loop = e @ maponpaths g circle_loop @ !e):
+    f = g.
+  <span class="kn">Proof</span>.
+  <span class="kn">Abort</span>.
+
+  <span class="kn">Definition</span> <span class="nf">circle_map''</span> : CircleInduction.
+  <span class="kn">Proof</span>.
+    <span class="sd">(** (not proved yet) *)</span>
+  <span class="kn">Abort</span>.
+
+<span class="kn">End</span> <span class="nf">A</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SyntheticHomotopyTheory/Circle.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; (** We will show that [B ℤ] has the universal property of the circle. *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

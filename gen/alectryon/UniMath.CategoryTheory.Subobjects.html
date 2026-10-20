@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Subobjects.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** *************************************************************************</span>
+
+<span class="sd">Definition and theory about subobjects of an object c</span>
+
+<span class="sd">Contents:</span>
+
+<span class="sd">- Category of subobjects (monos) of c ([Subobjectscategory])</span>
+<span class="sd">- Set of subobjects as equivalence classes of monos ([SubObj])</span>
+<span class="sd">- Proof that the set of subobjects of an object is a poset ([SubObjPoset])</span>
+<span class="sd">- The definition of the functor from C^op to hset_category</span>
+<span class="sd">	which maps c to the set of the subobject (module z_isomorphism) of c</span>
+<span class="sd">	and maps morphism "by pullback" ([SubObj_Functor])</span>
+
+<span class="sd">Written by: Tomi Pannila and Anders Mörtberg, 2016-2017</span>
+
+<span class="sd">*****************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.slicecat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Definition of the category of subobjects (monos) of c *)</span>
+<span class="kn">Section</span> <span class="nf">def_subobjects</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+  <span class="kn">Definition</span> <span class="nf">Subobjectscategory</span> (<span class="nv">c</span> : C) : category :=
+    slice_cat (subcategory_of_monics C)
+                 (subprecategory_of_monics_ob C c).
+
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_Subobjectscategory</span>
+    (<span class="nv">H</span> : is_univalent C)
+    (<span class="nv">c</span> : C)
+    : is_univalent (Subobjectscategory c).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_slicecat.
+    <span class="nb">apply</span> is_univalent_monics_cat.
+    <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Construction of a subobject from a monic *)</span>
+  <span class="kn">Definition</span> <span class="nf">Subobjectscategory_ob</span> {<span class="nv">c</span> <span class="nv">c'</span> : C} (<span class="nv">h</span> : C⟦c', c⟧) (<span class="nv">isM</span> : isMonic h) :
+    Subobjectscategory c := (subprecategory_of_monics_ob C c',,(h,,isM)).
+
+  <span class="sd">(** Accessor for an object of Subobjectscategory*)</span>
+  <span class="kn">Section</span> <span class="nf">obAccessor</span>.
+
+  <span class="kn">Context</span> {<span class="nv">c</span>:C} (<span class="nv">S</span> : Subobjectscategory c).
+
+  <span class="kn">Definition</span> <span class="nf">Subobject_dom</span> : C := pr1 (pr1 S).
+  <span class="kn">Definition</span> <span class="nf">Subobject_Monic</span> := pr2 S.
+  <span class="kn">Definition</span> <span class="nf">Subobject_mor</span> : C⟦ Subobject_dom , c ⟧ := pr1 (pr2 S).
+  <span class="kn">Definition</span> <span class="nf">Subobject_isM</span> : isMonic(Subobject_mor) := pr2 (pr2 S).
+
+  <span class="kn">End</span> <span class="nf">obAccessor</span>.
+
+  <span class="sd">(** Accessor for a morphism of Subobjectscategory*)</span>
+  <span class="kn">Section</span> <span class="nf">morAccessor</span>.
+
+  <span class="kn">Context</span> {<span class="nv">c</span>:C} {<span class="nv">S</span> <span class="nv">S'</span> : Subobjectscategory c} (<span class="nv">h</span> : S --&gt; S').
+
+
+  <span class="kn">Definition</span> <span class="nf">Subobjectmor_Cmor</span> : C⟦ Subobject_dom S, Subobject_dom S' ⟧ := pr1 (pr1 h).
+  <span class="kn">Definition</span> <span class="nf">Subobjectmor_isM</span> : isMonic(Subobjectmor_Cmor) := pr2 (pr1 h).
+  <span class="kn">Definition</span> <span class="nf">Subobjectmor_tri</span> := maponpaths (pr1) (pr2 h).
+
+  <span class="kn">End</span> <span class="nf">morAccessor</span>.
+
+  <span class="sd">(** Given any subobject S of c and a morphism h : c' -&gt; c, by taking then pullback of S by h we</span>
+<span class="sd">      obtain a subobject of c'. *)</span>
+  <span class="kn">Definition</span> <span class="nf">PullbackSubobject</span> (<span class="nv">PB</span> : Pullbacks C) {<span class="nv">c</span> : C} (<span class="nv">S</span> : Subobjectscategory c) {<span class="nv">c'</span> : C} (<span class="nv">h</span> : C⟦c', c⟧) :
+    Subobjectscategory c'.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (pb := PB _ _ _ h (Subobject_mor S)).
+    use Subobjectscategory_ob.
+    - <span class="bp">exact</span> pb.
+    - <span class="bp">exact</span> (PullbackPr1 pb).
+    - use MonicPullbackisMonic'.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(*a z_iso in Subobjectscategory can be obtained by</span>
+<span class="c">  a z_iso on the underlying category C which makes the triangle commute*)</span>
+  <span class="kn">Definition</span> <span class="nf">make_z_iso_in_Subobjectscategory</span> {<span class="nv">c</span> : C} {<span class="nv">S</span> <span class="nv">S'</span> : Subobjectscategory c}
+  (<span class="nv">h</span> : C ⟦Subobject_dom S ,Subobject_dom S'⟧)
+  (<span class="nv">is_z_iso</span> : is_z_isomorphism h)
+  (<span class="nv">tri</span> : Subobject_mor S = h · Subobject_mor S')
+  : z_iso S S'.
+  <span class="kn">Proof</span>.
+    use make_z_iso'.
+    + use tpair.
+      - use precategory_morphisms_in_subcat.
+        * <span class="bp">exact</span> h.
+        * use is_iso_isMonic.
+          <span class="bp">exact</span> is_z_iso.
+      - use eq_in_sub_precategory.
+        <span class="bp">exact</span> tri.
+    + use z_iso_to_slice_precat_z_iso.
+      use is_z_iso_in_subcategory_of_monics_weq.
+      <span class="bp">exact</span> is_z_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** a z_iso is Subobjectcategory gives, in particular, a z_iso of C between domains*)</span>
+  <span class="kn">Definition</span> <span class="nf">z_iso_from_z_iso_in_Subobjectcategory</span> {<span class="nv">c</span> : C}
+  {<span class="nv">S</span> <span class="nv">S'</span> : Subobjectscategory c} (<span class="nv">h</span> : z_iso S S')
+  : (z_iso (Subobject_dom S) (Subobject_dom S')).
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    + <span class="bp">exact</span> (Subobjectmor_Cmor h).
+    + <span class="bp">exact</span> (Subobjectmor_Cmor (inv_from_z_iso h)).
+    + <span class="nb">induction</span> h <span class="k">as</span> (h, (g,(hg,gh))).
+      use make_is_inverse_in_precat.
+      - <span class="bp">exact</span> (maponpaths Subobjectmor_Cmor hg).
+      - <span class="bp">exact</span> (maponpaths Subobjectmor_Cmor gh).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">def_subobjects</span>.
+
+<span class="sd">(** * Definition of subobjects as equivalence classes of monos *)</span>
+<span class="kn">Section</span> <span class="nf">subobj</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+<span class="sd">(** Equivalence classes of subobjects defined by identifying monos into c</span>
+<span class="sd">    with isomorphic source *)</span>
+<span class="kn">Definition</span> <span class="nf">SubObj</span> (<span class="nv">c</span> : C) : hSet :=
+  make_hSet (setquot (z_iso_eqrel (C:=Subobjectscategory c))) (isasetsetquot _).
+
+<span class="kn">Definition</span> <span class="nf">SubObj_iseqc</span> {<span class="nv">c</span>:C} (<span class="nv">S</span> : SubObj c) := pr2 S.
+
+<span class="kn">Definition</span> <span class="nf">PullbackSubObj</span> (<span class="nv">PB</span> : Pullbacks C) {<span class="nv">c</span> : C} (<span class="nv">S</span> : SubObj c)
+  {<span class="nv">c'</span> : C} (<span class="nv">h</span> : C⟦c', c⟧)
+  : SubObj c'.
+<span class="kn">Proof</span>.
+  use (setquotfun (z_iso_eqrel (C:=Subobjectscategory c))).
+  + <span class="nb">intro</span> s.
+    use (PullbackSubobject PB s h).
+  + <span class="nb">intros</span> u v.
+    use hinhfun.
+    <span class="nb">intro</span> uv.
+    use make_z_iso_in_Subobjectscategory.
+    - use (iso_between_pullbacks
+        (PullbackSqrCommutes (PB _ _ _ h (Subobject_mor u)))
+        (PullbackSqrCommutes (PB _ _ _ h (Subobject_mor v)))
+        (isPullback_Pullback (PB _ _ _ h (Subobject_mor u)))
+        (isPullback_Pullback (PB _ _ _ h (Subobject_mor v)))
+      ).
+      * <span class="bp">exact</span> (identity_z_iso c').
+      * use z_iso_from_z_iso_in_Subobjectcategory.
+        <span class="bp">exact</span> uv.
+      * <span class="bp">exact</span> (identity_z_iso c).
+      * <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">apply</span> idpath.
+      * <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> pathsinv0.
+        use Subobjectmor_tri.
+    - use z_iso_is_z_isomorphism.
+    - <span class="nb">rewrite</span> &lt;-(id_right (Subobject_mor _)).
+      use pathsinv0.
+      use PullbackArrow_PullbackPr1.
+  + <span class="bp">exact</span> S.
+<span class="kn">Defined</span>.
+
+<span class="c">(* For f and g monics into c: f &lt;= g := ∃ h, f = h · g *)</span>
+<span class="kn">Definition</span> <span class="nf">monorel</span> (<span class="nv">c</span> : C) : hrel (Subobjectscategory c) :=
+  <span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span>, <span class="k">∃</span> <span class="nv">h</span>, pr1 (pr2 f) = h · pr1 (pr2 g).
+
+<span class="kn">Lemma</span> <span class="nf">isrefl_monorel</span> (<span class="nv">c</span> : C) : isrefl (monorel c).
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> x; <span class="nb">apply</span> hinhpr.
+<span class="k">exists</span> (<span class="nv">pr1</span> (pr1 (identity x))).
+<span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">istrans_monorel</span> (<span class="nv">c</span> : C) : istrans (monorel c).
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> x y z h1.
+<span class="nb">apply</span> hinhuniv; <span class="nb">intros</span> h2; <span class="nb">generalize</span> h1; <span class="nb">clear</span> h1.
+<span class="nb">apply</span> hinhuniv; <span class="nb">intros</span> h1; <span class="nb">apply</span> hinhpr.
+<span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">h1</span> · pr1 h2).
+<span class="bp">now</span> <span class="nb">rewrite</span> &lt;- assoc, &lt;- (pr2 h2), &lt;- (pr2 h1).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ispreorder_monorel</span> <span class="nv">c</span> : ispreorder (monorel c).
+<span class="kn">Proof</span>.
+<span class="bp">exact</span> (istrans_monorel c,,isrefl_monorel c).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">are_z_isomorphic_monorel</span> {<span class="nv">c</span> : C} {<span class="nv">x1</span> <span class="nv">y1</span> <span class="nv">x2</span> <span class="nv">y2</span> : Subobjectscategory c}
+  (<span class="nv">h1</span> : are_z_isomorphic x1 y1) (<span class="nv">h2</span> : are_z_isomorphic x2 y2) :
+  monorel c x1 x2 → monorel c y1 y2.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> hinhuniv; <span class="nb">intros</span> f.
+<span class="nb">change</span> (ishinh_UU (z_iso x1 y1)) <span class="k">in</span> h1.
+<span class="nb">change</span> (ishinh_UU (z_iso x2 y2)) <span class="k">in</span> h2.
+<span class="nb">apply</span> h1; <span class="nb">clear</span> h1; <span class="nb">intro</span> h1.
+<span class="nb">apply</span> h2; <span class="nb">clear</span> h2; <span class="nb">intro</span> h2.
+<span class="nb">intros</span> P H; <span class="nb">apply</span> H; <span class="nb">clear</span> P H.
+<span class="nb">set</span> (h1_inv := inv_from_z_iso h1).
+<span class="nb">set</span> (Hh1 := z_iso_after_z_iso_inv h1).
+<span class="k">exists</span> (<span class="nv">pr1</span> (pr1 h1_inv) · pr1 f · pr1 (pr1 (pr1 h2))).
+<span class="nb">set</span> (Htemp := maponpaths pr1 (pr2 (pr1 h2))).
+<span class="nb">apply</span> pathsinv0; <span class="nb">simpl</span> <span class="k">in</span> *.
+<span class="nb">rewrite</span> &lt;-!assoc, &lt;- Htemp.
+intermediate_path (pr1 (pr1 h1_inv) · pr1 (pr2 x1)).
+{ <span class="nb">apply</span> maponpaths, pathsinv0, (pr2 f). }
+etrans; [ <span class="nb">apply</span> maponpaths, (maponpaths pr1 (pr2 (pr1 h1))) |]; <span class="nb">simpl</span>.
+<span class="nb">rewrite</span> assoc.
+etrans; [ <span class="nb">eapply</span> cancel_postcomposition, (maponpaths pr1 (maponpaths pr1 Hh1)) |].
+<span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Construct a quotient relation on the Subobjects from the relation on monos *)</span>
+<span class="kn">Definition</span> <span class="nf">SubObj_rel</span> (<span class="nv">c</span> : C) : hrel (pr1 (SubObj c)).
+<span class="kn">Proof</span>.
+use quotrel.
+- <span class="nb">apply</span> monorel.
+- <span class="nb">intros</span> x1 y1 x2 y2 h1 h2.
+  <span class="nb">apply</span> hPropUnivalence.
+  + <span class="nb">apply</span> (are_z_isomorphic_monorel h1 h2).
+  + <span class="nb">apply</span> (are_z_isomorphic_monorel (eqrelsymm (z_iso_eqrel) _ _ h1)
+                                  (eqrelsymm (z_iso_eqrel) _ _ h2)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">istrans_SubObj_rel</span> (<span class="nv">c</span> : C) : istrans (SubObj_rel c).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> istransquotrel, istrans_monorel.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isrefl_SubObj_rel</span> (<span class="nv">c</span> : C) : isrefl (SubObj_rel c).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> isreflquotrel, isrefl_monorel.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ispreorder_SubObj_rel</span> (<span class="nv">c</span> : C) : ispreorder (SubObj_rel c).
+<span class="kn">Proof</span>.
+<span class="bp">exact</span> (istrans_SubObj_rel c,,isrefl_SubObj_rel c).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isantisymm_SubObj_rel</span> (<span class="nv">c</span> : C) : isantisymm (SubObj_rel c).
+<span class="kn">Proof</span>.
+<span class="nb">unfold</span> isantisymm; <span class="nb">simpl</span>.
+<span class="nb">assert</span> (int : ∏ x1 x2, isaprop (SubObj_rel c x1 x2 → SubObj_rel c x2 x1 -&gt; x1 = x2)).
+{ <span class="nb">intros</span> x1 x2.
+  <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+  <span class="nb">apply</span> (isasetsetquot _ x1 x2).
+}
+<span class="nb">apply</span> (setquotuniv2prop _ (<span class="k">λ</span> <span class="nv">x1</span> <span class="nv">x2</span>, make_hProp _ (int x1 x2))).
+<span class="nb">intros</span> x y h1 h2.
+<span class="nb">simpl</span> <span class="k">in</span> *. <span class="c">(* This is slow *)</span>
+<span class="nb">apply</span> (iscompsetquotpr (z_iso_eqrel (C:=Subobjectscategory c))).
+<span class="nb">generalize</span> h1; <span class="nb">clear</span> h1; <span class="nb">apply</span> hinhuniv; <span class="nb">intros</span> [h1 Hh1].
+<span class="nb">generalize</span> h2; <span class="nb">clear</span> h2; <span class="nb">apply</span> hinhuniv; <span class="nb">intros</span> [h2 Hh2].
+<span class="nb">apply</span> hinhpr, (invmap (weq_z_iso _ (subprecategory_of_monics_ob C c) _ _)).
+<span class="nb">induction</span> x <span class="k">as</span> [[x []] [fx Hfx]].
+<span class="nb">induction</span> y <span class="k">as</span> [[y []] [fy Hfy]].
+<span class="nb">simpl</span> <span class="k">in</span> *.
+<span class="nb">assert</span> (mon_h1 : isMonic h1).
+{ <span class="nb">apply</span> (isMonic_postcomp _ h1 fy); <span class="nb">rewrite</span> &lt;- Hh1; <span class="nb">apply</span> Hfx. }
+<span class="nb">assert</span> (mon_h2 : isMonic h2).
+{ <span class="nb">apply</span> (isMonic_postcomp _ h2 fx); <span class="nb">rewrite</span> &lt;- Hh2; <span class="nb">apply</span> Hfy. }
+use tpair.
+- <span class="k">exists</span> (<span class="nv">h1</span>,,<span class="nv">mon_h1</span>).
+  <span class="k">exists</span> (<span class="nv">h2</span>,,<span class="nv">mon_h2</span>).
+  <span class="nb">split</span>; <span class="nb">apply</span> subtypePath.
+  + <span class="nb">intros</span> xx. <span class="nb">apply</span> isapropisMonic.
+  + <span class="nb">simpl</span>; <span class="nb">apply</span> Hfx.
+    <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- assoc, &lt;- Hh2, &lt;- Hh1, id_left.
+  + <span class="nb">intros</span> xx. <span class="nb">apply</span> isapropisMonic.
+  + <span class="nb">simpl</span>; <span class="nb">apply</span> Hfy.
+    <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- assoc, &lt;- Hh1, &lt;- Hh2, id_left.
+- <span class="nb">apply</span> subtypePath; <span class="nb">simpl</span>; <span class="kp">try</span> <span class="nb">apply</span> Hh1.
+  <span class="bp">now</span> <span class="nb">intros</span> xx; <span class="nb">apply</span> isapropisMonic.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">SubObjPoset</span> (<span class="nv">c</span> : C) : Poset :=
+  (SubObj c,,SubObj_rel c,,ispreorder_SubObj_rel c,,isantisymm_SubObj_rel c).
+
+<span class="kn">End</span> <span class="nf">subobj</span>.
+
+<span class="c">(*Definition of the functor C^op -&gt; HSET which maps c on SubObj c and maps morphism "by pullback"*)</span>
+<span class="kn">Section</span> <span class="nf">SubObj_functor</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> : category) (<span class="nv">PB</span> : Pullbacks C).
+
+<span class="kn">Definition</span> <span class="nf">SubObj_Functor_data</span> : functor_data (op_cat C) hset_category.
+<span class="kn">Proof</span>.
+  use make_functor_data.
+    + <span class="nb">intro</span> c.
+      <span class="nb">cbn</span> <span class="k">in</span> c.
+      <span class="bp">exact</span> (SubObj c).
+    + <span class="nb">intros</span> c c' f Sm.
+      use PullbackSubObj.
+      - <span class="bp">exact</span> PB.
+      - <span class="bp">exact</span> c.
+      - <span class="bp">exact</span> Sm.
+      - <span class="bp">exact</span> f.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">SubObj_Functor_isfunctor</span> : is_functor (SubObj_Functor_data).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  + <span class="nb">intro</span> c.
+    <span class="nb">cbn</span> <span class="k">in</span> c.
+    use funextfun.
+    <span class="nb">intro</span> S.
+    <span class="nb">change</span> (pr1hSet (SubObj c)) <span class="k">in</span> S.
+    use (squash_to_prop (X:=pr1setquot _ S)).
+    { <span class="bp">exact</span> (eqax0 (SubObj_iseqc S)). }
+    { use isasetsetquot. }
+    <span class="nb">intro</span> m.
+    <span class="nb">induction</span> (setquotl0 _ S m).
+    <span class="nb">cbn</span>.
+    use (weqpathsinsetquot (z_iso_eqrel (C:=Subobjectscategory c))).
+    use hinhpr.
+    use make_z_iso_in_Subobjectscategory.
+    - use PullbackPr2.
+    - use Pullback_of_z_iso'.
+      <span class="bp">exact</span> (identity_is_z_iso c).
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- PullbackSqrCommutes, id_right.
+      <span class="nb">apply</span> idpath.
+  + <span class="nb">intros</span> c c' c'' f f'.
+    <span class="nb">cbn</span> <span class="k">in</span> c, c', c'', f, f'.
+    use funextfun.
+    <span class="nb">intro</span> S.
+    use (squash_to_prop (X:=pr1setquot _ S)).
+    { <span class="bp">exact</span> (eqax0 (SubObj_iseqc S)). }
+    { use isasetsetquot. }
+    <span class="nb">intro</span> m.
+    <span class="nb">induction</span> (setquotl0 _ S m).
+    use weqpathsinsetquot.
+    use hinhpr.
+    <span class="nb">induction</span> m <span class="k">as</span> (m,Sm).
+    <span class="nb">cbn</span>.
+    <span class="nb">set</span> (pb := (PB _ _ _ f ((Subobject_mor m)))).
+    <span class="nb">set</span> (pbpb := PB _ _ _ f' (PullbackPr1 pb)).
+    transparent <span class="nb">assert</span> (pb_glued : (Pullback (f'·f) (Subobject_mor m))). {
+      use make_Pullback.
+      - <span class="bp">exact</span> pbpb.
+      - <span class="bp">exact</span> (PullbackPr1 pbpb).
+      - <span class="bp">exact</span> ((PullbackPr2 pbpb)·(PullbackPr2 pb)).
+      - use glueSquares.
+        * <span class="bp">exact</span> (PullbackPr1 pb).
+        * use PullbackSqrCommutes.
+        * use PullbackSqrCommutes.
+      - use (isPullbackGluedSquare
+          (isPullback_Pullback pb)
+          (isPullback_Pullback pbpb)).
+    }
+    use make_z_iso_in_Subobjectscategory.
+    - <span class="nb">cbn</span>.
+      <span class="nb">fold</span> pb.
+      <span class="nb">fold</span> pbpb.
+      <span class="nb">assert</span> (H : PullbackObject pb_glued = PullbackObject pbpb). {
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">induction</span> H.
+      use z_iso_from_Pullback_to_Pullback.
+    - use z_iso_is_z_isomorphism.
+    - <span class="nb">cbn</span>.
+      <span class="nb">fold</span> pb.
+      <span class="nb">fold</span> pbpb.
+      <span class="nb">assert</span> (H : PullbackPr1 pb_glued = PullbackPr1 pbpb). { <span class="nb">apply</span> idpath. }
+      <span class="nb">induction</span> H.
+      <span class="nb">apply</span> pathsinv0.
+      use (PullbackArrow_PullbackPr1 pb_glued).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">SubObj_Functor</span> : C^op ⟶ hset_category.
+<span class="kn">Proof</span>.
+  use make_functor.
+    + <span class="bp">exact</span> SubObj_Functor_data.
+    + <span class="bp">exact</span> SubObj_Functor_isfunctor.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">SubObj_functor</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Subobjects.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *****************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

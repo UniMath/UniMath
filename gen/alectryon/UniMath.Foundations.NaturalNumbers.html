@@ -1,0 +1,2189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>NaturalNumbers.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Natural numbers and their properties. Vladimir Voevodsky. Apr. - Sep. 2011</span>
+
+<span class="sd">This file contains the formulations and proofs of general properties of natural</span>
+<span class="sd">numbers from the univalent perspecive. *)</span>
+<span class="sd">(** ** Contents</span>
+<span class="sd">- Equality and inequality on [nat]</span>
+<span class="sd"> - Basic properties of [paths] on [nat] and the proofs of [isdeceq] and [isaset]</span>
+<span class="sd">   for [nat]</span>
+<span class="sd"> - [S : nat -&gt; nat] is a decidable inclusion</span>
+<span class="sd">- Inequalities on [nat]</span>
+<span class="sd"> - Boolean "less of equal" and "greater or equal" on [nat]</span>
+<span class="sd"> - Semi-boolean "greater" on [nat] or [natgth]</span>
+<span class="sd"> - Semi-boolean "less" on [nat] or [natlth]</span>
+<span class="sd"> - Semi-boolean "less or equal" on [nat] or [natleh]</span>
+<span class="sd"> - Semi-boolean "greater or equal" on [nat] or [natgeh]</span>
+<span class="sd"> - Simple implications between comparisons</span>
+<span class="sd"> - Comparison alternatives</span>
+<span class="sd"> - Mixed transitivities</span>
+<span class="sd"> - Two comparisons and [S]</span>
+<span class="sd"> - Comparison alternatives and [S]</span>
+<span class="sd">- Some properties of [plus] on [nat]</span>
+<span class="sd"> - The structure of the additive abelian monoid on [nat]</span>
+<span class="sd"> - Addition and comparisons</span>
+<span class="sd"> - Comparisons and [n -&gt; n + 1]</span>
+<span class="sd"> - Two comparisons and [n -&gt; n + 1]</span>
+<span class="sd"> - Comparison alternatives and [n -&gt; n + 1]</span>
+<span class="sd"> - Cancellation properties of [plus] on [nat]</span>
+<span class="sd"> - Some properties of [minus] on [nat]</span>
+<span class="sd"> - Basic algebraic properties of [mul] on [nat]</span>
+<span class="sd"> - [nat] as a commutative rig</span>
+<span class="sd"> - Cancellation properties of [mul] on [nat]</span>
+<span class="sd"> - Multiplication and comparisons</span>
+<span class="sd"> - Properties of comparisons in the terminology of algebra1.v</span>
+<span class="sd"> - Submonoid of non-zero elements in [nat]</span>
+<span class="sd"> - Division with a remainder on [nat]</span>
+<span class="sd"> - Exponentiation [natpower n m] ("n to the power of m") on [nat]</span>
+<span class="sd"> - Factorial on [nat]</span>
+<span class="sd">- The order-preserving functions [di i : nat -&gt; nat] whose image is the</span>
+<span class="sd">  complement of one element [i].</span>
+<span class="sd">- The order-preserving functions [si i : nat -&gt; nat] that take the value [i]</span>
+<span class="sd">  twice.</span>
+<span class="sd">- Inductive types [le] with values in [UU]</span>
+<span class="sd"> - A generalization of [le] and its properties</span>
+<span class="sd"> - Inductive types [le] with values in [UU] are in [hProp]</span>
+<span class="sd"> - Comparison between [le] with values in [UU] and [natleh]</span>
+<span class="sd">*)</span>
+
+
+<span class="sd">(** ** Preamble *)</span>
+
+<span class="sd">(** Imports. *)</span>
+<span class="kn">Require Export</span> UniMath.Foundations.Sets.
+
+<span class="sd">(** To up-stream files  *)</span>
+
+
+<span class="sd">(** ** Equality and inequality on [nat] *)</span>
+
+<span class="c">(* we will write m ≠ n for algorithmic inequality and ¬(m = n) for negation of</span>
+<span class="c">   equality *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natnegpaths</span> (<span class="nv">x</span> <span class="nv">y</span> : nat) : hProp := make_hProp (x != y) (isapropneg _).
+
+<span class="kn">Fixpoint</span> <span class="nf">natneq_hProp</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : hProp :=
+  <span class="k">match</span> n, m <span class="k">with</span>
+  | S n, S m =&gt; natneq_hProp n m
+  | O, O =&gt; hfalse
+  | _, _ =&gt; htrue
+  <span class="k">end</span>.
+
+<span class="c">(* Provisional notation, to be replaced below: *)</span>
+<span class="kn">Notation</span> <span class="s2">" x ≠ y "</span> := (natneq_hProp x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) : nat_scope.
+
+<span class="kn">Lemma</span> <span class="nf">negpaths0sx</span> (<span class="nv">x</span> : nat) : ¬ (<span class="mi">0</span> = S x).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (f := <span class="k">λ</span> <span class="nv">n</span> : nat, <span class="k">match</span> n <span class="k">with</span> O =&gt; true | S m =&gt; false <span class="k">end</span>).
+  <span class="nb">apply</span> (negf (@maponpaths _ _ f <span class="mi">0</span> (S x)) nopathstruetofalse).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">negpathssx0</span> (<span class="nv">x</span> : nat) : ¬ (S x = <span class="mi">0</span>).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X. <span class="nb">apply</span> (negpaths0sx x (pathsinv0  X)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">invmaponpathsS</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : S n = S m -&gt; n = m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e.
+  <span class="nb">set</span> (f := <span class="k">λ</span> <span class="nv">n</span> : nat, <span class="k">match</span> n <span class="k">with</span> O =&gt; O | S m =&gt; m <span class="k">end</span>).
+  <span class="nb">apply</span> (@maponpaths _ _ f (S n) (S m) e).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">noeqinjS</span> (<span class="nv">x</span> <span class="nv">x'</span> : nat) : ¬ (x = x') -&gt; ¬ (S x = S x').
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (negf (invmaponpathsS x x')).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natneq_iff_neq</span> <span class="nv">n</span> <span class="nv">m</span> : ¬ (n = m) &lt;-&gt; n ≠ m.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n N].
+  - <span class="nb">intro</span> m. <span class="nb">induction</span> m <span class="k">as</span> [|m _].
+    + <span class="nb">apply</span> logeq_both_false.
+      * <span class="nb">intro</span> n. <span class="bp">exact</span> (n (idpath <span class="mi">0</span>)).
+      * <span class="nb">simpl</span>. <span class="bp">exact</span> (idfun ∅).
+    + <span class="nb">apply</span> logeq_both_true.
+      * <span class="nb">apply</span> negpaths0sx.
+      * <span class="nb">simpl</span>. <span class="bp">exact</span> tt.
+  - <span class="nb">intro</span> m. <span class="nb">induction</span> m <span class="k">as</span> [|m _].
+    + <span class="nb">apply</span> logeq_both_true.
+      * <span class="nb">apply</span> negpathssx0.
+      * <span class="nb">simpl</span>. <span class="bp">exact</span> tt.
+    + <span class="nb">split</span>.
+      * <span class="nb">intro</span> ne. <span class="nb">apply</span> (pr1 (N m)).
+        <span class="nb">intro</span> r. <span class="bp">exact</span> (ne (maponpaths S r)).
+      * <span class="nb">intro</span> neq. <span class="nb">apply</span> noeqinjS.
+        <span class="nb">apply</span> (pr2 (N m)). <span class="bp">exact</span> neq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_neq_to_nopath</span> {<span class="nv">n</span> <span class="nv">m</span> : nat} : ¬ (n = m) &lt;- n ≠ m.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 (natneq_iff_neq n m)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_nopath_to_neq</span> {<span class="nv">n</span> <span class="nv">m</span> : nat} : ¬ (n = m) -&gt; n ≠ m.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (natneq_iff_neq n m)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natneq0sx</span> (<span class="nv">x</span> : nat) : <span class="mi">0</span> ≠ S x.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_nopath_to_neq, negpaths0sx.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natneqsx0</span> (<span class="nv">x</span> : nat) : S x ≠ <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_nopath_to_neq, negpathssx0.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natneqinjS</span> (<span class="nv">x</span> <span class="nv">x'</span> : nat) : x ≠ x' -&gt; S x ≠ S x'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r. <span class="nb">apply</span> nat_nopath_to_neq, noeqinjS, nat_neq_to_nopath. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isirrefl_natneq</span> <span class="nv">i</span> : ¬ (i ≠ i).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ne. <span class="nb">apply</span> (nat_neq_to_nopath ne). <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">issymm_natneq</span> <span class="nv">i</span> <span class="nv">j</span> : i ≠ j -&gt; j ≠ i.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ne. <span class="nb">apply</span> nat_nopath_to_neq. <span class="nb">intro</span> eq. <span class="nb">induction</span> eq.
+  <span class="bp">exact</span> (isirrefl_natneq j ne).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** *** Basic properties of [paths] on [nat] and the proofs of [isdeceq] and [isaset] for [nat]. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isdeceqnat</span>: isdeceq nat.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> isdeceq. <span class="nb">intro</span> x. <span class="nb">induction</span> x <span class="k">as</span> [ | x IHx ].
+  - <span class="nb">intro</span> x'. <span class="nb">induction</span> x'.
+    + <span class="nb">apply</span> (ii1 (idpath O)).
+    + <span class="nb">apply</span> (ii2 (negpaths0sx x')).
+  - <span class="nb">intro</span> x'. <span class="nb">induction</span> x'.
+    + <span class="nb">apply</span> (ii2 (negpathssx0 x)).
+    + <span class="nb">induction</span> (IHx x') <span class="k">as</span> [ p | e ].
+      * <span class="nb">apply</span> (ii1 (maponpaths S  p)).
+      * <span class="nb">apply</span> (ii2 (noeqinjS  _ _ e)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isisolatedn</span> (<span class="nv">n</span> : nat) : isisolated _ n.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> isisolated. <span class="nb">intro</span> x'. <span class="nb">apply</span> isdeceqnat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">isasetnat</span>: isaset nat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isasetifdeceq _ isdeceqnat).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natset</span> : hSet := make_hSet _ isasetnat.
+
+<span class="kn">Lemma</span> <span class="nf">nat_eq_or_neq</span> (<span class="nv">m</span> <span class="nv">n</span> : nat) : (m = n) ⨿ (m ≠ n).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m. <span class="nb">induction</span> n <span class="k">as</span> [|n N].
+  - <span class="nb">intro</span> m. <span class="nb">induction</span> m <span class="k">as</span> [|m _].
+    + <span class="nb">apply</span> ii1. <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> ii2. <span class="bp">exact</span> tt.
+  - <span class="nb">intro</span> m. <span class="nb">induction</span> m <span class="k">as</span> [|m _].
+    + <span class="nb">apply</span> ii2. <span class="bp">exact</span> tt.
+    + <span class="nb">induction</span> (N m) <span class="k">as</span> [eq|neq].
+      * <span class="nb">apply</span> ii1, maponpaths. <span class="bp">assumption</span>.
+      * <span class="nb">apply</span> ii2. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isdecrel_natneq</span> : isdecrel (<span class="k">λ</span> <span class="nv">m</span> <span class="nv">n</span>, m ≠ n).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> n. <span class="nb">induction</span> n <span class="k">as</span> [|n N].
+  - <span class="nb">intro</span> m. <span class="nb">induction</span> m <span class="k">as</span> [|m _].
+    + <span class="nb">simpl</span>. <span class="bp">exact</span> (ii2 (idfun ∅)).
+    + <span class="nb">simpl</span>. <span class="bp">exact</span> (ii1 tt).
+  - <span class="nb">intro</span> m. <span class="nb">induction</span> m <span class="k">as</span> [|m _].
+    + <span class="nb">simpl</span>. <span class="bp">exact</span> (ii1 tt).
+    + <span class="bp">exact</span> (N m).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nateq</span> (<span class="nv">x</span> <span class="nv">y</span> : nat) : hProp := make_hProp (x = y) (isasetnat _ _).
+
+<span class="kn">Definition</span> <span class="nf">isdecrelnateq</span> : isdecrel nateq := <span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, isdeceqnat a b.
+
+<span class="kn">Definition</span> <span class="nf">natdeceq</span> : decrel nat := make_decrel isdecrelnateq.
+
+<span class="kn">Definition</span> <span class="nf">natdecneq</span> : decrel nat := make_decrel isdecrel_natneq.
+
+<span class="kn">Definition</span> <span class="nf">natboolneq</span> : brel nat := decreltobrel natdecneq.
+
+
+<span class="sd">(** *** [ S : nat -&gt; nat ] is a decidable inclusion. *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">isinclS</span> : isincl S.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isinclbetweensets S isasetnat isasetnat invmaponpathsS).
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">isdecinclS</span> : isdecincl S.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> n. <span class="nb">apply</span> isdecpropif.
+  - <span class="nb">apply</span> (isinclS n).
+  - <span class="nb">destruct</span> n <span class="k">as</span> [ | n ].
+    + <span class="nb">assert</span> (nh : ¬ (hfiber S <span class="mi">0</span>)).
+      * <span class="nb">intro</span> hf. <span class="nb">induction</span> hf <span class="k">as</span> [ m e ]. <span class="nb">apply</span> (negpathssx0 _ e).
+      * <span class="nb">apply</span> (ii2 nh).
+    + <span class="nb">apply</span> (ii1 (make_hfiber _ n (idpath _))).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** ** Inequalities on [nat]. *)</span>
+
+
+<span class="sd">(** *** Boolean "less or equal" and "greater or equal" on [nat]. *)</span>
+
+<span class="kn">Fixpoint</span> <span class="nf">natgtb</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : bool :=
+  <span class="k">match</span> n, m <span class="k">with</span>
+  | S n, S m =&gt; natgtb n m
+  | O, _ =&gt; false
+  | _, _ =&gt; true
+  <span class="k">end</span>.
+
+
+<span class="sd">(** *** Semi-boolean "greater" on [nat] or [natgth]</span>
+
+<span class="sd">1. Note that due to its definition [natgth] automatically has the property that</span>
+<span class="sd">   [natgth n m &lt;-&gt; natgth (S n) (S m)] and the same applies to all other</span>
+<span class="sd">   inequalities defined in this section.</span>
+<span class="sd">2. We choose "greater" as the root relation from which we define all other</span>
+<span class="sd">   relations on [nat] because it is more natural to extend "greater" to integers</span>
+<span class="sd">   and then to rationals than it is to extend "less". *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">natgth</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : hProp := make_hProp (natgtb n m = true) (isasetbool _ _).
+
+<span class="kn">Notation</span> <span class="s2">" x &gt; y "</span> := (natgth x y) : nat_scope.
+
+<span class="kn">Lemma</span> <span class="nf">negnatgth0n</span> (<span class="nv">n</span> : nat) : ¬ (<span class="mi">0</span> &gt; n).
+<span class="kn">Proof</span>.
+  <span class="nb">simpl</span>. <span class="nb">intro</span> np. <span class="nb">apply</span> (nopathsfalsetotrue np).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natgthsnn</span> (<span class="nv">n</span> : nat) : S n &gt; n.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> IHn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natgthsn0</span> (<span class="nv">n</span> : nat) : S n &gt; <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">negnatgth0tois0</span> (<span class="nv">n</span> : nat) (<span class="nv">ng</span> : ¬ (n &gt; <span class="mi">0</span>)) : n = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> ng. <span class="nb">destruct</span> n <span class="k">as</span> [ | n ].
+  - <span class="nb">intro</span>. <span class="nb">apply</span> idpath.
+  - <span class="nb">intro</span> ng. <span class="nb">induction</span> (ng (natgthsn0 _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natneq0togth0</span> (<span class="nv">n</span> : nat) (<span class="nv">ne</span> : n ≠ <span class="mi">0</span>) : n &gt; <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> n <span class="k">as</span> [ | n ].
+  - <span class="nb">induction</span> ne.
+  - <span class="nb">apply</span> natgthsn0.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat1gthtois0</span> (<span class="nv">n</span> : nat) (<span class="nv">g</span> : <span class="mi">1</span> &gt; n) : n = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> g.
+  <span class="nb">destruct</span> n <span class="k">as</span> [ | n ].
+  - <span class="nb">intro</span>. <span class="nb">apply</span> idpath.
+  - <span class="nb">intro</span> x. <span class="nb">induction</span> (negnatgth0n n x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">istransnatgth</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n &gt; m -&gt; m &gt; k -&gt; n &gt; k.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m k. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intros</span> m k g. <span class="nb">induction</span> (negnatgth0n _ g).
+  - <span class="nb">intro</span> m. <span class="nb">destruct</span> m <span class="k">as</span> [ | m ].
+    + <span class="nb">intros</span> k g g'. <span class="nb">induction</span> (negnatgth0n _ g').
+    + <span class="nb">intro</span> k. <span class="nb">destruct</span> k <span class="k">as</span> [ | k ].
+      * <span class="nb">intros</span>. <span class="nb">apply</span> natgthsn0.
+      * <span class="nb">apply</span> (IHn m k).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isirreflnatgth</span> (<span class="nv">n</span> : nat) : ¬ (n &gt; n).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">apply</span> (negnatgth0n <span class="mi">0</span>).
+  - <span class="nb">apply</span> IHn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="nf">negnatlthnn</span> := isirreflnatgth.
+
+<span class="kn">Lemma</span> <span class="nf">natgthtoneq</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">g</span> : n &gt; m) : n ≠ m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> nat_nopath_to_neq. <span class="nb">intro</span> e. <span class="nb">rewrite</span> e <span class="k">in</span> g.
+  <span class="nb">apply</span> (isirreflnatgth _ g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isasymmnatgth</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &gt; m -&gt; m &gt; n -&gt; empty.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isgt isgt'.
+  <span class="nb">apply</span> (isirreflnatgth n (istransnatgth _ _ _ isgt isgt')).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isantisymmnegnatgth</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : ¬ (n &gt; m) -&gt; ¬ (m &gt; n) -&gt; n = m.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intros</span> m ng0m ngm0. <span class="nb">apply</span> (pathsinv0 (negnatgth0tois0 _ ngm0)).
+  - <span class="nb">intro</span> m. <span class="nb">destruct</span> m <span class="k">as</span> [ | m ].
+    + <span class="nb">intros</span> ngsn0 ng0sn. <span class="nb">induction</span> (ngsn0 (natgthsn0 _)).
+    + <span class="nb">intros</span> ng1 ng2. <span class="nb">apply</span> (maponpaths S (IHn m ng1 ng2)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isdecrelnatgth</span> : isdecrel natgth.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> n m. <span class="nb">apply</span> (isdeceqbool (natgtb n m) true).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natgthdec</span> := make_decrel isdecrelnatgth.
+
+<span class="kn">Lemma</span> <span class="nf">isnegrelnatgth</span> : isnegrel natgth.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isdecreltoisnegrel. <span class="nb">apply</span> isdecrelnatgth.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscoantisymmnatgth</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : ¬ (n &gt; m) -&gt; (m &gt; n) ⨿ (n = m).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> n m.
+  <span class="nb">apply</span> isantisymmnegtoiscoantisymm.
+  - <span class="nb">apply</span> isdecrelnatgth.
+  - <span class="nb">intros</span> n m. <span class="nb">apply</span> isantisymmnegnatgth.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscotransnatgth</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n &gt; k -&gt; (n &gt; m) ⨿ (m &gt; k).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> gnk. <span class="nb">induction</span> (isdecrelnatgth n m) <span class="k">as</span> [ p | np ].
+  - <span class="nb">apply</span> ii1. <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> ii2. <span class="nb">induction</span> (isdecrelnatgth m n) <span class="k">as</span> [r|nr].
+    + <span class="nb">apply</span> (istransnatgth _ _ _ r gnk).
+    + <span class="nb">assert</span> (e := isantisymmnegnatgth _ _ np nr); <span class="nb">clear</span> np nr.
+      <span class="nb">induction</span> e. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** *** Semi-boolean "less" on [nat] or [natlth] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natlth</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) := m &gt; n.
+
+<span class="kn">Notation</span> <span class="s2">" x &lt; y "</span> := (natlth x y) : nat_scope.
+
+<span class="kn">Definition</span> <span class="nf">negnatlthn0</span> (<span class="nv">n</span> : nat) : ¬ (n &lt; <span class="mi">0</span>) := negnatgth0n n.
+
+<span class="kn">Definition</span> <span class="nf">natlthnsn</span> (<span class="nv">n</span> : nat) : n &lt; S n := natgthsnn n.
+
+<span class="kn">Definition</span> <span class="nf">negnat0lthtois0</span> (<span class="nv">n</span> : nat) (<span class="nv">nl</span> : ¬ (<span class="mi">0</span> &lt; n)) : n = <span class="mi">0</span> := negnatgth0tois0 n nl.
+
+<span class="kn">Definition</span> <span class="nf">natneq0to0lth</span> (<span class="nv">n</span> : nat) : n ≠ <span class="mi">0</span> -&gt; <span class="mi">0</span> &lt; n := natneq0togth0 n.
+
+<span class="kn">Definition</span> <span class="nf">natlth1tois0</span> (<span class="nv">n</span> : nat) : n &lt; <span class="mi">1</span> -&gt; n = <span class="mi">0</span> := nat1gthtois0 _.
+
+<span class="kn">Definition</span> <span class="nf">istransnatlth</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n &lt; m -&gt; m &lt; k -&gt; n &lt; k :=
+  <span class="k">λ</span> <span class="nv">lnm</span> <span class="nv">lmk</span>, istransnatgth _ _ _ lmk lnm.
+
+<span class="kn">Definition</span> <span class="nf">isirreflnatlth</span> (<span class="nv">n</span> : nat) : ¬ (natlth n n) := isirreflnatgth n.
+
+<span class="kn">Notation</span> <span class="nf">negnatgthnn</span> := isirreflnatlth.
+
+<span class="kn">Lemma</span> <span class="nf">natlthtoneq</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">g</span> : natlth n m) : n ≠ m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> nat_nopath_to_neq. <span class="nb">intro</span> e. <span class="nb">rewrite</span> e <span class="k">in</span> g.
+  <span class="nb">apply</span> (isirreflnatlth _ g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isasymmnatlth</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : natlth n m -&gt; natlth m n -&gt; empty :=
+  <span class="k">λ</span> <span class="nv">lnm</span> <span class="nv">lmn</span>, isasymmnatgth _ _ lmn lnm.
+
+<span class="kn">Definition</span> <span class="nf">isantisymmnegnattth</span>  (<span class="nv">n</span> <span class="nv">m</span> : nat) :
+  ¬ (natlth n m) -&gt; ¬ (natlth m n) -&gt; n = m := <span class="k">λ</span> <span class="nv">nlnm</span> <span class="nv">nlmn</span>, isantisymmnegnatgth _ _ nlmn nlnm.
+
+<span class="kn">Definition</span> <span class="nf">isdecrelnatlth</span> : isdecrel natlth := <span class="k">λ</span> <span class="nv">n</span> <span class="nv">m</span>, isdecrelnatgth m n.
+
+<span class="kn">Definition</span> <span class="nf">natlthdec</span> := make_decrel isdecrelnatlth.
+
+<span class="kn">Definition</span> <span class="nf">isnegrelnatlth</span> : isnegrel natlth := <span class="k">λ</span> <span class="nv">n</span> <span class="nv">m</span>, isnegrelnatgth m n.
+
+<span class="kn">Definition</span> <span class="nf">iscoantisymmnatlth</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : ¬ (natlth n m) -&gt; (natlth m n) ⨿ (n = m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> nlnm.
+  <span class="nb">induction</span> (iscoantisymmnatgth m n nlnm) <span class="k">as</span> [ l | e ].
+  - <span class="nb">apply</span> (ii1 l).
+  - <span class="nb">apply</span> (ii2 (pathsinv0 e)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">iscotransnatlth</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n &lt; k -&gt; (n &lt; m) ⨿ (m &lt; k).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> lnk. <span class="nb">apply</span> coprodcomm, iscotransnatgth. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** *** Semi-boolean "less or equal " on [nat] or [natleh] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natleh</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) := S m &gt; n.
+
+<span class="kn">Notation</span> <span class="s2">" x &lt;= y "</span> := (natleh x y) : nat_scope.
+<span class="kn">Notation</span> <span class="s2">" x ≤ y "</span> := (natleh x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) : nat_scope.
+
+<span class="kn">Definition</span> <span class="nf">isdecrelnatleh</span> : isdecrel natleh := <span class="k">λ</span> <span class="nv">m</span> <span class="nv">n</span>, isdecrelnatgth _ _.
+
+<span class="kn">Definition</span> <span class="nf">negnatlehsn0</span> (<span class="nv">n</span> : nat) : ¬ (S n ≤ <span class="mi">0</span>) := negnatlthn0 n.
+
+<span class="c">(* these two lemmas show agreement with the old definition: *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">natlehneggth</span> {<span class="nv">n</span> <span class="nv">m</span> : nat} : n ≤ m -&gt; ¬ (n &gt; m).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m. <span class="nb">induction</span> n <span class="k">as</span> [|n N].
+  - <span class="nb">intros</span> m _. <span class="bp">exact</span> (negnatgth0n m).
+  - <span class="nb">intros</span> m. <span class="nb">induction</span> m <span class="k">as</span> [|m _].
+    + <span class="nb">intros</span> r _. <span class="bp">exact</span> (negnatlehsn0 n r).
+    + <span class="bp">exact</span> (N m).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natgthnegleh</span> {<span class="nv">n</span> <span class="nv">m</span> : nat} : n &gt; m -&gt; ¬ (n ≤ m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r s. <span class="bp">exact</span> (natlehneggth s r).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">negnatSleh</span> <span class="nv">n</span> : ¬ (S n ≤ n).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> natleh. <span class="nb">apply</span> isirreflnatgth.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">negnatgthtoleh</span> {<span class="nv">n</span> <span class="nv">m</span> : nat} : ¬ (n &gt; m) -&gt; n ≤ m.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> natleh. <span class="nb">revert</span> m. <span class="nb">induction</span> n <span class="k">as</span> [|n N].
+  - <span class="nb">intros</span> m r. <span class="bp">exact</span> (natgthsn0 m).
+  - <span class="nb">intro</span> m. <span class="nb">change</span> (S m &gt; S n) <span class="k">with</span> (m &gt; n). <span class="nb">induction</span> m <span class="k">as</span> [|m _].
+    + <span class="nb">intro</span> r. contradicts (natgthsn0 n) r.
+    + <span class="nb">change</span> (S n &gt; S m) <span class="k">with</span> (n &gt; m). <span class="nb">intro</span> r. <span class="bp">exact</span> (N m r).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">negnatlehtogth</span> {<span class="nv">n</span> <span class="nv">m</span> : nat} : n &gt; m &lt;- ¬ (n ≤ m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r. <span class="nb">apply</span> (isdecreltoisnegrel isdecrelnatgth).
+  <span class="nb">intro</span> s. <span class="bp">exact</span> (r (negnatgthtoleh s)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">neggth_logeq_leh</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : ¬ (n &gt; m) &lt;-&gt; n ≤ m := (negnatgthtoleh,,natlehneggth).
+
+<span class="kn">Definition</span> <span class="nf">natleh0tois0</span> {<span class="nv">n</span> : nat} (<span class="nv">l</span> : n ≤ <span class="mi">0</span>) : n = <span class="mi">0</span> := natlth1tois0 n l.
+
+<span class="kn">Definition</span> <span class="nf">natleh0n</span> (<span class="nv">n</span> : nat) : <span class="mi">0</span> ≤ n := natgthsn0 _.
+
+<span class="kn">Definition</span> <span class="nf">negnatlehsnn</span> (<span class="nv">n</span> : nat) : ¬ (S n ≤ n) := isirreflnatlth _.
+
+<span class="kn">Definition</span> <span class="nf">istransnatleh</span> {<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat} : n ≤ m -&gt; m ≤ k -&gt; n ≤ k.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r s.
+  <span class="nb">apply</span> negnatgthtoleh.
+  <span class="nb">assert</span> (b := natlehneggth r); <span class="nb">clear</span> r.
+  <span class="nb">assert</span> (c := natlehneggth s); <span class="nb">clear</span> s.
+  <span class="nb">intro</span> r.
+  <span class="nb">induction</span> (iscotransnatgth _ m _ r) <span class="k">as</span> [t|t].
+  - contradicts b t.
+  - contradicts c t.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isreflnatleh</span> <span class="nv">n</span> : n ≤ n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> natleh. <span class="nb">apply</span> natgthsnn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isantisymmnatleh</span> : isantisymm natleh.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> m. <span class="nb">induction</span> m <span class="k">as</span> [|m M].
+  - <span class="nb">intros</span> n _ s. <span class="nb">unfold</span> natleh <span class="k">in</span> s.
+    <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> nat1gthtois0. <span class="bp">exact</span> s.
+  - <span class="nb">intros</span> n. <span class="nb">induction</span> n <span class="k">as</span> [|n _].
+    + <span class="nb">intros</span> r _. contradicts r (negnatlehsn0 m).
+    + <span class="nb">intros</span> r s.
+      <span class="nb">change</span> (S m ≤ S n) <span class="k">with</span> (m ≤ n) <span class="k">in</span> r.
+      <span class="nb">change</span> (S n ≤ S m) <span class="k">with</span> (n ≤ m) <span class="k">in</span> s.
+      <span class="nb">apply</span> (maponpaths S).
+      <span class="nb">apply</span> M.
+      * <span class="bp">assumption</span>.
+      * <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natlehdec</span> : decrel nat := make_decrel isdecrelnatleh.
+
+<span class="kn">Definition</span> <span class="nf">isnegrelnatleh</span> : isnegrel natleh.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isdecreltoisnegrel. <span class="nb">apply</span> isdecrelnatleh.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natlthtoleh</span> (<span class="nv">m</span> <span class="nv">n</span> : nat) : m &lt; n -&gt; m ≤ n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r. <span class="nb">unfold</span> natleh. <span class="nb">unfold</span> natlth <span class="k">in</span> r.
+  <span class="nb">generalize</span> r. <span class="nb">clear</span> r. <span class="nb">generalize</span> m. <span class="nb">clear</span> m.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n N].
+  - <span class="nb">intros</span> ? r. contradicts r (negnatgth0n m).
+  - <span class="nb">intros</span> ? r. <span class="nb">induction</span> m <span class="k">as</span> [|m _].
+    + <span class="nb">apply</span> natgthsn0.
+    + <span class="nb">change</span> (S n &gt; S m) <span class="k">with</span> (n &gt; m) <span class="k">in</span> r.
+      <span class="nb">change</span> (S (S n) &gt; S m) <span class="k">with</span> (S n &gt; m).
+      <span class="nb">apply</span> N. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">iscoasymmnatleh</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : ¬ (n ≤ m) -&gt; m ≤ n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r. <span class="nb">apply</span> negnatgthtoleh. <span class="nb">intros</span> s. <span class="nb">unfold</span> natleh <span class="k">in</span> r.
+  <span class="nb">apply</span> r. <span class="nb">apply</span> natlthtoleh. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">istotalnatleh</span> : istotal natleh.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y. <span class="nb">induction</span> (isdecrelnatleh x y) <span class="k">as</span> [ lxy | lyx ].
+  - <span class="nb">apply</span> (hinhpr (ii1 lxy)).
+  - <span class="nb">apply</span> hinhpr. <span class="nb">apply</span> ii2. <span class="nb">apply</span> (iscoasymmnatleh _ _ lyx).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** *** Semi-boolean "greater or equal" on [nat] or [natgeh]. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natgeh</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : hProp := m ≤ n.
+
+<span class="kn">Notation</span> <span class="s2">" x &gt;= y "</span> := (natgeh x y) : nat_scope.
+<span class="kn">Notation</span> <span class="s2">" x ≥ y "</span> := (natgeh x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) : nat_scope.
+
+<span class="kn">Definition</span> <span class="nf">nat0gehtois0</span> (<span class="nv">n</span> : nat) (<span class="nv">g</span> : <span class="mi">0</span> ≥ n) : n = <span class="mi">0</span> := natleh0tois0 g.
+
+<span class="kn">Definition</span> <span class="nf">natgehn0</span> (<span class="nv">n</span> : nat) : n ≥ <span class="mi">0</span> := natleh0n n.
+
+<span class="kn">Definition</span> <span class="nf">negnatgeh0sn</span> (<span class="nv">n</span> : nat) : ¬ (<span class="mi">0</span> ≥ (S n)) := negnatlehsn0 n.
+
+<span class="kn">Definition</span> <span class="nf">negnatgehnsn</span> (<span class="nv">n</span> : nat) : ¬ (n ≥ (S n)) := negnatlehsnn n.
+
+<span class="kn">Definition</span> <span class="nf">istransnatgeh</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n ≥ m -&gt; m ≥ k -&gt; n ≥ k := <span class="k">λ</span> <span class="nv">gnm</span> <span class="nv">gmk</span>, istransnatleh gmk gnm.
+
+<span class="kn">Definition</span> <span class="nf">isreflnatgeh</span> (<span class="nv">n</span> : nat) : n ≥ n := isreflnatleh _.
+
+<span class="kn">Definition</span> <span class="nf">isantisymmnatgeh</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n ≥ m -&gt; m ≥ n -&gt; n = m :=
+  <span class="k">λ</span> <span class="nv">gnm</span> <span class="nv">gmn</span>, isantisymmnatleh _ _ gmn gnm.
+
+<span class="kn">Definition</span> <span class="nf">isdecrelnatgeh</span> : isdecrel natgeh := <span class="k">λ</span> <span class="nv">n</span> <span class="nv">m</span>, isdecrelnatleh m n.
+
+<span class="kn">Definition</span> <span class="nf">natgehdec</span> : decrel nat := make_decrel isdecrelnatgeh.
+
+<span class="kn">Definition</span> <span class="nf">isnegrelnatgeh</span> : isnegrel natgeh := <span class="k">λ</span> <span class="nv">n</span> <span class="nv">m</span>, isnegrelnatleh m n.
+
+<span class="kn">Definition</span> <span class="nf">iscoasymmnatgeh</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">nl</span> : ¬ (n ≥ m)) : m ≥ n := iscoasymmnatleh _ _ nl.
+
+<span class="kn">Definition</span> <span class="nf">istotalnatgeh</span> : istotal natgeh := <span class="k">λ</span> <span class="nv">n</span> <span class="nv">m</span>, istotalnatleh m n.
+
+<span class="sd">(** *** Simple implications between comparisons *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natgthtogeh</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &gt; m -&gt; n ≥ m.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> natlthtoleh.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natlehtonegnatgth</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n ≤ m -&gt; ¬ (n &gt; m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r. <span class="nb">apply</span> @natlehneggth. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span>  <span class="nf">natgthtonegnatleh</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &gt; m -&gt; ¬ (n ≤ m) := <span class="k">λ</span> <span class="nv">g</span> <span class="nv">l</span>, natlehtonegnatgth _ _ l g.
+
+<span class="kn">Definition</span> <span class="nf">natgehtonegnatlth</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) :  n ≥ m -&gt; ¬ (n &lt; m) :=
+  <span class="k">λ</span> <span class="nv">gnm</span> <span class="nv">lnm</span>, natlehtonegnatgth _ _ gnm lnm.
+
+<span class="kn">Definition</span> <span class="nf">natlthtonegnatgeh</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &lt; m -&gt; ¬ (n ≥ m) :=
+  <span class="k">λ</span> <span class="nv">gnm</span> <span class="nv">lnm</span>, natlehtonegnatgth _ _ lnm gnm.
+
+<span class="kn">Definition</span> <span class="nf">negnatgehtolth</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : ¬ (n ≥ m) -&gt; n &lt; m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r. <span class="nb">apply</span> negnatlehtogth. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">negnatlthtogeh</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : ¬ (n &lt; m) -&gt; n ≥ m := <span class="k">λ</span> <span class="nv">nl</span>, negnatgthtoleh nl.
+
+<span class="c">(* *** Simple corollaries of implications *** *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natlehnsn</span> (<span class="nv">n</span> : nat) : n ≤ S n := natlthtoleh _ _ (natgthsnn n).
+
+<span class="kn">Definition</span> <span class="nf">natgehsnn</span> (<span class="nv">n</span> : nat) : (S n) ≥ n := natlehnsn n.
+
+
+<span class="sd">(** *** Comparison alternatives *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natgthorleh</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : (n &gt; m) ⨿ (n ≤ m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> (isdecrelnatgth n m) <span class="k">as</span> [a|a].
+  - <span class="nb">apply</span> ii1. <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> ii2. <span class="nb">apply</span> negnatgthtoleh. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natlthorgeh</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : (n &lt; m) ⨿ (n ≥ m) := natgthorleh _ _.
+
+<span class="kn">Definition</span> <span class="nf">natchoice0</span> (<span class="nv">n</span> : nat) : (<span class="mi">0</span> = n) ⨿ (<span class="mi">0</span> &lt; n).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n].
+  - use ii1. <span class="nb">apply</span> idpath.
+  - use ii2. <span class="nb">apply</span> natgthsn0.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">natneqchoice</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">ne</span> : n ≠ m) : (n &gt; m) ⨿ (n &lt; m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> (natgthorleh n m) <span class="k">as</span> [ l | g ].
+  - <span class="bp">exact</span> (ii1 l).
+  - <span class="nb">induction</span> (natlthorgeh n m) <span class="k">as</span> [ l' | g' ].
+    + <span class="nb">apply</span> (ii2 l').
+    + contradicts (nat_neq_to_nopath ne) (isantisymmnatleh _ _ g g').
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natlehchoice</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">l</span> : n ≤ m) : (n &lt; m) ⨿ (n = m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> (natlthorgeh n m) <span class="k">as</span> [ l' | g ].
+  - <span class="nb">apply</span> (ii1 l').
+  - <span class="nb">apply</span> (ii2 (isantisymmnatleh _ _ l g)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natgehchoice</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">g</span> : n ≥ m) : (n &gt; m) ⨿ (n = m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> (natgthorleh n m) <span class="k">as</span> [ g' | l ].
+  - <span class="nb">apply</span> (ii1 g').
+  - <span class="nb">apply</span> (ii2 (isantisymmnatleh _ _ l g)).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** *** Mixed transitivities *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">natgthgehtrans</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n &gt; m -&gt; m ≥ k -&gt; n &gt; k.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> gnm gmk. <span class="nb">induction</span> (natgehchoice m k gmk) <span class="k">as</span> [ g' | e ].
+  - <span class="nb">apply</span> (istransnatgth _ _ _ gnm g').
+  - <span class="nb">rewrite</span> e <span class="k">in</span> gnm. <span class="nb">apply</span> gnm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natgehgthtrans</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n ≥ m -&gt; m &gt; k -&gt; n &gt; k.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> gnm gmk. <span class="nb">induction</span> (natgehchoice n m gnm) <span class="k">as</span> [ g' | e ].
+  - <span class="nb">apply</span> (istransnatgth _ _ _ g' gmk).
+  - <span class="nb">rewrite</span> e. <span class="nb">apply</span> gmk.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natlthlehtrans</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n &lt; m -&gt; m ≤ k -&gt; n &lt; k.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> l1 l2. <span class="nb">apply</span> (natgehgthtrans k m n l2 l1).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natlehlthtrans</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n ≤ m -&gt; m &lt; k -&gt; n &lt; k.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> l1 l2. <span class="nb">apply</span> (natgthgehtrans k m n l2 l1).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natltltSlt</span> (<span class="nv">i</span> <span class="nv">j</span> <span class="nv">n</span> : nat) : i &lt; j -&gt; j &lt; S n -&gt; i &lt; n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> l. <span class="nb">apply</span> natlthlehtrans. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** *** Two comparisons and [S] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">natgthtogehsn</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &gt; m -&gt; n ≥ (S m).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intros</span> m X. <span class="nb">induction</span> (negnatgth0n _ X).
+  - <span class="nb">intros</span> m X. <span class="nb">destruct</span> m <span class="k">as</span> [ | m ].
+    + <span class="nb">apply</span> (natgehn0 n).
+    + <span class="nb">apply</span> (IHn m X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natgthsntogeh</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : S n &gt; m -&gt; n ≥ m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a. <span class="nb">apply</span> (natgthtogehsn (S n) m a).
+<span class="kn">Defined</span>. <span class="c">(* PeWa *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">natgehtogthsn</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n ≥ m -&gt; S n &gt; m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X. <span class="nb">apply</span> (natgthgehtrans _ n _).
+  - <span class="nb">apply</span> natgthsnn.
+  - <span class="nb">apply</span> X.
+<span class="kn">Defined</span>.  <span class="c">(* New *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">natgehsntogth</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n ≥ (S m) -&gt; n &gt; m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X.
+  <span class="nb">apply</span> (natgehgthtrans _ (S m) _ X).
+  <span class="nb">apply</span> natgthsnn.
+<span class="kn">Defined</span>.  <span class="c">(* New *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">natlthtolehsn</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &lt; m -&gt; S n ≤ m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X. <span class="nb">apply</span> (natgthtogehsn m n X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natlehsntolth</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : S n ≤ m -&gt; n &lt; m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X. <span class="nb">apply</span> (natgehsntogth m n X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natlehtolthsn</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n ≤ m -&gt; n &lt; S m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X. <span class="nb">apply</span> (natgehtogthsn m n X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natlthsntoleh</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &lt; S m -&gt; n ≤ m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a. <span class="nb">apply</span> (natlthtolehsn n (S m) a).
+<span class="kn">Defined</span>. <span class="c">(* PeWa *)</span>
+
+
+<span class="sd">(** *** Comparision alternatives and [S] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">natlehchoice2</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n ≤ m -&gt; (S n ≤ m) ⨿ (n = m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> l. <span class="nb">induction</span> (natlehchoice n m l) <span class="k">as</span> [ l' | e ].
+  - <span class="nb">apply</span> (ii1 (natlthtolehsn _ _ l')).
+  - <span class="nb">apply</span> (ii2 e).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natgehchoice2</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n ≥ m -&gt; (n ≥ (S m)) ⨿ (n = m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> g. <span class="nb">induction</span> (natgehchoice n m g) <span class="k">as</span> [ g' | e ].
+  - <span class="nb">apply</span> (ii1 (natgthtogehsn _ _ g')).
+  - <span class="nb">apply</span> (ii2 e).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natgthchoice2</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &gt; m -&gt; (n &gt; S m) ⨿ (n = (S m)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> g.
+  <span class="nb">induction</span> (natgehchoice _ _ (natgthtogehsn _ _ g)) <span class="k">as</span> [ g' | e ].
+  - <span class="nb">apply</span> (ii1 g').
+  - <span class="nb">apply</span> (ii2 e).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natlthchoice2</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &lt; m -&gt; (S n &lt; m) ⨿ ((S n) = m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> l.
+  <span class="nb">induction</span> (natlehchoice _ _ (natlthtolehsn _ _ l)) <span class="k">as</span> [ l' | e ].
+  - <span class="nb">apply</span> (ii1 l').
+  - <span class="nb">apply</span> (ii2 e).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** ** Some properties of [plus] on [nat] *)</span>
+
+<span class="c">(* Addition is defined in Init/Peano.v by the following code</span>
+
+<span class="c">Fixpoint plus (n m:nat) : nat :=</span>
+<span class="c">  match n with</span>
+<span class="c">  | O =&gt; m</span>
+<span class="c">  | S p =&gt; S (p + m)</span>
+<span class="c">  end</span>
+
+<span class="c">where "n + m" := (plus n m) : nat_scope.</span>
+<span class="c">*)</span>
+
+
+<span class="sd">(** *** The structure of the additive abelian monoid on [nat] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">natplusl0</span> (<span class="nv">n</span> : nat) : (<span class="mi">0</span> + n) = n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natplusr0</span> (<span class="nv">n</span> : nat) : (n + <span class="mi">0</span>) = n.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IH].
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> (maponpaths S IH).
+<span class="kn">Defined</span>.
+
+<span class="kn">Create HintDb</span> natarith.
+#[<span class="kn">global</span>]
+<span class="kn">Hint Resolve</span> natplusr0: natarith.
+
+<span class="kn">Lemma</span> <span class="nf">natplusnsm</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n + S m = S n + m.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m.
+  <span class="nb">simpl</span>. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">auto with</span> natarith.
+  - <span class="nb">simpl</span>. <span class="nb">intro</span>. <span class="nb">apply</span> (maponpaths S (IHn m)).
+<span class="kn">Defined</span>.
+#[<span class="kn">global</span>]
+<span class="kn">Hint Resolve</span> natplusnsm : natarith.
+#[<span class="kn">global</span>]
+<span class="kn">Hint Resolve</span> pathsinv0 : natarith.
+
+<span class="kn">Lemma</span> <span class="nf">natpluscomm</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n + m = m + n.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intro</span>.
+    <span class="c">(*apply pathsinv0.*)</span>
+    <span class="c">(*apply natplusr0.*)</span>
+    <span class="nb">auto with</span> natarith.
+  - <span class="nb">intro</span>. <span class="nb">set</span> (int := IHn (S m)).
+    <span class="nb">set</span> (int2 := pathsinv0 (natplusnsm n m)).
+    <span class="nb">set</span> (int3 := pathsinv0 (natplusnsm m n)).
+    <span class="nb">set</span> (int4 := pathscomp0 int2 int).
+    <span class="nb">apply</span> (pathscomp0 int4 int3).
+<span class="kn">Defined</span>.
+#[<span class="kn">global</span>]
+<span class="kn">Hint Resolve</span> natpluscomm : natarith.
+
+<span class="kn">Lemma</span> <span class="nf">natplusassoc</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : ((n + m) + k) = (n + (m + k)).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m k. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">auto with</span> natarith.
+  - <span class="nb">intros</span>. <span class="nb">simpl</span>. <span class="nb">apply</span> (maponpaths S (IHn m k)).
+<span class="kn">Defined</span>.
+#[<span class="kn">global</span>]
+<span class="kn">Hint Resolve</span> natplusassoc : natarith.
+
+
+<span class="sd">(** *** Addition and comparisons  *)</span>
+
+<span class="sd">(** [natgth] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natgthtogths</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &gt; m -&gt; (S n) &gt; m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isgt. <span class="nb">apply</span> (istransnatgth _ _ _ (natgthsnn n) isgt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">negnatgthmplusnm</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : ¬ (m &gt; n + m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">apply</span> isirreflnatgth.
+  - <span class="nb">apply</span> natlehtonegnatgth.
+    <span class="nb">assert</span> (r := negnatgthtoleh IHn); <span class="nb">clear</span> IHn.
+    <span class="nb">apply</span> (istransnatleh r (natlthtoleh _ _ (natlthnsn _))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">negnatgthnplusnm</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : ¬ (n &gt; (n + m)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">rewrite</span> (natpluscomm n m). <span class="nb">apply</span> (negnatgthmplusnm m n).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natgthandplusl</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n &gt; m -&gt; (k + n) &gt; (k + m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> l. <span class="nb">induction</span> k <span class="k">as</span> [ | k IHk ].
+  - <span class="bp">assumption</span>.
+  - <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natgthandplusr</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n &gt; m -&gt; (n + k) &gt; (m + k).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">rewrite</span> (natpluscomm n k). <span class="nb">rewrite</span> (natpluscomm m k).
+  <span class="nb">apply</span> natgthandplusl.
+  <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natgthandpluslinv</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : (k + n) &gt; (k + m) -&gt; n &gt; m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> l. <span class="nb">induction</span> k <span class="k">as</span> [ | k IHk ].
+  - <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> (IHk l).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natgthandplusrinv</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : (n + k) &gt; (m + k) -&gt; n &gt; m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> l.
+  <span class="nb">rewrite</span> (natpluscomm n k) <span class="k">in</span> l.
+  <span class="nb">rewrite</span> (natpluscomm m k) <span class="k">in</span> l.
+  <span class="nb">apply</span> (natgthandpluslinv _ _ _ l).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natgthandplusm</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">H</span> : m &gt; <span class="mi">0</span>) : n + m &gt; n.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m H. <span class="nb">induction</span> n <span class="k">as</span> [ | n].
+  - <span class="nb">intros</span> m H. <span class="nb">rewrite</span> natplusl0. <span class="bp">exact</span> H.
+  - <span class="nb">intros</span> m H. <span class="nb">rewrite</span> &lt;- natplusnsm. <span class="nb">change</span> (S n) <span class="k">with</span> (<span class="mi">1</span> + n). <span class="nb">rewrite</span> (natpluscomm <span class="mi">1</span> n).
+    <span class="nb">apply</span> natgthandplusl. <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** [natlth] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natlthtolths</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &lt; m -&gt; n &lt; S m := natgthtogths _ _.
+
+<span class="kn">Definition</span> <span class="nf">negnatlthplusnmm</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : ¬ (n + m &lt; m) := negnatgthmplusnm _ _.
+
+<span class="kn">Definition</span> <span class="nf">negnatlthplusnmn</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : ¬ (n + m &lt; n) := negnatgthnplusnm _ _.
+
+<span class="kn">Definition</span> <span class="nf">natlthandplusl</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n &lt; m -&gt; k + n &lt; k + m := natgthandplusl _ _ _.
+
+<span class="kn">Definition</span> <span class="nf">natlthandplusr</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n &lt; m -&gt; n + k &lt; m + k := natgthandplusr _ _ _.
+
+<span class="kn">Definition</span> <span class="nf">natlthandpluslinv</span>  (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : k + n &lt; k + m -&gt; n &lt; m := natgthandpluslinv _ _ _.
+
+<span class="kn">Definition</span> <span class="nf">natlthandplusrinv</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n + k &lt; m + k -&gt; n &lt; m := natgthandplusrinv _ _ _.
+
+<span class="kn">Definition</span> <span class="nf">natlthandplusm</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">H</span> : <span class="mi">0</span> &lt; m) : n &lt; n + m := natgthandplusm _ _ H.
+
+<span class="sd">(** [natleh] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natlehtolehs</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n ≤ m -&gt; n ≤ S m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isle.
+  <span class="nb">apply</span> (istransnatleh isle (natlthtoleh _ _ (natlthnsn _))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natlehmplusnm</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : m ≤ n + m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> n <span class="k">as</span> [|n N].
+  - <span class="nb">change</span> (<span class="mi">0</span>+m) <span class="k">with</span> m. <span class="nb">apply</span> isreflnatleh.
+  - <span class="nb">apply</span> natlehtolehs. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">plus_n_Sm</span> : ∏ n m:nat, S (n + m) = n + S m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> n m.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n I].
+  - <span class="bp">reflexivity</span>.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> (maponpaths S). <span class="nb">auto</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">natlehnplusnm</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n ≤ n + m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> m <span class="k">as</span> [|m M].
+  - <span class="nb">induction</span> (!natplusr0 n). <span class="nb">apply</span> isreflnatleh.
+  - <span class="nb">induction</span> (plus_n_Sm n m). <span class="nb">apply</span> natlehtolehs. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natlehandplusl</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n ≤ m -&gt;  k + n ≤ k + m.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> natleh. <span class="nb">intros</span> r.
+  <span class="nb">rewrite</span> (plus_n_Sm k m). <span class="nb">apply</span> natgthandplusl. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natlehandplusr</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n ≤ m -&gt; n + k ≤ m + k.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> natleh. <span class="nb">intros</span> r.
+  <span class="nb">change</span> (S (m + k)) <span class="k">with</span> (S m + k). <span class="nb">apply</span> natgthandplusr. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natlehandplus</span> (<span class="nv">i</span> <span class="nv">j</span> <span class="nv">k</span> <span class="nv">l</span> : nat) : i ≤ j -&gt; k ≤ l -&gt; i + k ≤ j + l.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r s.
+  use (@istransnatleh _ (j + k) _).
+  - <span class="nb">apply</span> natlehandplusr. <span class="nb">apply</span> r.
+  - <span class="nb">apply</span> natlehandplusl. <span class="nb">apply</span> s.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natlehandpluslinv</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : k + n ≤ k + m -&gt; n ≤ m.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> natleh. <span class="nb">intros</span> r.
+  <span class="nb">rewrite</span> (plus_n_Sm k m) <span class="k">in</span> r.
+  <span class="nb">apply</span> (natgthandpluslinv _ _ k). <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natlehandplusrinv</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n + k ≤ m + k -&gt; n ≤ m.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> natleh. <span class="nb">intros</span> r.
+  <span class="nb">change</span> (S (m + k)) <span class="k">with</span> (S m + k) <span class="k">in</span> r.
+  <span class="nb">apply</span> (natgthandplusrinv _ _ k). <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** [natgeh] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natgehtogehs</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n ≥ m -&gt;  S n ≥ m := natlehtolehs _ _.
+
+<span class="kn">Definition</span> <span class="nf">natgehplusnmm</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n + m ≥ m := natlehmplusnm _ _.
+
+<span class="kn">Definition</span> <span class="nf">natgehplusnmn</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n + m ≥ n := natlehnplusnm _ _.
+
+<span class="kn">Definition</span> <span class="nf">natgehandplusl</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n ≥ m -&gt; k + n ≥ k + m := natlehandplusl _ _ _.
+
+<span class="kn">Definition</span> <span class="nf">natgehandplusr</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n ≥ m -&gt; n + k ≥ m + k := natlehandplusr _ _ _.
+
+<span class="kn">Definition</span> <span class="nf">natgehandpluslinv</span>  (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : k + n ≥ k + m -&gt; n ≥ m := natlehandpluslinv _ _ _.
+
+<span class="kn">Definition</span> <span class="nf">natgehandplusrinv</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) :  n + k ≥ m + k -&gt; n ≥ m := natlehandplusrinv _ _ _.
+
+<span class="c">(* The following are included mainly for direct compatibility with the library hz.v *)</span>
+
+
+<span class="sd">(** *** Comparisons and [n -&gt; n + 1] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natgthtogthp1</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &gt; m -&gt; (n + <span class="mi">1</span>) &gt; m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isgt. <span class="nb">induction</span> (natpluscomm <span class="mi">1</span> n).
+  <span class="nb">apply</span> (natgthtogths n m isgt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natlthtolthp1</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &lt; m -&gt; n &lt; m + <span class="mi">1</span> := natgthtogthp1 _ _.
+
+<span class="kn">Definition</span> <span class="nf">natlehtolehp1</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n ≤ m -&gt; n ≤ m + <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isle. <span class="nb">induction</span> (natpluscomm <span class="mi">1</span> m).
+  <span class="nb">apply</span> (natlehtolehs n m isle).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natgehtogehp1</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n ≥ m -&gt; (n + <span class="mi">1</span>) ≥ m := natlehtolehp1 _ _.
+
+
+<span class="sd">(** *** Two comparisons and [n -&gt; n + 1] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">natgthtogehp1</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &gt; m -&gt; n ≥ (m + <span class="mi">1</span>).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isgt. <span class="nb">induction</span> (natpluscomm <span class="mi">1</span> m).
+  <span class="nb">apply</span> (natgthtogehsn n m isgt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natgthp1togeh</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : (n + <span class="mi">1</span>) &gt; m -&gt; n ≥ m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isgt. <span class="nb">induction</span> (natpluscomm <span class="mi">1</span> n).
+  <span class="nb">apply</span> (natgthsntogeh n m isgt).
+<span class="kn">Defined</span>. <span class="c">(* PeWa *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">natlehp1tolth</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n + <span class="mi">1</span> ≤ m -&gt; n &lt; m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isle. <span class="nb">induction</span> (natpluscomm <span class="mi">1</span> n).
+  <span class="nb">apply</span> (natlehsntolth n m isle).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natlthtolehp1</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &lt; m -&gt; n + <span class="mi">1</span> ≤  m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> islt. <span class="nb">induction</span> (natpluscomm <span class="mi">1</span> n).
+  <span class="nb">apply</span> (natlthtolehsn n m islt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natlthp1toleh</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &lt; m + <span class="mi">1</span> -&gt; n ≤ m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> islt. <span class="nb">induction</span> (natpluscomm <span class="mi">1</span> m).
+  <span class="nb">apply</span> (natlthsntoleh n m islt).
+<span class="kn">Defined</span>. <span class="c">(* PeWa *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">natgehp1togth</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n ≥ (m + <span class="mi">1</span>) -&gt; n &gt; m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isge. <span class="nb">induction</span> (natpluscomm <span class="mi">1</span> m).
+  <span class="nb">apply</span> (natgehsntogth n m isge).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** *** Comparision alternatives and [n -&gt; n + 1] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">natlehchoice3</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n ≤ m -&gt; (n + <span class="mi">1</span> ≤ m) ⨿ (n = m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> l. <span class="nb">induction</span> (natlehchoice n m l) <span class="k">as</span> [ l' | e ].
+  - <span class="nb">apply</span> (ii1 (natlthtolehp1 _ _ l')).
+  - <span class="nb">apply</span> (ii2 e).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natgehchoice3</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n ≥ m -&gt; (n ≥ (m + <span class="mi">1</span>)) ⨿ (n = m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> g. <span class="nb">induction</span> (natgehchoice n m g) <span class="k">as</span> [ g' | e ].
+  - <span class="nb">apply</span> (ii1 (natgthtogehp1 _ _ g')).
+  - <span class="nb">apply</span> (ii2 e).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natgthchoice3</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &gt; m -&gt; (n &gt; (m + <span class="mi">1</span>)) ⨿ (n = (m + <span class="mi">1</span>)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> g.
+  <span class="nb">induction</span> (natgehchoice _ _ (natgthtogehp1 _ _ g)) <span class="k">as</span> [ g' | e ].
+  - <span class="nb">apply</span> (ii1 g').
+  - <span class="nb">apply</span> (ii2 e).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natlthchoice3</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &lt; m -&gt; (n + <span class="mi">1</span> &lt; m) ⨿ ((n + <span class="mi">1</span>) = m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> l.
+  <span class="nb">induction</span> (natlehchoice _ _ (natlthtolehp1 _ _ l)) <span class="k">as</span> [ l' | e ].
+  - <span class="nb">apply</span> (ii1 l').
+  - <span class="nb">apply</span> (ii2 e).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natlehchoice4</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &lt; S m -&gt; (n &lt; m) ⨿ (n = m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> b.
+  <span class="nb">induction</span> (natlthorgeh n m) <span class="k">as</span> [p|p].
+  - <span class="bp">exact</span> (ii1 p).
+  - <span class="bp">exact</span> (ii2 (isantisymmnatleh _ _ (natlthsntoleh _ _ b) p)).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** *** Cancellation properties of [plus] on [nat] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">pathsitertoplus</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : (iteration S n m) = (n + m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> (maponpaths S IHn).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isinclnatplusr</span> (<span class="nv">n</span> : nat) : isincl (<span class="k">λ</span> <span class="nv">m</span> : nat, m + n).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">apply</span> (isofhlevelfhomot <span class="mi">1</span> _ _ (<span class="k">λ</span> <span class="nv">m</span> : nat, pathsinv0 (natplusr0 m))).
+    <span class="nb">apply</span> (isofhlevelfweq <span class="mi">1</span> (idweq nat)).
+  - <span class="nb">apply</span> (isofhlevelfhomot <span class="mi">1</span> _ _ (<span class="k">λ</span> <span class="nv">m</span> : nat, pathsinv0 (natplusnsm m n))).
+    <span class="nb">simpl</span>. <span class="nb">apply</span> (isofhlevelfgf <span class="mi">1</span> _ _ isinclS IHn).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isinclnatplusl</span> (<span class="nv">n</span> : nat) : isincl (<span class="k">λ</span> <span class="nv">m</span> : nat, n + m).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isofhlevelfhomot <span class="mi">1</span> _ _ (<span class="k">λ</span> <span class="nv">m</span> : nat, natpluscomm m n) (isinclnatplusr n)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natplusrcan</span> (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : nat) (<span class="nv">eqplus</span> : a + c = b + c) : a = b.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> (invmaponpathsincl _ (isinclnatplusr c) a b). <span class="nb">apply</span> eqplus.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natpluslcan</span> (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : nat) (<span class="nv">eqplus</span> : c + a = c + b) : a = b.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">rewrite</span> (natpluscomm _ _) <span class="k">in</span> eqplus.
+  <span class="nb">rewrite</span> (natpluscomm c b) <span class="k">in</span> eqplus.
+  <span class="nb">apply</span> (natplusrcan a b c  eqplus).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscontrhfibernatplusr</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">isge</span> : m ≥ n) : iscontr (hfiber (<span class="k">λ</span> <span class="nv">i</span> : nat, i + n) m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> iscontraprop1.
+  - <span class="nb">apply</span> isinclnatplusr.
+  - <span class="nb">induction</span> m <span class="k">as</span> [ | m IHm ].
+    + <span class="nb">set</span> (e := natleh0tois0 isge). <span class="nb">split with</span> <span class="mi">0</span>. <span class="nb">apply</span> e.
+    + <span class="nb">induction</span> (natlehchoice2 _ _ isge) <span class="k">as</span> [ l | e ].
+      * <span class="nb">set</span> (j := IHm l). <span class="nb">induction</span> j <span class="k">as</span> [ j e' ]. <span class="nb">split with</span> (S j). <span class="nb">simpl</span>.
+        <span class="nb">apply</span> (maponpaths S e').
+      * <span class="nb">split with</span> <span class="mi">0</span>. <span class="nb">simpl</span>. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscontrhfibernatplusl</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">isge</span> : m ≥ n) : iscontr (hfiber (<span class="k">λ</span> <span class="nv">i</span> : nat, n + i) m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> iscontraprop1.
+  - <span class="nb">apply</span> isinclnatplusl.
+  - <span class="nb">induction</span> m <span class="k">as</span> [ | m IHm ].
+    + <span class="nb">set</span> (e := natleh0tois0 isge). <span class="nb">split with</span> <span class="mi">0</span>.
+      <span class="nb">rewrite</span> natplusr0. <span class="nb">apply</span> e.
+    + <span class="nb">induction</span> (natlehchoice2 _ _ isge) <span class="k">as</span> [ l | e ].
+      * <span class="nb">set</span> (j := IHm l). <span class="nb">induction</span> j <span class="k">as</span> [ j e' ]. <span class="nb">split with</span> (S j). <span class="nb">simpl</span>.
+        <span class="nb">rewrite</span> &lt;- plus_n_Sm. <span class="nb">apply</span> (maponpaths S e').
+      * <span class="nb">split with</span> <span class="mi">0</span>. <span class="nb">simpl</span>. <span class="nb">rewrite</span> natplusr0. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">neghfibernatplusr</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">islt</span> : m &lt; n) : ¬ (hfiber (<span class="k">λ</span> <span class="nv">i</span> : nat, i + n) m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> h. <span class="nb">induction</span> h <span class="k">as</span> [ i e ]. <span class="nb">rewrite</span> (pathsinv0 e) <span class="k">in</span> islt.
+  <span class="nb">induction</span> (natlehtonegnatgth _ _ (natlehmplusnm i n) islt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isdecinclnatplusr</span> (<span class="nv">n</span> : nat) : isdecincl (<span class="k">λ</span> <span class="nv">i</span> : nat, i + n).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> m. <span class="nb">apply</span> isdecpropif.
+  - <span class="nb">apply</span> (isinclnatplusr _ m).
+  - <span class="nb">induction</span> (natlthorgeh m n) <span class="k">as</span> [ ni | i ].
+    + <span class="nb">apply</span> (ii2 (neghfibernatplusr n m ni)).
+    + <span class="nb">apply</span> (ii1 (pr1 (iscontrhfibernatplusr n m i))).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** *** Some properties of [minus] on [nat]</span>
+
+<span class="sd">Note : minus is defined in Init/Peano.v by the following code:</span>
+
+<span class="sd">Fixpoint minus (n m : nat) : nat :=</span>
+<span class="sd">  match n, m with</span>
+<span class="sd">  | O, _ =&gt; n</span>
+<span class="sd">  | S k, O =&gt; n</span>
+<span class="sd">  | S k, S l =&gt; k - l</span>
+<span class="sd">  end</span>
+
+<span class="sd">where "n - m" := (minus n m) : nat_scope.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">minuseq0</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">isle</span> : n &lt;= m) : n - m = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> isle. <span class="nb">generalize</span> n. <span class="nb">clear</span> n. <span class="nb">induction</span> m <span class="k">as</span> [|m IHm].
+  - <span class="nb">intros</span> n isle. <span class="nb">rewrite</span> (natleh0tois0 isle). <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+  - <span class="nb">intro</span> n. <span class="nb">destruct</span> n.
+    + <span class="nb">intro</span>. <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> (IHm n).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">minuseq0'</span> (<span class="nv">n</span> : nat) : n - n = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n I].
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">simpl</span>. <span class="bp">exact</span> I.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">minusgth0</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">isgt</span> : n &gt; m) : n - m &gt; <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m isgt. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intros</span>. <span class="nb">induction</span> (negnatgth0n _ isgt).
+  - <span class="nb">intro</span> m. <span class="nb">induction</span> m <span class="k">as</span> [ | m ].
+    + <span class="nb">intro</span>. <span class="nb">apply</span> natgthsn0.
+    + <span class="nb">intro</span> isgt. <span class="nb">apply</span> (IHn m isgt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">minusgth0inv</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">isgt</span> : n - m &gt; <span class="mi">0</span>) : n &gt; m.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m isgt. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intros</span>. <span class="nb">induction</span> (negnatgth0n _ isgt).
+  - <span class="nb">intro</span>. <span class="nb">destruct</span> m <span class="k">as</span> [ | m ].
+    + <span class="nb">intros</span>. <span class="nb">apply</span> natgthsn0.
+    + <span class="nb">intro</span>. <span class="nb">apply</span> (IHn m isgt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natminuseqn</span> (<span class="nv">n</span> : nat) : n - <span class="mi">0</span> = n.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> n. <span class="nb">apply</span> idpath. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natminuslehn</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n - m &lt;= n.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intro</span>. <span class="nb">apply</span> isreflnatleh.
+  - <span class="nb">intro</span>. <span class="nb">destruct</span> m <span class="k">as</span> [ | m ].
+    + <span class="nb">apply</span> isreflnatleh.
+    + <span class="nb">simpl</span>. <span class="nb">apply</span> (istransnatleh (IHn m) (natlehnsn n)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natminusgehn</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n ≥ n - m := natminuslehn _ _.
+
+<span class="kn">Definition</span> <span class="nf">natminuslthn</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">isgt</span> : n &gt; <span class="mi">0</span>) (<span class="nv">isgt'</span> : m &gt; <span class="mi">0</span>) : n - m &lt; n.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m isgt isgt'. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intros</span>. <span class="nb">induction</span> (negnatgth0n _ isgt).
+  - <span class="nb">intro</span> m. <span class="nb">induction</span> m.
+    + <span class="nb">intros</span>. <span class="nb">induction</span> (negnatgth0n _ isgt').
+    + <span class="nb">intros</span>. <span class="nb">apply</span> (natlehlthtrans _ n _).
+      * <span class="nb">apply</span> (natminuslehn n m).
+      * <span class="nb">apply</span> natlthnsn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natminuslthninv</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">islt</span> : n - m &lt; n) : m &gt; <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m islt. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intros</span>. <span class="nb">induction</span> (negnatlthn0 _ islt).
+  - <span class="nb">intro</span> m. <span class="nb">destruct</span> m <span class="k">as</span> [ | m ].
+    + <span class="nb">intro</span>. <span class="nb">induction</span> (negnatlthnn _ islt).
+    + <span class="nb">intro</span>. <span class="nb">apply</span> (natgthsn0 m).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">minusplusnmm</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">isge</span> : n ≥ m) : (n - m) + m = n.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m isge. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn].
+  - <span class="nb">intro</span> m. <span class="nb">intro</span> isge. <span class="nb">simpl</span>. <span class="nb">apply</span> (natleh0tois0 isge).
+  - <span class="nb">intro</span> m. <span class="nb">destruct</span> m <span class="k">as</span> [ | m ].
+    + <span class="nb">intro</span>. <span class="nb">simpl</span>. <span class="nb">rewrite</span> (natplusr0 n). <span class="nb">apply</span> idpath.
+    + <span class="nb">simpl</span>. <span class="nb">intro</span> isge. <span class="nb">rewrite</span> (natplusnsm (n - m) m).
+      <span class="nb">apply</span> (maponpaths S (IHn m isge)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">minusplusnmmineq</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : (n - m) + m ≥ n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> (natlthorgeh n m) <span class="k">as</span> [ lt | ge ].
+  - <span class="nb">rewrite</span> (minuseq0 _ _ (natlthtoleh _ _ lt)).
+    <span class="nb">apply</span> (natgthtogeh _ _ lt).
+  - <span class="nb">rewrite</span> (minusplusnmm _ _ ge).
+    <span class="nb">apply</span> isreflnatgeh.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">plusminusnmm</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : (n + m) - m = n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (int1 := natgehplusnmm n m).
+  <span class="nb">apply</span> (natplusrcan _ _ m).
+  <span class="nb">rewrite</span> (minusplusnmm _ _ int1).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">minusminusmmn</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">H</span> : m ≥ n) : m - (m - n) = n.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (natplusrcan (m - (m - n)) n (m - n)).
+  - <span class="nb">rewrite</span> minusplusnmm.
+    + <span class="nb">rewrite</span> natpluscomm. <span class="nb">rewrite</span> minusplusnmm.
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> H.
+    + <span class="nb">apply</span> natminusgehn.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Comparisons and [n -&gt; n - 1] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natgthtogthm1</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &gt; m -&gt; n &gt; m - <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isgt. <span class="nb">induction</span> m <span class="k">as</span> [ | m].
+  - <span class="nb">apply</span> isgt.
+  - <span class="nb">cbn</span>. <span class="nb">rewrite</span> natminuseqn. <span class="nb">apply</span> (natgehgthtrans n (S m) m).
+    + <span class="nb">apply</span> (natgthtogeh _ _ isgt).
+    + <span class="nb">apply</span> natgthsnn.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">natlthtolthm1</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &lt; m -&gt; n - <span class="mi">1</span> &lt; m := natgthtogthm1 _ _.
+
+<span class="kn">Definition</span> <span class="nf">natlehtolehm1</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n ≤ m -&gt; n - <span class="mi">1</span> ≤ m := (<span class="k">fun</span> <span class="nv">X</span> : n ≤ m =&gt; natlthtolthm1 n (S m) X).
+
+<span class="kn">Definition</span> <span class="nf">natgehtogehm1</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n ≥ m -&gt; n ≥ m - <span class="mi">1</span> := natlehtolehm1 _ _.
+
+<span class="kn">Definition</span> <span class="nf">natgthtogehm1</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n &gt; m -&gt; n - <span class="mi">1</span> ≥ m.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m. <span class="nb">induction</span> n <span class="k">as</span> [ | n].
+  - <span class="nb">intros</span> m X. <span class="nb">apply</span> fromempty. <span class="nb">apply</span> (negnatgth0n m X).
+  - <span class="nb">intros</span> m X. <span class="nb">induction</span> m <span class="k">as</span> [ | m].
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">cbn</span>. <span class="nb">rewrite</span> natminuseqn. <span class="nb">apply</span> X.
+<span class="kn">Qed</span>.
+
+<span class="c">(* *** Two-sided minus and comparisons *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natgehandminusr</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) (<span class="nv">isge</span> : n ≥ m) : n - k ≥ m - k.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m k isge. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intros</span>. <span class="nb">rewrite</span> (nat0gehtois0 _ isge). <span class="nb">apply</span> isreflnatleh.
+  - <span class="nb">intro</span> m. <span class="nb">induction</span> m.
+    + <span class="nb">intros</span>. <span class="nb">destruct</span> k.
+      * <span class="nb">apply</span> natgehn0.
+      * <span class="nb">apply</span> natgehn0.
+    + <span class="nb">intro</span> k. <span class="nb">induction</span> k.
+      * <span class="nb">intro</span> isge. <span class="nb">apply</span> isge.
+      * <span class="nb">intro</span> isge. <span class="nb">apply</span> (IHn m k isge).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natgehandminusl</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) (<span class="nv">isge</span> : n ≥ m) : n - k ≥ m - k.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m k isge. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intros</span>. <span class="nb">rewrite</span> (nat0gehtois0 _ isge). <span class="nb">apply</span> isreflnatleh.
+  - <span class="nb">intro</span> m. <span class="nb">induction</span> m.
+    + <span class="nb">intros</span>. <span class="nb">destruct</span> k.
+      * <span class="nb">apply</span> natgehn0.
+      * <span class="nb">apply</span> natgehn0.
+    + <span class="nb">intro</span> k. <span class="nb">induction</span> k.
+      * <span class="nb">intro</span> isge. <span class="nb">apply</span> isge.
+      * <span class="nb">intro</span> isge. <span class="nb">apply</span> (IHn m k isge).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natgehandminusrinv</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) (<span class="nv">isge'</span> : n ≥ k) (<span class="nv">isge</span> : n - k ≥ m - k) : n ≥ m.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m k isge' isge. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intros</span>. <span class="nb">rewrite</span> (nat0gehtois0 _ isge') <span class="k">in</span> isge.
+    <span class="nb">rewrite</span> (natminuseqn m) <span class="k">in</span> isge. <span class="nb">rewrite</span> (nat0gehtois0 _ isge).
+    <span class="nb">apply</span> isreflnatleh.
+  - <span class="nb">intro</span> m. <span class="nb">induction</span> m.
+    + <span class="nb">intros</span>. <span class="nb">apply</span> natgehn0.
+    + <span class="nb">intros</span>. <span class="nb">destruct</span> k.
+      * <span class="nb">rewrite</span> natminuseqn <span class="k">in</span> isge. <span class="nb">rewrite</span> natminuseqn <span class="k">in</span> isge. <span class="nb">apply</span> isge.
+      * <span class="nb">apply</span> (IHn m k isge' isge).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natlthandminusl</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">i</span> : nat) (<span class="nv">islt</span> : n &lt; m) (<span class="nv">islt'</span> : i &lt; m) : n - i &lt; m - i.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> islt islt'. <span class="nb">induction</span> i <span class="k">as</span> [ | i].
+  - <span class="nb">intros</span> islt islt'. <span class="nb">rewrite</span> natminuseqn. <span class="nb">rewrite</span> natminuseqn. <span class="nb">apply</span> islt.
+  - <span class="nb">intros</span> islt islt'.
+    <span class="nb">induction</span> (natlthorgeh n (S i)) <span class="k">as</span> [H | H].
+    + <span class="nb">assert</span> (e : n - S i = <span class="mi">0</span>).
+      {
+        <span class="nb">apply</span> minuseq0.
+        <span class="bp">exact</span> (natlthtoleh _ _ H).
+      }
+      <span class="nb">rewrite</span> e. <span class="nb">apply</span> (natlthandplusrinv _ _ (S i)). <span class="nb">rewrite</span> natplusl0.
+      <span class="nb">rewrite</span> minusplusnmm. <span class="nb">apply</span> islt'.
+      <span class="nb">apply</span> natlthtoleh. <span class="nb">apply</span> islt'.
+    + <span class="nb">apply</span> (natlthandplusrinv _ _ (S i)).
+      <span class="nb">rewrite</span> (minusplusnmm m (S i)).
+      * <span class="nb">rewrite</span> (minusplusnmm n (S i)).
+        { <span class="nb">apply</span> islt. }
+        { <span class="nb">apply</span> H. }
+      * <span class="nb">apply</span> natlthtoleh. <span class="nb">apply</span> islt'.
+<span class="kn">Defined</span>.
+
+<span class="c">(*</span>
+<span class="c">Definition natgehandminuslinv (n m k : nat) (is' : natgeh k n)</span>
+<span class="c">(isc : natleh  (k - n) (k - m)) : natgeh n m.</span>
+<span class="c">Proof.</span>
+<span class="c">intros.</span>
+<span class="c">set (int := natgehgthtrans _ (k - n) _ isc (minusgeh0 _ _ is')).</span>
+<span class="c">set (int' := minusgeh0inv _ _ int).</span>
+<span class="c">set (int'' := natlehandplusr _ _ n isc).</span>
+<span class="c">rewrite (minusplusnmm _ _ (natgthtogeh _ _ is')) in int''.</span>
+<span class="c">set (int''' := natlehandplusr _ _ m int'').</span>
+<span class="c">rewrite (natplusassoc _ n _) in int'''.</span>
+<span class="c">rewrite (natpluscomm n m) in int'''.</span>
+<span class="c">destruct (natplusassoc (k - m) m n) in int'''.</span>
+<span class="c">rewrite (minusplusnmm _ _ (natgthtogeh _ _ int')) in int'''.</span>
+<span class="c">apply (natgehandpluslinv _ _ k). apply int'''.</span>
+<span class="c">Defined.</span>
+
+
+
+
+
+<span class="c">induction n as [ | n IHn ]. intros.</span>
+<span class="c">rewrite (nat0gehtois0 _ is') in isc.</span>
+<span class="c">rewrite (natminuseqn m) in isc.</span>
+<span class="c">rewrite (nat0gehtois0 _ isc).</span>
+<span class="c">apply isreflnatleh.</span>
+<span class="c">intro m. induction m. intros. apply natgehn0. intros.</span>
+<span class="c">destruct k.</span>
+<span class="c">rewrite natminuseqn in isc. rewrite natminuseqn in isc.</span>
+<span class="c">apply isc. apply (IHn m k isc is').</span>
+<span class="c">Defined.</span>
+
+
+<span class="c">(removed to lBsystems)</span>
+<span class="c">Definition natgthandminusinvr (n m k : nat) (isc : natgth n m)</span>
+<span class="c">(is' : natgth n k) : natgth (n - k) (m - k).</span>
+<span class="c">Proof.</span>
+<span class="c">intro n. induction n as [ | n IHn ].</span>
+<span class="c">intros. destruct (negnatgth0n _ isc). intro m. induction m. intros. destruct k.</span>
+<span class="c">apply natgthsn0. apply (IHapply natgehn0. intro k. induction k. intro isc.</span>
+<span class="c">apply isc. intro isc.  apply (IHn m k isc).</span>
+<span class="c"> Defined.</span>
+
+
+
+<span class="c">(removed to lBsystems)</span>
+<span class="c">Definition natlehandminusl (n m k : nat) (isc : natgeh n m) :</span>
+<span class="c">natgeh (k - m) (k - n).</span>
+<span class="c">Proof.</span>
+<span class="c">intro n. induction n as [ | n IHn ].</span>
+<span class="c">intros. rewrite (nat0gehtois0 _ isc).</span>
+<span class="c">apply isreflnatleh. intro m. induction m. intros.</span>
+<span class="c">destruct k.</span>
+<span class="c">apply natminuslehn. apply natminuslehn.</span>
+<span class="c">intro k. induction k. intro isc.</span>
+<span class="c">apply isreflnatleh. intro isc.</span>
+<span class="c">apply (IHn m k). apply isc.</span>
+<span class="c">Defined.</span>
+
+<span class="c">Definition natlehandminusr</span>
+
+<span class="c">Definition natlthandminusl (n m k : nat) (isc : natgth n m) (is' : natgeh k n) :</span>
+<span class="c">natlth (k - n) (k - m).</span>
+<span class="c">Proof.</span>
+<span class="c">intro n. induction n as [ | n IHn ].</span>
+<span class="c">intros. destruct (negnatgth0n _ isc).</span>
+<span class="c">intro m. induction m. intros. destruct k.</span>
+<span class="c">destruct (negnatgeh0sn _ is').</span>
+<span class="c">apply (natlehlthtrans _ k _).</span>
+<span class="c">apply (natminuslehn k n).</span>
+<span class="c">apply natlthnsn.</span>
+<span class="c">intro k. induction k. intros isc is'.</span>
+<span class="c">destruct (negnatgeh0sn _ is'). intros isc is'.</span>
+<span class="c">apply (IHn m k isc is').</span>
+<span class="c">Defined.</span>
+
+<span class="c">Definition natlehandminusl (n m k : nat) (isc : natgeh n m) :</span>
+<span class="c">natleh (k - n) (k - m).</span>
+<span class="c">Proof.</span>
+<span class="c">intro n. induction n as [ | n IHn ].</span>
+<span class="c">intros. rewrite (nat0gehtois0 _ isc).</span>
+<span class="c">apply isreflnatleh.</span>
+<span class="c">intro m. induction m. intros. destruct k.</span>
+<span class="c">apply natminuslehn. apply natminuslehn.</span>
+<span class="c">intro k. induction k. intro isc.</span>
+<span class="c">apply isreflnatleh. intro isc.</span>
+<span class="c">apply (IHn m k). apply isc.</span>
+<span class="c">Defined.</span>
+
+
+<span class="c">Definition natlehandminusl (n m k : nat) : (n ≤ m) -&gt; natgeh (k - n) (k - m)</span>
+<span class="c">:= natlehandminusl m n k.</span>
+
+<span class="c">Definition natlehandminusr (n m k : nat) : (n ≤ m) -&gt; (n - k) ≤ (m - k)</span>
+<span class="c">:= natgehandminusr m n k.</span>
+
+
+
+
+<span class="c">(* *** One sided minus and comparisons *)</span>
+
+
+<span class="c">(* *** Greater or equal and minus *)</span>
+
+<span class="c">(* See lBsystems.v *)</span>
+
+
+
+<span class="c">(* **** Less and minus *)</span>
+
+
+<span class="c">Definition natlthrightminus (n m k : nat) (isc : natlth (n + m) k) :</span>
+<span class="c">natlth n (k - m).</span>
+
+<span class="c">Definition natlthrightplus (n m k : nat) (isc : natlth (n - m) k) :</span>
+<span class="c">natlth n (k + m).</span>
+
+<span class="c">Definition natlthleftminus (n m k : nat) (isc : natlth n (m + k)) :</span>
+<span class="c">natlth (n - k) m.</span>
+
+<span class="c">Definition natlthleftplus (n m k : nat) (isc : natlth n (m - k)) :</span>
+<span class="c">natlth (n + k) m.</span>
+
+
+<span class="c">(* **** Less or equal and minus *)</span>
+
+
+<span class="c">Definition natlehrightminus (n m k : nat) (isc : (n + m) ≤ k) : n ≤ (k - m).</span>
+
+<span class="c">Definition natlehrightplus (n m k : nat) (isc : (n - m) ≤ k) : n ≤ (k + m).</span>
+
+<span class="c">Definition natlehleftminus (n m k : nat) (isc : n ≤ (m + k)) : (n - k) ≤ m.</span>
+
+<span class="c">Definition natlehleftplus (n m k : nat) (isc : n ≤ (m - k)) : (n + k) ≤ m.</span>
+
+
+
+
+
+
+
+
+
+
+<span class="c">(* *** Mixed plus/minus associativities.</span>
+
+<span class="c">There are four possible plus/minus associativities which are labelled by</span>
+<span class="c">pp, pm, mp and mm depending on where in the side with the left parenthesis</span>
+<span class="c">one has minuses and where one has pluses. Two of those - pp and mm, are</span>
+<span class="c">unconditional. Two others require a condition to hold as equality and also</span>
+<span class="c">provide an unconditional inequality. Alltogether we have six statements</span>
+<span class="c">including a repeat of the usual pp associativity which we give here another</span>
+<span class="c">name in accrdance with the general naming scheme for these statements. *)</span>
+
+<span class="c">Notation natassocppeq := natplusassoc.</span>
+
+<span class="c">(* see lBsystems *)</span>
+
+<span class="c">Definition natassocpmineq (n m k : nat) : natleh ((n + m) - k) (n + (m - k)).</span>
+<span class="c">Proof.</span>
+<span class="c">intros k. destruct (natgthorleh k m) as [g | le].</span>
+
+<span class="c">set (e := minuseq0 m k (natgthtogeh _ _ g)).</span>
+<span class="c">rewrite e. rewrite (natplusr0 n).</span>
+<span class="c">destruct (boolchoice (natgtb k (n+m))) as [ g' | le'].</span>
+<span class="c">set (e' := minuseq0 (n+m) k (natgthtogeh _ _ g')).  rewrite e'.</span>
+<span class="c">apply natleh0n. apply (natlehandplusrinv _ _ k).</span>
+<span class="c">rewrite (minusplusnmm _ k).</span>
+<span class="c">apply natlehandplusl.</span>
+<span class="c">apply (natlthtoleh _ _ g).</span>
+<span class="c">set (int := falsetonegtrue _ le').</span>
+<span class="c">assumption.</span>
+
+<span class="c">rewrite (natassocpmeq _ _ _ le).</span>
+<span class="c">apply isreflnatleh.</span>
+<span class="c">Defined.</span>
+
+
+<span class="c">(* see lBsystems *)</span>
+
+<span class="c">Definition natassocmpineq (n m k : nat) : natgeh ((n - m) + k) (n - (m - k)).</span>
+<span class="c">Proof.</span>
+<span class="c">intros k. destruct (natgthorleh k m) as [g | le].</span>
+
+<span class="c">set (e := minuseq0 m k (natgthtogeh _ _ g)).</span>
+<span class="c">rewrite e. rewrite (natminuseqn n). apply (natgehandplusrinv _ _ m).</span>
+<span class="c">rewrite (natplusassoc _ _ m). rewrite (natpluscomm _ m).</span>
+<span class="c">destruct (natplusassoc (n - m) m k).</span>
+<span class="c">assert (int1 : natgeh (n - m + m + k) (n + k)).</span>
+<span class="c">apply (natgehandplusr _ _ k).</span>
+<span class="c">apply minusplusnmmineq.</span>
+<span class="c">assert (int2 : natgeh (n + k) (n + m)).</span>
+<span class="c">apply (natgehandplusl _ _ n).</span>
+<span class="c">apply (natgthtogeh _ _ g).</span>
+<span class="c">apply (istransnatgeh _ _ _ int1 int2).</span>
+
+<span class="c">destruct (natgthorleh m n) as [g' | le'].</span>
+<span class="c">rewrite (minuseq0 _ _ (natgthtogeh _ _ g')). change (0 + k) with k.</span>
+<span class="c">apply (natgehandplusrinv _ _ (m - k)).</span>
+<span class="c">rewrite (natpluscomm k _). rewrite (minusplusnmm _ _ le).</span>
+
+<span class="c">destruct (natgthorleh (m - k) n) as [ g'' | le'' ].</span>
+<span class="c">rewrite (minuseq0 n (m - k) (natgthtogeh _ _ g'')).</span>
+<span class="c">apply (natminuslehn  m k). rewrite (minusplusnmm _ _ le'').</span>
+<span class="c">apply (natgthtogeh _ _ g').</span>
+
+<span class="c">rewrite (natassocmpeq _ _ _ le' le). apply isreflnatgeh.</span>
+<span class="c">Defined.</span>
+
+
+
+
+<span class="c">Definition natassocpmineq (n m k : nat) : natleh ((n + m) - k) (n + (m - k)).</span>
+<span class="c">Proof.</span>
+<span class="c">intros k. destruct (natgthorleh k m) as [g | le].</span>
+
+<span class="c">set (e := minuseq0 m k (natgthtogeh _ _ g)).</span>
+<span class="c">rewrite e. rewrite (natplusr0 n).</span>
+<span class="c">destruct (boolchoice (natgtb k (n+m))) as [ g' | le'].</span>
+<span class="c">set (e' := minuseq0 (n+m) k (natgthtogeh _ _ g')). rewrite e'.</span>
+<span class="c">apply natleh0n. apply (natlehandplusrinv _ _ k).</span>
+<span class="c">rewrite (minusplusnmm _ k). apply natlehandplusl.</span>
+<span class="c">apply (natlthtoleh _ _ g). set (int := falsetonegtrue _ le').</span>
+<span class="c">assumption.</span>
+
+<span class="c">rewrite (natassocpmeq _ _ _ le). apply isreflnatleh. Defined.</span>
+<span class="c">*)</span>
+
+
+<span class="sd">(** *** Basic algebraic properties of [mul] on [nat].</span>
+
+<span class="sd">  We no longer user [mult]. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">natmult0n</span> (<span class="nv">n</span> : nat) : (<span class="mi">0</span> * n) = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+#[<span class="kn">global</span>]
+<span class="kn">Hint Resolve</span> natmult0n : natarith.
+
+<span class="kn">Lemma</span> <span class="nf">natmultn0</span> (<span class="nv">n</span> : nat) : n * <span class="mi">0</span> = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">simpl</span>. <span class="bp">exact</span> (natplusr0 _ @ IHn).
+<span class="kn">Defined</span>.
+#[<span class="kn">global</span>]
+<span class="kn">Hint Resolve</span> natmultn0 : natarith.
+
+<span class="kn">Lemma</span> <span class="nf">multsnm</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : S n * m = m + n * m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">simpl</span>. <span class="nb">apply</span> natpluscomm.
+<span class="kn">Defined</span>.
+#[<span class="kn">global</span>]
+<span class="kn">Hint Resolve</span> multsnm : natarith.
+
+<span class="kn">Lemma</span> <span class="nf">multnsm</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n * S m = n + n * m.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intro</span> m. <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> &lt;- natplusassoc.
+    <span class="nb">rewrite</span> (natpluscomm _ m).
+    <span class="nb">change</span> (S (m + (n + n * m))) <span class="k">with</span> (S m + (n + n * m)).
+    <span class="nb">rewrite</span> (natpluscomm (S m) _).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x + S m)).
+    <span class="nb">apply</span> IHn.
+<span class="kn">Defined</span>.
+#[<span class="kn">global</span>]
+<span class="kn">Hint Resolve</span> multnsm : natarith.
+
+<span class="kn">Lemma</span> <span class="nf">natmultcomm</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : (n * m) = (m * n).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intro</span>. <span class="nb">auto with</span> natarith.
+  - <span class="nb">intro</span> m. <span class="nb">rewrite</span> (multsnm n m). <span class="nb">rewrite</span> (multnsm m n).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span> : _, m + x) (IHn m)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natrdistr</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : (n + m) * k = n * k + m * k.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> natplusassoc. <span class="nb">rewrite</span> (natpluscomm k _).
+    <span class="nb">rewrite</span> &lt;- natplusassoc.
+    <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x+k) IHn).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natldistr</span> (<span class="nv">m</span> <span class="nv">k</span> <span class="nv">n</span> : nat) : (n * (m + k)) = (n * m + n * k).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> m <span class="k">as</span> [ | m IHm ].
+  - <span class="nb">simpl</span>. <span class="nb">rewrite</span> (natmultn0 n). <span class="nb">auto with</span> natarith.
+  - <span class="nb">simpl</span>. <span class="nb">rewrite</span> (multnsm n (m + k)). <span class="nb">rewrite</span> (multnsm n m).
+    <span class="nb">rewrite</span> (natplusassoc _ _ _).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span> : _, n + x) (IHm)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natmultassoc</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : ((n * m) * k) = (n * (m * k)).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> natrdistr.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x + m * k)).
+    <span class="nb">apply</span> IHn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natmultl1</span> (<span class="nv">n</span> : nat) : (<span class="mi">1</span> * n) = n.
+<span class="kn">Proof</span>.
+  <span class="nb">simpl</span>. <span class="nb">auto with</span> natarith.
+<span class="kn">Defined</span>.
+#[<span class="kn">global</span>]
+<span class="kn">Hint Resolve</span> natmultl1 : natarith.
+
+<span class="kn">Lemma</span> <span class="nf">natmultr1</span> (<span class="nv">n</span> : nat) : (n * <span class="mi">1</span>) = n.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> (natmultcomm n <span class="mi">1</span>). <span class="nb">auto with</span> natarith.
+<span class="kn">Defined</span>.
+#[<span class="kn">global</span>]
+<span class="kn">Hint Resolve</span> natmultr1 : natarith.
+
+<span class="sd">(** *** Cancellation properties of [mul] on [nat] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natplusnonzero</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : m ≠ <span class="mi">0</span> -&gt; n+m ≠ <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ne. <span class="nb">induction</span> n <span class="k">as</span> [|n _].
+  - <span class="bp">assumption</span>.
+  - <span class="bp">exact</span> tt.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natneq0andmult</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n ≠ <span class="mi">0</span> -&gt; m ≠ <span class="mi">0</span> -&gt; n * m ≠ <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isn ism. <span class="nb">induction</span> n <span class="k">as</span> [|n].
+  - <span class="nb">apply</span> fromempty. <span class="nb">apply</span> isn.
+  - <span class="nb">clear</span> isn. <span class="nb">simpl</span>. <span class="nb">apply</span> natplusnonzero. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natneq0andmultlinv</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n * m ≠ <span class="mi">0</span> -&gt; n ≠ <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n _].
+  - <span class="nb">intros</span> ? r. <span class="nb">apply</span> fromempty, r.
+  - <span class="nb">intros</span> _ _. <span class="nb">apply</span> natneqsx0.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natneq0andmultrinv</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n * m ≠ <span class="mi">0</span> -&gt; m ≠ <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> m <span class="k">as</span> [|m _].
+  - <span class="nb">intro</span> r. <span class="nb">apply</span> fromempty. <span class="nb">apply</span> (nat_neq_to_nopath r), natmultn0.
+  - <span class="nb">intros</span> _. <span class="nb">apply</span> natneqsx0.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Multiplication and comparisons  *)</span>
+
+<span class="sd">(** [natgth] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natgthandmultl</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : k ≠ <span class="mi">0</span> -&gt; n &gt; m -&gt; (k * n) &gt; (k * m).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m k. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intros</span> m k g g'. <span class="nb">induction</span> (negnatgth0n _ g').
+  - <span class="nb">intro</span> m. <span class="nb">destruct</span> m <span class="k">as</span> [ | m ].
+    + <span class="nb">intros</span> k g g'.
+      <span class="nb">rewrite</span> (natmultn0 k). <span class="nb">rewrite</span> (multnsm k n).
+      <span class="nb">apply</span> (natgehgthtrans _ _ _ (natgehplusnmn k (k* n)) (natneq0togth0 _ g)).
+    + <span class="nb">intros</span> k g g'. <span class="nb">rewrite</span> (multnsm k n). <span class="nb">rewrite</span> (multnsm k m).
+      <span class="nb">apply</span> (natgthandplusl _ _ _). <span class="nb">apply</span> (IHn m k g g').
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natgthandmultr</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : k ≠ <span class="mi">0</span> -&gt; n &gt; m -&gt; (n * k) &gt; (m * k).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> l. <span class="nb">rewrite</span> (natmultcomm n k). <span class="nb">rewrite</span> (natmultcomm m k).
+  <span class="nb">apply</span> (natgthandmultl n m k l).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natgthandmultlinv</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : (k * n) &gt; (k * m) -&gt; n &gt; m.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m k. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intros</span> m k g. <span class="nb">rewrite</span> (natmultn0 k) <span class="k">in</span> g. <span class="nb">induction</span> (negnatgth0n _ g).
+  - <span class="nb">intro</span> m. <span class="nb">destruct</span> m <span class="k">as</span> [ | m ].
+    + <span class="nb">intros</span>. <span class="nb">apply</span> (natgthsn0 _).
+    + <span class="nb">intros</span> k g. <span class="nb">rewrite</span> (multnsm k n) <span class="k">in</span> g. <span class="nb">rewrite</span> (multnsm k m) <span class="k">in</span> g.
+      <span class="nb">apply</span> (IHn m k (natgthandpluslinv _ _ k g)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natgthandmultrinv</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : (n * k) &gt; (m * k) -&gt; n &gt; m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> g.
+  <span class="nb">rewrite</span> (natmultcomm n k) <span class="k">in</span> g. <span class="nb">rewrite</span> (natmultcomm m k) <span class="k">in</span> g.
+  <span class="nb">apply</span> (natgthandmultlinv n m k g).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** [natlth] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natlthandmultl</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : k ≠ <span class="mi">0</span> -&gt; n &lt; m -&gt; k * n &lt; k * m := natgthandmultl _ _ _.
+
+<span class="kn">Definition</span> <span class="nf">natlthandmultr</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : k ≠ <span class="mi">0</span> -&gt; n &lt; m -&gt; n * k &lt; m * k := natgthandmultr _ _ _.
+
+<span class="kn">Definition</span> <span class="nf">natlthandmultlinv</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : k * n &lt; k * m -&gt; n &lt; m := natgthandmultlinv _ _ _.
+
+<span class="kn">Definition</span> <span class="nf">natlthandmultrinv</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n * k &lt; m * k -&gt; n &lt; m := natgthandmultrinv _ _ _.
+
+<span class="sd">(** [natleh] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natlehandmultl</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n ≤ m -&gt; k * n ≤ k * m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r. <span class="nb">apply</span> negnatgthtoleh; <span class="nb">intro</span> t.
+  <span class="nb">apply</span> (natlehtonegnatgth _ _ r). <span class="nb">apply</span> (natgthandmultlinv _ _ k). <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natlehandmultr</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n ≤ m -&gt; n * k ≤ m * k.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r. <span class="nb">apply</span> negnatgthtoleh; <span class="nb">intro</span> t.
+  <span class="nb">apply</span> (natlehtonegnatgth _ _ r).
+  <span class="nb">apply</span> (natgthandmultrinv _ _ k). <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natlehandmultlinv</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : k ≠ <span class="mi">0</span> -&gt; k * n ≤ k * m -&gt; n ≤ m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r s. <span class="nb">apply</span> negnatgthtoleh; <span class="nb">intro</span> t.
+  <span class="nb">apply</span> (natlehtonegnatgth _ _ s).
+  <span class="nb">apply</span> (natgthandmultl _ _ _ r). <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natlehandmultrinv</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : k ≠ <span class="mi">0</span> -&gt; n * k ≤ m * k -&gt; n ≤ m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r s. <span class="nb">apply</span> negnatgthtoleh; <span class="nb">intro</span> t.
+  <span class="nb">apply</span> (natlehtonegnatgth _ _ s).
+  <span class="nb">apply</span> (natgthandmultr _ _ _ r). <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** [natgeh] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natgehandmultl</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n ≥ m -&gt; (k * n) ≥ (k * m) := natlehandmultl _ _ _.
+
+<span class="kn">Definition</span> <span class="nf">natgehandmultr</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : n ≥ m -&gt; (n * k) ≥ (m * k) := natlehandmultr _ _ _.
+
+<span class="kn">Definition</span> <span class="nf">natgehandmultlinv</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : k ≠ <span class="mi">0</span> -&gt; k * n ≥ k * m -&gt; n ≥ m := natlehandmultlinv _ _ _.
+
+<span class="kn">Definition</span> <span class="nf">natgehandmultrinv</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) : k ≠ <span class="mi">0</span> -&gt; n * k ≥ m * k -&gt; n ≥ m := natlehandmultrinv _ _ _.
+
+<span class="sd">(** *** Division with a remainder on [nat]</span>
+
+<span class="sd">For technical reasons it is more convenient to introduce divison with remainder</span>
+<span class="sd">for all pairs (n,m) including pairs of the form (n,0). *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natdivrem</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : dirprod nat nat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">intros</span>. <span class="nb">apply</span> (make_dirprod <span class="mi">0</span> <span class="mi">0</span>).
+  - <span class="nb">induction</span> (natlthorgeh (S (pr2 IHn)) m).
+    + <span class="nb">apply</span> (make_dirprod (pr1 IHn) (S (pr2 IHn))).
+    + <span class="nb">apply</span> (make_dirprod (S (pr1 IHn)) <span class="mi">0</span>).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natdiv</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : nat := pr1 (natdivrem n m).
+
+<span class="kn">Definition</span> <span class="nf">natrem</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : nat := pr2 (natdivrem n m).
+
+<span class="kn">Notation</span> <span class="s2">" x /+ y "</span> := (natrem x y) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>) : nat_scope.
+<span class="kn">Notation</span> <span class="s2">" x / y "</span> := (natdiv x y) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>) : nat_scope.
+
+<span class="kn">Lemma</span> <span class="nf">lthnatrem</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : m ≠ <span class="mi">0</span> -&gt; n /+ m &lt; m.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> natrem. <span class="nb">intros</span> isneq. <span class="nb">destruct</span> n <span class="k">as</span> [ | n ].
+  - <span class="nb">simpl</span>. <span class="nb">intros</span>. <span class="nb">apply</span> (natneq0togth0 _ isneq).
+  - <span class="nb">simpl</span>. <span class="nb">induction</span> (natlthorgeh (S (pr2 (natdivrem n m))) m) <span class="k">as</span> [ nt | t ].
+    + <span class="nb">simpl</span>. <span class="nb">apply</span> nt.
+    + <span class="nb">simpl</span>. <span class="nb">apply</span> (natneq0togth0 _ isneq).
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">natdivremrule</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">isneq</span> : m ≠ <span class="mi">0</span>) : n = ((natrem n m) + (natdiv n m) * m).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m isneq. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">simpl</span>. <span class="nb">intros</span>. <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> m isneq. <span class="nb">unfold</span> natrem. <span class="nb">unfold</span> natdiv. <span class="nb">simpl</span>.
+    <span class="nb">induction</span> (natlthorgeh (S (pr2 (natdivrem n m))) m)  <span class="k">as</span> [ nt | t ].
+    + <span class="nb">simpl</span>. <span class="nb">apply</span> (maponpaths S (IHn m isneq)).
+    + <span class="nb">simpl</span>. <span class="nb">set</span> (is' := lthnatrem n m isneq).
+      <span class="nb">induction</span> (natgthchoice2 _ _ is') <span class="k">as</span> [ h | e ].
+      <span class="nb">induction</span> (natlehtonegnatgth _ _ t h).
+      <span class="nb">fold</span> (natdiv n m).
+      <span class="nb">set</span> (e'' := maponpaths S (IHn m isneq)).
+      <span class="nb">change</span> (S (natrem n m + natdiv n m * m))
+      <span class="k">with</span> (S (natrem n m) + natdiv n m * m) <span class="k">in</span> e''.
+      <span class="nb">rewrite</span> (pathsinv0 e) <span class="k">in</span> e''. <span class="nb">rewrite</span> (natpluscomm _ m).
+      <span class="nb">apply</span> e''.
+<span class="kn">Defined</span>.
+<span class="kn">Opaque</span> natdivremrule.
+
+<span class="kn">Lemma</span> <span class="nf">natlehmultnatdiv</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">isneq</span> : m ≠ <span class="mi">0</span>) : natdiv n m * m ≤ n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (e := natdivremrule n m isneq).
+  <span class="nb">set</span> (int := (natdiv n m) * m).
+  <span class="nb">rewrite</span> e.              <span class="c">(* why can't we just say "rewrite e at 2" here? *)</span>
+  <span class="nb">apply</span> natlehmplusnm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">natdivremunique</span> (<span class="nv">m</span> <span class="nv">i</span> <span class="nv">j</span> <span class="nv">i'</span> <span class="nv">j'</span> : nat) (<span class="nv">lj</span> : j &lt; m) (<span class="nv">lj'</span> : j' &lt; m)
+        (<span class="nv">e</span> : j + i * m = j' + i' * m) :  i = i' × j = j'.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> j i' j' lj lj' e. <span class="nb">induction</span> i <span class="k">as</span> [ | i IHi ].
+  - <span class="nb">intros</span> j i' j' lj lj'.
+    <span class="nb">simpl</span>.
+    <span class="nb">intro</span> e.
+    <span class="nb">simpl</span> <span class="k">in</span> e.
+    <span class="nb">rewrite</span> natplusr0 <span class="k">in</span> e.
+    <span class="nb">rewrite</span> e <span class="k">in</span> lj.
+    <span class="nb">induction</span> i'.
+    + <span class="nb">simpl</span> <span class="k">in</span> e.
+      <span class="nb">rewrite</span> natplusr0 <span class="k">in</span> e.
+      <span class="bp">exact</span> (idpath _,,e).
+    + <span class="nb">change</span> (S i' * m) <span class="k">with</span> (i' * m + m) <span class="k">in</span> lj.
+      <span class="nb">rewrite</span> &lt;- natplusassoc <span class="k">in</span> lj.
+      <span class="nb">induction</span> (negnatgthmplusnm _ _ lj).
+  - <span class="nb">intros</span> j i' j' lj lj' e.
+    <span class="nb">induction</span> i' <span class="k">as</span> [ | i' ].
+    + <span class="nb">simpl</span> <span class="k">in</span> e.
+      <span class="nb">rewrite</span> natplusr0 <span class="k">in</span> e.
+      <span class="nb">rewrite</span> &lt;- e <span class="k">in</span> lj'.
+      <span class="nb">rewrite</span> &lt;- natplusassoc <span class="k">in</span> lj'.
+      <span class="nb">induction</span> (negnatgthmplusnm _ _ lj').
+    + <span class="nb">simpl</span> <span class="k">in</span> e.
+      <span class="nb">rewrite</span> &lt;- (natplusassoc j) <span class="k">in</span> e.
+      <span class="nb">rewrite</span> &lt;- (natplusassoc j') <span class="k">in</span> e.
+      <span class="nb">set</span> (e' := invmaponpathsincl _ (isinclnatplusr m) _ _ e).
+      <span class="nb">set</span> (ee := IHi j i' j' lj lj' e').
+      <span class="bp">exact</span> (make_dirprod (maponpaths S (pr1 ee)) (pr2 ee)).
+<span class="kn">Defined</span>.
+<span class="kn">Opaque</span> natdivremunique.
+
+<span class="kn">Lemma</span> <span class="nf">natdivremandmultl</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) (<span class="nv">ism</span> : m ≠ <span class="mi">0</span>) (<span class="nv">iskm</span> : (k * m) ≠ <span class="mi">0</span>) :
+  dirprod (paths (natdiv (k * n) (k * m)) (natdiv n m))
+          (paths (natrem (k * n) (k * m)) (k * (natrem n m))).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (ak := natdiv (k * n) (k * m)).
+  <span class="nb">set</span> (bk := natrem (k * n) (k * m)).
+  <span class="nb">set</span> (a := natdiv n m). <span class="nb">set</span> (b := natrem n m).
+  <span class="nb">assert</span> (e1 : paths (bk + ak * (k * m)) ((b * k) + a * (k * m))).
+  {
+    <span class="nb">unfold</span> ak. <span class="nb">unfold</span> bk.
+    <span class="nb">rewrite</span> (pathsinv0 (natdivremrule (k * n) (k * m) iskm)).
+    <span class="nb">rewrite</span> (natmultcomm k m).
+    <span class="nb">rewrite</span> (pathsinv0 (natmultassoc _ _ _)).
+    <span class="nb">rewrite</span> (pathsinv0 (natrdistr _ _ _)).
+    <span class="nb">unfold</span> a. <span class="nb">unfold</span> b.
+    <span class="nb">rewrite</span> (pathsinv0 (natdivremrule n m ism)).
+    <span class="nb">apply</span> (natmultcomm k n).
+  }
+  <span class="nb">set</span> (l1 := lthnatrem n m ism).
+  <span class="nb">set</span> (l1' := (natlthandmultr _ _ _ (natneq0andmultlinv _ _ iskm) l1)).
+  <span class="nb">rewrite</span> (natmultcomm m k) <span class="k">in</span> l1'.
+  <span class="nb">set</span> (int := natdivremunique
+                _ _ _ _ _ (lthnatrem (k * n) (k * m) iskm) l1' e1).
+  <span class="nb">split with</span> (pr1 int).
+  <span class="nb">rewrite</span> (natmultcomm k b). <span class="nb">apply</span> (pr2 int).
+<span class="kn">Defined</span>.
+<span class="kn">Opaque</span> natdivremandmultl.
+
+<span class="kn">Definition</span> <span class="nf">natdivandmultl</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) (<span class="nv">ism</span> : m ≠ <span class="mi">0</span>) (<span class="nv">iskm</span> : (k * m) ≠ <span class="mi">0</span>) :
+  paths (natdiv (k * n) (k * m)) (natdiv n m) := pr1 (natdivremandmultl _ _ _ ism iskm).
+
+<span class="kn">Definition</span> <span class="nf">natremandmultl</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) (<span class="nv">ism</span> : m ≠ <span class="mi">0</span>) (<span class="nv">iskm</span> : (k * m) ≠ <span class="mi">0</span>) :
+  paths (natrem (k * n) (k * m)) (k * (natrem n m)) := pr2 (natdivremandmultl _ _ _ ism iskm).
+
+<span class="kn">Lemma</span> <span class="nf">natdivremandmultr</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) (<span class="nv">ism</span> : m ≠ <span class="mi">0</span>) (<span class="nv">ismk</span> : (m * k) ≠ <span class="mi">0</span>) :
+  dirprod (paths (natdiv (n * k) (m * k)) (natdiv n m))
+          (paths (natrem (n * k) (m * k)) ((natrem n m) * k)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">rewrite</span> (natmultcomm m k). <span class="nb">rewrite</span> (natmultcomm m k) <span class="k">in</span> ismk.
+  <span class="nb">rewrite</span> (natmultcomm n k). <span class="nb">rewrite</span> (natmultcomm (natrem _ _) k).
+  <span class="nb">apply</span> (natdivremandmultl _ _ _ ism ismk).
+<span class="kn">Defined</span>.
+<span class="kn">Opaque</span> natdivremandmultr.
+
+<span class="kn">Definition</span> <span class="nf">natdivandmultr</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) (<span class="nv">ism</span> : m ≠ <span class="mi">0</span>) (<span class="nv">ismk</span> : (m * k) ≠ <span class="mi">0</span>) :
+  paths (natdiv (n * k) (m * k)) (natdiv n m) := pr1 (natdivremandmultr _ _ _ ism ismk).
+
+<span class="kn">Definition</span> <span class="nf">natremandmultr</span> (<span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : nat) (<span class="nv">ism</span> : m ≠ <span class="mi">0</span>) (<span class="nv">ismk</span> : (m * k) ≠ <span class="mi">0</span>) :
+  natrem (n * k) (m * k) = (natrem n m) * k := pr2 (natdivremandmultr _ _ _ ism ismk).
+
+
+<span class="sd">(** *** Exponentiation [natpower n m] ("n to the power m") on [nat] *)</span>
+
+<span class="kn">Fixpoint</span> <span class="nf">natpower</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : nat :=
+  <span class="k">match</span> m <span class="k">with</span>
+  | O =&gt; <span class="mi">1</span>
+  | S m' =&gt; n * (natpower n m')
+  <span class="k">end</span>.
+
+
+<span class="sd">(** *** Factorial on [nat] *)</span>
+
+<span class="kn">Fixpoint</span> <span class="nf">factorial</span> (<span class="nv">n</span> : nat) : nat :=
+  <span class="k">match</span> n <span class="k">with</span>
+  | <span class="mi">0</span> =&gt; <span class="mi">1</span>
+  | S n' =&gt; (S n') * (factorial n')
+  <span class="k">end</span>.
+
+
+<span class="sd">(** ** The order-preserving functions [di i : nat -&gt; nat] whose image is the complement of one element [i]. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">di</span> (<span class="nv">i</span> : nat) (<span class="nv">x</span> : nat) : nat :=
+  <span class="k">match</span> natlthorgeh x i <span class="k">with</span>
+  | ii1 _ =&gt; x
+  | ii2 _ =&gt; S x
+  <span class="k">end</span>.
+
+<span class="kn">Lemma</span> <span class="nf">di_eq1</span> {<span class="nv">i</span> <span class="nv">x</span>} : x &lt; i → di i x = x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> lt. <span class="nb">unfold</span> di.
+  <span class="nb">induction</span> (natlthorgeh x i) <span class="k">as</span> [_|P].
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> fromempty. <span class="bp">exact</span> (natgehtonegnatlth _ _ P lt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">di_eq2</span> {<span class="nv">i</span> <span class="nv">x</span>} : x ≥ i → di i x = S x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> lt. <span class="nb">unfold</span> di.
+  <span class="nb">induction</span> (natlthorgeh x i) <span class="k">as</span> [P|_].
+  - <span class="nb">apply</span> fromempty. <span class="bp">exact</span> (natlthtonegnatgeh _ _ P lt).
+  - <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">di_neq_i</span> (<span class="nv">i</span> <span class="nv">x</span> : nat) : i ≠ di i x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> nat_nopath_to_neq. <span class="nb">intro</span> eq.
+  <span class="nb">unfold</span> di <span class="k">in</span> eq. <span class="nb">induction</span> (natlthorgeh x i) <span class="k">as</span> [lt|ge].
+  - <span class="nb">induction</span> eq. <span class="bp">exact</span> (isirreflnatlth i lt).
+  - <span class="nb">induction</span> (!eq); <span class="nb">clear</span> eq. <span class="bp">exact</span> (negnatgehnsn _ ge).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natlehdinsn</span> (<span class="nv">i</span> <span class="nv">n</span> : nat) : (di i n) ≤ (S n).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> di. <span class="nb">induction</span> (natlthorgeh n i).
+  - <span class="nb">apply</span> natlthtoleh. <span class="nb">apply</span> natlthnsn.
+  - <span class="nb">apply</span> isreflnatleh.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natgehdinn</span> (<span class="nv">i</span> <span class="nv">n</span> : nat) : (di i n) ≥ n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> di. <span class="nb">induction</span> (natlthorgeh n i).
+  - <span class="nb">apply</span> isreflnatleh.
+  - <span class="nb">apply</span> natlthtoleh. <span class="nb">apply</span> natlthnsn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isincldi</span> (<span class="nv">i</span> : nat) : isincl (di i).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>. <span class="nb">apply</span> (isinclbetweensets (di i) isasetnat isasetnat).
+  <span class="nb">intros</span> x x'. <span class="nb">unfold</span> di. <span class="nb">intro</span> e.
+  <span class="nb">induction</span> (natlthorgeh x i) <span class="k">as</span> [ l | nel ].
+  - <span class="nb">induction</span> (natlthorgeh x' i) <span class="k">as</span> [ l' | nel' ].
+    + <span class="nb">apply</span> e.
+    + <span class="nb">rewrite</span> e <span class="k">in</span> l. <span class="nb">assert</span> (e' := natgthtogths _ _  l).
+      <span class="nb">change</span> (S i &gt; S x') <span class="k">with</span> (i &gt; x') <span class="k">in</span> e'.
+      contradicts (natlehtonegnatgth _ _ nel') e'.
+  - <span class="nb">induction</span>  (natlthorgeh x' i)  <span class="k">as</span> [ l' | nel' ].
+    + <span class="nb">induction</span> e.
+      <span class="nb">set</span> (e' := natgthtogths _ _ l').
+      contradicts (natlehtonegnatgth _ _ nel) e'.
+    + <span class="nb">apply</span> (invmaponpathsS _ _ e).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">neghfiberdi</span> (<span class="nv">i</span> : nat) : ¬ (hfiber (di i) i).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> hf. <span class="nb">unfold</span> di <span class="k">in</span> hf. <span class="nb">induction</span> hf <span class="k">as</span> [ j e ].
+  <span class="nb">induction</span> (natlthorgeh j i) <span class="k">as</span> [ l | g ]. <span class="nb">induction</span> e.
+  <span class="nb">apply</span> (isirreflnatlth _ l). <span class="nb">induction</span> e <span class="k">in</span> g. <span class="nb">apply</span> (negnatgehnsn _ g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscontrhfiberdi</span> (<span class="nv">i</span> <span class="nv">j</span> : nat) (<span class="nv">ne</span> : i ≠ j) : iscontr (hfiber (di i) j).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> iscontraprop1. <span class="nb">apply</span> (isincldi i j).
+  <span class="nb">induction</span> (natlthorgeh j i) <span class="k">as</span> [ l | nel ].
+  - <span class="nb">split with</span> j. <span class="nb">unfold</span> di.
+    <span class="nb">induction</span> (natlthorgeh j i) <span class="k">as</span> [ l' | nel' ].
+    + <span class="nb">apply</span> idpath.
+    + contradicts (natlehtonegnatgth _ _ nel') l.
+  - <span class="nb">induction</span> (natgehchoice2 _ _ nel) <span class="k">as</span> [ g | e ].
+    <span class="nb">destruct</span> j <span class="k">as</span> [ | j ].
+    + <span class="nb">induction</span> (negnatgeh0sn _ g).
+    + <span class="nb">split with</span> j. <span class="nb">unfold</span> di. <span class="nb">induction</span> (natlthorgeh j i) <span class="k">as</span> [ l' | g' ].
+      * contradicts (natlehtonegnatgth _ _ g) l'.
+      * <span class="nb">apply</span> idpath.
+    + <span class="nb">induction</span> ((nat_neq_to_nopath ne) (pathsinv0 e)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isdecincldi</span> (<span class="nv">i</span> : nat) : isdecincl (di i).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> j. <span class="nb">apply</span> isdecpropif.
+  - <span class="nb">apply</span> (isincldi i j).
+  - <span class="nb">induction</span> (nat_eq_or_neq i j)  <span class="k">as</span> [ eq | neq ].
+    + <span class="nb">apply</span> ii2. <span class="nb">induction</span> eq.  <span class="nb">apply</span> (neghfiberdi i).
+    + <span class="nb">apply</span> ii1. <span class="nb">apply</span> (pr1 (iscontrhfiberdi i j neq)).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** ** The order-preserving functions [si i : nat -&gt; nat] that take the value [i] twice. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">si</span> (<span class="nv">i</span> : nat) (<span class="nv">x</span> : nat) : nat :=
+  <span class="k">match</span> natlthorgeh i x <span class="k">with</span>
+    | ii1 _ =&gt; x - <span class="mi">1</span>
+    | ii2 _ =&gt; x
+  <span class="k">end</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natleh_neq</span> {<span class="nv">i</span> <span class="nv">j</span> : nat} : i ≤ j -&gt; i ≠ j -&gt; i &lt; j.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> le ne.
+  <span class="nb">induction</span> (natlehchoice _ _ le) <span class="k">as</span> [lt|eq].
+  - <span class="bp">exact</span> lt.
+  - <span class="nb">induction</span> eq. <span class="nb">apply</span> fromempty. <span class="bp">exact</span> (isirrefl_natneq _ ne).
+<span class="kn">Defined</span>.
+
+<span class="c">(* more lemmas about natural numbers *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">natminusminus</span> (<span class="nv">n</span> <span class="nv">i</span> <span class="nv">j</span> : nat) : n - i - j = n - (i + j).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> i j; <span class="nb">induction</span> n <span class="k">as</span> [|n N].
+  - <span class="nb">intros</span>. <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> i; <span class="nb">induction</span> i <span class="k">as</span> [|i _].
+    + <span class="nb">intros</span>. <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> N.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natltplusS</span> (<span class="nv">n</span> <span class="nv">i</span> : nat) : i &lt; i + S n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">rewrite</span> &lt;- (natplusr0 i).
+  <span class="nb">rewrite</span> natplusassoc. <span class="nb">apply</span> natlthandplusl. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_split</span> {<span class="nv">n</span> <span class="nv">m</span> <span class="nv">i</span> : nat} : (i &lt; n + m) -&gt; (i ≥ n) -&gt; i - n &lt; m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> p H.
+  <span class="nb">induction</span> (plusminusnmm m n).
+  <span class="nb">apply</span> natlthandminusl.
+  - <span class="nb">induction</span> (natpluscomm n m). <span class="bp">exact</span> p.
+  - <span class="nb">induction</span> (natpluscomm n m). <span class="nb">apply</span> (natlehlthtrans _ i).
+    * <span class="bp">assumption</span>.
+    * <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natplusminusle</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span>} : b ≥ c -&gt; a+(b-c) = (a+b)-c.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="nb">assert</span> (E := minusplusnmm b c e). <span class="nb">rewrite</span> &lt;- E. <span class="nb">clear</span> E e.
+  <span class="nb">rewrite</span> &lt;- natplusassoc. <span class="nb">rewrite</span> plusminusnmm. <span class="nb">rewrite</span> plusminusnmm. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natdiffplusdiff</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span>} : a ≥ b -&gt; b ≥ c -&gt; a-c = (a-b) + (b-c).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r s. <span class="nb">apply</span> (natplusrcan _ _ c). <span class="nb">rewrite</span> natplusassoc.
+  <span class="nb">rewrite</span> (minusplusnmm _ _ s). <span class="nb">rewrite</span> (minusplusnmm _ _ (istransnatleh s r)).
+  <span class="bp">exact</span> (! minusplusnmm _ _ r).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Foundations/NaturalNumbers.v</tt>, line 52)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Sets.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** ** Preamble *)
+  &gt;
+  &gt; (** Imports. *)&gt;&gt;&gt;Require Export UniMath.Foundations.Sets.&lt;&lt;&lt;
+  &gt;
+  &gt; (** To up-stream files  *)
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

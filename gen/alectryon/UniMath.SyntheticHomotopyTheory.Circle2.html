@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Circle2.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">  In this file we formalize the approach of Marc Bezem and Ulrik Buchholtz for proving that the type</span>
+<span class="sd">  of Z-torsors has the induction principle that the circle should have.  In my older approach, (see</span>
+<span class="sd">  the file Circle.v), I managed to show only the recursion principle for the circle (where the</span>
+<span class="sd">  family of types is constant), and the computations were complicated and onerous.  Their approach</span>
+<span class="sd">  follows the same basic idea, goes further, and is simpler.  It is described in the file</span>
+<span class="sd">  https://github.com/UniMath/SymmetryBook/blob/master/ZTors.tex, commit</span>
+<span class="sd">  1ba615fa7625516ad79fe3ad9ef68e1fc001d485.</span>
+
+<span class="sd">  *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Propositions.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Equivalences.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PathsOver.
+  <span class="kn">Import</span> PathsOverNotations.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Import</span> UniMath.SyntheticHomotopyTheory.AffineLine.
+<span class="kn">Require Import</span> UniMath.NumberSystems.Integers.
+<span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations.
+<span class="kn">Require Import</span> UniMath.Algebra.GroupAction.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+
+<span class="kn">Local Set Implicit Arguments</span>.
+<span class="kn">Local Unset Strict Implicit</span>.
+<span class="kn">Declare Scope</span> circle.
+<span class="kn">Delimit Scope</span> circle <span class="k">with</span> circle.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hz.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> addoperation.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> abgr.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> action_scope.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> pathsover.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> circle.
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"0"</span> := (toℤ <span class="mi">0</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"1"</span> := (toℤ <span class="mi">1</span>).
+<span class="kn">Local Definition</span> <span class="nf">elem</span> (<span class="nv">G</span>:gr) (<span class="nv">X</span>:Torsor G) : <span class="kt">Type</span> := X.
+<span class="kn">Arguments</span> elem {_} _.
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"ℤ¹"</span> := (trivialTorsor ℤ) : circle.
+
+<span class="sd">(** Statements of circle recursion and induction *)</span>
+
+<span class="c">(* Circle "recursion" is the non-dependent induction principle  *)</span>
+
+<span class="kn">Definition</span> <span class="nf">CircleRecursion</span> (<span class="nv">circle</span> : <span class="kt">Type</span>) (<span class="nv">pt</span> : circle) (<span class="nv">loop</span> : pt = pt) :=
+  ∏ (X:<span class="kt">Type</span>) (x:X) (p:x=x),
+    ∑ (f:circle -&gt; X) (r : f pt = x),
+      PathOver (Y := <span class="k">λ</span> <span class="nv">t</span>:X, t = t) r (maponpaths f loop) p.
+
+<span class="kn">Arguments</span> CircleRecursion : <span class="kn">clear implicits</span>.
+
+<span class="kn">Definition</span> <span class="nf">CircleInduction</span> (<span class="nv">circle</span> : <span class="kt">Type</span>) (<span class="nv">pt</span> : circle) (<span class="nv">loop</span> : pt = pt) :=
+  ∏ (X:circle-&gt;<span class="kt">Type</span>) (x:X pt) (p:PathOver loop x x),
+    ∑ (f:∏ t:circle, X t) (r : f pt = x),
+      PathOver (Y := <span class="k">λ</span> <span class="nv">t</span>:X pt, PathOver loop t t) r (apd f loop) p.
+
+<span class="kn">Arguments</span> CircleInduction : <span class="kn">clear implicits</span>.
+
+<span class="c">(* the alternative definitions of recursion and induction used earlier: *)</span>
+
+<span class="kn">Definition</span> <span class="nf">CircleRecursion'</span> (<span class="nv">circle</span> : <span class="kt">Type</span>) (<span class="nv">pt</span> : circle) (<span class="nv">loop</span> : pt = pt) :=
+  ∏ (X:<span class="kt">Type</span>) (x:X) (p:x=x),
+    ∑ (f:circle -&gt; X) (r : x = f pt), r @ maponpaths f loop = p @ r.
+
+<span class="kn">Arguments</span> CircleRecursion' : <span class="kn">clear implicits</span>.
+
+<span class="kn">Definition</span> <span class="nf">CircleInduction'</span> (<span class="nv">circle</span> : <span class="kt">Type</span>) (<span class="nv">pt</span> : circle) (<span class="nv">loop</span> : pt = pt) :=
+  ∏ (X:circle-&gt;<span class="kt">Type</span>) (x:X pt) (p:PathOver loop x x),
+    ∑ (f:∏ t:circle, X t) (r : x = f pt), r ⟤ apd f loop = p ⟥ r.
+
+<span class="kn">Arguments</span> CircleInduction' : <span class="kn">clear implicits</span>.
+
+<span class="c">(* the equivalence of the new definitions with the old *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">CircleRecursionEquiv</span> (<span class="nv">circle</span> : <span class="kt">Type</span>) (<span class="nv">pt</span> : circle) (<span class="nv">loop</span> : pt = pt)
+  : CircleRecursion circle pt loop ≃ CircleRecursion' circle pt loop.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> CircleRecursion', CircleRecursion.
+  <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> X. <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> x.
+  <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> p. <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> f.
+  intermediate_weq (∑ r : f pt = x, maponpaths f loop @ r = r @ p).
+  - <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> r. <span class="nb">apply</span> eqweqmap. <span class="nb">induction</span> r. <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">k</span>, k=p)). <span class="nb">rewrite</span> pathscomp0rid. <span class="bp">reflexivity</span>.
+  - intermediate_weq (∑ r : f pt = x, (!r) @ maponpaths f loop = p @ (!r)).
+    + <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> r. <span class="nb">induction</span> r. <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> <span class="mi">2</span> pathscomp0rid. <span class="nb">apply</span> idweq.
+    + <span class="bp">exact</span> (weqfp (make_weq _ (isweqpathsinv0 (f pt) x)) _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">CircleInductionEquiv</span> (<span class="nv">circle</span> : <span class="kt">Type</span>) (<span class="nv">pt</span> : circle) (<span class="nv">loop</span> : pt = pt)
+  : CircleInduction circle pt loop ≃ CircleInduction' circle pt loop.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> CircleInduction', CircleInduction.
+  <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> X. <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> x.
+  <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> p. <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> f.
+  intermediate_weq (∑ r : f pt = x, !r ⟤ apd f loop = p ⟥ !r).
+  - <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> r.
+    intermediate_weq (PathOver (Y := <span class="k">λ</span> <span class="nv">t</span>:X pt, PathOver loop t t) (!r) p (apd f loop)).
+    + <span class="nb">apply</span> inversePathOverWeq.
+    + <span class="nb">induction</span> r. <span class="nb">cbn</span>. <span class="nb">apply</span> weqpathsinv0.
+  - <span class="bp">exact</span> (weqfp (make_weq _ (isweqpathsinv0 _ _)) _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">CircleInduction_isaprop</span> (<span class="nv">circle</span> : <span class="kt">Type</span>) (<span class="nv">pt</span> : circle) (<span class="nv">loop</span> : pt = pt) :
+  isaprop (CircleInduction circle pt loop).
+<span class="kn">Proof</span>.
+<span class="kn">Abort</span>.
+
+<span class="kn">Lemma</span> <span class="nf">CircleInductionToRecursion'</span> (<span class="nv">circle</span> : <span class="kt">Type</span>) (<span class="nv">pt</span> : circle) (<span class="nv">loop</span> : pt = pt) :
+  CircleInduction' circle pt loop -&gt; CircleRecursion' circle pt loop.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> I. <span class="nb">unfold</span> CircleRecursion'. <span class="nb">intros</span> X x p.
+  <span class="nb">set</span> (w := I (<span class="k">λ</span> <span class="nv">_</span>, X) x (PathOverConstant_map1 _ p)). <span class="nb">simpl</span> <span class="k">in</span> w.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">w</span>). <span class="k">exists</span> (<span class="nv">pr12</span> <span class="nv">w</span>).
+  <span class="nb">refine</span> (_ @ maponpaths PathOverConstant_map2 (pr22 w) @ _).
+  { <span class="nb">apply</span> pathsinv0. <span class="nb">refine</span> (PathOverConstant_map2_eq2 _ _ @ _).
+    <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> PathOverConstant_map2_apd. }
+  { <span class="nb">refine</span> (PathOverConstant_map2_eq1 _ _ @ _).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">t</span>, t @ _)). <span class="nb">apply</span> PathOverConstant_map1_map2. }
+<span class="kn">Defined</span>.
+
+<span class="sd">(** A "circle" is a type with a point and a loop at that point that satisfies the</span>
+<span class="sd">    induction principle of the circle.  The type of all circles is called "Circle".  *)</span>
+
+<span class="kn">Definition</span> <span class="nf">Circle</span>  := ∑ (circle : <span class="kt">Type</span>) (pt : circle) (loop : pt = pt), CircleInduction circle pt loop.
+
+<span class="kn">Definition</span> <span class="nf">Circle'</span> := ∑ (circle : <span class="kt">Type</span>) (pt : circle) (loop : pt = pt), CircleInduction' circle pt loop.
+
+<span class="kn">Definition</span> <span class="nf">CircleEquiv</span> : Circle ≃ Circle'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> circle; <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> pt;
+    <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> loop.
+  <span class="nb">apply</span> CircleInductionEquiv.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">CircleInductionMatch</span> (<span class="nv">C</span> <span class="nv">C'</span> : <span class="kt">Type</span>) (<span class="nv">pt</span> : C) (<span class="nv">pt'</span> : C') (<span class="nv">loop</span> : pt = pt) (<span class="nv">loop'</span> : pt' = pt')
+           (<span class="nv">I</span> : CircleInduction' C pt loop) (<span class="nv">I'</span> : CircleInduction' C' pt' loop')
+           (<span class="nv">g</span> : C -&gt; C')
+           (<span class="nv">r0</span> : g pt = pt')
+           (<span class="nv">r</span> : r0 @ loop' = maponpaths g loop @ r0)
+  : ∏ (X' : C' → <span class="kt">Type</span>) (x' : X' pt') (p' : PathOver loop' x' x'), <span class="kt">Type</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (X := X' ∘ g); <span class="nb">cbn</span> beta <span class="k">in</span> X.
+  <span class="nb">set</span> (x := pullBackPointOver g r0 x'). <span class="nb">change</span> (X' ∘ g) <span class="k">with</span> X <span class="k">in</span> x.
+  <span class="nb">set</span> (p := pullBackPathOver g r p'). <span class="nb">fold</span> x <span class="k">in</span> p.
+  <span class="c">(* set (J := I X x p). *)</span>
+  <span class="nb">set</span> (typeofJ := ∑ (f : ∏ t : C, X t) (r : x = f pt), r ⟤ apd f loop = p ⟥ r).
+  <span class="c">(* Check ( J : typeofJ ). *)</span>
+  <span class="nb">assert</span> (J'' : typeofJ).
+  {
+    <span class="nb">unfold</span> typeofJ. <span class="nb">clear</span> typeofJ.
+    <span class="nb">set</span> (J' := I' X' x' p').
+    <span class="nb">set</span> (s' := pr1 J').
+    <span class="nb">set</span> (s := s' ∘ g); <span class="nb">change</span> (∏ x, X x) <span class="k">in</span> (<span class="kp">type of</span> s).
+    <span class="nb">set</span> (k := pr12 J'); <span class="nb">change</span> (pr1 J') <span class="k">with</span> (s') <span class="k">in</span> (<span class="kp">type of</span> k).
+    <span class="nb">set</span> (ρ := pr22 J'); <span class="nb">cbn</span> beta <span class="k">in</span> ρ; <span class="nb">fold</span> s k s' <span class="k">in</span> ρ.
+    <span class="k">exists</span> <span class="nv">s</span>.
+    <span class="k">exists</span> (<span class="nv">pullBackPointOverWithSection'</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">k</span>).
+    <span class="nb">set</span> (kk := pullBackPathOver g r (apd s' loop')).
+
+
+<span class="kn">Abort</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Circle_isaprop</span> : isaprop Circle.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isofhlevelweqb <span class="mi">1</span> CircleEquiv).
+  <span class="nb">apply</span> invproofirrelevance.
+  <span class="nb">intros</span> [C [pt [loop I]]] [C' [pt' [loop' I']]].
+  <span class="nb">set</span> (R  := CircleInductionToRecursion' I ). <span class="nb">set</span> (R' := CircleInductionToRecursion' I').
+  <span class="nb">set</span> (gre  := R  C' pt' loop').
+  <span class="nb">set</span> (g := pr1 gre). <span class="nb">set</span> (r := pr12 gre). <span class="nb">set</span> (e := pr22 gre).
+  <span class="nb">set</span> (gre' := R' C  pt  loop ).
+  <span class="nb">set</span> (g' := pr1 gre'). <span class="nb">set</span> (r' := pr12 gre'). <span class="nb">set</span> (e' := pr22 gre').
+  <span class="nb">fold</span> g <span class="k">in</span> r, e; <span class="nb">fold</span> g' <span class="k">in</span> r', e'; <span class="nb">fold</span> r <span class="k">in</span> e; <span class="nb">fold</span> r' <span class="k">in</span> e'.
+  <span class="nb">cbn</span> beta <span class="k">in</span> e, e'.
+  <span class="nb">set</span> (fib := (pt ,, pathsinv0 r) : hfiber g pt').
+  transparent <span class="nb">assert</span> (v : (pt = g' (g pt))).
+  { <span class="nb">refine</span> (r' @ _). <span class="nb">apply</span> maponpaths. <span class="bp">assumption</span>. }
+  transparent <span class="nb">assert</span> (v' : (pt' = g (g' pt'))).
+  { <span class="nb">refine</span> (r  @ _). <span class="nb">apply</span> maponpaths. <span class="bp">assumption</span>. }
+  <span class="nb">assert</span> (ie : isweq g).
+  { <span class="nb">apply</span> (isweq_iso _ g').
+    { <span class="nb">intros</span> x. <span class="nb">apply</span> pathsinv0. <span class="nb">generalize</span> x; <span class="nb">clear</span> x.
+      <span class="nb">simple refine</span> (pr1 (I _ _ _)).
+      - <span class="nb">simpl</span>. <span class="bp">exact</span> v.
+      - <span class="nb">set</span> (Q := ! pathOverEquations (f := idfun _) (g := funcomp g g') v v loop).
+        <span class="nb">apply</span> (cast Q); <span class="nb">clear</span> Q.
+        intermediate_path (v @ maponpaths g' (maponpaths g loop)).
+        + <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">k</span>, v @ k)). <span class="nb">apply</span> pathsinv0, maponpathscomp.
+        + <span class="nb">rewrite</span> maponpathsidfun. <span class="nb">unfold</span> v. <span class="nb">rewrite</span> &lt;- path_assoc.
+          <span class="nb">rewrite</span> &lt;- maponpathscomp0. intermediate_path (r' @ maponpaths g' (loop' @ r)).
+          * <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> e.
+          * <span class="nb">rewrite</span> maponpathscomp0. <span class="nb">rewrite</span> path_assoc.
+            <span class="nb">rewrite</span> e'. <span class="nb">rewrite</span> path_assoc. <span class="bp">reflexivity</span>. }
+    { <span class="nb">intros</span> x. <span class="nb">apply</span> pathsinv0. <span class="nb">generalize</span> x; <span class="nb">clear</span> x.
+      <span class="nb">simple refine</span> (pr1 (I' _ _ _)).
+      - <span class="nb">simpl</span>. <span class="bp">exact</span> v'.
+      - <span class="nb">set</span> (Q := ! pathOverEquations (f := idfun _) (g := funcomp g' g) v' v' loop').
+        <span class="nb">apply</span> (cast Q); <span class="nb">clear</span> Q.
+        intermediate_path (v' @ maponpaths g (maponpaths g' loop')).
+        + <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">k</span>, v' @ k)). <span class="nb">apply</span> pathsinv0, maponpathscomp.
+        + <span class="nb">rewrite</span> maponpathsidfun. <span class="nb">unfold</span> v'. <span class="nb">rewrite</span> &lt;- path_assoc.
+          <span class="nb">rewrite</span> &lt;- maponpathscomp0.
+          intermediate_path (r @ maponpaths g (loop @ r')).
+          * <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> e'.
+          * <span class="nb">rewrite</span> maponpathscomp0. <span class="nb">rewrite</span> path_assoc.
+            <span class="nb">rewrite</span> e. <span class="nb">rewrite</span> path_assoc. <span class="bp">reflexivity</span>. } }
+  <span class="c">(* We'll use univalence on g to identify C with C'.</span>
+<span class="c">     Then r will provide the match between pt and pt',</span>
+<span class="c">     and e will provide the corresponding match between loop and loop'.</span>
+<span class="c">     The question remains, how will we define matching I with I'?</span>
+<span class="c">   *)</span>
+  <span class="nb">unfold</span> CircleInduction' <span class="k">in</span> I, I'.
+
+
+<span class="kn">Abort</span>.
+
+<span class="sd">(** now start the formalization, following Marc and Ulrik *)</span>
+
+<span class="kn">Definition</span> <span class="nf">circle</span> := B ℤ.
+
+<span class="kn">Lemma</span> <span class="nf">loops_circle</span> : ℤ ≃ Ω circle.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> loopsBG.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">loop</span> := loops_circle <span class="mi">1</span> : Ω circle.
+
+<span class="kn">Definition</span> <span class="nf">loop'</span> (<span class="nv">X</span> : Torsor ℤ) : X = X
+  := invmap torsor_univalence (left_mult_Iso X <span class="mi">1</span>).
+
+<span class="kn">Definition</span> <span class="nf">pt</span> := basepoint circle.
+
+<span class="kn">Definition</span> <span class="nf">pt_0</span> : underlyingAction pt := <span class="mi">0</span>.
+<span class="kn">Definition</span> <span class="nf">pt_1</span> : underlyingAction pt := <span class="mi">1</span>.
+
+<span class="kn">Definition</span> <span class="nf">loop_loop'</span> : loop = loop' pt.
+<span class="kn">Proof</span>.
+  <span class="nb">change</span> (
+      invmap torsor_univalence (trivialTorsorAuto ℤ <span class="mi">1</span>) =
+      invmap torsor_univalence (left_mult_Iso pt <span class="mi">1</span>)).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> underlyingIso_injectivity, pr1weq_injectivity, funextsec; <span class="nb">intros</span> n.
+  <span class="nb">change</span> (n + <span class="mi">1</span> = <span class="mi">1</span> + n)%addmonoid.
+  <span class="nb">apply</span> commax.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">s</span> {<span class="nv">Z</span> : Torsor ℤ} (<span class="nv">x</span> : Z) : pt = Z
+<span class="c">(* 0.5.6 *)</span>
+  := invmap torsor_univalence (triviality_isomorphism Z x).
+
+<span class="kn">Section</span> <span class="nf">RelatedFacts</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fact0</span> (<span class="nv">X</span> <span class="nv">Y</span> : Torsor ℤ) (<span class="nv">e</span> : X = Y) (<span class="nv">x</span> : X) :
+    s (transportf elem e x) = s x @ e.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> pathsinv0, pathscomp0rid.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">fact1</span> (<span class="nv">X</span> <span class="nv">Y</span>:Torsor ℤ) (<span class="nv">e</span> : X=Y) : loop' X @ e = e @ loop' Y.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e.
+    <span class="nb">apply</span> pathscomp0rid.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">fact2</span> (<span class="nv">X</span>: Torsor ℤ) (<span class="nv">x</span>:X) : s (transportf elem (loop' X) x) = s x @ loop' X.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (fact0 (loop' X) x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">fact3</span> (<span class="nv">X</span>: Torsor ℤ) (<span class="nv">x</span>:X) : loop' pt @ s x = s x @ loop' X.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> fact1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">fact4</span> (<span class="nv">X</span>: Torsor ℤ) (<span class="nv">x</span>:X) : loop @ s x = s x @ loop' X.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ fact3 x).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">l</span>, l @ s x)).
+    <span class="nb">apply</span> loop_loop'.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">fact5</span> (<span class="nv">X</span>: Torsor ℤ) (<span class="nv">x</span>:X) : loop @ s x = s (transportf elem (loop' X) x).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ !fact2 x).
+    <span class="bp">exact</span> (fact4 x).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">RelatedFacts</span>.
+
+<span class="kn">Definition</span> <span class="nf">ε'</span> (<span class="nv">X</span> <span class="nv">Y</span> : Torsor ℤ) (<span class="nv">e</span> : X = Y) (<span class="nv">x</span> : X) :
+  ! s x @ s (transportf elem e x) = e.
+<span class="kn">Proof</span>.                          <span class="c">(* 0.5.10 *)</span>
+  <span class="nb">induction</span> e. <span class="nb">apply</span> pathsinv0l.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">s_compute_0</span> : s pt_0 = idpath pt.
+<span class="kn">Proof</span>.
+  intermediate_path (invmap torsor_univalence (idActionIso ℤ¹)).
+  - <span class="nb">change</span> (s pt_0) <span class="k">with</span> (invmap torsor_univalence (triviality_isomorphism ℤ¹ <span class="mi">0</span>)).
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (triviality_isomorphism_compute ℤ). <span class="c">(* too slow *)</span>
+  - <span class="nb">apply</span> torsor_univalence_id.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ε</span> {<span class="nv">X</span> : Torsor ℤ} (<span class="nv">x</span> : X) : loop @ s x = s (<span class="mi">1</span> + x).
+<span class="c">(* 0.5.7 *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">change</span> ((invmap torsor_univalence (trivialTorsorRightMultiplication ℤ one)) @ s x = s (<span class="mi">1</span> + x)).
+  <span class="nb">refine</span> (invUnivalenceCompose _ _ @ _). <span class="nb">unfold</span> s. <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> underlyingIso_injectivity, pr1weq_injectivity, funextsec; <span class="nb">intros</span> n.
+  <span class="nb">change</span> (((n + <span class="mi">1</span>)%addoperation + x) = (n + (<span class="mi">1</span> + x))). <span class="nb">apply</span> ac_assoc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ε1</span> {<span class="nv">X</span> : Torsor ℤ} (<span class="nv">x</span> : X) : s x @ loop' X = s (<span class="mi">1</span> + x).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> loop'.
+  <span class="nb">refine</span> (invUnivalenceCompose _ _ @ _). <span class="nb">unfold</span> s. <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> underlyingIso_injectivity, pr1weq_injectivity, funextsec; <span class="nb">intros</span> n.
+  <span class="nb">change</span> (<span class="mi">1</span> + (n + x) = n + (<span class="mi">1</span> + x)).
+  <span class="nb">refine</span> (! ac_assoc _ _ _ _ @ _ @ ac_assoc _ _ _ _).
+  <span class="nb">apply</span> (maponpaths (right_mult x)). <span class="nb">apply</span> commax.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ε''</span> (<span class="nv">x</span> : underlyingAction pt) : ! s x @ s (<span class="mi">1</span> + x) = loop.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> path_inv_rotate_ll, pathsinv0. <span class="nb">refine</span> (_ @ ε1 x).
+  <span class="nb">apply</span> maponpaths; <span class="nb">clear</span> x. <span class="nb">apply</span> loop_loop'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cp_irrelevance_circle</span>
+           (<span class="nv">A</span>:=circle) (<span class="nv">B</span>:circle-&gt;<span class="kt">Type</span>) (<span class="nv">a1</span> <span class="nv">a2</span>:A) (<span class="nv">b1</span>:B a1) (<span class="nv">b2</span>:B a2) (<span class="nv">p</span> <span class="nv">q</span>:a1=a2) (<span class="nv">α</span> <span class="nv">β</span>: p=q)
+           (<span class="nv">v</span> : PathOver p b1 b2) :
+  cp α v = cp β v.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, pr1weq f v)). <span class="nb">apply</span> cp_irrelevance. <span class="nb">apply</span> torsor_hlevel.
+<span class="kn">Defined</span>.
+
+<span class="kn">Opaque</span> PathOver.                <span class="c">(* see the discussion at https://github.com/UniMath/UniMath/pull/1329 *)</span>
+<span class="kn">Section</span> <span class="nf">A</span>.
+
+  <span class="kn">Context</span> (<span class="nv">A</span> : circle -&gt; <span class="kt">Type</span>) (<span class="nv">a</span> : A pt) (<span class="nv">p</span> : PathOver loop a a).
+
+  <span class="kn">Definition</span> <span class="nf">Q</span> (<span class="nv">X</span>: Torsor ℤ) : <span class="kt">Type</span>                 <span class="c">(* 0.5.8 *)</span>
+    := ∑ (a' : A X),
+        ∑ (h : ∏ (x:X), PathOver (s x) a a'),
+         ∏ (x:X), h (<span class="mi">1</span> + x) = cp (ε x) (p * h x).
+
+  <span class="kn">Lemma</span> <span class="nf">iscontr_Q</span> (<span class="nv">X</span>: Torsor ℤ) (* <span class="mi">0</span>.<span class="mi">5</span>.<span class="mi">9</span> *) :
+    iscontr_hProp (Q X).
+  <span class="kn">Proof</span>.
+    use (hinhuniv _ (torsor_nonempty X)). <span class="nb">intros</span> x.
+    use (iscontrweqb (Y := ∑ a', PathOver (s x) a a')).
+    <span class="mi">2</span> : { <span class="nb">apply</span> PathOverUniqueness. }
+    <span class="nb">apply</span> weqfibtototal; <span class="nb">intros</span> a'.
+    <span class="bp">exact</span> (ℤTorsorRecursion_weq
+             (<span class="k">λ</span> <span class="nv">x</span>, weqcomp (composePathOver_weq a' (s x) p) (cp (ε x)))
+             x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cQ</span> (<span class="nv">X</span>:Torsor ℤ) := iscontrpr1 (iscontr_Q X).
+
+  <span class="kn">Definition</span> <span class="nf">c</span> (<span class="nv">X</span>:Torsor ℤ)
+    : A X
+    := pr1 (cQ X).
+
+  <span class="kn">Definition</span> <span class="nf">c_tilde</span> (<span class="nv">X</span>:Torsor ℤ) (<span class="nv">x</span> : X)
+    : PathOver (s x) a (c X)
+    := pr12 (cQ X) x.
+  <span class="kn">Arguments</span> c_tilde : <span class="kn">clear implicits</span>.
+
+  <span class="kn">Definition</span> <span class="nf">c_hat</span> (<span class="nv">X</span>:Torsor ℤ) (<span class="nv">x</span> : X)
+    : c_tilde X (<span class="mi">1</span> + x) = cp (ε x) (p * c_tilde X x)
+    := pr22 (cQ X) x.
+  <span class="kn">Arguments</span> c_hat : <span class="kn">clear implicits</span>.
+
+  <span class="kn">Definition</span> <span class="nf">apd_comparison</span> (<span class="nv">X</span> <span class="nv">Y</span> : Torsor ℤ) (<span class="nv">e</span> : X = Y) (<span class="nv">x</span> : X) : <span class="c">(* 0.5.11 *)</span>
+    apd c e = cp (ε' e x) ((c_tilde X x)^-<span class="mi">1</span> * c_tilde Y (transportf elem e x)).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e.
+    <span class="nb">change</span> (transportf elem (idpath X) x) <span class="k">with</span> x.
+    <span class="nb">change</span> (apd c (idpath X)) <span class="k">with</span> (identityPathOver (c X)).
+    <span class="nb">rewrite</span> composePathOverLeftInverse.
+    <span class="nb">change</span> (ε' (idpath X) x) <span class="k">with</span> (pathsinv0l (s x)).
+    <span class="nb">rewrite</span> cp_inverse_cp.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* illustrate how to work around Coq not finding the right coercions:  *)</span>
+  <span class="kn">Local</span> <span class="kn">Goal</span> ∏ (Y : B ℤ), <span class="kt">Type</span>.        <span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="kn">Fail</span> <span class="bp">exact</span> Y. <span class="bp">exact</span> (underlyingAction Y). <span class="kn">Defined</span>.
+  <span class="kn">Local</span> <span class="kn">Goal</span> ∏ (X : circle), <span class="kt">Type</span>.     <span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="kn">Fail</span> <span class="bp">exact</span> X. <span class="bp">exact</span> (underlyingAction X). <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">A</span>.
+
+<span class="kn">Arguments</span> c_tilde {_ _} _ _ _.
+<span class="kn">Arguments</span> c_hat {_ _} _ _ _.
+
+<span class="kn">Theorem</span> <span class="nf">circle_induction</span> : CircleInduction circle pt loop.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> CircleInductionEquiv.
+  <span class="nb">unfold</span> CircleInduction'. <span class="nb">intros</span> A a p.
+  <span class="nb">set</span> (f := c p). <span class="k">exists</span> <span class="nv">f</span>.
+  <span class="nb">set</span> (h := c_tilde p pt); <span class="nb">fold</span> f <span class="k">in</span> h.
+  <span class="nb">set</span> (h0 := h pt_0).
+  <span class="nb">set</span> (e := Δ (cp s_compute_0 h0)).
+  <span class="k">exists</span> <span class="nv">e</span>.
+  <span class="nb">assert</span> (q := c_hat p pt); <span class="nb">fold</span> h <span class="k">in</span> q.
+  <span class="nb">set</span> (s0 := s pt_0); <span class="nb">unfold</span> pt_0 <span class="k">in</span> s0.
+  <span class="nb">set</span> (s1 := s pt_1); <span class="nb">unfold</span> pt_1 <span class="k">in</span> s1.
+  <span class="nb">set</span> (one' := transportf elem loop pt_0); <span class="nb">fold</span> pt <span class="k">in</span> one'.
+  <span class="nb">assert</span> (r := apd_comparison p loop pt_0). <span class="nb">fold</span> pt h h0 f one' <span class="k">in</span> r; <span class="nb">unfold</span> pt_0 <span class="k">in</span> r.
+  <span class="nb">apply</span> (pr2 (composePathPathOverRotate _ _ _)).
+  <span class="nb">rewrite</span> composePathPathOverPath.
+  <span class="nb">refine</span> (r @ _); <span class="nb">clear</span> r.
+  <span class="nb">assert</span> (ss : one' = pt_1).
+  { <span class="nb">unfold</span> one'.
+    <span class="nb">refine</span> (castTorsor_transportf (invmap torsor_univalence _) _ @ _).
+    <span class="nb">apply</span> torsor_univalence_inv_comp_eval. }
+  <span class="nb">unfold</span> pt_1 <span class="k">in</span> ss.
+  <span class="nb">set</span> (s0sm := <span class="k">λ</span> <span class="nv">m</span>:ℤ¹, ! s0 @ s m).
+  <span class="nb">assert</span> (b : cp (ε' loop <span class="mi">0</span>) (h0^-<span class="mi">1</span> * h one') =
+              cp (ε'' <span class="mi">0</span>) (h0^-<span class="mi">1</span> * h (<span class="mi">1</span> + pt_0))).
+  { intermediate_path (cp (ε'' <span class="mi">0</span>) (cp (maponpaths s0sm ss) (h0^-<span class="mi">1</span> * h one'))).
+    - intermediate_path (cp (maponpaths s0sm ss @ ε'' <span class="mi">0</span>) (h0^-<span class="mi">1</span> * h one')).
+      + <span class="nb">apply</span> cp_irrelevance_circle.
+      + <span class="nb">apply</span> cp_pathscomp0.
+    - <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> (cp_in_family _ (<span class="k">λ</span> <span class="nv">m</span>, h0^-<span class="mi">1</span> * h m)). }
+  <span class="nb">refine</span> (b @ _); <span class="nb">clear</span> s0sm b. <span class="nb">unfold</span> pt_0. <span class="nb">rewrite</span> (q <span class="mi">0</span>). <span class="nb">fold</span> h0. <span class="nb">clear</span> q ss one'.
+  <span class="nb">set</span> (α0 := invrot' (s_compute_0 : s0 = ! idpath _)).
+  transparent <span class="nb">assert</span> (α : (!s0 @ s1 = idpath pt @ (loop @ s0))).
+  { <span class="bp">exact</span> (apstar α0 (!ε pt_0)). }
+  transparent <span class="nb">assert</span> (β : (idpath pt @ (loop @ s0) = idpath pt @ (loop @ idpath pt))).
+  { <span class="bp">exact</span> (apstar (idpath _) (apstar (idpath loop) s_compute_0)). }
+  transparent <span class="nb">assert</span> (γ : (idpath pt @ (loop @ idpath pt) = idpath pt @ loop)).
+  { <span class="bp">exact</span> (apstar (idpath _) (pathscomp0rid _)). }
+  intermediate_path (cp (α@β@γ) (h0^-<span class="mi">1</span> * cp (ε pt_0) (p * h0))). <span class="c">(* try to make do with just two factors *)</span>
+  { <span class="nb">apply</span> cp_irrelevance_circle. }
+  <span class="nb">rewrite</span> cp_pathscomp0. <span class="nb">unfold</span> α. <span class="nb">rewrite</span> cp_apstar. <span class="nb">rewrite</span> inverse_cp_p.
+  <span class="nb">rewrite</span> cp_pathscomp0. <span class="nb">unfold</span> β. <span class="nb">rewrite</span> cp_apstar.
+  <span class="nb">rewrite</span> cp_idpath. <span class="nb">unfold</span> γ. <span class="nb">rewrite</span> cp_apstar.
+  <span class="nb">rewrite</span> cp_idpath. <span class="nb">rewrite</span> cp_apstar.
+  <span class="nb">change</span> (cp s_compute_0 h0) <span class="k">with</span> (∇ e).
+  <span class="nb">change</span> (cp (idpath loop) p) <span class="k">with</span> p.
+  <span class="nb">rewrite</span> composePathOverPath_compute, composePathPathOver_compute.
+  intermediate_path (cp (pathscomp0rid loop) (cp α0 h0^-<span class="mi">1</span> * p * ∇ e)).
+  { <span class="nb">rewrite</span> cp_left. <span class="nb">apply</span> (maponpaths (cp (pathscomp0rid loop))).
+    <span class="bp">exact</span> (assocPathOver (cp α0 h0^-<span class="mi">1</span>) p (cp s_compute_0 h0)). }
+  <span class="nb">rewrite</span> cp_apstar'; <span class="nb">fold</span> s0.
+  <span class="nb">unfold</span> α0. <span class="nb">rewrite</span> invrotrot'. <span class="nb">change</span> (cp s_compute_0 h0) <span class="k">with</span> (∇ e).
+  <span class="nb">rewrite</span> inversePathOverIdpath'.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.                        <span class="c">(* too slow *)</span>
+
+<span class="kn">Arguments</span> circle_induction : <span class="kn">clear implicits</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SyntheticHomotopyTheory/Circle2.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;   *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+  &gt; Require Import UniMath.MoreFoundations.Propositions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

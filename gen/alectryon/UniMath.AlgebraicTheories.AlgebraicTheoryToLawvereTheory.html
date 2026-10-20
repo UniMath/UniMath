@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>AlgebraicTheoryToLawvereTheory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Algebraic theory to Lawvere theory</span>
+
+<span class="sd">  Given an algebraic theory T, we can construct a category L with L_0 = nat, and L(m, n) = T_m^n.</span>
+<span class="sd">  This is functorial in T, and algebraic theory presheaves for T are equivalent to presheaves for L.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The functor from algebraic theories to setcategories [algebraic_theory_to_lawvere]</span>
+<span class="sd">  2. The equivalence between two types of presheaves [algebraic_presheaf_weq_lawere_presheaf]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.PresheafCategory.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.PresheafMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.Presheaves.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> algebraic_theories.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. The functor from algebraic theories to setcategories *)</span>
+
+<span class="kn">Section</span> <span class="nf">AlgebraicTheoryToLawvereTheory</span>.
+
+  <span class="kn">Section</span> <span class="nf">Ob</span>.
+
+    <span class="kn">Context</span> (<span class="nv">T</span> : algebraic_theory).
+
+    <span class="kn">Definition</span> <span class="nf">algebraic_theory_to_lawvere_theory_data</span>
+      : precategory_data.
+    <span class="kn">Proof</span>.
+      use make_precategory_data.
+      - use make_precategory_ob_mor.
+        + <span class="bp">exact</span> nat.
+        + <span class="nb">intros</span> m n.
+          <span class="bp">exact</span> (stn n → (T m : hSet)).
+      - <span class="nb">intro</span>.
+        <span class="bp">exact</span> var.
+      - <span class="nb">intros</span> l m n g f.
+        <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, f i • g).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">algebraic_theory_to_is_precategory</span>
+      : is_precategory algebraic_theory_to_lawvere_theory_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> make_is_precategory_one_assoc.
+      - <span class="nb">intros</span> m n f.
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> i.
+        <span class="nb">apply</span> subst_var.
+      - <span class="nb">intros</span> m n f.
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> i.
+        <span class="nb">apply</span> var_subst.
+      - <span class="nb">intros</span> k l m n f g h.
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> i.
+        <span class="nb">apply</span> subst_subst.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">algebraic_theory_to_has_homsets</span>
+      : has_homsets algebraic_theory_to_lawvere_theory_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> m n.
+      <span class="nb">apply</span> funspace_isaset.
+      <span class="nb">apply</span> setproperty.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">algebraic_theory_to_isaset</span>
+      : isaset algebraic_theory_to_lawvere_theory_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> isasetnat.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">algebraic_theory_to_lawvere_ob</span>
+      : setcategory
+      := make_setcategory
+        (make_category
+          (make_precategory
+            algebraic_theory_to_lawvere_theory_data
+            algebraic_theory_to_is_precategory)
+          algebraic_theory_to_has_homsets)
+        isasetnat.
+
+  <span class="kn">End</span> <span class="nf">Ob</span>.
+
+  <span class="kn">Section</span> <span class="nf">Mor</span>.
+
+    <span class="kn">Context</span> {<span class="nv">T</span> <span class="nv">T'</span> : algebraic_theory}.
+    <span class="kn">Context</span> (<span class="nv">f</span> : algebraic_theory_morphism T T').
+
+    <span class="kn">Definition</span> <span class="nf">algebraic_theory_morphism_to_functor_data</span>
+      : functor_data (algebraic_theory_to_lawvere_ob T) (algebraic_theory_to_lawvere_ob T').
+    <span class="kn">Proof</span>.
+      use make_functor_data.
+      - <span class="bp">exact</span> (idfun nat).
+      - <span class="nb">intros</span> m n s i.
+        <span class="bp">exact</span> (f m (s i)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">algebraic_theory_morphism_to_is_functor</span>
+      : is_functor algebraic_theory_morphism_to_functor_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span> n.
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> i.
+        <span class="nb">apply</span> mor_var.
+      - <span class="nb">intros</span> l m n s t.
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> i.
+        <span class="nb">apply</span> mor_subst.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">algebraic_theory_morphism_to_functor</span>
+      : algebraic_theory_to_lawvere_ob T ⟶ algebraic_theory_to_lawvere_ob T'
+      := make_functor _ algebraic_theory_morphism_to_is_functor.
+
+  <span class="kn">End</span> <span class="nf">Mor</span>.
+
+  <span class="kn">Definition</span> <span class="nf">algebraic_theory_to_lawvere_functor_data</span>
+    : functor_data algebraic_theory_cat cat_of_setcategory
+    := make_functor_data (C' := cat_of_setcategory)
+      algebraic_theory_to_lawvere_ob
+      (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, algebraic_theory_morphism_to_functor).
+
+  <span class="kn">Lemma</span> <span class="nf">algebraic_theory_to_lawvere_is_functor</span>
+    : is_functor algebraic_theory_to_lawvere_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> T.
+      <span class="nb">apply</span> (functor_eq _ _ (homset_property _)).
+      <span class="bp">now</span> use functor_data_eq.
+    - <span class="nb">intros</span> T T' T'' f f'.
+      <span class="nb">apply</span> (functor_eq _ _ (homset_property _)).
+      <span class="bp">now</span> use functor_data_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">algebraic_theory_to_lawvere</span>
+    : algebraic_theory_cat ⟶ cat_of_setcategory
+    := make_functor _ algebraic_theory_to_lawvere_is_functor.
+
+<span class="kn">End</span> <span class="nf">AlgebraicTheoryToLawvereTheory</span>.
+
+<span class="sd">(** * 2. The equivalence between two types of presheaves *)</span>
+
+<span class="kn">Section</span> <span class="nf">PresheafEquivalence</span>.
+
+  <span class="kn">Context</span> (<span class="nv">T</span> : algebraic_theory).
+
+  <span class="kn">Definition</span> <span class="nf">algebraic_presheaf_to_lawvere_presheaf_ob</span>
+    (<span class="nv">P</span> : presheaf T)
+    : (algebraic_theory_to_lawvere T : setcategory)^op ⟶ SET.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - use make_functor_data.
+      + <span class="bp">exact</span> P.
+      + <span class="nb">intros</span> m n g f.
+        <span class="bp">exact</span> (op f g).
+    - <span class="nb">split</span>.
+      + <span class="nb">intro</span> n.
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> p.
+        <span class="nb">apply</span> op_var.
+      + <span class="nb">intros</span> l m n f g.
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> p.
+        <span class="nb">symmetry</span>.
+        <span class="nb">apply</span> op_op.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">algebraic_presheaf_to_lawvere_presheaf_mor</span>
+    {<span class="nv">P</span> <span class="nv">P'</span> : presheaf T}
+    (<span class="nv">f</span> : presheaf_morphism P P')
+    : PreShv (algebraic_theory_to_lawvere T : setcategory) ⟦algebraic_presheaf_to_lawvere_presheaf_ob P, algebraic_presheaf_to_lawvere_presheaf_ob P'⟧.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> f.
+    - <span class="nb">intros</span> m n s.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> t.
+      <span class="nb">apply</span> mor_op.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">algebraic_presheaf_to_lawvere_presheaf</span>
+    : presheaf_cat T ⟶ PreShv (algebraic_theory_to_lawvere T : setcategory).
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - use make_functor_data.
+      + <span class="bp">exact</span> algebraic_presheaf_to_lawvere_presheaf_ob.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, algebraic_presheaf_to_lawvere_presheaf_mor).
+    - <span class="kp">abstract</span> (
+        <span class="nb">split</span>;
+        [ <span class="nb">intro</span> P;
+          <span class="bp">now</span> <span class="nb">apply</span> nat_trans_eq_alt
+        | <span class="nb">intros</span> P P' P'' f g;
+          <span class="nb">apply</span> nat_trans_eq_alt;
+          <span class="nb">intro</span> n;
+          <span class="nb">apply</span> presheaf_mor_comp ]
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lawvere_presheaf_to_algebraic_presheaf_ob</span>
+    (<span class="nv">P</span> : (algebraic_theory_to_lawvere T : setcategory)^op ⟶ SET)
+    : presheaf T.
+  <span class="kn">Proof</span>.
+    use make_presheaf.
+    - use make_presheaf_data.
+      + <span class="bp">exact</span> P.
+      + <span class="nb">intros</span> m n a f.
+        <span class="bp">exact</span> (#P f a).
+    - <span class="kp">abstract</span> (
+        use make_is_presheaf;
+        [ <span class="nb">intros</span> l m n p f g;
+          <span class="nb">apply</span> (eqtohomot (!functor_comp P _ _))
+        | <span class="nb">intros</span> n p;
+          <span class="nb">apply</span> (eqtohomot (functor_id P _)) ]
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lawvere_presheaf_to_algebraic_presheaf_mor</span>
+    {<span class="nv">P</span> <span class="nv">P'</span> : (algebraic_theory_to_lawvere T : setcategory)^op ⟶ SET}
+    (<span class="nv">f</span> : P ⟹ P')
+    : presheaf_cat T ⟦lawvere_presheaf_to_algebraic_presheaf_ob P, lawvere_presheaf_to_algebraic_presheaf_ob P'⟧.
+  <span class="kn">Proof</span>.
+    use make_presheaf_morphism.
+    - <span class="bp">exact</span> f.
+    - <span class="nb">intros</span> m n a t.
+      <span class="nb">apply</span> (eqtohomot (nat_trans_ax f _ _ _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">AlgebraicPresheafIso</span>.
+
+    <span class="kn">Context</span> (<span class="nv">P</span> : presheaf T).
+
+    <span class="kn">Definition</span> <span class="nf">algebraic_presheaf_iso_mor</span>
+      : presheaf_cat T ⟦lawvere_presheaf_to_algebraic_presheaf_ob (algebraic_presheaf_to_lawvere_presheaf_ob P), P⟧.
+    <span class="kn">Proof</span>.
+      use make_presheaf_morphism.
+      - <span class="nb">intro</span> n.
+        <span class="nb">apply</span> idfun.
+      - <span class="kp">abstract</span> <span class="bp">easy</span>.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">algebraic_presheaf_iso_inv</span>
+      : presheaf_cat T ⟦P, lawvere_presheaf_to_algebraic_presheaf_ob (algebraic_presheaf_to_lawvere_presheaf_ob P)⟧.
+    <span class="kn">Proof</span>.
+      use make_presheaf_morphism.
+      - <span class="nb">intro</span> n.
+        <span class="nb">apply</span> idfun.
+      - <span class="kp">abstract</span> <span class="bp">easy</span>.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">algebraic_presheaf_iso_is_iso</span>
+      : is_inverse_in_precat algebraic_presheaf_iso_mor algebraic_presheaf_iso_inv.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">apply</span> subtypePath.
+        {
+          <span class="nb">intro</span>.
+          use isapropdirprod.
+          - <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+            <span class="nb">apply</span> setproperty.
+          - <span class="nb">apply</span> isapropunit.
+        }
+        <span class="nb">apply</span> funextsec.
+        <span class="nb">intro</span> n.
+        <span class="bp">exact</span> (presheaf_mor_comp
+          (P := lawvere_presheaf_to_algebraic_presheaf_ob (algebraic_presheaf_to_lawvere_presheaf_ob P))
+          (P'' := lawvere_presheaf_to_algebraic_presheaf_ob (algebraic_presheaf_to_lawvere_presheaf_ob P))
+          _ _ _).
+      - <span class="nb">apply</span> presheaf_morphism_eq.
+        <span class="nb">intro</span> n.
+        <span class="nb">apply</span> presheaf_mor_comp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">algebraic_presheaf_iso</span>
+      : z_iso (C := presheaf_cat T) (lawvere_presheaf_to_algebraic_presheaf_ob (algebraic_presheaf_to_lawvere_presheaf_ob P)) P
+      := make_z_iso
+          algebraic_presheaf_iso_mor
+          algebraic_presheaf_iso_inv
+          algebraic_presheaf_iso_is_iso.
+
+  <span class="kn">End</span> <span class="nf">AlgebraicPresheafIso</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lawvere_presheaf_iso</span>
+    (<span class="nv">P</span> : (algebraic_theory_to_lawvere T : setcategory)^op ⟶ SET)
+    : z_iso (C := PreShv (algebraic_theory_to_lawvere T : setcategory)) (algebraic_presheaf_to_lawvere_presheaf_ob (lawvere_presheaf_to_algebraic_presheaf_ob P)) P.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idtoiso.
+    <span class="nb">apply</span> (functor_eq _ _ (homset_property _)).
+    <span class="bp">now</span> use functor_data_eq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fully_faithful_algebraic_presheaf_to_lawvere_presheaf</span>
+    : fully_faithful algebraic_presheaf_to_lawvere_presheaf.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> P P'.
+    use isweq_iso.
+    - <span class="nb">intro</span> f.
+      <span class="bp">exact</span> (inv_from_z_iso (algebraic_presheaf_iso P) · lawvere_presheaf_to_algebraic_presheaf_mor f · algebraic_presheaf_iso P').
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> (presheaf_morphism_eq (P := (P : presheaf T)) (P' := (P' : presheaf T))).
+      <span class="nb">intro</span> n.
+      <span class="nb">refine</span> (presheaf_mor_comp _ _ _ @ _).
+      <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ x _) (presheaf_mor_comp _ _ _)).
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> nat_trans_eq_alt.
+      <span class="nb">intro</span> n.
+      <span class="nb">refine</span> (presheaf_mor_comp _ _ _ @ _).
+      <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ x _) (presheaf_mor_comp _ _ _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">algebraic_presheaf_weq_lawere_presheaf</span>
+    : adj_equivalence_of_cats algebraic_presheaf_to_lawvere_presheaf.
+  <span class="kn">Proof</span>.
+    use rad_equivalence_of_cats.
+    - <span class="nb">apply</span> is_univalent_presheaf_cat.
+    - <span class="bp">exact</span> fully_faithful_algebraic_presheaf_to_lawvere_presheaf.
+    - <span class="nb">intro</span> P.
+      <span class="nb">apply</span> hinhpr.
+      <span class="k">exists</span> (<span class="nv">lawvere_presheaf_to_algebraic_presheaf_ob</span> <span class="nv">P</span>).
+      <span class="nb">apply</span> lawvere_presheaf_iso.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">PresheafEquivalence</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/AlgebraicTheoryToLawvereTheory.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   2. The equivalence between two types of presheaves [algebraic_presheaf_weq_lawere_presheaf]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

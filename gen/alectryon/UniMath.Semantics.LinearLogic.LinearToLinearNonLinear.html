@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LinearToLinearNonLinear.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">In this file, we show how any linear category induces a linear/non-linear model.</span>
+<span class="sd">This boils down to proving that the Eilenberg-Moore category of the (symmetric monoidal) comonad, given by a linear category, is cartesian monoidal.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Comonads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Adjunctions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.FunctorCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.SymmetricDiagonal.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Dialgebras.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.Category.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.MonoidalCartesianBuilder.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.TransportComonoidAlongRetraction.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.CoEilenbergMoore.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.MonoidalDialgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.SymmetricMonoidalCoEilenbergMoore.
+
+<span class="kn">Require Import</span> UniMath.Semantics.LinearLogic.LinearCategory.
+<span class="kn">Require Import</span> UniMath.Semantics.LinearLogic.LinearCategoryEilenbergMooreAdjunction.
+<span class="kn">Require Import</span> UniMath.Semantics.LinearLogic.LinearNonLinear.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Import</span> ComonoidNotations.
+
+<span class="kn">Section</span> <span class="nf">LiftingPropertyCoalgebraMorSection</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">postcomp_with_section_reflect_coalg_mor</span>
+    (<span class="nv">𝕃</span> : linear_category)
+    (<span class="nv">xx</span> <span class="nv">aa</span> <span class="nv">bb</span> : sym_monoidal_cat_co_eilenberg_moore (linear_category_bang 𝕃))
+    (<span class="nv">i</span> : aa --&gt; bb)
+    (<span class="nv">f</span> : 𝕃⟦pr11 xx, pr11 aa⟧)
+    (<span class="nv">f_i_coalg</span> : pr21 xx · #(linear_category_bang 𝕃) (f · pr11 i) = (f · pr11 i) · pr21 bb)
+    (<span class="nv">r</span> : 𝕃⟦pr11 bb, pr11 aa⟧)
+    (<span class="nv">ir_id</span> : is_retraction (pr11 i) r)
+    : pr21 xx · #(linear_category_bang 𝕃) f = f · pr21 aa.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (p := cancel_postcomposition _ _ (#(linear_category_bang 𝕃) r) f_i_coalg).
+    <span class="nb">rewrite</span> assoc' <span class="k">in</span> p.
+    <span class="nb">rewrite</span> &lt;- functor_comp <span class="k">in</span> p.
+    <span class="nb">rewrite</span> assoc' <span class="k">in</span> p.
+
+    <span class="nb">refine</span> (_ @ p @ _).
+    - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (! id_right _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, ir_id.
+    - <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (! pr21 i).
+      }
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (_ @ functor_id (linear_category_bang 𝕃) _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> ir_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lifting_is_coalg_mor</span>
+    {<span class="nv">𝕃</span> : linear_category}
+    {<span class="nv">xx</span> <span class="nv">aa</span> <span class="nv">bb</span> : sym_monoidal_cat_co_eilenberg_moore (linear_category_bang 𝕃)}
+    {<span class="nv">g</span> : xx --&gt; bb} {<span class="nv">i</span> : aa --&gt; bb} {<span class="nv">f</span> : 𝕃⟦pr11 xx, pr11 aa⟧}
+    {<span class="nv">r</span> : 𝕃⟦pr11 bb, pr11 aa⟧}
+    (<span class="nv">ir_id</span> : is_retraction (pr11 i) r)
+    (<span class="nv">p</span> : f · pr11 i = pr11 g)
+    : pr21 xx · #(linear_category_bang 𝕃) f = f · pr21 aa.
+  <span class="kn">Proof</span>.
+    use (postcomp_with_section_reflect_coalg_mor 𝕃 xx aa bb i f _ r ir_id).
+    etrans. {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> p.
+    }
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (! p).
+    }
+    <span class="bp">exact</span> (pr21 g).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">LiftingPropertyCoalgebraMorSection</span>.
+
+<span class="kn">Section</span> <span class="nf">TransportationFreeCoalgebraComonoid</span>.
+
+  <span class="kn">Context</span> (<span class="nv">𝕃</span> : linear_category).
+  <span class="kn">Let</span> <span class="nf">bang</span> : sym_monoidal_cmd 𝕃
+      := linear_category_bang 𝕃.
+
+  <span class="kn">Context</span> (<span class="nv">xx</span> : sym_monoidal_cat_co_eilenberg_moore (linear_category_bang 𝕃)).
+  <span class="kn">Let</span> <span class="nf">x</span> : 𝕃 := pr11 xx.
+  <span class="kn">Let</span> <span class="nf">hx</span> : 𝕃⟦x, bang x⟧ := pr21 xx.
+
+  <span class="kn">Let</span> <span class="nf">comonoid_on_bang_x</span> := linear_category_cocommutative_comonoid 𝕃 x.
+
+  <span class="kn">Lemma</span> <span class="nf">linear_category_comult_factors_through_comult_bang</span>
+    :  δ (linear_category_bang 𝕃) x
+         · (linear_category_comult 𝕃 (bang x)
+              · ε bang (bang x) #⊗ ε bang (bang x))
+       = linear_category_comult 𝕃 x.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> assoc.
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> linear_category_comult_comonoid_mor_comult.
+    }
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+    <span class="nb">refine</span> (_ @ id_right _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- tensor_id_id.
+    use two_arg_paths ; <span class="nb">apply</span> Comonad_law1.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">transport_comonoid_from_free_lem</span>
+    : hx · δ_{comonoid_on_bang_x} · ε bang x #⊗ ε bang x · hx #⊗ hx
+      = hx · δ_{comonoid_on_bang_x}.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    etrans. {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> (pr2 (disp_ε _) _ _ hx).
+    }
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> (pr2 (disp_ε _) _ _ hx).
+    }
+
+    <span class="nb">rewrite</span> tensor_comp_mor.
+    <span class="nb">rewrite</span> assoc.
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> linear_category_comult_nat.
+    }
+    <span class="nb">rewrite</span> assoc.
+    etrans. {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, (pr22 xx).
+    }
+
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> linear_category_comult_factors_through_comult_bang.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transport_comonoid_struct_from_free</span>
+    : disp_cat_of_comonoids 𝕃 x.
+  <span class="kn">Proof</span>.
+    use transported_comonoid.
+    - <span class="bp">exact</span> comonoid_on_bang_x.
+    - <span class="bp">exact</span> hx.
+    - <span class="bp">exact</span> (ε (linear_category_bang 𝕃) x).
+    - <span class="bp">exact</span> (pr12 xx).
+    - <span class="bp">exact</span> transport_comonoid_from_free_lem.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transport_comonoid_from_free</span>
+    : comonoid 𝕃.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">x</span>.
+    <span class="bp">exact</span> transport_comonoid_struct_from_free.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">TransportationFreeCoalgebraComonoid</span>.
+
+<span class="kn">Section</span> <span class="nf">MakeComonoidInEilenbergMooreFromComonoidInLinear</span>.
+
+  <span class="kn">Context</span> (<span class="nv">𝕃</span> : linear_category).
+
+  <span class="kn">Context</span> (<span class="nv">m</span> : comonoid 𝕃).
+
+  <span class="kn">Let</span> <span class="nf">bang</span> := linear_category_bang 𝕃.
+
+  <span class="kn">Context</span>
+    (<span class="nv">x_b</span> : 𝕃⟦m, bang m⟧)
+      (<span class="nv">x_b_u</span> : x_b · ε bang m = identity (pr1 m))
+      (<span class="nv">x_b_m</span> : x_b · δ bang (pr1 m) = x_b · #bang x_b)
+      (<span class="nv">mx_t</span> : x_b · #bang δ_{ m} = δ_{ m} · (x_b #⊗ x_b · mon_functor_tensor (_ ,, lax_monoidal_from_symmetric_monoidal_comonad 𝕃 bang) m m))
+      (<span class="nv">mx_u</span> :  x_b · #bang ε_{ m} = ε_{ m} · mon_functor_unit (_ ,, lax_monoidal_from_symmetric_monoidal_comonad 𝕃 bang)).
+
+  <span class="kn">Definition</span> <span class="nf">make_comonoid_object_in_eilenberg_moore</span>
+    : sym_monoidal_cat_co_eilenberg_moore (linear_category_bang 𝕃).
+  <span class="kn">Proof</span>.
+    use make_ob_co_eilenberg_moore.
+    - <span class="nb">apply</span> m.
+    - <span class="bp">exact</span> x_b.
+    - <span class="bp">exact</span> x_b_u.
+    - <span class="bp">exact</span> x_b_m.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_comonoid_struct_data_in_eilenberg_moore</span>
+    : disp_cat_of_comonoids_data (sym_monoidal_cat_co_eilenberg_moore (linear_category_bang 𝕃))
+        make_comonoid_object_in_eilenberg_moore.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - use make_mor_co_eilenberg_moore.
+      + <span class="bp">exact</span> δ_{m}.
+      + <span class="kp">abstract</span> (
+            <span class="nb">refine</span> (mx_t @ _);
+            <span class="nb">apply</span> maponpaths;
+            <span class="nb">apply</span> pathsinv0;
+            <span class="nb">refine</span> (assoc' _ _ _ @ _);
+            <span class="nb">apply</span> id_left).
+    - use make_mor_co_eilenberg_moore.
+      + <span class="bp">exact</span> ε_{m}.
+      + <span class="kp">abstract</span> (
+            <span class="nb">refine</span> (mx_u @ _);
+        <span class="nb">apply</span> maponpaths;
+        <span class="nb">apply</span> pathsinv0;
+            <span class="nb">apply</span> id_left).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_comonoid_laws_in_eilenberg_moore</span>
+    : comonoid_laws (sym_monoidal_cat_co_eilenberg_moore (linear_category_bang 𝕃))
+        (make_comonoid_object_in_eilenberg_moore ,, make_comonoid_struct_data_in_eilenberg_moore).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, _ ,, _) ; use eq_mor_co_eilenberg_moore.
+    - <span class="nb">apply</span> comonoid_to_law_unit_left.
+    - <span class="nb">apply</span> comonoid_to_law_unit_right.
+    - <span class="nb">apply</span> comonoid_to_law_assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_comonoid_in_eilenberg_moore</span>
+    : comonoid (sym_monoidal_cat_co_eilenberg_moore (linear_category_bang 𝕃)).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">make_comonoid_object_in_eilenberg_moore</span>.
+    <span class="k">exists</span> <span class="nv">make_comonoid_struct_data_in_eilenberg_moore</span>.
+    <span class="bp">exact</span> make_comonoid_laws_in_eilenberg_moore.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">MakeComonoidInEilenbergMooreFromComonoidInLinear</span>.
+
+<span class="kn">Section</span> <span class="nf">ConstructionOfComonoidsInEilenbergMoore</span>.
+
+  <span class="kn">Context</span> (<span class="nv">𝕃</span> : linear_category).
+
+  <span class="kn">Let</span> <span class="nf">EM</span> := sym_monoidal_cat_co_eilenberg_moore (linear_category_bang 𝕃).
+
+  <span class="kn">Let</span> <span class="nf">bang</span> : sym_monoidal_cmd 𝕃
+      := linear_category_bang 𝕃.
+
+  <span class="kn">Context</span> (<span class="nv">xx</span> : EM).
+  <span class="kn">Let</span> <span class="nf">x</span> : 𝕃 := pr11 xx.
+  <span class="kn">Let</span> <span class="nf">hx</span> : 𝕃⟦x, bang x⟧ := pr21 xx.
+
+  <span class="kn">Lemma</span> <span class="nf">comonoid_in_eilenberg_moore_from_coalg_counit_alg_mor</span>
+    :  hx · #bang ε_{transport_comonoid_from_free 𝕃 xx}
+       = ε_{transport_comonoid_from_free 𝕃 xx}
+           · mon_functor_unit (_,, lax_monoidal_from_symmetric_monoidal_comonad 𝕃 bang).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> transported_comonoid_counit_data.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> assoc.
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="bp">exact</span> (pr22 xx).
+    }
+
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> linear_category_counit_coalgebra_mor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">comonoid_in_eilenberg_moore_from_coalg_comult_alg_mor</span>
+    :  hx · #bang δ_{transport_comonoid_from_free 𝕃 xx}
+       = δ_{transport_comonoid_from_free 𝕃 xx}
+           ·  (hx #⊗ hx
+     · mon_functor_tensor (_,,lax_monoidal_from_symmetric_monoidal_comonad 𝕃 (linear_category_bang 𝕃)) x x).
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (p : pr21 (xx ⊗ xx) = (hx #⊗ hx
+     · mon_functor_tensor
+     (_,,lax_monoidal_from_symmetric_monoidal_comonad 𝕃 (linear_category_bang 𝕃)) x x)).
+    {
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      <span class="nb">apply</span> id_left.
+    }
+    <span class="nb">rewrite</span> &lt;- p.
+
+    <span class="nb">assert</span> (retr :  is_retraction (hx #⊗ hx) (ε bang x #⊗ ε bang x)).
+    {
+      <span class="nb">refine</span> (! tensor_comp_mor _ _ _ _ @ _ @ tensor_id_id _ _).
+      use two_arg_paths ; <span class="nb">apply</span> (pr2 xx).
+    }
+
+    use (lifting_is_coalg_mor
+           (xx := xx)
+           (aa :=  xx ⊗ xx)
+           (bb := (eilenberg_moore_cofree 𝕃 x : EM) ⊗ (eilenberg_moore_cofree 𝕃 x : EM))
+           (g := (hx · linear_category_comult 𝕃 x ,, _) ,, tt)
+           (i := (hx #⊗ hx,, _) ,, tt)
+           (f := δ_{transport_comonoid_from_free 𝕃 xx})
+           (r := ε bang x #⊗ ε bang x)
+           retr
+        ).
+
+    - <span class="c">(* (hx · linear_category_comult L x) is a coalgebra morphism, because it is the composition of coalgebra morphisms *)</span>
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> dialgebra_disp_tensor_op.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">rewrite</span> ! id_left.
+
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> assoc.
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (! pr22 xx).
+      }
+
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="bp">exact</span> (assoc _ _ _ @ linear_category_comult_coalgebra_mor x).
+      }
+      <span class="nb">apply</span> assoc'.
+
+    - <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> dialgebra_disp_tensor_op.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> ! id_left.
+
+      etrans. {
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> (tensor_mon_functor_tensor (_ ,, lax_monoidal_from_symmetric_monoidal_comonad _ bang) hx hx).
+      }
+
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (! tensor_comp_mor _ _ _ _ @ _ @ tensor_comp_mor _ _ _ _).
+      use two_arg_paths ; <span class="bp">exact</span> (! pr22 xx).
+    - <span class="nb">apply</span> transport_comonoid_from_free_lem.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_in_eilenberg_moore_from_coalg</span>
+    : comonoid EM.
+  <span class="kn">Proof</span>.
+    use (make_comonoid_in_eilenberg_moore 𝕃).
+    - <span class="bp">exact</span> (transport_comonoid_from_free 𝕃 xx).
+    - <span class="bp">exact</span> hx.
+    - <span class="bp">exact</span> (pr12 xx).
+    - <span class="bp">exact</span> (pr22 xx).
+    - <span class="bp">exact</span> comonoid_in_eilenberg_moore_from_coalg_comult_alg_mor.
+    - <span class="bp">exact</span> comonoid_in_eilenberg_moore_from_coalg_counit_alg_mor.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">ConstructionOfComonoidsInEilenbergMoore</span>.
+
+<span class="kn">Section</span> <span class="nf">EilenbergMooreCartesian</span>.
+
+  <span class="kn">Context</span> (<span class="nv">𝕃</span> : linear_category).
+
+  <span class="c">(* naturality of the comultiplication and counit *)</span>
+  <span class="kn">Lemma</span> <span class="nf">comonoid_mor_in_eilenberg_moore</span>
+    {<span class="nv">x</span> <span class="nv">y</span> : sym_monoidal_cat_co_eilenberg_moore (linear_category_bang 𝕃)}
+    (<span class="nv">f</span> : x --&gt; y)
+    : comonoid_mor_struct
+         (sym_monoidal_cat_co_eilenberg_moore (linear_category_bang 𝕃))
+         (comonoid_in_eilenberg_moore_from_coalg 𝕃 x)
+         (comonoid_in_eilenberg_moore_from_coalg 𝕃 y)
+         f.
+  <span class="kn">Proof</span>.
+    use make_is_comonoid_mor.
+    - use eq_mor_co_eilenberg_moore.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> transported_comonoid_comult_data.
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ assoc' _ _ _).
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (pr21 f).
+      }
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">apply</span> maponpaths.
+
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (! linear_category_comult_nat (pr11 f)).
+      }
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> tensor_mor_right.
+      <span class="nb">rewrite</span> tensor_mor_left.
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> tensor_split'.
+      }
+      <span class="nb">refine</span> (! tensor_comp_mor _ _ _ _ @ _).
+      <span class="nb">refine</span> (_ @ tensor_comp_mor _ _ _ _).
+      use two_arg_paths
+      ; <span class="nb">apply</span> (! pr2 (disp_ε _) _ _ (pr11 f)).
+    - use eq_mor_co_eilenberg_moore.
+      <span class="nb">refine</span> (_ @ assoc' _ _ _).
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (pr21 f).
+      }
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> transported_comonoid_counit_data.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (! linear_category_counit_nat (pr11 f)).
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* Unfortunately, I'm unable to clean up this lemma.</span>
+<span class="c">     If I do this, I will have to do some manipulation in</span>
+<span class="c">     definition linear_category_eilenberg_moore_cartesian.</span>
+<span class="c">     The purpose of this lemma is to avoid having to prove this property in that definition.</span>
+<span class="c">   *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">linear_category_eilenberg_moore_cartesian_lem</span>
+    (<span class="nv">x</span> <span class="nv">y</span> : sym_monoidal_cat_co_eilenberg_moore (linear_category_bang 𝕃))
+    :
+    identity (pr11 x ⊗ pr11 y)
+      · (pr21 x #⊗ pr21 y)
+      · fmonoidal_preservestensordata
+      (lax_monoidal_from_symmetric_monoidal_comonad _ (linear_category_bang 𝕃))
+      (pr11 x) (pr11 y)
+      · linear_category_comult 𝕃 (pr11 x ⊗ pr11 y)
+      · ε (linear_category_bang 𝕃) (pr11 x ⊗ pr11 y) #⊗ ε (linear_category_bang 𝕃) (pr11 x ⊗ pr11 y)
+    = rightwhiskering_on_morphisms (pr1 𝕃) (pr11 y) _ _
+        (pr21 x · linear_category_comult 𝕃 (pr11 x) · ε (linear_category_bang 𝕃) (pr11 x) #⊗ ε (linear_category_bang 𝕃) (pr11 x))
+        · leftwhiskering_on_morphisms (pr1 𝕃) (pr11 x ⊗ pr11 x) _ _
+        (pr21 y · linear_category_comult 𝕃 (pr11 y)
+           · ε (linear_category_bang 𝕃) (pr11 y) #⊗ ε (linear_category_bang 𝕃) (pr11 y))
+  · pr11 (inner_swap (sym_monoidal_cat_co_eilenberg_moore (linear_category_bang 𝕃)) x x y y).
+  <span class="kn">Proof</span>.
+    <span class="kn">Opaque</span> inner_swap.
+
+    <span class="nb">rewrite</span> ! tensor_mor_right.
+    <span class="nb">rewrite</span> ! tensor_mor_left.
+    <span class="nb">unfold</span> dialgebra_disp_tensor_op.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_left.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> tensor_split'.
+    }
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, tensor_comp_mor.
+    }
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, tensor_comp_mor.
+    }
+
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> naturality_inner_swap.
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (_ @ id_right _).
+        <span class="nb">apply</span> (symmetric_monoidal_comonad_extra_laws _ (linear_category_bang 𝕃)).
+      }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">apply</span> (symmetric_monoidal_comonad_extra_laws _ (linear_category_bang 𝕃)).
+    }
+    <span class="nb">rewrite</span> ! tensor_comp_mor.
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (linear_category_comult_preserves_tensor (pr11 x) (pr11 y) @ _).
+    <span class="nb">apply</span> assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">linear_category_eilenberg_moore_cartesian</span>
+    : is_cartesian (sym_monoidal_cat_co_eilenberg_moore (linear_category_bang 𝕃)).
+  <span class="kn">Proof</span>.
+    use symm_monoidal_is_cartesian_from_comonoid.
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> comonoid_in_eilenberg_moore_from_coalg.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> comonoid_mor_in_eilenberg_moore.
+    - <span class="kp">abstract</span> (
+          use eq_mor_co_eilenberg_moore;
+          <span class="nb">refine</span> (assoc' _ _ _ @ _);
+          <span class="nb">refine</span> (id_left _ @ _);
+          <span class="nb">apply</span> linear_category_counit_preserves_unit).
+    - <span class="nb">intros</span> x y.
+      use eq_mor_co_eilenberg_moore.
+      <span class="nb">apply</span> linear_category_eilenberg_moore_cartesian_lem.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">EilenbergMooreCartesian</span>.
+
+<span class="kn">Section</span> <span class="nf">LinearToLNL</span>.
+
+  <span class="kn">Context</span> (<span class="nv">𝕃</span> : linear_category).
+
+  <span class="kn">Local Definition</span> <span class="nf">em_projection</span>
+    : fmonoidal
+        (sym_monoidal_cat_co_eilenberg_moore (linear_category_bang 𝕃))
+        𝕃
+        (left_adjoint (eilenberg_moore_cmd_adj 𝕃)).
+  <span class="kn">Proof</span>.
+    use comp_fmonoidal.
+    - <span class="nb">apply</span> mon_cat_co_eilenberg_moore_base.
+    - <span class="nb">apply</span> projection_fmonoidal.
+    - <span class="nb">apply</span> projection_fmonoidal.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">em_projection_is_symmetric</span>
+    : is_symmetric_monoidal_functor (sym_monoidal_cat_co_eilenberg_moore (linear_category_bang 𝕃)) 𝕃 em_projection.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> id_right.
+      }
+      <span class="nb">refine</span> (id_right _ @ _).
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ id_left _).
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">refine</span> (id_left _ @ _).
+      <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">linear_to_lnl</span>
+    : linear_non_linear_model.
+  <span class="kn">Proof</span>.
+    use make_linear_non_linear_from_strong.
+    - <span class="bp">exact</span> (linear_category_data_to_sym_mon_closed_cat 𝕃).
+    - <span class="bp">exact</span> (sym_monoidal_cat_co_eilenberg_moore (linear_category_bang 𝕃)).
+    - <span class="nb">apply</span> eilenberg_moore_cmd_adj.
+    - <span class="nb">apply</span> linear_category_eilenberg_moore_cartesian.
+    - <span class="bp">exact</span> em_projection.
+    - <span class="bp">exact</span> em_projection_is_symmetric.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">LinearToLNL</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Semantics/LinearLogic/LinearToLinearNonLinear.v</tt>, line 6)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; This boils down to proving that the Eilenberg-Moore category of the (symmetric monoidal) comonad, given by a linear category, is cartesian monoidal.
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

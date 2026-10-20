@@ -1,0 +1,820 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PreservationProperties.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> Preservation of isomorphic functors</span>
+
+<span class="sd"> In this file, we show that two functors that are equivalent in the arrow bicategory, share</span>
+<span class="sd"> the same preservation properties regarding finite limits. More specifically, we show two</span>
+<span class="sd"> statements.</span>
+
+<span class="sd"> First, we show that whenever we have a natural isomorphism from `F` to `G`, then `G`</span>
+<span class="sd"> preserves terminal objects/binary products/equalizers whenever `F` does. Using this, we show</span>
+<span class="sd"> that whenever a functor `G : D₁ ⟶ D₂` is equivalent to some functor `F : C₁ ⟶ C₂` in the</span>
+<span class="sd"> arrow bicategory, then `G` preserves terminal objects/binary products/equalizers if `F` does.</span>
+<span class="sd"> An equivalence between `F` and `G` in the arrow bicategory amounts to adjoint equivalences</span>
+<span class="sd"> `C₁ ≃ D₁` and `C₂ ≃ D₂` such that the resulting square commutes.</span>
+
+<span class="sd"> We also compare preservation of pullbacks and preservation of products and equalizers.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Preservation and natural isomorphisms</span>
+<span class="sd"> 2. Preservation and equivalences in the arrow bicategory</span>
+<span class="sd"> 3. Preservation of binary products and equalizers from pullbacks</span>
+<span class="sd"> 4. Preservation of pullbacks via binary products and equalizers</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.PullbackConstructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.EquivalencePreservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.LimitIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Preservation and natural isomorphisms *)</span>
+<span class="kn">Section</span> <span class="nf">PreservationNatIso</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+          {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D}
+          (<span class="nv">τ</span> : nat_z_iso F G).
+
+  <span class="kn">Definition</span> <span class="nf">preserves_terminal_nat_z_iso_f</span>
+             (<span class="nv">HF</span> : preserves_terminal F)
+    : preserves_terminal G.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x Hx.
+    use (iso_to_Terminal (make_Terminal _ (HF _ Hx))).
+    <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (nat_z_iso_pointwise_z_iso τ x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_binproduct_nat_z_iso_f</span>
+             (<span class="nv">HF</span> : preserves_binproduct F)
+    : preserves_binproduct G.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y p π₁ π₂ H.
+    <span class="nb">pose</span> (prod := make_BinProduct _ _ _ _ _ _ (HF _ _ _ _ _ H)).
+    use (isBinProduct_z_iso
+           (isBinProduct_BinProduct _ (BinProduct_z_iso_lr prod _ _))).
+    - <span class="bp">exact</span> (z_iso_inv (nat_z_iso_pointwise_z_iso τ x)).
+    - <span class="bp">exact</span> (z_iso_inv (nat_z_iso_pointwise_z_iso τ y)).
+    - <span class="bp">exact</span> (z_iso_inv (nat_z_iso_pointwise_z_iso τ p)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> nat_trans_ax ;
+         <span class="nb">refine</span> (!(id_left _) @ !_) ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> z_iso_after_z_iso_inv).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> nat_trans_ax ;
+         <span class="nb">refine</span> (!(id_left _) @ !_) ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> z_iso_after_z_iso_inv).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_equalizer_nat_z_iso_f</span>
+             (<span class="nv">HF</span> : preserves_equalizer F)
+    : preserves_equalizer G.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y e f g h p Fp H.
+    <span class="nb">assert</span> (q : # F h · # F f = # F h · # F g).
+    {
+      <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> &lt;- !functor_comp ;
+         <span class="bp">exact</span> (maponpaths #F p)).
+    }
+    <span class="nb">pose</span> (eq := make_Equalizer _ _ _ q (HF _ _ _ _ _ _ _ _ H)).
+    use (isEqualizer_z_iso
+           (isEqualizer_Equalizer (Equalizer_z_iso_lr eq _ _ _ _))).
+    - <span class="bp">exact</span> (z_iso_inv (nat_z_iso_pointwise_z_iso τ x)).
+    - <span class="bp">exact</span> (z_iso_inv (nat_z_iso_pointwise_z_iso τ y)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         use z_iso_inv_on_left ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (!_) ;
+         use z_iso_inv_on_right ;
+         <span class="nb">apply</span> nat_trans_ax).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         use z_iso_inv_on_left ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (!_) ;
+         use z_iso_inv_on_right ;
+         <span class="nb">apply</span> nat_trans_ax).
+    - <span class="bp">exact</span> (z_iso_inv (nat_z_iso_pointwise_z_iso τ e)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> nat_trans_ax ;
+         <span class="nb">refine</span> (!(id_left _) @ !_) ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> z_iso_after_z_iso_inv).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_initial_nat_z_iso_f</span>
+             (<span class="nv">HF</span> : preserves_initial F)
+    : preserves_initial G.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x Hx.
+    use (iso_to_Initial (make_Initial _ (HF _ Hx))).
+    <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (nat_z_iso_pointwise_z_iso τ x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_bincoproduct_nat_z_iso_f</span>
+             (<span class="nv">HF</span> : preserves_bincoproduct F)
+    : preserves_bincoproduct G.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y p π₁ π₂ H.
+    <span class="nb">pose</span> (coprod := make_BinCoproduct _ _ _ _ _ _ (HF _ _ _ _ _ H)).
+    use (isBinCoproduct_z_iso
+           (isBinCoproduct_BinCoproduct _ (BinCoproduct_z_iso_lr coprod _ _))).
+    - <span class="bp">exact</span> (nat_z_iso_pointwise_z_iso τ x).
+    - <span class="bp">exact</span> (nat_z_iso_pointwise_z_iso τ y).
+    - <span class="bp">exact</span> (nat_z_iso_pointwise_z_iso τ p).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">rewrite</span> nat_trans_ax ;
+         <span class="nb">refine</span> (!(id_left _) @ !_) ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> z_iso_after_z_iso_inv).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">rewrite</span> nat_trans_ax ;
+         <span class="nb">refine</span> (!(id_left _) @ !_) ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> z_iso_after_z_iso_inv).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PreservationNatIso</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_terminal_nat_z_iso_b</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D}
+           (<span class="nv">τ</span> : nat_z_iso F G)
+           (<span class="nv">HF</span> : preserves_terminal G)
+  : preserves_terminal F.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (preserves_terminal_nat_z_iso_f (nat_z_iso_inv τ) HF).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_binproduct_nat_z_iso_b</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D}
+           (<span class="nv">τ</span> : nat_z_iso F G)
+           (<span class="nv">HF</span> : preserves_binproduct G)
+  : preserves_binproduct F.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (preserves_binproduct_nat_z_iso_f (nat_z_iso_inv τ) HF).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_equalizer_nat_z_iso_b</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D}
+           (<span class="nv">τ</span> : nat_z_iso F G)
+           (<span class="nv">HF</span> : preserves_equalizer G)
+  : preserves_equalizer F.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (preserves_equalizer_nat_z_iso_f (nat_z_iso_inv τ) HF).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_initial_nat_z_iso_b</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D}
+           (<span class="nv">τ</span> : nat_z_iso F G)
+           (<span class="nv">HF</span> : preserves_initial G)
+  : preserves_initial F.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (preserves_initial_nat_z_iso_f (nat_z_iso_inv τ) HF).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_bincoproduct_nat_z_iso_b</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ D}
+           (<span class="nv">τ</span> : nat_z_iso F G)
+           (<span class="nv">HF</span> : preserves_bincoproduct G)
+  : preserves_bincoproduct F.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (preserves_bincoproduct_nat_z_iso_f (nat_z_iso_inv τ) HF).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *  2. Preservation and equivalences in the arrow bicategory *)</span>
+<span class="kn">Section</span> <span class="nf">EquivalencePreservation</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">D₁</span> <span class="nv">D₂</span> : category}
+          (<span class="nv">EC</span> : C₁ ⟶ C₂)
+          (<span class="nv">ED</span> : D₁ ⟶ D₂)
+          (<span class="nv">HEC</span> : adj_equivalence_of_cats EC)
+          (<span class="nv">HED</span> : adj_equivalence_of_cats ED)
+          (<span class="nv">F</span> : C₁ ⟶ D₁)
+          (<span class="nv">G</span> : C₂ ⟶ D₂)
+          (<span class="nv">τ</span> : nat_z_iso (F ∙ ED) (EC ∙ G)).
+
+  <span class="kn">Let</span> <span class="nf">R</span> : C₂ ⟶ C₁ := right_adjoint HEC.
+
+  <span class="kn">Let</span> <span class="nf">θ</span> : nat_z_iso (R ∙ F ∙ ED) G
+    := nat_z_iso_comp
+         (pre_whisker_nat_z_iso R τ)
+         (post_whisker_nat_z_iso (counit_nat_z_iso_from_adj_equivalence_of_cats HEC) G).
+
+  <span class="kn">Definition</span> <span class="nf">preserves_terminal_equivalence_f</span>
+             (<span class="nv">HF</span> : preserves_terminal F)
+    : preserves_terminal G.
+  <span class="kn">Proof</span>.
+    use (preserves_terminal_nat_z_iso_f θ).
+    use composition_preserves_terminal.
+    - use composition_preserves_terminal.
+      + <span class="bp">exact</span> (right_adjoint_preserves_terminal _ HEC).
+      + <span class="bp">exact</span> HF.
+    - <span class="bp">exact</span> (right_adjoint_preserves_terminal _ (adj_equivalence_of_cats_inv HED)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_binproduct_equivalence_f</span>
+             (<span class="nv">HF</span> : preserves_binproduct F)
+    : preserves_binproduct G.
+  <span class="kn">Proof</span>.
+    use (preserves_binproduct_nat_z_iso_f θ).
+    use composition_preserves_binproduct.
+    - use composition_preserves_binproduct.
+      + <span class="bp">exact</span> (right_adjoint_preserves_binproduct _ HEC).
+      + <span class="bp">exact</span> HF.
+    - <span class="bp">exact</span> (right_adjoint_preserves_binproduct _ (adj_equivalence_of_cats_inv HED)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_equalizer_equivalence_f</span>
+             (<span class="nv">HF</span> : preserves_equalizer F)
+    : preserves_equalizer G.
+  <span class="kn">Proof</span>.
+    use (preserves_equalizer_nat_z_iso_f θ).
+    use composition_preserves_equalizer.
+    - use composition_preserves_equalizer.
+      + <span class="bp">exact</span> (right_adjoint_preserves_equalizer _ HEC).
+      + <span class="bp">exact</span> HF.
+    - <span class="bp">exact</span> (right_adjoint_preserves_equalizer _ (adj_equivalence_of_cats_inv HED)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_initial_equivalence_f</span>
+             (<span class="nv">HF</span> : preserves_initial F)
+    : preserves_initial G.
+  <span class="kn">Proof</span>.
+    use (preserves_initial_nat_z_iso_f θ).
+    use composition_preserves_initial.
+    - use composition_preserves_initial.
+      + <span class="bp">exact</span> (left_adjoint_preserves_initial _ (adj_equivalence_of_cats_inv HEC)).
+      + <span class="bp">exact</span> HF.
+    - <span class="bp">exact</span> (left_adjoint_preserves_initial _ HED).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_bincoproduct_equivalence_f</span>
+             (<span class="nv">HF</span> : preserves_bincoproduct F)
+    : preserves_bincoproduct G.
+  <span class="kn">Proof</span>.
+    use (preserves_bincoproduct_nat_z_iso_f θ).
+    use composition_preserves_bincoproduct.
+    - use composition_preserves_bincoproduct.
+      + <span class="bp">exact</span> (left_adjoint_preserves_bincoproduct _ (adj_equivalence_of_cats_inv HEC)).
+      + <span class="bp">exact</span> HF.
+    - <span class="bp">exact</span> (left_adjoint_preserves_bincoproduct _ HED).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">EquivalencePreservation</span>.
+
+<span class="kn">Section</span> <span class="nf">EquivalencePreservation</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">D₁</span> <span class="nv">D₂</span> : category}
+          (<span class="nv">EC</span> : C₁ ⟶ C₂)
+          (<span class="nv">ED</span> : D₁ ⟶ D₂)
+          (<span class="nv">HEC</span> : adj_equivalence_of_cats EC)
+          (<span class="nv">HED</span> : adj_equivalence_of_cats ED)
+          (<span class="nv">F</span> : C₁ ⟶ D₁)
+          (<span class="nv">G</span> : C₂ ⟶ D₂)
+          (<span class="nv">τ</span> : nat_z_iso (F ∙ ED) (EC ∙ G)).
+
+  <span class="kn">Let</span> <span class="nf">RC</span> : C₂ ⟶ C₁ := right_adjoint HEC.
+  <span class="kn">Let</span> <span class="nf">RD</span> : D₂ ⟶ D₁ := right_adjoint HED.
+
+  <span class="kn">Let</span> <span class="nf">θ</span> : nat_z_iso (G ∙ RD) (RC ∙ F)
+    := nat_z_iso_comp
+         (post_whisker_nat_z_iso
+            (nat_z_iso_inv
+               (counit_nat_z_iso_from_adj_equivalence_of_cats HEC))
+            (G ∙ RD))
+         (nat_z_iso_comp
+            (post_whisker_nat_z_iso
+               (pre_whisker_nat_z_iso
+                  RC
+                  (nat_z_iso_inv τ))
+               RD)
+            (pre_whisker_nat_z_iso
+               (RC ∙ F)
+               (nat_z_iso_inv (unit_nat_z_iso_from_adj_equivalence_of_cats HED)))).
+
+  <span class="kn">Definition</span> <span class="nf">preserves_terminal_equivalence_b</span>
+             (<span class="nv">HG</span> : preserves_terminal G)
+    : preserves_terminal F
+    := preserves_terminal_equivalence_f
+         _ _
+         (adj_equivalence_of_cats_inv HEC)
+         (adj_equivalence_of_cats_inv HED)
+         _ _
+         θ
+         HG.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_binproduct_equivalence_b</span>
+             (<span class="nv">HG</span> : preserves_binproduct G)
+    : preserves_binproduct F
+    := preserves_binproduct_equivalence_f
+         _ _
+         (adj_equivalence_of_cats_inv HEC)
+         (adj_equivalence_of_cats_inv HED)
+         _ _
+         θ
+         HG.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_equalizer_equivalence_b</span>
+             (<span class="nv">HG</span> : preserves_equalizer G)
+    : preserves_equalizer F
+    := preserves_equalizer_equivalence_f
+         _ _
+         (adj_equivalence_of_cats_inv HEC)
+         (adj_equivalence_of_cats_inv HED)
+         _ _
+         θ
+         HG.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_initial_equivalence_b</span>
+             (<span class="nv">HG</span> : preserves_initial G)
+    : preserves_initial F
+    := preserves_initial_equivalence_f
+         _ _
+         (adj_equivalence_of_cats_inv HEC)
+         (adj_equivalence_of_cats_inv HED)
+         _ _
+         θ
+         HG.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_bincoproduct_equivalence_b</span>
+             (<span class="nv">HG</span> : preserves_bincoproduct G)
+    : preserves_bincoproduct F
+    := preserves_bincoproduct_equivalence_f
+         _ _
+         (adj_equivalence_of_cats_inv HEC)
+         (adj_equivalence_of_cats_inv HED)
+         _ _
+         θ
+         HG.
+<span class="kn">End</span> <span class="nf">EquivalencePreservation</span>.
+
+<span class="sd">(** * 3. Preservation of binary products and equalizers from pullbacks *)</span>
+<span class="kn">Section</span> <span class="nf">BinProductEqualizerPreservation</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+          (<span class="nv">F</span> : C ⟶ D)
+          (<span class="nv">TC</span> : Terminal C)
+          (<span class="nv">PBC</span> : Pullbacks C)
+          (<span class="nv">HF₁</span> : preserves_pullback F)
+          (<span class="nv">HF₂</span> : preserves_terminal F).
+
+  <span class="kn">Let</span> <span class="nf">prodC</span> : BinProducts C := BinProductsFromPullbacks PBC TC.
+
+  <span class="kn">Section</span> <span class="nf">PreservesProd</span>.
+    <span class="kn">Context</span> (<span class="nv">x</span> <span class="nv">y</span> : C).
+
+    <span class="kn">Let</span> <span class="nf">p</span> : BinProduct C x y := prodC x y.
+    <span class="kn">Let</span> <span class="nf">π₁</span> : p --&gt; x := BinProductPr1 _ p.
+    <span class="kn">Let</span> <span class="nf">π₂</span> : p --&gt; y := BinProductPr2 _ p.
+    <span class="kn">Let</span> <span class="nf">H</span> : isPullback
+              (PullbackSqrCommutes
+                 (PBC TC x y (TerminalArrow TC x) (TerminalArrow TC y)))
+      := isPullback_Pullback (PBC TC x y (TerminalArrow _ _) (TerminalArrow _ _)).
+
+    <span class="kn">Section</span> <span class="nf">UMP</span>.
+      <span class="kn">Context</span> {<span class="nv">w</span> : D}
+              (<span class="nv">f</span> : w --&gt; F x)
+              (<span class="nv">g</span> : w --&gt; F y).
+
+      <span class="kn">Let</span> <span class="nf">FT</span> : Terminal D
+        := make_Terminal _ (HF₂ TC (pr2 TC)).
+
+      <span class="kn">Local Lemma</span> <span class="nf">pullback_sqr_comm</span>
+        : # F π₁ · # F (TerminalArrow TC x)
+          =
+          # F π₂ · # F (TerminalArrow TC y).
+      <span class="kn">Proof</span>.
+        <span class="nb">rewrite</span> &lt;- !functor_comp.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> TerminalArrowEq.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Let</span> <span class="nf">P</span> : Pullback (# F (TerminalArrow TC x)) (# F (TerminalArrow TC y))
+        := make_Pullback _ (HF₁ _ _ _ _ _ _ _ _ _ pullback_sqr_comm H).
+
+      <span class="kn">Proposition</span> <span class="nf">preserves_binproduct_from_pullback_terminal_unique</span>
+        : isaprop (∑ fg, fg · # F π₁ = f × fg · # F π₂ = g).
+      <span class="kn">Proof</span>.
+        use invproofirrelevance.
+        <span class="nb">intros</span> φ₁ φ₂.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+        }
+        use (MorphismsIntoPullbackEqual (isPullback_Pullback P)).
+        - <span class="bp">exact</span> (pr12 φ₁ @ !(pr12 φ₂)).
+        - <span class="bp">exact</span> (pr22 φ₁ @ !(pr22 φ₂)).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">preserves_binproduct_from_pullback_terminal_map</span>
+        : w --&gt; F p.
+      <span class="kn">Proof</span>.
+        use (PullbackArrow P).
+        - <span class="bp">exact</span> f.
+        - <span class="bp">exact</span> g.
+        - <span class="kp">abstract</span>
+            (use (TerminalArrowEq (T := FT))).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">preserves_binproduct_from_pullback_terminal_pr1</span>
+        : preserves_binproduct_from_pullback_terminal_map · # F π₁ = f.
+      <span class="kn">Proof</span>.
+        <span class="bp">exact</span> (PullbackArrow_PullbackPr1 P _ _ _ _).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">preserves_binproduct_from_pullback_terminal_pr2</span>
+        : preserves_binproduct_from_pullback_terminal_map · # F π₂ = g.
+      <span class="kn">Proof</span>.
+        <span class="bp">exact</span> (PullbackArrow_PullbackPr2 P _ _ _ _).
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">UMP</span>.
+
+    <span class="kn">Definition</span> <span class="nf">preserves_binproduct_from_pullback_terminal_is_prod</span>
+      : isBinProduct D (F x) (F y) (F p) (# F π₁) (# F π₂).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> w f g.
+      use iscontraprop1.
+      - <span class="bp">exact</span> (preserves_binproduct_from_pullback_terminal_unique f g).
+      - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        + <span class="bp">exact</span> (preserves_binproduct_from_pullback_terminal_map f g).
+        + <span class="bp">exact</span> (preserves_binproduct_from_pullback_terminal_pr1 f g).
+        + <span class="bp">exact</span> (preserves_binproduct_from_pullback_terminal_pr2 f g).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">PreservesProd</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_binproduct_from_pullback_terminal</span>
+    : preserves_binproduct F.
+  <span class="kn">Proof</span>.
+    use (preserves_binproduct_if_preserves_chosen prodC).
+    <span class="nb">intros</span> x y.
+    <span class="bp">exact</span> (preserves_binproduct_from_pullback_terminal_is_prod x y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">eqC</span> : Equalizers C := equalizers_from_pullbacks_prods PBC prodC.
+
+  <span class="kn">Section</span> <span class="nf">PreservesEq</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+            (<span class="nv">p</span> : # F (EqualizerArrow (eqC x y f g)) · # F f
+                 =
+                 # F (EqualizerArrow (eqC x y f g)) · # F g).
+
+    <span class="kn">Let</span> <span class="nf">yy</span> : BinProduct C y y := prodC y y.
+    <span class="kn">Let</span> <span class="nf">Δ</span> : y --&gt; prodC y y := diagonalMap' prodC y.
+    <span class="kn">Let</span> <span class="nf">fg</span> : x --&gt; prodC y y := BinProductArrow C yy f g.
+    <span class="kn">Let</span> <span class="nf">P</span> : Pullback Δ fg := PBC (prodC y y) y x Δ fg.
+    <span class="kn">Let</span> <span class="nf">H</span> : isPullback (PullbackSqrCommutes P)
+      := isPullback_Pullback P.
+    <span class="kn">Let</span> <span class="nf">e</span> : P --&gt; x := PullbackPr2 P.
+
+    <span class="kn">Section</span> <span class="nf">UMP</span>.
+      <span class="kn">Context</span> {<span class="nv">w</span> : D}
+              (<span class="nv">h</span> : w --&gt; F x)
+              (<span class="nv">q</span> : h · # F f = h · # F g).
+
+      <span class="kn">Local Lemma</span> <span class="nf">pullback_sqr_comm_eq</span>
+        : # F (PullbackPr1 P) · # F Δ = # F (PullbackPr2 P) · # F fg.
+      <span class="kn">Proof</span>.
+        <span class="nb">rewrite</span> &lt;- !functor_comp.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> PullbackSqrCommutes.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Let</span> <span class="nf">r</span> : # F (PullbackPr1 P) · # F Δ = # F (PullbackPr2 P) · # F fg
+        := pullback_sqr_comm_eq.
+
+      <span class="kn">Let</span> <span class="nf">Fyy</span> : BinProduct D (F y) (F y)
+        := make_BinProduct
+             _ _ _ _ _ _
+             (preserves_binproduct_from_pullback_terminal
+                _ _ _ _ _
+                (isBinProduct_BinProduct _ yy)).
+
+      <span class="kn">Let</span> <span class="nf">FH</span> : isPullback r := HF₁ _ _ _ _ _ _ _ _ _ r H.
+      <span class="kn">Let</span> <span class="nf">FP</span> : Pullback (#F Δ) (#F fg) := make_Pullback _ FH.
+
+      <span class="kn">Local Lemma</span> <span class="nf">preserves_equalizer_from_pullback_terminal_map_eq</span>
+        : h · # F g · # F Δ = h · # F fg.
+      <span class="kn">Proof</span>.
+        use (BinProductArrowsEq _ _ _ Fyy) ; <span class="nb">cbn</span>.
+        - <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> &lt;- !functor_comp.
+          <span class="nb">rewrite</span> !PullbackArrow_PullbackPr1.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">rewrite</span> q.
+          <span class="nb">apply</span> idpath.
+        - <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> &lt;- !functor_comp.
+          <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">apply</span> idpath.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">preserves_equalizer_from_pullback_terminal_map_unique</span>
+        : isaprop (∑ φ, φ · # F (EqualizerArrow (eqC x y f g)) = h).
+      <span class="kn">Proof</span>.
+        use invproofirrelevance.
+        <span class="nb">intros</span> φ₁ φ₂.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> homset_property.
+        }
+        use (MorphismsIntoPullbackEqual (isPullback_Pullback FP)).
+        - <span class="nb">cbn</span>.
+          <span class="nb">enough</span> (pr1 φ₁ · # F (PullbackPr1 P) · #F Δ
+                  =
+                  pr1 φ₂ · # F (PullbackPr1 P) · #F Δ)
+            <span class="k">as</span> help_mono.
+          {
+            <span class="nb">pose</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · BinProductPr1 D Fyy) help_mono) <span class="k">as</span> lem.
+            <span class="nb">cbn</span> <span class="k">in</span> lem.
+            <span class="nb">rewrite</span> !assoc' <span class="k">in</span> lem.
+            <span class="nb">rewrite</span> &lt;- !functor_comp <span class="k">in</span> lem.
+            <span class="nb">rewrite</span> !PullbackArrow_PullbackPr1 <span class="k">in</span> lem.
+            <span class="nb">rewrite</span> !id_right <span class="k">in</span> lem.
+            <span class="bp">exact</span> lem.
+          }
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> &lt;- !functor_comp.
+          <span class="nb">rewrite</span> (PullbackSqrCommutes P).
+          <span class="nb">rewrite</span> !functor_comp.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (pr2 φ₁ @ !(pr2 φ₂)).
+        - <span class="bp">exact</span> (pr2 φ₁ @ !(pr2 φ₂)).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">preserves_equalizer_from_pullback_terminal_map</span>
+        : w --&gt; F (eqC x y f g).
+      <span class="kn">Proof</span>.
+        use (PullbackArrow FP).
+        - <span class="bp">exact</span> (h · #F g).
+        - <span class="bp">exact</span> h.
+        - <span class="bp">exact</span> preserves_equalizer_from_pullback_terminal_map_eq.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">preserves_equalizer_from_pullback_terminal_comm</span>
+        : preserves_equalizer_from_pullback_terminal_map · # F (EqualizerArrow (eqC x y f g))
+          =
+          h.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> (PullbackArrow_PullbackPr2 FP).
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">UMP</span>.
+
+    <span class="kn">Definition</span> <span class="nf">preserves_equalizer_from_pullback_terminal_is_equalizer</span>
+      : isEqualizer (# F f) (# F g) (# F (EqualizerArrow (eqC x y f g))) p.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> w h q.
+      use iscontraprop1.
+      - <span class="bp">exact</span> (preserves_equalizer_from_pullback_terminal_map_unique h).
+      - <span class="nb">simple refine</span> (_ ,, _).
+        + <span class="bp">exact</span> (preserves_equalizer_from_pullback_terminal_map h q).
+        + <span class="bp">exact</span> (preserves_equalizer_from_pullback_terminal_comm h q).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">PreservesEq</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_equalizer_from_pullback_terminal</span>
+    : preserves_equalizer F.
+  <span class="kn">Proof</span>.
+    use (preserves_equalizer_if_preserves_chosen eqC).
+    <span class="nb">intros</span> x y f g p.
+    <span class="bp">exact</span> (preserves_equalizer_from_pullback_terminal_is_equalizer f g p).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">BinProductEqualizerPreservation</span>.
+
+<span class="sd">(** * 4. Preservation of pullbacks via binary products and equalizers *)</span>
+<span class="kn">Section</span> <span class="nf">PullbackPreservation</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+          (<span class="nv">PC</span> : BinProducts C)
+          (<span class="nv">EC</span> : Equalizers C)
+          (<span class="nv">F</span> : C ⟶ D)
+          (<span class="nv">HF₁</span> : preserves_binproduct F)
+          (<span class="nv">HF₂</span> : preserves_equalizer F).
+
+  <span class="kn">Let</span> <span class="nf">PBC</span> : Pullbacks C := Pullbacks_from_Equalizers_BinProducts C PC EC.
+
+  <span class="kn">Section</span> <span class="nf">PreservesPB</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+            (<span class="nv">f</span> : x --&gt; z)
+            (<span class="nv">g</span> : y --&gt; z).
+
+    <span class="kn">Let</span> <span class="nf">P</span> : Pullback f g := PBC z x y f g.
+
+    <span class="kn">Context</span> (<span class="nv">q</span> : # F (PullbackPr1 (PBC z x y f g)) · # F f
+                 =
+                 # F (PullbackPr2 (PBC z x y f g)) · # F g).
+
+    <span class="kn">Let</span> <span class="nf">xy</span> : BinProduct C x y := PC x y.
+    <span class="kn">Let</span> <span class="nf">π₁</span> : xy --&gt; x := BinProductPr1 _ xy.
+    <span class="kn">Let</span> <span class="nf">π₂</span> : xy --&gt; y := BinProductPr2 _ xy.
+
+    <span class="kn">Let</span> <span class="nf">fp</span> : xy --&gt; z := π₁ · f.
+    <span class="kn">Let</span> <span class="nf">gp</span> : xy --&gt; z := π₂ · g.
+
+    <span class="kn">Let</span> <span class="nf">E</span> : Equalizer fp gp := EC _ _ fp gp.
+
+    <span class="kn">Section</span> <span class="nf">UMP</span>.
+      <span class="kn">Context</span> {<span class="nv">w</span> : D}
+              (<span class="nv">h</span> : w --&gt; F x)
+              (<span class="nv">k</span> : w --&gt; F y)
+              (<span class="nv">r</span> : h · # F f = k · # F g).
+
+      <span class="kn">Local Lemma</span> <span class="nf">equalizer_eq_help</span>
+        : # F (EqualizerArrow E) · # F fp = # F (EqualizerArrow E) · # F gp.
+      <span class="kn">Proof</span>.
+        <span class="nb">rewrite</span> &lt;- !functor_comp.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> EqualizerEqAr.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Let</span> <span class="nf">path</span> : # F (EqualizerArrow E) · # F fp = # F (EqualizerArrow E) · # F gp
+        := equalizer_eq_help.
+
+      <span class="kn">Let</span> <span class="nf">FE</span> : Equalizer (#F fp) (#F gp)
+        := make_Equalizer _ _ _ _ (HF₂ _ _ _ _ _ _ _ path (isEqualizer_Equalizer E)).
+
+      <span class="kn">Let</span> <span class="nf">Fxy</span> : BinProduct _ (F x) (F y)
+        := make_BinProduct _ _ _ _ _ _ (HF₁ _ _ _ _ _ (isBinProduct_BinProduct _ xy)).
+
+      <span class="kn">Proposition</span> <span class="nf">preserves_pullback_from_binproduct_equalizer_map_eq</span>
+        : BinProductArrow D Fxy h k · #F fp
+          =
+          BinProductArrow D Fxy h k · #F gp.
+      <span class="kn">Proof</span>.
+        <span class="nb">unfold</span> fp, gp.
+        <span class="nb">rewrite</span> !functor_comp.
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (BinProductPr1Commutes _ _ _ Fxy).
+        }
+        <span class="nb">refine</span> (r @ _).
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (BinProductPr2Commutes _ _ _ Fxy).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">preserves_pullback_from_binproduct_equalizer_unique</span>
+        : isaprop
+            (∑ hk,
+             (hk · # F (PullbackPr1 (PBC z x y f g)) = h)
+             ×
+             (hk · # F (PullbackPr2 (PBC z x y f g)) = k)).
+      <span class="kn">Proof</span>.
+        use invproofirrelevance.
+        <span class="nb">intros</span> φ₁ φ₂.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+        }
+        use (EqualizerInsEq FE).
+        use (BinProductArrowsEq _ _ _ Fxy) ; <span class="nb">cbn</span>.
+        - <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> &lt;- !functor_comp.
+          <span class="bp">exact</span> (pr12 φ₁ @ !(pr12 φ₂)).
+        - <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> &lt;- !functor_comp.
+          <span class="bp">exact</span> (pr22 φ₁ @ !(pr22 φ₂)).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">preserves_pullback_from_binproduct_equalizer_map</span>
+        : w --&gt; F P.
+      <span class="kn">Proof</span>.
+        use (EqualizerIn FE).
+        - <span class="bp">exact</span> (BinProductArrow _ Fxy h k).
+        - <span class="bp">exact</span> preserves_pullback_from_binproduct_equalizer_map_eq.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">preserves_pullback_from_binproduct_equalizer_pr1</span>
+        : preserves_pullback_from_binproduct_equalizer_map
+          · #F (PullbackPr1 (PBC z x y f g))
+          =
+          h.
+      <span class="kn">Proof</span>.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (EqualizerCommutes FE).
+        }
+        <span class="nb">apply</span> (BinProductPr1Commutes _ _ _ Fxy).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">preserves_pullback_from_binproduct_equalizer_pr2</span>
+        : preserves_pullback_from_binproduct_equalizer_map
+          · #F (PullbackPr2 (PBC z x y f g))
+          =
+          k.
+      <span class="kn">Proof</span>.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (EqualizerCommutes FE).
+        }
+        <span class="nb">apply</span> (BinProductPr2Commutes _ _ _ Fxy).
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">UMP</span>.
+
+    <span class="kn">Definition</span> <span class="nf">preserves_pullback_from_binproduct_equalizer_is_pb</span>
+      : isPullback q.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> w h k r.
+      use iscontraprop1.
+      - <span class="bp">exact</span> (preserves_pullback_from_binproduct_equalizer_unique h k).
+      - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        + <span class="bp">exact</span> (preserves_pullback_from_binproduct_equalizer_map h k r).
+        + <span class="bp">exact</span> (preserves_pullback_from_binproduct_equalizer_pr1 h k r).
+        + <span class="bp">exact</span> (preserves_pullback_from_binproduct_equalizer_pr2 h k r).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">PreservesPB</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_pullback_from_binproduct_equalizer</span>
+    : preserves_pullback F.
+  <span class="kn">Proof</span>.
+    use (preserves_pullback_if_preserves_chosen PBC).
+    <span class="nb">intros</span> x y z f g.
+    <span class="nb">apply</span> (preserves_pullback_from_binproduct_equalizer_is_pb f g).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PullbackPreservation</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/PreservationProperties.v</tt>, line 25)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Preservation of pullbacks via binary products and equalizers
+  &gt;
+  &gt;  *******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

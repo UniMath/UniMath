@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonoidalPointedObjects.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** the coslice category I/V for a monoidal category is again monoidal</span>
+
+<span class="sd">The coslice objects have a morphism from the monoidal unit I to an object of V. Since I is often not a terminal object 1 of V,</span>
+<span class="sd">one cannot speak of pointed objects here; I suggest to call them monoidal-pointed objects.</span>
+
+<span class="sd">author: Ralph Matthes 2022</span>
+
+<span class="sd">in 2022 Kobe Wullaert added the part in preparation of showing that taking the category of monoidal-pointed objects is an idempotent operation (strong monoidal functors are constructed between one and two applications of that operation to some argument) - the continuation is found in the package [Bicategories]</span>
+
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartA.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Projection.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.coslicecat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Section</span> <span class="nf">A</span>.
+
+<span class="kn">Context</span> {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V).
+
+<span class="kn">Let</span> <span class="nf">cosliced</span> : disp_cat V := coslice_cat_disp V I_{Mon_V}.
+
+<span class="kn">Lemma</span> <span class="nf">monoidal_pointed_objects_disp_tensor_data_aux1</span> (<span class="nv">v</span> <span class="nv">w</span> <span class="nv">w'</span> : V) (<span class="nv">g</span> : V ⟦ w, w' ⟧)
+  (<span class="nv">pv</span> : cosliced v) (<span class="nv">pw</span> : cosliced w) (<span class="nv">pw'</span> : cosliced w') (<span class="nv">Hypg</span> : pw · g = pw') :
+  luinv^{ Mon_V }_{ I_{ Mon_V}} · pv ⊗^{ Mon_V} pw · v ⊗^{ Mon_V}_{l} g =
+  luinv^{ Mon_V }_{ I_{ Mon_V}} · pv ⊗^{ Mon_V} pw'.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> &lt;- Hypg.
+  <span class="nb">unfold</span> functoronmorphisms1.
+  <span class="nb">rewrite</span> assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> pathsinv0, (bifunctor_leftcomp Mon_V).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">monoidal_pointed_objects_disp_tensor_data_aux2</span> (<span class="nv">v</span> <span class="nv">v'</span> <span class="nv">w</span> : V) (<span class="nv">f</span> : V ⟦ v, v' ⟧)
+  (<span class="nv">pv</span> : cosliced v) (<span class="nv">pv'</span> : cosliced v') (<span class="nv">pw</span> : cosliced w) (<span class="nv">Hypf</span> : pv · f = pv') :
+  luinv^{ Mon_V }_{ I_{ Mon_V}} · pv ⊗^{ Mon_V} pw · f ⊗^{ Mon_V}_{r} w =
+  luinv^{ Mon_V }_{ I_{ Mon_V}} · pv' ⊗^{ Mon_V} pw.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> &lt;- Hypf.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (bifunctor_equalwhiskers Mon_V).
+  <span class="nb">unfold</span> functoronmorphisms2.
+  <span class="nb">rewrite</span> assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> pathsinv0, (bifunctor_rightcomp Mon_V).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_pointed_objects_disp_tensor_data</span>
+  : disp_bifunctor_data Mon_V cosliced cosliced cosliced.
+<span class="kn">Proof</span>.
+  use make_disp_bifunctor_data.
+  - <span class="nb">intros</span> v w pv pw. <span class="bp">exact</span> (luinv^{Mon_V}_{I_{Mon_V}} · pv ⊗^{Mon_V} pw).
+  - <span class="bp">exact</span> monoidal_pointed_objects_disp_tensor_data_aux1.
+  - <span class="bp">exact</span> monoidal_pointed_objects_disp_tensor_data_aux2.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_pointed_objects_disp_tensor</span> : disp_tensor cosliced Mon_V.
+<span class="kn">Proof</span>.
+  use make_disp_bifunctor_locally_prop.
+  - <span class="nb">apply</span> coslice_cat_disp_locally_prop.
+  - <span class="bp">exact</span> monoidal_pointed_objects_disp_tensor_data.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cosliced_groupoidal</span> : groupoidal_disp_cat cosliced.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f Hf xx yy ff.
+  use tpair.
+  - <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">rewrite</span> &lt;- ff.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">refine</span> (_ @ id_right _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (z_iso_inv_after_z_iso (make_z_iso' f Hf)).
+  - <span class="nb">split</span>; <span class="nb">apply</span> coslice_cat_disp_locally_prop.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">monoidal_pointed_objects_disp_data_verif</span> :
+  disp_leftunitor_data monoidal_pointed_objects_disp_tensor (identity I_{Mon_V})
+    × disp_rightunitor_data monoidal_pointed_objects_disp_tensor (identity I_{Mon_V})
+    × disp_associator_data monoidal_pointed_objects_disp_tensor.
+<span class="kn">Proof</span>.
+  split3.
+  - <span class="nb">intros</span> v pv. <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> functoronmorphisms1.
+    <span class="nb">rewrite</span> (bifunctor_rightid Mon_V).
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> monoidal_leftunitornat.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> (pr2 (monoidal_leftunitorisolaw Mon_V _)).
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">intros</span> v pv. <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> functoronmorphisms1.
+    <span class="nb">rewrite</span> (bifunctor_leftid Mon_V).
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> monoidal_rightunitornat.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- unitors_coincide_on_unit.
+    <span class="nb">rewrite</span> (pr2 (monoidal_leftunitorisolaw Mon_V _)).
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">intros</span> v w u pv pw pu. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> functoronmorphisms1.
+    <span class="nb">rewrite</span> !(bifunctor_rightcomp Mon_V).
+    <span class="nb">rewrite</span> !(bifunctor_leftcomp Mon_V).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- monoidal_associatornatleft.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- (monoidal_associatornatleftright Mon_V).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> (z_iso_inv_to_right _ _ _ _ (z_iso_from_associator_iso Mon_V _ _ _)).
+    <span class="nb">cbn</span>.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">rewrite</span> assoc'.
+         <span class="nb">apply</span> maponpaths.
+         <span class="nb">apply</span> pathsinv0, monoidal_triangle_identity_inv. }
+    <span class="nb">rewrite</span> &lt;- !(bifunctor_rightcomp Mon_V).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> unitorsinv_coincide_on_unit.
+    <span class="nb">apply</span> monoidal_rightunitorinvnat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_pointed_objects_disp_data</span> : disp_monoidal_data cosliced Mon_V.
+<span class="kn">Proof</span>.
+  use make_disp_monoidal_data_groupoidal.
+  - <span class="bp">exact</span> cosliced_groupoidal.
+  - <span class="bp">exact</span> monoidal_pointed_objects_disp_tensor.
+  - <span class="nb">apply</span> identity.
+  - <span class="nb">apply</span> monoidal_pointed_objects_disp_data_verif.
+  - <span class="nb">apply</span> monoidal_pointed_objects_disp_data_verif.
+  - <span class="nb">apply</span> monoidal_pointed_objects_disp_data_verif.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_pointed_objects_disp</span> : disp_monoidal cosliced Mon_V.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_disp_monoidal_locally_prop.
+  - <span class="nb">apply</span> coslice_cat_disp_locally_prop.
+  - <span class="bp">exact</span> monoidal_pointed_objects_disp_data.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_pointed_objects</span> : monoidal (coslice_cat_total V I_{Mon_V})
+  := total_monoidal monoidal_pointed_objects_disp.
+<span class="kn">Definition</span> <span class="nf">forget_monoidal_pointed_objects_data</span>
+  : fmonoidal_data monoidal_pointed_objects Mon_V (pr1_category cosliced).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="kp">try</span> <span class="nb">intro</span>; <span class="nb">intros</span>; <span class="nb">apply</span> identity.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">forget_monoidal_pointed_objects_monoidal_generic</span>
+  : fmonoidal monoidal_pointed_objects Mon_V (pr1_category cosliced)
+  := projection_fmonoidal monoidal_pointed_objects_disp.
+
+<span class="sd">(** we develop a hand-crafted version since that one came first historically and is still used subsequently *)</span>
+<span class="kn">Lemma</span> <span class="nf">forget_monoidal_pointed_objects_laxlaws</span>
+  : fmonoidal_laxlaws forget_monoidal_pointed_objects_data.
+<span class="kn">Proof</span>.
+  split5; <span class="nb">intro</span>; <span class="nb">intros</span>.
+  - <span class="nb">rewrite</span> id_left; <span class="nb">apply</span> id_right.
+  - <span class="nb">rewrite</span> id_left; <span class="nb">apply</span> id_right.
+  - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> (bifunctor_leftid Mon_V).
+    <span class="nb">rewrite</span> (bifunctor_rightid Mon_V).
+    <span class="nb">rewrite</span> id_right; <span class="nb">apply</span> id_left.
+  - <span class="nb">cbn</span>. <span class="nb">rewrite</span> (bifunctor_rightid Mon_V). <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> id_left.
+  - <span class="nb">cbn</span>. <span class="nb">rewrite</span> (bifunctor_leftid Mon_V). <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">forget_monoidal_pointed_objects_lax_monoidal</span>
+  : fmonoidal_lax monoidal_pointed_objects Mon_V (pr1_category cosliced)
+  := forget_monoidal_pointed_objects_data,,forget_monoidal_pointed_objects_laxlaws.
+
+<span class="kn">Definition</span> <span class="nf">forget_monoidal_pointed_objects_monoidal_stronglaws</span>
+  : fmonoidal_stronglaws
+      (fmonoidal_preservestensordata forget_monoidal_pointed_objects_lax_monoidal)
+      (fmonoidal_preservesunit forget_monoidal_pointed_objects_lax_monoidal).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="kp">try</span> <span class="nb">intro</span>; <span class="nb">intros</span>; <span class="nb">apply</span> identity_is_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">forget_monoidal_pointed_objects_monoidal</span>
+  : fmonoidal monoidal_pointed_objects Mon_V (pr1_category cosliced)
+  := forget_monoidal_pointed_objects_lax_monoidal
+     ,,
+     forget_monoidal_pointed_objects_monoidal_stronglaws.
+
+<span class="kn">End</span> <span class="nf">A</span>.
+
+<span class="kn">Section</span> <span class="nf">PointedObjectFixpoint</span>.
+
+  <span class="c">(* Let V be a monoidal category.</span>
+<span class="c">     In this section we construct functors (in both directions)</span>
+<span class="c">     between the monoidal category of monoidal-pointed objects of V,</span>
+<span class="c">     (i.e. the coslice category under the unit object of V)</span>
+<span class="c">     and the category of monoidal-pointed objects of the category of monoidal-pointed objects of V.</span>
+<span class="c">     The constructions in this section are used to show that</span>
+<span class="c">     taking the category of monoidal-pointed objects is idempotent.</span>
+<span class="c">   *)</span>
+
+  <span class="kn">Local Definition</span> <span class="nf">ptd_ob</span> {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V) : category
+    := coslice_cat_total V I_{ Mon_V}.
+
+  <span class="kn">Local Definition</span> <span class="nf">ptd_ob_mon</span> {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V) : monoidal (ptd_ob Mon_V)
+    := monoidal_pointed_objects Mon_V.
+
+  <span class="kn">Context</span> {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V).
+
+  <span class="kn">Definition</span> <span class="nf">ptdob_to_ptdptdob_data</span>
+    : functor_data (ptd_ob Mon_V) (ptd_ob (ptd_ob_mon Mon_V)).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">intro</span> f.
+      <span class="k">exists</span> <span class="nv">f</span>.
+      <span class="k">exists</span> (<span class="nv">pr2</span> <span class="nv">f</span>).
+      <span class="nb">apply</span> id_left.
+    - <span class="nb">intros</span> f g α.
+      <span class="k">exists</span> <span class="nv">α</span>.
+      use total2_paths_f.
+      <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+      <span class="bp">exact</span> (pr2 α).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ptdob_to_ptdptdob_is_functor</span>
+    : is_functor ptdob_to_ptdptdob_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span>.
+      use total2_paths_f.
+      <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      use total2_paths_f.
+      <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ptdob_to_ptdptdob</span>
+    : functor (ptd_ob Mon_V) (ptd_ob (ptd_ob_mon Mon_V))
+    := ptdob_to_ptdptdob_data ,, ptdob_to_ptdptdob_is_functor.
+
+  <span class="kn">Definition</span> <span class="nf">ptdptdob_to_ptdob_data</span>
+    : functor_data (ptd_ob (ptd_ob_mon Mon_V)) (ptd_ob Mon_V).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, pr1 f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">α</span>, pr1 α).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ptdptdob_to_ptdob_is_functor</span>
+    : is_functor ptdptdob_to_ptdob_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ptdptdob_to_ptdob</span>
+    : functor (ptd_ob (ptd_ob_mon Mon_V)) (ptd_ob Mon_V)
+    := ptdptdob_to_ptdob_data ,, ptdptdob_to_ptdob_is_functor.
+
+  <span class="kn">Definition</span> <span class="nf">unit_ptdob_data</span>
+    : nat_trans_data
+        (functor_identity (ptd_ob Mon_V))
+        (functor_composite ptdob_to_ptdptdob ptdptdob_to_ptdob).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> v.
+    <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+    <span class="kp">abstract</span> (<span class="nb">apply</span> id_right).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">unit_ptdob_is_nat_trans</span>
+    : is_nat_trans _ _ unit_ptdob_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use total2_paths_f.
+    <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">unit_ptdob</span>
+    : nat_trans
+        (functor_identity (ptd_ob Mon_V))
+        (functor_composite ptdob_to_ptdptdob ptdptdob_to_ptdob)
+    := unit_ptdob_data ,, unit_ptdob_is_nat_trans.
+
+  <span class="kn">Definition</span> <span class="nf">counit_ptdob_data</span>
+    : nat_trans_data
+        (functor_composite ptdptdob_to_ptdob ptdob_to_ptdptdob)
+        (functor_identity (ptd_ob (ptd_ob_mon Mon_V))).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> v.
+    <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+    <span class="kp">abstract</span> (use total2_paths_f ;
+    [ <span class="nb">simpl</span> ;
+      <span class="nb">rewrite</span> (! pr22 v) ;
+      <span class="nb">rewrite</span> id_right ;
+      <span class="nb">apply</span> id_left
+    | <span class="nb">apply</span> homset_property ]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">counit_ptdob_is_nat_trans</span>
+    : is_nat_trans _ _ counit_ptdob_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use total2_paths_f.
+    <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+    use total2_paths_f.
+    <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">counit_ptdob</span>
+    : nat_trans
+        (functor_composite ptdptdob_to_ptdob ptdob_to_ptdptdob)
+        (functor_identity (ptd_ob (ptd_ob_mon Mon_V)))
+    := counit_ptdob_data ,, counit_ptdob_is_nat_trans.
+
+<span class="kn">End</span> <span class="nf">PointedObjectFixpoint</span>.
+
+<span class="kn">Section</span> <span class="nf">PointedObjectFixpointMonoidal</span>.
+
+  <span class="c">(* In this section, we show that the data defined in the previous section "PointedObjectFixpoint" is monoidal *)</span>
+
+  <span class="kn">Context</span> {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V).
+
+  <span class="kn">Definition</span> <span class="nf">ptdptdob_to_ptdob_fmonoidal_data</span>
+    : fmonoidal_data
+        (ptd_ob_mon (ptd_ob_mon Mon_V))
+        (ptd_ob_mon Mon_V)
+        (ptdptdob_to_ptdob Mon_V).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> f g.
+      <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+      <span class="kp">abstract</span> (<span class="nb">apply</span> id_right).
+    - <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+      <span class="kp">abstract</span> (<span class="nb">apply</span> id_right).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ptdob_to_ptdptdob_fmonoidal_data</span>
+    : fmonoidal_data
+        (ptd_ob_mon Mon_V)
+        (ptd_ob_mon (ptd_ob_mon Mon_V))
+        (ptdob_to_ptdptdob Mon_V).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> f g.
+      <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+      <span class="kp">abstract</span> (
+          use total2_paths_f ;
+          [ <span class="nb">apply</span> id_right | <span class="nb">apply</span> homset_property ]
+        ).
+    - <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+      <span class="kp">abstract</span> (
+          use total2_paths_f ;
+          [ <span class="nb">apply</span> id_right | <span class="nb">apply</span> homset_property ]
+        ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ptdptdob_to_ptdob_fmonoidal_laxlaws</span>
+    : fmonoidal_laxlaws ptdptdob_to_ptdob_fmonoidal_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; (<span class="nb">intro</span> ; <span class="nb">intros</span> ; use total2_paths_f ; [ <span class="nb">cbn</span> | <span class="nb">apply</span> homset_property ]).
+    - <span class="nb">rewrite</span> id_left ; <span class="nb">apply</span> id_right.
+    - <span class="nb">rewrite</span> id_left ; <span class="nb">apply</span> id_right.
+    - <span class="nb">rewrite</span> (bifunctor_rightid Mon_V).
+      <span class="nb">rewrite</span> (bifunctor_leftid Mon_V).
+      <span class="nb">rewrite</span> ! id_left.
+      <span class="nb">rewrite</span> ! id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> (bifunctor_rightid Mon_V).
+      <span class="nb">apply</span> id_left.
+    - <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> (bifunctor_leftid Mon_V).
+      <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ptdob_to_ptdptdob_fmonoidal_laxlaws</span>
+    : fmonoidal_laxlaws ptdob_to_ptdptdob_fmonoidal_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; (<span class="nb">intro</span> ; <span class="nb">intros</span> ; use total2_paths_f ; [ use total2_paths_f ; <span class="nb">cbn</span> | <span class="nb">apply</span> homset_property ]).
+    - <span class="nb">rewrite</span> id_left ; <span class="nb">apply</span> id_right.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">rewrite</span> id_left ; <span class="nb">apply</span> id_right.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">rewrite</span> (bifunctor_rightid Mon_V).
+      <span class="nb">rewrite</span> (bifunctor_leftid Mon_V).
+      <span class="nb">rewrite</span> ! id_left.
+      <span class="nb">rewrite</span> ! id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> (bifunctor_rightid Mon_V).
+      <span class="nb">apply</span> id_left.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> (bifunctor_leftid Mon_V).
+      <span class="nb">apply</span> id_left.
+    - <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ptdptdob_to_ptdob_fmonoidal_lax</span>
+    : fmonoidal_lax
+        (ptd_ob_mon (ptd_ob_mon Mon_V))
+        (ptd_ob_mon Mon_V)
+        (ptdptdob_to_ptdob Mon_V).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">ptdptdob_to_ptdob_fmonoidal_data</span>.
+    <span class="bp">exact</span> ptdptdob_to_ptdob_fmonoidal_laxlaws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ptdob_to_ptdptdob_fmonoidal_lax</span>
+    : fmonoidal_lax
+        (ptd_ob_mon Mon_V)
+        (ptd_ob_mon (ptd_ob_mon Mon_V))
+        (ptdob_to_ptdptdob Mon_V).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">ptdob_to_ptdptdob_fmonoidal_data</span>.
+    <span class="bp">exact</span> ptdob_to_ptdptdob_fmonoidal_laxlaws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ptdptdob_to_ptdob_fmonoidal_stronglaws</span>
+    : fmonoidal_stronglaws
+        (fmonoidal_preservestensordata ptdptdob_to_ptdob_fmonoidal_lax)
+        (fmonoidal_preservesunit ptdptdob_to_ptdob_fmonoidal_lax).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; (
+              (<span class="kp">try</span> <span class="nb">intro</span> ; <span class="nb">intros</span>) ;
+              <span class="kp">repeat</span> (use tpair) ;
+              [ <span class="bp">exact</span> (identity _)
+              | <span class="kp">abstract</span> (<span class="nb">apply</span> id_right)
+              | <span class="kp">abstract</span> (use total2_paths_f ;
+                [ <span class="nb">apply</span> id_right | <span class="nb">apply</span> homset_property ])
+              | <span class="kp">abstract</span> (use total2_paths_f ;
+                [ <span class="nb">apply</span> id_right | <span class="nb">apply</span> homset_property ])
+              ]).
+  <span class="kn">Defined</span>.
+
+<span class="sd">(** TODO: separate data and their verification that should be opaque *)</span>
+  <span class="kn">Definition</span> <span class="nf">ptdob_to_ptdptdob_fmonoidal_stronglaws</span>
+    : fmonoidal_stronglaws
+        (fmonoidal_preservestensordata ptdob_to_ptdptdob_fmonoidal_lax)
+        (fmonoidal_preservesunit ptdob_to_ptdptdob_fmonoidal_lax).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; (
+              (<span class="kp">try</span> <span class="nb">intro</span> ; <span class="nb">intros</span>) ;
+              <span class="kp">repeat</span> (use tpair) ;
+              [ <span class="bp">exact</span> (identity _)
+              | <span class="nb">apply</span> id_right
+              | <span class="kp">abstract</span> (use total2_paths_f ;
+                [ <span class="nb">apply</span> id_right | <span class="nb">apply</span> homset_property ])
+              | <span class="kp">abstract</span> (
+                    use total2_paths_f ;
+                    [ use total2_paths_f ; [<span class="nb">apply</span> id_right | <span class="nb">apply</span> V] | <span class="nb">apply</span> homset_property ]
+                  )
+              | <span class="kp">abstract</span> (
+                    use total2_paths_f ;
+                    [ use total2_paths_f ; [<span class="nb">apply</span> id_right | <span class="nb">apply</span> V] | <span class="nb">apply</span> homset_property ])
+              ]).
+  <span class="kn">Defined</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">ptdptdob_to_ptdob_fmonoidal</span>
+    : fmonoidal
+        (ptd_ob_mon (ptd_ob_mon Mon_V))
+        (ptd_ob_mon Mon_V)
+        (ptdptdob_to_ptdob Mon_V).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">ptdptdob_to_ptdob_fmonoidal_lax</span>.
+    <span class="bp">exact</span> ptdptdob_to_ptdob_fmonoidal_stronglaws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ptdob_to_ptdptdob_fmonoidal</span>
+    : fmonoidal
+        (ptd_ob_mon Mon_V)
+        (ptd_ob_mon (ptd_ob_mon Mon_V))
+        (ptdob_to_ptdptdob Mon_V).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">ptdob_to_ptdptdob_fmonoidal_lax</span>.
+    <span class="bp">exact</span> ptdob_to_ptdptdob_fmonoidal_stronglaws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PointedObjectFixpointMonoidal</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Examples/MonoidalPointedObjects.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.Foundations.PartA.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

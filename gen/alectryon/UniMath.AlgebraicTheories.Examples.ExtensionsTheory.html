@@ -1,0 +1,664 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ExtensionsTheory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  The theory of extensions of an algebra</span>
+
+<span class="sd">  Given an algebraic theory T and a T-algebra A, we can construct the "theory of extensions" of A</span>
+<span class="sd">  as the theory T_A with (T_A)_n = A + T_n as a coproduct of T-algebras. This is functorial in A.</span>
+<span class="sd">  The category of algebras of this theory is equivalent to the coslice category (A / T-alg). For</span>
+<span class="sd">  example, if T encodes the theory of rings and A is a T-algebra (equivalent to a ring R), then T_A</span>
+<span class="sd">  is the theory of R-algebras. Lastly, for any algebraic theory morphism F : T -&gt; T', if we take</span>
+<span class="sd">  A = F^*(T'_0), the pullback of the T'-algebra T'_0 along F, then F factors through T_A.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The theory of extensions functor [extensions_theory]</span>
+<span class="sd">  2. The category of T_A-algebras is equivalent to A / T-alg [algebra_coslice_equivalence]</span>
+<span class="sd">  3. Every morphism F: T -&gt; T' factors through T_(F^*(T'_0)) [factorization]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.coslicecat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Tuples.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraCategory.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.Algebras.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.Examples.TheoryAlgebra.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> algebraic_theories.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. The theory of extensions *)</span>
+
+<span class="kn">Section</span> <span class="nf">TheoryOfExtensions</span>.
+
+  <span class="kn">Context</span> (<span class="nv">T</span> : algebraic_theory).
+  <span class="kn">Context</span> (<span class="nv">H</span> : BinCoproducts (algebra_cat T)).
+
+  <span class="kn">Section</span> <span class="nf">Ob</span>.
+
+    <span class="kn">Context</span> (<span class="nv">A</span> : algebra T).
+
+    <span class="kn">Definition</span> <span class="nf">extensions_theory_ob_data</span>
+      : algebraic_theory_data.
+    <span class="kn">Proof</span>.
+      use make_algebraic_theory_data.
+      - <span class="nb">intro</span> n.
+        <span class="bp">exact</span> (BinCoproductObject (H A (theory_algebra T n)) : algebra _).
+      - <span class="nb">intros</span> n i.
+        <span class="nb">refine</span> ((BinCoproductIn2 _ : algebra_morphism _ _) _).
+        <span class="bp">exact</span> (var i).
+      - <span class="nb">intros</span> m n f g.
+        <span class="nb">revert</span> f.
+        <span class="nb">refine</span> (BinCoproductArrow _ _ _ : algebra_morphism _ _).
+        + <span class="bp">exact</span> (BinCoproductIn1 _).
+        + <span class="nb">apply</span> theory_algebra_free.
+          <span class="bp">exact</span> g.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">extensions_theory_ob_is_theory</span>
+      : is_algebraic_theory extensions_theory_ob_data.
+    <span class="kn">Proof</span>.
+      use make_is_algebraic_theory.
+      - <span class="nb">intros</span> l m n f_l f_m f_n.
+        <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (algebra_mor_comp _ _) @ _).
+        <span class="nb">revert</span> f_l.
+        <span class="nb">apply</span> eqtohomot.
+        <span class="nb">apply</span> (maponpaths algebra_morphism_to_function).
+        <span class="nb">apply</span> BinCoproductArrowUnique.
+        + <span class="nb">refine</span> (assoc _ _ _ @ _).
+          <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (BinCoproductIn1Commutes _ _ _ _ _ _ _) @ _).
+          <span class="nb">apply</span> BinCoproductIn1Commutes.
+        + <span class="nb">refine</span> (assoc _ _ _ @ _).
+          <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (BinCoproductIn2Commutes _ _ _ _ _ _ _) @ _).
+          <span class="nb">apply</span> algebra_morphism_eq.
+          <span class="nb">refine</span> (algebra_mor_comp _ _ @ _).
+          <span class="nb">apply</span> funextfun.
+          <span class="nb">intro</span> f_l.
+          <span class="nb">apply</span> mor_action.
+      - <span class="nb">intros</span> m n i f.
+        <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (algebra_mor_comp _ _) @ _).
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ x _) (BinCoproductIn2Commutes _ _ _ _ _ _ _) @ _).
+        <span class="nb">apply</span> var_action.
+      - <span class="nb">intros</span> n f.
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, algebra_morphism_to_function x f) (_ : _ = identity _)).
+        <span class="nb">symmetry</span>.
+        <span class="nb">apply</span> BinCoproductArrowUnique.
+        + <span class="nb">apply</span> id_right.
+        + <span class="nb">refine</span> (id_right _ @ _).
+          <span class="nb">apply</span> algebra_morphism_eq.
+          <span class="nb">apply</span> funextfun.
+          <span class="nb">intro</span> f'.
+          <span class="nb">refine</span> (_ @ mor_action _ _ _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (!subst_var _ _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">extensions_theory_ob</span>
+      : algebraic_theory
+      := make_algebraic_theory _ extensions_theory_ob_is_theory.
+
+  <span class="kn">End</span> <span class="nf">Ob</span>.
+
+  <span class="kn">Section</span> <span class="nf">Mor</span>.
+
+    <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> : algebra T}.
+    <span class="kn">Context</span> (<span class="nv">f</span> : algebra_morphism A B).
+
+    <span class="kn">Definition</span> <span class="nf">extensions_theory_mor_data</span>
+      (<span class="nv">n</span> : nat)
+      : extensions_theory_ob A n → extensions_theory_ob B n.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> algebra_morphism_to_function.
+      <span class="nb">apply</span> BinCoproductOfArrows.
+      - <span class="bp">exact</span> f.
+      - <span class="bp">exact</span> (identity _).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">extensions_theory_mor_is_morphism</span>
+      : is_algebraic_theory_morphism extensions_theory_mor_data.
+    <span class="kn">Proof</span>.
+      use make_is_algebraic_theory_morphism.
+      - <span class="nb">intros</span> n i.
+        <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (algebra_mor_comp _ _) @ _).
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, algebra_morphism_to_function x _) (BinCoproductOfArrowsIn2 _ _ _ _ _) @ _).
+        <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, algebra_morphism_to_function x _) (id_left _)).
+      - <span class="nb">intros</span> m n g h.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (!_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (algebra_mor_comp _ _)).
+        <span class="nb">revert</span> g.
+        <span class="nb">apply</span> eqtohomot.
+        <span class="nb">apply</span> maponpaths.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (postcompWithBinCoproductArrow _ _ _ _ _ @ !_).
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ x _) _ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ x) _).
+        + <span class="nb">refine</span> (BinCoproductOfArrowsIn1 _ _ _ _ _ @ !_).
+          <span class="nb">refine</span> (assoc' _ _ _ @ _).
+          <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x) (BinCoproductIn1Commutes _ _ _ _ _ _ _)).
+        + <span class="nb">refine</span> (!_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (id_left _)).
+          <span class="nb">refine</span> (BinCoproductIn2Commutes _ _ _ _ _ _ _ @ !_).
+          <span class="nb">apply</span> algebra_morphism_eq.
+          <span class="nb">refine</span> (algebra_mor_comp _ _ @ _).
+          <span class="nb">apply</span> funextfun.
+          <span class="nb">intro</span> g.
+          <span class="nb">apply</span> mor_action.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">extensions_theory_mor</span>
+      : algebraic_theory_morphism (extensions_theory_ob A) (extensions_theory_ob B)
+      := make_algebraic_theory_morphism _ extensions_theory_mor_is_morphism.
+
+  <span class="kn">End</span> <span class="nf">Mor</span>.
+
+  <span class="kn">Section</span> <span class="nf">Functor</span>.
+
+    <span class="kn">Definition</span> <span class="nf">extensions_theory_data</span>
+      : functor_data (algebra_cat T) algebraic_theory_cat
+      := make_functor_data
+        extensions_theory_ob
+        (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, extensions_theory_mor).
+
+    <span class="kn">Lemma</span> <span class="nf">extensions_theory_is_functor</span>
+      : is_functor extensions_theory_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span> A.
+        <span class="nb">apply</span> algebraic_theory_morphism_eq.
+        <span class="nb">intro</span> n.
+        <span class="nb">apply</span> eqtohomot.
+        <span class="nb">change</span> ((identity _ : algebraic_theory_morphism _ _) n)
+          <span class="k">with</span> (algebra_morphism_to_function (identity (H A (theory_algebra T n)))).
+        <span class="nb">apply</span> (maponpaths algebra_morphism_to_function).
+        <span class="nb">apply</span> BinCoproductArrowsEq.
+        + <span class="nb">refine</span> (BinCoproductOfArrowsIn1 _ _ _ _ _ @ _).
+          <span class="nb">refine</span> (id_left _ @ !_).
+          <span class="bp">exact</span> (id_right _).
+        + <span class="nb">refine</span> (BinCoproductOfArrowsIn2 _ _ _ _ _ @ _).
+          <span class="nb">refine</span> (id_left _ @ !_).
+          <span class="bp">exact</span> (id_right _).
+      - <span class="nb">intros</span> A B C f g.
+        <span class="nb">apply</span> algebraic_theory_morphism_eq.
+        <span class="nb">intros</span> n.
+        <span class="nb">apply</span> eqtohomot.
+        <span class="nb">refine</span> (_ @ algebra_mor_comp _ _).
+        <span class="nb">apply</span> (maponpaths algebra_morphism_to_function).
+        <span class="nb">refine</span> (_ @ !postcompWithBinCoproductArrow _ _ _ _ _).
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, BinCoproductArrow _ x _) _ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, BinCoproductArrow _ _ x) _).
+        + <span class="nb">refine</span> (_ @ assoc _ _ _).
+          <span class="nb">refine</span> (_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x) (BinCoproductOfArrowsIn1 _ _ _ _ _)).
+          <span class="nb">apply</span> assoc'.
+        + <span class="nb">refine</span> (_ @ assoc _ _ _).
+          <span class="nb">refine</span> (_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x) (BinCoproductOfArrowsIn2 _ _ _ _ _)).
+          <span class="nb">apply</span> (!id_left _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">extensions_theory</span>
+      : functor (algebra_cat T) algebraic_theory_cat
+      := make_functor _ extensions_theory_is_functor.
+
+  <span class="kn">End</span> <span class="nf">Functor</span>.
+
+  <span class="kn">Context</span> (<span class="nv">A</span> : algebra T).
+
+  <span class="kn">Definition</span> <span class="nf">extensions_theory_embedding_data</span>
+    : algebraic_theory_morphism_data T (extensions_theory A : algebraic_theory)
+    := <span class="k">λ</span> <span class="nv">n</span>, (BinCoproductIn2 (H A (theory_algebra T n)) : algebra_morphism _ _).
+
+  <span class="kn">Lemma</span> <span class="nf">extensions_theory_embedding_is_morphism</span>
+    : is_algebraic_theory_morphism extensions_theory_embedding_data.
+  <span class="kn">Proof</span>.
+    use make_is_algebraic_theory_morphism.
+    - <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> m n f g.
+      <span class="nb">refine</span> (mor_action _ _ _ @ _).
+      <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x f) (algebra_mor_comp (BinCoproductIn2 (H A (theory_algebra T m))) _)).
+      <span class="nb">symmetry</span>.
+      <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, algebra_morphism_to_function x (f : theory_algebra T m)) (BinCoproductIn2Commutes _ _ _ _ _ _ _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">extensions_theory_embedding</span>
+    : algebraic_theory_morphism T (extensions_theory A)
+    := make_algebraic_theory_morphism _ extensions_theory_embedding_is_morphism.
+
+<span class="sd">(** * 2. The category of T_A-algebras is equivalent to A / T-alg *)</span>
+
+  <span class="kn">Section</span> <span class="nf">Algebras</span>.
+
+    <span class="kn">Section</span> <span class="nf">AlgebraToCoslice</span>.
+
+      <span class="kn">Section</span> <span class="nf">Ob</span>.
+
+        <span class="kn">Context</span> (<span class="nv">B</span> : algebra (extensions_theory A)).
+
+        <span class="kn">Definition</span> <span class="nf">algebra_to_coslice_morphism_data</span>
+          : A → (algebra_pullback extensions_theory_embedding B : algebra _).
+        <span class="kn">Proof</span>.
+          <span class="nb">intro</span> a.
+          <span class="nb">refine</span> (action (A := B) _ (iscontrpr1 (iscontr_empty_tuple _))).
+          <span class="nb">refine</span> ((BinCoproductIn1 (H A (theory_algebra T <span class="mi">0</span>)) : algebra_morphism _ _) _).
+          <span class="bp">exact</span> a.
+        <span class="kn">Defined</span>.
+
+        <span class="kn">Lemma</span> <span class="nf">algebra_to_coslice_is_morphism</span>
+          : is_algebra_morphism algebra_to_coslice_morphism_data.
+        <span class="kn">Proof</span>.
+          <span class="nb">intros</span> n f a.
+          <span class="nb">refine</span> (_ @ subst_action B (extensions_theory_embedding n f) _ _).
+          <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, action x _) _).
+          <span class="nb">refine</span> (_ @ (maponpaths (<span class="k">λ</span> (<span class="nv">x</span> : theory_algebra T n → _), x f) (algebra_mor_comp _ _))).
+          <span class="nb">refine</span> (_ @ !maponpaths (<span class="k">λ</span> (<span class="nv">x</span> : algebra_morphism (theory_algebra T n) _), algebra_morphism_to_function x f) (BinCoproductIn2Commutes _ _ _ _ _ _ _)).
+          <span class="nb">apply</span> mor_action.
+        <span class="kn">Qed</span>.
+
+        <span class="kn">Definition</span> <span class="nf">algebra_to_coslice_morphism</span>
+          : algebra_morphism A (algebra_pullback extensions_theory_embedding B)
+          := make_algebra_morphism _ algebra_to_coslice_is_morphism.
+
+      <span class="kn">End</span> <span class="nf">Ob</span>.
+
+      <span class="kn">Section</span> <span class="nf">Mor</span>.
+
+        <span class="kn">Context</span> {<span class="nv">B</span> <span class="nv">B'</span> : algebra (extensions_theory A)}.
+        <span class="kn">Context</span> (<span class="nv">F</span> : algebra_morphism B B').
+
+        <span class="kn">Lemma</span> <span class="nf">algebra_to_coslice_commutes</span>
+          : algebra_to_coslice_morphism B · # (algebra_pullback extensions_theory_embedding) F = algebra_to_coslice_morphism B'.
+        <span class="kn">Proof</span>.
+          <span class="nb">apply</span> algebra_morphism_eq.
+          <span class="nb">refine</span> (algebra_mor_comp _ _ @ _).
+          <span class="nb">apply</span> funextfun.
+          <span class="nb">intro</span> a.
+          <span class="nb">refine</span> (mor_action F _ _ @ _).
+          <span class="nb">apply</span> (maponpaths (action _)).
+          <span class="nb">apply</span> iscontr_uniqueness.
+        <span class="kn">Qed</span>.
+
+      <span class="kn">End</span> <span class="nf">Mor</span>.
+
+      <span class="kn">Definition</span> <span class="nf">algebra_to_coslice</span>
+        : algebra_cat (extensions_theory A) ⟶ coslice_cat_total _ A.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> (lifted_functor (F := algebra_pullback extensions_theory_embedding)).
+        use tpair.
+        - use tpair.
+          + <span class="nb">intro</span> B.
+            <span class="nb">apply</span> algebra_to_coslice_morphism.
+          + <span class="nb">intros</span> B B' F.
+            <span class="nb">apply</span> algebra_to_coslice_commutes.
+        - <span class="nb">split</span>;
+            <span class="nb">intros</span>;
+            <span class="nb">apply</span> homset_property.
+      <span class="kn">Defined</span>.
+
+    <span class="kn">End</span> <span class="nf">AlgebraToCoslice</span>.
+
+    <span class="kn">Section</span> <span class="nf">CosliceToAlgebra</span>.
+
+      <span class="kn">Section</span> <span class="nf">Ob</span>.
+
+        <span class="kn">Context</span> {<span class="nv">B</span> : algebra T}.
+        <span class="kn">Context</span> (<span class="nv">F</span> : algebra_morphism A B).
+
+        <span class="kn">Definition</span> <span class="nf">coslice_to_algebra_ob_data</span>
+          : algebra_data (extensions_theory A).
+        <span class="kn">Proof</span>.
+          use make_algebra_data.
+          - <span class="bp">exact</span> B.
+          - <span class="nb">intros</span> n f b.
+            <span class="nb">revert</span> f.
+            <span class="nb">refine</span> (BinCoproductArrow _ _ _ : algebra_morphism _ _).
+            + <span class="bp">exact</span> F.
+            + <span class="nb">apply</span> theory_algebra_free.
+              <span class="bp">exact</span> b.
+        <span class="kn">Defined</span>.
+
+        <span class="kn">Lemma</span> <span class="nf">coslice_to_ob_is_algebra</span>
+          : is_algebra coslice_to_algebra_ob_data.
+        <span class="kn">Proof</span>.
+          use make_is_algebra.
+          - <span class="nb">intros</span> m n f g a.
+            <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (algebra_mor_comp _ _) @ _).
+            <span class="nb">revert</span> f.
+            <span class="nb">apply</span> eqtohomot.
+            <span class="nb">apply</span> (maponpaths algebra_morphism_to_function).
+            <span class="nb">apply</span> BinCoproductArrowUnique.
+            + <span class="nb">refine</span> (assoc _ _ _ @ _).
+              <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (BinCoproductIn1Commutes _ _ _ _ _ _ _) @ _).
+              <span class="nb">apply</span> BinCoproductIn1Commutes.
+            + <span class="nb">refine</span> (assoc _ _ _ @ _).
+              <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (BinCoproductIn2Commutes _ _ _ _ _ _ _) @ _).
+              <span class="nb">apply</span> algebra_morphism_eq.
+              <span class="nb">refine</span> (algebra_mor_comp _ _ @ _).
+              <span class="nb">apply</span> funextfun.
+              <span class="nb">intro</span> f.
+              <span class="nb">apply</span> mor_action.
+          - <span class="nb">intros</span> n i a.
+            <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (algebra_mor_comp _ _) @ _).
+            <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, algebra_morphism_to_function x _) (BinCoproductIn2Commutes _ _ _ _ _ _ _) @ _).
+            <span class="nb">apply</span> var_action.
+        <span class="kn">Qed</span>.
+
+        <span class="kn">Definition</span> <span class="nf">coslice_to_algebra_ob</span>
+          : algebra (extensions_theory A)
+          := make_algebra _ coslice_to_ob_is_algebra.
+
+      <span class="kn">End</span> <span class="nf">Ob</span>.
+
+      <span class="kn">Section</span> <span class="nf">Mor</span>.
+
+        <span class="kn">Context</span> {<span class="nv">B</span> <span class="nv">B'</span> : algebra T}.
+        <span class="kn">Context</span> {<span class="nv">F</span> : algebra_morphism A B}.
+        <span class="kn">Context</span> {<span class="nv">F'</span> : algebra_morphism A B'}.
+        <span class="kn">Context</span> {<span class="nv">G</span> : algebra_morphism B B'}.
+        <span class="kn">Context</span> (<span class="nv">HG</span> : F · G = F').
+
+        <span class="kn">Lemma</span> <span class="nf">G_is_algebra_morphism</span>
+          : is_algebra_morphism (A := coslice_to_algebra_ob F) (A' := coslice_to_algebra_ob F') G.
+        <span class="kn">Proof</span>.
+          <span class="nb">induction</span> HG.
+          <span class="nb">intros</span> n f b.
+          <span class="nb">revert</span> f.
+          <span class="nb">apply</span> eqtohomot.
+          use (maponpaths algebra_morphism_to_function (_ : make_algebra_morphism _ (_ : is_algebra_morphism _) = _)).
+          {
+            <span class="nb">intros</span> m f a.
+            <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ x) (mor_action _ _ _) @ _).
+            <span class="bp">exact</span> (mor_action G _ _).
+          }
+          <span class="nb">apply</span> BinCoproductArrowUnique.
+          - <span class="nb">apply</span> algebra_morphism_eq.
+            <span class="nb">refine</span> (algebra_mor_comp _ _ @ _).
+            <span class="nb">apply</span> funextfun.
+            <span class="nb">intro</span> a.
+            <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, G (x _)) (algebra_mor_comp _ _) @ _).
+            <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, G (_ x _)) (BinCoproductIn1Commutes _ _ _ _ _ _ _) @ _).
+            <span class="bp">exact</span> (!eqtohomot (algebra_mor_comp _ _) _).
+          - <span class="nb">apply</span> algebra_morphism_eq.
+            <span class="nb">refine</span> (algebra_mor_comp _ _ @ _).
+            <span class="nb">apply</span> funextfun.
+            <span class="nb">intro</span> a.
+            <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, G (x _)) (algebra_mor_comp _ _) @ _).
+            <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, G (_ x _)) (BinCoproductIn2Commutes _ _ _ _ _ _ _) @ _).
+            <span class="nb">apply</span> mor_action.
+        <span class="kn">Qed</span>.
+
+        <span class="kn">Definition</span> <span class="nf">coslice_to_algebra_mor</span>
+          : algebra_morphism (coslice_to_algebra_ob F) (coslice_to_algebra_ob F')
+          := make_algebra_morphism
+            _
+            G_is_algebra_morphism.
+
+      <span class="kn">End</span> <span class="nf">Mor</span>.
+
+      <span class="kn">Definition</span> <span class="nf">coslice_to_algebra_data</span>
+        : functor_data (coslice_cat_total _ A) (algebra_cat (extensions_theory A))
+        := make_functor_data (C := coslice_cat_total _ A)
+          (<span class="k">λ</span> <span class="nv">F</span>, coslice_to_algebra_ob (pr2 F))
+          (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">G</span>, coslice_to_algebra_mor (pr2 G)).
+
+      <span class="kn">Lemma</span> <span class="nf">coslice_to_algebra_is_functor</span>
+        : is_functor coslice_to_algebra_data.
+      <span class="kn">Proof</span>.
+        <span class="nb">split</span>.
+        - <span class="nb">intro</span> F.
+          <span class="bp">now</span> <span class="nb">apply</span> algebra_morphism_eq.
+        - <span class="nb">intros</span> F F' F'' G G'.
+          <span class="nb">apply</span> algebra_morphism_eq.
+          <span class="nb">refine</span> (_ @ !algebra_mor_comp _ _).
+          <span class="nb">refine</span> (pr1_transportf (B := <span class="k">λ</span> <span class="nv">_</span>, _ → _) _ _ @ _).
+          <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z _) (transportf_const _ _)).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">coslice_to_algebra</span>
+        : coslice_cat_total _ A ⟶ algebra_cat (extensions_theory A)
+        := make_functor
+          coslice_to_algebra_data
+          coslice_to_algebra_is_functor.
+
+    <span class="kn">End</span> <span class="nf">CosliceToAlgebra</span>.
+
+    <span class="kn">Definition</span> <span class="nf">coslice_to_algebra_to_coslice_iso</span>
+      {<span class="nv">B</span> : algebra T}
+      (<span class="nv">F</span> : algebra_morphism A B)
+      : z_iso (C := algebra_cat T) (algebra_pullback extensions_theory_embedding (coslice_to_algebra (B ,, F))) B.
+    <span class="kn">Proof</span>.
+      use make_algebra_z_iso.
+      - <span class="nb">apply</span> identity_z_iso.
+      - <span class="kp">abstract</span> (
+          <span class="nb">intros</span> n f a;
+          <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (algebra_mor_comp _ _) @ _);
+          <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, algebra_morphism_to_function x _) (BinCoproductIn2Commutes _ _ _ _ _ _ _))
+        ).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">coslice_to_algebra_to_coslice_commutes</span>
+      {<span class="nv">B</span> : algebra T}
+      (<span class="nv">F</span> : algebra_morphism A B)
+      : algebra_to_coslice_morphism (coslice_to_algebra (B ,, F)) · coslice_to_algebra_to_coslice_iso F = F.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> algebra_morphism_eq.
+      <span class="nb">refine</span> (algebra_mor_comp _ _ @ _).
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> i.
+      <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (algebra_mor_comp (BinCoproductIn1 _) (BinCoproductArrow _ _ _)) @ _).
+      <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, algebra_morphism_to_function x _) (BinCoproductIn1Commutes _ _ _ _ _ _ _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">algebra_to_coslice_to_algebra_is_morphism</span>
+      (<span class="nv">B</span> : algebra (extensions_theory A))
+      : is_algebra_morphism (A := (coslice_to_algebra (_ ,, algebra_to_coslice_morphism B) : algebra _)) (A' := B) (z_iso_mor (identity_z_iso (C := HSET) (B : hSet))).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> n f b.
+      <span class="nb">revert</span> f.
+      <span class="nb">apply</span> eqtohomot.
+      use (maponpaths algebra_morphism_to_function (_ : _ = make_algebra_morphism _ (_ : is_algebra_morphism (A' := (algebra_pullback _ B : algebra _)) _))).
+      {
+        <span class="nb">intros</span> n' f' a'.
+        <span class="nb">refine</span> (_ @ subst_action (T := (extensions_theory A)) B _ a' b).
+        <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, action x _)).
+        <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (algebra_mor_comp (BinCoproductIn2 _) (BinCoproductArrow _ _ _))).
+        <span class="nb">symmetry</span>.
+        <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, algebra_morphism_to_function x _) (BinCoproductIn2Commutes _ _ _ _ _ _ _)).
+      }
+      <span class="nb">symmetry</span>.
+      <span class="nb">apply</span> BinCoproductArrowUnique.
+      - <span class="nb">apply</span> algebra_morphism_eq.
+        <span class="nb">refine</span> (algebra_mor_comp _ _ @ _).
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> a.
+        <span class="nb">refine</span> (_ @ subst_action B ((BinCoproductIn1 _ : algebra_morphism _ _) a) (iscontrpr1 (iscontr_empty_tuple _)) b @ _).
+        + <span class="nb">refine</span> (!_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, action (A := B) (x a) b) (algebra_mor_comp _ _)).
+          <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, action (A := B) (algebra_morphism_to_function x a) b)).
+          <span class="nb">apply</span> BinCoproductIn1Commutes.
+        + <span class="nb">apply</span> (maponpaths (action _)).
+          <span class="nb">apply</span> iscontr_uniqueness.
+      - <span class="nb">apply</span> algebra_morphism_eq.
+        <span class="bp">exact</span> (algebra_mor_comp _ _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">algebra_to_coslice_to_algebra</span>
+      (<span class="nv">B</span> : algebra (extensions_theory A))
+      : z_iso (coslice_to_algebra (_ ,, algebra_to_coslice_morphism B)) B
+      := make_algebra_z_iso _ _ _ _ (algebra_to_coslice_to_algebra_is_morphism B).
+
+    <span class="kn">Definition</span> <span class="nf">algebra_to_coslice_surjective</span>
+      : split_essentially_surjective algebra_to_coslice.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> F.
+      <span class="k">exists</span> (<span class="nv">coslice_to_algebra</span> <span class="nv">F</span>).
+      <span class="nb">apply</span> weq_z_iso.
+      <span class="bp">exact</span> (_ ,, coslice_to_algebra_to_coslice_commutes _).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">algebra_to_coslice_fully_faithful</span>
+      : fully_faithful algebra_to_coslice.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> B B'.
+      use isweq_iso.
+      - <span class="nb">intro</span> F.
+        <span class="nb">refine</span> (
+          inv_from_z_iso (algebra_to_coslice_to_algebra _) ·
+          _ ·
+          algebra_to_coslice_to_algebra _
+        ).
+        <span class="nb">apply</span> (# coslice_to_algebra F).
+      - <span class="kp">abstract</span> (
+          <span class="nb">intro</span>;
+          <span class="nb">apply</span> algebra_morphism_eq;
+          <span class="nb">refine</span> (algebra_mor_comp _ _ @ _);
+          <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ x _) (algebra_mor_comp _ _))
+        ).
+      - <span class="kp">abstract</span> (
+          <span class="nb">intro</span>;
+          <span class="nb">apply</span> subtypePath;
+          [ <span class="nb">intro</span>;
+            <span class="nb">apply</span> homset_property
+          | <span class="nb">apply</span> algebra_morphism_eq;
+            <span class="nb">refine</span> (algebra_mor_comp (T := (extensions_theory A)) _ _ @ _);
+            <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ x _) (algebra_mor_comp (T := (extensions_theory A)) _ _)) ]
+        ).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">algebra_to_coslice_is_equivalence</span>
+      : adj_equivalence_of_cats algebra_to_coslice
+      := rad_equivalence_of_cats' _ _ _
+        algebra_to_coslice_fully_faithful
+        algebra_to_coslice_surjective.
+
+    <span class="kn">Definition</span> <span class="nf">algebra_coslice_equivalence</span>
+      : adj_equiv (algebra_cat (extensions_theory A)) (coslice_cat_total _ A)
+      := algebra_to_coslice ,, algebra_to_coslice_is_equivalence.
+
+  <span class="kn">End</span> <span class="nf">Algebras</span>.
+
+<span class="kn">End</span> <span class="nf">TheoryOfExtensions</span>.
+
+<span class="sd">(** * 3. Every morphism F: T -&gt; T' factors through T_(F^*(T'_0)) *)</span>
+
+<span class="kn">Section</span> <span class="nf">Factorization</span>.
+
+  <span class="kn">Context</span> {<span class="nv">T</span> <span class="nv">T'</span> : algebraic_theory}.
+  <span class="kn">Context</span> (<span class="nv">H</span> : BinCoproducts (algebra_cat T)).
+  <span class="kn">Context</span> (<span class="nv">F</span> : algebraic_theory_morphism T T').
+  <span class="kn">Let</span> <span class="nf">A</span> := algebra_pullback F (theory_algebra T' <span class="mi">0</span>).
+
+  <span class="kn">Definition</span> <span class="nf">factorization_first_factor</span>
+    : algebraic_theory_morphism T (extensions_theory T H A)
+    := extensions_theory_embedding _ _ _.
+
+  <span class="kn">Definition</span> <span class="nf">factorization_second_factor_data</span>
+    : algebraic_theory_morphism_data (extensions_theory T H A : algebraic_theory) T'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> n.
+    <span class="nb">refine</span> (algebra_morphism_to_function (BinCoproductArrow _ (c := (algebra_pullback F (theory_algebra T' n))) _ _)).
+    - <span class="nb">apply</span> algebra_pullback_mor.
+      <span class="nb">apply</span> theory_algebra_free.
+      <span class="nb">apply</span> (iscontrpr1 (iscontr_empty_tuple _)).
+    - <span class="nb">apply</span> theory_algebra_free.
+      <span class="bp">exact</span> var.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">factorization_second_factor_is_morphism</span>
+    : is_algebraic_theory_morphism factorization_second_factor_data.
+  <span class="kn">Proof</span>.
+    use make_is_algebraic_theory_morphism.
+    - <span class="nb">intros</span> n i.
+      <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (algebra_mor_comp _ (BinCoproductArrow _ _ (theory_algebra_free T n (algebra_pullback F (theory_algebra T' n)) var))) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, algebra_morphism_to_function x _) (BinCoproductIn2Commutes _ _ _ _ _ _ _) @ _).
+      <span class="nb">refine</span> (subst_var _ _ @ _).
+      <span class="nb">apply</span> mor_var.
+    - <span class="nb">intros</span> m n f g.
+      <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (algebra_mor_comp _ (BinCoproductArrow _ _ (theory_algebra_free T n (algebra_pullback F (theory_algebra T' n)) var))) @ _).
+      <span class="nb">revert</span> f.
+      <span class="nb">apply</span> eqtohomot.
+      use (maponpaths algebra_morphism_to_function (_ : _ = make_algebra_morphism _ (_ : is_algebra_morphism _))).
+      {
+        <span class="nb">intros</span> n' f' a'.
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x • _) (mor_action (BinCoproductArrow _ _ (theory_algebra_free T m (algebra_pullback F (theory_algebra T' m)) var)) _ _) @ _).
+        <span class="nb">apply</span> (subst_subst T' (F n' f')).
+      }
+      <span class="nb">apply</span> BinCoproductArrowsEq.
+      + <span class="nb">refine</span> (assoc _ _ _ @ _).
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (BinCoproductIn1Commutes _ _ _ _ _ _ _) @ _).
+        <span class="nb">refine</span> (BinCoproductIn1Commutes _ _ _ _ _ _ _ @ _).
+        <span class="nb">apply</span> algebra_morphism_eq.
+        <span class="nb">refine</span> (_ @ !algebra_mor_comp _ _).
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> f.
+        <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _ • _) (algebra_mor_comp _ (BinCoproductArrow _ _ (theory_algebra_free T m (algebra_pullback F (theory_algebra T' m)) var)))).
+        <span class="nb">refine</span> (_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, algebra_morphism_to_function (A' := algebra_pullback F (theory_algebra T' m)) x _ • _) (BinCoproductIn1Commutes _ _ _ _ _ _ _)).
+        <span class="nb">refine</span> (_ @ !subst_subst T' f _ _).
+        <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, f • x)).
+        <span class="nb">symmetry</span>.
+        <span class="nb">apply</span> iscontr_uniqueness.
+      + <span class="nb">refine</span> (assoc _ _ _ @ _).
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (BinCoproductIn2Commutes _ _ _ _ _ _ _) @ _).
+        <span class="nb">apply</span> algebra_morphism_eq.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (algebra_mor_comp _ _ @ !_).
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> f.
+        <span class="nb">refine</span> (mor_action _ _ _ @ _).
+        <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _ • _) (algebra_mor_comp _ (BinCoproductArrow _ _ (theory_algebra_free T m (algebra_pullback F (theory_algebra T' m)) var)))).
+        <span class="nb">refine</span> (_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, algebra_morphism_to_function (A' := algebra_pullback F (theory_algebra T' m)) x _ • _) (BinCoproductIn2Commutes _ _ _ _ _ _ _)).
+        <span class="bp">exact</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x • _) (subst_var _ _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">factorization_second_factor</span>
+    : algebraic_theory_morphism (extensions_theory T H A) T'
+    := make_algebraic_theory_morphism _ factorization_second_factor_is_morphism.
+
+  <span class="kn">Lemma</span> <span class="nf">factorization</span>
+    : factorization_first_factor · factorization_second_factor = F.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> algebraic_theory_morphism_eq.
+    <span class="nb">intros</span> n f.
+    <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (algebra_mor_comp _ (BinCoproductArrow _ _ (theory_algebra_free T n (algebra_pullback F (theory_algebra T' n)) var))) @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, algebra_morphism_to_function x _) (BinCoproductIn2Commutes _ _ _ _ _ _ _) @ _).
+    <span class="nb">apply</span> subst_var.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Factorization</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/Examples/ExtensionsTheory.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   3. Every morphism F: T -&gt; T' factors through T_(F^*(T'_0)) [factorization]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

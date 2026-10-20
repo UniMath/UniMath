@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LaxExtension.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> Lax extensions of endofunctors on sets</span>
+
+<span class="sd"> Suppose that we have an endofunctor `F` on sets. Our goal is to define a suitable notion of</span>
+<span class="sd"> bisimilarity for coalgebras for `F`. To do so, we need a suitable action of `F` on relations.</span>
+<span class="sd"> There are various notions that describe that, and in this file, we look at lax extensions.</span>
+<span class="sd"> In essence, a lax extension of `F` extends `F` to a lax double functor on the double category</span>
+<span class="sd"> of enriched relations, and in another file, we prove that these notions are actually</span>
+<span class="sd"> equivalent. In this file, we set up the basic notions and properties that are needed for</span>
+<span class="sd"> the theory of lax extensions.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "Monoidal Topology: A Categorical Approach to Order, Metric and Topology", editors Dirk</span>
+<span class="sd">   Hofmann, Gavin Seal, Walter Tholen.</span>
+<span class="sd"> - "Relation lifting, a survey" by Kurz and Velebil</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Definition of lax extensions</span>
+<span class="sd"> 2. Builder and equality</span>
+<span class="sd"> 3. Functors with a lax extension</span>
+<span class="sd"> 4. Properties of lax extensions</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.BenabouCosmos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="sd">(** * 1. Definition of lax extensions *)</span>
+<span class="kn">Definition</span> <span class="nf">lax_extension_data</span>
+           (<span class="nv">V</span> : quantale_cosmos)
+           (<span class="nv">F</span> : SET ⟶ SET)
+  : UU
+  := ∏ (X Y : hSet),
+     enriched_relation V X Y
+     →
+     enriched_relation V (F X) (F Y).
+
+<span class="kn">Definition</span> <span class="nf">lax_extension_laws</span>
+           {<span class="nv">V</span> : quantale_cosmos}
+           {<span class="nv">F</span> : SET ⟶ SET}
+           (<span class="nv">L</span> : lax_extension_data V F)
+  : UU
+  := (∏ (X Y : hSet)
+        (R S : enriched_relation V X Y),
+      R ≤e S → L _ _ R ≤e L _ _ S)
+     ×
+     (∏ (X Y Z : hSet)
+        (R : enriched_relation V X Y)
+        (S : enriched_relation V Y Z),
+      L _ _ R ·e L _ _ S ≤e L _ _ (R ·e S))
+     ×
+     (∏ (X Y : hSet)
+        (f : X → Y),
+      (#F f)^* ≤e L _ _ (f^*))
+     ×
+     (∏ (X Y : hSet)
+        (f : X → Y),
+      (#F f)^o ≤e L _ _ (f^o)).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_lax_extension_laws</span>
+            {<span class="nv">V</span> : quantale_cosmos}
+            {<span class="nv">F</span> : SET ⟶ SET}
+            (<span class="nv">L</span> : lax_extension_data V F)
+  : isaprop (lax_extension_laws L).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (use isapropdirprod) ;
+  <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>) ;
+  <span class="nb">apply</span> is_poset_category_quantale_cosmos.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lax_extension</span>
+           (<span class="nv">V</span> : quantale_cosmos)
+           (<span class="nv">F</span> : SET ⟶ SET)
+  : UU
+  := ∑ (L : lax_extension_data V F), lax_extension_laws L.
+
+<span class="kn">Definition</span> <span class="nf">lax_extension_rel</span>
+           {<span class="nv">V</span> : quantale_cosmos}
+           {<span class="nv">F</span> : SET ⟶ SET}
+           (<span class="nv">L</span> : lax_extension V F)
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           (<span class="nv">R</span> : enriched_relation V X Y)
+  : enriched_relation V (F X) (F Y)
+  := pr1 L X Y R.
+
+<span class="kn">Coercion</span> <span class="nf">lax_extension_rel</span> : lax_extension &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lax_extension_enriched_rel_le</span>
+            {<span class="nv">V</span> : quantale_cosmos}
+            {<span class="nv">F</span> : SET ⟶ SET}
+            (<span class="nv">L</span> : lax_extension V F)
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            {<span class="nv">R</span> <span class="nv">S</span> : enriched_relation V X Y}
+            (<span class="nv">p</span> : R ≤e S)
+  : L _ _ R ≤e L _ _ S.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr12 L X Y R S p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lax_extension_enriched_rel_comp</span>
+            {<span class="nv">V</span> : quantale_cosmos}
+            {<span class="nv">F</span> : SET ⟶ SET}
+            (<span class="nv">L</span> : lax_extension V F)
+            {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet}
+            (<span class="nv">R</span> : enriched_relation V X Y)
+            (<span class="nv">S</span> : enriched_relation V Y Z)
+  : L _ _ R ·e L _ _ S ≤e L _ _ (R ·e S).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr122 L X Y Z R S).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lax_extension_enriched_rel_companion</span>
+            {<span class="nv">V</span> : quantale_cosmos}
+            {<span class="nv">F</span> : SET ⟶ SET}
+            (<span class="nv">L</span> : lax_extension V F)
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            (<span class="nv">f</span> : X → Y)
+  : (#F f)^* ≤e L _ _ (f^*).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (pr222 L) X Y f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lax_extension_enriched_rel_conjoint</span>
+            {<span class="nv">V</span> : quantale_cosmos}
+            {<span class="nv">F</span> : SET ⟶ SET}
+            (<span class="nv">L</span> : lax_extension V F)
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            (<span class="nv">f</span> : X → Y)
+  : (#F f)^o ≤e L _ _ (f^o).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 (pr222 L) X Y f).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Builder and equality *)</span>
+<span class="kn">Definition</span> <span class="nf">make_lax_extension</span>
+           (<span class="nv">V</span> : quantale_cosmos)
+           (<span class="nv">F</span> : SET ⟶ SET)
+           (<span class="nv">L</span> : lax_extension_data V F)
+           (<span class="nv">HL</span> : lax_extension_laws L)
+  : lax_extension V F
+  := L ,, HL.
+
+<span class="kn">Proposition</span> <span class="nf">eq_lax_extension</span>
+            {<span class="nv">V</span> : quantale_cosmos}
+            {<span class="nv">F</span> : SET ⟶ SET}
+            {<span class="nv">L</span> <span class="nv">L'</span> : lax_extension V F}
+            (<span class="nv">p</span> : ∏ (X Y : hSet)
+                   (R : enriched_relation V X Y),
+                 L X Y R = L' X Y R)
+  : L = L'.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_lax_extension_laws.
+  }
+  use funextsec ; <span class="nb">intro</span> X.
+  use funextsec ; <span class="nb">intro</span> Y.
+  use funextsec ; <span class="nb">intro</span> R.
+  <span class="bp">exact</span> (p X Y R).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Functors with a lax extension *)</span>
+<span class="kn">Definition</span> <span class="nf">functor_with_lax_extension</span>
+           (<span class="nv">V</span> : quantale_cosmos)
+  : UU
+  := ∑ (F : SET ⟶ SET), lax_extension V F.
+
+<span class="kn">Coercion</span> <span class="nf">functor_with_lax_extension_to_functor</span>
+         {V : quantale_cosmos}
+         (F : functor_with_lax_extension V)
+  : SET ⟶ SET.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 F).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lax_extension_of_functor</span>
+           {<span class="nv">V</span> : quantale_cosmos}
+           (<span class="nv">F</span> : functor_with_lax_extension V)
+  : lax_extension V F.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 F).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. Properties of lax extensions *)</span>
+<span class="kn">Proposition</span> <span class="nf">lax_extension_companion_left</span>
+            {<span class="nv">V</span> : quantale_cosmos}
+            {<span class="nv">F</span> : SET ⟶ SET}
+            (<span class="nv">L</span> : lax_extension V F)
+            {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet}
+            (<span class="nv">f</span> : X → Y)
+            (<span class="nv">R</span> : enriched_relation V Y Z)
+  : L _ _ (f^* ·e R)
+    =
+    (#F f)^* ·e L _ _ R.
+<span class="kn">Proof</span>.
+  use eq_enriched_relation_le.
+  - <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+    {
+      use enriched_relation_square_to_le.
+      <span class="nb">apply</span> enriched_relation_linvunitor.
+    }
+    <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+    {
+      <span class="nb">refine</span> (enriched_relation_le_comp _ (enriched_relation_le_refl _)).
+      <span class="bp">exact</span> (comp_companion_conjoint_enriched_relation (#F f)).
+    }
+    <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+    {
+      use enriched_relation_square_to_le.
+      <span class="nb">apply</span> enriched_relation_lassociator.
+    }
+    <span class="nb">refine</span> (enriched_relation_le_comp (enriched_relation_le_refl _) _).
+    <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+    {
+      <span class="nb">refine</span> (enriched_relation_le_comp _ (enriched_relation_le_refl _)).
+      <span class="nb">apply</span> (lax_extension_enriched_rel_conjoint L).
+    }
+    <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+    {
+      <span class="nb">apply</span> lax_extension_enriched_rel_comp.
+    }
+    use lax_extension_enriched_rel_le.
+    <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+    {
+      use enriched_relation_square_to_le.
+      <span class="nb">apply</span> enriched_relation_rassociator.
+    }
+    <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+    {
+      <span class="nb">refine</span> (enriched_relation_le_comp _ (enriched_relation_le_refl _)).
+      <span class="nb">apply</span> comp_conjoint_companion_enriched_relation.
+    }
+    use enriched_relation_square_to_le.
+    <span class="nb">apply</span> enriched_relation_lunitor.
+  - <span class="nb">intros</span> x z.
+    <span class="nb">refine</span> (_ · lax_extension_enriched_rel_comp _ _ _ _ _).
+    use enriched_relation_le_comp.
+    + <span class="nb">apply</span> lax_extension_enriched_rel_companion.
+    + <span class="nb">apply</span> enriched_relation_le_refl.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lax_extension_conjoint_right</span>
+            {<span class="nv">V</span> : quantale_cosmos}
+            {<span class="nv">F</span> : SET ⟶ SET}
+            (<span class="nv">L</span> : lax_extension V F)
+            {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet}
+            (<span class="nv">f</span> : Z → Y)
+            (<span class="nv">R</span> : enriched_relation V X Y)
+  : L _ _ (R ·e f^o)
+    =
+    L _ _ R ·e (#F f)^o.
+<span class="kn">Proof</span>.
+  use eq_enriched_relation_le.
+  - <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+    {
+      use enriched_relation_square_to_le.
+      <span class="nb">apply</span> enriched_relation_rinvunitor.
+    }
+    <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+    {
+      <span class="nb">refine</span> (enriched_relation_le_comp (enriched_relation_le_refl _) _).
+      <span class="bp">exact</span> (comp_companion_conjoint_enriched_relation (#F f)).
+    }
+    <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+    {
+      use enriched_relation_square_to_le.
+      <span class="nb">apply</span> enriched_relation_rassociator.
+    }
+    <span class="nb">refine</span> (enriched_relation_le_comp _ (enriched_relation_le_refl _)).
+    <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+    {
+      <span class="nb">refine</span> (enriched_relation_le_comp (enriched_relation_le_refl _) _).
+      <span class="nb">apply</span> (lax_extension_enriched_rel_companion L).
+    }
+    <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+    {
+      <span class="nb">apply</span> lax_extension_enriched_rel_comp.
+    }
+    use lax_extension_enriched_rel_le.
+    <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+    {
+      use enriched_relation_square_to_le.
+      <span class="nb">apply</span> enriched_relation_lassociator.
+    }
+    <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+    {
+      <span class="nb">refine</span> (enriched_relation_le_comp (enriched_relation_le_refl _) _).
+      <span class="nb">apply</span> comp_conjoint_companion_enriched_relation.
+    }
+    use enriched_relation_square_to_le.
+    <span class="nb">apply</span> enriched_relation_runitor.
+  - <span class="nb">intros</span> x z.
+    <span class="nb">refine</span> (_ · lax_extension_enriched_rel_comp _ _ _ _ _).
+    use enriched_relation_le_comp.
+    + <span class="nb">apply</span> enriched_relation_le_refl.
+    + <span class="nb">apply</span> lax_extension_enriched_rel_conjoint.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lax_extension_companion_conjoint</span>
+            {<span class="nv">V</span> : quantale_cosmos}
+            {<span class="nv">F</span> : SET ⟶ SET}
+            (<span class="nv">L</span> : lax_extension V F)
+            {<span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet}
+            (<span class="nv">f</span> : W → X)
+            (<span class="nv">g</span> : Z → Y)
+            (<span class="nv">R</span> : enriched_relation V X Y)
+  : L _ _ (f^* ·e R ·e g^o)
+    =
+    (#F f)^* ·e L _ _ R ·e (#F g)^o.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- lax_extension_companion_left.
+  <span class="nb">rewrite</span> lax_extension_conjoint_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lax_extension_id_enriched_relation</span>
+            {<span class="nv">V</span> : quantale_cosmos}
+            {<span class="nv">F</span> : SET ⟶ SET}
+            (<span class="nv">L</span> : lax_extension V F)
+            (<span class="nv">X</span> : hSet)
+  : id_enriched_relation (F X) ≤e L _ _ (id_enriched_relation X).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- !companion_enriched_relation_id.
+  <span class="nb">refine</span> (enriched_relation_le_trans _ (lax_extension_enriched_rel_companion L (idfun X))).
+  use enriched_relation_companion_le.
+  <span class="nb">refine</span> (!_).
+  <span class="bp">exact</span> (functor_id F X).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lax_extension_enriched_relation_square</span>
+            {<span class="nv">V</span> : quantale_cosmos}
+            {<span class="nv">F</span> : SET ⟶ SET}
+            (<span class="nv">L</span> : lax_extension V F)
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> : hSet}
+            {<span class="nv">R</span> : enriched_relation V X₁ Y₁}
+            {<span class="nv">S</span> : enriched_relation V X₂ Y₂}
+            {<span class="nv">f</span> : X₁ → X₂}
+            {<span class="nv">g</span> : Y₁ → Y₂}
+            (<span class="nv">p</span> : enriched_relation_square f g R S)
+  : enriched_relation_square (# F f) (# F g) (L X₁ Y₁ R) (L X₂ Y₂ S).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> enriched_relation_square <span class="k">in</span> *.
+  <span class="nb">rewrite</span> &lt;- enriched_relation_comp_conj.
+  <span class="nb">rewrite</span> &lt;- lax_extension_conjoint_right.
+  <span class="nb">rewrite</span> &lt;- lax_extension_companion_left.
+  <span class="nb">apply</span> lax_extension_enriched_rel_le.
+  <span class="nb">rewrite</span> enriched_relation_comp_conj.
+  <span class="nb">apply</span> p.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/LaxExtension.v</tt>, line 25)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Properties of lax extensions
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Categories.HSET.All.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

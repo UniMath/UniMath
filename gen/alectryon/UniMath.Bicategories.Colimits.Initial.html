@@ -1,0 +1,591 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Initial.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ******************************************************************************* *)</span>
+<span class="sd">(** * Biinitial object in a bicategory</span>
+<span class="sd">    Niccolò Veltri, Niels van der Weide</span>
+<span class="sd">    April 2019</span>
+<span class="sd">    Marco Maggesi,</span>
+<span class="sd">    July 2019</span>
+
+<span class="sd">   Contents:</span>
+<span class="sd">   1. Definition of biinitial objects</span>
+<span class="sd">   2. Representable definition of biinitial objects</span>
+<span class="sd">   3. Equivalence between the two definitions</span>
+<span class="sd">   4. Bicategories with biinitial objects</span>
+<span class="sd">   5. Biinitial objects are unique</span>
+<span class="sd">   6. Biinitial objects are closed under equivalence</span>
+<span class="sd">   7. Strict biinitial objects</span>
+<span class="sd"> ********************************************************************************* *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> bicategory_scope.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Initial</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}.
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Definition of biinitial objects</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">biinitial_1cell_property</span> (<span class="nv">X</span> : B) : UU
+    := ∏ (Y : B), X --&gt; Y.
+
+  <span class="kn">Definition</span> <span class="nf">biinitial_2cell_property</span>
+             (<span class="nv">X</span> <span class="nv">Y</span> : B)
+    : UU
+    := ∏ (f g : X --&gt; Y), f ==&gt; g.
+
+  <span class="kn">Definition</span> <span class="nf">biinitial_eq_property</span> (<span class="nv">X</span> <span class="nv">Y</span> : B) : UU
+    := ∏ (f g : X --&gt; Y) (α β : f ==&gt; g), α = β.
+
+  <span class="kn">Definition</span> <span class="nf">is_biinitial</span>
+             (<span class="nv">X</span> : B)
+    := biinitial_1cell_property X
+       ×
+       ∏ (Y : B), biinitial_2cell_property X Y
+                  ×
+                  biinitial_eq_property X Y.
+
+  <span class="kn">Definition</span> <span class="nf">is_biinitial_1cell_property</span>
+             {<span class="nv">X</span> : B}
+             (<span class="nv">HX</span> : is_biinitial X)
+    : biinitial_1cell_property X
+    := pr1 HX.
+
+  <span class="kn">Definition</span> <span class="nf">is_biinitial_2cell_property</span>
+             {<span class="nv">X</span> : B}
+             (<span class="nv">HX</span> : is_biinitial X)
+             (<span class="nv">Y</span> : B)
+    : biinitial_2cell_property X Y
+    := pr1 (pr2 HX Y).
+
+  <span class="kn">Definition</span> <span class="nf">is_biinitial_eq_property</span>
+             {<span class="nv">X</span> : B}
+             (<span class="nv">HX</span> : is_biinitial X)
+             (<span class="nv">Y</span> : B)
+    : biinitial_eq_property X Y
+    := pr2 (pr2 HX Y).
+
+  <span class="kn">Definition</span> <span class="nf">is_biinitial_invertible_2cell_property</span>
+             {<span class="nv">X</span> : B}
+             (<span class="nv">HX</span> : is_biinitial X)
+             {<span class="nv">Y</span> : B}
+             (<span class="nv">f</span> <span class="nv">g</span> : X --&gt; Y)
+    : invertible_2cell f g.
+  <span class="kn">Proof</span>.
+    use make_invertible_2cell.
+    - <span class="nb">apply</span> (is_biinitial_2cell_property HX Y).
+    - use make_is_invertible_2cell.
+      + <span class="nb">apply</span> (is_biinitial_2cell_property HX Y).
+      + <span class="nb">apply</span> (is_biinitial_eq_property HX Y).
+      + <span class="nb">apply</span> (is_biinitial_eq_property HX Y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_is_biinitial</span>
+             (<span class="nv">X</span> : B)
+             (<span class="nv">H1</span> : biinitial_1cell_property X)
+             (<span class="nv">H2</span> : ∏ (Y : B), biinitial_2cell_property X Y)
+             (<span class="nv">H3</span> : ∏ (Y : B), biinitial_eq_property X Y)
+    : is_biinitial X.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (H1,, _).
+    <span class="nb">intro</span> Y.
+    <span class="bp">exact</span> (H2 Y,, H3 Y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_biinitial_2cell_property</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : B}
+             (<span class="nv">H</span> : biinitial_eq_property X Y)
+    : isaprop (biinitial_2cell_property X Y).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> impred ; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> impred ; <span class="nb">intro</span> g.
+    use invproofirrelevance.
+    <span class="nb">intros</span> α β.
+    <span class="nb">apply</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_biinitial_eq_property</span>
+             (<span class="nv">X</span> <span class="nv">Y</span> : B)
+    : isaprop (biinitial_eq_property X Y).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_is_biinitial</span>
+             (<span class="nv">H</span> : is_univalent_2_1 B)
+             (<span class="nv">X</span> : B)
+    : isaprop (is_biinitial X).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> invproofirrelevance.
+    <span class="nb">intros</span> x y.
+    <span class="nb">induction</span> x <span class="k">as</span> [f Hf].
+    <span class="nb">induction</span> y <span class="k">as</span> [g Hg].
+    use subtypePath.
+    - <span class="nb">intro</span> ; <span class="nb">simpl</span>.
+      <span class="nb">apply</span> impred ; <span class="nb">intro</span> Y.
+      <span class="nb">apply</span> isapropdirprod.
+      + <span class="nb">apply</span> isaprop_biinitial_2cell_property.
+        <span class="nb">apply</span> Hf.
+      + <span class="nb">apply</span> isaprop_biinitial_eq_property.
+    - <span class="nb">simpl</span>.
+    <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> Y.
+    <span class="nb">apply</span> (isotoid_2_1 H).
+    <span class="nb">apply</span> (is_biinitial_invertible_2cell_property (f ,, Hf)).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 2. Representable definition of biinitial objects *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_biinitial_repr</span> (<span class="nv">X</span> : B) : UU
+    := ∏ (Y : B),
+       adj_equivalence_of_cats (functor_to_unit (hom X Y)).
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_is_biinitial_repr</span>
+             (<span class="nv">H</span> : is_univalent_2_1 B)
+             (<span class="nv">X</span> : B)
+    : isaprop (is_biinitial_repr X).
+  <span class="kn">Proof</span>.
+    use impred.
+    <span class="nb">intros</span> Y.
+    use (isofhlevelweqf
+             _
+             (adj_equiv_is_equiv_cat (functor_to_unit (univ_hom H X Y)))).
+    <span class="nb">apply</span> isaprop_left_adjoint_equivalence.
+    <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Equivalence between the two definitions</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">biinitial_repr_1cell</span>
+             {<span class="nv">X</span> : B}
+             (<span class="nv">HX</span> : is_biinitial_repr X)
+    : biinitial_1cell_property X
+    := <span class="k">λ</span> <span class="nv">Y</span>, right_adjoint (HX Y) tt.
+
+  <span class="kn">Definition</span> <span class="nf">biinitial_repr_2cell</span>
+             {<span class="nv">X</span> : B}
+             (<span class="nv">HX</span> : is_biinitial_repr X)
+             {<span class="nv">Y</span> : B}
+    : biinitial_2cell_property X Y.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> f g.
+    <span class="nb">pose</span> (L := functor_to_unit (hom Y X)).
+    <span class="nb">pose</span> (R := right_adjoint (HX Y)).
+    <span class="nb">pose</span> (η := unit_nat_z_iso_from_adj_equivalence_of_cats (HX Y)).
+    <span class="nb">pose</span> (θ₁ := z_iso_to_inv2cell (nat_z_iso_pointwise_z_iso η f)).
+    <span class="nb">pose</span> (θ₂ := z_iso_to_inv2cell (nat_z_iso_pointwise_z_iso η g)).
+    <span class="bp">exact</span> (comp_of_invertible_2cell θ₁ (inv_of_invertible_2cell θ₂)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">biinitial_repr_eq</span>
+             {<span class="nv">X</span> : B}
+             (<span class="nv">HX</span> : is_biinitial_repr X)
+             {<span class="nv">Y</span> : B}
+    : biinitial_eq_property X Y.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> f g α β.
+    <span class="nb">pose</span> (L := functor_to_unit (hom Y X)).
+    <span class="nb">pose</span> (R := right_adjoint (HX Y)).
+    <span class="nb">pose</span> (η := unit_nat_z_iso_from_adj_equivalence_of_cats (HX Y)).
+    <span class="nb">pose</span> (θ₁ := z_iso_to_inv2cell (nat_z_iso_pointwise_z_iso η f)).
+    <span class="nb">pose</span> (θ₂ := z_iso_to_inv2cell (nat_z_iso_pointwise_z_iso η g)).
+    use (invmaponpathsincl
+           _
+           (isinclweq
+              _ _ _
+              (fully_faithful_from_equivalence _ _ _ (HX Y) _ _))).
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_biinitial_repr_to_is_biinitial</span>
+             {<span class="nv">X</span> : B}
+             (<span class="nv">HX</span> : is_biinitial_repr X)
+    : is_biinitial X.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="bp">exact</span> (biinitial_repr_1cell HX).
+    - <span class="bp">exact</span> (biinitial_repr_2cell HX).
+    - <span class="bp">exact</span> (biinitial_repr_eq HX).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">biinitial_inv_data</span>
+             {<span class="nv">X</span> : B}
+             (<span class="nv">HX</span> : is_biinitial X)
+             (<span class="nv">Y</span> : B)
+    : functor_data unit_category (hom X Y).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, is_biinitial_1cell_property HX Y).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, id₂ _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">biinitial_inv_is_functor</span>
+             {<span class="nv">X</span> : B}
+             (<span class="nv">HX</span> : is_biinitial X)
+             (<span class="nv">Y</span> : B)
+    : is_functor (biinitial_inv_data HX Y).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">biinitial_inv</span>
+             {<span class="nv">X</span> : B}
+             (<span class="nv">HX</span> : is_biinitial X)
+             (<span class="nv">Y</span> : B)
+    : unit_category ⟶ hom X Y.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> (biinitial_inv_data HX Y).
+    - <span class="bp">exact</span> (biinitial_inv_is_functor HX Y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">biinitial_inv_unit_data</span>
+             {<span class="nv">X</span> : B}
+             (<span class="nv">HX</span> : is_biinitial X)
+             (<span class="nv">Y</span> : B)
+    : nat_trans_data
+        (functor_identity (hom X Y))
+        (functor_composite
+           (functor_to_unit (hom X Y))
+           (biinitial_inv HX Y))
+    := <span class="k">λ</span> <span class="nv">f</span>, is_biinitial_2cell_property HX Y f (is_biinitial_1cell_property HX Y).
+
+  <span class="kn">Definition</span> <span class="nf">biinitial_inv_unit_is_nat_trans</span>
+             {<span class="nv">X</span> : B}
+             (<span class="nv">HX</span> : is_biinitial X)
+             (<span class="nv">Y</span> : B)
+    : is_nat_trans _ _ (biinitial_inv_unit_data HX Y).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> f g α.
+    <span class="nb">simpl</span> <span class="k">in</span> * ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id2_right.
+    <span class="nb">apply</span> (is_biinitial_eq_property HX Y).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">biinitial_inv_unit</span>
+             {<span class="nv">X</span> : B}
+             (<span class="nv">HX</span> : is_biinitial X)
+             (<span class="nv">Y</span> : B)
+    : (functor_identity (hom X Y))
+        ⟹
+        functor_composite
+        (functor_to_unit (hom X Y))
+        (biinitial_inv HX Y).
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (biinitial_inv_unit_data HX Y).
+    - <span class="bp">exact</span> (biinitial_inv_unit_is_nat_trans HX Y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">biinitial_inv_counit_data</span>
+             {<span class="nv">X</span> : B}
+             (<span class="nv">HX</span> : is_biinitial X)
+             (<span class="nv">Y</span> : B)
+    : nat_trans_data
+        (functor_composite
+           (biinitial_inv HX Y)
+           (functor_to_unit (hom X Y)))
+        (functor_identity _).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> f.
+    <span class="nb">apply</span> isapropunit.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">biinitial_inv_counit_is_nat_trans</span>
+             {<span class="nv">X</span> : B}
+             (<span class="nv">HX</span> : is_biinitial X)
+             (<span class="nv">Y</span> : B)
+    : is_nat_trans _ _ (biinitial_inv_counit_data HX Y).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> f g α.
+    <span class="nb">apply</span> isasetunit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">biinitial_inv_counit</span>
+             {<span class="nv">X</span> : B}
+             (<span class="nv">HX</span> : is_biinitial X)
+             (<span class="nv">Y</span> : B)
+    : (functor_composite
+         (biinitial_inv HX Y)
+         (functor_to_unit (hom X Y)))
+        ⟹
+        (functor_identity _).
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (biinitial_inv_counit_data HX Y).
+    - <span class="bp">exact</span> (biinitial_inv_counit_is_nat_trans HX Y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_biinitial_to_is_biinitial_repr_help</span>
+             {<span class="nv">X</span> : B}
+             (<span class="nv">HX</span> : is_biinitial X)
+             (<span class="nv">Y</span> : B)
+    : equivalence_of_cats (hom X Y) unit_category.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> ((_ ,, (_ ,, (_ ,, _))) ,, (_ ,, _)).
+    - <span class="bp">exact</span> (functor_to_unit _).
+    - <span class="bp">exact</span> (biinitial_inv HX Y).
+    - <span class="bp">exact</span> (biinitial_inv_unit HX Y).
+    - <span class="bp">exact</span> (biinitial_inv_counit HX Y).
+    - <span class="nb">intros</span> f.
+      <span class="nb">cbn</span> ; <span class="nb">unfold</span> biinitial_inv_unit_data.
+      <span class="nb">apply</span> is_inv2cell_to_is_z_iso.
+      <span class="nb">apply</span> is_biinitial_invertible_2cell_property.
+    - <span class="nb">intro</span> g.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> path_univalent_groupoid.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_biinitial_to_is_biinitial_repr</span>
+             {<span class="nv">X</span> : B}
+             (<span class="nv">HX</span> : is_biinitial X)
+    : is_biinitial_repr X.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Y.
+    <span class="bp">exact</span> (adjointification (is_biinitial_to_is_biinitial_repr_help HX Y)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_biinitial_weq_is_biinitial_repr</span>
+             (<span class="nv">H</span> : is_univalent_2_1 B)
+             (<span class="nv">X</span> : B)
+    : is_biinitial X ≃ is_biinitial_repr X.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="bp">exact</span> is_biinitial_to_is_biinitial_repr.
+    - <span class="bp">exact</span> is_biinitial_repr_to_is_biinitial.
+    - <span class="bp">exact</span> (isaprop_is_biinitial H X).
+    - <span class="bp">exact</span> (isaprop_is_biinitial_repr H X).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Initial</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Bicategories with biinitial objects</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">biinitial_obj</span> (<span class="nv">B</span> : bicat) : UU
+  := ∑ (X : B), is_biinitial X.
+
+<span class="kn">Definition</span> <span class="nf">has_biinitial</span> (<span class="nv">B</span> : bicat) : UU := ∥ biinitial_obj B ∥.
+
+<span class="kn">Definition</span> <span class="nf">bicat_with_biinitial</span>
+  : UU
+  := ∑ (B : bicat), biinitial_obj B.
+
+<span class="kn">Coercion</span> <span class="nf">bicat_with_biinitial_to_bicat</span>
+         (B : bicat_with_biinitial)
+  : bicat
+  := pr1 B.
+
+<span class="kn">Definition</span> <span class="nf">biinitial_of</span>
+           (<span class="nv">B</span> : bicat_with_biinitial)
+  : biinitial_obj B
+  := pr2 B.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Biinitial objects are unique</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">Uniqueness</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">HB</span> : is_univalent_2 B)
+          {<span class="nv">X</span> : B} (<span class="nv">HX</span> : is_biinitial X)
+          {<span class="nv">Y</span> : B} (<span class="nv">HY</span> : is_biinitial Y).
+
+  <span class="kn">Let</span> <span class="nf">HC0</span> : is_univalent_2_0 B := pr1 HB.
+  <span class="kn">Let</span> <span class="nf">HC1</span> : is_univalent_2_1 B := pr2 HB.
+
+  <span class="kn">Definition</span> <span class="nf">biinitial_unique_adj_unit</span>
+    : id₁ Y
+      ==&gt;
+      is_biinitial_1cell_property HY X · is_biinitial_1cell_property HX Y
+    := is_biinitial_2cell_property HY _ _ _.
+
+  <span class="kn">Definition</span> <span class="nf">biinitial_unique_adj_counit</span>
+    : is_biinitial_1cell_property HX Y · is_biinitial_1cell_property HY X
+      ==&gt;
+      id₁ X
+    := is_biinitial_2cell_property HX _ _ _.
+
+  <span class="kn">Definition</span> <span class="nf">biinitial_unique_adj_data</span>
+    : left_adjoint_data (is_biinitial_1cell_property HY X)
+    := is_biinitial_1cell_property HX Y
+       ,,
+       biinitial_unique_adj_unit
+       ,,
+       biinitial_unique_adj_counit.
+
+  <span class="kn">Lemma</span> <span class="nf">biinitial_unique_left_eqv</span>
+    : left_equivalence_axioms biinitial_unique_adj_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> is_biinitial_invertible_2cell_property.
+    - <span class="nb">apply</span> is_biinitial_invertible_2cell_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">biinitial_unique_adj_eqv</span>
+    : left_adjoint_equivalence (is_biinitial_1cell_property HY X).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> equiv_to_isadjequiv.
+    <span class="nb">unfold</span> left_equivalence.
+    <span class="bp">exact</span> (biinitial_unique_adj_data ,, biinitial_unique_left_eqv).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">biinitial_unique</span> : Y = X
+    := isotoid_2_0 HC0 (_ ,, biinitial_unique_adj_eqv).
+<span class="kn">End</span> <span class="nf">Uniqueness</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Biinitial objects are closed under equivalence</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">EquivToBiinitial</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">X</span> <span class="nv">Y</span> : B}
+          (<span class="nv">HX</span> : is_biinitial X)
+          {<span class="nv">l</span> : X --&gt; Y}
+          (<span class="nv">Hl</span> : left_adjoint_equivalence l).
+
+  <span class="kn">Let</span> <span class="nf">r</span> : Y --&gt; X
+    := left_adjoint_right_adjoint Hl.
+  <span class="kn">Let</span> <span class="nf">ε</span> : invertible_2cell (r · l) (id₁ Y)
+    := left_equivalence_counit_iso Hl.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_from_biinitial</span>
+    : is_biinitial Y.
+  <span class="kn">Proof</span>.
+    use make_is_biinitial.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Z</span>, r · is_biinitial_1cell_property HX Z).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Z</span> <span class="nv">f</span> <span class="nv">g</span>,
+             linvunitor _
+             • (ε^-<span class="mi">1</span> ▹ f)
+             • rassociator _ _ _
+             • (r ◃ is_biinitial_2cell_property HX _ (l · f) (l · g))
+             • lassociator _ _ _
+             • (ε ▹ g)
+             • lunitor _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> Z f g α β ;
+         use (vcomp_lcancel (lunitor _)) ; [ is_iso | ] ;
+         <span class="nb">rewrite</span> &lt;- !vcomp_lunitor ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         use (vcomp_lcancel (ε ▹ f)) ; [ is_iso ; <span class="nb">apply</span> property_from_invertible_2cell | ] ;
+         <span class="nb">rewrite</span> !vcomp_whisker ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         use (vcomp_lcancel (lassociator _ _ _)) ; [ is_iso | ] ;
+         <span class="nb">rewrite</span> &lt;- !lwhisker_lwhisker ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">apply</span> (is_biinitial_eq_property HX)).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">EquivToBiinitial</span>.
+
+<span class="kn">Definition</span> <span class="nf">equiv_to_biinitial</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : B}
+           (<span class="nv">HX</span> : is_biinitial X)
+           {<span class="nv">l</span> : Y --&gt; X}
+           (<span class="nv">Hl</span> : left_adjoint_equivalence l)
+  : is_biinitial Y
+  := equiv_from_biinitial HX (inv_adjequiv (l ,, Hl)).
+
+<span class="sd">(**</span>
+<span class="sd"> 7. Strict biinitial objects</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">biinitial_is_strict_biinitial_obj</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">X</span> : B}
+           (<span class="nv">HX</span> : is_biinitial X)
+  : UU
+  := ∏ (Y : B) (f : Y --&gt; X), left_adjoint_equivalence f.
+
+<span class="kn">Definition</span> <span class="nf">is_strict_biinitial_obj</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">X</span> : B)
+  : UU
+  := ∑ (HX : is_biinitial X), biinitial_is_strict_biinitial_obj HX.
+
+<span class="kn">Definition</span> <span class="nf">strict_biinitial_obj</span>
+           (<span class="nv">B</span> : bicat)
+  : UU
+  := ∑ (X : B), is_strict_biinitial_obj X.
+
+<span class="kn">Definition</span> <span class="nf">bicat_with_strict_biinitial</span>
+  : UU
+  := ∑ (B : bicat), strict_biinitial_obj B.
+
+<span class="kn">Coercion</span> <span class="nf">bicat_with_strict_biinitial_to_bicat</span>
+         (B : bicat_with_strict_biinitial)
+  : bicat
+  := pr1 B.
+
+<span class="kn">Definition</span> <span class="nf">strict_biinitial_of</span>
+           (<span class="nv">B</span> : bicat_with_strict_biinitial)
+  : strict_biinitial_obj B
+  := pr2 B.
+
+<span class="kn">Definition</span> <span class="nf">map_to_strict_biinitial_is_biinitial</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : B}
+           (<span class="nv">HX</span> : is_strict_biinitial_obj X)
+           (<span class="nv">f</span> : Y --&gt; X)
+  : is_biinitial Y
+  := equiv_to_biinitial (pr1 HX) (pr2 HX _ f).</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Colimits/Initial.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;    7. Strict biinitial objects
+  &gt;  ********************************************************************************* *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

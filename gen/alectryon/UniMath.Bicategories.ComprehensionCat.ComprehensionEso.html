@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ComprehensionEso.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> The comprehension functor of full DFL comprehension categories is essentially surjective</span>
+
+<span class="sd"> In this file, we prove that the comprehension functor of full DFL comprehension categories</span>
+<span class="sd"> is essentially surjective. This corresponds to Proposition 2.9 in the paper 'The biequivalence</span>
+<span class="sd"> of locally cartesian closed categories and Martin-Löf type theories' by Clairambault and</span>
+<span class="sd"> Dybjer. While the construction is essentially the same, there are quite some differences in</span>
+<span class="sd"> the notation. Here the notation and vocabulary is closer to category theory, whereas the</span>
+<span class="sd"> language in Clairambault and Dybjer is closer to syntax. This is due to the fact that</span>
+<span class="sd"> different formalisms are used.</span>
+
+<span class="sd"> We conclude this file by showing that a property holds for every substitution if it holds</span>
+<span class="sd"> for every display map.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - 'The biequivalence of locally cartesian closed categories and Martin-Löf type theories'</span>
+<span class="sd">   by Clairambault and Dybjer.</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Equivalences.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.EquivalenceOverId.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.FullyFaithfulDispFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCatNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="kn">Section</span> <span class="nf">ComprehensionEso</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : dfl_full_comp_cat).
+
+  <span class="kn">Section</span> <span class="nf">Eso</span>.
+    <span class="kn">Context</span> {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            (<span class="nv">δ</span> : Δ --&gt; Γ).
+
+    <span class="kn">Let</span> <span class="nf">Δδ</span> : disp_codomain C Γ := (Δ ,, δ).
+
+    <span class="sd">(**</span>
+<span class="sd">       We first use democracy to obtain types representing the involved contexts</span>
+<span class="sd">     *)</span>
+    <span class="kn">Let</span> <span class="nf">DΓ</span> : ty [] := dfl_con_to_ty Γ.
+    <span class="kn">Let</span> <span class="nf">DΔ</span> : ty [] := dfl_con_to_ty Δ.
+
+    <span class="kn">Let</span> <span class="nf">γΓ</span> : z_iso Γ ([] &amp; DΓ)
+      := dfl_con_to_z_iso Γ.
+    <span class="kn">Let</span> <span class="nf">γΔ</span> : z_iso Δ ([] &amp; DΔ)
+      := dfl_con_to_z_iso Δ.
+
+    <span class="kn">Let</span> <span class="nf">DΔ'</span> : ty Γ
+      := DΔ [[ TerminalArrow _ Γ ]].
+    <span class="kn">Let</span> <span class="nf">DΓ'</span> : ty (Γ &amp; DΔ')
+      := DΓ [[ TerminalArrow _ (Γ &amp; DΔ') ]].
+
+    <span class="sd">(**</span>
+<span class="sd">       Now we have two pullback squares coming from substitution</span>
+<span class="sd">     *)</span>
+    <span class="kn">Let</span> <span class="nf">HΔ</span> : Pullback (π DΔ) (TerminalArrow [] Γ)
+      := comp_cat_pullback DΔ (TerminalArrow _ Γ).
+
+    <span class="kn">Let</span> <span class="nf">HΓ</span> : Pullback (π DΓ) (TerminalArrow [] (Γ &amp; DΔ'))
+      := comp_cat_pullback DΓ (TerminalArrow _ (Γ &amp; DΔ')).
+
+    <span class="sd">(**</span>
+<span class="sd">       We define two terms of type `Γ` in context `Γ &amp; DΔ'`</span>
+<span class="sd">       Of these terms, we shall take the equalizer</span>
+<span class="sd">     *)</span>
+    <span class="kn">Local Definition</span> <span class="nf">left_mor</span>
+      : C ⟦ Γ &amp; DΔ', (Γ &amp; DΔ') &amp; DΓ' ⟧.
+    <span class="kn">Proof</span>.
+      use (PullbackArrow HΓ).
+      - <span class="bp">exact</span> (π _ · γΓ).
+      - <span class="nb">apply</span> identity.
+      - <span class="nb">apply</span> TerminalArrowEq.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">left_tm</span>
+      : comp_cat_tm (Γ &amp; DΔ') DΓ'.
+    <span class="kn">Proof</span>.
+      use make_comp_cat_tm.
+      - <span class="bp">exact</span> left_mor.
+      - <span class="kp">abstract</span>
+          (<span class="bp">exact</span> (PullbackArrow_PullbackPr2 HΓ _ _ _ _)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">left_tm_pr1</span>
+      : left_tm · PullbackPr1 HΓ = π DΔ' · γΓ.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (PullbackArrow_PullbackPr1 HΓ _ _ _ _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">left_tm_pr2</span>
+      : left_tm · π _ = identity _.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (PullbackArrow_PullbackPr2 HΓ _ _ _ _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">right_mor</span>
+      : C ⟦ Γ &amp; DΔ', (Γ &amp; DΔ') &amp; DΓ' ⟧.
+    <span class="kn">Proof</span>.
+      use (PullbackArrow HΓ).
+      - <span class="bp">exact</span> (PullbackPr1 HΔ · inv_from_z_iso γΔ · δ · γΓ).
+      - <span class="nb">apply</span> identity.
+      - <span class="nb">apply</span> TerminalArrowEq.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">right_tm</span>
+      : comp_cat_tm (Γ &amp; DΔ') DΓ'.
+    <span class="kn">Proof</span>.
+      use make_comp_cat_tm.
+      - <span class="bp">exact</span> right_mor.
+      - <span class="kp">abstract</span>
+          (<span class="bp">exact</span> (PullbackArrow_PullbackPr2 HΓ _ _ _ _)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">right_tm_pr1</span>
+      : right_tm · PullbackPr1 HΓ
+        =
+        PullbackPr1 HΔ · inv_from_z_iso γΔ · δ · γΓ.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (PullbackArrow_PullbackPr1 HΓ _ _ _ _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">right_tm_pr2</span>
+      : right_tm · π _ = identity _.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (PullbackArrow_PullbackPr2 HΓ _ _ _ _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">comprehension_eso_ty_help</span>
+      : ty (Γ &amp; DΔ')
+      := EqualizerObject (dfl_ext_identity left_tm right_tm).
+
+    <span class="sd">(**</span>
+<span class="sd">       Now we define a preimage of the map `δ` (which is needed for essential surjectivity).</span>
+<span class="sd">       Intuitively, this type represents the fiber of `δ`.</span>
+<span class="sd">       For every `y : Γ`, the inhabitants of this type are elements `x` of `Δ` such that</span>
+<span class="sd">       `δ` maps `x` to `y`.</span>
+<span class="sd">     *)</span>
+    <span class="kn">Definition</span> <span class="nf">comprehension_eso_ty</span>
+      : ty Γ
+      := dfl_sigma_type DΔ' comprehension_eso_ty_help.
+
+    <span class="kn">Let</span> <span class="nf">fib</span> : ty Γ := comprehension_eso_ty.
+
+    <span class="sd">(**</span>
+<span class="sd">       Note that since we have strong sigma types, we can make this a context extension</span>
+<span class="sd">       with two types.</span>
+<span class="sd">       We also give a name to this extended context.</span>
+<span class="sd">     *)</span>
+    <span class="kn">Let</span> <span class="nf">FΓ</span> : C := Γ &amp; DΔ' &amp; comprehension_eso_ty_help.
+
+    <span class="kn">Definition</span> <span class="nf">comprehension_eso_ty_iso</span>
+      : z_iso FΓ (Γ &amp; fib)
+      := dfl_sigma_type_strong DΔ' comprehension_eso_ty_help.
+
+    <span class="kn">Definition</span> <span class="nf">comprehension_eso_mor_help</span> : FΓ --&gt; Δ
+      := π _ · PullbackPr1 HΔ · inv_from_z_iso γΔ.
+
+    <span class="kn">Definition</span> <span class="nf">comprehension_eso_inv_mor_help_sub</span> : Δ --&gt; Γ &amp; DΔ'.
+    <span class="kn">Proof</span>.
+      use (PullbackArrow HΔ).
+      - <span class="bp">exact</span> γΔ.
+      - <span class="bp">exact</span> δ.
+      - <span class="nb">apply</span> TerminalArrowEq.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">comprehension_eso_inv_mor_help_sub_pr1</span>
+      : comprehension_eso_inv_mor_help_sub · PullbackPr1 HΔ = γΔ.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr1 HΔ).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">comprehension_eso_inv_mor_help_sub_pr2</span>
+      : comprehension_eso_inv_mor_help_sub · π _ = δ.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr2 HΔ).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comprehension_eso_inv_mor_help_tm</span>
+      : comp_cat_tm
+          Δ
+          (dfl_ext_identity_type
+             (left_tm [[ comprehension_eso_inv_mor_help_sub ]]tm)
+             (right_tm [[ comprehension_eso_inv_mor_help_sub ]]tm)).
+    <span class="kn">Proof</span>.
+      use dfl_ext_identity_type_tm.
+      use (MorphismsIntoPullbackEqual
+             (isPullback_Pullback
+                (comp_cat_pullback DΓ' comprehension_eso_inv_mor_help_sub))).
+      - <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> !subst_comp_cat_tm_pr1.
+        use (MorphismsIntoPullbackEqual (isPullback_Pullback HΓ)).
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> left_tm_pr1, right_tm_pr1.
+          <span class="nb">rewrite</span> !assoc.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="bp">exact</span> comprehension_eso_inv_mor_help_sub_pr2.
+          }
+          <span class="nb">refine</span> (!_).
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+            <span class="bp">exact</span> comprehension_eso_inv_mor_help_sub_pr1.
+          }
+          <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> left_tm_pr2.
+          }
+          <span class="nb">refine</span> (!_).
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> right_tm_pr2.
+          }
+          <span class="nb">rewrite</span> !id_right.
+          <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> subst_comp_cat_tm_pr2.
+        }
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> subst_comp_cat_tm_pr2.
+        }
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comprehension_eso_inv_mor_help</span> : Δ --&gt; FΓ.
+    <span class="kn">Proof</span>.
+      use sub_to_extension.
+      - <span class="bp">exact</span> comprehension_eso_inv_mor_help_sub.
+      - use dfl_ext_identity_sub_tm.
+        <span class="bp">exact</span> comprehension_eso_inv_mor_help_tm.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comprehension_eso_mor</span>
+      : Γ &amp; fib --&gt; Δ
+      := inv_from_z_iso comprehension_eso_ty_iso · comprehension_eso_mor_help.
+
+    <span class="kn">Proposition</span> <span class="nf">comprehension_eso_mor_eq</span>
+      : comprehension_eso_mor · δ = π fib.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> comprehension_eso_mor.
+      <span class="nb">rewrite</span> !assoc'.
+      use z_iso_inv_on_right.
+      <span class="nb">refine</span> (_ @ !(dependent_sum_map_eq _ _ _)).
+      <span class="nb">unfold</span> comprehension_eso_mor_help.
+      use (cancel_z_iso _ _ γΓ).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">pose</span> (maponpaths
+              (<span class="k">λ</span> <span class="nv">z</span>, z · PullbackPr1 HΓ)
+              (!(dfl_ext_identity_eq left_tm right_tm))) <span class="k">as</span> p.
+      <span class="nb">cbn</span> -[left_tm right_tm PullbackPr1] <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !assoc' <span class="k">in</span> p.
+      <span class="nb">rewrite</span> left_tm_pr1, right_tm_pr1 <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !assoc' <span class="k">in</span> p.
+      <span class="bp">exact</span> p.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comprehension_eso_inv_mor</span>
+      : Δ --&gt; Γ &amp; fib
+      := comprehension_eso_inv_mor_help · comprehension_eso_ty_iso.
+
+    <span class="kn">Proposition</span> <span class="nf">comprehension_eso_inv_mor_pr</span>
+      : comprehension_eso_inv_mor · π _ = δ.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (dependent_sum_map_eq
+                 (strong_dependent_sum_dfl_full_comp_cat C)
+                 DΔ'
+                 comprehension_eso_ty_help).
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">unfold</span> comprehension_eso_inv_mor_help.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> sub_to_extension_pr.
+      }
+      <span class="nb">apply</span> comprehension_eso_inv_mor_help_sub_pr2.
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(**</span>
+<span class="sd">       The two constructed morphisms are inverses</span>
+<span class="sd">     *)</span>
+    <span class="kn">Proposition</span> <span class="nf">comprehension_eso_mor_inv_mor</span>
+      : comprehension_eso_mor · comprehension_eso_inv_mor
+        =
+        identity _.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> comprehension_eso_mor, comprehension_eso_inv_mor.
+      <span class="nb">rewrite</span> !assoc'.
+      use z_iso_inv_on_right.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">refine</span> (_ @ id_left _).
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">unfold</span> comprehension_eso_mor_help, comprehension_eso_inv_mor_help.
+      <span class="nb">unfold</span> sub_to_extension.
+      use eq_sub_to_extension.
+      - <span class="nb">rewrite</span> id_left.
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (PullbackSqrCommutes
+                   (comp_cat_pullback
+                      comprehension_eso_ty_help
+                      comprehension_eso_inv_mor_help_sub)).
+        }
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> comp_cat_tm_eq.
+        }
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">unfold</span> comprehension_eso_inv_mor_help_sub.
+        <span class="nb">refine</span> (_ @ id_right _).
+        use (MorphismsIntoPullbackEqual (isPullback_Pullback HΔ)).
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> (PullbackArrow_PullbackPr1 HΔ).
+          <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+          <span class="nb">rewrite</span> id_left, id_right.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> (PullbackArrow_PullbackPr2 HΔ).
+          <span class="nb">rewrite</span> id_left.
+          use (cancel_z_iso _ _ γΓ).
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">pose</span> (maponpaths
+                  (<span class="k">λ</span> <span class="nv">z</span>, z · PullbackPr1 HΓ)
+                  (!(dfl_ext_identity_eq left_tm right_tm))) <span class="k">as</span> p.
+          <span class="nb">cbn</span> -[left_tm right_tm PullbackPr1] <span class="k">in</span> p.
+          <span class="nb">rewrite</span> !assoc' <span class="k">in</span> p.
+          <span class="nb">rewrite</span> left_tm_pr1, right_tm_pr1 <span class="k">in</span> p.
+          <span class="nb">rewrite</span> !assoc' <span class="k">in</span> p.
+          <span class="nb">cbn</span> <span class="k">in</span> p.
+          <span class="bp">exact</span> p.
+      - <span class="nb">apply</span> dfl_eq_subst_equalizer_tm.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">comprehension_eso_inv_mor_mor</span>
+      : comprehension_eso_inv_mor · comprehension_eso_mor
+        =
+        identity _.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> comprehension_eso_mor, comprehension_eso_inv_mor.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+        <span class="nb">apply</span> id_left.
+      }
+      <span class="nb">unfold</span> comprehension_eso_mor_help, comprehension_eso_inv_mor_help.
+      <span class="nb">unfold</span> sub_to_extension.
+      <span class="nb">unfold</span> dfl_ext_identity_sub_tm.
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (PullbackSqrCommutes
+                   (comp_cat_pullback
+                      comprehension_eso_ty_help
+                      comprehension_eso_inv_mor_help_sub)).
+        }
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">unfold</span> comp_cat_comp_mor.
+          <span class="nb">apply</span> comprehension_functor_mor_comm.
+        }
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> comprehension_eso_inv_mor_help_sub_pr1.
+        }
+        <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+        <span class="nb">apply</span> id_right.
+      }
+      <span class="nb">apply</span> comp_cat_tm_eq.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_z_iso_comprehension_eso_mor</span>
+      : is_z_isomorphism comprehension_eso_mor.
+    <span class="kn">Proof</span>.
+      use make_is_z_isomorphism.
+      - <span class="bp">exact</span> comprehension_eso_inv_mor.
+      - <span class="nb">split</span>.
+        + <span class="bp">exact</span> comprehension_eso_mor_inv_mor.
+        + <span class="bp">exact</span> comprehension_eso_inv_mor_mor.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comprehension_eso_z_iso</span>
+      : z_iso (Γ &amp; fib) Δ
+      := _ ,, is_z_iso_comprehension_eso_mor.
+
+    <span class="kn">Definition</span> <span class="nf">comprehension_eso_cod_mor</span>
+      : comp_cat_comprehension C Γ comprehension_eso_ty --&gt;[ identity_z_iso Γ ] Δδ.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (comprehension_eso_mor ,, _) ; <span class="nb">cbn</span>.
+      <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (_ @ !(id_right _)) ;
+         <span class="bp">exact</span> comprehension_eso_mor_eq).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comprehension_eso_cod_iso</span>
+      : z_iso_disp
+          (identity_z_iso Γ)
+          (comp_cat_comprehension C Γ (comprehension_eso_ty))
+          Δδ.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (comprehension_eso_cod_mor ,, _).
+      use is_z_iso_disp_codomain.
+      <span class="bp">exact</span> is_z_iso_comprehension_eso_mor.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">Eso</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">     Now we conclude that the comprehension functor is essentially surjective.</span>
+<span class="sd">     Since we are working with full comprehension categories, we immediately obtain</span>
+<span class="sd">     that the comprehension functor is an equivalence.</span>
+<span class="sd">     In addition, this allows us to conclude that it preserves limits.</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">comprehension_eso</span>
+    : disp_functor_disp_ess_split_surj (comp_cat_comprehension C)
+    := <span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">Δ</span>,
+       comprehension_eso_ty (pr2 Δ)
+       ,,
+       comprehension_eso_cod_iso (pr2 Δ).
+
+  <span class="kn">Definition</span> <span class="nf">is_equiv_over_id_comprehension</span>
+    : is_equiv_over_id (comp_cat_comprehension C).
+  <span class="kn">Proof</span>.
+    use is_equiv_from_ff_ess_over_id.
+    - <span class="bp">exact</span> comprehension_eso.
+    - <span class="bp">exact</span> (full_comp_cat_comprehension_fully_faithful C).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fiber_functor_comprehension_adj_equiv</span>
+             (<span class="nv">Γ</span> : C)
+    : adj_equivalence_of_cats
+        (fiber_functor (comp_cat_comprehension C) Γ)
+    := fiber_equiv is_equiv_over_id_comprehension Γ.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_terminal_fiber_functor_comprehension</span>
+             (<span class="nv">Γ</span> : C)
+    : preserves_terminal (fiber_functor (comp_cat_comprehension C) Γ)
+    := right_adjoint_preserves_terminal
+         _
+         (adj_equivalence_of_cats_inv
+            _
+            (fiber_functor_comprehension_adj_equiv Γ)).
+
+  <span class="kn">Definition</span> <span class="nf">preserves_binproduct_fiber_functor_comprehension</span>
+             (<span class="nv">Γ</span> : C)
+    : preserves_binproduct (fiber_functor (comp_cat_comprehension C) Γ)
+    := right_adjoint_preserves_binproduct
+         _
+         (adj_equivalence_of_cats_inv
+            _
+            (fiber_functor_comprehension_adj_equiv Γ)).
+
+  <span class="kn">Definition</span> <span class="nf">preserves_equalizer_fiber_functor_comprehension</span>
+             (<span class="nv">Γ</span> : C)
+    : preserves_equalizer (fiber_functor (comp_cat_comprehension C) Γ)
+    := right_adjoint_preserves_equalizer
+         _
+         (adj_equivalence_of_cats_inv
+            _
+            (fiber_functor_comprehension_adj_equiv Γ)).
+
+  <span class="kn">Definition</span> <span class="nf">preserves_pullback_fiber_functor_comprehension</span>
+             (<span class="nv">Γ</span> : C)
+    : preserves_pullback (fiber_functor (comp_cat_comprehension C) Γ)
+    := right_adjoint_preserves_pullback
+         _
+         (adj_equivalence_of_cats_inv
+            _
+            (fiber_functor_comprehension_adj_equiv Γ)).
+<span class="kn">End</span> <span class="nf">ComprehensionEso</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> A property holds for all morphism if it holds for every display map</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">dfl_full_comp_cat_mor_ind_iso_help</span>
+            (<span class="nv">C</span> : dfl_full_comp_cat)
+            (<span class="nv">P</span> : ∏ (Γ Δ : C), Γ --&gt; Δ → UU)
+            (<span class="nv">Pπ</span> : ∏ (Γ : C) (A : ty Γ), P _ _ (π A))
+            {<span class="nv">Γ</span> <span class="nv">Γ'</span> <span class="nv">Δ</span> : C}
+            (<span class="nv">p</span> : Γ = Γ')
+            {<span class="nv">s</span> : Γ --&gt; Δ}
+            {<span class="nv">s'</span> : Γ' --&gt; Δ}
+            (<span class="nv">r</span> : s = idtoiso p · s')
+            (<span class="nv">H</span> : P _ _ s)
+  : P _ _ s'.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">cbn</span> <span class="k">in</span> r.
+  <span class="nb">rewrite</span> id_left <span class="k">in</span> r.
+  <span class="nb">induction</span> r.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">dfl_full_comp_cat_mor_ind_iso</span>
+      (<span class="nv">C</span> : dfl_full_comp_cat)
+      (<span class="nv">P</span> : ∏ (Γ Δ : C), Γ --&gt; Δ → UU)
+      (<span class="nv">Pπ</span> : ∏ (Γ : C) (A : ty Γ), P _ _ (π A))
+      {<span class="nv">Γ</span> <span class="nv">Γ'</span> <span class="nv">Δ</span> : C}
+      (<span class="nv">i</span> : z_iso Γ Γ')
+      {<span class="nv">s</span> : Γ --&gt; Δ}
+      {<span class="nv">s'</span> : Γ' --&gt; Δ}
+      (<span class="nv">r</span> : s = i · s')
+      (<span class="nv">H</span> : P _ _ s)
+  : P _ _ s'.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (dfl_full_comp_cat_mor_ind_iso_help C P Pπ (isotoid _ _ i) _ H).
+  - <span class="nb">apply</span> univalent_category_is_univalent.
+  - <span class="nb">rewrite</span> idtoiso_isotoid.
+    <span class="bp">exact</span> r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Theorem</span> <span class="nf">dfl_full_comp_cat_mor_ind</span>
+        (<span class="nv">C</span> : dfl_full_comp_cat)
+        (<span class="nv">P</span> : ∏ (Γ Δ : C), Γ --&gt; Δ → UU)
+        (<span class="nv">Pπ</span> : ∏ (Γ : C) (A : ty Γ), P _ _ (π A))
+        {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+        (<span class="nv">s</span> : Γ --&gt; Δ)
+  : P _ _ s.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (A := comprehension_eso_ty C s).
+  <span class="nb">assert</span> (s = comprehension_eso_inv_mor C s · π (comprehension_eso_ty C s)) <span class="k">as</span> p.
+  {
+    <span class="nb">rewrite</span> &lt;- comprehension_eso_mor_eq.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> comprehension_eso_inv_mor_mor.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> p.
+  <span class="nb">simple refine</span> (dfl_full_comp_cat_mor_ind_iso C P Pπ _ _ (Pπ Δ A)).
+  - <span class="nb">refine</span> (_ ,, _).
+    <span class="nb">apply</span> is_z_iso_comprehension_eso_mor.
+  - <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> comprehension_eso_mor_inv_mor.
+    }
+    <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/ComprehensionEso.v</tt>, line 21)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;    by Clairambault and Dybjer.
+  &gt;
+  &gt;  *******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

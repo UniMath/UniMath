@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Vectors.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"> <span class="sd">(** * Matrices</span>
+
+<span class="sd">Background on vectors, for [Algebra.GaussianElimination.Elimination]</span>
+
+<span class="sd">Author: Daniel @Skantz (September 2022)</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartA.
+<span class="kn">Require Import</span> UniMath.Foundations.NaturalNumbers.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Nat.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Vectors.
+
+<span class="kn">Require Import</span> UniMath.Algebra.RigsAndRings.
+<span class="kn">Require Import</span> UniMath.Algebra.IteratedBinaryOperations.
+<span class="kn">Require Import</span> UniMath.Algebra.Matrix.
+
+<span class="kn">Require Import</span> UniMath.Algebra.GaussianElimination.Auxiliary.
+
+
+<span class="kn">Section</span> <span class="nf">Arbitrary_Vectors</span>.
+<span class="sd">(** * Vectors in arbitrary types *)</span>
+  <span class="kn">Lemma</span> <span class="nf">vector_fmap</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) {<span class="nv">n</span>} : Vector X n -&gt; Vector Y n.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ? ?; <span class="nb">auto</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iscontr_nil_vector</span> {<span class="nv">X</span> : UU} : iscontr (Vector X <span class="mi">0</span>).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> iscontrfunfromempty2. <span class="nb">apply</span> fromstn0.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">vector_1_inj</span> { <span class="nv">X</span> : rig } { <span class="nv">n</span> : nat } (<span class="nv">e1</span> <span class="nv">e2</span> : X)
+    : (<span class="k">λ</span> <span class="nv">y</span> : (⟦ <span class="mi">1</span> ⟧)%stn, e1) = (<span class="k">λ</span> <span class="nv">y</span> : (⟦ <span class="mi">1</span> ⟧)%stn, e2) -&gt; e1 = e2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> eq; <span class="nb">apply</span> (invmaponpathsweq (@weq_vector_1 X)  _ _ eq).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">const_vec_eq</span>  {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat} (<span class="nv">v</span> : Vector X n) (<span class="nv">e</span> : X) (<span class="nv">i</span> : ⟦ n ⟧%stn)
+    : v = const_vec e -&gt; v i = e.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> eq. <span class="nb">rewrite</span> eq. <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Arbitrary_Vectors</span>.
+
+<span class="sd">(** * Basic vector algebra over rigs *)</span>
+
+<span class="sd">(** First basic algebra on vectors in rigs:</span>
+<span class="sd">  pointwise operations, standard basis vectors, etc. *)</span>
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"v1 *pw v2"</span> := ((pointwise _ op2) v1 v2) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"v1 +pw v2"</span> := ((pointwise _ op1) v1 v2) (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).
+
+<span class="kn">Section</span> <span class="nf">Basic_Vector_Algebra</span>.
+
+  <span class="kn">Context</span> { <span class="nv">R</span> : rig }.
+
+  <span class="kn">Definition</span> <span class="nf">scalar_lmult_vec</span> (<span class="nv">s</span> : R) {<span class="nv">n</span>} (<span class="nv">vec</span>: Vector R n)
+    := vector_fmap (<span class="k">fun</span> <span class="nv">x</span> =&gt; s * x)%rig vec.
+
+  <span class="kn">Definition</span> <span class="nf">scalar_rmult_vec</span> {<span class="nv">n</span>} (<span class="nv">vec</span>: Vector R n) (<span class="nv">s</span> : R)
+    := vector_fmap (<span class="k">fun</span> <span class="nv">x</span> =&gt; x * s)%rig vec.
+
+  <span class="kn">Lemma</span> <span class="nf">pointwise_rdistr_vector</span> { <span class="nv">n</span> : nat } (<span class="nv">v1</span> <span class="nv">v2</span> <span class="nv">v3</span> : Vector R n)
+    : (v1 +pw v2) *pw v3 = (v1 *pw v3) +pw (v2 *pw v3).
+  <span class="kn">Proof</span>.
+    use (pointwise_rdistr (rigrdistr R)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pointwise_assoc2_vector</span> { <span class="nv">n</span> : nat } (<span class="nv">v1</span> <span class="nv">v2</span> <span class="nv">v3</span> : Vector R n)
+    : (v1 *pw v2) *pw v3 = v1 *pw (v2 *pw v3).
+  <span class="kn">Proof</span>.
+    use (pointwise_assoc (rigassoc2 R)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pointwise_comm2_vector</span> {<span class="nv">CR</span>: commrig} { <span class="nv">n</span> : nat } (<span class="nv">v1</span> <span class="nv">v2</span> : Vector CR n)
+    : v1 *pw v2 = v2 *pw v1.
+  <span class="kn">Proof</span>.
+    use (pointwise_comm (rigcomm2 CR)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">stdb_vector</span> { <span class="nv">n</span> : nat } (<span class="nv">i</span> : ⟦ n ⟧%stn) : Vector R n.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> j.
+    <span class="nb">induction</span> (stn_eq_or_neq i j).
+    - <span class="bp">exact</span> rigunel2.
+    - <span class="bp">exact</span> rigunel1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">stdb_ii</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span> : ⟦ n ⟧%stn)
+    : (stdb_vector i) i = rigunel2.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> stdb_vector; <span class="nb">rewrite</span> (stn_eq_or_neq_refl); <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">stdb_ij</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span> <span class="nv">j</span> : ⟦ n ⟧%stn)
+    : i ≠ j -&gt; (stdb_vector i) j = rigunel1.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i_neq_j. <span class="nb">unfold</span> stdb_vector.
+    <span class="bp">now</span> <span class="nb">rewrite</span> (stn_eq_or_neq_right i_neq_j).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Basic_Vector_Algebra</span>.
+
+<span class="sd">(** * Total sums of vectors *)</span>
+
+<span class="kn">Local Notation</span>  <span class="nf">Σ</span> := (iterop_fun <span class="mi">0</span>%rig op1).
+
+<span class="kn">Section</span> <span class="nf">Vector_Sums</span>.
+
+  <span class="kn">Context</span> { <span class="nv">R</span> : rig }.
+
+  <span class="sd">(** Many of the following are generalisations of versions for natural numbers, given in [Combinatorics.StandardFiniteSets] using the keyword [stnsum].</span>
+
+<span class="sd">  For now they are given here for rigs; many use only the additive structure, so could be generalised to commutative monoids (or arbitrary monoids). Lemmas involving the least structure are given first. *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">vecsum_empty</span> (<span class="nv">v1</span> : Vector R <span class="mi">0</span>) : Σ v1 = <span class="mi">0</span>%rig.
+  <span class="kn">Proof</span>.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">vecsum_step</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span> : ⟦ S n ⟧%stn -&gt; R) :
+    Σ f = (Σ (f ∘ (dni lastelement)) + f lastelement)%rig.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>; <span class="nb">apply</span> iterop_fun_step; <span class="nb">apply</span> riglunax1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_vecsum</span> {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">e</span>: m = n) (<span class="nv">g</span>: ⟦ n ⟧%stn -&gt; R) :
+     Σ g =  Σ (<span class="k">λ</span> <span class="nv">i</span>, g (transportf stn e i)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>; <span class="bp">now</span> <span class="nb">induction</span> e.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">vecsum_eq</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span> <span class="nv">g</span> : ⟦ n ⟧%stn -&gt; R) : f ~ g -&gt; Σ f = Σ g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H.
+    <span class="nb">induction</span> n <span class="k">as</span> [|n IH]; <span class="kp">try</span> <span class="nb">apply</span> idpath.
+    <span class="nb">rewrite</span> <span class="mi">2</span> vecsum_step.
+      <span class="nb">induction</span> (H lastelement).
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">i</span>, op1 i (f lastelement))).
+      <span class="nb">apply</span> IH; <span class="nb">intro</span> x; <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">vecsum_zero</span> {<span class="nv">n</span>} : Σ (@const_vec R n <span class="mi">0</span>%rig) = <span class="mi">0</span>%rig.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> n <span class="k">as</span> [ | n IH].
+    { <span class="bp">reflexivity</span>. }
+    <span class="nb">rewrite</span> vecsum_step.
+    <span class="nb">rewrite</span> rigrunax1.
+    <span class="nb">apply</span> IH.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">vecsum_eq_zero</span> {<span class="nv">n</span>} (<span class="nv">v</span> : Vector R n) (<span class="nv">v_0</span> : v ~ const_vec <span class="mi">0</span>%rig)
+    : Σ v = <span class="mi">0</span>%rig.
+  <span class="kn">Proof</span>.
+    etrans. { <span class="nb">apply</span> vecsum_eq, v_0. }
+    <span class="nb">apply</span> vecsum_zero.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">vecsum_left_right</span> :
+  ∏ (m n : nat) (f : (⟦ m + n ⟧)%stn → R),
+   Σ f =  op1 (Σ (f ∘ stn_left m n)) (Σ (f ∘ stn_right m n)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">induction</span> n <span class="k">as</span> [| n IHn].
+    { <span class="nb">change</span> (Σ  _) <span class="k">with</span> (@rigunel1 R) <span class="nb">at</span> <span class="mi">3</span>.
+      <span class="nb">set</span> (a := m + <span class="mi">0</span>). <span class="nb">assert</span> (a = m). { <span class="nb">apply</span> natplusr0. }
+      <span class="nb">assert</span> (e := ! natplusr0 m).
+      <span class="nb">rewrite</span> (transport_vecsum e).
+      <span class="nb">unfold</span> funcomp.
+      <span class="nb">rewrite</span>  rigrunax1.
+      <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> funextfun. <span class="nb">intros</span> i.
+      <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- stn_left_0.
+    }
+    <span class="nb">rewrite</span> vecsum_step.
+    <span class="nb">assert</span> (e : S (m + n) = m + S n).
+    { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> natplusnsm. }
+    <span class="nb">rewrite</span> (transport_vecsum e).
+    <span class="nb">rewrite</span> vecsum_step.
+    <span class="nb">rewrite</span> &lt;- rigassoc1. <span class="nb">apply</span> map_on_two_paths.
+    { <span class="nb">rewrite</span> IHn; <span class="nb">clear</span> IHn. <span class="nb">apply</span> map_on_two_paths.
+      { <span class="nb">apply</span> vecsum_eq; <span class="nb">intro</span> i. <span class="nb">unfold</span> funcomp.
+        <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> subtypePath_prop.
+        <span class="nb">rewrite</span> stn_left_compute. <span class="nb">induction</span> e.
+        <span class="nb">rewrite</span> idpath_transportf. <span class="nb">rewrite</span> dni_last.
+        <span class="nb">apply</span> idpath. }
+      { <span class="nb">apply</span> vecsum_eq; <span class="nb">intro</span> i. <span class="nb">unfold</span> funcomp.
+        <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> subtypePath_prop.
+        <span class="nb">rewrite</span> stn_right_compute. <span class="nb">unfold</span> stntonat. <span class="nb">induction</span> e.
+        <span class="nb">rewrite</span> idpath_transportf. <span class="nb">rewrite</span> <span class="mi">2</span>? dni_last.
+        <span class="nb">apply</span> idpath. } }
+    <span class="nb">unfold</span> funcomp. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> subtypePath_prop.
+    <span class="bp">now</span> <span class="nb">induction</span> e.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">vecsum_dni</span> {<span class="nv">n</span> : nat} (<span class="nv">f</span> : ⟦ S n ⟧%stn -&gt; R) (<span class="nv">j</span> : ⟦ S n ⟧%stn ) :
+    Σ f = op1 (Σ (f ∘ dni j)) (f j).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">induction</span> j <span class="k">as</span> [j J].
+    <span class="nb">assert</span> (e2 : j + (n - j) = n).
+    { <span class="nb">rewrite</span> natpluscomm. <span class="nb">apply</span> minusplusnmm. <span class="nb">apply</span> natlthsntoleh. <span class="bp">exact</span> J. }
+    <span class="nb">assert</span> (e : (S j) + (n - j) = S n).
+    { <span class="nb">change</span> (S j + (n - j)) <span class="k">with</span> (S (j + (n - j))). <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> e2. }
+    intermediate_path (Σ  (<span class="k">λ</span> <span class="nv">i</span>, f (transportf stn e i))).
+    - <span class="nb">apply</span> (transport_vecsum e).
+    - <span class="nb">rewrite</span> (vecsum_left_right (S j) (n - j)); <span class="nb">unfold</span> funcomp.
+      <span class="nb">apply</span> pathsinv0. <span class="nb">rewrite</span> (transport_vecsum e2).
+      <span class="nb">rewrite</span> (vecsum_left_right j (n-j)); <span class="nb">unfold</span> funcomp.
+      <span class="nb">rewrite</span> (vecsum_step (<span class="k">λ</span> <span class="nv">x</span>, f (transportf stn e _))); <span class="nb">unfold</span> funcomp.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">rewrite</span> rigassoc1. <span class="nb">rewrite</span> (@rigcomm1 R (f _) ). <span class="nb">rewrite</span>  &lt;- rigassoc1.
+      <span class="nb">apply</span> map_on_two_paths.
+      + <span class="nb">apply</span> map_on_two_paths.
+        * <span class="nb">apply</span> vecsum_eq; <span class="nb">intro</span> i. <span class="nb">induction</span> i <span class="k">as</span> [i I].
+          <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> subtypePath_prop.
+          <span class="nb">induction</span> e. <span class="nb">rewrite</span> idpath_transportf. <span class="nb">rewrite</span> stn_left_compute.
+          <span class="nb">unfold</span> dni,di, stntonat; <span class="nb">simpl</span>.
+          <span class="nb">induction</span> (natlthorgeh i j) <span class="k">as</span> [R'|R'].
+          -- <span class="nb">unfold</span> stntonat; <span class="nb">simpl</span>; <span class="nb">rewrite</span> transport_stn; <span class="nb">simpl</span>.
+             <span class="nb">induction</span> (natlthorgeh i j) <span class="k">as</span> [a|b].
+             ++ <span class="nb">apply</span> idpath.
+             ++ contradicts R' (natlehneggth b).
+          -- <span class="nb">unfold</span> stntonat; <span class="nb">simpl</span>; <span class="nb">rewrite</span> transport_stn; <span class="nb">simpl</span>.
+             <span class="nb">induction</span> (natlthorgeh i j) <span class="k">as</span> [V|V].
+             ++ contradicts I (natlehneggth R').
+             ++ <span class="nb">apply</span> idpath.
+        * <span class="nb">apply</span> vecsum_eq; <span class="nb">intro</span> i. <span class="nb">induction</span> i <span class="k">as</span> [i I]. <span class="nb">apply</span> maponpaths.
+          <span class="nb">unfold</span> dni,di, stn_right, stntonat; <span class="kp">repeat</span> <span class="nb">rewrite</span> transport_stn; <span class="nb">simpl</span>.
+          <span class="nb">induction</span> (natlthorgeh (j+i) j) <span class="k">as</span> [X|X].
+          -- contradicts (negnatlthplusnmn j i) X.
+          -- <span class="nb">apply</span> subtypePath_prop. <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> transport_stn; <span class="nb">simpl</span>.
+        <span class="nb">apply</span> subtypePath_prop, idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">vecsum_to_rightsum</span> {<span class="nv">n</span> <span class="nv">m'</span> <span class="nv">n'</span> : nat} (<span class="nv">p</span> : m' + n' = n) (<span class="nv">f</span> :  ⟦ m' + n' ⟧%stn -&gt; R)
+    (<span class="nv">left_part_is_zero</span> : (f ∘ stn_left m' n') = const_vec <span class="mi">0</span>%rig):
+    Σ f = Σ (f ∘ stn_right m' n' ).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> vecsum_left_right, vecsum_eq_zero.
+    - <span class="bp">now</span> <span class="nb">rewrite</span> riglunax1.
+    - <span class="bp">now</span> <span class="nb">rewrite</span> (left_part_is_zero ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">vecsum_to_leftsum</span> {<span class="nv">n</span> <span class="nv">m'</span> <span class="nv">n'</span> : nat} (<span class="nv">p</span> : m' + n' = n) (<span class="nv">f</span> :  ⟦ m' + n' ⟧%stn -&gt; R)
+    (<span class="nv">right_part_is_zero</span> : (f ∘ stn_right m' n') = const_vec <span class="mi">0</span>%rig):
+    Σ f = Σ (f ∘ stn_left m' n' ).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> vecsum_left_right, rigcomm1, vecsum_eq_zero.
+    - <span class="bp">now</span> <span class="nb">rewrite</span> riglunax1.
+    - <span class="bp">now</span> <span class="nb">rewrite</span> right_part_is_zero.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">vecsum_add</span> {<span class="nv">n</span>} (<span class="nv">v1</span> <span class="nv">v2</span> : (⟦ n ⟧)%stn -&gt; R)
+    : Σ (v1 +pw v2) = (Σ v1 + Σ v2)%rig.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> n <span class="k">as</span> [| n IH].
+    - <span class="nb">cbn</span>. <span class="nb">apply</span> pathsinv0, riglunax1.
+    - <span class="nb">rewrite</span> <span class="mi">3</span> vecsum_step.
+      etrans. { <span class="nb">apply</span> maponpaths_2. <span class="nb">apply</span> IH. }
+      <span class="nb">refine</span> (rigassoc1 _ _ _ _ @ _ @ !rigassoc1 _ _ _ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!rigassoc1 _ _ _ _ @ _ @ rigassoc1 _ _ _ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> rigcomm1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">vecsum_interchange</span> :
+    ∏ (m n : nat)
+      (f : (⟦ n ⟧)%stn -&gt;  (⟦ m ⟧)%stn -&gt; R),
+    Σ (<span class="k">λ</span> <span class="nv">i</span>: (⟦ m ⟧)%stn, Σ (<span class="k">λ</span> <span class="nv">j</span> : (⟦ n ⟧)%stn, f j i) )
+    = Σ (<span class="k">λ</span> <span class="nv">j</span>: (⟦ n ⟧)%stn, Σ (<span class="k">λ</span> <span class="nv">i</span> : (⟦ m ⟧)%stn, f j i)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>. <span class="nb">induction</span> n <span class="k">as</span> [| n IH].
+    - <span class="nb">induction</span> m.
+      { <span class="bp">reflexivity</span>. }
+      <span class="nb">change</span> (Σ (<span class="k">λ</span> <span class="nv">i</span> : (⟦ <span class="mi">0</span> ⟧)%stn, Σ ((<span class="k">λ</span> <span class="nv">j</span> : (⟦ _ ⟧)%stn, f i j) )))
+        <span class="k">with</span> (@rigunel1 R).
+      <span class="nb">apply</span> vecsum_zero.
+    - <span class="nb">rewrite</span> vecsum_step.
+      <span class="nb">unfold</span> funcomp.
+      <span class="nb">rewrite</span> &lt;- IH, &lt;- vecsum_add.
+      <span class="nb">apply</span> maponpaths, funextfun; <span class="nb">intros</span> i.
+      <span class="nb">rewrite</span> vecsum_step.
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+
+  <span class="sd">(** From here on, we are really using the ring structure *)</span>
+  <span class="kn">Lemma</span> <span class="nf">vecsum_ldistr</span> :
+    ∏ (n : nat) (vec : Vector R n) (s : R),
+    op2 s (Σ vec) =  Σ (scalar_lmult_vec s vec).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>. <span class="nb">induction</span> n <span class="k">as</span> [| n IH].
+    - <span class="nb">simpl</span>. <span class="nb">apply</span> rigmultx0.
+    - <span class="nb">rewrite</span> <span class="mi">2</span> vecsum_step.
+      <span class="nb">rewrite</span> rigldistr. <span class="nb">apply</span> maponpaths_2, IH.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">vecsum_rdistr</span>:
+    ∏ (n : nat) (vec : Vector R n) (s : R),
+    op2 (Σ vec) s =  Σ (scalar_rmult_vec vec s).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>. <span class="nb">induction</span> n <span class="k">as</span> [| n IH].
+    - <span class="nb">apply</span> rigmult0x.
+    - <span class="nb">rewrite</span> <span class="mi">2</span> vecsum_step.
+      <span class="nb">rewrite</span> rigrdistr. <span class="nb">apply</span> maponpaths_2, IH.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">vecsum_scalar_lmult</span> {<span class="nv">m</span>} (<span class="nv">s</span> : R) (<span class="nv">v</span> <span class="nv">w</span> : Vector R m)
+    : Σ (scalar_lmult_vec s v *pw w) = (s * Σ (v *pw w))%rig.
+  <span class="kn">Proof</span>.
+    etrans. <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, vecsum_ldistr. }
+    <span class="nb">apply</span> vecsum_eq. <span class="nb">intro</span> i. <span class="nb">apply</span> rigassoc2.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Vector_Sums</span>.
+
+<span class="kn">Section</span> <span class="nf">Pulse_Functions</span>.
+  <span class="sd">(** * Pulse functions</span>
+
+<span class="sd">  Some lemmata on “pulse functions”, i.e. vectors with only one or two non-zero values;</span>
+<span class="sd">  this turns out to be a useful framework for arguments with elementary row operations. *)</span>
+
+  <span class="kn">Context</span> { <span class="nv">R</span> : rig }.
+
+  <span class="kn">Definition</span> <span class="nf">is_pulse_function</span> { <span class="nv">n</span> : nat } ( <span class="nv">i</span> : ⟦ n ⟧%stn )
+  (<span class="nv">f</span> : ⟦ n ⟧%stn -&gt; R)
+    := ∏ (j: ⟦ n ⟧%stn), (i ≠ j) -&gt; (f j = <span class="mi">0</span>%rig).
+
+  <span class="kn">Lemma</span> <span class="nf">pulse_function_sums_to_point</span> { <span class="nv">n</span> : nat }
+    (<span class="nv">f</span> : ⟦ n ⟧%stn -&gt; R) (<span class="nv">i</span> : ⟦ n ⟧%stn)
+    (<span class="nv">f_pulse_function</span> : is_pulse_function i f)
+    : Σ f = f i.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> (stn_inhabited_implies_succ i) <span class="k">as</span> [n' e_n_Sn'].
+    <span class="nb">destruct</span> (!e_n_Sn').
+    <span class="nb">rewrite</span> (vecsum_dni f i).
+    <span class="nb">rewrite</span> vecsum_eq_zero.
+    { <span class="nb">rewrite</span> riglunax1. <span class="nb">apply</span> idpath. }
+    <span class="nb">intros</span> k.
+    <span class="nb">unfold</span> funcomp.
+    <span class="nb">unfold</span> const_vec.
+    <span class="nb">assert</span> (i_neq_dni : i ≠ dni i k). {<span class="bp">exact</span> (dni_neq_i i k). }
+    <span class="nb">intros</span>; <span class="nb">destruct</span> (stn_eq_or_neq i (dni i k) ) <span class="k">as</span> [eq | neq].
+      - <span class="nb">apply</span> (stnneq_iff_nopath i (dni i k)) <span class="k">in</span> eq.
+        <span class="nb">apply</span> weqtoempty. <span class="nb">intros</span>. <span class="nb">apply</span> eq. <span class="bp">assumption</span>.
+        <span class="bp">exact</span> (dni_neq_i i k).
+      - <span class="nb">apply</span> f_pulse_function; <span class="bp">exact</span> neq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_pulse_function_stdb_vector</span>
+      { <span class="nv">n</span> : nat } (<span class="nv">i</span> : ⟦ n ⟧%stn)
+    : is_pulse_function i (stdb_vector i).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> j i_neq_j.
+    <span class="nb">unfold</span> stdb_vector, pointwise.
+    <span class="bp">now</span> <span class="nb">rewrite</span> (stn_eq_or_neq_right i_neq_j).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">stdb_vector_sums_to_1</span> { <span class="nv">n</span> : nat } (<span class="nv">i</span> : ⟦ n ⟧%stn)
+    : Σ (@stdb_vector R n i) = <span class="mi">1</span>%rig.
+  <span class="kn">Proof</span>.
+    etrans.
+    { <span class="nb">apply</span> (pulse_function_sums_to_point _ i), is_pulse_function_stdb_vector. }
+    <span class="nb">unfold</span> stdb_vector; <span class="bp">now</span> <span class="nb">rewrite</span> stn_eq_or_neq_refl.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pulse_prod_is_pulse</span> {<span class="nv">n</span> : nat}
+    (<span class="nv">f</span> <span class="nv">g</span> : stn n -&gt; R) {<span class="nv">i</span> : stn n} (<span class="nv">H</span> : is_pulse_function i f)
+    : is_pulse_function i (f *pw g).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_pulse_function <span class="k">in</span> * |- ; <span class="nb">intros</span> j.
+    <span class="nb">intros</span> neq; <span class="nb">unfold</span> pointwise.
+    etrans. { <span class="nb">apply</span> maponpaths_2. <span class="nb">apply</span>(H j neq). }
+    <span class="nb">apply</span> rigmult0x.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">sum_stdb_vector_pointwise_prod</span> { <span class="nv">n</span> : nat } (<span class="nv">v</span> : Vector R n) (<span class="nv">i</span> : ⟦ n ⟧%stn)
+    : Σ (stdb_vector i *pw v) = (v i).
+  <span class="kn">Proof</span>.
+    etrans.
+    { <span class="nb">apply</span>
+        (pulse_function_sums_to_point _ i)
+      , (pulse_prod_is_pulse _ _ )
+      , is_pulse_function_stdb_vector. }
+    <span class="nb">unfold</span> pointwise, stdb_vector.
+    <span class="nb">rewrite</span> stn_eq_or_neq_refl.
+    <span class="nb">apply</span> riglunax2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pointwise_prod_stdb_vector</span> {<span class="nv">n</span> : nat} (<span class="nv">v</span> : Vector R n) (<span class="nv">i</span> : ⟦ n ⟧%stn)
+    : v *pw (stdb_vector i) = scalar_lmult_vec (v i) (stdb_vector i).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> funextfun. <span class="nb">intros</span> j.
+    <span class="nb">unfold</span> scalar_lmult_vec, vector_fmap, pointwise.
+    <span class="nb">destruct</span> (stn_eq_or_neq i j) <span class="k">as</span> [i_eq_j | i_neq_j].
+    - <span class="nb">rewrite</span> i_eq_j; <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> stdb_vector.
+      <span class="nb">rewrite</span> (stn_eq_or_neq_right i_neq_j).
+      <span class="bp">now</span> <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> rigmultx0.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">two_pulse_function_sums_to_points</span> { <span class="nv">n</span> : nat }
+      (<span class="nv">f</span> : ⟦ n ⟧%stn -&gt; R)
+      (<span class="nv">i</span> : ⟦ n ⟧%stn) (<span class="nv">j</span> : ⟦ n ⟧%stn) (<span class="nv">ne_i_j</span> : i ≠ j)
+      (<span class="nv">f_two_pulse</span> : ∏ (k: ⟦ n ⟧%stn), (k ≠ i) -&gt; (k ≠ j) -&gt; (f k = <span class="mi">0</span>%rig))
+    : (Σ f = f i + f j)%rig.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (H : f = (scalar_lmult_vec (f i) (stdb_vector i))
+                    +pw (scalar_lmult_vec (f j) (stdb_vector j))).
+    { <span class="nb">apply</span> funextfun. <span class="nb">intros</span> k.
+      <span class="nb">unfold</span> stdb_vector, scalar_lmult_vec, vector_fmap, pointwise.
+      <span class="nb">destruct</span> (stn_eq_or_neq i k) <span class="k">as</span> [i_eq_k | i_neq_k].
+      - <span class="nb">destruct</span> (stn_eq_or_neq j k) <span class="k">as</span> [j_eq_k | j_neq_k]; <span class="nb">destruct</span> i_eq_k.
+        + <span class="nb">destruct</span> j_eq_k.
+          <span class="bp">now</span> <span class="nb">apply</span> isirrefl_natneq <span class="k">in</span> ne_i_j.
+        + <span class="bp">now</span> <span class="nb">rewrite</span> rigmultx0, rigrunax1, rigrunax2.
+      - <span class="nb">rewrite</span> rigmultx0, riglunax1.
+        <span class="nb">destruct</span> (stn_eq_or_neq j k) <span class="k">as</span> [j_eq_k | j_neq_k].
+        + <span class="bp">now</span> <span class="nb">rewrite</span> rigrunax2, j_eq_k.
+        + <span class="nb">rewrite</span> rigmultx0; <span class="nb">apply</span> f_two_pulse; <span class="bp">now</span> <span class="nb">apply</span> issymm_natneq.
+    }
+    etrans. { <span class="nb">apply</span> maponpaths, H. }
+    etrans. { <span class="nb">apply</span> vecsum_add. }
+    <span class="nb">apply</span> maponpaths_12;
+    <span class="nb">rewrite</span> &lt;- vecsum_ldistr, stdb_vector_sums_to_1; <span class="nb">apply</span> rigrunax2.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Pulse_Functions</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/GaussianElimination/Vectors.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartA.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Author: Daniel &#64;Skantz (September 2022)
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartA.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.NaturalNumbers.
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

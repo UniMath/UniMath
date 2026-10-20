@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SetValuedFunctors.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">Facts about set valued functors</span>
+
+<span class="sd">- epimorphic natural transformations are pointwise epimorphic</span>
+<span class="sd">- epimorphic natural transformations enjoy a universal property similar to</span>
+<span class="sd">surjections [univ_surj_nt]</span>
+<span class="sd">- Definition of a quotient functor</span>
+
+<span class="sd">Ambroise LAFONT January 2017</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Structures.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EpiFacts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+
+<span class="kn">Lemma</span> <span class="nf">is_pointwise_epi_from_set_nat_trans_epi</span> (<span class="nv">C</span>:category)
+      (<span class="nv">F</span> <span class="nv">G</span> : functor C hset_precategory) (<span class="nv">f</span>:nat_trans F G)
+      (<span class="nv">h</span>:isEpi (C:=functor_category C HSET) f)
+  : ∏ (x:C), isEpi (f x).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (Pushouts_pw_epi (D:=hset_category)).
+  <span class="nb">apply</span> PushoutsHSET_from_Colims.
+  <span class="nb">apply</span> h.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd">Let p be an epimorphic natural transformation where the target category is HSET</span>
+
+<span class="sd">Given the following diagram :</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">    f</span>
+<span class="sd"> A ---&gt; C</span>
+<span class="sd"> |</span>
+<span class="sd"> | p</span>
+<span class="sd"> |</span>
+<span class="sd"> v</span>
+<span class="sd"> B</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd">there exists a unique natural transformation from B to C that makes the diagram</span>
+<span class="sd">commute provided that for any set X, any x,y in X, if [p x = p y] then [f x = f y]</span>
+
+<span class="sd">This property comes from the fact that p is an effective epimorphism.</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">LiftEpiNatTrans</span>.
+
+  <span class="kn">Context</span> {<span class="nv">CC</span>:category}.
+  <span class="kn">Local Notation</span> <span class="nf">C_SET</span> := (functor_category CC HSET).
+
+
+  <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span>:functor CC HSET} (<span class="nv">p</span>:nat_trans A B)
+          (<span class="nv">f</span>:nat_trans A C).
+
+  <span class="kn">Hypothesis</span> (<span class="nv">comp_epi</span>: ∏ (X:CC)  (x y: pr1hSet (A X)),
+                        p X x =  p X y -&gt; f X x = f X y).
+
+  <span class="kn">Hypothesis</span> (<span class="nv">surjectivep</span> : isEpi (C:=C_SET) p).
+
+  <span class="kn">Lemma</span> <span class="nf">EffectiveEpis_Functor_HSET</span> : EpisAreEffective C_SET.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> F G m isepim.
+    <span class="nb">apply</span> (isEffectivePw (D:=hset_category)).
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> EffectiveEpis_HSET.
+    <span class="nb">apply</span> (Pushouts_pw_epi (D:=hset_category)
+                           PushoutsHSET_from_Colims).
+    <span class="bp">assumption</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">univ_surj_nt</span> : nat_trans B C.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> EffectiveEpis_Functor_HSET <span class="k">in</span> surjectivep.
+    <span class="nb">red</span> <span class="k">in</span> surjectivep.
+    <span class="nb">set</span> (coeq := Limits.Coequalizers.make_Coequalizer _ _ _ _ (pr2 surjectivep)).
+    <span class="nb">apply</span> (Limits.Coequalizers.CoequalizerOut coeq _ f).
+    <span class="kp">abstract</span>(
+    <span class="nb">apply</span> (nat_trans_eq (has_homsets_HSET));
+    <span class="nb">intro</span> c;
+    <span class="nb">apply</span> funextfun;
+    <span class="nb">intro</span> x;
+    <span class="nb">apply</span> comp_epi;
+    <span class="nb">assert</span> (hcommut := Limits.Pullbacks.PullbackSqrCommutes (pr1 surjectivep));
+    <span class="nb">eapply</span> nat_trans_eq_pointwise <span class="k">in</span> hcommut;
+    <span class="nb">apply</span> toforallpaths <span class="k">in</span> hcommut;
+    <span class="nb">apply</span> hcommut).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">univ_surj_nt_ax</span> : nat_trans_comp _ _ _ p univ_surj_nt = f .
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> univ_surj_nt; <span class="nb">cbn</span>.
+    <span class="nb">set</span> (coeq := make_Coequalizer _ _ _ _ _).
+    <span class="nb">apply</span> (CoequalizerCommutes coeq).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">univ_surj_nt_ax_pw</span> <span class="nv">x</span>  : p x · univ_surj_nt x = f x .
+  <span class="kn">Proof</span>.
+    <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- univ_surj_nt_ax.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Lemma</span> <span class="nf">univ_surj_nt_ax_pw_pw</span> <span class="nv">x</span> <span class="nv">c</span> : (p x · univ_surj_nt x) c = f x c.
+  <span class="kn">Proof</span>.
+    <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- univ_surj_nt_ax.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">univ_surj_nt_unique</span> : ∏ g  (H : nat_trans_comp _ _ _ p  g = f)
+                                b, g b = univ_surj_nt b.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> g hg b.
+    <span class="nb">apply</span> nat_trans_eq_pointwise.
+    <span class="nb">unfold</span> univ_surj_nt.
+    <span class="nb">set</span> (coeq := make_Coequalizer _ _ _ _ _).
+    use (isCoequalizerOutUnique _ _ _ _ (isCoequalizer_Coequalizer coeq)).
+    <span class="nb">apply</span> hg.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">LiftEpiNatTrans</span>.
+
+<span class="sd">(**   Quotient functors .</span>
+
+<span class="sd">Let C be a category</span>
+<span class="sd">Let R be a functor from C to Set.</span>
+
+<span class="sd">Let X be an object of C</span>
+<span class="sd">Let tilde a family of equivalence relations on RX satisfying</span>
+<span class="sd">if [x tilde y] and [f : X -&gt; Y], then [f(x) tilde f(y)].</span>
+
+<span class="sd">Then we can define [R'] as a functor which to any X associates [R'X = RX mod tilde]</span>
+<span class="sd">Moreover, there is an epimorphism [pr_quot_functor : R -&gt; R']</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">QuotientFunctor</span>.
+
+  <span class="kn">Context</span> {<span class="nv">D</span>:category}.
+  <span class="kn">Variable</span> (<span class="nv">R</span>:functor D HSET).
+
+  <span class="sd">(** This is [tilde] *)</span>
+  <span class="kn">Variable</span> (<span class="nv">hequiv</span> : ∏ (d:D),eqrel (pr1hSet (R d))).
+
+  <span class="sd">(** The relations satisfied by [hequiv (tilde)] *)</span>
+  <span class="kn">Hypothesis</span> (<span class="nv">congru</span>: ∏ (x y:D) (f:D⟦ x,  y⟧), iscomprelrelfun (hequiv x) (hequiv y) (#R f)).
+
+  <span class="sd">(** Definition of the quotient functor *)</span>
+  <span class="c">(* not using setquotinset directly because as isasetsetquot is not opaque it would make</span>
+<span class="c">     computation slow in some cases (see issue 548) *)</span>
+  <span class="kn">Definition</span> <span class="nf">quot_functor_ob</span> (<span class="nv">d</span>:D) :hSet.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">apply</span> (setquot (hequiv d)).
+    - <span class="kp">abstract</span> (<span class="nb">apply</span> isasetsetquot).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">quot_functor_mor</span> (<span class="nv">d</span> <span class="nv">d'</span> : D) (<span class="nv">f</span> : D ⟦d, d'⟧)
+    : HSET ⟦quot_functor_ob d, quot_functor_ob d' ⟧ :=
+    setquotfun (hequiv d) (hequiv d') (#R f) (congru d d' f).
+
+  <span class="kn">Definition</span> <span class="nf">quot_functor_data</span> : functor_data D HSET := tpair _ _ quot_functor_mor.
+
+  <span class="kn">Lemma</span> <span class="nf">is_functor_quot_functor_data</span> : is_functor quot_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> a; <span class="nb">simpl</span>.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> c.
+      <span class="nb">apply</span> (surjectionisepitosets (setquotpr _));
+        [<span class="bp">now</span> <span class="nb">apply</span> issurjsetquotpr | <span class="nb">apply</span> isasetsetquot|].
+      <span class="nb">intro</span> x; <span class="nb">cbn</span>.
+      <span class="bp">now</span> <span class="nb">rewrite</span> (functor_id R).
+    - <span class="nb">intros</span> a b c f g; <span class="nb">simpl</span>.
+      <span class="nb">apply</span> funextfun; <span class="nb">intro</span> x.
+      <span class="nb">apply</span> (surjectionisepitosets (setquotpr _));
+        [<span class="bp">now</span> <span class="nb">apply</span> issurjsetquotpr | <span class="nb">apply</span> isasetsetquot|].
+      <span class="nb">intro</span> y; <span class="nb">cbn</span>.
+      <span class="bp">now</span> <span class="nb">rewrite</span> (functor_comp R).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">quot_functor</span>  : functor D HSET := tpair _ _ is_functor_quot_functor_data.
+
+  <span class="kn">Definition</span> <span class="nf">pr_quot_functor_data</span> : ∏ x , HSET ⟦R x, quot_functor x⟧ :=
+    <span class="k">λ</span> <span class="nv">x</span> <span class="nv">a</span>, setquotpr _ a.
+
+  <span class="kn">Lemma</span> <span class="nf">is_nat_trans_pr_quot_functor</span> : is_nat_trans _ _ pr_quot_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr_quot_functor</span> : (nat_trans R  quot_functor) := (_ ,, is_nat_trans_pr_quot_functor).
+
+  <span class="kn">Lemma</span> <span class="nf">isEpi_pw_pr_quot_functor</span> : ∏ x, isEpi  (pr_quot_functor x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a z f g eqfg.
+    <span class="nb">apply</span> funextfun.
+    <span class="nb">intro</span> x.
+    <span class="nb">eapply</span> surjectionisepitosets.
+    <span class="nb">apply</span>  issurjsetquotpr.
+    <span class="nb">apply</span> setproperty.
+    <span class="nb">intro</span> u.
+    <span class="nb">apply</span> toforallpaths <span class="k">in</span> eqfg.
+    <span class="nb">apply</span> eqfg.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isEpi_pr_quot_functor</span> : isEpi (C:=functor_precategory _ _ has_homsets_HSET) pr_quot_functor.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_nat_trans_epi_from_pointwise_epis.
+    <span class="nb">apply</span> isEpi_pw_pr_quot_functor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weqpathsinpr_quot_functor</span> <span class="nv">X</span> <span class="nv">x</span> <span class="nv">y</span> : hequiv X x y ≃ pr_quot_functor X x = pr_quot_functor X y.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (weqpathsinsetquot (hequiv X)).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">QuotientFunctor</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/SetValuedFunctors.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Ambroise LAFONT January 2017
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

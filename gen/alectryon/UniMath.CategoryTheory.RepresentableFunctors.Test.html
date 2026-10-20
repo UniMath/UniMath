@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Test.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** testing whether our way of doing coproducts fits with SubstitutionSystems  *)</span>
+
+<span class="sd">(** ******************************************</span>
+<span class="sd">Benedikt Ahrens, March 2015</span>
+<span class="sd">*********************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RepresentableFunctors.Representation.
+<span class="kn">Require</span>        UniMath.CategoryTheory.RepresentableFunctors.Precategories.
+
+
+<span class="kn">Section</span> <span class="nf">interface</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> : category.
+
+<span class="kn">Definition</span> <span class="nf">isCoproductCocone</span> (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">co</span> : C) (<span class="nv">ia</span> : a --&gt; co) (<span class="nv">ib</span> : b --&gt; co) :=
+  binarySumProperty ia ib.
+
+<span class="kn">Definition</span> <span class="nf">make_isCoproductCocone</span> (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">co</span> : C) (<span class="nv">ia</span> : a --&gt; co) (<span class="nv">ib</span> : b --&gt; co) :
+   (∏ (c : C) (f : a --&gt; c) (g : b --&gt; c),
+    <span class="k">∃</span>! k : C ⟦co, c⟧,
+      ia · k = f ×
+      ib · k = g)
+   -&gt;
+   isCoproductCocone a b co ia ib.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> u c fg. <span class="nb">refine</span> (iscontrweqf _ (u c (pr1 fg) (pr2 fg))).
+  <span class="nb">apply</span> weqfibtototal. <span class="nb">intro</span> d. <span class="nb">apply</span> weqiff.
+  { <span class="nb">split</span>.
+    { <span class="nb">intros</span> ee. <span class="nb">apply</span> dirprodeq.
+      { <span class="nb">simpl</span>. <span class="bp">exact</span> (pr1 ee). }
+      { <span class="nb">simpl</span>. <span class="bp">exact</span> (pr2 ee). } }
+    { <span class="nb">intros</span> ee. <span class="nb">split</span>.
+      { <span class="nb">simpl</span>. <span class="bp">exact</span> (maponpaths (HomPair_1 _ _ _) ee). }
+      { <span class="nb">simpl</span>. <span class="bp">exact</span> (maponpaths (HomPair_2 _ _ _) ee). } } }
+  { <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> (homset_property C). }
+  { <span class="nb">apply</span> setproperty. }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">CoproductCocone</span> (<span class="nv">a</span> <span class="nv">b</span> : C) := BinarySum a b.
+
+<span class="kn">Definition</span> <span class="nf">make_CoproductCocone</span> (<span class="nv">a</span> <span class="nv">b</span> : C) :
+  ∏ (c : C) (f : a --&gt; c) (g : b --&gt; c),
+    isCoproductCocone _ _ _ f g -&gt; CoproductCocone a b
+  := <span class="k">λ</span> <span class="nv">c</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">i</span>, c,,(f,,g),,i.
+
+<span class="kn">Definition</span> <span class="nf">Coproducts</span> := BinarySums C.
+<span class="kn">Definition</span> <span class="nf">hasCoproducts</span> (<span class="nv">C</span>:category) := ∏ (a b:C), ∥ BinarySum a b ∥.
+
+
+<span class="kn">Definition</span> <span class="nf">CoproductObject</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">CC</span> : CoproductCocone a b) : C :=
+  universalObject CC.
+
+<span class="kn">Definition</span> <span class="nf">CoproductIn1</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">CC</span> : CoproductCocone a b): a --&gt; CoproductObject CC
+  := in_1 CC.
+
+<span class="kn">Definition</span> <span class="nf">CoproductIn2</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">CC</span> : CoproductCocone a b) : b --&gt; CoproductObject CC
+  := in_2 CC.
+
+<span class="kn">Definition</span> <span class="nf">CoproductArrow</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">CC</span> : CoproductCocone a b) {<span class="nv">c</span> : C} (<span class="nv">f</span> : a --&gt; c) (<span class="nv">g</span> : b --&gt; c) :
+  CoproductObject CC --&gt; c
+  := binarySumMap CC f g.
+
+<span class="kn">Lemma</span> <span class="nf">CoproductIn1Commutes</span> (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">CC</span> : CoproductCocone a b):
+     ∏ (c : C) (f : a --&gt; c) g, CoproductIn1 CC · CoproductArrow CC f g  = f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c f g.
+  <span class="bp">exact</span> (binarySum_in_1_eqn CC f g).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">CoproductIn2Commutes</span> (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">CC</span> : CoproductCocone a b):
+     ∏ (c : C) (f : a --&gt; c) g, CoproductIn2 CC · CoproductArrow CC f g = g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c f g.
+  <span class="bp">exact</span> (binarySum_in_2_eqn CC f g).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">CoproductArrowUnique</span> (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">CC</span> : CoproductCocone a b) (<span class="nv">x</span> : C)
+    (<span class="nv">f</span> : a --&gt; x) (<span class="nv">g</span> : b --&gt; x) (<span class="nv">k</span> : CoproductObject CC --&gt; x) :
+    CoproductIn1 CC · k = f -&gt; CoproductIn2 CC · k = g -&gt;
+      k = CoproductArrow CC f g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> u v.
+  <span class="nb">apply</span> binarySumMapUniqueness.
+  { <span class="nb">refine</span> (u @ _). <span class="nb">apply</span> pathsinv0, CoproductIn1Commutes. }
+  { <span class="nb">refine</span> (v @ _). <span class="nb">apply</span> pathsinv0, CoproductIn2Commutes. }
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">CoproductArrowEta</span> (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">CC</span> : CoproductCocone a b) (<span class="nv">x</span> : C)
+    (<span class="nv">f</span> : CoproductObject CC --&gt; x) :
+    f = CoproductArrow CC (CoproductIn1 CC · f) (CoproductIn2 CC · f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> CoproductArrowUnique;
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">CoproductOfArrows</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">CCab</span> : CoproductCocone a b) {<span class="nv">c</span> <span class="nv">d</span> : C}
+    (<span class="nv">CCcd</span> : CoproductCocone c d) (<span class="nv">f</span> : a --&gt; c) (<span class="nv">g</span> : b --&gt; d) :
+          CoproductObject CCab --&gt; CoproductObject CCcd :=
+    CoproductArrow CCab (f · CoproductIn1 CCcd) (g · CoproductIn2 CCcd).
+
+<span class="kn">Lemma</span> <span class="nf">CoproductOfArrowsIn1</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">CCab</span> : CoproductCocone a b) {<span class="nv">c</span> <span class="nv">d</span> : C}
+    (<span class="nv">CCcd</span> : CoproductCocone c d) (<span class="nv">f</span> : a --&gt; c) (<span class="nv">g</span> : b --&gt; d) :
+    CoproductIn1 CCab · CoproductOfArrows CCab CCcd f g = f · CoproductIn1 CCcd.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> CoproductOfArrows.
+  <span class="nb">apply</span> CoproductIn1Commutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">CoproductOfArrowsIn2</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">CCab</span> : CoproductCocone a b) {<span class="nv">c</span> <span class="nv">d</span> : C}
+    (<span class="nv">CCcd</span> : CoproductCocone c d) (<span class="nv">f</span> : a --&gt; c) (<span class="nv">g</span> : b --&gt; d) :
+    CoproductIn2 CCab · CoproductOfArrows CCab CCcd f g = g · CoproductIn2 CCcd.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> CoproductOfArrows.
+  <span class="nb">apply</span> CoproductIn2Commutes.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">precompWithCoproductArrow</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">CCab</span> : CoproductCocone a b) {<span class="nv">c</span> <span class="nv">d</span> : C}
+    (<span class="nv">CCcd</span> : CoproductCocone c d) (<span class="nv">f</span> : a --&gt; c) (<span class="nv">g</span> : b --&gt; d)
+    {<span class="nv">x</span> : C} (<span class="nv">k</span> : c --&gt; x) (<span class="nv">h</span> : d --&gt; x) :
+        CoproductOfArrows CCab CCcd f g · CoproductArrow CCcd k h =
+         CoproductArrow CCab (f · k) (g · h).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> CoproductArrowUnique.
+  - <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> CoproductOfArrowsIn1.
+    <span class="nb">rewrite</span> &lt;- assoc, CoproductIn1Commutes.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> assoc, CoproductOfArrowsIn2.
+    <span class="nb">rewrite</span> &lt;- assoc, CoproductIn2Commutes.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">postcompWithCoproductArrow</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">CCab</span> : CoproductCocone a b) {<span class="nv">c</span> : C}
+    (<span class="nv">f</span> : a --&gt; c) (<span class="nv">g</span> : b --&gt; c) {<span class="nv">x</span> : C} (<span class="nv">k</span> : c --&gt; x)  :
+       CoproductArrow CCab f g · k = CoproductArrow CCab (f · k) (g · k).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> CoproductArrowUnique.
+  -  <span class="nb">rewrite</span> assoc, CoproductIn1Commutes;
+     <span class="nb">apply</span> idpath.
+  -  <span class="nb">rewrite</span> assoc, CoproductIn2Commutes;
+     <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Section</span> <span class="nf">coproduct_unique</span>.
+
+<span class="kn">Hypothesis</span> <span class="nv">H</span> : is_univalent C.
+
+<span class="kn">Variables</span> <span class="nv">a</span> <span class="nv">b</span> : C.
+
+<span class="kn">Definition</span> <span class="nf">from_Coproduct_to_Coproduct</span> (<span class="nv">CC</span> <span class="nv">CC'</span> : CoproductCocone a b)
+  : CoproductObject CC --&gt; CoproductObject CC'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (CoproductArrow CC  (CoproductIn1 _ ) (CoproductIn2 _ )).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">Coproduct_endo_is_identity</span> (<span class="nv">CC</span> : CoproductCocone a b)
+  (<span class="nv">k</span> : CoproductObject CC --&gt; CoproductObject CC)
+  (<span class="nv">H1</span> : CoproductIn1 CC · k = CoproductIn1 CC)
+  (<span class="nv">H2</span> : CoproductIn2 CC · k = CoproductIn2 CC)
+  : identity _ = k.
+<span class="kn">Proof</span>.
+<span class="c">(*  apply pathsinv0. *)</span>
+<span class="c">(*   apply colim_endo_is_identity. *)</span>
+<span class="c">(*   intro u; induction u; simpl; assumption. *)</span>
+<span class="c">(* Defined. *)</span>
+<span class="kn">Abort</span>.
+
+<span class="kn">End</span> <span class="nf">coproduct_unique</span>.
+
+
+<span class="kn">End</span> <span class="nf">interface</span>.
+
+<span class="kn">Section</span> <span class="nf">def_functor_pointwise_coprod</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> <span class="nv">D</span> : category.
+<span class="kn">Variable</span> <span class="nv">HD</span> : Coproducts D.
+
+<span class="kn">Definition</span> <span class="nf">hsD</span> := homset_property D.
+
+<span class="kn">Section</span> <span class="nf">coproduct_functor</span>.
+
+<span class="kn">Variables</span> <span class="nv">F</span> <span class="nv">G</span> : functor C D.
+
+<span class="kn">Definition</span> <span class="nf">Coproducts_functor_precat</span> : Coproducts (functor_category C D).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> functorBinarySum.
+  <span class="bp">exact</span> HD.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">coproduct_functor</span> : functor C D := universalObject (functorBinarySum HD F G).
+
+<span class="kn">End</span> <span class="nf">coproduct_functor</span>.
+<span class="kn">End</span> <span class="nf">def_functor_pointwise_coprod</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/RepresentableFunctors/Test.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Benedikt Ahrens, March 2015
+  &gt; *********************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

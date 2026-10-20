@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>whiskering.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Whiskering</span>
+
+<span class="sd">  Benedikt Ahrens, Chris Kapulkin, Mike Shulman</span>
+
+<span class="sd">  January 2013</span>
+<span class="sd">*)</span>
+
+
+<span class="sd">(** ** Contents :</span>
+
+<span class="sd">  - Precomposition with a functor for</span>
+<span class="sd">    - functors and</span>
+<span class="sd">    - natural transformations (whiskering)</span>
+
+<span class="sd">  - Functoriality of precomposition / postcomposition</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Whiskering: Composition of a natural transformation with a functor *)</span>
+
+<span class="sd">(** Prewhiskering *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_pre_whisker</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : precategory_data)
+   (<span class="nv">F</span> : functor_data A B) (<span class="nv">G</span> <span class="nv">H</span> : functor_data B C) (<span class="nv">gamma</span> : nat_trans G H) :
+   is_nat_trans
+        (functor_composite_data F G)
+        (functor_composite_data F H)
+   (<span class="k">λ</span> <span class="nv">a</span> : A, gamma (F a)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b f; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> nat_trans_ax.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">pre_whisker</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : precategory_data}
+   (<span class="nv">F</span> : functor_data A B)  {<span class="nv">G</span> <span class="nv">H</span> : functor_data B C} (<span class="nv">gamma</span> : nat_trans G H) :
+   nat_trans (functor_composite_data F G)  (functor_composite_data F H).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">a</span>, <span class="nv">pr1</span> <span class="nv">gamma</span> (pr1 F a)).
+  <span class="nb">apply</span> is_nat_trans_pre_whisker.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pre_whisker_iso_is_iso</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : precategory_data}
+    (<span class="nv">F</span> : functor_data A B)  {<span class="nv">G</span> <span class="nv">H</span> : functor_data B C} (<span class="nv">gamma</span> : nat_trans G H)
+    (<span class="nv">X</span> : is_nat_iso gamma)
+  : is_nat_iso (pre_whisker F gamma).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a.
+  <span class="nb">apply</span> X.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pre_whisker_on_nat_z_iso</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : precategory_data}
+    (<span class="nv">F</span> : functor_data A B)  {<span class="nv">G</span> <span class="nv">H</span> : functor_data B C} (<span class="nv">gamma</span> : nat_trans G H)
+    (<span class="nv">X</span> : is_nat_z_iso gamma)
+  : is_nat_z_iso (pre_whisker F gamma).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a.
+  <span class="nb">apply</span> X.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pre_whisker_in_funcat</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category)
+           (<span class="nv">F</span> : [A, B]) {<span class="nv">G</span> <span class="nv">H</span> : [B, C]} (<span class="nv">γ</span> : [B, C]⟦G, H⟧) :
+  [A, C]⟦functor_compose F G, functor_compose F H⟧.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pre_whisker (F: A ⟶ B) γ).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Postwhiskering *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_post_whisker</span> (<span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : precategory_data)
+   (<span class="nv">G</span> <span class="nv">H</span> : functor_data B C) (<span class="nv">gamma</span> : nat_trans G  H)
+        (<span class="nv">K</span> : functor C D):
+  is_nat_trans (functor_composite_data  G K)
+                         (functor_composite_data H K)
+     (<span class="k">λ</span> <span class="nv">b</span> : B, #K (gamma b)).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_nat_trans.
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">intros</span>;
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- functor_comp.
+  <span class="nb">rewrite</span> (nat_trans_ax gamma).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">post_whisker</span> {<span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : precategory_data}
+   {<span class="nv">G</span> <span class="nv">H</span> : functor_data B C} (<span class="nv">gamma</span> : nat_trans G H)
+        (<span class="nv">K</span> : functor C D)
+  : nat_trans (functor_composite_data G K) (functor_composite_data H K).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">a</span> : ob B, #(pr1 K) (pr1 gamma  a)).
+  <span class="nb">apply</span> is_nat_trans_post_whisker.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">post_whisker_iso_is_iso</span> {<span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : precategory}
+   {<span class="nv">G</span> <span class="nv">H</span> : functor_data B C} (<span class="nv">gamma</span> : nat_trans G H)
+   (<span class="nv">K</span> : functor C D)
+   (<span class="nv">X</span> : is_nat_iso gamma)
+  : is_nat_iso (post_whisker gamma K).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> b.
+  <span class="nb">unfold</span> post_whisker.
+  <span class="nb">simpl</span>.
+  <span class="nb">set</span> ( gammab := make_iso (gamma b) (X b) ).
+  <span class="nb">apply</span> (functor_on_iso_is_iso C D K _ _ gammab).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">post_whisker_z_iso_is_z_iso</span> {<span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : precategory}
+   {<span class="nv">G</span> <span class="nv">H</span> : functor_data B C} (<span class="nv">gamma</span> : nat_trans G H)
+   (<span class="nv">K</span> : functor C D)
+   (<span class="nv">X</span> : is_nat_z_iso gamma)
+  : is_nat_z_iso (post_whisker gamma K).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> b.
+  <span class="nb">unfold</span> post_whisker.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> (functor_on_is_z_isomorphism K (X b)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">post_whisker_in_funcat</span> (<span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : category)
+            {<span class="nv">G</span> <span class="nv">H</span> : [B, C]} (<span class="nv">γ</span> : [B, C]⟦G, H⟧) (<span class="nv">K</span> : [C, D]) :
+  [B, D]⟦functor_compose G K, functor_compose H K⟧.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (post_whisker γ (K: C ⟶ D)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Precomposition with a functor is functorial *)</span>
+
+<span class="kn">Definition</span> <span class="nf">pre_composition_functor_data</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category)
+      (<span class="nv">H</span> : ob [A, B]) : functor_data [B, C] [A, C].
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">G</span>, <span class="nv">functor_compose</span> <span class="nv">H</span> <span class="nv">G</span>).
+  <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">gamma</span>, pre_whisker_in_funcat _ _ _ H gamma).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">pre_whisker_identity</span> (<span class="nv">A</span> <span class="nv">B</span> : precategory_data) (<span class="nv">C</span> : category)
+  (<span class="nv">H</span> : functor_data A B) (<span class="nv">G</span> : functor_data B C)
+  : pre_whisker H (nat_trans_id G) =
+   nat_trans_id (functor_composite_data H G).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq.
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">intro</span> a. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">identity_pre_whisker</span> (<span class="nv">B</span> : precategory_data) (<span class="nv">C</span> : category)
+  (<span class="nv">F</span> <span class="nv">G</span> : functor_data B C) (<span class="nv">α</span> : nat_trans F G)
+  : pre_whisker (functor_identity B) α = α.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq.
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">intro</span> a. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pre_whisker_composition</span> (<span class="nv">A</span> <span class="nv">B</span> : precategory_data) (<span class="nv">C</span> : category)
+  (<span class="nv">H</span> : functor_data A B) (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : functor_data B C)
+  (<span class="nv">f</span> : nat_trans a b) (<span class="nv">g</span> : nat_trans b c)
+  : pre_whisker H (nat_trans_comp _ _ _ f g) =
+     nat_trans_comp _ _ _ (pre_whisker H f) (pre_whisker H g).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq.
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">intro</span>; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pre_composition_is_functor</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category) (<span class="nv">H</span> : [A, B]) :
+    is_functor (pre_composition_functor_data A B C H).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">simpl</span> <span class="k">in</span> *.
+  - <span class="nb">unfold</span> functor_idax .
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> pre_whisker_identity.
+  - <span class="nb">unfold</span> functor_compax .
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> pre_whisker_composition.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pre_composition_functor</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category) (<span class="nv">H</span> : [A , B]) : functor [B, C] [A, C].
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">pre_composition_functor_data</span> <span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">H</span>).
+  <span class="nb">apply</span> pre_composition_is_functor.
+<span class="kn">Defined</span>.
+
+<span class="c">(* Variation with more implicit arguments *)</span>
+<span class="kn">Definition</span> <span class="nf">pre_comp_functor</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span>: category} :
+  [A, B] → [B, C] ⟶ [A, C] :=
+    pre_composition_functor _ _ _.
+
+<span class="kn">Section</span> <span class="nf">Functor</span>.
+
+  <span class="kn">Context</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category).
+
+  <span class="kn">Definition</span> <span class="nf">pre_comp_nat_trans_data</span>
+    {<span class="nv">F</span> <span class="nv">G</span> : A ⟶ B}
+    (<span class="nv">α</span> : F ⟹ G)
+    : nat_trans_data (pre_comp_functor (C := C) F) (pre_comp_functor G)
+    := post_whisker α.
+
+  <span class="kn">Lemma</span> <span class="nf">pre_comp_is_nat_trans</span>
+    {<span class="nv">F</span> <span class="nv">G</span> : A ⟶ B}
+    (<span class="nv">α</span> : F ⟹ G)
+    : is_nat_trans _ _ (pre_comp_nat_trans_data α).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H H' β.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> a.
+    <span class="bp">exact</span> (!nat_trans_ax β _ _ _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pre_comp_nat_trans</span>
+    {<span class="nv">F</span> <span class="nv">G</span> : A ⟶ B}
+    (<span class="nv">α</span> : F ⟹ G)
+    : pre_comp_functor (C := C) F ⟹ pre_comp_functor G
+    := make_nat_trans _ _
+      (pre_comp_nat_trans_data α)
+      (pre_comp_is_nat_trans α).
+
+  <span class="kn">Definition</span> <span class="nf">pre_comp_functor_functor_data</span>
+    : functor_data [A, B] [[B, C], [A, C]]
+    := make_functor_data (C' := [_, _])
+      pre_comp_functor
+      (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">α</span>, pre_comp_nat_trans α).
+
+  <span class="kn">Lemma</span> <span class="nf">pre_comp_functor_functor_is_functor</span>
+    : is_functor pre_comp_functor_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_functor.
+    - <span class="nb">intro</span> F.
+      <span class="nb">apply</span> nat_trans_eq_alt.
+      <span class="nb">intro</span> G.
+      <span class="nb">apply</span> nat_trans_eq_alt.
+      <span class="nb">intro</span> a.
+      <span class="nb">apply</span> (functor_id G).
+    - <span class="nb">intros</span> F G H α β.
+      <span class="nb">apply</span> nat_trans_eq_alt.
+      <span class="nb">intro</span> I.
+      <span class="nb">apply</span> nat_trans_eq_alt.
+      <span class="nb">intro</span> a.
+      <span class="nb">apply</span> (functor_comp I).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pre_comp_functor_functor</span>
+    : [A, B] ⟶ [[B, C], [A, C]]
+    := make_functor
+      pre_comp_functor_functor_data
+      pre_comp_functor_functor_is_functor.
+
+<span class="kn">End</span> <span class="nf">Functor</span>.
+
+<span class="kn">Definition</span> <span class="nf">pre_comp_functor_assoc</span>
+  {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : category}
+  (<span class="nv">F</span> : A ⟶ B)
+  (<span class="nv">G</span> : B ⟶ C)
+  : z_iso (C := [[C, D], [A, D]])
+    (pre_comp_functor (F ∙ G))
+    (pre_comp_functor G ∙ pre_comp_functor F).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (invmap (z_iso_is_nat_z_iso _ _)).
+  use make_nat_z_iso.
+  - use make_nat_trans.
+    + <span class="nb">intro</span> H.
+      <span class="bp">exact</span> (z_iso_inv (invmap (z_iso_is_nat_z_iso _ _) (nat_z_iso_functor_comp_assoc _ _ _))).
+    + <span class="kp">abstract</span> (
+        <span class="nb">intros</span> H H' α;
+        <span class="nb">apply</span> nat_trans_eq_alt;
+        <span class="nb">intro</span> a;
+        <span class="bp">exact</span> (id_right _ @ !id_left _)
+      ).
+  - <span class="nb">intro</span> H.
+    <span class="nb">apply</span> z_iso_is_z_isomorphism.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Postcomposition with a functor is functorial *)</span>
+
+<span class="kn">Definition</span> <span class="nf">post_composition_functor_data</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category)
+      (<span class="nv">H</span> : ob [B, C]) : functor_data [A, B] [A, C].
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">G</span>, <span class="nv">functor_compose</span> <span class="nv">G</span> <span class="nv">H</span>).
+  <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">gamma</span>, post_whisker_in_funcat _ _ _ gamma H).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">post_whisker_identity</span> (<span class="nv">A</span> <span class="nv">B</span> : precategory) (<span class="nv">C</span> : category)
+  (<span class="nv">H</span> : functor B C) (<span class="nv">G</span> : functor_data A B)
+  : post_whisker (nat_trans_id G) H =
+   nat_trans_id (functor_composite_data G H).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq.
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">intro</span> a. <span class="nb">unfold</span> post_whisker. <span class="nb">simpl</span>.
+    <span class="nb">apply</span> functor_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">identity_post_whisker</span> (<span class="nv">B</span> : precategory_data) (<span class="nv">C</span> : category)
+  (<span class="nv">F</span> <span class="nv">G</span> : functor_data B C) (<span class="nv">α</span> : nat_trans F G)
+  : post_whisker α (functor_identity C) = α.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq.
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">intro</span> a. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">post_whisker_composition</span> (<span class="nv">A</span> <span class="nv">B</span> : precategory) (<span class="nv">C</span> : category)
+  (<span class="nv">H</span> : functor B C) (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : functor_data A B)
+  (<span class="nv">f</span> : nat_trans a b) (<span class="nv">g</span> : nat_trans b c)
+  : post_whisker (nat_trans_comp _ _ _ f g) H =
+     nat_trans_comp _ _ _ (post_whisker f H) (post_whisker g H).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq.
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">intro</span>; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> functor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">post_composition_is_functor</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category) (<span class="nv">H</span> : [B, C]) :
+    is_functor (post_composition_functor_data A B C H).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">simpl</span> <span class="k">in</span> *.
+  - <span class="nb">unfold</span> functor_idax .
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> post_whisker_identity.
+  - <span class="nb">unfold</span> functor_compax .
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> post_whisker_composition.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">post_composition_functor</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category) (<span class="nv">H</span> : [B , C]) : functor [A, B] [A, C].
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">post_composition_functor_data</span> <span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">H</span>).
+  <span class="nb">apply</span> post_composition_is_functor.
+<span class="kn">Defined</span>.
+
+<span class="c">(* Variation with more implicit arguments *)</span>
+<span class="kn">Definition</span> <span class="nf">post_comp_functor</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category} :
+  [B, C] → [A, B] ⟶ [A, C] :=
+  post_composition_functor _ _ _.
+
+<span class="kn">Section</span> <span class="nf">Functor</span>.
+
+  <span class="kn">Context</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category).
+
+  <span class="kn">Definition</span> <span class="nf">post_comp_nat_trans_data</span>
+    {<span class="nv">F</span> <span class="nv">G</span> : B ⟶ C}
+    (<span class="nv">α</span> : F ⟹ G)
+    : nat_trans_data (post_comp_functor (A := A) F) (post_comp_functor G)
+    := <span class="k">λ</span> (<span class="nv">H</span> : _ ⟶ _), pre_whisker H α.
+
+  <span class="kn">Lemma</span> <span class="nf">post_comp_is_nat_trans</span>
+    {<span class="nv">F</span> <span class="nv">G</span> : B ⟶ C}
+    (<span class="nv">α</span> : F ⟹ G)
+    : is_nat_trans _ _ (post_comp_nat_trans_data α).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H H' β.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> a.
+    <span class="nb">apply</span> (nat_trans_ax α).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">post_comp_nat_trans</span>
+    {<span class="nv">F</span> <span class="nv">G</span> : B ⟶ C}
+    (<span class="nv">α</span> : F ⟹ G)
+    : post_comp_functor (C := C) F ⟹ post_comp_functor G
+    := make_nat_trans _ _
+      (post_comp_nat_trans_data α)
+      (post_comp_is_nat_trans α).
+
+  <span class="kn">Definition</span> <span class="nf">post_comp_functor_functor_data</span>
+    : functor_data [B, C] [[A, B], [A, C]]
+    := make_functor_data (C' := [_, _])
+      post_comp_functor
+      (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">α</span>, post_comp_nat_trans α).
+
+  <span class="kn">Lemma</span> <span class="nf">post_comp_functor_functor_is_functor</span>
+    : is_functor post_comp_functor_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_functor.
+    - <span class="nb">intro</span> F.
+      <span class="nb">apply</span> nat_trans_eq_alt.
+      <span class="nb">intro</span> G.
+      <span class="nb">apply</span> nat_trans_eq_alt.
+      <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> F G H α β.
+      <span class="nb">apply</span> nat_trans_eq_alt.
+      <span class="nb">intro</span> I.
+      <span class="nb">apply</span> nat_trans_eq_alt.
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">post_comp_functor_functor</span>
+    : [B, C] ⟶ [[A, B], [A, C]]
+    := make_functor
+      post_comp_functor_functor_data
+      post_comp_functor_functor_is_functor.
+
+<span class="kn">End</span> <span class="nf">Functor</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pre_whisker_nat_z_iso</span>
+      {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category} (<span class="nv">F</span> : functor C D)
+      {<span class="nv">G1</span> <span class="nv">G2</span> : functor D E} (<span class="nv">α</span> : nat_z_iso G1 G2)
+  : nat_z_iso (functor_composite F G1) (functor_composite F G2).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">pre_whisker</span> <span class="nv">F</span> <span class="nv">α</span>).
+  <span class="bp">exact</span> (pre_whisker_on_nat_z_iso F α (pr2 α)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">post_whisker_nat_z_iso</span>
+      {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+      {<span class="nv">G1</span> <span class="nv">G2</span> : functor C D} (<span class="nv">α</span> : nat_z_iso G1 G2) (<span class="nv">F</span> : functor D E)
+  : nat_z_iso (functor_composite G1 F) (functor_composite G2 F).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">post_whisker</span> <span class="nv">α</span> <span class="nv">F</span>).
+  <span class="bp">exact</span> (post_whisker_z_iso_is_z_iso α F (pr2 α)).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/whiskering.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

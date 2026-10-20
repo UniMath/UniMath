@@ -1,0 +1,950 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Sieves.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************************</span>
+
+<span class="sd"> Complete Heyting Algebras of Sieves</span>
+
+<span class="sd"> We consider two ways to construct a Heyting algebra from a poset `X`.</span>
+
+<span class="sd"> The first way is via sieves. A sieve in a poset is a downwards closed set. The collection of</span>
+<span class="sd"> all sieves then forms a Heyting algebra. The order is given by subset, the lattice operations</span>
+<span class="sd"> are given by union and intersection, and the supremum of a collection of sieves is also given</span>
+<span class="sd"> by the union.</span>
+
+<span class="sd"> For the other construction, we assume that we have a coverage of `X`. A coverage on a poset</span>
+<span class="sd"> specifies for each element a collection of covers ([is_coverage]), and we represent this as</span>
+<span class="sd"> a function that maps inhabitants of `X` and predicates `X → hProp` to a proposition. There</span>
+<span class="sd"> are several requirements for coverages that we explain below. If we have a coverage on a poset,</span>
+<span class="sd"> then we can define the notion of a closed sieve ([closed_sieve]). Note the similarities between</span>
+<span class="sd"> the definition of coverage and that of a Grothendieck topology and the definition of a closed</span>
+<span class="sd"> sieve and that of a sheaf.</span>
+
+<span class="sd"> To show that closed sieves form a Heyting algebra, we use impredicativity. The union of closed</span>
+<span class="sd"> sieves and the initial closed sieve are constructed as intersections that quantify over the</span>
+<span class="sd"> collection of all closed sieves. Hence, to guarantee that they land in the right universe, we</span>
+<span class="sd"> need to use propositional resizing.</span>
+
+<span class="sd"> References:</span>
+<span class="sd"> - Appendix A in "Intuitionistic Set Theory" by John Bell</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Sieves</span>
+<span class="sd"> 2. Operations on sieve</span>
+<span class="sd"> 3. The Heyting algebra of sieves</span>
+<span class="sd"> 4. Coverages</span>
+<span class="sd"> 5. Closed sieves</span>
+<span class="sd"> 6. Operations on closed sieves</span>
+<span class="sd"> 7. The complete Heyting algebra of closed sieves</span>
+
+<span class="sd"> **********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Lattice.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Bounded.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Distributive.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Heyting.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.CompleteHeyting.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Examples.FromPartialOrder.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> poset.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> logic.
+
+<span class="kn">Section</span> <span class="nf">FixPoset</span>.
+  <span class="kn">Context</span> (<span class="nv">X</span> : Poset).
+
+  <span class="sd">(** * 1. Sieves *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_sieve</span> (<span class="nv">S</span> : X → hProp) : hProp
+    := <span class="k">∀</span> (<span class="nv">x</span> <span class="nv">y</span> : X), x ≤ y ⇒ S y ⇒ S x.
+
+  <span class="kn">Definition</span> <span class="nf">sieve</span> : UU
+    := ∑ (S : X → hProp), is_sieve S.
+
+  <span class="kn">Definition</span> <span class="nf">sieve_to_pred</span>
+             (<span class="nv">S</span> : sieve)
+             (<span class="nv">x</span> : X)
+    : hProp.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 S x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Coercion</span> <span class="nf">sieve_to_pred</span> : sieve &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">sieve_downwards_closed</span>
+              (<span class="nv">S</span> : sieve)
+              {<span class="nv">x</span> <span class="nv">y</span> : X}
+              (<span class="nv">p</span> : x ≤ y)
+              (<span class="nv">q</span> : S y)
+    : S x.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 S x y p q).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_sieve</span>
+              {<span class="nv">S₁</span> <span class="nv">S₂</span> : sieve}
+              (<span class="nv">H₁</span> : ∏ (x : X), S₁ x → S₂ x)
+              (<span class="nv">H₂</span> : ∏ (x : X), S₂ x → S₁ x)
+    : S₁ = S₂.
+  <span class="kn">Proof</span>.
+    use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> propproperty | ].
+    use funextsec ; <span class="nb">intro</span> x.
+    use hPropUnivalence.
+    - <span class="nb">apply</span> H₁.
+    - <span class="nb">apply</span> H₂.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_sieve_l</span>
+              {<span class="nv">S₁</span> <span class="nv">S₂</span> : sieve}
+              (<span class="nv">p</span> : S₁ = S₂)
+              (<span class="nv">x</span> : X)
+              (<span class="nv">q</span> : S₁ x)
+    : S₂ x.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="bp">exact</span> q.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_sieve_r</span>
+              {<span class="nv">S₁</span> <span class="nv">S₂</span> : sieve}
+              (<span class="nv">p</span> : S₁ = S₂)
+              (<span class="nv">x</span> : X)
+              (<span class="nv">q</span> : S₂ x)
+    : S₁ x.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="bp">exact</span> q.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_sieve</span>
+             (<span class="nv">S</span> : X → hProp)
+             (<span class="nv">HS</span> : is_sieve S)
+    : sieve
+    := S ,, HS.
+
+  <span class="kn">Definition</span> <span class="nf">isaset_sieve</span>
+    : isaset sieve.
+  <span class="kn">Proof</span>.
+    use isaset_total2.
+    - use funspace_isaset.
+      <span class="nb">apply</span> isasethProp.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">set_of_sieves</span> : hSet
+    := make_hSet sieve isaset_sieve.
+
+  <span class="sd">(** * 2. Operations on sieve *)</span>
+
+  <span class="sd">(** Every subset generates a sieve *)</span>
+  <span class="kn">Proposition</span> <span class="nf">generated_sieve</span>
+              (<span class="nv">P</span> : X → hProp)
+    : sieve.
+  <span class="kn">Proof</span>.
+    use make_sieve.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, <span class="k">∃</span> (<span class="nv">y</span> : X), P y ∧ x ≤ y).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y p ;
+         use factor_through_squash_hProp ;
+         <span class="nb">intros</span> l ;
+         <span class="nb">induction</span> l <span class="k">as</span> [ l [ q₁ q₂ ] ] ;
+         <span class="nb">refine</span> (hinhpr (l ,, q₁ ,, _)) ;
+         <span class="bp">exact</span> (istrans_posetRelation _ _ _ _ p q₂)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Lower sieve *)</span>
+  <span class="kn">Definition</span> <span class="nf">lower_elements_sieve</span>
+             (<span class="nv">x</span> : X)
+    : sieve.
+  <span class="kn">Proof</span>.
+    use make_sieve.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>, y ≤ x).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> y₁ y₂ p q ;
+         <span class="bp">exact</span> (istrans_posetRelation _ _ _ _ p q)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Heyting algebra operations on sieve *)</span>
+  <span class="kn">Definition</span> <span class="nf">empty_sieve</span>
+    : sieve.
+  <span class="kn">Proof</span>.
+    use make_sieve.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, hfalse).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y p q ;
+         <span class="bp">exact</span> q).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">full_sieve</span>
+    : sieve.
+  <span class="kn">Proof</span>.
+    use make_sieve.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, htrue).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y p q ;
+         <span class="bp">exact</span> tt).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sieve_intersection</span>
+             (<span class="nv">S₁</span> <span class="nv">S₂</span> : sieve)
+    : sieve.
+  <span class="kn">Proof</span>.
+    use make_sieve.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, S₁ x ∧ S₂ x).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y p q ;
+         <span class="nb">induction</span> q <span class="k">as</span> [ q₁ q₂ ] ;
+         <span class="bp">exact</span> (sieve_downwards_closed S₁ p q₁ ,, sieve_downwards_closed S₂ p q₂)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sieve_union</span>
+             (<span class="nv">S₁</span> <span class="nv">S₂</span> : sieve)
+    : sieve.
+  <span class="kn">Proof</span>.
+    use make_sieve.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, S₁ x ∨ S₂ x).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y p ;
+         use factor_through_squash_hProp ;
+         <span class="nb">intros</span> q ;
+         <span class="nb">induction</span> q <span class="k">as</span> [ q | q ] ;
+         use hinhpr ;
+         [ <span class="bp">exact</span> (inl (sieve_downwards_closed S₁ p q))
+         | <span class="bp">exact</span> (inr (sieve_downwards_closed S₂ p q)) ]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sieve_type_union</span>
+             (<span class="nv">I</span> : UU)
+             (<span class="nv">SI</span> : I → sieve)
+    : sieve.
+  <span class="kn">Proof</span>.
+    use make_sieve.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, <span class="k">∃</span> (<span class="nv">i</span> : I), SI i x).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y p ;
+         use factor_through_squash_hProp ;
+         <span class="nb">intros</span> iq ;
+         <span class="nb">induction</span> iq <span class="k">as</span> [ i q ] ;
+         <span class="nb">refine</span> (hinhpr (i ,, _)) ;
+         <span class="bp">exact</span> (sieve_downwards_closed (SI i) p q)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sieve_type_intersection</span>
+             (<span class="nv">I</span> : UU)
+             (<span class="nv">SI</span> : I → sieve)
+    : sieve.
+  <span class="kn">Proof</span>.
+    use make_sieve.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, <span class="k">∀</span> (<span class="nv">i</span> : I), SI i x).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y p H i ;
+         <span class="bp">exact</span> (sieve_downwards_closed (SI i) p (H i))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">subset_sieve</span>
+             (<span class="nv">S₁</span> <span class="nv">S₂</span> : sieve)
+    : hProp
+    := <span class="k">∀</span> <span class="nv">x</span>, S₁ x ⇒ S₂ x.
+
+  <span class="kn">Proposition</span> <span class="nf">isrefl_subset_sieve</span>
+    : isrefl subset_sieve.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> S x p.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isantisymm_subset_sieve</span>
+    : isantisymm subset_sieve.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> S₁ S₂ p q.
+    use eq_sieve.
+    - <span class="nb">apply</span> p.
+    - <span class="nb">apply</span> q.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">istrans_subset_sieve</span>
+    : istrans subset_sieve.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> S₁ S₂ S₃ p q x r.
+    <span class="bp">exact</span> (q x (p x r)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sieve_exponential</span>
+             (<span class="nv">S₁</span> <span class="nv">S₂</span> : sieve)
+    : sieve.
+  <span class="kn">Proof</span>.
+    use make_sieve.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, subset_sieve (sieve_intersection S₁ (lower_elements_sieve x)) S₂).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y p q z r ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+         <span class="nb">apply</span> q ;
+         <span class="nb">refine</span> (pr1 r ,, _) ;
+         <span class="bp">exact</span> (istrans_posetRelation _ _ _ _ (pr2 r) p)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. The Heyting algebra of sieves *)</span>
+  <span class="kn">Proposition</span> <span class="nf">lattice_laws_set_of_sieves</span>
+    : @islatticeop set_of_sieves sieve_intersection sieve_union.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> S₁ S₂ S₃.
+      use eq_sieve ; <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      + <span class="nb">intros</span> pqr.
+        <span class="nb">induction</span> pqr <span class="k">as</span> [ [ p q ] r ].
+        <span class="bp">exact</span> (p ,, q ,, r).
+      + <span class="nb">intros</span> pqr.
+        <span class="nb">induction</span> pqr <span class="k">as</span> [ p [ q r ]].
+        <span class="bp">exact</span> ((p ,, q) ,, r).
+    - <span class="nb">intros</span> S₁ S₂.
+      use eq_sieve ; <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      + <span class="nb">intros</span> pq.
+        <span class="nb">induction</span> pq <span class="k">as</span> [ p q ].
+        <span class="bp">exact</span> (q ,, p).
+      + <span class="nb">intros</span> pq.
+        <span class="nb">induction</span> pq <span class="k">as</span> [ p q ].
+        <span class="bp">exact</span> (q ,, p).
+    - <span class="nb">intros</span> S₁ S₂ S₃.
+      use eq_sieve ; <span class="nb">intro</span> x.
+      + use factor_through_squash_hProp.
+        <span class="nb">intros</span> pqr.
+        <span class="nb">induction</span> pqr <span class="k">as</span> [ pq | r ].
+        * <span class="nb">revert</span> pq.
+          use factor_through_squash_hProp.
+          <span class="nb">intros</span> pq.
+          <span class="nb">induction</span> pq <span class="k">as</span> [ p | q ].
+          ** <span class="bp">exact</span> (hinhpr (inl p)).
+          ** <span class="bp">exact</span> (hinhpr (inr (hinhpr (inl q)))).
+        * <span class="bp">exact</span> (hinhpr (inr (hinhpr (inr r)))).
+      + use factor_through_squash_hProp.
+        <span class="nb">intros</span> pqr.
+        <span class="nb">induction</span> pqr <span class="k">as</span> [ p | qr ].
+        * <span class="bp">exact</span> (hinhpr (inl (hinhpr (inl p)))).
+        * <span class="nb">revert</span> qr.
+          use factor_through_squash_hProp.
+          <span class="nb">intros</span> qr.
+          <span class="nb">induction</span> qr <span class="k">as</span> [ q | r ].
+          ** <span class="bp">exact</span> (hinhpr (inl (hinhpr (inr q)))).
+          ** <span class="bp">exact</span> (hinhpr (inr r)).
+    - <span class="nb">intros</span> S₁ S₂.
+      use eq_sieve ; <span class="nb">intro</span> x.
+      + use factor_through_squash_hProp.
+        <span class="nb">intros</span> pq.
+        <span class="nb">induction</span> pq <span class="k">as</span> [ p | q ].
+        * <span class="bp">exact</span> (hinhpr (inr p)).
+        * <span class="bp">exact</span> (hinhpr (inl q)).
+      + use factor_through_squash_hProp.
+        <span class="nb">intros</span> pq.
+        <span class="nb">induction</span> pq <span class="k">as</span> [ p | q ].
+        * <span class="bp">exact</span> (hinhpr (inr p)).
+        * <span class="bp">exact</span> (hinhpr (inl q)).
+    - <span class="nb">intros</span> S₁ S₂.
+      use eq_sieve ; <span class="nb">intro</span> x.
+      + <span class="nb">intros</span> pq.
+        <span class="nb">induction</span> pq <span class="k">as</span> [ p pq ].
+        <span class="bp">exact</span> p.
+      + <span class="nb">intros</span> p.
+        <span class="bp">exact</span> (p ,, hinhpr (inl p)).
+    - <span class="nb">intros</span> S₁ S₂.
+      use eq_sieve ; <span class="nb">intro</span> x.
+      + use factor_through_squash_hProp.
+        <span class="nb">intros</span> pq.
+        <span class="nb">induction</span> pq <span class="k">as</span> [ p | pq ].
+        * <span class="bp">exact</span> p.
+        * <span class="bp">exact</span> (pr1 pq).
+      + <span class="nb">intros</span> p.
+        <span class="bp">exact</span> (hinhpr (inl p)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lattice_set_of_sieves</span>
+    : lattice set_of_sieves.
+  <span class="kn">Proof</span>.
+    use make_lattice.
+    - <span class="bp">exact</span> sieve_intersection.
+    - <span class="bp">exact</span> sieve_union.
+    - <span class="bp">exact</span> lattice_laws_set_of_sieves.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">bounded_lattice_laws_set_of_sieves</span>
+    : bounded_latticeop lattice_set_of_sieves empty_sieve full_sieve.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> S.
+      use eq_sieve ; <span class="nb">intro</span> x.
+      + use factor_through_squash_hProp.
+        <span class="nb">intros</span> p.
+        <span class="nb">induction</span> p <span class="k">as</span> [ p | p ].
+        * <span class="nb">apply</span> fromempty.
+          <span class="bp">exact</span> p.
+        * <span class="bp">exact</span> p.
+      + <span class="nb">intro</span> p.
+        <span class="bp">exact</span> (hinhpr (inr p)).
+    - <span class="nb">intros</span> S.
+      use eq_sieve ; <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      + <span class="nb">intros</span> pq.
+        <span class="bp">exact</span> (pr2 pq).
+      + <span class="nb">intros</span> p.
+        <span class="bp">exact</span> (tt ,, p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bounded_lattice_set_of_sieves</span>
+    : bounded_lattice set_of_sieves.
+  <span class="kn">Proof</span>.
+    use make_bounded_lattice.
+    - <span class="bp">exact</span> lattice_set_of_sieves.
+    - <span class="bp">exact</span> empty_sieve.
+    - <span class="bp">exact</span> full_sieve.
+    - <span class="bp">exact</span> bounded_lattice_laws_set_of_sieves.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_lub_sieve_type_union</span>
+              (<span class="nv">I</span> : UU)
+              (<span class="nv">SI</span> : I → sieve)
+    : is_least_upperbound_lattice
+        bounded_lattice_set_of_sieves
+        SI
+        (sieve_type_union I SI).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> i.
+      use eq_sieve ; <span class="nb">intro</span> x.
+      + <span class="nb">intro</span> pq.
+        <span class="nb">induction</span> pq <span class="k">as</span> [ p q ].
+        <span class="bp">exact</span> p.
+      + <span class="nb">intro</span> p.
+        <span class="bp">exact</span> (p ,, hinhpr (i ,, p)).
+    - <span class="nb">intros</span> T HT.
+      use eq_sieve ; <span class="nb">intro</span> x.
+      + <span class="nb">intros</span> pq.
+        <span class="nb">induction</span> pq <span class="k">as</span> [ p q ].
+        <span class="nb">revert</span> p.
+        use factor_through_squash_hProp.
+        <span class="nb">intros</span> ir.
+        <span class="bp">exact</span> (hinhpr ir).
+      + use factor_through_squash_hProp.
+        <span class="nb">intros</span> ir.
+        <span class="nb">refine</span> (hinhpr ir ,, _).
+        <span class="nb">induction</span> ir <span class="k">as</span> [ i r ].
+        <span class="bp">exact</span> (pr2 (eq_sieve_r (HT i) x r)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_complete_set_of_sieve</span>
+    : is_complete_lattice bounded_lattice_set_of_sieves.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> I SI.
+    <span class="nb">refine</span> (sieve_type_union I SI ,, _).
+    <span class="nb">apply</span> is_lub_sieve_type_union.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">exponential_laws_set_of_sieves</span>
+              (<span class="nv">S₁</span> <span class="nv">S₂</span> <span class="nv">S₃</span> : sieve)
+    : Lle bounded_lattice_set_of_sieves S₃ (sieve_exponential S₁ S₂)
+      &lt;-&gt;
+      Lle bounded_lattice_set_of_sieves (Lmin bounded_lattice_set_of_sieves S₃ S₁) S₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">intro</span> H.
+      use eq_sieve ; <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      + <span class="nb">intros</span> rpq.
+        <span class="bp">exact</span> (pr11 rpq ,, pr21 rpq).
+      + <span class="nb">intros</span> rp.
+        <span class="nb">refine</span> (rp ,, _).
+        use (pr2 (eq_sieve_r H x (pr1 rp))).
+        <span class="nb">refine</span> (pr2 rp ,, _).
+        <span class="nb">apply</span> isrefl_posetRelation.
+    - <span class="nb">intro</span> H.
+      use eq_sieve ; <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      + <span class="nb">intros</span> rpq.
+        <span class="bp">exact</span> (pr1 rpq).
+      + <span class="nb">intros</span> r.
+        <span class="nb">refine</span> (r ,, _).
+        <span class="nb">intros</span> y pq.
+        <span class="nb">induction</span> pq <span class="k">as</span> [ p q ].
+        <span class="nb">refine</span> (pr2 (eq_sieve_r H y _)) ; <span class="nb">cbn</span>.
+        <span class="bp">exact</span> (sieve_downwards_closed S₃ q r ,, p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">exponential_set_of_sieves</span>
+    : exponential bounded_lattice_set_of_sieves.
+  <span class="kn">Proof</span>.
+    use make_exponential.
+    - <span class="bp">exact</span> sieve_exponential.
+    - <span class="bp">exact</span> exponential_laws_set_of_sieves.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">complete_heyting_algebra_sieves</span>
+    : complete_heyting_algebra.
+  <span class="kn">Proof</span>.
+    use make_complete_heyting_algebra.
+    - <span class="bp">exact</span> set_of_sieves.
+    - <span class="bp">exact</span> bounded_lattice_set_of_sieves.
+    - <span class="bp">exact</span> is_complete_set_of_sieve.
+    - <span class="bp">exact</span> exponential_set_of_sieves.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 4. Coverages *)</span>
+
+  <span class="sd">(**</span>
+<span class="sd">     The data of a coverage is a collection of subsets for every element in the poset.</span>
+<span class="sd">     We represent this via a function `P : X → (X → hProp) → hProp`.</span>
+<span class="sd">     Given such a function, we say that cover of `x` is a subset `C` such that `P x C`.</span>
+<span class="sd">     Coverages are supposed to satisfy two requirements:</span>
+<span class="sd">     1. Every cover `C` of `x` is a subset of the lower set of `x`.</span>
+<span class="sd">        Precisely, this means that if `C` is a cover of `x` (i.e. `P x C`)</span>
+<span class="sd">        and `y` is a member of `C` (i.e. `C y`), then `y ≤ x`.</span>
+<span class="sd">     2. If `y ≤ x`, then every cover of `x` can be refined to a cover of `y`.</span>
+<span class="sd">        Precisely, this means that if we have a cover `C` of `x` (i.e. `P x C`)</span>
+<span class="sd">        and if `y ≤ x`, then there is a cover `C'` of `y` (i.e. `P y C`, such that</span>
+<span class="sd">        every member of `C'` is below something in `C`. The final requirement says that</span>
+<span class="sd">        for all `z : X` such that `C' x`, there is an `s : X` such that `C s` and `z ≤ s`.</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_coverage</span>
+             (<span class="nv">P</span> : X → (X → hProp) → hProp)
+    : hProp
+    := (<span class="k">∀</span> (<span class="nv">x</span> <span class="nv">y</span> : X)
+          (<span class="nv">C</span> : X → hProp),
+        P x C ⇒ C y ⇒ y ≤ x)
+       ∧
+       (<span class="k">∀</span> (<span class="nv">x</span> <span class="nv">y</span> : X)
+          (<span class="nv">C</span> : X → hProp),
+         y ≤ x
+         ⇒ P x C
+         ⇒ <span class="k">∃</span> (<span class="nv">C'</span> : X → hProp),
+           P y C'
+           ∧
+           <span class="k">∀</span> (<span class="nv">z</span> : X), C' z ⇒ <span class="k">∃</span> (<span class="nv">s</span> : X), C s ∧ z ≤ s).
+
+  <span class="kn">Definition</span> <span class="nf">coverage</span>
+    : UU
+    := ∑ (P : X → (X → hProp) → hProp), is_coverage P.
+
+  <span class="kn">Definition</span> <span class="nf">coverage_map</span>
+             (<span class="nv">P</span> : coverage)
+             (<span class="nv">x</span> : X)
+             (<span class="nv">C</span> : X → hProp)
+    : hProp
+    := pr1 P x C.
+
+  <span class="kn">Coercion</span> <span class="nf">coverage_map</span> : coverage &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cover_downwards_closed</span>
+              {<span class="nv">P</span> : coverage}
+              {<span class="nv">x</span> <span class="nv">y</span> : X}
+              {<span class="nv">C</span> : X → hProp}
+              (<span class="nv">H</span> : P x C)
+              (<span class="nv">p</span> : C y)
+    : y ≤ x.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 P x y C H p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cover_sharpen</span>
+              {<span class="nv">P</span> : coverage}
+              {<span class="nv">x</span> <span class="nv">y</span> : X}
+              (<span class="nv">C</span> : X → hProp)
+              (<span class="nv">p</span> : y ≤ x)
+              (<span class="nv">q</span> : P x C)
+    : <span class="k">∃</span> (<span class="nv">C'</span> : X → hProp),
+      P y C'
+      ∧
+      <span class="k">∀</span> (<span class="nv">z</span> : X), C' z ⇒ <span class="k">∃</span> (<span class="nv">s</span> : X), C s ∧ z ≤ s.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 P x y C p q).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Context</span> (<span class="nv">P</span> : coverage).
+
+  <span class="sd">(** * 5. Closed sieves *)</span>
+
+  <span class="sd">(**</span>
+<span class="sd">     We fix a coverage `P`.</span>
+<span class="sd">     A sieve `S` is closed with regards to `P` if every `x : X` is a member of `S`</span>
+<span class="sd">     whenever there is a cover of `x` that is a subset of `S`.</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_closed_sieve</span>
+             (<span class="nv">S</span> : sieve)
+    : hProp
+    := <span class="k">∀</span> (<span class="nv">x</span> : X)
+         (<span class="nv">C</span> : X → hProp)
+         (<span class="nv">p</span> : P x C)
+         (<span class="nv">H</span> : ∏ (y : X), C y → S y),
+       S x.
+
+  <span class="kn">Definition</span> <span class="nf">closed_sieve</span>
+    : UU
+    := ∑ (S : sieve), is_closed_sieve S.
+
+  <span class="kn">Definition</span> <span class="nf">make_closed_sieve</span>
+             (<span class="nv">S</span> : sieve)
+             (<span class="nv">H</span> : is_closed_sieve S)
+    : closed_sieve
+    := S ,, H.
+
+  <span class="kn">Coercion</span> <span class="nf">closed_sieve_to_sieve</span>
+           (S : closed_sieve)
+    : sieve.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 S).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_closed_closed_sieve</span>
+              (<span class="nv">S</span> : closed_sieve)
+              (<span class="nv">x</span> : X)
+              (<span class="nv">C</span> : X → hProp)
+              (<span class="nv">p</span> : P x C)
+              (<span class="nv">H</span> : ∏ (y : X), C y → S y)
+    : S x.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 S x C p H).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_closed_sieve</span>
+              {<span class="nv">S</span> <span class="nv">S'</span> : closed_sieve}
+              (<span class="nv">p</span> : closed_sieve_to_sieve S = closed_sieve_to_sieve S')
+    : S = S'.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isaset_closed_sieve</span>
+    : isaset closed_sieve.
+  <span class="kn">Proof</span>.
+    use isaset_total2.
+    - <span class="nb">apply</span> isaset_sieve.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">set_of_closed_sieves</span>
+    : hSet
+    := make_hSet closed_sieve isaset_closed_sieve.
+
+  <span class="sd">(** * 6. Operations on closed sieves *)</span>
+
+  <span class="sd">(** Poset of closed sieves *)</span>
+  <span class="kn">Definition</span> <span class="nf">closed_sieves_partial_order</span>
+    : PartialOrder set_of_closed_sieves.
+  <span class="kn">Proof</span>.
+    use make_PartialOrder.
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">S₁</span> <span class="nv">S₂</span> : closed_sieve), subset_sieve S₁ S₂).
+    - <span class="kp">repeat</span> <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">S₁</span> <span class="nv">S₂</span> <span class="nv">S₃</span> : closed_sieve), _) ;
+           <span class="bp">exact</span> (istrans_subset_sieve S₁ S₂ S₃)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">S</span> : closed_sieve), _) ;
+           <span class="bp">exact</span> (isrefl_subset_sieve S)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">S₁</span> <span class="nv">S₂</span> : closed_sieve) <span class="nv">p</span> <span class="nv">q</span>, _) ;
+           use eq_closed_sieve ;
+           <span class="bp">exact</span> (eq_sieve p q)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">closed_sieves_poset</span>
+    : Poset.
+  <span class="kn">Proof</span>.
+    use make_Poset.
+    - <span class="bp">exact</span> set_of_closed_sieves.
+    - <span class="bp">exact</span> closed_sieves_partial_order.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Heyting algebra operations on sieve *)</span>
+  <span class="kn">Definition</span> <span class="nf">closed_sieve_full</span>
+    : closed_sieve.
+  <span class="kn">Proof</span>.
+    use make_closed_sieve.
+    - <span class="bp">exact</span> full_sieve.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x C p H ;
+         <span class="bp">exact</span> tt).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">closed_sieve_max_el</span>
+    : max_el closed_sieves_poset.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (closed_sieve_full ,, _).
+    <span class="kp">abstract</span>
+      (<span class="nb">intros</span> S x p ;
+       <span class="bp">exact</span> tt).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">closed_sieve_intersection</span>
+             (<span class="nv">S₁</span> <span class="nv">S₂</span> : closed_sieve)
+    : closed_sieve.
+  <span class="kn">Proof</span>.
+    use make_closed_sieve.
+    - <span class="bp">exact</span> (sieve_intersection S₁ S₂).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x C p H ;
+         <span class="nb">refine</span> (is_closed_closed_sieve S₁ x C p _ ,, is_closed_closed_sieve S₂ x C p _) ;
+         <span class="nb">apply</span> H).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">closed_sieve_min_operation</span>
+    : min_operation closed_sieves_poset.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> S₁ S₂.
+    <span class="nb">refine</span> (closed_sieve_intersection S₁ S₂ ,, _ ,, _ ,, _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x p ;
+         <span class="bp">exact</span> (pr1 p)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x p ;
+         <span class="bp">exact</span> (pr2 p)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> S p q x r ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+         <span class="bp">exact</span> (p x r ,, q x r)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">closed_sieve_type_intersection</span>
+             (<span class="nv">I</span> : UU)
+             (<span class="nv">PI</span> : I → closed_sieve)
+    : closed_sieve.
+  <span class="kn">Proof</span>.
+    use make_closed_sieve.
+    - <span class="bp">exact</span> (sieve_type_intersection I PI).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x C p H i ;
+         <span class="nb">refine</span> (is_closed_closed_sieve (PI i) x C p _) ;
+         <span class="nb">intros</span> y q ;
+         <span class="bp">exact</span> (H y q i)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">closed_sieve_min_el</span>
+    : min_el closed_sieves_poset.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (closed_sieve_type_intersection closed_sieve (idfun closed_sieve)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> S x H ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+         <span class="bp">exact</span> (H S)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">closed_sieve_union</span>
+             (<span class="nv">S₁</span> <span class="nv">S₂</span> : closed_sieve)
+    : closed_sieve
+    := closed_sieve_type_intersection
+         (∑ (T : closed_sieve), subset_sieve (sieve_union S₁ S₂) T)
+         (<span class="k">λ</span> <span class="nv">T</span>, pr1 T).
+
+  <span class="kn">Definition</span> <span class="nf">closed_sieve_max_operation</span>
+    : max_operation closed_sieves_poset.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> S₁ S₂.
+    <span class="nb">refine</span> (closed_sieve_union S₁ S₂ ,, _ ,, _ ,, _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x p ;
+         <span class="nb">intro</span> H ;
+         <span class="nb">induction</span> H <span class="k">as</span> [ T H ] ;
+         <span class="nb">cbn</span> ;
+         use H ;
+         <span class="bp">exact</span> (hinhpr (inl p))).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x p ;
+         <span class="nb">intro</span> H ;
+         <span class="nb">induction</span> H <span class="k">as</span> [ T H ] ;
+         <span class="nb">cbn</span> ;
+         use H ;
+         <span class="bp">exact</span> (hinhpr (inr p))).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> T p q x ;
+         <span class="nb">intro</span> H ;
+         <span class="nb">refine</span> (H (_ ,, _)) ;
+         <span class="nb">intro</span> y ;
+         use factor_through_squash_hProp ;
+         <span class="nb">intros</span> z ;
+         <span class="nb">induction</span> z <span class="k">as</span> [ z | z ] ;
+         [ <span class="bp">exact</span> (p y z) | <span class="bp">exact</span> (q y z) ]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_closed_sieve_exponential</span>
+              (<span class="nv">S₁</span> <span class="nv">S₂</span> : closed_sieve)
+    : is_closed_sieve (sieve_exponential S₁ S₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x C p H y q.
+    <span class="nb">induction</span> q <span class="k">as</span> [ q₁ q₂ ].
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">pose</span> (U := <span class="k">λ</span> (<span class="nv">z</span> : X), S₁ z ∧ <span class="k">∃</span> (<span class="nv">a</span> : X), C a ∧ z ≤ a).
+    <span class="nb">assert</span> (∏ (w : X), U w → S₂ w) <span class="k">as</span> H₁.
+    {
+      <span class="nb">intro</span> w.
+      <span class="nb">intros</span> r.
+      <span class="nb">induction</span> r <span class="k">as</span> [ r₁ r₂ ].
+      <span class="nb">revert</span> r₂.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( z &amp; r₂ &amp; r₃ ).
+      use (H z r₂).
+      <span class="nb">split</span> ; [ | <span class="bp">exact</span> r₃ ].
+      <span class="nb">refine</span> (sieve_downwards_closed S₁ _ r₁).
+      <span class="nb">apply</span> isrefl_posetRelation.
+    }
+    <span class="nb">assert</span> (∏ (w : X), S₁ w → w ≤ y → S₂ w) <span class="k">as</span> H₂.
+    {
+      <span class="nb">intros</span> w Hw₁ Hw₂.
+      <span class="nb">pose proof</span> (cover_sharpen C (istrans_posetRelation _ _ _ _ Hw₂ q₂) p) <span class="k">as</span> s.
+      <span class="nb">revert</span> s.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( C' &amp; r &amp; HC' ).
+      use (is_closed_closed_sieve S₂ _ C' r).
+      <span class="nb">intros</span> v Hv.
+      use H₁.
+      <span class="nb">specialize</span> (HC' v Hv).
+      <span class="nb">split</span> ; [ | <span class="bp">exact</span> HC' ].
+      <span class="nb">revert</span> HC'.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( s &amp; Hs₁ &amp; Hs₂ ).
+      <span class="nb">refine</span> (sieve_downwards_closed S₁ _ Hw₁).
+      <span class="bp">exact</span> (cover_downwards_closed r Hv).
+    }
+    use H₂.
+    - <span class="bp">exact</span> q₁.
+    - <span class="nb">apply</span> isrefl_posetRelation.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">closed_sieve_exponential</span>
+             (<span class="nv">S₁</span> <span class="nv">S₂</span> : closed_sieve)
+    : closed_sieve.
+  <span class="kn">Proof</span>.
+    use make_closed_sieve.
+    - <span class="bp">exact</span> (sieve_exponential S₁ S₂).
+    - <span class="nb">apply</span> is_closed_sieve_exponential.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bounded_lattice_set_of_closed_sieves</span>
+    : bounded_lattice set_of_closed_sieves.
+  <span class="kn">Proof</span>.
+    use (poset_to_bounded_lattice closed_sieves_poset).
+    - <span class="bp">exact</span> closed_sieve_min_operation.
+    - <span class="bp">exact</span> closed_sieve_max_operation.
+    - <span class="bp">exact</span> closed_sieve_min_el.
+    - <span class="bp">exact</span> closed_sieve_max_el.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">exponential_laws_set_of_closed_sieves</span>
+              (<span class="nv">S₁</span> <span class="nv">S₂</span> <span class="nv">S₃</span> : closed_sieve)
+    : Lle bounded_lattice_set_of_closed_sieves S₃ (closed_sieve_exponential S₁ S₂)
+      &lt;-&gt;
+      Lle bounded_lattice_set_of_closed_sieves
+          (Lmin bounded_lattice_set_of_closed_sieves S₃ S₁) S₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">intro</span> H.
+      use eq_closed_sieve.
+      use eq_sieve ; <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      + <span class="nb">intros</span> rpq.
+        <span class="bp">exact</span> (pr11 rpq ,, pr21 rpq).
+      + <span class="nb">intros</span> rp.
+        <span class="nb">refine</span> (rp ,, _).
+        use (pr2 (eq_sieve_r (maponpaths pr1 H) x (pr1 rp))).
+        <span class="nb">refine</span> (pr2 rp ,, _).
+        <span class="nb">apply</span> isrefl_posetRelation.
+    - <span class="nb">intro</span> H.
+      use eq_closed_sieve.
+      use eq_sieve ; <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      + <span class="nb">intros</span> rpq.
+        <span class="bp">exact</span> (pr1 rpq).
+      + <span class="nb">intros</span> r.
+        <span class="nb">refine</span> (r ,, _).
+        <span class="nb">intros</span> y pq.
+        <span class="nb">induction</span> pq <span class="k">as</span> [ p q ].
+        <span class="nb">refine</span> (pr2 (eq_sieve_r (maponpaths pr1 H) y _)) ; <span class="nb">cbn</span>.
+        <span class="bp">exact</span> (sieve_downwards_closed S₃ q r ,, p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_glb_closed_sieve_type_intersection</span>
+              (<span class="nv">I</span> : UU)
+              (<span class="nv">f</span> : I → set_of_closed_sieves)
+    : is_greatest_lowerbound_lattice
+        bounded_lattice_set_of_closed_sieves
+        f
+        (closed_sieve_type_intersection I f).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> i.
+      use eq_closed_sieve.
+      use eq_sieve.
+      + <span class="nb">intros</span> x H j ; <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="bp">exact</span> (pr1 H j).
+      + <span class="nb">intros</span> x p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="nb">refine</span> (p ,, _).
+        <span class="bp">exact</span> (p i).
+    - <span class="nb">intros</span> S H ; <span class="nb">cbn</span>.
+      use eq_closed_sieve.
+      use eq_sieve.
+      + <span class="nb">intros</span> x p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="bp">exact</span> (pr1 p).
+      + <span class="nb">intros</span> x p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="nb">refine</span> (p ,, _).
+        <span class="nb">intro</span> i.
+        <span class="bp">exact</span> (pr2 (eq_sieve_r (maponpaths pr1 (H i)) x p)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_complete_set_of_closed_sieve</span>
+    : is_complete_lattice bounded_lattice_set_of_closed_sieves.
+  <span class="kn">Proof</span>.
+    use complete_lattice_from_glb.
+    <span class="nb">intros</span> I f.
+    <span class="nb">refine</span> (closed_sieve_type_intersection I f ,, _).
+    <span class="nb">apply</span> is_glb_closed_sieve_type_intersection.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">exponential_set_of_closed_sieve</span>
+    : exponential bounded_lattice_set_of_closed_sieves.
+  <span class="kn">Proof</span>.
+    use make_exponential.
+    - <span class="bp">exact</span> closed_sieve_exponential.
+    - <span class="bp">exact</span> exponential_laws_set_of_closed_sieves.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 7. The complete Heyting algebra of closed sieves *)</span>
+  <span class="kn">Definition</span> <span class="nf">complete_heyting_algebra_closed_sieves</span>
+    : complete_heyting_algebra.
+  <span class="kn">Proof</span>.
+    use make_complete_heyting_algebra.
+    - <span class="bp">exact</span> set_of_closed_sieves.
+    - <span class="bp">exact</span> bounded_lattice_set_of_closed_sieves.
+    - <span class="bp">exact</span> is_complete_set_of_closed_sieve.
+    - <span class="bp">exact</span> exponential_set_of_closed_sieve.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FixPoset</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/Lattice/Examples/Sieves.v</tt>, line 38)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  7. The complete Heyting algebra of closed sieves
+  &gt;
+  &gt;  **********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.Algebra.BinaryOperations.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

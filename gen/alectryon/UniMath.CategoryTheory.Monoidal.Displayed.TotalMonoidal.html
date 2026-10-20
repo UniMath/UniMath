@@ -1,0 +1,727 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>TotalMonoidal.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************************************************</span>
+
+<span class="sd"> The total category of a displayed monoidal category</span>
+
+<span class="sd"> In this file, we show that the total category of a displayed monoidal category is</span>
+<span class="sd"> again a monoidal category.</span>
+
+<span class="sd">Note: after refactoring on March 10, 2023, the prior Git history of this development is found via</span>
+<span class="sd">git log -- UniMath/CategoryTheory/Monoidal/TotalDisplayedMonoidalWhiskered.v</span>
+
+<span class="sd"> *********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="kn">Section</span> <span class="nf">MonoidalTotalCategory</span>.
+
+  <span class="kn">Import</span> BifunctorNotations.
+  <span class="kn">Import</span> MonoidalNotations.
+  <span class="kn">Import</span> DisplayedBifunctorNotations.
+  <span class="kn">Import</span> DisplayedMonoidalNotations.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"T( D )"</span> := (total_category D).
+
+  <span class="sd">(** DATA **)</span>
+  <span class="kn">Definition</span> <span class="nf">total_tensor_data</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DT</span> : disp_tensor D M)
+    : bifunctor_data T(D) T(D) T(D).
+  <span class="kn">Proof</span>.
+    use make_bifunctor_data.
+    - <span class="nb">intros</span> x y.
+      <span class="bp">exact</span> (pr1 x ⊗_{M} pr1 y ,, pr2 x ⊗⊗_{DT} pr2 y).
+    - <span class="nb">intros</span> x y1 y2 g.
+      <span class="bp">exact</span> (pr1 x ⊗^{M}_{l} pr1 g ,, pr2 x ⊗⊗^{DT}_{l} pr2 g).
+    - <span class="nb">intros</span> y x1 x2 f.
+      <span class="bp">exact</span> (pr1 f ⊗^{M}_{r} pr1 y ,, pr2 f ⊗⊗^{DT}_{r} pr2 y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_leftidax</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        (<span class="nv">DT</span> : disp_tensor D M)
+    : bifunctor_leftidax (total_tensor_data DT).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use total2_paths_b.
+    - <span class="bp">exact</span> (bifunctor_leftid (monoidal_tensor M) (pr1 x) (pr1 y)).
+    - <span class="bp">exact</span> (disp_bifunctor_leftid DT (pr1 x) (pr1 y) (pr2 x) (pr2 y)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_rightidax</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        (<span class="nv">DT</span> : disp_tensor D M)
+    : bifunctor_rightidax (total_tensor_data DT).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y x.
+    use total2_paths_b.
+    - <span class="bp">exact</span> (bifunctor_rightid (monoidal_tensor M) (pr1 y) (pr1 x)).
+    - <span class="bp">exact</span> (disp_bifunctor_rightid DT (pr1 x) (pr1 y) (pr2 x) (pr2 y)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_leftcompax</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        (<span class="nv">DT</span> : disp_tensor D M)
+    : bifunctor_leftcompax (total_tensor_data DT).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y1 y2 y3 g1 g2.
+    use total2_paths_b.
+    - <span class="bp">exact</span> (bifunctor_leftcomp
+               (monoidal_tensor M)
+               (pr1 x) (pr1 y1) (pr1 y2) (pr1 y3)
+               (pr1 g1) (pr1 g2)).
+    - <span class="bp">exact</span> (disp_bifunctor_leftcomp
+               DT
+               (pr1 x) (pr1 y1) (pr1 y2) (pr1 y3)
+               (pr1 g1) (pr1 g2)
+               (pr2 x) (pr2 y1) (pr2 y2) (pr2 y3)
+               (pr2 g1) (pr2 g2)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_rightcompax</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        (<span class="nv">DT</span> : disp_tensor D M)
+    : bifunctor_rightcompax (total_tensor_data DT).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y x1 x2 x3 f1 f2.
+    use total2_paths_b.
+    - <span class="bp">exact</span> (bifunctor_rightcomp
+               (monoidal_tensor M)
+               (pr1 y) (pr1 x1) (pr1 x2) (pr1 x3)
+               (pr1 f1) (pr1 f2)).
+    - <span class="bp">exact</span> (disp_bifunctor_rightcomp DT
+               (pr1 x1) (pr1 x2) (pr1 x3) (pr1 y)
+               (pr1 f1) (pr1 f2)
+               (pr2 x1) (pr2 x2) (pr2 x3) (pr2 y)
+               (pr2 f1) (pr2 f2)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_functoronmorphisms_are_equal</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        (<span class="nv">DT</span> : disp_tensor D M)
+    : functoronmorphisms_are_equal (total_tensor_data DT).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x1 x2 y1 y2 f g.
+    use total2_paths_b.
+    - <span class="bp">exact</span> (bifunctor_equalwhiskers
+               (monoidal_tensor M)
+               (pr1 x1) (pr1 x2)
+               (pr1 y1) (pr1 y2)
+               (pr1 f) (pr1 g)).
+    - <span class="bp">exact</span> (disp_bifunctor_equalwhiskers
+               DT
+               (pr1 x1) (pr1 x2) (pr1 y1) (pr1 y2)
+               (pr1 f) (pr1 g)
+               (pr2 x1) (pr2 x2) (pr2 y1) (pr2 y2)
+               (pr2 f) (pr2 g)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_tensor</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DT</span> : disp_tensor D M)
+    : bifunctor T(D) T(D) T(D)
+    := (total_tensor_data DT
+        ,, total_leftidax DT
+        ,, total_rightidax DT
+        ,, total_leftcompax DT
+        ,, total_rightcompax DT
+        ,, total_functoronmorphisms_are_equal DT).
+
+  <span class="kn">Local Notation</span> <span class="nf">Tt</span> := total_tensor_data.
+
+  <span class="kn">Definition</span> <span class="nf">total_unit</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DT</span> : disp_tensor D M)
+             (<span class="nv">i</span> : D I_{M})
+    : T(D)
+    := (I_{M},,i).
+
+  <span class="kn">Notation</span> <span class="nf">Tu</span> := total_unit.
+
+  <span class="kn">Definition</span> <span class="nf">total_leftunitordata</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             {<span class="nv">i</span> : D I_{M}}
+             (<span class="nv">dlu</span> : disp_leftunitor_data DT i)
+    : leftunitor_data (Tt DT) (Tu DT i).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use tpair.
+    - <span class="bp">exact</span> (lu_{M} (pr1 x)).
+    - <span class="bp">exact</span> (dlu (pr1 x) (pr2 x)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_leftunitorinvdata</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             {<span class="nv">i</span> : D I_{M}}
+             (<span class="nv">dluinv</span> : disp_leftunitorinv_data DT i)
+    : leftunitorinv_data (Tt DT) (Tu DT i).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use tpair.
+    - <span class="bp">exact</span> (luinv_{M} (pr1 x)).
+    - <span class="bp">exact</span> (dluinv (pr1 x) (pr2 x)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_rightunitordata</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             {<span class="nv">i</span> : D I_{M}}
+             (<span class="nv">dru</span> : disp_rightunitor_data DT i)
+    : rightunitor_data (Tt DT) (Tu DT i).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use tpair.
+    - <span class="bp">exact</span> (ru_{M} (pr1 x)).
+    - <span class="bp">exact</span> (dru (pr1 x) (pr2 x)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_rightunitorinvdata</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             {<span class="nv">i</span> : D I_{M}}
+             (<span class="nv">druinv</span> : disp_rightunitorinv_data DT i)
+    : rightunitorinv_data (Tt DT) (Tu DT i).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use tpair.
+    - <span class="bp">exact</span> (ruinv_{M} (pr1 x)).
+    - <span class="bp">exact</span> (druinv (pr1 x) (pr2 x)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_associatordata</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             (<span class="nv">dα</span> : disp_associator_data DT)
+    : associator_data (Tt DT).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z.
+    use tpair.
+    - <span class="bp">exact</span> (α_{M} (pr1 x) (pr1 y) (pr1 z)).
+    - <span class="bp">exact</span> (dα (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Notation</span> <span class="nf">Tα</span> := total_associatordata.
+
+  <span class="kn">Definition</span> <span class="nf">total_associatorinvdata</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             (<span class="nv">dαinv</span> : disp_associatorinv_data DT)
+    : associatorinv_data (Tt DT).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z.
+    use tpair.
+    - <span class="bp">exact</span> (αinv_{M} (pr1 x) (pr1 y) (pr1 z)).
+    - <span class="bp">exact</span> (dαinv (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_monoidaldata</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal_data D M)
+    : monoidal_data T(D).
+  <span class="kn">Proof</span>.
+    use make_monoidal_data.
+    - <span class="bp">exact</span> (total_tensor_data DM).
+    - <span class="bp">exact</span> (total_unit DM dI_{DM}).
+    - <span class="bp">exact</span> (total_leftunitordata dlu^{DM}).
+    - <span class="bp">exact</span> (total_leftunitorinvdata dluinv^{DM}).
+    - <span class="bp">exact</span> (total_rightunitordata dru^{DM}).
+    - <span class="bp">exact</span> (total_rightunitorinvdata druinv^{DM}).
+    - <span class="bp">exact</span> (total_associatordata dα^{DM}).
+    - <span class="bp">exact</span> (total_associatorinvdata dαinv^{DM}).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** PROPERTIES **)</span>
+  <span class="kn">Lemma</span> <span class="nf">total_leftunitor_iso_law</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        {<span class="nv">DM</span> : disp_monoidal_data D M}
+        (<span class="nv">dluiso</span> : disp_leftunitor_iso dlu^{DM} dluinv^{DM})
+    : leftunitor_iso_law
+        (total_leftunitordata dlu^{DM})
+        (total_leftunitorinvdata dluinv^{DM}).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x.
+    <span class="nb">split</span>.
+    - use total2_paths_b.
+      + <span class="bp">exact</span> (pr1 (pr2 (monoidal_leftunitorlaw M) (pr1 x))).
+      + <span class="bp">exact</span> (pr2 (dluiso (pr1 x) (pr2 x))).
+    - use total2_paths_b.
+        * <span class="bp">exact</span> (pr2 (pr2 (monoidal_leftunitorlaw M) (pr1 x))).
+        * <span class="bp">exact</span> (pr1 (dluiso (pr1 x) (pr2 x))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_leftunitor_nat</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        {<span class="nv">DM</span> : disp_monoidal_data D M}
+        (<span class="nv">dluiso</span> : disp_leftunitor_nat dlu^{DM})
+    : leftunitor_nat (total_leftunitordata dlu^{DM}).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    use total2_paths_b.
+    - <span class="bp">exact</span> ((pr1 (monoidal_leftunitorlaw M)) (pr1 x) (pr1 y) (pr1 f)).
+    - <span class="bp">exact</span> (dluiso (pr1 x) (pr1 y) (pr1 f) (pr2 x) (pr2 y) (pr2 f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_leftunitor_law</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        {<span class="nv">DM</span> : disp_monoidal_data D M}
+        (<span class="nv">dluiso</span> : disp_leftunitor_law dlu^{DM} dluinv^{DM})
+    : leftunitor_law
+        (total_leftunitordata dlu^{DM})
+        (total_leftunitorinvdata dluinv^{DM}).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (total_leftunitor_nat (pr1 dluiso),,total_leftunitor_iso_law (pr2 dluiso)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_rightunitor_iso_law</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        {<span class="nv">DM</span> : disp_monoidal_data D M}
+        (<span class="nv">druiso</span> : disp_rightunitor_iso dru^{DM} druinv^{DM})
+    : rightunitor_iso_law
+        (total_rightunitordata dru^{DM})
+        (total_rightunitorinvdata druinv^{DM}).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x.
+    <span class="nb">split</span>.
+    - use total2_paths_b.
+      + <span class="bp">exact</span> (pr1 (pr2 (monoidal_rightunitorlaw M) (pr1 x))).
+      + <span class="bp">exact</span> (pr2 (druiso (pr1 x) (pr2 x))).
+    - use total2_paths_b.
+        * <span class="bp">exact</span> (pr2 (pr2 (monoidal_rightunitorlaw M) (pr1 x))).
+        * <span class="bp">exact</span> (pr1 (druiso (pr1 x) (pr2 x))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_rightunitor_nat</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        {<span class="nv">DM</span> : disp_monoidal_data D M}
+        (<span class="nv">druiso</span> : disp_rightunitor_nat dru^{DM})
+    : rightunitor_nat (total_rightunitordata dru^{DM}).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    use total2_paths_b.
+    - <span class="bp">exact</span> ((pr1 (monoidal_rightunitorlaw M)) (pr1 x) (pr1 y) (pr1 f)).
+    - <span class="bp">exact</span> (druiso (pr1 x) (pr1 y) (pr1 f) (pr2 x) (pr2 y) (pr2 f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_rightunitor_law</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        {<span class="nv">DM</span> : disp_monoidal_data D M}
+        (<span class="nv">druiso</span> : disp_rightunitor_law dru^{DM} druinv^{DM})
+    : rightunitor_law
+        (total_rightunitordata dru^{DM})
+        (total_rightunitorinvdata druinv^{DM}).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (total_rightunitor_nat (pr1 druiso),,total_rightunitor_iso_law (pr2 druiso)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_associator_nat_leftwhisker</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        {<span class="nv">DM</span> : disp_monoidal_data D M}
+        (<span class="nv">dαlnat</span> : disp_associator_nat_leftwhisker dα^{DM})
+    : associator_nat_leftwhisker (total_associatordata dα^{DM}).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z z' h.
+    use total2_paths_b.
+    - <span class="bp">exact</span> ((associatorlaw_natleft
+                (monoidal_associatorlaw M))
+               (pr1 x) (pr1 y) (pr1 z) (pr1 z')
+               (pr1 h)).
+    - <span class="bp">exact</span> (dαlnat (pr1 x) (pr1 y) (pr1 z) (pr1 z')
+                    (pr1 h)
+                    (pr2 x) (pr2 y) (pr2 z) (pr2 z')
+                    (pr2 h)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_associator_nat_rightwhisker</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        {<span class="nv">DM</span> : disp_monoidal_data D M}
+        (<span class="nv">dαrnat</span> : disp_associator_nat_rightwhisker dα^{DM})
+    : associator_nat_rightwhisker (total_associatordata dα^{DM}).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x1 x2 y z f.
+    use total2_paths_b.
+    - <span class="bp">exact</span> ((associatorlaw_natright
+                (monoidal_associatorlaw M))
+               (pr1 x1) (pr1 x2) (pr1 y) (pr1 z)
+               (pr1 f)).
+    - <span class="bp">exact</span> (dαrnat (pr1 x1) (pr1 x2) (pr1 y) (pr1 z)
+                    (pr1 f)
+                    (pr2 x1) (pr2 x2) (pr2 y) (pr2 z)
+                    (pr2 f)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_associator_nat_leftrightwhisker</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        {<span class="nv">DM</span> : disp_monoidal_data D M}
+        (<span class="nv">dαlrnat</span> : disp_associator_nat_leftrightwhisker dα^{DM})
+    : associator_nat_leftrightwhisker (total_associatordata dα^{DM}).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y1 y2 z g.
+    use total2_paths_b.
+    - <span class="bp">exact</span> ((associatorlaw_natleftright
+                (monoidal_associatorlaw M))
+               (pr1 x) (pr1 y1) (pr1 y2) (pr1 z)
+               (pr1 g)).
+    - <span class="bp">exact</span> (dαlrnat (pr1 x) (pr1 y1) (pr1 y2) (pr1 z)
+                     (pr1 g)
+                     (pr2 x) (pr2 y1) (pr2 y2) (pr2 z)
+                     (pr2 g)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_associator_iso_law</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        {<span class="nv">DM</span> : disp_monoidal_data D M}
+        (<span class="nv">dαiso</span> : disp_associator_iso dα^{DM} dαinv^{DM})
+    : associator_iso_law
+        (total_associatordata dα^{DM})
+        (total_associatorinvdata dαinv^{DM}).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z.
+   - <span class="nb">split</span>.
+      + use total2_paths_b.
+        * <span class="bp">exact</span> (pr1 (associatorlaw_iso_law
+                        (monoidal_associatorlaw M)
+                        (pr1 x) (pr1 y) (pr1 z))).
+        * <span class="bp">exact</span> (pr2 ((dαiso) (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z))).
+      + use total2_paths_b.
+        * <span class="bp">exact</span> (pr2 (associatorlaw_iso_law
+                        (monoidal_associatorlaw M)
+                        (pr1 x) (pr1 y) (pr1 z))).
+        * <span class="bp">exact</span> (pr1 ((dαiso) (pr1 x) (pr1 y) (pr1 z) (pr2 x) (pr2 y) (pr2 z))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_associator_law</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        {<span class="nv">DM</span> : disp_monoidal_data D M}
+        (<span class="nv">dαiso</span> : disp_associator_law dα^{DM} dαinv^{DM})
+    : associator_law
+        (total_associatordata dα^{DM})
+        (total_associatorinvdata dαinv^{DM}).
+  <span class="kn">Proof</span>.
+    <span class="nb">split with</span> (total_associator_nat_leftwhisker (disp_associatorlaw_natleft dαiso)).
+    <span class="nb">split with</span> (total_associator_nat_rightwhisker (disp_associatorlaw_natright dαiso)).
+    <span class="nb">split with</span> (total_associator_nat_leftrightwhisker (disp_associatorlaw_natleftright dαiso)).
+    <span class="bp">exact</span> (total_associator_iso_law (disp_associatorlaw_iso dαiso)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_triangleidentity</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        {<span class="nv">DM</span> : disp_monoidal_data D M}
+        (<span class="nv">dti</span> : disp_triangle_identity dlu^{DM} dru^{DM} dα^{DM})
+    : triangle_identity
+        (total_leftunitordata dlu^{DM})
+        (total_rightunitordata dru^{DM})
+        (total_associatordata dα^{DM}).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use total2_paths_b.
+    - <span class="bp">exact</span> ((monoidal_triangleidentity M) (pr1 x) (pr1 y)).
+    - <span class="bp">exact</span> (dti (pr1 x) (pr1 y) (pr2 x) (pr2 y)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_pentagonidentity</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        {<span class="nv">DM</span> : disp_monoidal_data D M}
+        (<span class="nv">dpi</span> : disp_pentagon_identity dα^{DM})
+    : pentagon_identity (total_associatordata dα^{DM}).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w x y z.
+    use total2_paths_b.
+    - <span class="bp">exact</span> ((monoidal_pentagonidentity M) (pr1 w) (pr1 x) (pr1 y) (pr1 z)).
+    - <span class="bp">exact</span> (dpi (pr1 w) (pr1 x) (pr1 y) (pr1 z) (pr2 w) (pr2 x) (pr2 y) (pr2 z)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_monoidallaws</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : monoidal_laws (total_monoidaldata DM).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">pr2</span> (total_tensor DM)).
+    <span class="k">exists</span> (<span class="nv">total_leftunitor_law</span> (disp_monoidal_leftunitorlaw DM)).
+    <span class="k">exists</span> (<span class="nv">total_rightunitor_law</span> (disp_monoidal_rightunitorlaw DM)).
+    <span class="k">exists</span> (<span class="nv">total_associator_law</span> (disp_monoidal_associatorlaw DM)).
+    <span class="k">exists</span> (<span class="nv">total_triangleidentity</span> (disp_monoidal_triangleidentity DM)).
+    <span class="bp">exact</span> (total_pentagonidentity (disp_monoidal_pentagonidentity DM)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_monoidal</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : monoidal T(D)
+    := (total_monoidaldata DM,, total_monoidallaws DM).
+
+  <span class="kn">Notation</span> <span class="s2">"π^{ D }"</span> := (pr1_category D).
+  <span class="kn">Notation</span> <span class="s2">"TM( DM )"</span> := (total_monoidal DM).
+
+  <span class="kn">Lemma</span> <span class="nf">projection_preserves_unit</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        (<span class="nv">DM</span> : disp_monoidal D M)
+    : preserves_unit TM(DM) M π^{D}.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> identity.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">projection_preserves_tensordata</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        (<span class="nv">DM</span> : disp_monoidal D M)
+    : preserves_tensordata TM(DM) M π^{D}.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="nb">apply</span> identity.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">projection_fmonoidaldata</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : fmonoidal_data TM(DM) M π^{D}
+    := (projection_preserves_tensordata DM,, projection_preserves_unit DM).
+
+  <span class="kn">Lemma</span> <span class="nf">projection_preserves_tensornatleft</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        (<span class="nv">DM</span> : disp_monoidal D M)
+    : preserves_tensor_nat_left (projection_preserves_tensordata DM).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y1 y2 g.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">projection_preserves_tensornatright</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        (<span class="nv">DM</span> : disp_monoidal D M)
+    : preserves_tensor_nat_right (projection_preserves_tensordata DM).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x1 x2 y f.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">projection_preserves_leftunitality</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        (<span class="nv">DM</span> : disp_monoidal D M)
+    : preserves_leftunitality
+        (projection_preserves_tensordata DM)
+        (projection_preserves_unit DM).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">rewrite</span> (bifunctor_rightid M).
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">projection_preserves_rightunitality</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        (<span class="nv">DM</span> : disp_monoidal D M)
+    : preserves_rightunitality
+        (projection_preserves_tensordata DM)
+        (projection_preserves_unit DM).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">rewrite</span> (bifunctor_leftid M).
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">projection_preserves_associativity</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        (<span class="nv">DM</span> : disp_monoidal D M)
+    : preserves_associativity (projection_preserves_tensordata DM).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z.
+    <span class="nb">rewrite</span> (bifunctor_leftid M).
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> (bifunctor_rightid M).
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">projection_fmonoidal_laxlaws</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : fmonoidal_laxlaws (projection_fmonoidaldata DM)
+    := (projection_preserves_tensornatleft DM
+        ,, projection_preserves_tensornatright DM
+        ,, projection_preserves_associativity DM
+        ,, projection_preserves_leftunitality DM
+        ,, projection_preserves_rightunitality DM).
+
+  <span class="kn">Definition</span> <span class="nf">projection_fmonoidal_lax</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : fmonoidal_lax TM(DM) M π^{D}
+    := (projection_fmonoidaldata DM,, projection_fmonoidal_laxlaws DM).
+
+  <span class="kn">Definition</span> <span class="nf">projection_preservestensor_strictly</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : preserves_tensor_strictly (projection_preserves_tensordata DM).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use tpair.
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">projection_preservesunit_strictly</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : preserves_unit_strictly (projection_preserves_unit DM).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">projection_fmonoidal</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : fmonoidal TM(DM) M π^{D}.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">projection_fmonoidal_lax</span> <span class="nv">DM</span>).
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> strictlytensorpreserving_is_strong.
+      <span class="bp">exact</span> (projection_preservestensor_strictly DM).
+    - <span class="nb">apply</span> strictlyunitpreserving_is_strong.
+      <span class="bp">exact</span> (projection_preservesunit_strictly DM).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">MonoidalTotalCategory</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Displayed/TotalMonoidal.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; git log -- UniMath/CategoryTheory/Monoidal/TotalDisplayedMonoidalWhiskered.v
+  &gt;
+  &gt;  *********************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

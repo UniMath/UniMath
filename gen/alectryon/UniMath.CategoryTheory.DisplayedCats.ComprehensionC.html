@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ComprehensionC.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Displayed Category from a category with display maps</span>
+
+<span class="sd">Definition of the displayed category of display maps over a category [C]</span>
+
+<span class="sd">Given a category with display maps [C], we define a displayed</span>
+<span class="sd">category over [C]. Objects over [c:C] are display maps into [c].</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Definition of a cartesian displayed functor *)</span>
+
+<span class="c">(* TODO: upstream *)</span>
+<span class="kn">Lemma</span> <span class="nf">is_cartesian_from_z_iso_to_cartesian</span>
+    {<span class="nv">C</span> : category} {<span class="nv">D</span> : disp_cat C}
+    {<span class="nv">c</span>} {<span class="nv">d</span> : D c} {<span class="nv">c'</span> : C} {<span class="nv">f</span> : c' --&gt; c}
+    {<span class="nv">d0'</span>} {<span class="nv">ff</span> : d0' --&gt;[f] d} (<span class="nv">ff_cart</span> : is_cartesian ff)
+    {<span class="nv">d1'</span>} {<span class="nv">ff'</span> : d1' --&gt;[f] d}
+    (<span class="nv">i</span> : z_iso_disp (identity_z_iso _) d0' d1')
+    (<span class="nv">e</span> : (i ;; ff')%mor_disp
+         = transportb _ (id_left _) ff)
+  : is_cartesian ff'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c'' g d'' h.
+  <span class="nb">refine</span> (iscontrweqf _ (ff_cart c'' g d'' h)).
+  use weq_subtypes'.
+  - <span class="nb">eapply</span> weqcomp.
+    + <span class="k">exists</span> (<span class="nv">fun</span> <span class="nv">gg</span> =&gt; (gg ;; i))%mor_disp.
+      <span class="nb">apply</span> z_iso_disp_postcomp.
+    + <span class="k">exists</span> (<span class="nv">transportf</span> <span class="nv">_</span> (id_right _)).
+      <span class="nb">apply</span> isweqtransportf.
+  - <span class="nb">intro</span>; <span class="nb">apply</span> homsets_disp.
+  - <span class="nb">intro</span>; <span class="nb">apply</span> homsets_disp.
+  - <span class="nb">simpl</span>. <span class="nb">intros</span> gg.
+    <span class="c">(* Better, if [weq_pathscomp0] existed:</span>
+<span class="c">      apply weq_to_iff, weq_pathscomp0. *)</span>
+    <span class="nb">assert</span> (<span class="k">forall</span> <span class="nv">X</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : X),
+      x = y -&gt; (x = z &lt;-&gt; y = z)) <span class="k">as</span> H.
+    { <span class="nb">intros</span> X x y z p; <span class="nb">split</span>.
+      + <span class="nb">intros</span> q; <span class="bp">exact</span> (!p @ q).
+      + <span class="nb">intros</span> q; <span class="bp">exact</span> (p @ q).
+    }
+    <span class="nb">apply</span> H.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+    etrans. <span class="nb">eapply</span> transportf_bind.
+      <span class="nb">apply</span> assoc_disp_var.
+    etrans. <span class="nb">eapply</span> transportf_bind.
+      etrans. <span class="nb">apply</span> maponpaths, e.
+      <span class="nb">apply</span> mor_disp_transportf_prewhisker.
+    <span class="nb">refine</span> (_ @ idpath_transportf _ _).
+    <span class="nb">apply</span> maponpaths_2, homset_property.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** For a functor to be cartesian, it’s enough to show that it preserves _some_ cartesian lift of each lifting problem.</span>
+
+<span class="sd">  Of course, this can only happen when the domain is a fibration; and in practice, it is useful exactly in the case where one has shown it is a fibration by exhibiting some particular construction of (mere existence of) cartesian lifts. *)</span>
+<span class="kn">Lemma</span> <span class="nf">cartesian_functor_from_fibration</span>
+    {<span class="nv">C</span> <span class="nv">C'</span> : category} {<span class="nv">F</span> : functor C C'}
+    {<span class="nv">D</span> : disp_cat C} {<span class="nv">D'</span> : disp_cat C'} {<span class="nv">FF</span> : disp_functor F D D'}
+    (<span class="nv">H</span> : <span class="k">forall</span> (<span class="nv">c</span> <span class="nv">c'</span> : C) (<span class="nv">f</span> : c' --&gt; c) (<span class="nv">d</span> : D c),
+      ∥ total2 (<span class="k">fun</span> <span class="nv">ff</span> : cartesian_lift d f =&gt; is_cartesian (♯ FF ff)) ∥)
+  : is_cartesian_disp_functor FF.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c c' f d d' ff ff_cart.
+  use (squash_to_prop (H _ _ f d)).
+  - <span class="nb">apply</span> isaprop_is_cartesian.
+  - <span class="nb">intros</span> [ff' ff'_cart].
+    use (is_cartesian_from_z_iso_to_cartesian ff'_cart).
+    + <span class="nb">refine</span> (transportf (<span class="k">fun</span> <span class="nv">i</span> =&gt; z_iso_disp i _ _)
+                       _
+                       (@disp_functor_on_z_iso_disp
+                          _ _ _ _ _ FF
+                          _ _ _ _ (identity_z_iso _) _)).
+      <span class="nb">apply</span> (z_iso_eq _ _), functor_id.
+      <span class="nb">refine</span> (cartesian_lifts_iso ff' (_,,_)).
+      <span class="bp">exact</span> (_,,ff_cart).
+    + etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (@pr1_transportf _ _  (<span class="k">fun</span> <span class="nv">i</span> <span class="nv">ff</span> =&gt; is_z_iso_disp i ff) _ _ _ _). }
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> functtransportf. }
+      etrans. {
+        <span class="nb">apply</span> mor_disp_transportf_postwhisker. }
+      etrans. {
+        <span class="nb">eapply</span> maponpaths. <span class="nb">simpl</span>.
+        etrans. {
+          <span class="nb">eapply</span> pathsinv0, disp_functor_comp_var. }
+        <span class="nb">eapply</span> transportf_bind.
+        etrans. {
+          <span class="nb">apply</span> maponpaths, cartesian_factorisation_commutes'. }
+        <span class="nb">apply</span> disp_functor_transportf. }
+      etrans. <span class="nb">apply</span> transport_f_f.
+      <span class="nb">unfold</span> transportb. <span class="nb">apply</span> maponpaths_2, homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cartesian_functor_from_cleaving</span>
+    {<span class="nv">C</span> <span class="nv">C'</span> : category} {<span class="nv">F</span> : functor C C'}
+    {<span class="nv">D</span> : disp_cat C} {<span class="nv">D'</span> : disp_cat C'} {<span class="nv">FF</span> : disp_functor F D D'}
+    (<span class="nv">clD</span> : cleaving D)
+    (<span class="nv">H</span> : <span class="k">forall</span> <span class="nv">c</span> <span class="nv">c'</span> <span class="nv">f</span> <span class="nv">d</span>, is_cartesian (♯ FF (clD c c' f d)))
+  : is_cartesian_disp_functor FF.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> cartesian_functor_from_fibration.
+  <span class="nb">intros</span> c c' f d. <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> (<span class="nv">clD</span> <span class="nv">c</span> <span class="nv">c'</span> <span class="nv">f</span> <span class="nv">d</span>).
+  <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comprehension_cat_structure</span> (<span class="nv">C</span> : category) : UU
+  := ∑ (D : disp_cat C) (H : cleaving D)
+     (F : disp_functor (functor_identity _ ) D (disp_codomain C)),
+     is_cartesian_disp_functor F.
+
+<span class="kn">Definition</span> <span class="nf">make_comprehension_cat_structure</span>
+  {<span class="nv">C</span> : category}
+  (<span class="nv">D</span> : disp_cat C)
+  {<span class="nv">clD</span> : cleaving D}
+  (<span class="nv">χ</span> : disp_functor (functor_identity C) D (disp_codomain C))
+  (<span class="nv">H</span> : <span class="k">forall</span> <span class="nv">c</span> <span class="nv">c'</span> <span class="nv">f</span> <span class="nv">d</span>, is_cartesian (♯ χ (clD c c' f d)))
+  (* (Hχ : is_cartesian_disp_functor χ) *)
+  : comprehension_cat_structure C :=
+  (D ,, clD ,, χ ,, cartesian_functor_from_cleaving clD H).
+
+<span class="kn">Definition</span> <span class="nf">comprehension</span> {<span class="nv">C</span> : category} (<span class="nv">CC</span> : comprehension_cat_structure C)
+  : disp_functor (functor_identity C) (pr1 CC) (disp_codomain C) :=
+  pr122 CC.
+<span class="kn">Declare Scope</span> comp_cat_struct.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat_struct.
+<span class="kn">Notation</span> <span class="s2">"'π_χ'"</span> := comprehension : comp_cat_struct.
+
+<span class="sd">(** Pseudo Map between Comprehension Categories *)</span>
+<span class="kn">Definition</span> <span class="nf">pseudo_map_structure</span> {<span class="nv">C</span> <span class="nv">C'</span> : category} (<span class="nv">CC</span> : comprehension_cat_structure C) (<span class="nv">CC'</span> : comprehension_cat_structure C') :=
+  ∑ (F : C ⟶ C') (F_bar : disp_functor F (pr1 CC) (pr1 CC')),
+    disp_nat_z_iso (disp_functor_composite (π_χ CC) (disp_codomain_functor F)) (disp_functor_composite F_bar (π_χ CC')) (nat_z_iso_id F).
+
+<span class="kn">Definition</span> <span class="nf">make_pseudo_map_structure</span>
+  {<span class="nv">C</span> <span class="nv">C'</span> : category} {<span class="nv">CC</span> : comprehension_cat_structure C} {<span class="nv">CC'</span> : comprehension_cat_structure C'}
+  {<span class="nv">F</span> : C ⟶ C'}
+  (<span class="nv">F_bar</span> : disp_functor F (pr1 CC) (pr1 CC'))
+  (<span class="nv">ϕ</span> : disp_nat_z_iso (disp_functor_composite (π_χ CC) (disp_codomain_functor F)) (disp_functor_composite F_bar (π_χ CC')) (nat_z_iso_id F))
+  : pseudo_map_structure CC CC'
+  := (F ,, F_bar ,, ϕ).
+
+<span class="sd">(** Transformation between Pseudo Maps *)</span>
+<span class="kn">Lemma</span> <span class="nf">base_nat_trans_equality</span>
+  {<span class="nv">C₁</span> <span class="nv">C₂</span> : category} {<span class="nv">F₁</span> <span class="nv">F₂</span>: C₁ ⟶ C₂} (<span class="nv">α</span> : nat_trans F₁ F₂)
+  : nat_trans_comp
+      (functor_identity C₁ ∙ F₁)
+      (functor_identity C₁ ∙ F₂)
+      (F₂ ∙ functor_identity C₂)
+      (pre_whisker (functor_identity C₁) α) (nat_z_iso_id F₂)
+    =
+    nat_trans_comp
+      (functor_identity C₁ ∙ F₁)
+      (F₁ ∙ functor_identity C₂)
+      (F₂ ∙ functor_identity C₂)
+      (nat_z_iso_id F₁) (post_whisker α (functor_identity C₂)).
+<span class="kn">Proof</span>.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> identity_pre_whisker.
+  <span class="nb">rewrite</span> identity_post_whisker.
+  <span class="nb">rewrite</span> (nat_trans_comp_id_left (pr2 C₂) F₁ F₂ _).
+  <span class="nb">rewrite</span> (nat_trans_comp_id_right (pr2 C₂) F₁ F₂ _).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">transformation_structure_axiom'</span>
+  {<span class="nv">C</span> <span class="nv">C'</span> : category}
+  {<span class="nv">CC</span> : comprehension_cat_structure C} {<span class="nv">CC'</span> : comprehension_cat_structure C'}
+  {<span class="nv">F</span> <span class="nv">F'</span>: pseudo_map_structure CC CC'}
+  {<span class="nv">α</span> : nat_trans (pr1 F) (pr1 F')}
+  (<span class="nv">α_bar</span> : disp_nat_trans α (pr12 F) (pr12 F'))
+  :=
+  disp_nat_trans_comp (pre_whisker_disp_nat_trans (π_χ CC) (disp_codomain_nat_trans α)) (pr22 F')
+    =
+      transportb
+        (<span class="k">λ</span> <span class="nv">n</span>, disp_nat_trans n _ _)
+        (base_nat_trans_equality α)
+      (disp_nat_trans_comp (pr22 F) (post_whisker_disp_nat_trans α_bar (π_χ CC'))).
+
+<span class="kn">Definition</span> <span class="nf">mor_base_equal</span>
+  {<span class="nv">C</span> <span class="nv">C'</span> : category}
+  {<span class="nv">F</span> <span class="nv">F'</span> : C ⟶ C'}
+  (<span class="nv">α</span> : F ⟹ F')
+  : ∏ x : C,
+      nat_z_iso_id F x · #(functor_identity C') (α x)
+      =
+        α (functor_identity C x) · nat_z_iso_id F' x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x. <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> id_left, id_right.
+  <span class="bp">exact</span> (idpath _).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Pointwise version to mirror other definitions (they are equivalent). *)</span>
+<span class="kn">Definition</span> <span class="nf">transformation_structure_axiom</span>
+  {<span class="nv">C</span> <span class="nv">C'</span> : category}
+  {<span class="nv">CC</span> : comprehension_cat_structure C} {<span class="nv">CC'</span> : comprehension_cat_structure C'}
+  {<span class="nv">F</span> <span class="nv">F'</span>: pseudo_map_structure CC CC'}
+  {<span class="nv">α</span> : nat_trans (pr1 F) (pr1 F')}
+  (<span class="nv">α_bar</span> : disp_nat_trans α (pr12 F) (pr12 F'))
+  :=
+  ∏ (x : C) (xx : (pr1 CC) x),
+    comp_disp ((pr22 F) _ xx) (♯(π_χ CC') (α_bar x xx))
+    =
+    transportb
+      (<span class="k">λ</span> <span class="nv">f</span>, _ --&gt;[ f ] _)
+      (mor_base_equal α x)
+    (comp_disp ((disp_codomain_nat_trans α) _ (π_χ CC _ xx)) ((pr22 F') _ xx)).
+
+<span class="kn">Definition</span> <span class="nf">transformation_structure</span>
+  {<span class="nv">C</span> <span class="nv">C'</span> : category}
+  {<span class="nv">CC</span> : comprehension_cat_structure C} {<span class="nv">CC'</span> : comprehension_cat_structure C'}
+  (<span class="nv">F</span> <span class="nv">F'</span>: pseudo_map_structure CC CC')
+  :=
+  ∑ (α : nat_trans (pr1 F) (pr1 F')) (α_bar : disp_nat_trans α (pr12 F) (pr12 F')),
+    transformation_structure_axiom α_bar
+.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/ComprehensionC.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

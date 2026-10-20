@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>BiequivalenceCoherent.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Coherent biequivalences</span>
+
+<span class="sd"> The notion of biequivalence in the file `PseudoFunctors.Biequivalence` is incoherent. A</span>
+<span class="sd"> biequivalence from `B₁` to `B₂` consists of pseudofunctors `F` from `B₁` to ` B₂` and `G`</span>
+<span class="sd"> from `B₂` to `B₁` and pseudotransformations from `F · G` to the identity and from `G · F`</span>
+<span class="sd"> to the identity that are adjoint equivalences. These two pseudotransformations witness</span>
+<span class="sd"> that `F` and `G` are inverses in a suitable sense.</span>
+
+<span class="sd"> However, what is missing to make this notion fully coherent, are, for instance, the</span>
+<span class="sd"> triangle equations. These are witnessed by invertible modifications satisfying suitable</span>
+<span class="sd"> coherences (see Definition 2.1 in "Biequivalences in tricategories" and see Section 5 in</span>
+<span class="sd"> "A coherent approach to pseudomonads"). In this file, we construct a coherent biequivalence</span>
+<span class="sd"> from a biequivalence. Note that we only construct the necessary invertible 2-cells, and we</span>
+<span class="sd"> do not show that they are natural in a suitable (i.e., an invertible modification), and we</span>
+<span class="sd"> do not prove any further coherences.</span>
+
+<span class="sd"> Our construction is a variation of the usual construction used to refine equivalences. More</span>
+<span class="sd"> specifically, both pseudofunctors and the unit are left the same, but we define a new counit.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "Biequivalences in tricategories" by Gurski</span>
+<span class="sd"> - "A coherent approach to pseudomonads" by Lack</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The refined counit</span>
+<span class="sd"> 2. The invertible2-cell witnessing the first triangle law</span>
+<span class="sd"> 3. The invertible 2-cell witnessing the second triangle law</span>
+<span class="sd"> 4. The refined biequivalence</span>
+
+<span class="sd">                                                                                         *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Properties.ClosedUnderInvertibles.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Properties.Composition.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Biequivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.Examples.Unitality.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.Examples.Whiskering.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.Examples.Associativity.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.Examples.Unitality.
+<span class="kn">Require Import</span> UniMath.Bicategories.Modifications.Modification.
+<span class="kn">Require Import</span> UniMath.Bicategories.Modifications.Examples.Unitality.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">CoherentBiequivalence</span>.
+  <span class="kn">Context</span> {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+          (<span class="nv">HB₁</span> : is_univalent_2 B₁)
+          (<span class="nv">HB₂</span> : is_univalent_2 B₂)
+          (<span class="nv">biequiv</span> : biequivalence B₁ B₂).
+
+  <span class="kn">Let</span> <span class="nf">L</span> : psfunctor B₁ B₂ := biequiv.
+  <span class="kn">Let</span> <span class="nf">R</span> : psfunctor B₂ B₁ := inv_psfunctor_of_is_biequivalence biequiv.
+  <span class="kn">Let</span> <span class="nf">η</span> : pstrans (comp_psfunctor R L) (id_psfunctor _)
+    := unit_of_is_biequivalence biequiv.
+  <span class="kn">Let</span> <span class="nf">ηinv</span> : pstrans (id_psfunctor _) (comp_psfunctor R L)
+    := invunit_of_is_biequivalence biequiv.
+  <span class="kn">Let</span> <span class="nf">ε</span> : pstrans (comp_psfunctor L R) (id_psfunctor _)
+    := counit_of_is_biequivalence biequiv.
+  <span class="kn">Let</span> <span class="nf">εinv</span> : pstrans (id_psfunctor _) (comp_psfunctor L R)
+    := invcounit_of_is_biequivalence biequiv.
+  <span class="kn">Let</span> <span class="nf">ηinvη</span> : invertible_modification (ηinv · η) (id₁ _)
+    := unitcounit_of_is_biequivalence biequiv.
+  <span class="kn">Let</span> <span class="nf">ηηinv</span> : invertible_modification (η · ηinv) (id₁ _)
+    := unitunit_of_is_biequivalence biequiv.
+  <span class="kn">Let</span> <span class="nf">εεinv</span> : invertible_modification (ε · εinv) (id₁ _)
+    := counitunit_of_is_biequivalence biequiv.
+  <span class="kn">Let</span> <span class="nf">εinvε</span> : invertible_modification (εinv · ε) (id₁ _)
+    := counitcounit_of_is_biequivalence biequiv.
+
+  <span class="sd">(** * 1. The refined counit *)</span>
+  <span class="kn">Definition</span> <span class="nf">coherent_counit_biequiv</span>
+    : pstrans (comp_psfunctor L R) (id_psfunctor _)
+    := linvunitor_pstrans _
+       · right_whisker (comp_psfunctor L R) εinv
+       · rassociator_pstrans _ _ _
+       · left_whisker L (lassociator_pstrans _ _ _)
+       · left_whisker L (right_whisker R η)
+       · left_whisker L (lunitor_pstrans _)
+       · ε.
+
+  <span class="kn">Definition</span> <span class="nf">coherent_counit_biequiv_ob</span>
+             (<span class="nv">x</span> : B₂)
+    : invertible_2cell
+        (coherent_counit_biequiv x)
+        (εinv (L(R x)) · #L(η(R x)) · ε x).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (rwhisker_of_invertible_2cell _ _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (lwhisker_of_invertible_2cell
+                 _
+                 (inv_of_invertible_2cell (psfunctor_id L _)))
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (runitor_invertible_2cell _)
+              _).
+    <span class="nb">refine</span> (rwhisker_of_invertible_2cell _ _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (lwhisker_of_invertible_2cell
+                 _
+                 (inv_of_invertible_2cell (psfunctor_id L _)))
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (runitor_invertible_2cell _)
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (runitor_invertible_2cell _)
+              _).
+    <span class="nb">apply</span> lunitor_invertible_2cell.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coherent_counit_biequiv_ob_adj_equiv</span>
+             (<span class="nv">x</span> : B₂)
+    : left_adjoint_equivalence (coherent_counit_biequiv x).
+  <span class="kn">Proof</span>.
+    use (left_adjoint_equivalence_invertible
+           _
+           (coherent_counit_biequiv_ob x)).
+    use comp_left_adjoint_equivalence.
+    - use comp_left_adjoint_equivalence.
+      + <span class="bp">exact</span> (inv_left_adjoint_equivalence
+                 (pointwise_adjequiv
+                    _
+                    (is_biequivalence_adjoint_counit biequiv)
+                    (L(R x)))).
+      + use psfunctor_preserves_adjequiv'.
+        <span class="bp">exact</span> (pointwise_adjequiv _ (is_biequivalence_adjoint_unit biequiv) (R x)).
+    - <span class="bp">exact</span> (pointwise_adjequiv _ (is_biequivalence_adjoint_counit biequiv) x).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. The invertible2-cell witnessing the first triangle law *)</span>
+  <span class="kn">Definition</span> <span class="nf">coherent_counit_biequiv_triangle_1_help</span>
+             (<span class="nv">x</span> : B₁)
+    : invertible_2cell
+        (id₁ _)
+        (ηinv (R(L x)) · #R(#L(η x)))
+    := comp_of_invertible_2cell
+         (inv_of_invertible_2cell (invertible_modcomponent_of ηηinv x))
+         (inv_of_invertible_2cell (psnaturality_of ηinv (η x))).
+
+  <span class="kn">Definition</span> <span class="nf">coherent_counit_biequiv_triangle_1_help_2</span>
+             (<span class="nv">x</span> : B₁)
+    : invertible_2cell
+        (# L (η (R (L x))) · ε (L x))
+        (ε (L(R(L x))) · #L(η x)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              _
+              (inv_of_invertible_2cell (psnaturality_of ε (#L(η x))))).
+    <span class="nb">refine</span> (rwhisker_of_invertible_2cell _ _).
+    use (psfunctor_inv2cell L).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (rinvunitor_invertible_2cell _)
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (lwhisker_of_invertible_2cell
+                 _
+                 (coherent_counit_biequiv_triangle_1_help x))
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (lassociator_invertible_2cell _ _ _)
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (rwhisker_of_invertible_2cell _ (invertible_modcomponent_of ηηinv _))
+              _).
+    <span class="nb">apply</span> lunitor_invertible_2cell.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coherent_counit_biequiv_triangle_1</span>
+             (<span class="nv">x</span> : B₁)
+    : invertible_2cell
+        (coherent_counit_biequiv (L x))
+        (#L(η x)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (coherent_counit_biequiv_ob (L x))
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (rassociator_invertible_2cell _ _ _)
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (lwhisker_of_invertible_2cell
+                 _
+                 (coherent_counit_biequiv_triangle_1_help_2 x))
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (lassociator_invertible_2cell _ _ _)
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (rwhisker_of_invertible_2cell
+                 _
+                 (invertible_modcomponent_of εinvε (L(R(L x)))))
+              _).
+    <span class="nb">apply</span> lunitor_invertible_2cell.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. The invertible 2-cell witnessing the second triangle law *)</span>
+  <span class="kn">Definition</span> <span class="nf">coherent_counit_biequiv_triangle_2_unit_lem</span>
+             (<span class="nv">x</span> : B₁)
+    : invertible_2cell
+        (#R(#L(η x)))
+        (η(R(L x))).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              _
+              (runitor_invertible_2cell _)).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              _
+              (lwhisker_of_invertible_2cell
+                 _
+                 (inv_of_invertible_2cell
+                    (coherent_counit_biequiv_triangle_1_help x)))).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              _
+              (rassociator_invertible_2cell _ _ _)).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (linvunitor_invertible_2cell _)
+              _).
+    <span class="nb">refine</span> (rwhisker_of_invertible_2cell _ _).
+    <span class="bp">exact</span> (inv_of_invertible_2cell (invertible_modcomponent_of ηηinv _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coherent_counit_biequiv_triangle_2_counit_lem</span>
+             (<span class="nv">x</span> : B₂)
+    : invertible_2cell
+        (#L(#R(ε x)))
+        (ε(L(R x))).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (rinvunitor_invertible_2cell _)
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (lwhisker_of_invertible_2cell
+                 _
+                 (inv_of_invertible_2cell
+                    (invertible_modcomponent_of εεinv _)))
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (lassociator_invertible_2cell _ _ _)
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (rwhisker_of_invertible_2cell
+                 _
+                 (inv_of_invertible_2cell (psnaturality_of ε (ε x))))
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (rassociator_invertible_2cell _ _ _)
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              _
+              (runitor_invertible_2cell _)).
+    <span class="nb">refine</span> (lwhisker_of_invertible_2cell _ _).
+    <span class="bp">exact</span> (invertible_modcomponent_of εεinv _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coherent_counit_biequiv_triangle_2</span>
+             (<span class="nv">x</span> : B₂)
+    : invertible_2cell
+        (#R (coherent_counit_biequiv x))
+        (η (R x)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (psfunctor_inv2cell R (coherent_counit_biequiv_ob x))
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (inv_of_invertible_2cell (psfunctor_comp R _ _))
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (rwhisker_of_invertible_2cell
+                 _
+                 (inv_of_invertible_2cell (psfunctor_comp R _ _)))
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (rwhisker_of_invertible_2cell
+                 _
+                 (lwhisker_of_invertible_2cell
+                    _
+                    (coherent_counit_biequiv_triangle_2_unit_lem _)))
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (rassociator_invertible_2cell _ _ _)
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (lwhisker_of_invertible_2cell
+                 _
+                 (psnaturality_of η (#R(ε x))))
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (lassociator_invertible_2cell _ _ _)
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              _
+              (lunitor_invertible_2cell _)).
+    <span class="nb">refine</span> (rwhisker_of_invertible_2cell _ _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (psfunctor_comp R _ _)
+              _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              _
+              (inv_of_invertible_2cell (psfunctor_id R _))).
+    <span class="nb">refine</span> (psfunctor_inv2cell R _).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              _
+              (invertible_modcomponent_of εinvε _)).
+    <span class="nb">refine</span> (lwhisker_of_invertible_2cell _ _).
+    <span class="nb">apply</span> coherent_counit_biequiv_triangle_2_counit_lem.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 4. The refined biequivalence *)</span>
+  <span class="kn">Definition</span> <span class="nf">to_coherent_biequiv_unit_counit</span>
+    : is_biequivalence_unit_counit L R
+    := η ,, coherent_counit_biequiv.
+
+  <span class="kn">Definition</span> <span class="nf">to_coherent_biequiv_adjoint</span>
+    : is_biequivalence_adjoints
+        to_coherent_biequiv_unit_counit.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> (is_biequivalence_adjoint_unit biequiv).
+    - use (pointwise_adjequiv_to_adjequiv HB₂).
+      <span class="bp">exact</span> coherent_counit_biequiv_ob_adj_equiv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_coherent_biequiv</span>
+    : biequivalence B₁ B₂
+    := L
+       ,,
+       R
+       ,,
+       to_coherent_biequiv_unit_counit
+       ,,
+       to_coherent_biequiv_adjoint.
+
+  <span class="kn">Definition</span> <span class="nf">coherent_counit_biequiv_triangle_2_alt</span>
+             (<span class="nv">x</span> : B₂)
+    : invertible_2cell
+        (identity _)
+        (η (R x)
+         · #R (invcounit_of_is_biequivalence to_coherent_biequiv x)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              _
+              (rwhisker_of_invertible_2cell
+                 _
+                 (coherent_counit_biequiv_triangle_2 x))).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              _
+              (inv_of_invertible_2cell (psfunctor_comp R _ _))).
+    <span class="nb">refine</span> (comp_of_invertible_2cell
+              (psfunctor_id R _)
+              _).
+    <span class="nb">refine</span> (psfunctor_inv2cell R _).
+    <span class="bp">exact</span> (inv_of_invertible_2cell
+             (invertible_modcomponent_of
+                (counitunit_of_is_biequivalence to_coherent_biequiv)
+                x)).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CoherentBiequivalence</span>.
+
+<span class="kn">Definition</span> <span class="nf">coherent_is_biequivalence_adjoints</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+           (<span class="nv">univ_2_B₁</span> : is_univalent_2 B₁)
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">G</span> : psfunctor B₂ B₁}
+           {<span class="nv">e</span> : is_biequivalence_unit_counit G F}
+           (<span class="nv">a</span> : is_biequivalence_adjoints e)
+  : biequivalence B₂ B₁.
+<span class="kn">Proof</span>.
+  use to_coherent_biequiv.
+  - <span class="bp">exact</span> univ_2_B₁.
+  - <span class="bp">exact</span> (G ,, F ,, e ,, a).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">coherent_is_biequivalence_adjoints_triangle_2_alt</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+           (<span class="nv">univ_2_B₁</span> : is_univalent_2 B₁)
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">G</span> : psfunctor B₂ B₁}
+           {<span class="nv">e</span> : is_biequivalence_unit_counit G F}
+           (<span class="nv">a</span> : is_biequivalence_adjoints e)
+           (<span class="nv">x</span> : B₁)
+  : invertible_2cell
+      (identity _)
+      (unit_of_is_biequivalence
+         (coherent_is_biequivalence_adjoints univ_2_B₁ a)
+         (F x)
+       · #F (invcounit_of_is_biequivalence
+               (coherent_is_biequivalence_adjoints univ_2_B₁ a)
+               x)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (coherent_counit_biequiv_triangle_2_alt
+           univ_2_B₁
+           (G ,, F ,, e ,, a)
+           x).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/PseudoFunctors/BiequivalenceCoherent.v</tt>, line 33)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. The refined biequivalence
+  &gt;
+  &gt;                                                                                          *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

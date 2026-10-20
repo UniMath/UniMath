@@ -1,0 +1,658 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CategoryProductLimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(************************************************************************</span>
+
+<span class="sd"> Limits and colimits in the unit category</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Terminal objects</span>
+<span class="sd"> 2. Products</span>
+<span class="sd"> 3. Pullbacks</span>
+<span class="sd"> 4. Initial objects</span>
+<span class="sd"> 5. Coproducts</span>
+
+<span class="sd"> ************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Terminal objects</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">TerminalProduct</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}.
+
+  <span class="kn">Definition</span> <span class="nf">isTerminal_category_binproduct</span>
+             (<span class="nv">x</span> : category_binproduct C₁ C₂)
+             (<span class="nv">H₁</span> : isTerminal C₁ (pr1 x))
+             (<span class="nv">H₂</span> : isTerminal C₂ (pr2 x))
+    : isTerminal (category_binproduct C₁ C₂) x.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w.
+    use iscontraprop1.
+    - <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> φ₁ φ₂ ;
+         use pathsdirprod ;
+         [ <span class="bp">exact</span> (TerminalArrowUnique (_ ,, H₁) _ _ @ !(TerminalArrowUnique (_ ,, H₁) _ _))
+         | <span class="bp">exact</span> (TerminalArrowUnique (_ ,, H₂) _ _ @ !(TerminalArrowUnique (_ ,, H₂) _ _))
+         ]).
+    - <span class="bp">exact</span> (TerminalArrow (_ ,, H₁) (pr1 w)
+             ,,
+             TerminalArrow (_ ,, H₂) (pr2 w)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">terminal_category_binproduct</span>
+             (<span class="nv">T₁</span> : Terminal C₁)
+             (<span class="nv">T₂</span> : Terminal C₂)
+    : Terminal (category_binproduct C₁ C₂)
+    := (pr1 T₁ ,, pr1 T₂) ,, isTerminal_category_binproduct (_ ,, _) (pr2 T₁) (pr2 T₂).
+<span class="kn">End</span> <span class="nf">TerminalProduct</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr1_preserves_terminal</span>
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : category)
+  : preserves_terminal (pr1_functor C₁ C₂).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x Hx w.
+  use iscontraprop1.
+  - <span class="kp">abstract</span>
+      (use invproofirrelevance ;
+       <span class="nb">intros</span> φ₁ φ₂ ;
+       <span class="nb">refine</span> (maponpaths
+                 pr1
+                 (TerminalArrowUnique
+                    (x ,, Hx)
+                    (w ,, pr2 x)
+                    (φ₁ ,, identity _))
+               @ !_) ;
+       <span class="bp">exact</span> (maponpaths
+                pr1
+                (TerminalArrowUnique
+                   (x ,, Hx)
+                   (w ,, pr2 x)
+                   (φ₂ ,, identity _)))).
+  - <span class="bp">exact</span> (pr1 (TerminalArrow (_ ,, Hx) (w ,, pr2 x))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr2_preserves_terminal</span>
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : category)
+  : preserves_terminal (pr2_functor C₁ C₂).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x Hx w.
+  use iscontraprop1.
+  - <span class="kp">abstract</span>
+      (use invproofirrelevance ;
+       <span class="nb">intros</span> φ₁ φ₂ ;
+       <span class="nb">refine</span> (maponpaths
+                 dirprod_pr2
+                 (TerminalArrowUnique
+                    (x ,, Hx)
+                    (pr1 x ,, w)
+                    (identity _ ,, φ₁))
+                 @ !_) ;
+       <span class="bp">exact</span> (maponpaths
+                 dirprod_pr2
+                 (TerminalArrowUnique
+                    (x ,, Hx)
+                    (pr1 x ,, w)
+                    (identity _ ,, φ₂)))).
+  - <span class="bp">exact</span> (pr2 (TerminalArrow (_ ,, Hx) (pr1 x ,, w))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_terminal_bindelta_pair_functor</span>
+           {<span class="nv">C</span> <span class="nv">D₁</span> <span class="nv">D₂</span> : category}
+           {<span class="nv">F</span> : C ⟶ D₁}
+           {<span class="nv">G</span> : C ⟶ D₂}
+           (<span class="nv">HF</span> : preserves_terminal F)
+           (<span class="nv">HG</span> : preserves_terminal G)
+  : preserves_terminal
+      (bindelta_pair_functor F G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x Hx.
+  <span class="nb">apply</span> isTerminal_category_binproduct.
+  - <span class="nb">apply</span> HF.
+    <span class="nb">apply</span> Hx.
+  - <span class="nb">apply</span> HG.
+    <span class="nb">apply</span> Hx.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Products</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">BinProductInProduct</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}.
+
+  <span class="kn">Definition</span> <span class="nf">isBinProduct_in_product_category</span>
+             {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : category_binproduct C₁ C₂}
+             (<span class="nv">p₁</span> : z --&gt; x)
+             (<span class="nv">p₂</span> : z --&gt; y)
+             (<span class="nv">H₁</span> : isBinProduct _ (pr1 x) (pr1 y) (pr1 z) (pr1 p₁) (pr1 p₂))
+             (<span class="nv">H₂</span> : isBinProduct _ (pr2 x) (pr2 y) (pr2 z) (pr2 p₁) (pr2 p₂))
+    : isBinProduct _ x y z p₁ p₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (P₁ := make_BinProduct _ _ _ _ _ _ H₁).
+    <span class="nb">pose</span> (P₂ := make_BinProduct _ _ _ _ _ _ H₂).
+    <span class="nb">intros</span> w f g.
+    use iscontraprop1.
+    - <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> φ₁ φ₂ ;
+         use subtypePath ;
+         [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+         use pathsdirprod ;
+         [ <span class="bp">exact</span> (BinProductArrowsEq
+                    _ _ _
+                    P₁
+                    _ _ _
+                    (maponpaths pr1 (pr12 φ₁)
+                     @ !(maponpaths pr1 (pr12 φ₂)))
+                    (maponpaths pr1 (pr22 φ₁)
+                     @ !(maponpaths pr1 (pr22 φ₂))))
+         | <span class="bp">exact</span> (BinProductArrowsEq
+                    _ _ _
+                    P₂
+                    _ _ _
+                    (maponpaths dirprod_pr2 (pr12 φ₁)
+                     @ !(maponpaths dirprod_pr2 (pr12 φ₂)))
+                    (maponpaths dirprod_pr2 (pr22 φ₁)
+                     @ !(maponpaths dirprod_pr2 (pr22 φ₂)))) ]).
+    - <span class="nb">simple refine</span> ((_ ,, _) ,, _ ,, _).
+      + <span class="bp">exact</span> (BinProductArrow _ P₁ (pr1 f) (pr1 g)).
+      + <span class="bp">exact</span> (BinProductArrow _ P₂ (pr2 f) (pr2 g)).
+      + <span class="kp">abstract</span>
+          (use pathsdirprod ;
+           [ <span class="nb">apply</span> (BinProductPr1Commutes _ _ _ P₁)
+           | <span class="nb">apply</span> (BinProductPr1Commutes _ _ _ P₂)]).
+      + <span class="kp">abstract</span>
+          (use pathsdirprod ;
+           [ <span class="nb">apply</span> (BinProductPr2Commutes _ _ _ P₁)
+           | <span class="nb">apply</span> (BinProductPr2Commutes _ _ _ P₂)]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binproducts_in_product_category</span>
+             (<span class="nv">HC₁</span> : BinProducts C₁)
+             (<span class="nv">HC₂</span> : BinProducts C₂)
+    : BinProducts (category_binproduct C₁ C₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use make_BinProduct.
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (BinProductObject _ (HC₁ (pr1 x) (pr1 y))).
+      + <span class="bp">exact</span> (BinProductObject _ (HC₂ (pr2 x) (pr2 y))).
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (BinProductPr1 _ (HC₁ (pr1 x) (pr1 y))).
+      + <span class="bp">exact</span> (BinProductPr1 _ (HC₂ (pr2 x) (pr2 y))).
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (BinProductPr2 _ (HC₁ (pr1 x) (pr1 y))).
+      + <span class="bp">exact</span> (BinProductPr2 _ (HC₂ (pr2 x) (pr2 y))).
+    -  use isBinProduct_in_product_category.
+       + <span class="nb">apply</span> isBinProduct_BinProduct.
+       + <span class="nb">apply</span> isBinProduct_BinProduct.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">BinProductInProduct</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr1_preserves_binproduct</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">HC₁</span> : BinProducts C₁)
+           (<span class="nv">HC₂</span> : BinProducts C₂)
+  : preserves_binproduct (pr1_functor C₁ C₂).
+<span class="kn">Proof</span>.
+  use preserves_binproduct_if_preserves_chosen.
+  - <span class="nb">apply</span> binproducts_in_product_category.
+    + <span class="bp">exact</span> HC₁.
+    + <span class="bp">exact</span> HC₂.
+  - <span class="nb">intros</span> x y.
+    <span class="nb">apply</span> isBinProduct_BinProduct.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr2_preserves_binproduct</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">HC₁</span> : BinProducts C₁)
+           (<span class="nv">HC₂</span> : BinProducts C₂)
+  : preserves_binproduct (pr2_functor C₁ C₂).
+<span class="kn">Proof</span>.
+  use preserves_binproduct_if_preserves_chosen.
+  - <span class="nb">apply</span> binproducts_in_product_category.
+    + <span class="bp">exact</span> HC₁.
+    + <span class="bp">exact</span> HC₂.
+  - <span class="nb">intros</span> x y.
+    <span class="nb">apply</span> isBinProduct_BinProduct.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_binproduct_bindelta_pair_functor</span>
+           {<span class="nv">C</span> <span class="nv">D₁</span> <span class="nv">D₂</span> : category}
+           {<span class="nv">F</span> : C ⟶ D₁}
+           {<span class="nv">G</span> : C ⟶ D₂}
+           (<span class="nv">HF</span> : preserves_binproduct F)
+           (<span class="nv">HG</span> : preserves_binproduct G)
+  : preserves_binproduct
+      (bindelta_pair_functor F G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z π₁ π₂ H.
+  <span class="nb">apply</span> isBinProduct_in_product_category.
+  - <span class="nb">apply</span> HF.
+    <span class="nb">apply</span> H.
+  - <span class="nb">apply</span> HG.
+    <span class="nb">apply</span> H.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Pullbacks</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">PullbackInProduct</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}.
+
+  <span class="kn">Section</span> <span class="nf">PullbackInProductCategoryUMP</span>.
+    <span class="kn">Context</span> {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : category_binproduct C₁ C₂}
+            {<span class="nv">f</span> : x --&gt; z}
+            {<span class="nv">g</span> : y --&gt; z}
+            (<span class="nv">π₁</span> : w --&gt; x)
+            (<span class="nv">π₂</span> : w --&gt; y)
+            (<span class="nv">p</span> : π₁ · f = π₂ · g)
+            (<span class="nv">H₁</span> : isPullback (maponpaths pr1 p))
+            (<span class="nv">H₂</span> : isPullback (maponpaths dirprod_pr2 p))
+            {<span class="nv">q</span> : category_binproduct C₁ C₂}
+            (<span class="nv">h₁</span> : q --&gt; x)
+            (<span class="nv">h₂</span> : q --&gt; y)
+            (<span class="nv">r</span> : h₁ · f = h₂ · g).
+
+    <span class="kn">Let</span> <span class="nf">P₁</span> : Pullback (pr1 f) (pr1 g) := make_Pullback _ H₁.
+    <span class="kn">Let</span> <span class="nf">P₂</span> : Pullback (pr2 f) (pr2 g) := make_Pullback _ H₂.
+
+    <span class="kn">Definition</span> <span class="nf">isPullback_in_product_category_unique</span>
+      : isaprop (∑ (hk : q --&gt; w), hk · π₁ = h₁ × hk · π₂ = h₂).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+      }
+      use pathsdirprod.
+      - use (MorphismsIntoPullbackEqual (pr22 P₁)).
+        + <span class="bp">exact</span> (maponpaths pr1 (pr12 φ₁) @ !(maponpaths pr1 (pr12 φ₂))).
+        + <span class="bp">exact</span> (maponpaths pr1 (pr22 φ₁) @ !(maponpaths pr1 (pr22 φ₂))).
+      - use (MorphismsIntoPullbackEqual (pr22 P₂)).
+        + <span class="bp">exact</span> (maponpaths dirprod_pr2 (pr12 φ₁)
+                 @ !(maponpaths dirprod_pr2 (pr12 φ₂))).
+        + <span class="bp">exact</span> (maponpaths dirprod_pr2 (pr22 φ₁)
+                 @ !(maponpaths dirprod_pr2 (pr22 φ₂))).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">isPullback_in_product_category_mor</span>
+      : q --&gt; w
+      := PullbackArrow P₁ _ (pr1 h₁) (pr1 h₂) (maponpaths pr1 r)
+         ,,
+         PullbackArrow P₂ _ (pr2 h₁) (pr2 h₂) (maponpaths dirprod_pr2 r).
+
+    <span class="kn">Definition</span> <span class="nf">isPullback_in_product_category_mor_pr1</span>
+      : isPullback_in_product_category_mor · π₁ = h₁.
+    <span class="kn">Proof</span>.
+      use pathsdirprod ; <span class="nb">cbn</span>.
+      - <span class="nb">apply</span> (PullbackArrow_PullbackPr1 P₁).
+      - <span class="nb">apply</span> (PullbackArrow_PullbackPr1 P₂).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">isPullback_in_product_category_mor_pr2</span>
+      : isPullback_in_product_category_mor · π₂ = h₂.
+    <span class="kn">Proof</span>.
+      use pathsdirprod ; <span class="nb">cbn</span>.
+      - <span class="nb">apply</span> (PullbackArrow_PullbackPr2 P₁).
+      - <span class="nb">apply</span> (PullbackArrow_PullbackPr2 P₂).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">PullbackInProductCategoryUMP</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isPullback_in_product_category</span>
+             {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : category_binproduct C₁ C₂}
+             {<span class="nv">f</span> : x --&gt; z}
+             {<span class="nv">g</span> : y --&gt; z}
+             (<span class="nv">π₁</span> : w --&gt; x)
+             (<span class="nv">π₂</span> : w --&gt; y)
+             (<span class="nv">p</span> : π₁ · f = π₂ · g)
+             (<span class="nv">H₁</span> : isPullback (maponpaths pr1 p))
+             (<span class="nv">H₂</span> : isPullback (maponpaths dirprod_pr2 p))
+    : isPullback p.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> q h₁ h₂ r.
+    use iscontraprop1.
+    - <span class="bp">exact</span> (isPullback_in_product_category_unique π₁ π₂ p H₁ H₂ h₁ h₂).
+    - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="bp">exact</span> (isPullback_in_product_category_mor π₁ π₂ p H₁ H₂ h₁ h₂ r).
+      + <span class="nb">apply</span> isPullback_in_product_category_mor_pr1.
+      + <span class="nb">apply</span> isPullback_in_product_category_mor_pr2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pullbacks_in_product_category</span>
+             (<span class="nv">HC₁</span> : Pullbacks C₁)
+             (<span class="nv">HC₂</span> : Pullbacks C₂)
+    : Pullbacks (category_binproduct C₁ C₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> z x y f g.
+    <span class="nb">simple refine</span> ((_ ,, _ ,, _) ,, (_ ,, _)).
+    - <span class="nb">refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (PullbackObject (HC₁ _ _ _ (pr1 f) (pr1 g))).
+      + <span class="bp">exact</span> (PullbackObject (HC₂ _ _ _ (pr2 f) (pr2 g))).
+    - <span class="nb">refine</span> (_ ,, _).
+      + <span class="nb">apply</span> PullbackPr1.
+      + <span class="nb">apply</span> PullbackPr1.
+    - <span class="nb">refine</span> (_ ,, _).
+      + <span class="nb">apply</span> PullbackPr2.
+      + <span class="nb">apply</span> PullbackPr2.
+    - <span class="nb">apply</span> pathsdirprod.
+      + <span class="nb">apply</span> PullbackSqrCommutes.
+      + <span class="nb">apply</span> PullbackSqrCommutes.
+    - use isPullback_in_product_category.
+      + <span class="nb">apply</span> isPullback_Pullback.
+      + <span class="nb">apply</span> isPullback_Pullback.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PullbackInProduct</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr1_preserves_pullback</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">HC₁</span> : Pullbacks C₁)
+           (<span class="nv">HC₂</span> : Pullbacks C₂)
+  : preserves_pullback (pr1_functor C₁ C₂).
+<span class="kn">Proof</span>.
+  use preserves_pullback_if_preserves_chosen.
+  - <span class="nb">apply</span> pullbacks_in_product_category.
+    + <span class="bp">exact</span> HC₁.
+    + <span class="bp">exact</span> HC₂.
+  - <span class="nb">intros</span> x y z f g.
+    <span class="nb">apply</span> isPullback_Pullback.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr2_preserves_pullback</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">HC₁</span> : Pullbacks C₁)
+           (<span class="nv">HC₂</span> : Pullbacks C₂)
+  : preserves_pullback (pr2_functor C₁ C₂).
+<span class="kn">Proof</span>.
+  use preserves_pullback_if_preserves_chosen.
+  - <span class="nb">apply</span> pullbacks_in_product_category.
+    + <span class="bp">exact</span> HC₁.
+    + <span class="bp">exact</span> HC₂.
+  - <span class="nb">intros</span> x y z f g.
+    <span class="nb">apply</span> isPullback_Pullback.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_pullback_bindelta_pair_functor</span>
+           {<span class="nv">C</span> <span class="nv">D₁</span> <span class="nv">D₂</span> : category}
+           {<span class="nv">F</span> : C ⟶ D₁}
+           {<span class="nv">G</span> : C ⟶ D₂}
+           (<span class="nv">HF</span> : preserves_pullback F)
+           (<span class="nv">HG</span> : preserves_pullback G)
+  : preserves_pullback
+      (bindelta_pair_functor F G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w x y z f g π₁ π₂ p₁ p₂ H.
+  <span class="nb">apply</span> isPullback_in_product_category.
+  - <span class="bp">exact</span> (HF _ _ _ _ _ _ _ _ _ _ H).
+  - <span class="bp">exact</span> (HG _ _ _ _ _ _ _ _ _ _ H).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Initial objects</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">InitialProduct</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}.
+
+  <span class="kn">Definition</span> <span class="nf">isInitial_category_binproduct</span>
+             (<span class="nv">x</span> : category_binproduct C₁ C₂)
+             (<span class="nv">H₁</span> : isInitial C₁ (pr1 x))
+             (<span class="nv">H₂</span> : isInitial C₂ (pr2 x))
+    : isInitial (category_binproduct C₁ C₂) x.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w.
+    use iscontraprop1.
+    - <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> φ₁ φ₂ ;
+         use pathsdirprod ;
+         [ <span class="bp">exact</span> (InitialArrowUnique (_ ,, H₁) _ _ @ !(InitialArrowUnique (_ ,, H₁) _ _))
+         | <span class="bp">exact</span> (InitialArrowUnique (_ ,, H₂) _ _ @ !(InitialArrowUnique (_ ,, H₂) _ _))
+         ]).
+    - <span class="bp">exact</span> (InitialArrow (_ ,, H₁) (pr1 w)
+             ,,
+             InitialArrow (_ ,, H₂) (pr2 w)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">initial_category_binproduct</span>
+             (<span class="nv">I₁</span> : Initial C₁)
+             (<span class="nv">I₂</span> : Initial C₂)
+    : Initial (category_binproduct C₁ C₂)
+    := (pr1 I₁ ,, pr1 I₂) ,, isInitial_category_binproduct (_ ,, _) (pr2 I₁) (pr2 I₂).
+<span class="kn">End</span> <span class="nf">InitialProduct</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr1_preserves_initial</span>
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : category)
+  : preserves_initial (pr1_functor C₁ C₂).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x Hx w.
+  use iscontraprop1.
+  - <span class="kp">abstract</span>
+      (use invproofirrelevance ;
+       <span class="nb">intros</span> φ₁ φ₂ ;
+       <span class="nb">refine</span> (maponpaths
+                 pr1
+                 (InitialArrowUnique
+                    (x ,, Hx)
+                    (w ,, pr2 x)
+                    (φ₁ ,, identity _))
+               @ !_) ;
+       <span class="bp">exact</span> (maponpaths
+                pr1
+                (InitialArrowUnique
+                   (x ,, Hx)
+                   (w ,, pr2 x)
+                   (φ₂ ,, identity _)))).
+  - <span class="bp">exact</span> (pr1 (InitialArrow (_ ,, Hx) (w ,, pr2 x))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr2_preserves_initial</span>
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : category)
+  : preserves_initial (pr2_functor C₁ C₂).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x Hx w.
+  use iscontraprop1.
+  - <span class="kp">abstract</span>
+      (use invproofirrelevance ;
+       <span class="nb">intros</span> φ₁ φ₂ ;
+       <span class="nb">refine</span> (maponpaths
+                 dirprod_pr2
+                 (InitialArrowUnique
+                    (x ,, Hx)
+                    (pr1 x ,, w)
+                    (identity _ ,, φ₁))
+                 @ !_) ;
+       <span class="bp">exact</span> (maponpaths
+                 dirprod_pr2
+                 (InitialArrowUnique
+                    (x ,, Hx)
+                    (pr1 x ,, w)
+                    (identity _ ,, φ₂)))).
+  - <span class="bp">exact</span> (pr2 (InitialArrow (_ ,, Hx) (pr1 x ,, w))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_initial_bindelta_pair_functor</span>
+           {<span class="nv">C</span> <span class="nv">D₁</span> <span class="nv">D₂</span> : category}
+           {<span class="nv">F</span> : C ⟶ D₁}
+           {<span class="nv">G</span> : C ⟶ D₂}
+           (<span class="nv">HF</span> : preserves_initial F)
+           (<span class="nv">HG</span> : preserves_initial G)
+  : preserves_initial
+      (bindelta_pair_functor F G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x Hx.
+  <span class="nb">apply</span> isInitial_category_binproduct.
+  - <span class="nb">apply</span> HF.
+    <span class="nb">apply</span> Hx.
+  - <span class="nb">apply</span> HG.
+    <span class="nb">apply</span> Hx.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Coproducts</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">BinCoproductInProduct</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}.
+
+  <span class="kn">Definition</span> <span class="nf">isBinCoproduct_in_product_category</span>
+             {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : category_binproduct C₁ C₂}
+             (<span class="nv">i₁</span> : x --&gt; z)
+             (<span class="nv">i₂</span> : y --&gt; z)
+             (<span class="nv">H₁</span> : isBinCoproduct _ (pr1 x) (pr1 y) (pr1 z) (pr1 i₁) (pr1 i₂))
+             (<span class="nv">H₂</span> : isBinCoproduct _ (pr2 x) (pr2 y) (pr2 z) (pr2 i₁) (pr2 i₂))
+    : isBinCoproduct _ x y z i₁ i₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (P₁ := make_BinCoproduct _ _ _ _ _ _ H₁).
+    <span class="nb">pose</span> (P₂ := make_BinCoproduct _ _ _ _ _ _ H₂).
+    <span class="nb">intros</span> w f g.
+    use iscontraprop1.
+    - <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> φ₁ φ₂ ;
+         use subtypePath ;
+         [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+         use pathsdirprod ;
+         [ <span class="bp">exact</span> (BinCoproductArrowsEq
+                    _ _ _
+                    P₁
+                    _ _ _
+                    (maponpaths pr1 (pr12 φ₁)
+                     @ !(maponpaths pr1 (pr12 φ₂)))
+                    (maponpaths pr1 (pr22 φ₁)
+                     @ !(maponpaths pr1 (pr22 φ₂))))
+         | <span class="bp">exact</span> (BinCoproductArrowsEq
+                    _ _ _
+                    P₂
+                    _ _ _
+                    (maponpaths dirprod_pr2 (pr12 φ₁)
+                     @ !(maponpaths dirprod_pr2 (pr12 φ₂)))
+                    (maponpaths dirprod_pr2 (pr22 φ₁)
+                     @ !(maponpaths dirprod_pr2 (pr22 φ₂)))) ]).
+    - <span class="nb">simple refine</span> ((_ ,, _) ,, _ ,, _).
+      + <span class="bp">exact</span> (BinCoproductArrow P₁ (pr1 f) (pr1 g)).
+      + <span class="bp">exact</span> (BinCoproductArrow P₂ (pr2 f) (pr2 g)).
+      + <span class="kp">abstract</span>
+          (use pathsdirprod ;
+           [ <span class="nb">apply</span> (BinCoproductIn1Commutes _ _ _ P₁)
+           | <span class="nb">apply</span> (BinCoproductIn1Commutes _ _ _ P₂)]).
+      + <span class="kp">abstract</span>
+          (use pathsdirprod ;
+           [ <span class="nb">apply</span> (BinCoproductIn2Commutes _ _ _ P₁)
+           | <span class="nb">apply</span> (BinCoproductIn2Commutes _ _ _ P₂)]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bincoproducts_in_product_category</span>
+             (<span class="nv">HC₁</span> : BinCoproducts C₁)
+             (<span class="nv">HC₂</span> : BinCoproducts C₂)
+    : BinCoproducts (category_binproduct C₁ C₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use make_BinCoproduct.
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (BinCoproductObject (HC₁ (pr1 x) (pr1 y))).
+      + <span class="bp">exact</span> (BinCoproductObject (HC₂ (pr2 x) (pr2 y))).
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (BinCoproductIn1 (HC₁ (pr1 x) (pr1 y))).
+      + <span class="bp">exact</span> (BinCoproductIn1 (HC₂ (pr2 x) (pr2 y))).
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (BinCoproductIn2 (HC₁ (pr1 x) (pr1 y))).
+      + <span class="bp">exact</span> (BinCoproductIn2 (HC₂ (pr2 x) (pr2 y))).
+    -  use isBinCoproduct_in_product_category.
+       + <span class="nb">apply</span> isBinCoproduct_BinCoproduct.
+       + <span class="nb">apply</span> isBinCoproduct_BinCoproduct.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">BinCoproductInProduct</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr1_preserves_bincoproduct</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">HC₁</span> : BinCoproducts C₁)
+           (<span class="nv">HC₂</span> : BinCoproducts C₂)
+  : preserves_bincoproduct (pr1_functor C₁ C₂).
+<span class="kn">Proof</span>.
+  use preserves_bincoproduct_if_preserves_chosen.
+  - <span class="nb">apply</span> bincoproducts_in_product_category.
+    + <span class="bp">exact</span> HC₁.
+    + <span class="bp">exact</span> HC₂.
+  - <span class="nb">intros</span> x y.
+    <span class="nb">apply</span> isBinCoproduct_BinCoproduct.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr2_preserves_bincoproduct</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">HC₁</span> : BinCoproducts C₁)
+           (<span class="nv">HC₂</span> : BinCoproducts C₂)
+  : preserves_bincoproduct (pr2_functor C₁ C₂).
+<span class="kn">Proof</span>.
+  use preserves_bincoproduct_if_preserves_chosen.
+  - <span class="nb">apply</span> bincoproducts_in_product_category.
+    + <span class="bp">exact</span> HC₁.
+    + <span class="bp">exact</span> HC₂.
+  - <span class="nb">intros</span> x y.
+    <span class="nb">apply</span> isBinCoproduct_BinCoproduct.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_bincoproduct_bindelta_pair_functor</span>
+           {<span class="nv">C</span> <span class="nv">D₁</span> <span class="nv">D₂</span> : category}
+           {<span class="nv">F</span> : C ⟶ D₁}
+           {<span class="nv">G</span> : C ⟶ D₂}
+           (<span class="nv">HF</span> : preserves_bincoproduct F)
+           (<span class="nv">HG</span> : preserves_bincoproduct G)
+  : preserves_bincoproduct
+      (bindelta_pair_functor F G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z π₁ π₂ H.
+  <span class="nb">apply</span> isBinCoproduct_in_product_category.
+  - <span class="nb">apply</span> HF.
+    <span class="nb">apply</span> H.
+  - <span class="nb">apply</span> HG.
+    <span class="nb">apply</span> H.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Examples/CategoryProductLimits.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Coproducts
+  &gt;
+  &gt;  ************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

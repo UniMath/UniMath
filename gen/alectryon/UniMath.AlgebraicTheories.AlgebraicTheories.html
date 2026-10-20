@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>AlgebraicTheories.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Algebraic Theories</span>
+
+<span class="sd">  These objects are known by many names: algebraic theories, abstract clones, cartesian operads</span>
+<span class="sd">  and Lawvere theories. This file defines them and gives constructors, accessors and related</span>
+<span class="sd">  definitions and lemmas.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The definition of algebraic theories [algebraic_theory]</span>
+<span class="sd">  2. Some useful definitions and their properties [lift_constant] [inflate]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Vectors.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Tuples.
+
+<span class="kn">Declare Scope</span> algebraic_theories.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> algebraic_theories.
+
+<span class="sd">(** * 1. The definition of algebraic theories *)</span>
+
+<span class="kn">Definition</span> <span class="nf">algebraic_theory_data</span> : UU := algebraic_theory_data_cat.
+
+<span class="kn">Definition</span> <span class="nf">algebraic_theory_data_to_function</span>
+  (<span class="nv">T</span> : algebraic_theory_data)
+  : nat → hSet
+  := pr1 T.
+
+<span class="kn">Coercion</span> <span class="nf">algebraic_theory_data_to_function</span> : algebraic_theory_data &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">var</span>
+  {<span class="nv">T</span> : algebraic_theory_data}
+  {<span class="nv">n</span> : nat}
+  (<span class="nv">i</span> : stn n)
+  : var_ax T n i
+  := pr12 T n i.
+
+<span class="kn">Definition</span> <span class="nf">subst</span>
+  {<span class="nv">T</span> : algebraic_theory_data}
+  {<span class="nv">m</span> <span class="nv">n</span> : nat}
+  (<span class="nv">f</span> : T m)
+  (<span class="nv">g</span> : stn m → T n)
+  : subst_ax T m n f g
+  := pr22 T m n f g.
+
+<span class="kn">Notation</span> <span class="s2">"f • g"</span> :=
+  (<span class="nb">subst</span> f g)
+  (<span class="kn">at level</span> <span class="mi">35</span>) : algebraic_theories.
+
+<span class="kn">Definition</span> <span class="nf">algebraic_theory</span> : UU := algebraic_theory_cat.
+
+<span class="kn">Coercion</span> <span class="nf">algebraic_theory_to_algebraic_theory_data</span> (T : algebraic_theory)
+  : algebraic_theory_data
+  := pr1 T.
+
+<span class="kn">Definition</span> <span class="nf">make_algebraic_theory_data</span>
+  (<span class="nv">T</span> : nat → hSet)
+  (<span class="nv">var</span> : ∏ n i, var_ax T n i)
+  (<span class="nv">subst</span> : ∏ m n f g, subst_ax T m n f g)
+  : algebraic_theory_data
+  := T ,, var ,, <span class="nb">subst</span>.
+
+<span class="kn">Definition</span> <span class="nf">subst_subst_ax</span>
+  (<span class="nv">T</span> : algebraic_theory_data)
+  (<span class="nv">l</span> <span class="nv">m</span> <span class="nv">n</span> : nat)
+  (<span class="nv">f_l</span> : T l)
+  (<span class="nv">f_m</span> : stn l → T m)
+  (<span class="nv">f_n</span> : stn m → T n)
+  : UU
+  := f_l • f_m • f_n = f_l • (<span class="k">λ</span> <span class="nv">t_l</span>, f_m t_l • f_n).
+
+<span class="kn">Arguments</span> subst_subst_ax /.
+
+<span class="kn">Definition</span> <span class="nf">var_subst_ax</span>
+  (<span class="nv">T</span> : algebraic_theory_data)
+  (<span class="nv">m</span> <span class="nv">n</span> : nat)
+  (<span class="nv">i</span> : stn m)
+  (<span class="nv">f</span> : stn m → T n)
+  : UU
+  := var i • f = f i.
+
+<span class="kn">Arguments</span> var_subst_ax /.
+
+<span class="kn">Definition</span> <span class="nf">subst_var_ax</span>
+  (<span class="nv">T</span> : algebraic_theory_data)
+  (<span class="nv">n</span> : nat)
+  (<span class="nv">f</span> : T n)
+  : UU
+  := f • var = f.
+
+<span class="kn">Arguments</span> subst_var_ax /.
+
+<span class="kn">Definition</span> <span class="nf">is_algebraic_theory</span> (<span class="nv">T</span> : algebraic_theory_data) : UU :=
+  (∏ l m n f_l f_m f_n, subst_subst_ax T l m n f_l f_m f_n) ×
+  (∏ m n i f, var_subst_ax T m n i f) ×
+  (∏ n f, subst_var_ax T n f).
+
+<span class="kn">Definition</span> <span class="nf">make_is_algebraic_theory</span>
+  (<span class="nv">T</span> : algebraic_theory_data)
+  (<span class="nv">H1</span> : ∏ l m n f_l f_m f_n, subst_subst_ax T l m n f_l f_m f_n)
+  (<span class="nv">H2</span> : ∏ m n i f, var_subst_ax T m n i f)
+  (<span class="nv">H3</span> : ∏ n f, subst_var_ax T n f)
+  : is_algebraic_theory T
+  := H1 ,, H2 ,, H3.
+
+<span class="kn">Definition</span> <span class="nf">make_algebraic_theory</span>
+  (<span class="nv">T</span> : algebraic_theory_data)
+  (<span class="nv">H</span> : is_algebraic_theory T)
+  : algebraic_theory
+  := T ,, H.
+
+<span class="kn">Definition</span> <span class="nf">subst_subst</span>
+  (<span class="nv">T</span> : algebraic_theory)
+  {<span class="nv">l</span> <span class="nv">m</span> <span class="nv">n</span> : nat}
+  (<span class="nv">f_l</span> : T l)
+  (<span class="nv">f_m</span> : stn l → T m)
+  (<span class="nv">f_n</span> : stn m → T n)
+  : subst_subst_ax (T : algebraic_theory_data) l m n f_l f_m f_n
+  := pr12 T l m n f_l f_m f_n.
+
+<span class="kn">Definition</span> <span class="nf">var_subst</span>
+  (<span class="nv">T</span> : algebraic_theory)
+  {<span class="nv">m</span> <span class="nv">n</span> : nat}
+  (<span class="nv">i</span> : stn m)
+  (<span class="nv">f</span> : stn m → T n)
+  : var_subst_ax (T : algebraic_theory_data) m n i f
+  := pr122 T m n i f.
+
+<span class="kn">Definition</span> <span class="nf">subst_var</span>
+  (<span class="nv">T</span> : algebraic_theory)
+  {<span class="nv">n</span> : nat}
+  (<span class="nv">f</span> : T n)
+  : subst_var_ax (T : algebraic_theory_data) n f
+  := pr222 T n f.
+
+<span class="sd">(** * 2. Some useful definitions and their properties *)</span>
+
+<span class="kn">Definition</span> <span class="nf">lift_constant</span> {<span class="nv">T</span> : algebraic_theory_data} (<span class="nv">n</span> : nat) (<span class="nv">f</span> : (T <span class="mi">0</span> : hSet))
+  : (T n : hSet)
+  := f • weqvecfun _ vnil.
+
+<span class="kn">Definition</span> <span class="nf">inflate</span> {<span class="nv">T</span> : algebraic_theory_data} {<span class="nv">n</span> : nat} (<span class="nv">f</span> : T n) : T (S n)
+  := f • (<span class="k">λ</span> <span class="nv">i</span>, var (stnweq (inl i))).
+
+<span class="kn">Definition</span> <span class="nf">inflate_var</span> (<span class="nv">T</span> : algebraic_theory) {<span class="nv">n</span> : nat} (<span class="nv">i</span> : stn n)
+  : inflate (var i) = var (stnweq (inl i))
+  := var_subst T _ _.
+
+<span class="kn">Definition</span> <span class="nf">inflate_subst</span> (<span class="nv">T</span> : algebraic_theory) {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">f</span> : T m) (<span class="nv">g</span> : stn m → T n)
+  : inflate (<span class="nb">subst</span> f g) = <span class="nb">subst</span> f (<span class="k">λ</span> <span class="nv">i</span>, inflate (g i))
+  := subst_subst _ _ _ _.
+
+<span class="kn">Lemma</span> <span class="nf">subst_inflate</span> (<span class="nv">T</span> : algebraic_theory) {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">f</span> : T m) (<span class="nv">g</span> : stn (S m) → T n)
+  : <span class="nb">subst</span> (inflate f) g = <span class="nb">subst</span> f (<span class="k">λ</span> <span class="nv">i</span>, g (stnweq (inl i))).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> inflate.
+  <span class="nb">rewrite</span> subst_subst.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> funextfun.
+  <span class="nb">intro</span> i.
+  <span class="nb">apply</span> var_subst.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">subst_inflate_extend_tuple</span>
+  (<span class="nv">T</span> : algebraic_theory)
+  {<span class="nv">m</span> : nat}
+  (<span class="nv">f</span> : T <span class="mi">0</span>)
+  (<span class="nv">g</span> : stn <span class="mi">0</span> → T m)
+  : inflate f • extend_tuple g (lift_constant _ f) = f • g.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (subst_inflate _ f _ @ _).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> proofirrelevancecontr.
+  <span class="nb">apply</span> iscontr_empty_tuple.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/AlgebraicTheories.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   2. Some useful definitions and their properties [lift_constant] [inflate]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

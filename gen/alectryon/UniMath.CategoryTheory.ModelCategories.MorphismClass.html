@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MorphismClass.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ModelCategories.Retract.
+
+<span class="kn">Declare Scope</span> morcls.
+<span class="kn">Delimit Scope</span> morcls <span class="k">with</span> morcls.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> morcls.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="c">(* See UniMath/MoreFoundations/Subtypes.v *)</span>
+
+<span class="c">(* A subset in Coq is like (A : hSet) : A -&gt; Prop *)</span>
+<span class="kn">Definition</span> <span class="nf">morphism_class</span> (<span class="nv">C</span> : category) : UU :=
+    ∏ (X Y : C), hsubtype (X --&gt; Y).
+
+<span class="kn">Lemma</span> <span class="nf">isasetmorphism_class</span> {<span class="nv">C</span> : category} : isaset (morphism_class C).
+<span class="kn">Proof</span>.
+  <span class="nb">change</span> (isaset) <span class="k">with</span> (isofhlevel <span class="mi">2</span>).
+  <span class="nb">apply</span> impred; <span class="nb">intro</span> x.
+  <span class="nb">apply</span> impred; <span class="nb">intro</span> t.
+  <span class="bp">exact</span> (isasethsubtype _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">morphism_class_set</span> (<span class="nv">C</span> : category) : hSet :=
+    make_hSet (morphism_class C) (isasetmorphism_class (C := C)).
+
+<span class="kn">Definition</span> <span class="nf">morphism_class_containedIn</span> {<span class="nv">C</span> : category} : hrel (morphism_class_set C) :=
+    <span class="k">λ</span> <span class="nv">S</span> <span class="nv">T</span>, <span class="k">∀</span> (<span class="nv">X</span> <span class="nv">Y</span> : C) (<span class="nv">f</span> : X --&gt; Y), ((S _ _) f ⇒ (T _ _) f)%logic.
+
+<span class="kn">Notation</span> <span class="s2">"S ⊆ T"</span> := (morphism_class_containedIn S T) (<span class="kn">at level</span> <span class="mi">70</span>) : morcls.
+
+<span class="c">(* Definition morphism_class_notContainedIn : hrel (morphism_class_set C) :=</span>
+<span class="c">    λ S T, ∃ (X Y : C) (f : X --&gt; Y), ((S _ _) f × ¬(T _ _) f)%logic. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">morphism_class_ext</span> {<span class="nv">C</span> : category} {<span class="nv">I</span> <span class="nv">J</span> : morphism_class C}
+  (<span class="nv">h</span> : ∏ x y (f : x --&gt; y), ((I _ _) f &lt;-&gt; (J _ _) f)) : I = J.
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>).
+  <span class="nb">destruct</span> ((h x x0 x1)) <span class="k">as</span> [impl conv].
+
+  <span class="c">(* in the statement we wish to prove that two hProps are equal,</span>
+<span class="c">     this boils down to univalence on hProps *)</span>
+  <span class="bp">exact</span> (hPropUnivalence _ _ impl conv).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">morphism_class_subset_antisymm</span> {<span class="nv">C</span> : category} {<span class="nv">I</span> <span class="nv">J</span> : morphism_class C} (<span class="nv">h</span> : I ⊆ J) (<span class="nv">h'</span> : J ⊆ I) : I = J.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> morphism_class_ext.
+  <span class="nb">intros</span> x y f.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (h _ _ _).
+  - <span class="bp">exact</span> (h' _ _ _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">morphism_class_intersection</span> {<span class="nv">C</span> : category} (<span class="nv">S</span> <span class="nv">T</span> : morphism_class C) : morphism_class C:=
+    <span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span>, (S _ _ f) ∧ (T _ _ f).
+
+<span class="kn">Notation</span> <span class="s2">"S ∩ T"</span> := (morphism_class_intersection S T) : morcls.
+
+<span class="c">(* Back to morphism_class.lean *)</span>
+<span class="kn">Definition</span> <span class="nf">morphism_class_univ</span> (<span class="nv">C</span> : category) : (morphism_class C) :=
+    <span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span>, htrue.
+
+<span class="kn">Definition</span> <span class="nf">morphism_class_isos</span> (<span class="nv">C</span> : category) : (morphism_class C) :=
+    <span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span>, make_hProp (is_iso f) (isaprop_is_iso _ _ _).
+
+<span class="kn">Lemma</span> <span class="nf">iso_in_morphism_class_isos</span> {<span class="nv">C</span> : category} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : iso a b) : (morphism_class_isos C _ _ f).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (iso_is_iso f).
+<span class="kn">Defined</span>.
+
+<span class="c">(* No longer in lean files *)</span>
+
+<span class="kn">Definition</span> <span class="nf">morphism_class_opp</span> {<span class="nv">C</span> : category} (<span class="nv">S</span> : morphism_class C) : (morphism_class (op_cat C)) :=
+    <span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span>, (S _ _) (opp_mor f).
+
+<span class="kn">Definition</span> <span class="nf">morphism_class_rm_opp</span> {<span class="nv">C</span> : category} (<span class="nv">S</span> : morphism_class (op_cat C)) : (morphism_class C) :=
+    <span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span>, (S _ _) (rm_opp_mor f).
+
+<span class="kn">Lemma</span> <span class="nf">morphism_class_opp_opp</span> {<span class="nv">C</span> : category} (<span class="nv">S</span> : morphism_class C) :
+    morphism_class_opp (morphism_class_opp S) = S.
+<span class="kn">Proof</span>.
+  <span class="nb">trivial</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">morphism_class_opp_equal</span> {<span class="nv">C</span> : category} {<span class="nv">S</span> <span class="nv">T</span> : morphism_class C} (<span class="nv">e</span> : morphism_class_opp S = morphism_class_opp T) :
+  S = T.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- (morphism_class_opp_opp S).
+  <span class="nb">rewrite</span> &lt;- (morphism_class_opp_opp T).
+  <span class="bp">now</span> <span class="nb">rewrite</span> e.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">morphism_class_retract_closure</span> {<span class="nv">C</span> : category} (<span class="nv">S</span> : morphism_class C) :=
+    <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> (<span class="nv">f</span> : x --&gt; y), <span class="k">∃</span> <span class="nv">x</span> <span class="nv">y</span> (<span class="nv">f'</span> : x --&gt; y), (S _ _ f') × (retract f' f).
+
+<span class="kn">Notation</span> <span class="s2">"S ^cl"</span> := (morphism_class_retract_closure S) (<span class="kn">at level</span> <span class="mi">70</span>) : morcls.
+
+<span class="kn">Lemma</span> <span class="nf">in_morcls_retc_if_in_morcls</span> {<span class="nv">C</span> : category} (<span class="nv">S</span> : morphism_class C)
+    {<span class="nv">a</span> <span class="nv">b</span>} (<span class="nv">f</span> : a --&gt; b) :
+  (S _ _ f) -&gt; (S^cl _ _ f).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> <span class="nv">_</span>, _, f.
+  <span class="bp">exact</span> (make_dirprod H (retract_self f)).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/ModelCategories/MorphismClass.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.opp_precat.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>NaturalNumbersAlgebra.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Facts about the natural numbers that depend on definitions from algebra *)</span>
+
+<span class="kn">Require Export</span> UniMath.Foundations.NaturalNumbers.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.NegativePropositions.
+
+<span class="kn">Require Export</span> UniMath.Algebra.Archimedean.
+<span class="kn">Require Export</span> UniMath.Algebra.Domains_and_Fields.
+<span class="kn">Require Export</span> UniMath.Algebra.IteratedBinaryOperations.
+
+<span class="kn">Definition</span> <span class="nf">nataddabmonoid</span> : abmonoid :=
+  make_abmonoid (make_setwithbinop natset (<span class="k">λ</span> <span class="nv">n</span> <span class="nv">m</span> : nat, n + m))
+               (make_dirprod
+                  (make_dirprod natplusassoc
+                               (@make_isunital natset _ <span class="mi">0</span> (make_dirprod natplusl0 natplusr0)))
+                  natpluscomm).
+
+
+<span class="kn">Definition</span> <span class="nf">natmultabmonoid</span> : abmonoid :=
+  make_abmonoid
+    (make_setwithbinop natset (<span class="k">λ</span> <span class="nv">n</span> <span class="nv">m</span> : nat, n * m))
+    (make_dirprod
+       (make_dirprod natmultassoc (@make_isunital natset _ <span class="mi">1</span> (make_dirprod natmultl1 natmultr1)))
+       natmultcomm).
+
+<span class="sd">(** *** Submonoid of non-zero elements in [nat] *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> nat_scope.
+<span class="kn">Definition</span> <span class="nf">natnonzero</span> : @subabmonoid natmultabmonoid.
+<span class="kn">Proof</span>.
+  <span class="nb">split with</span> (<span class="k">λ</span> <span class="nv">a</span> : natset, a ≠ <span class="mi">0</span>). <span class="nb">unfold</span> issubmonoid. <span class="nb">split</span>.
+  - <span class="nb">unfold</span> issubsetwithbinop. <span class="nb">intros</span> a a'.
+    <span class="nb">apply</span> (natneq0andmult _ _ (pr2 a) (pr2 a')).
+  - <span class="nb">apply</span> (ct (natneq, isdecrel_natneq, <span class="mi">1</span>, <span class="mi">0</span>)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natnonzerocomm</span> (<span class="nv">a</span> <span class="nv">b</span> : natnonzero) :
+  (@op natnonzero a b) = (@op natnonzero b a).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> (invmaponpathsincl _ (isinclpr1carrier _) (@op natnonzero a b) (@op natnonzero b a)).
+  <span class="nb">simpl</span>. <span class="nb">apply</span> natmultcomm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">nat_plus_commutativity</span> : isCommutative_fun_mon nataddabmonoid.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ? ?. <span class="nb">apply</span> weqtoeqstn.
+  intermediate_weq (∑ i, stn (x i)).
+  - intermediate_weq (∑ i, stn (x(f i))).
+    + <span class="nb">apply</span> invweq. <span class="nb">rewrite</span> iterop_fun_nat. <span class="nb">apply</span> weqstnsum1.
+    + <span class="nb">apply</span> (weqfp _ (stn∘x)).
+  - <span class="nb">rewrite</span> iterop_fun_nat. <span class="nb">apply</span> weqstnsum1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Arguments</span> nat_plus_commutativity {_} _ _.
+
+<span class="kn">Definition</span> <span class="nf">finsum</span> {<span class="nv">X</span>} (<span class="nv">fin</span> : isfinite X) (<span class="nv">f</span> : X -&gt; nat) : nat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">unfold</span> isfinite,finstruct,nelstruct <span class="k">in</span> fin.
+  <span class="nb">simple refine</span> (squash_to_set
+                    isasetnat
+                    (<span class="k">λ</span> (<span class="nv">x</span> : ∑ n, stn n ≃ X), iterop_fun_mon (M := nataddabmonoid) (f ∘ pr2 x))
+                    _ fin).
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> x <span class="k">as</span> [n x].
+  <span class="nb">induction</span> x' <span class="k">as</span> [n' x'].
+  <span class="nb">assert</span> (p := weqtoeqstn (invweq x' ∘ x)%weq).
+  <span class="nb">induction</span> p.
+  <span class="nb">assert</span> (w := nat_plus_commutativity (f ∘ x') (invweq x' ∘ x)%weq).
+  <span class="nb">simple refine</span> (_ @ w).
+  <span class="nb">unfold</span> iterop_fun_mon.
+  <span class="nb">apply</span> maponpaths. <span class="nb">rewrite</span> weqcomp_to_funcomp. <span class="nb">apply</span> funextfun; <span class="nb">intro</span> i.
+  <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> (! homotweqinvweq x' (x i)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** [nat] as a commutative rig *)</span>
+
+<span class="kn">Definition</span> <span class="nf">natcommrig</span> : commrig.
+<span class="kn">Proof</span>.
+  <span class="nb">split with</span> (make_setwith2binop natset (make_dirprod (<span class="k">λ</span> <span class="nv">n</span> <span class="nv">m</span> : nat, n + m) (<span class="k">λ</span> <span class="nv">n</span> <span class="nv">m</span> : nat, n * m))).
+  <span class="nb">split</span>.
+  - <span class="nb">split</span>.
+    + <span class="nb">split with</span>
+      (make_dirprod
+         (make_dirprod
+            (make_dirprod natplusassoc (@make_isunital natset _ <span class="mi">0</span> (make_dirprod natplusl0 natplusr0)))
+            natpluscomm)
+         (make_dirprod natmultassoc (@make_isunital natset _ <span class="mi">1</span> (make_dirprod natmultl1 natmultr1)))).
+      <span class="nb">apply</span> (make_dirprod natmult0n natmultn0).
+    + <span class="nb">apply</span> (make_dirprod natldistr natrdistr).
+  - <span class="nb">unfold</span> iscomm. <span class="nb">apply</span> natmultcomm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nattorig_nat</span> :
+  ∏ n : nat, nattorig (X := natcommrig) n = n.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+  <span class="bp">reflexivity</span>.
+  <span class="nb">rewrite</span> nattorigS, IHn.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Properties of comparisons in the terminology of algebra1.v *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> rig_scope.
+
+<span class="sd">(** [natgth] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isplushrelnatgth</span> : @isbinophrel nataddabmonoid natgth.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>. <span class="nb">apply</span> natgthandplusl. <span class="nb">apply</span> natgthandplusr.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isinvplushrelnatgth</span> : @isinvbinophrel nataddabmonoid natgth.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>. <span class="nb">apply</span> natgthandpluslinv. <span class="nb">apply</span> natgthandplusrinv.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isinvmulthrelnatgth</span> : @isinvbinophrel natmultabmonoid natgth.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> a b c r. <span class="nb">apply</span> (natlthandmultlinv _ _ _ r).
+  - <span class="nb">intros</span> a b c r. <span class="nb">apply</span> (natlthandmultrinv _ _ _ r).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isrigmultgtnatgth</span> : isrigmultgt natcommrig natgth.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a.
+  <span class="nb">induction</span> a <span class="k">as</span> [|a IHa].
+  - <span class="nb">intros</span> ? ? ? rab rcd. contradicts rab (negnatgth0n b).
+  - <span class="nb">intros</span> ? ? ? rab rcd.
+    <span class="nb">induction</span> b <span class="k">as</span> [|b IHb].
+    + <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> <span class="mi">2</span> natplusr0.
+      <span class="nb">apply</span> natlthandmultl.
+      * <span class="bp">exact</span> tt.
+      * <span class="bp">exact</span> rcd.
+    + <span class="nb">simpl</span>.
+      <span class="nb">set</span> (rer := abmonoidrer nataddabmonoid).
+      <span class="nb">unfold</span> op1, op2; <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> (rer _ _ _ d). <span class="nb">rewrite</span> (rer _ _ _ c).
+      <span class="nb">unfold</span> op1, op2; <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> (natpluscomm c d).
+      <span class="nb">apply</span> (natlthandplusr (a * d + b * c) (a * c + b * d) (d + c)).
+      <span class="nb">apply</span> (IHa _ _ _ rab rcd).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isinvrigmultgtnatgth</span> : isinvrigmultgt natcommrig natgth.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (rer := abmonoidrer nataddabmonoid).
+  <span class="nb">simpl</span> <span class="k">in</span> rer. <span class="nb">apply</span> isinvrigmultgtif.
+  <span class="nb">intros</span> a b c d. <span class="nb">generalize</span> a b c. <span class="nb">clear</span> a b c.
+  <span class="nb">induction</span> d <span class="k">as</span> [ | d IHd ].
+  - <span class="nb">intros</span> a b c g gab. <span class="nb">change</span> (pr1 ((a * c + b * <span class="mi">0</span>) &gt; (a * <span class="mi">0</span> + b * c))) <span class="k">in</span> g.
+    <span class="nb">destruct</span> c <span class="k">as</span> [ | c ].
+    + <span class="nb">rewrite</span> (natmultn0 _) <span class="k">in</span> g. <span class="nb">destruct</span> (isirreflnatgth _ g).
+    + <span class="nb">apply</span> natgthsn0.
+  - <span class="nb">intros</span> a b c g gab. <span class="nb">destruct</span> c <span class="k">as</span> [ | c ].
+    + <span class="nb">change</span> (pr1 ((a * <span class="mi">0</span> + b * S d) &gt; (a * S d + b * <span class="mi">0</span>))) <span class="k">in</span> g.
+      <span class="nb">rewrite</span> (natmultn0 _) <span class="k">in</span> g. <span class="nb">rewrite</span> (natmultn0 _) <span class="k">in</span> g.
+      <span class="nb">rewrite</span> (natplusl0 _) <span class="k">in</span> g. <span class="nb">rewrite</span> (natplusr0 _) <span class="k">in</span> g.
+      <span class="nb">set</span> (g' := natgthandmultrinv _ _ _ g).
+      <span class="nb">destruct</span> (isasymmnatgth _ _ gab g').
+    + <span class="nb">change</span> (pr1 (natgth (a * S c + b * S d) (a * S d + b * S c))) <span class="k">in</span> g.
+      <span class="nb">rewrite</span> (multnsm _ _) <span class="k">in</span> g. <span class="nb">rewrite</span> (multnsm _ _) <span class="k">in</span> g.
+      <span class="nb">rewrite</span> (multnsm _ _) <span class="k">in</span> g. <span class="nb">rewrite</span> (multnsm _ _) <span class="k">in</span> g.
+      <span class="nb">rewrite</span> (rer _ (a * c) _ _) <span class="k">in</span> g. <span class="nb">rewrite</span> (rer _ (a * d) _ _) <span class="k">in</span> g.
+      <span class="nb">set</span> (g' := natgthandpluslinv _ _ (a + b) g). <span class="nb">apply</span> (IHd a b c g' gab).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** [natlth] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isplushrelnatlth</span> : @isbinophrel nataddabmonoid natlth.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> a b c. <span class="nb">apply</span> (natgthandplusl b a c).
+  - <span class="nb">intros</span> a b c. <span class="nb">apply</span> (natgthandplusr b a c).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isinvplushrelnatlth</span> : @isinvbinophrel nataddabmonoid natlth.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> a b c. <span class="nb">apply</span> (natgthandpluslinv b a c).
+  - <span class="nb">intros</span> a b c. <span class="nb">apply</span> (natgthandplusrinv b a c).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isinvmulthrelnatlth</span> : @isinvbinophrel natmultabmonoid natlth.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> a b c r. <span class="nb">apply</span> (natlthandmultlinv _ _ _ r).
+  - <span class="nb">intros</span> a b c r. <span class="nb">apply</span> (natlthandmultrinv _ _ _ r).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** [natleh] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isplushrelnatleh</span> : @isbinophrel nataddabmonoid natleh.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>. <span class="nb">apply</span> natlehandplusl. <span class="nb">apply</span> natlehandplusr.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isinvplushrelnatleh</span> : @isinvbinophrel nataddabmonoid natleh.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>. <span class="nb">apply</span> natlehandpluslinv. <span class="nb">apply</span> natlehandplusrinv.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ispartinvmulthrelnatleh</span> : @ispartinvbinophrel natmultabmonoid (<span class="k">λ</span> <span class="nv">x</span>, x ≠ <span class="mi">0</span>) natleh.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> a b c s r. <span class="nb">apply</span> (natlehandmultlinv _ _ _ s r).
+  - <span class="nb">intros</span> a b c s r. <span class="nb">apply</span> (natlehandmultrinv _ _ _ s r).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** [natgeh] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isplushrelnatgeh</span> : @isbinophrel nataddabmonoid natgeh.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> a b c. <span class="nb">apply</span> (natlehandplusl b a c).
+  - <span class="nb">intros</span> a b c. <span class="nb">apply</span> (natlehandplusr b a c).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isinvplushrelnatgeh</span> : @isinvbinophrel nataddabmonoid natgeh.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> a b c. <span class="nb">apply</span> (natlehandpluslinv b a c).
+  - <span class="nb">intros</span> a b c. <span class="nb">apply</span> (natlehandplusrinv b a c).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ispartinvmulthrelnatgeh</span> : @ispartinvbinophrel natmultabmonoid (<span class="k">λ</span> <span class="nv">x</span>, x ≠ <span class="mi">0</span>) natgeh.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> a b c s r. <span class="nb">apply</span> (natlehandmultlinv _ _ _ s r).
+  - <span class="nb">intros</span> a b c s r. <span class="nb">apply</span> (natlehandmultrinv _ _ _ s r).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** [nat] is an archimedean rig *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isarchnat_diff</span> :
+  ∏ (y1 y2 : nat),
+  y1 &gt; y2 → <span class="k">∃</span> <span class="nv">n</span> : nat, n * y1 &gt; <span class="mi">1</span> + n * y2.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> y1 y2 Hy.
+  <span class="nb">apply</span> natlthchoice2 <span class="k">in</span> Hy.
+  <span class="nb">induction</span> Hy <span class="k">as</span> [Hy | &lt;-].
+  - <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> <span class="mi">1</span>%nat.
+    <span class="bp">exact</span> Hy.
+  - <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> <span class="mi">2</span>%nat.
+    <span class="nb">rewrite</span> !multsnm ; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> natplusr0.
+    <span class="nb">apply</span> natgthandplusl, natgthsnn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isarchnat_gth</span> :
+  ∏ x : nat, <span class="k">∃</span> <span class="nv">n</span> : nat, n &gt; x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> n.
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> (<span class="nv">S</span> <span class="nv">n</span>).
+  <span class="bp">now</span> <span class="nb">apply</span> natgthsnn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isarchnat_pos</span> :
+  ∏ x : nat, <span class="k">∃</span> <span class="nv">n</span> : nat, n + x &gt; <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> n.
+  <span class="nb">apply</span> hinhpr.
+  <span class="bp">now</span> <span class="k">exists</span> <span class="mi">1</span>%nat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isarchnat</span> :
+  isarchrig (X := natcommrig) natgth.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> y1 y2 Hy.
+    <span class="nb">generalize</span> (isarchnat_diff y1 y2 Hy).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> n.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">n</span>).
+    <span class="nb">rewrite</span> nattorig_nat.
+    <span class="bp">exact</span> (pr2 n).
+  - <span class="nb">intros</span> n.
+    <span class="nb">generalize</span> (isarchnat_gth n).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> n'.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">n'</span>).
+    <span class="nb">rewrite</span> nattorig_nat.
+    <span class="bp">exact</span> (pr2 n').
+  - <span class="nb">intros</span> n.
+    <span class="nb">generalize</span> (isarchnat_pos n).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> n'.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">n'</span>).
+    <span class="nb">rewrite</span> nattorig_nat.
+    <span class="bp">exact</span> (pr2 n').
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/NumberSystems/NaturalNumbersAlgebra.v</tt>, line 3)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/NaturalNumbers.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** * Facts about the natural numbers that depend on definitions from algebra *)
+  &gt; &gt;&gt;&gt;Require Export UniMath.Foundations.NaturalNumbers.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+  &gt; Require Import UniMath.MoreFoundations.NegativePropositions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

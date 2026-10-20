@@ -1,0 +1,829 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LNWFSSmallnessReduction.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* Reducing the smallness requirement on LNWFS to a simpler one</span>
+<span class="c">to be applied to the one step comonad *)</span>
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pushouts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.EqDiag.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.slicecat.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.MonadAlgebras.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Three.
+
+<span class="kn">Require Import</span> UniMath.ModelCategories.NWFS.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Generated.MonoidalHelpers.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Helpers.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Generated.LNWFSHelpers.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Generated.MonoidalHelpers.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Generated.FFMonoidalStructure.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Generated.LNWFSMonoidalStructure.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Generated.LNWFSCocomplete.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">SmallnessReduction</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+<span class="kn">Context</span> (<span class="nv">CC</span> : Colims C).
+
+<span class="kn">Local Definition</span> <span class="nf">Ff_mon</span> : monoidal_cat :=
+  (_,, @Ff_monoidal C).
+<span class="kn">Local Definition</span> <span class="nf">LNWFS_mon</span> : monoidal_cat :=
+  (_,, @LNWFS_tot_monoidal C).
+
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="c">(* lift edge of diagram to morphism between coconeIns *)</span>
+<span class="kn">Definition</span> <span class="nf">cocone_coconeIn_edge_lifted</span>
+    {<span class="nv">d</span> : chain C} {<span class="nv">y</span> : C}
+    (<span class="nv">ccy</span> : cocone d y)
+    {<span class="nv">u</span> <span class="nv">v</span> : vertex nat_graph}
+    (<span class="nv">e</span> : edge u v) :
+  coconeIn ccy u --&gt; coconeIn ccy v.
+<span class="kn">Proof</span>.
+  use mors_to_arrow_mor.
+  - <span class="bp">exact</span> (dmor d e).
+  - <span class="bp">exact</span> (identity _).
+  - <span class="kp">abstract</span> (
+      etrans; [<span class="bp">exact</span> (coconeInCommutes ccy _ _ e)|];
+      <span class="nb">apply</span> pathsinv0;
+      <span class="nb">apply</span> id_right
+    ).
+<span class="kn">Defined</span>.
+
+<span class="c">(* define a chain of middle objects from a cocone, i.e.</span>
+<span class="c">  X0 --&gt; X1 --&gt; X2 --&gt; X3 ...</span>
+<span class="c">    \    |f1  f2|     /</span>
+<span class="c">   f0 \  |      |   / f3</span>
+<span class="c">            Y</span>
+<span class="c">  gives a cocone</span>
+<span class="c">  K0 --&gt; K1 --&gt; K2 --&gt; K3 ...</span>
+<span class="c">    \    |Rf1   |     /</span>
+<span class="c">  Rf0 \  |   Rf2|   / Rf3</span>
+<span class="c">            Y</span>
+
+<span class="c">*)</span>
+<span class="kn">Definition</span> <span class="nf">fact_cocone_chain</span>
+    (<span class="nv">F</span> : Ff C)
+    {<span class="nv">d</span> : chain C} {<span class="nv">y</span> : C}
+    (<span class="nv">ccy</span> : cocone d y) :
+  chain C.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> v.
+    <span class="bp">exact</span> (arrow_dom (fact_R F (coconeIn ccy v))).
+  - <span class="nb">intros</span> u v e.
+    <span class="nb">set</span> (elifted := cocone_coconeIn_edge_lifted ccy e).
+    <span class="bp">exact</span> (arrow_mor00 (#(fact_R F) elifted)).
+<span class="kn">Defined</span>.
+
+<span class="c">(* define the factorization of a cocone *)</span>
+<span class="kn">Definition</span> <span class="nf">fact_cocone</span>
+    (<span class="nv">F</span> : Ff C)
+    {<span class="nv">d</span> : chain C} {<span class="nv">y</span> : C}
+    (<span class="nv">ccy</span> : cocone d y) :
+  cocone (fact_cocone_chain F ccy) y.
+<span class="kn">Proof</span>.
+  use make_cocone.
+  - <span class="nb">intro</span> v.
+    <span class="bp">exact</span> (fact_R F (coconeIn ccy v)).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> u v e;
+      <span class="nb">set</span> (elifted := cocone_coconeIn_edge_lifted ccy e);
+      etrans; [<span class="bp">exact</span> (arrow_mor_comm (#(fact_R F) elifted))|];
+      <span class="nb">apply</span> id_right
+    ).
+<span class="kn">Defined</span>.
+
+<span class="c">(* define coconeIn to colimArrow morphism for cocone, i.e.</span>
+<span class="c">    Xv ----&gt; X∞</span>
+<span class="c">    |        |</span>
+<span class="c">    |        |</span>
+<span class="c">    v        v</span>
+<span class="c">    Y ====== Y</span>
+<span class="c">*)</span>
+<span class="kn">Definition</span> <span class="nf">coconeIn_colimArrow_mor</span>
+    {<span class="nv">d</span> : chain C} {<span class="nv">y</span> : C}
+    (<span class="nv">ccy</span> : cocone d y) :
+  ∏ v, coconeIn ccy v --&gt; colimArrow (CC _ d) _ ccy.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> v.
+  use mors_to_arrow_mor.
+  - <span class="bp">exact</span> (colimIn (CC _ d) v).
+  - <span class="bp">exact</span> (identity _).
+  - <span class="kp">abstract</span> (
+      etrans; [<span class="nb">apply</span> colimArrowCommutes|];
+      <span class="nb">apply</span> pathsinv0;
+      <span class="nb">apply</span> id_right
+    ).
+<span class="kn">Defined</span>.
+
+<span class="c">(* define the cocone of right objects with vertex R(colimArrow)</span>
+<span class="c">   we will require that this is a colimCocone for the sliced</span>
+<span class="c">   R functors to be small *)</span>
+<span class="kn">Definition</span> <span class="nf">dom_fact_R_colimArrow_cocone</span>
+    (<span class="nv">F</span> : Ff C)
+    {<span class="nv">d</span> : chain C} {<span class="nv">y</span> : C}
+    (<span class="nv">ccy</span> : cocone d y) :
+  cocone
+    (fact_cocone_chain F ccy)
+    (arrow_dom (fact_R F (colimArrow (CC _ d) _ ccy))).
+<span class="kn">Proof</span>.
+  use make_cocone.
+  - <span class="nb">intro</span> v.
+    <span class="bp">exact</span> (arrow_mor00 (#(fact_R F) (coconeIn_colimArrow_mor ccy v))).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> u v e;
+      etrans; [use (pr1_section_disp_on_morphisms_comp F)|];
+      use (section_disp_on_eq_morphisms F); [
+        <span class="bp">exact</span> (colimInCommutes (CC _ d) _ _ e)|<span class="nb">apply</span> id_left
+      ]
+    ).
+<span class="kn">Defined</span>.
+
+<span class="c">(* define smallness of (sliced) R functor *)</span>
+<span class="kn">Definition</span> <span class="nf">FR_slice_omega_small</span> (<span class="nv">F</span> : Ff C) : UU :=
+    ∏ (d : chain C) (y : C) (ccy : cocone d y),
+      isColimCocone _ _ (dom_fact_R_colimArrow_cocone F ccy).
+
+<span class="c">(* a chain in arrow C from a cocone in C *)</span>
+<span class="kn">Definition</span> <span class="nf">cocone_arrow_chain</span>
+    {<span class="nv">d</span> : chain C} {<span class="nv">y</span> : C}
+    (<span class="nv">ccy</span> : cocone d y) : chain (arrow C).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> v.
+    <span class="bp">exact</span> (coconeIn ccy v).
+  - <span class="nb">intros</span> u v e.
+    <span class="bp">exact</span> (cocone_coconeIn_edge_lifted ccy e).
+<span class="kn">Defined</span>.
+
+<span class="c">(* we need that the colimArrow into the codomain y</span>
+<span class="c">   is a colimit for the chain in arrow C *)</span>
+<span class="kn">Definition</span> <span class="nf">colimArrow_arrow_cocone</span>
+    {<span class="nv">d</span> : chain C} {<span class="nv">y</span> : C}
+    (<span class="nv">ccy</span> : cocone d y) :
+  cocone (cocone_arrow_chain ccy) (colimArrow (CC _ d) _ ccy).
+<span class="kn">Proof</span>.
+  use make_cocone.
+  - <span class="nb">intro</span> v.
+    <span class="bp">exact</span> (coconeIn_colimArrow_mor ccy v).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> u v e;
+      use arrow_mor_eq; [|<span class="nb">apply</span> id_left];
+      <span class="bp">exact</span> (colimInCommutes (CC _ d) _ _ e)
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">project_arrow_cocone00</span>
+    {<span class="nv">cl</span> : arrow C} {<span class="nv">d</span> : chain (arrow C)}
+    (<span class="nv">cc</span> : cocone d cl) :
+  cocone (project_diagram00 d) (arrow_dom cl).
+<span class="kn">Proof</span>.
+  use make_cocone.
+  - <span class="nb">intro</span> v. <span class="bp">exact</span> (arrow_mor00 (coconeIn cc v)).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> u v e;
+      <span class="bp">exact</span> (arrow_mor00_eq (coconeInCommutes cc _ _ e))
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">project_arrow_cocone11</span>
+    {<span class="nv">cl</span> : arrow C} {<span class="nv">d</span> : chain (arrow C)}
+    (<span class="nv">cc</span> : cocone d cl) :
+  cocone (project_diagram11 d) (arrow_cod cl).
+<span class="kn">Proof</span>.
+  use make_cocone.
+  - <span class="nb">intro</span> v. <span class="bp">exact</span> (arrow_mor11 (coconeIn cc v)).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> u v e;
+      <span class="bp">exact</span> (arrow_mor11_eq (coconeInCommutes cc _ _ e))
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cocone_arrow_chain_y_cocone</span>
+    {<span class="nv">d</span> : chain C} {<span class="nv">y</span> : C}
+    (<span class="nv">ccy</span> : cocone d y) :
+  cocone (project_diagram11 (cocone_arrow_chain ccy)) y.
+<span class="kn">Proof</span>.
+  use make_cocone.
+  - <span class="nb">intro</span> v. <span class="bp">exact</span> (identity y).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> u v e; <span class="nb">apply</span> id_left).
+<span class="kn">Defined</span>.
+
+<span class="c">(* We also need that y is a colimit for the chain on</span>
+<span class="c">   the codomains *)</span>
+<span class="kn">Definition</span> <span class="nf">cocone_arrow_chain_y_cocone_isColimCocone</span>
+    {<span class="nv">d</span> : chain C} {<span class="nv">y</span> : C}
+    (<span class="nv">ccy</span> : cocone d y) :
+  isColimCocone _ _ (cocone_arrow_chain_y_cocone ccy).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> cl cc.
+  use unique_exists.
+  - <span class="bp">exact</span> (coconeIn cc <span class="mi">0</span>).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intro</span> v;
+      <span class="nb">induction</span> v <span class="k">as</span> [|v Hv]; [<span class="nb">apply</span> id_left|];
+      etrans; [<span class="bp">exact</span> Hv|];
+      etrans; [<span class="bp">exact</span> (pathsinv0 (coconeInCommutes cc _ _ (idpath (S v))))|];
+      <span class="nb">apply</span> id_left
+    ).
+  - <span class="kp">abstract</span> (<span class="nb">intro</span>; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> homset_property).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> x ccx;
+      etrans; [|<span class="bp">exact</span> (ccx <span class="mi">0</span>)];
+      <span class="nb">apply</span> pathsinv0;
+      <span class="nb">apply</span> id_left
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cocone_arrow_chain_y_ColimCocone</span>
+    {<span class="nv">d</span> : chain C} {<span class="nv">y</span> : C}
+    (<span class="nv">ccy</span> : cocone d y) :
+  ColimCocone (project_diagram11 (cocone_arrow_chain ccy)) :=
+    make_ColimCocone _ _ _ (cocone_arrow_chain_y_cocone_isColimCocone ccy).
+
+<span class="kn">Lemma</span> <span class="nf">colimArrow_arrow_cocone_isColimCocone</span>
+    {<span class="nv">d</span> : chain C} {<span class="nv">y</span> : C}
+    (<span class="nv">ccy</span> : cocone d y) :
+  isColimCocone _ _ (colimArrow_arrow_cocone ccy).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> cl cc.
+
+  <span class="nb">assert</span> (Hcin : ∏ v, identity y · arrow_mor11 (coconeIn cc <span class="mi">0</span>) = arrow_mor11 (coconeIn cc v)).
+  {
+    <span class="kp">abstract</span> (
+      <span class="nb">intro</span> v;
+      <span class="nb">induction</span> v <span class="k">as</span> [|v Hv]; [<span class="nb">apply</span> id_left|];
+      etrans; [<span class="bp">exact</span> Hv|];
+      etrans; [<span class="bp">exact</span> (pathsinv0 (arrow_mor11_eq (coconeInCommutes cc _ _ (idpath (S v)))))|];
+      <span class="nb">apply</span> id_left
+    ).
+  }
+
+  use unique_exists.
+  - use mors_to_arrow_mor.
+    * <span class="bp">exact</span> (colimArrow (CC _ _) _ (project_arrow_cocone00 cc)).
+    * <span class="bp">exact</span> (colimArrow (cocone_arrow_chain_y_ColimCocone ccy) _ (project_arrow_cocone11 cc)).
+    * <span class="kp">abstract</span> (
+        use colimArrowUnique';
+        <span class="nb">intro</span> v;
+        etrans; [<span class="nb">apply</span> assoc|];
+        etrans; [<span class="nb">apply</span> cancel_postcomposition; <span class="nb">apply</span> colimArrowCommutes|];
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [<span class="nb">apply</span> assoc|];
+        etrans; [<span class="nb">apply</span> cancel_postcomposition; <span class="nb">apply</span> colimArrowCommutes|];
+        etrans; [|<span class="bp">exact</span> (pathsinv0 (arrow_mor_comm (coconeIn cc v)))];
+        <span class="nb">apply</span> cancel_precomposition;
+        <span class="nb">induction</span> v <span class="k">as</span> [|v Hv]; [<span class="bp">reflexivity</span>|];
+        etrans; [<span class="bp">exact</span> Hv|];
+        etrans; [<span class="bp">exact</span> (pathsinv0 (arrow_mor11_eq (coconeInCommutes cc _ _ (idpath (S v)))))|];
+        <span class="nb">apply</span> id_left
+      ).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intro</span> v;
+      use arrow_mor_eq; [<span class="nb">apply</span> colimArrowCommutes|];
+      <span class="bp">exact</span> (Hcin v)
+    ).
+  - <span class="kp">abstract</span> (<span class="nb">intro</span> x; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> homset_property).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> x ccx;
+      use arrow_mor_eq; [
+        use colimArrowUnique;
+        <span class="nb">intro</span> v;
+        <span class="bp">exact</span> (arrow_mor00_eq (ccx v))|
+      ];
+      use (colimArrowUnique' (cocone_arrow_chain_y_ColimCocone ccy));
+      <span class="nb">intro</span> v;
+      etrans; [<span class="bp">exact</span> (arrow_mor11_eq (ccx v))|];
+      <span class="nb">apply</span> pathsinv0;
+      <span class="bp">exact</span> (Hcin v)
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">colimArrow_arrow_ColimCocone</span>
+    {<span class="nv">d</span> : chain C} {<span class="nv">y</span> : C}
+    (<span class="nv">ccy</span> : cocone d y) :
+  ColimCocone (cocone_arrow_chain ccy) :=
+    make_ColimCocone _ _ _ (colimArrow_arrow_cocone_isColimCocone ccy).
+
+<span class="c">(* now we can show that the sliced R functor is omega small</span>
+<span class="c">   whenever the L functor preserves chains in arrow C *)</span>
+<span class="kn">Lemma</span> <span class="nf">FR_slice_omega_small_if_L_omega_small</span> (<span class="nv">F</span> : Ff C) :
+    preserves_colimits_of_shape (fact_L F) nat_graph
+    -&gt; FR_slice_omega_small F.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> HL.
+  <span class="nb">intros</span> d y ccy.
+  <span class="c">(* intros cl cc. *)</span>
+
+  <span class="nb">set</span> (isHLCC := HL _ _ _ (colimArrow_arrow_cocone_isColimCocone ccy)).
+  <span class="nb">set</span> (HLCC := make_ColimCocone _ _ _ isHLCC).
+  <span class="nb">set</span> (baseCC := arrow_colims CC _ (mapdiagram (fact_L F) (cocone_arrow_chain ccy))).
+  <span class="nb">set</span> (base_mor := isColim_is_z_iso _ baseCC _ _ isHLCC).
+
+  use (is_z_iso_isColim _ (CC _ (fact_cocone_chain F ccy))).
+  <span class="k">exists</span> (<span class="nv">arrow_mor11</span> (pr1 base_mor)).
+  <span class="nb">split</span>.
+  - <span class="kp">abstract</span> (
+      <span class="nb">apply</span> pathsinv0;
+      use colim_endo_is_identity;
+      <span class="nb">intro</span> v;
+      etrans; [<span class="nb">apply</span> assoc|];
+      etrans; [<span class="nb">apply</span> cancel_postcomposition; <span class="nb">apply</span> colimArrowCommutes|];
+      <span class="bp">exact</span> (arrow_mor11_eq (colimArrowCommutes HLCC _ (colimCocone baseCC) v))
+    ).
+  - <span class="kp">abstract</span> (
+      etrans; [|<span class="bp">exact</span> (arrow_mor11_eq (pr22 base_mor))];
+      <span class="nb">apply</span> cancel_precomposition;
+      use colimArrowUnique;
+      <span class="nb">intro</span> v;
+      etrans; [<span class="nb">apply</span> colimArrowCommutes|];
+      <span class="bp">reflexivity</span>
+    ).
+<span class="kn">Qed</span>.
+
+<span class="c">(* we get some issues with equality of diagrams, but</span>
+<span class="c">   given a chain d of functorial factorizations,</span>
+<span class="c">   the chain of middle objects of F ⊗ d is</span>
+<span class="c">   in fact the same as the cocone we just constructed</span>
+<span class="c">   for the right maps of all the factorizations</span>
+<span class="c">   (Ff_cocone_pointwise_R)</span>
+<span class="c">*)</span>
+<span class="kn">Lemma</span> <span class="nf">fact_cocone_chain_eq_chain_pointwise_tensored</span>
+    (<span class="nv">F</span> : Ff C)
+    (<span class="nv">d</span> : chain Ff_mon)
+    (<span class="nv">f</span> : arrow C)
+    (<span class="nv">ccpointwise</span> := Ff_cocone_pointwise_R d f) :
+  eq_diag
+      (fact_cocone_chain F ccpointwise)
+      (Ff_diagram_pointwise_ob1 (mapdiagram (monoidal_left_tensor (F : Ff_mon)) d) f).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> v.
+    <span class="bp">reflexivity</span>.
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> u v e;
+      <span class="nb">apply</span> pathsinv0;
+      etrans;[ use pr1_transportf_const|];
+      etrans;[ <span class="nb">apply</span> id_left|];
+      <span class="nb">apply</span> (section_disp_on_eq_morphisms F); <span class="bp">reflexivity</span>
+    ).
+<span class="kn">Defined</span>.
+
+<span class="c">(* The ColimCocone we get from the R map of F being omega small,</span>
+<span class="c">   corrected for the equality of diagrams *)</span>
+<span class="kn">Definition</span> <span class="nf">FR_slice_colimcocone_over_pointwise_tensored</span>
+    (<span class="nv">F</span> : Ff C)
+    (<span class="nv">d</span> : chain Ff_mon)
+    (<span class="nv">HR</span> : FR_slice_omega_small F)
+    (<span class="nv">f</span> : arrow C) :
+  ColimCocone (Ff_diagram_pointwise_ob1
+    (mapdiagram (monoidal_left_tensor (F : Ff_mon)) d) f).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (ccpointwise := Ff_cocone_pointwise_R d f).
+  <span class="nb">set</span> (isHRCC' := HR _ _ ccpointwise).
+
+  <span class="c">(* correct codomain with equality of diagrams *)</span>
+  <span class="nb">set</span> (eqdiag := fact_cocone_chain_eq_chain_pointwise_tensored F d f).
+  <span class="nb">set</span> (isHRCC := eq_diag_iscolimcocone _ eqdiag isHRCC').
+  <span class="bp">exact</span> (make_ColimCocone _ _ _ isHRCC).
+<span class="kn">Defined</span>.
+
+<span class="c">(* The z-iso on middle objects we obtain from this ColimCocone</span>
+<span class="c">   to the colimit we obtain from CC itself on this diagram.</span>
+<span class="c">   This isomorphism is the one we need for the isomorphism of</span>
+<span class="c">   functorial factorizations. *)</span>
+<span class="kn">Definition</span> <span class="nf">FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_pointwise</span>
+    (<span class="nv">F</span> : Ff C)
+    (<span class="nv">d</span> : chain Ff_mon)
+    (<span class="nv">HR</span> : FR_slice_omega_small F)
+    (<span class="nv">f</span> : arrow C)
+    (<span class="nv">CL</span> := ChainsFf CC d)
+    (<span class="nv">FfCC</span> := ChainsFf CC (mapdiagram (monoidal_left_tensor (F : Ff_mon)) d))
+    (<span class="nv">ccpointwise</span> := Ff_cocone_pointwise_R d f)
+    (<span class="nv">baseCC</span> := (CCFf_pt_ob1 CC (mapdiagram (monoidal_left_tensor (F : Ff_mon)) d) f)) :
+  z_iso
+    (colim baseCC)
+    (arrow_dom (fact_R F (colimArrow (CC _ (Ff_diagram_pointwise_ob1 d f)) _ ccpointwise))).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (HRCC := FR_slice_colimcocone_over_pointwise_tensored F d HR f).
+  <span class="nb">set</span> (base_mor := isColim_is_z_iso _ baseCC _ _ (isColimCocone_from_ColimCocone HRCC)).
+
+  <span class="bp">exact</span> (_,, base_mor).
+<span class="kn">Defined</span>.
+
+<span class="c">(* colimIn _ v to the ColimCocone with R(colimArrow) as vertex</span>
+<span class="c">   is the same as the right functor of F applied to</span>
+<span class="c">   colimIn (ChainsFf CC d) v, since this is how we defined</span>
+<span class="c">   ChainsFf CC d</span>
+<span class="c">   We have to rewrite this sometimes *)</span>
+<span class="kn">Local Lemma</span> <span class="nf">FcolimArrow_coconeInBase_is_colimInHR</span>
+    (<span class="nv">F</span> : Ff C)
+    (<span class="nv">d</span> : chain Ff_mon)
+    (<span class="nv">HR</span> : FR_slice_omega_small F)
+    (<span class="nv">f</span> : arrow C)
+    (<span class="nv">v</span> : vertex nat_graph)
+    (<span class="nv">CL</span> := ChainsFf CC d)
+    (<span class="nv">HRCC</span> := FR_slice_colimcocone_over_pointwise_tensored F d HR f) :
+  arrow_mor00 (#(fact_R F) (three_mor_mor12 (section_nat_trans (colimIn CL v) f)))
+  = colimIn HRCC v.
+<span class="kn">Proof</span>.
+  use (section_disp_on_eq_morphisms F); <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="c">(* Show that the base_iso we just defined in fact gives a</span>
+<span class="c">   morphism of three C, pointwise *)</span>
+<span class="kn">Lemma</span> <span class="nf">FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_pointwise_three_comm</span>
+    (<span class="nv">F</span> : Ff C)
+    (<span class="nv">d</span> : chain Ff_mon)
+    (<span class="nv">HR</span> : FR_slice_omega_small F)
+    (<span class="nv">f</span> : arrow C)
+    (<span class="nv">CL</span> := ChainsFf CC d)
+    (<span class="nv">FfCC</span> := ChainsFf CC (mapdiagram (monoidal_left_tensor (F : Ff_mon)) d))
+    (<span class="nv">base_mor</span> := FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_pointwise F d HR f) :
+  (fact_L (F ⊗_{ Ff_mon} colim CL) f) · z_iso_inv base_mor
+  = (identity _) · (fact_L (colim FfCC) f)
+  × (fact_R (F ⊗_{ Ff_mon} colim CL) f) · (identity _) =
+    z_iso_inv base_mor · (fact_R (colim FfCC) f).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (HRCC := FR_slice_colimcocone_over_pointwise_tensored F d HR f).
+  <span class="nb">set</span> (baseCC := (CCFf_pt_ob1 CC (mapdiagram (monoidal_left_tensor (F : Ff_mon)) d) f)).
+
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> id_left.
+    <span class="c">(* cbn. *)</span>
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    etrans. <span class="nb">apply</span> assoc.
+
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">set</span> (cin0 := colimIn CL <span class="mi">0</span>).
+            <span class="nb">set</span> (cin012 := three_mor_mor12 (section_nat_trans cin0 f)).
+            <span class="bp">exact</span> (arrow_mor_comm (#(fact_L F) cin012)).
+
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    etrans. etrans. <span class="nb">apply</span> cancel_postcomposition.
+                    <span class="bp">exact</span> (FcolimArrow_coconeInBase_is_colimInHR F d HR f <span class="mi">0</span>).
+            <span class="nb">apply</span> (colimArrowCommutes HRCC).
+    <span class="bp">reflexivity</span>.
+  - etrans. <span class="nb">apply</span> id_right.
+    show_id_type.
+    <span class="nb">apply</span> (colimArrowUnique' HRCC).
+    <span class="nb">intro</span> v.
+
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (colimArrowCommutes HRCC).
+    etrans. <span class="nb">apply</span> (colimArrowCommutes baseCC).
+    <span class="nb">apply</span> pathsinv0.
+
+    <span class="nb">set</span> (ccpointwise := Ff_cocone_pointwise_R d f).
+    <span class="nb">set</span> (RcoconeInBase := #(fact_R F) (coconeIn_colimArrow_mor ccpointwise v)).
+    etrans. <span class="bp">exact</span> (arrow_mor_comm RcoconeInBase).
+    <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="c">(* define the natural transformation we want from</span>
+<span class="c">   (F ⊗_{Ff_mon} (colim CL)) (colim FfCC)</span>
+<span class="c">   using the z_iso we got from the smallness. *)</span>
+<span class="kn">Definition</span> <span class="nf">FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_data</span>
+    (<span class="nv">F</span> : Ff C)
+    (<span class="nv">d</span> : chain Ff_mon)
+    (<span class="nv">HR</span> : FR_slice_omega_small F)
+    (<span class="nv">CL</span> := ChainsFf CC d)
+    (<span class="nv">FfCC</span> := ChainsFf CC (mapdiagram (monoidal_left_tensor (F : Ff_mon)) d)) :
+  section_nat_trans_disp_data (F ⊗_{Ff_mon} (colim CL)) (colim FfCC).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  <span class="nb">set</span> (base_mor := FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_pointwise F d HR f).
+
+  <span class="k">exists</span> (<span class="nv">z_iso_inv</span> <span class="nv">base_mor</span>).
+  <span class="bp">exact</span> (FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_pointwise_three_comm F d HR f).
+<span class="kn">Defined</span>.
+
+<span class="c">(* this proof is a mess, but I had to rewrite γ within a</span>
+<span class="c">   #F γ... *)</span>
+<span class="kn">Lemma</span> <span class="nf">FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_axioms</span>
+    (<span class="nv">F</span> : Ff C)
+    (<span class="nv">d</span> : chain Ff_mon)
+    (<span class="nv">HR</span> : FR_slice_omega_small F)
+    (<span class="nv">CL</span> := ChainsFf CC d)
+    (<span class="nv">FfCC</span> := ChainsFf CC (mapdiagram (monoidal_left_tensor (F : Ff_mon)) d)) :
+  section_nat_trans_disp_axioms (FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_data F d HR).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f g γ.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+  etrans. <span class="nb">apply</span> pr1_transportf_const.
+
+  <span class="nb">set</span> (HRCC := FR_slice_colimcocone_over_pointwise_tensored F d HR f).
+  use (colimArrowUnique' HRCC).
+
+  <span class="nb">intro</span> v.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          use (pr1_section_disp_on_morphisms_comp F).
+
+
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">set</span> (mor := three_mor_mor12 (section_nat_trans (colimIn CL v) g)).
+          use (section_disp_on_eq_morphisms F (γ' := (#(fact_R (dob d v)) γ · mor))).
+
+          <span class="mi">1</span>: etrans. <span class="nb">apply</span> (colimOfArrowsIn _ _ (CC nat_graph (Ff_diagram_pointwise_ob1 d f))).
+             <span class="bp">reflexivity</span>.
+
+          <span class="mi">1</span>: etrans. <span class="nb">apply</span> id_left.
+             <span class="nb">apply</span> pathsinv0.
+             <span class="nb">apply</span> id_right.
+
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="bp">exact</span> (pathsinv0 (pr1_section_disp_on_morphisms_comp F _ _)).
+  etrans. <span class="nb">apply</span> assoc'.
+
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+  {
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (FcolimArrow_coconeInBase_is_colimInHR F d HR g v).
+    <span class="nb">set</span> (HRCCg := FR_slice_colimcocone_over_pointwise_tensored F d HR g).
+    <span class="nb">apply</span> (colimArrowCommutes HRCCg).
+  }
+
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (colimArrowCommutes HRCC).
+  etrans. <span class="nb">apply</span> colimOfArrowsIn.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor</span>
+    (<span class="nv">F</span> : Ff C)
+    (<span class="nv">d</span> : chain Ff_mon)
+    (<span class="nv">HR</span> : FR_slice_omega_small F)
+    (<span class="nv">CL</span> := ChainsFf CC d)
+    (<span class="nv">FfCC</span> := ChainsFf CC (mapdiagram (monoidal_left_tensor (F : Ff_mon)) d)) :
+  (F ⊗_{Ff_mon} (colim CL)) --&gt; (colim FfCC) :=
+    (_,, FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_axioms F d HR).
+
+<span class="c">(* Use the morphism to show that indeed, F in Ff C</span>
+<span class="c">  has the smallness property if fact_R F does*)</span>
+<span class="kn">Lemma</span> <span class="nf">FR_lt_preserves_colim_impl_Ff_lt_preserves_colim</span>
+    (<span class="nv">F</span> : Ff C)
+    (<span class="nv">d</span> : chain Ff_mon)
+    (<span class="nv">CL</span> := ChainsFf CC d) :
+  FR_slice_omega_small F -&gt;
+    isColimCocone _ _
+      (mapcocone (monoidal_left_tensor (F : Ff_mon)) _ (colimCocone CL)).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> HR.
+
+  <span class="nb">set</span> (FfCC := ChainsFf CC (mapdiagram (monoidal_left_tensor (F : Ff_mon)) d)).
+  use (is_z_iso_isColim _ FfCC).
+  <span class="k">exists</span> (<span class="nv">FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor</span> <span class="nv">F</span> <span class="nv">d</span> <span class="nv">HR</span>).
+  <span class="nb">split</span>.
+  - functorial_factorization_mor_eq f.
+    <span class="nb">set</span> (HRCC := FR_slice_colimcocone_over_pointwise_tensored F d HR f).
+    <span class="nb">set</span> (base_iso := FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_pointwise F d HR f).
+
+    etrans. <span class="nb">apply</span> pr1_transportf_const.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="bp">exact</span> (pathsinv0 (pr122 base_iso)).
+
+    <span class="nb">apply</span> compeq; [|<span class="bp">reflexivity</span>].
+    use colimArrowUnique.
+    <span class="nb">intro</span> v.
+    etrans. <span class="nb">apply</span> colimArrowCommutes.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> pr1_transportf_const.
+    etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> (section_disp_on_eq_morphisms F); <span class="bp">reflexivity</span>.
+  - functorial_factorization_mor_eq f.
+
+    <span class="nb">set</span> (HRCC := FR_slice_colimcocone_over_pointwise_tensored F d HR f).
+    <span class="nb">set</span> (base_iso := FR_lt_preserves_colim_impl_Ff_lt_preserves_colim_mor_pointwise F d HR f).
+
+    etrans. <span class="nb">apply</span> pr1_transportf_const.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="bp">exact</span> (pathsinv0 (pr222 base_iso)).
+    <span class="nb">apply</span> compeq; [<span class="bp">reflexivity</span>|].
+    <span class="nb">apply</span> colimArrowUnique.
+    <span class="nb">intro</span> v.
+    etrans. <span class="nb">apply</span> colimArrowCommutes.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> pr1_transportf_const.
+    etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> (section_disp_on_eq_morphisms F); <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Context</span> (<span class="nv">L</span> : total_category (LNWFS C))
+        (<span class="nv">d</span> : chain LNWFS_mon)
+        (<span class="nv">CL</span> := ChainsLNWFS CC d)
+        (<span class="nv">dbase</span> := mapdiagram (pr1_category _) d)
+        (<span class="nv">Ldbase</span> := mapdiagram (monoidal_left_tensor (pr1 L : Ff_mon)) dbase)
+        (<span class="nv">FfCCbase</span> := ChainsFf CC Ldbase)
+        (<span class="nv">LNWFSCC</span> := ChainsLNWFS CC (mapdiagram (monoidal_left_tensor (L : LNWFS_mon)) d)).
+
+<span class="kn">Opaque</span> LNWFS_tot_lcomp.
+<span class="kn">Opaque</span> Ff_lcomp.
+<span class="kn">Opaque</span> Ff_precategory_data.
+<span class="kn">Opaque</span> LNWFS.
+
+<span class="kn">Section</span> <span class="nf">Helpers</span>.
+
+<span class="kn">Context</span> (<span class="nv">HF</span> : isColimCocone _ _
+          (mapcocone (monoidal_left_tensor (pr1 L : Ff_mon)) _ (project_cocone _ _ (colimCocone CL))))
+        (<span class="nv">LNWFSarr</span> := colimArrow LNWFSCC _ (mapcocone (monoidal_left_tensor (L : LNWFS_mon)) _ (colimCocone CL)))
+        (<span class="nv">base_mor</span> := isColim_is_z_iso _ FfCCbase _ _ HF)
+        (<span class="nv">Ffiso</span> := (_,, base_mor) : z_iso _ _).
+
+<span class="c">(* commutativity of project_cocone for</span>
+<span class="c">    pr1_category and monoidal_left_tensor *)</span>
+<span class="kn">Section</span> <span class="nf">ProjectCoconeComm</span>.
+
+<span class="kn">Opaque</span> base_mor.
+<span class="kn">Opaque</span> ColimFfCocone.
+<span class="kn">Opaque</span> ColimLNWFSCocone.
+<span class="kn">Opaque</span> CL.
+
+<span class="kn">Local Lemma</span> <span class="nf">Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp_subproof</span> (<span class="nv">v</span> : vertex nat_graph) :
+  coconeIn (mapcocone (monoidal_left_tensor (pr1 L : Ff_mon))
+    _ (project_cocone d (colim CL) (colimCocone CL))) v =
+  colimIn FfCCbase v · pr1 LNWFSarr.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  functorial_factorization_mor_eq f.
+  etrans. use pr1_transportf_const.
+  <span class="bp">exact</span> (colimArrowCommutes (CCFf_pt_ob1 CC Ldbase f) _ _ v).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp_pr1_category_tensor_commutes</span> :
+  z_iso_mor Ffiso = pr1 LNWFSarr.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (colimArrowUnique' FfCCbase Ffiso (pr1 LNWFSarr)).
+  <span class="nb">intro</span> v.
+  etrans. <span class="nb">apply</span> (colimArrowCommutes FfCCbase).
+  <span class="bp">exact</span> (Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp_subproof v).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">ProjectCoconeComm</span>.
+
+<span class="c">(* showing that the morphism induced the the universal</span>
+<span class="c">property of the colimit in Ff C is indeed an LNWFS morphism.</span>
+<span class="c">we do this by reducing it to the pointwise case. *)</span>
+<span class="kn">Section</span> <span class="nf">DispMor</span>.
+
+<span class="kn">Opaque</span> base_mor.
+<span class="kn">Opaque</span> ColimFfCocone.
+<span class="kn">Opaque</span> ColimLNWFSCocone.
+<span class="kn">Opaque</span> CL.
+<span class="kn">Opaque</span> LNWFSCC.
+<span class="kn">Opaque</span> Ffiso LNWFSarr.
+
+<span class="kn">Lemma</span> <span class="nf">Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp</span> :
+  pr2 (monoidal_left_tensor (L : LNWFS_mon) (colim CL))
+  --&gt;[pr1 base_mor] pr2 (colim LNWFSCC).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (Ff_iso_inv_LNWFS_mor (colim LNWFSCC) (monoidal_left_tensor (L : LNWFS_mon) (colim CL)) Ffiso).
+  <span class="nb">apply</span> (@Ff_mor_eq_LNWFS_mor C (colim LNWFSCC) (monoidal_left_tensor (L : LNWFS_mon) (colim CL)) (z_iso_mor Ffiso) LNWFSarr).
+  <span class="nb">apply</span> pathsinv0.
+  <span class="bp">exact</span> (Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp_pr1_category_tensor_commutes).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">DispMor</span>.
+
+<span class="kn">Section</span> <span class="nf">InvInPrecat</span>.
+
+<span class="kn">Opaque</span> base_mor.
+<span class="kn">Opaque</span> ColimFfCocone.
+<span class="kn">Opaque</span> CL.
+<span class="kn">Opaque</span> FfCCbase.
+
+<span class="kn">Local Lemma</span> <span class="nf">Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_inv_in_precat_subproof</span> :
+  colimArrow FfCCbase _
+    (mapcocone (monoidal_left_tensor (pr1 L : Ff_mon))
+      _ (project_cocone d (colim CL) (colimCocone CL)))
+  = (pr1 (colimArrow LNWFSCC _ (mapcocone (monoidal_left_tensor (L : LNWFS_mon)) d (colimCocone CL)))).
+<span class="kn">Proof</span>.
+  use (colimArrowUnique' FfCCbase).
+  <span class="nb">intro</span> v.
+  etrans. <span class="bp">exact</span> (colimArrowCommutes FfCCbase _ _ v).
+  <span class="nb">apply</span> pathsinv0.
+  <span class="bp">exact</span> (colimArrowCommutes FfCCbase _ _ v).
+<span class="kn">Qed</span>.
+
+<span class="kn">Opaque</span> ColimLNWFSCocone.
+<span class="kn">Opaque</span> LNWFSCC.
+<span class="kn">Opaque</span> Ffiso LNWFSarr.
+
+<span class="kn">Local Lemma</span> <span class="nf">Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_inv_in_precat</span> :
+  is_inverse_in_precat
+    (pr1 (colimArrow LNWFSCC _ (mapcocone (monoidal_left_tensor (L : LNWFS_mon)) d (colimCocone CL))))
+    (pr1 base_mor).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - use (pathscomp1 (pr12 base_mor) _); [|<span class="bp">reflexivity</span>];
+    <span class="nb">apply</span> (cancel_postcomposition _ _ (pr1 base_mor));
+    <span class="bp">exact</span> Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_inv_in_precat_subproof.
+  - use (pathscomp1 (pr22 base_mor)); [|<span class="bp">reflexivity</span>];
+    <span class="nb">apply</span> (cancel_precomposition _ _ _ _ _ _ (pr1 base_mor));
+    <span class="bp">exact</span> Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_inv_in_precat_subproof.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">InvInPrecat</span>.
+
+<span class="kn">End</span> <span class="nf">Helpers</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim</span> :
+  isColimCocone _ _
+    (mapcocone (monoidal_left_tensor (pr1 L : Ff_mon)) _ (project_cocone _ _ (colimCocone CL)))
+    -&gt;
+    isColimCocone _ _
+      (mapcocone (monoidal_left_tensor (L : LNWFS_mon)) _ (colimCocone CL)).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> HF.
+
+  <span class="nb">set</span> (HFCC := make_ColimCocone _ _ _ HF).
+  <span class="nb">set</span> (base_mor := isColim_is_z_iso _ FfCCbase _ _ HF).
+  <span class="nb">set</span> (base_inv := colimArrow FfCCbase _ (colimCocone HFCC)).
+
+  use (is_z_iso_isColim _ LNWFSCC).
+  use tpair.
+  - <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">base_mor</span>).
+    <span class="kp">abstract</span> (
+      <span class="bp">exact</span> (Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_mor_disp HF)
+    ).
+  - <span class="c">(* showing isomorphism is easy, since we know that the base morphism is an isomorphism *)</span>
+    <span class="kp">abstract</span> (
+      <span class="nb">apply</span> LNWFS_inv_in_precat_if_Ff_inv_in_precat;
+      <span class="bp">exact</span> (Ff_lt_preserves_colim_impl_LNWFS_lt_preserves_colim_inv_in_precat HF)
+    ).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">SmallnessReduction</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/ModelCategories/Generated/LNWFSSmallnessReduction.v</tt>, line 4)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (* Reducing the smallness requirement on LNWFS to a simpler one
+  &gt; to be applied to the one step comonad *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

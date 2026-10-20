@@ -1,0 +1,782 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>IdealCompletion.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************</span>
+
+<span class="sd"> The rounded ideal completion</span>
+
+<span class="sd"> In this file, we study the rounded ideal completion. Given an abstract basis,</span>
+<span class="sd"> the rounded ideal completion gives a continuous DCPO with that particular</span>
+<span class="sd"> basis. If the basis is reflexive (a preorder), then the resulting DCPO is</span>
+<span class="sd"> algebraic.</span>
+
+<span class="sd"> Given an abstract basis, the rounded ideal completion is defined to be the</span>
+<span class="sd"> DCPO whose inhabitants are ideal (i.e., directed lower sets of the basis). As</span>
+<span class="sd"> such, there are some nuances regarding the universe level. Let's say, the</span>
+<span class="sd"> basis lives in some universe U_ℓ. Then the ideal completion lives in the</span>
+<span class="sd"> universe U_{ℓ⁺}. However, using propositional resizing, we can improve on this</span>
+<span class="sd"> situation. This is because all propositions are equivalent to one in the</span>
+<span class="sd"> lowest universe (which we call U_0). Then the rounded ideal completion lives</span>
+<span class="sd"> in U_{max ℓ 1}.</span>
+
+<span class="sd"> References:</span>
+<span class="sd"> - Section 2.2.6 in the chapter 'Domain Theory' of the Handbook for Logic in</span>
+<span class="sd">   Computer Science, Volume 3 (https://www.cs.ox.ac.uk/files/298/handbook.pdf)</span>
+<span class="sd"> - Section 4.10 in Domain Theory in Constructive and Predicative Univalent</span>
+<span class="sd">   Foundations (https://tdejong.com/writings/phd-thesis.pdf)</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Abstract bases</span>
+<span class="sd"> 2. Preorder to abstract basis</span>
+<span class="sd"> 3. Ideals</span>
+<span class="sd"> 4. Rounded ideal completion</span>
+<span class="sd"> 5. Rounded ideal completion for reflexive bases</span>
+<span class="sd"> 6. Hausdorff separatedness in the ideal completion</span>
+
+<span class="sd"> ******************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.ScottContinuous.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.WayBelow.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Basis.Continuous.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Basis.Algebraic.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Basis.Basis.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Basis.CompactBasis.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Elements.Maximal.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Examples.Products.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Examples.SubDCPO.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Examples.Propositions.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> dcpo.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Abstract bases</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">abstract_basis_data</span>
+  : UU
+  := ∑ (X : UU), X → X → hProp.
+
+<span class="kn">Coercion</span> <span class="nf">type_of_abstract_basis_data</span>
+         (B : abstract_basis_data)
+  : UU
+  := pr1 B.
+
+<span class="kn">Definition</span> <span class="nf">rel_of_abstract_basis_data</span>
+           {<span class="nv">B</span> : abstract_basis_data}
+           (<span class="nv">b₁</span> <span class="nv">b₂</span> : B)
+  : hProp
+  := pr2 B b₁ b₂.
+
+<span class="kn">Notation</span> <span class="s2">"b₁ ≺ b₂"</span> := (rel_of_abstract_basis_data b₁ b₂) (<span class="kn">at level</span> <span class="mi">70</span>).
+
+<span class="kn">Definition</span> <span class="nf">make_abstract_basis_data</span>
+           (<span class="nv">X</span> : <span class="kt">Type</span>)
+           (<span class="nv">R</span> : X → X → UU)
+           (<span class="nv">HR</span> : ∏ (x y : X), isaprop (R x y))
+  : abstract_basis_data
+  := X ,, <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, make_hProp (R x y) (HR x y).
+
+<span class="kn">Definition</span> <span class="nf">abstract_basis_laws</span>
+           (<span class="nv">B</span> : abstract_basis_data)
+  : UU
+  := (istrans (<span class="k">λ</span> (<span class="nv">b₁</span> <span class="nv">b₂</span> : B), b₁ ≺ b₂)
+     ×
+     (∏ (a : B), <span class="k">∃</span> (<span class="nv">b</span> : B), b ≺ a)
+     ×
+     (∏ (a₁ a₂ b : B), a₁ ≺ b → a₂ ≺ b → <span class="k">∃</span> (<span class="nv">a</span> : B), a ≺ b × a₁ ≺ a × a₂ ≺ a))%type.
+
+<span class="kn">Definition</span> <span class="nf">abstract_basis</span>
+  : UU
+  := ∑ (B : abstract_basis_data), abstract_basis_laws B.
+
+<span class="kn">Definition</span> <span class="nf">make_abstract_basis</span>
+           (<span class="nv">B</span> : abstract_basis_data)
+           (<span class="nv">HB</span> : abstract_basis_laws B)
+  : abstract_basis
+  := B ,, HB.
+
+<span class="kn">Coercion</span> <span class="nf">abstract_basis_to_data</span>
+         (B : abstract_basis)
+  : abstract_basis_data
+  := pr1 B.
+
+<span class="kn">Proposition</span> <span class="nf">trans_abstract_basis</span>
+            {<span class="nv">B</span> : abstract_basis}
+            {<span class="nv">b₁</span> <span class="nv">b₂</span> <span class="nv">b₃</span> : B}
+            (<span class="nv">p</span> : b₁ ≺ b₂)
+            (<span class="nv">q</span> : b₂ ≺ b₃)
+  : b₁ ≺ b₃.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr12 B b₁ b₂ b₃ p q).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">nullary_interpolation_abstract_basis</span>
+            {<span class="nv">B</span> : abstract_basis}
+            (<span class="nv">a</span> : B)
+  : <span class="k">∃</span> (<span class="nv">b</span> : B), b ≺ a.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr122 B a).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">binary_interpolation_abstract_basis</span>
+            {<span class="nv">B</span> : abstract_basis}
+            {<span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">b</span> : B}
+            (<span class="nv">p</span> : a₁ ≺ b)
+            (<span class="nv">q</span> : a₂ ≺ b)
+  : (<span class="k">∃</span> (<span class="nv">a</span> : B), a ≺ b × a₁ ≺ a × a₂ ≺ a)%type.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr222 B a₁ a₂ b p q).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_reflexive_abstract_basis</span>
+           (<span class="nv">B</span> : abstract_basis)
+  : UU
+  := isrefl (<span class="k">λ</span> (<span class="nv">b₁</span> <span class="nv">b₂</span> : B), b₁ ≺ b₂).
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Preorder to abstract basis</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">PreorderToBasis</span>.
+  <span class="kn">Context</span> (<span class="nv">X</span> : PreorderedSet).
+
+  <span class="kn">Definition</span> <span class="nf">preorder_to_abstract_basis_data</span>
+    : abstract_basis_data.
+  <span class="kn">Proof</span>.
+    use make_abstract_basis_data.
+    - <span class="bp">exact</span> X.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, PreorderedSetRelation X x y).
+    - <span class="nb">intros</span> x y.
+      <span class="nb">apply</span> propproperty.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">preorder_to_abstract_basis_laws</span>
+    : abstract_basis_laws preorder_to_abstract_basis_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">apply</span> istrans_po.
+    - <span class="nb">intros</span> a.
+      <span class="nb">refine</span> (hinhpr (a ,, _)).
+      <span class="nb">apply</span> isrefl_po.
+    - <span class="nb">intros</span> a₁ a₂ b p q.
+      <span class="nb">refine</span> (hinhpr (b ,, _ ,, p ,, q)).
+      <span class="nb">apply</span> isrefl_po.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preorder_to_abstract_basis</span>
+    : abstract_basis.
+  <span class="kn">Proof</span>.
+    use make_abstract_basis.
+    - <span class="bp">exact</span> preorder_to_abstract_basis_data.
+    - <span class="bp">exact</span> preorder_to_abstract_basis_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PreorderToBasis</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Ideals</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">Ideals</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : abstract_basis}.
+
+  <span class="kn">Definition</span> <span class="nf">is_ideal</span>
+             (<span class="nv">P</span> : B → hProp)
+    : hProp
+    := ((<span class="k">∃</span> (<span class="nv">b</span> : B), P b)
+       ∧
+       (<span class="k">∀</span> (<span class="nv">a₁</span> <span class="nv">a₂</span> : B), P a₁ ⇒ P a₂ ⇒ <span class="k">∃</span> (<span class="nv">b</span> : B), P b ∧ a₁ ≺ b ∧ a₂ ≺ b)
+       ∧
+       (<span class="k">∀</span> (<span class="nv">a</span> <span class="nv">b</span> : B), P b ⇒ a ≺ b ⇒ P a))%logic.
+
+  <span class="kn">Definition</span> <span class="nf">is_ideal_el</span>
+             {<span class="nv">P</span> : B → hProp}
+             (<span class="nv">HP</span> : is_ideal P)
+    : <span class="k">∃</span> (<span class="nv">b</span> : B), P b
+    := pr1 HP.
+
+  <span class="kn">Definition</span> <span class="nf">is_ideal_top</span>
+             {<span class="nv">P</span> : B → hProp}
+             (<span class="nv">HP</span> : is_ideal P)
+             {<span class="nv">a₁</span> <span class="nv">a₂</span> : B}
+             (<span class="nv">Ha₁</span> : P a₁)
+             (<span class="nv">Ha₂</span> : P a₂)
+    : <span class="k">∃</span> (<span class="nv">b</span> : B), P b ∧ a₁ ≺ b ∧ a₂ ≺ b
+    := pr12 HP a₁ a₂ Ha₁ Ha₂.
+
+  <span class="kn">Definition</span> <span class="nf">is_ideal_lower_set</span>
+             {<span class="nv">P</span> : B → hProp}
+             (<span class="nv">HP</span> : is_ideal P)
+             {<span class="nv">a</span> <span class="nv">b</span> : B}
+             (<span class="nv">Hb</span> : P b)
+             (<span class="nv">p</span> : a ≺ b)
+    : P a
+    := pr22 HP a b Hb p.
+
+  <span class="kn">Proposition</span> <span class="nf">is_ideal_rounded</span>
+              {<span class="nv">P</span> : B → hProp}
+              (<span class="nv">HP</span> : is_ideal P)
+              {<span class="nv">a</span> : B}
+              (<span class="nv">Ha</span> : P a)
+    : <span class="k">∃</span> (<span class="nv">b</span> : B), a ≺ b ∧ P b.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (H := is_ideal_top HP Ha Ha).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intros</span> b.
+    <span class="nb">induction</span> b <span class="k">as</span> ( b &amp; p₁ &amp; p₂ &amp; p₃ ).
+    <span class="bp">exact</span> (hinhpr (b ,, p₂ ,, p₁)).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Ideals</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Rounded ideal completion</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">RoundedIdealCompletion</span>.
+  <span class="kn">Context</span> (<span class="nv">B</span> : abstract_basis).
+
+  <span class="kn">Proposition</span> <span class="nf">lub_of_ideals</span>
+              (<span class="nv">D</span> : directed_set (funset_dcpo B hProp_dcpo))
+              (<span class="nv">HD</span> : ∏ (d : D), is_ideal (D d))
+    : is_ideal (⨆ D).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="nb">assert</span> (H := directed_set_el D).
+      <span class="nb">revert</span> H.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intro</span> d.
+      <span class="nb">assert</span> (H := is_ideal_el (HD d)).
+      <span class="nb">revert</span> H.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intro</span> b.
+      <span class="nb">induction</span> b <span class="k">as</span> [ b p ].
+      <span class="bp">exact</span> (hinhpr (b ,, hinhpr (d ,, p))).
+    - <span class="nb">intros</span> a₁ a₂.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> Ha₁ ; <span class="nb">cbn</span> <span class="k">in</span> Ha₁.
+      <span class="nb">induction</span> Ha₁ <span class="k">as</span> [ d₁ p₁ ].
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> Ha₂ ; <span class="nb">cbn</span> <span class="k">in</span> Ha₂.
+      <span class="nb">induction</span> Ha₂ <span class="k">as</span> [ d₂ p₂ ].
+      <span class="nb">assert</span> (H := directed_set_top D d₁ d₂).
+      <span class="nb">revert</span> H.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intro</span> H ; <span class="nb">cbn</span> <span class="k">in</span> H.
+      <span class="nb">induction</span> H <span class="k">as</span> [ dt [ H₁ H₂ ]].
+      <span class="nb">assert</span> (H := is_ideal_top (HD dt) (H₁ a₁ p₁) (H₂ a₂ p₂)).
+      <span class="nb">revert</span> H.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> H.
+      <span class="nb">induction</span> H <span class="k">as</span> ( b &amp; q₁ &amp; q₂ &amp; q₃ ).
+      <span class="bp">exact</span> (hinhpr (b ,, hinhpr (dt ,, q₁) ,, q₂ ,, q₃)).
+    - <span class="nb">intros</span> a b.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> H q ; <span class="nb">cbn</span> <span class="k">in</span> H.
+      <span class="nb">induction</span> H <span class="k">as</span> [ d p ] ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (hinhpr (d ,, _)).
+      <span class="bp">exact</span> (is_ideal_lower_set (HD d) p q).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">rounded_ideal_completion</span>
+    : dcpo
+    := sub_dcpo
+         (funset_dcpo B hProp_dcpo)
+         is_ideal
+         lub_of_ideals.
+
+  <span class="kn">Definition</span> <span class="nf">in_rounded_ideal</span>
+             (<span class="nv">b</span> : B)
+             (<span class="nv">I</span> : rounded_ideal_completion)
+    : hProp
+    := pr1 I b.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"b ∈ I"</span> := (in_rounded_ideal b I).
+
+  <span class="kn">Proposition</span> <span class="nf">is_ideal_principal_ideal</span>
+              (<span class="nv">b</span> : B)
+    : is_ideal (<span class="k">λ</span> <span class="nv">a</span>, a ≺ b).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="bp">exact</span> (nullary_interpolation_abstract_basis b).
+    - <span class="nb">intros</span> a₁ a₂ p q.
+      <span class="bp">exact</span> (binary_interpolation_abstract_basis p q).
+    - <span class="nb">intros</span> a₁ a₂ p q.
+      <span class="bp">exact</span> (trans_abstract_basis q p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">principal_ideal</span>
+    : B → rounded_ideal_completion
+    := <span class="k">λ</span> <span class="nv">b</span>, ((<span class="k">λ</span> <span class="nv">a</span>, a ≺ b) ,, is_ideal_principal_ideal b).
+
+  <span class="kn">Proposition</span> <span class="nf">principal_ideal_monotone</span>
+              {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+              (<span class="nv">p</span> : b₁ ≺ b₂)
+    : principal_ideal b₁ ⊑ principal_ideal b₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a q ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> (trans_abstract_basis q p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_directed_below_ideal</span>
+              (<span class="nv">I</span> : rounded_ideal_completion)
+    : is_directed
+        rounded_ideal_completion
+        (<span class="k">λ</span> (<span class="nv">b</span> : ∑ b : B, b ∈ I), principal_ideal (pr1 b)).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> (is_ideal_el (pr2 I)).
+    - <span class="nb">intros</span> i j.
+      <span class="nb">assert</span> (H := is_ideal_top (pr2 I) (pr2 i) (pr2 j)).
+      <span class="nb">revert</span> H.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intro</span> t.
+      <span class="nb">induction</span> t <span class="k">as</span> ( t &amp; p₁ &amp; p₂ &amp; p₃ ).
+      <span class="nb">refine</span> (hinhpr ((t ,, p₁) ,, _ ,, _)) ; <span class="nb">cbn</span>.
+      + <span class="nb">intros</span> x q.
+        <span class="bp">exact</span> (trans_abstract_basis q p₂).
+      + <span class="nb">intros</span> x q.
+        <span class="bp">exact</span> (trans_abstract_basis q p₃).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">below_ideal_directed_set</span>
+             (<span class="nv">I</span> : rounded_ideal_completion)
+    : directed_set rounded_ideal_completion.
+  <span class="kn">Proof</span>.
+    use make_directed_set.
+    - <span class="bp">exact</span> (∑ (b : B), b ∈ I).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">b</span>, principal_ideal (pr1 b)).
+    - <span class="bp">exact</span> (is_directed_below_ideal I).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">rounded_ideal_lub_2</span>
+              (<span class="nv">I</span> : rounded_ideal_completion)
+    : ⨆ below_ideal_directed_set I ⊑ I.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> dcpo_lub_is_least.
+    <span class="nb">intros</span> [b Hb].
+    <span class="nb">intros</span> x Hx. <span class="nb">simpl</span> <span class="k">in</span> Hx.
+    use (is_ideal_lower_set _ Hb Hx).
+    <span class="nb">apply</span> I.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">rounded_ideal_lub_1</span>
+              (<span class="nv">I</span> : rounded_ideal_completion)
+    : I ⊑ ⨆ below_ideal_directed_set I.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x Hx.
+    <span class="nb">assert</span> (H := is_ideal_rounded (pr2 I) Hx).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intros</span> b.
+    <span class="nb">induction</span> b <span class="k">as</span> [ b [ p₁ p₂ ]].
+    <span class="bp">exact</span> (hinhpr ((b ,, p₂) ,, p₁)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">rounded_ideal_lub</span>
+              (<span class="nv">I</span> : rounded_ideal_completion)
+    : I = ⨆ below_ideal_directed_set I.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> antisymm_dcpo.
+    - <span class="nb">apply</span> rounded_ideal_lub_1.
+    - <span class="nb">apply</span> rounded_ideal_lub_2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">principal_ideal_way_below</span>
+              {<span class="nv">I</span> : rounded_ideal_completion}
+              (<span class="nv">b</span> : B)
+              (<span class="nv">Hb</span> : b ∈ I)
+    : principal_ideal b ≪ I.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> D HD.
+    <span class="nb">assert</span> (H := HD _ Hb). <span class="nb">revert</span> H.
+    use factor_through_squash_hProp.
+    <span class="nb">intro</span> d ; <span class="nb">cbn</span> <span class="k">in</span> d.
+    <span class="nb">induction</span> d <span class="k">as</span> [ d Hd ].
+    <span class="nb">refine</span> (hinhpr (d ,, _)).
+    <span class="nb">cbn</span> ; <span class="nb">intros</span> x Hx.
+    <span class="bp">exact</span> (is_ideal_lower_set (pr2 (D d)) Hd Hx).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">lt_way_below</span>
+              (<span class="nv">b1</span> <span class="nv">b2</span> : B)
+              (<span class="nv">Hb</span> : b1 ≺ b2)
+    : principal_ideal b1 ≪ principal_ideal b2.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> principal_ideal_way_below.
+    <span class="bp">exact</span> Hb.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">from_way_below_ideal_completion</span>
+              {<span class="nv">I</span> <span class="nv">J</span> : rounded_ideal_completion}
+              (<span class="nv">Hb</span> : I ≪ J)
+    : <span class="k">∃</span> <span class="nv">b₁</span>, b₁ ∈ J ∧ I ⊑ principal_ideal b₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">specialize</span> (Hb (below_ideal_directed_set J) (rounded_ideal_lub_1 J)).
+    <span class="nb">revert</span> Hb.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intros</span> [[b' Hb'] Hi]. <span class="nb">simpl</span> <span class="k">in</span> Hi.
+    <span class="nb">assert</span> (H := is_ideal_el (pr2 I)).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intros</span> [b₀ Hb0].
+    use (hinhpr (b',, (Hb',, _))).
+    - <span class="nb">simpl</span>. <span class="nb">intros</span> x Hx.
+      <span class="nb">apply</span> Hi. <span class="bp">exact</span> Hx.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">to_way_below_ideal_completion</span>
+    {<span class="nv">I</span> <span class="nv">J</span> : rounded_ideal_completion}
+    (<span class="nv">b₁</span> : B)
+    (<span class="nv">Hb1</span> : b₁ ∈ J)
+    (<span class="nv">HI</span> : I ⊑ principal_ideal b₁)
+    : I ≪ J.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> D HJ.
+    <span class="nb">assert</span> (HbJ : principal_ideal b₁ ≪ J).
+    { <span class="nb">apply</span> principal_ideal_way_below, Hb1. }
+    <span class="nb">specialize</span> (HbJ D HJ).
+    <span class="nb">revert</span> HbJ.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intros</span> [i Hi].
+    use (hinhpr (i,, _)).
+    <span class="bp">exact</span> (trans_dcpo HI Hi).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">way_below_ideal_completion_eq</span> (<span class="nv">I</span> <span class="nv">J</span> : rounded_ideal_completion) :
+    I ≪ J ≃ <span class="k">∃</span> <span class="nv">b₁</span>, b₁ ∈ J ∧ I ⊑ principal_ideal b₁.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">apply</span> from_way_below_ideal_completion.
+    - use factor_through_squash.
+      { <span class="nb">apply</span> propproperty. }
+      <span class="nb">intros</span> [b [HJ HI]].
+      <span class="nb">apply</span> (to_way_below_ideal_completion b HJ HI).
+    - <span class="nb">apply</span> propproperty.
+    - <span class="nb">apply</span> propproperty.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">rounded_ideal_completion_basis_data</span>
+    : dcpo_basis_data rounded_ideal_completion.
+  <span class="kn">Proof</span>.
+    use make_dcpo_basis_data.
+    - <span class="bp">exact</span> B.
+    - <span class="bp">exact</span> principal_ideal.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">rounded_ideal_completion_basis_laws</span>
+    : dcpo_basis_laws
+        rounded_ideal_completion
+        rounded_ideal_completion_basis_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> I.
+    <span class="nb">split</span>.
+    - <span class="nb">split</span>.
+      + <span class="nb">assert</span> (H := is_ideal_el (pr2 I)).
+        <span class="nb">revert</span> H.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">intros</span> b.
+        <span class="nb">induction</span> b <span class="k">as</span> [ b p ].
+        <span class="nb">refine</span> (hinhpr (b ,, _)).
+        <span class="nb">apply</span> principal_ideal_way_below.
+        <span class="bp">exact</span> p.
+      + <span class="nb">intros</span> b₁ b₂.
+        <span class="nb">induction</span> b₁ <span class="k">as</span> [ b₁ p₁ ].
+        <span class="nb">induction</span> b₂ <span class="k">as</span> [ b₂ p₂ ].
+        <span class="nb">cbn</span> -[way_below] <span class="k">in</span> b₁, p₁, b₂, p₂.
+        <span class="nb">assert</span> (H := p₁ _ (rounded_ideal_lub_1 I)).
+        <span class="nb">revert</span> H.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">intros</span> c₁.
+        <span class="nb">induction</span> c₁ <span class="k">as</span> ( ( c₁ &amp; q₁ ) &amp; s₁ ).
+        <span class="nb">assert</span> (H := p₂ _ (rounded_ideal_lub_1 I)).
+        <span class="nb">revert</span> H.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">intros</span> c₂.
+        <span class="nb">induction</span> c₂ <span class="k">as</span> ( ( c₂ &amp; q₂ ) &amp; s₂ ).
+        <span class="nb">cbn</span> <span class="k">in</span> c₁, q₁, s₁, c₂, q₂, s₂.
+        <span class="nb">assert</span> (H := is_ideal_top (pr2 I) q₁ q₂).
+        <span class="nb">revert</span> H.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">intros</span> t.
+        <span class="nb">induction</span> t <span class="k">as</span> ( t &amp; r₁ &amp; r₂ &amp; r₃ ).
+        <span class="nb">simple refine</span> (hinhpr ((t ,, _) ,, (_ ,, _))) ; <span class="nb">cbn</span> -[way_below].
+        * <span class="nb">apply</span> principal_ideal_way_below.
+          <span class="bp">exact</span> r₁.
+        * <span class="nb">intros</span> x v.
+          <span class="nb">refine</span> (trans_abstract_basis _ r₂).
+          use s₁.
+          <span class="bp">exact</span> v.
+        * <span class="nb">intros</span> x v.
+          <span class="nb">refine</span> (trans_abstract_basis _ r₃).
+          use s₂.
+          <span class="bp">exact</span> v.
+    - <span class="c">(* `I` is the supremum of all principal ideals way below `I` *)</span>
+      <span class="nb">split</span>.
+      + <span class="nb">intros</span> b x p.
+        <span class="nb">induction</span> b <span class="k">as</span> [ b q ].
+        <span class="nb">cbn</span> -[way_below] <span class="k">in</span> b, q, p.
+        <span class="bp">exact</span> (way_below_to_le q x p).
+      + <span class="nb">intros</span> I' HI' x p.
+        <span class="nb">assert</span> (H := is_ideal_rounded (pr2 I) p).
+        <span class="nb">revert</span> H.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">intros</span> b.
+        <span class="nb">induction</span> b <span class="k">as</span> [ b [ q₁ q₂ ]].
+        <span class="nb">assert</span> (H : principal_ideal b ≪ I).
+        {
+          <span class="nb">apply</span> principal_ideal_way_below.
+          <span class="bp">exact</span> q₂.
+        }
+        <span class="bp">exact</span> (HI' (b ,, H) x q₁).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">rounded_ideal_completion_basis</span>
+    : dcpo_basis rounded_ideal_completion.
+  <span class="kn">Proof</span>.
+    use make_dcpo_basis.
+    - <span class="bp">exact</span> rounded_ideal_completion_basis_data.
+    - <span class="bp">exact</span> rounded_ideal_completion_basis_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">rounded_ideal_completion_continuous_struct</span>
+    : continuous_dcpo_struct rounded_ideal_completion.
+  <span class="kn">Proof</span>.
+    use continuous_struct_from_basis.
+    <span class="bp">exact</span> rounded_ideal_completion_basis.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">RoundedIdealCompletion</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Rounded ideal completion for reflexive bases</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">RoundedIdealCompletionAlgebraic</span>.
+  <span class="kn">Context</span> (<span class="nv">B</span> : abstract_basis)
+          (<span class="nv">HB</span> : is_reflexive_abstract_basis B).
+
+  <span class="kn">Proposition</span> <span class="nf">rounded_ideal_completion_compact_basis_laws</span>
+    : compact_basis_laws
+        (rounded_ideal_completion B)
+        (rounded_ideal_completion_basis_data B).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, _ ,, _).
+    - <span class="nb">intros</span> b ; <span class="nb">cbn</span> -[way_below] <span class="k">in</span> *.
+      <span class="nb">apply</span> principal_ideal_way_below.
+      <span class="nb">apply</span> HB.
+    - <span class="nb">intro</span> I.
+      <span class="nb">split</span>.
+      + <span class="nb">assert</span> (H := is_ideal_el (pr2 I)).
+        <span class="nb">revert</span> H.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">intros</span> b.
+        <span class="nb">induction</span> b <span class="k">as</span> [ b p ].
+        <span class="nb">refine</span> (hinhpr (b ,, _)).
+        <span class="nb">intros</span> x q ; <span class="nb">cbn</span> <span class="k">in</span> q.
+        <span class="bp">exact</span> (is_ideal_lower_set (pr2 I) p q).
+      + <span class="nb">intros</span> b₁ b₂.
+        <span class="nb">induction</span> b₁ <span class="k">as</span> [ b₁ p₁ ].
+        <span class="nb">induction</span> b₂ <span class="k">as</span> [ b₂ p₂ ].
+        <span class="nb">cbn</span> <span class="k">in</span> b₁, p₁, b₂, p₂.
+        <span class="nb">assert</span> (Hb₁ : in_rounded_ideal B b₁ I).
+        {
+          <span class="nb">apply</span> p₁.
+          <span class="nb">apply</span> HB.
+        }
+        <span class="nb">assert</span> (Hb₂ : in_rounded_ideal B b₂ I).
+        {
+          <span class="nb">apply</span> p₂.
+          <span class="nb">apply</span> HB.
+        }
+        <span class="nb">assert</span> (H := is_ideal_top (pr2 I) Hb₁ Hb₂).
+        <span class="nb">revert</span> H.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">intro</span> t.
+        <span class="nb">induction</span> t <span class="k">as</span> ( t &amp; q₁ &amp; q₂ &amp; q₃ ).
+        <span class="nb">simple refine</span> (hinhpr ((t ,, _) ,, _ ,, _)) ; <span class="nb">cbn</span>.
+        * <span class="nb">intros</span> x r.
+          <span class="bp">exact</span> (is_ideal_lower_set (pr2 I) q₁ r).
+        * <span class="nb">intros</span> x r.
+          <span class="bp">exact</span> (trans_abstract_basis r q₂).
+        * <span class="nb">intros</span> x r.
+          <span class="bp">exact</span> (trans_abstract_basis r q₃).
+    - <span class="c">(* `I` is the supremum of all principal ideals way below `I` *)</span>
+      <span class="nb">intro</span> I.
+      <span class="nb">split</span>.
+      + <span class="nb">intros</span> b x p.
+        <span class="nb">induction</span> b <span class="k">as</span> [ b q ].
+        <span class="nb">cbn</span> <span class="k">in</span> b, q, p.
+        <span class="nb">apply</span> q.
+        <span class="bp">exact</span> p.
+      + <span class="nb">intros</span> I' HI' x p.
+        <span class="nb">assert</span> (H := is_ideal_rounded (pr2 I) p).
+        <span class="nb">revert</span> H.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">intros</span> b.
+        <span class="nb">induction</span> b <span class="k">as</span> [ b [ q₁ q₂ ]].
+        <span class="nb">refine</span> (HI' (b ,, _) x q₁) ; <span class="nb">cbn</span>.
+        <span class="nb">intros</span> c r.
+        <span class="bp">exact</span> (is_ideal_lower_set (pr2 I) q₂ r).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">rounded_ideal_completion_compact_basis</span>
+    : compact_basis (rounded_ideal_completion B).
+  <span class="kn">Proof</span>.
+    use make_compact_basis.
+    - <span class="bp">exact</span> (rounded_ideal_completion_basis_data B).
+    - <span class="bp">exact</span> rounded_ideal_completion_compact_basis_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">RoundedIdealCompletionAlgebraic</span>.
+
+<span class="sd">(** * 6. Hausdorff separatedness in the ideal completion *)</span>
+<span class="kn">Lemma</span> <span class="nf">hausdorff_separated_ideal_completion</span>
+      (<span class="nv">B</span> : abstract_basis)
+      (<span class="nv">x</span> <span class="nv">y</span> : rounded_ideal_completion B)
+  : is_hausdorff_separated x y
+    ≃
+    (<span class="k">∃</span> (<span class="nv">b1</span> <span class="nv">b2</span> : B),
+     in_rounded_ideal _ b1 x
+     ∧
+     in_rounded_ideal _ b2 y
+     ∧
+     ¬(<span class="k">∃</span> (<span class="nv">b3</span> : B),
+       principal_ideal _ b1 ≪ principal_ideal _ b3
+       ∧
+       principal_ideal _ b2 ≪ principal_ideal _ b3))%logic.
+<span class="kn">Proof</span>.
+  use logeqweq.
+  - <span class="nb">intros</span> H.
+    <span class="nb">assert</span> (H' := hausdorff_separated_continuous_dcpo_weq
+                    (rounded_ideal_completion_basis B)
+                    x y
+                    H).
+    <span class="nb">revert</span> H'.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> ( b₁ &amp; b₂ &amp; p₁ &amp; p₂ &amp; p₃ ).
+    <span class="nb">assert</span> (Q := from_way_below_ideal_completion B p₁).
+    <span class="nb">revert</span> Q.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> ( c &amp; r₁ &amp; r₂ ).
+    <span class="nb">assert</span> (Q := from_way_below_ideal_completion B p₂).
+    <span class="nb">revert</span> Q.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> ( d &amp; s₁ &amp; s₂ ).
+    <span class="nb">refine</span> (hinhpr (c ,, d ,, _ ,, _ ,, _)).
+    + <span class="bp">exact</span> r₁.
+    + <span class="bp">exact</span> s₁.
+    + use factor_through_squash.
+      {
+        <span class="nb">apply</span> isapropempty.
+      }
+      <span class="nb">intros</span> ( e &amp; t₁ &amp; t₂ ).
+      <span class="nb">refine</span> (p₃ _).
+      <span class="nb">refine</span> (hinhpr (e ,, _ ,, _)).
+      * <span class="bp">exact</span> (trans_le_way_below r₂ t₁).
+      * <span class="bp">exact</span> (trans_le_way_below s₂ t₂).
+  - use factor_through_squash_hProp.
+    <span class="nb">intros</span> ( b₁ &amp; b₂ &amp; p₁ &amp; p₂ &amp; p₃ ).
+    <span class="nb">apply</span> (invmap
+             (hausdorff_separated_continuous_dcpo_weq
+                (rounded_ideal_completion_basis B)
+                x y)).
+    <span class="nb">refine</span> (hinhpr (b₁ ,, b₂ ,, _ ,, _ ,, _)).
+    + <span class="nb">apply</span> principal_ideal_way_below.
+      <span class="bp">exact</span> p₁.
+    + <span class="nb">apply</span> principal_ideal_way_below.
+      <span class="bp">exact</span> p₂.
+    + <span class="bp">exact</span> p₃.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/Examples/IdealCompletion.v</tt>, line 34)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Hausdorff separatedness in the ideal completion
+  &gt;
+  &gt;  ******************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Posets.
+  &gt; Require Import UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonadsMultiSorted_alt.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">    Monads in [sort,C]</span>
+
+<span class="sd">Written by Anders Mörtberg, 2021 (adapted from MonadsMultiSorted.v)</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Export</span> UniMath.Tactics.EnsureStructuredProofs.
+<span class="kn">Require Import</span> UniMath.Foundations.PartA.
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.Lists.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Groupoids.
+
+<span class="kn">Require</span> UniMath.SubstitutionSystems.SortIndexing.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">MonadInSortToC</span>.
+
+<span class="kn">Context</span> (<span class="nv">sort</span> : hSet) (<span class="nv">Hsort</span> : isofhlevel <span class="mi">3</span> sort) (<span class="nv">C</span> : category) (<span class="nv">BC</span> : BinCoproducts C) (<span class="nv">TC</span> : Terminal C).
+
+<span class="kn">Let</span> <span class="nf">sortToC</span> : category := SortIndexing.sortToC sort Hsort C.
+
+<span class="kn">Local Definition</span> <span class="nf">BCsortToC</span> : BinCoproducts sortToC := SortIndexing.BCsortToC sort Hsort _ BC.
+
+<span class="kn">Local Definition</span> <span class="nf">TsortToC</span> : Terminal sortToC := SortIndexing.TsortToC sort Hsort _ TC.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"a ⊕ b"</span> := (BinCoproductObject (BCsortToC a b)).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"1"</span> := (TerminalObject TsortToC).
+
+<span class="kn">Context</span> {<span class="nv">M</span> : Monad sortToC}.
+
+<span class="c">(* We can instantiate the monad laws at a specific sort t *)</span>
+<span class="kn">Definition</span> <span class="nf">sortToC_fun</span> {<span class="nv">X</span> <span class="nv">Y</span> : sortToC} (<span class="nv">f</span> : ∏ t, C⟦pr1 X t,pr1 Y t⟧) : sortToC⟦X,Y⟧ :=
+  nat_trans_functor_path_pregroupoid f.
+
+<span class="kn">Definition</span> <span class="nf">bind_fun</span> {<span class="nv">X</span> <span class="nv">Y</span> : sortToC} (<span class="nv">f</span> : ∏ t, C⟦pr1 X t,pr1 (M Y) t⟧) :
+  ∏ t, C⟦pr1 (M X) t,pr1 (M Y) t⟧ :=
+    <span class="k">λ</span> <span class="nv">t</span>, pr1 (bind (sortToC_fun f)) t.
+
+<span class="kn">Definition</span> <span class="nf">η_fun</span> {<span class="nv">X</span> : sortToC} (<span class="nv">t</span> : sort) : C⟦pr1 X t,pr1 (M X) t⟧ :=
+  pr1 (η M X) t.
+
+<span class="kn">Lemma</span> <span class="nf">η_bind_fun</span> {<span class="nv">X</span> <span class="nv">Y</span> : sortToC} (<span class="nv">f</span> : ∏ t, C⟦pr1 X t,pr1 (M Y) t⟧) (<span class="nv">t</span> : sort) :
+  η_fun t · bind_fun f t = f t.
+<span class="kn">Proof</span>.
+<span class="bp">exact</span> (nat_trans_eq_pointwise (η_bind (sortToC_fun f)) t).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">bind_η_fun</span> {<span class="nv">X</span> : sortToC} (<span class="nv">t</span> : sort) :
+  bind_fun η_fun t = pr1 (identity (M X)) t.
+<span class="kn">Proof</span>.
+etrans; [|<span class="nb">apply</span> (nat_trans_eq_pointwise (@bind_η _ M X) t)].
+<span class="nb">apply</span> cancel_postcomposition.
+<span class="nb">assert</span> (H : sortToC_fun η_fun = η M X).
+{ <span class="bp">now</span> <span class="nb">apply</span> nat_trans_eq; [<span class="nb">apply</span> homset_property|]. }
+<span class="bp">exact</span> (nat_trans_eq_pointwise (maponpaths (<span class="k">λ</span> <span class="nv">a</span>, # M a) H) t).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">bind_bind_fun</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : sortToC}
+                    (<span class="nv">f</span> : ∏ t, C⟦pr1 X t,pr1 (M Y) t⟧)
+                    (<span class="nv">g</span> : ∏ t, C⟦pr1 Y t, pr1 (M Z) t ⟧)
+                    (<span class="nv">t</span> : sort) :
+  bind_fun f t · bind_fun g t = bind_fun (<span class="k">λ</span> <span class="nv">s</span>, f s · bind_fun g s) t.
+<span class="kn">Proof</span>.
+etrans; [<span class="nb">apply</span> (nat_trans_eq_pointwise (bind_bind (sortToC_fun f) (sortToC_fun g)) t)|].
+<span class="nb">apply</span> cancel_postcomposition.
+<span class="nb">assert</span> (H : sortToC_fun f · bind (sortToC_fun g) = sortToC_fun (<span class="k">λ</span> <span class="nv">s</span>, f s · bind_fun g s)).
+{ <span class="bp">now</span> <span class="nb">apply</span> nat_trans_eq; [<span class="nb">apply</span> homset_property|]. }
+<span class="bp">exact</span> (nat_trans_eq_pointwise (maponpaths (<span class="k">λ</span> <span class="nv">a</span>, # M a) H) t).
+<span class="kn">Qed</span>.
+
+<span class="c">(* As the instantiation at a specific sort t does not add much we don't do it for the exchange law *)</span>
+<span class="kn">Definition</span> <span class="nf">monadSubstGen_instantiated</span> {<span class="nv">X</span> <span class="nv">Y</span> : sortToC} (<span class="nv">f</span> : sortToC⟦X,M Y⟧) :
+  sortToC⟦M (X ⊕ Y),M Y⟧ := monadSubstGen M BCsortToC Y f.
+
+<span class="kn">Definition</span> <span class="nf">monadSubstGen_fun</span> {<span class="nv">X</span> <span class="nv">Y</span> : sortToC} (<span class="nv">f</span> : ∏ s, C⟦pr1 X s,pr1 (M Y) s⟧) :
+  ∏ t, C⟦pr1 (M (X ⊕ Y)) t,pr1 (M Y) t⟧ :=
+    <span class="k">λ</span> <span class="nv">t</span>, pr1 (monadSubstGen_instantiated (sortToC_fun f)) t.
+
+<span class="kn">Definition</span> <span class="nf">monadSubst_instantiated</span> {<span class="nv">X</span> : sortToC} (<span class="nv">f</span> : sortToC⟦<span class="mi">1</span>,M X⟧) :
+  sortToC⟦M (<span class="mi">1</span> ⊕ X),M X⟧ := monadSubst M BCsortToC TsortToC X f.
+
+<span class="kn">Definition</span> <span class="nf">mweak_instantiated</span> {<span class="nv">X</span> <span class="nv">Y</span> : sortToC} :
+  sortToC⟦M Y,M (X ⊕ Y)⟧ := mweak M BCsortToC _ _.
+
+<span class="kn">Definition</span> <span class="nf">mexch_instantiated</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : sortToC} :
+  sortToC⟦M (X ⊕ (Y ⊕ Z)), M (Y ⊕ (X ⊕ Z))⟧ :=
+    mexch M BCsortToC _ _ _.
+
+<span class="kn">Lemma</span> <span class="nf">subst_interchange_law_gen_instantiated</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : sortToC}
+      (<span class="nv">f</span> : sortToC⟦X,M (Y ⊕ Z)⟧) (<span class="nv">g</span> : sortToC⟦Y, M Z⟧) :
+  monadSubstGen_instantiated f · monadSubstGen_instantiated g =
+  mexch_instantiated · monadSubstGen_instantiated (g · mweak_instantiated)
+                     · monadSubstGen_instantiated (f · monadSubstGen_instantiated g).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> subst_interchange_law_gen.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">subst_interchange_law_instantiated</span> {<span class="nv">X</span> : sortToC}
+      (<span class="nv">f</span> : sortToC⟦<span class="mi">1</span>,M (<span class="mi">1</span> ⊕ X)⟧) (<span class="nv">g</span> : sortToC⟦<span class="mi">1</span>,M X⟧) :
+  monadSubst_instantiated f · monadSubst_instantiated g =
+  mexch_instantiated · monadSubst_instantiated (g · mweak_instantiated)
+                     · monadSubst_instantiated (f · monadSubst_instantiated g).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> subst_interchange_law.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">MonadInSortToC</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/MonadsMultiSorted_alt.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Tactics/EnsureStructuredProofs.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Written by Anders Mörtberg, 2021 (adapted from MonadsMultiSorted.v)
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Export UniMath.Tactics.EnsureStructuredProofs.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.PartA.
+  &gt; Require Import UniMath.Foundations.PartD.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

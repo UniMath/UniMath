@@ -1,0 +1,1102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>lemmas.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** *Fixing notation, terminology and basic lemmas *)</span>
+
+<span class="sd">(** By Alvaro Pelayo, Vladimir Voevodsky and Michael A. Warren *)</span>
+
+<span class="sd">(** made compatible with the current UniMath library again by Benedikt Ahrens in 2014</span>
+<span class="sd">    and by Ralph Matthes in 2017 *)</span>
+
+<span class="sd">(** Imports *)</span>
+
+<span class="kn">Require Export</span> UniMath.Tactics.EnsureStructuredProofs.
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartA.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.NaturalNumbers.
+<span class="kn">Require Import</span> UniMath.Algebra.RigsAndRings.
+<span class="kn">Require Import</span> UniMath.Algebra.Domains_and_Fields.
+<span class="kn">Require Import</span> UniMath.NumberSystems.Integers.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+
+<span class="kn">Unset</span> Kernel Term Sharing. <span class="sd">(** for quicker proof-checking, approx. by factor 25 *)</span>
+
+<span class="sd">(** Fixing some notation *)</span>
+
+<span class="sd">(** * Notation, terminology  *)</span>
+
+<span class="kn">Arguments</span> tpair [ T P ].
+
+<span class="kn">Definition</span> <span class="nf">neq</span> ( <span class="nv">X</span> : UU ) : hrel X :=
+  <span class="k">fun</span> <span class="nv">x</span> <span class="nv">y</span> : X =&gt; make_hProp (neg (x = y)) (isapropneg (x = y)).
+
+<span class="sd">(** * I. Lemmas on natural numbers *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">minus0r</span> ( <span class="nv">n</span> : nat ) : sub n <span class="mi">0</span> = n.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> n; <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">minusnn0</span> ( <span class="nv">n</span> : nat ) : sub n n = <span class="mi">0</span>%nat.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n.
+  - <span class="nb">apply</span> idpath.
+  - <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">minussn1</span> ( <span class="nv">n</span> : nat ) : sub ( S n ) <span class="mi">1</span> = n.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> n; <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">minussn1non0</span> ( <span class="nv">n</span> : nat ) ( <span class="nv">p</span> : natlth <span class="mi">0</span> n ) : S ( sub n <span class="mi">1</span> ) = n.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> p. <span class="nb">destruct</span> n.
+  - <span class="nb">intro</span> p. <span class="nb">apply</span> fromempty. <span class="bp">exact</span> (isirreflnatlth <span class="mi">0</span>%nat p ).
+  - <span class="nb">intro</span>. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> minus0r.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">minusleh</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) : natleh ( sub n m ) n.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m. <span class="nb">induction</span> n.
+  - <span class="nb">intros</span> m. <span class="nb">apply</span> isreflnatleh.
+  - <span class="nb">intros</span> m. <span class="nb">destruct</span> m.
+    + <span class="nb">apply</span> isreflnatleh.
+    + <span class="nb">apply</span> ( istransnatleh (IHn m)).
+      <span class="nb">apply</span> natlthtoleh.
+      <span class="nb">apply</span> natlthnsn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">minus1leh</span> { <span class="nv">n</span> <span class="nv">m</span> : nat } ( <span class="nv">p</span> : natlth <span class="mi">0</span> n ) ( <span class="nv">q</span> : natlth <span class="mi">0</span> m ) ( <span class="nv">r</span> : natleh n m ) : natleh ( sub n <span class="mi">1</span> ) ( sub m <span class="mi">1</span> ).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m p q r. <span class="nb">destruct</span> n.
+  - <span class="nb">auto</span>.
+  - <span class="nb">intros</span> m p q r. <span class="nb">destruct</span> m.
+    + <span class="nb">apply</span> fromempty. <span class="bp">exact</span> (isirreflnatlth <span class="mi">0</span>%nat q ).
+    + <span class="nb">assert</span> ( natleh n m ) <span class="k">as</span> a. { <span class="nb">apply</span> r. }
+      <span class="nb">assert</span> ( natleh ( sub n <span class="mi">0</span>%nat ) m ) <span class="k">as</span> a0.
+      { <span class="bp">exact</span> (transportf ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt; natleh x m ) ( pathsinv0 ( minus0r n ) ) a). }
+      <span class="bp">exact</span> ( transportf ( <span class="k">fun</span> <span class="nv">x</span> : nat =&gt; natleh ( sub n <span class="mi">0</span> ) x ) (pathsinv0 ( minus0r m ) ) a0 ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">minuslth</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) ( <span class="nv">p</span> : natlth <span class="mi">0</span> n ) ( <span class="nv">q</span> : natlth <span class="mi">0</span> m ) :
+  natlth ( sub n m ) n.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m p q. <span class="nb">destruct</span> n.
+  - <span class="nb">auto</span>.
+  - <span class="nb">intros</span> m p q. <span class="nb">destruct</span> m.
+    + <span class="nb">apply</span> fromempty. <span class="bp">exact</span> ( isirreflnatlth <span class="mi">0</span>%nat q).
+    + <span class="nb">apply</span> ( natlehlthtrans _ n _ ).
+      * <span class="nb">apply</span> ( minusleh n m ).
+      * <span class="nb">apply</span> natlthnsn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natlthsntoleh</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) : natlth m ( S n ) -&gt; natleh m n.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m. <span class="nb">induction</span> n.
+  - <span class="nb">intros</span> m p. <span class="nb">destruct</span> m.
+    + <span class="nb">apply</span> isreflnatleh.
+    + <span class="nb">assert</span> ( natlth m <span class="mi">0</span> ) <span class="k">as</span> q <span class="bp">by</span> <span class="nb">apply</span> p.
+      <span class="nb">apply</span> fromempty. <span class="bp">exact</span> ( negnatgth0n m q ).
+  - <span class="nb">intros</span> m p. <span class="nb">destruct</span> m.
+    + <span class="nb">apply</span> natleh0n.
+    + <span class="nb">apply</span> ( IHn m ). <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natlthminus0</span> { <span class="nv">n</span> <span class="nv">m</span> : nat } ( <span class="nv">p</span> : natlth m n ) :
+  natlth <span class="mi">0</span> ( sub n m ).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m p. <span class="nb">induction</span> n.
+  - <span class="nb">intros</span> m p. <span class="nb">apply</span> fromempty. <span class="bp">exact</span> ( negnatlthn0 m p ).
+  - <span class="nb">intros</span> m p. <span class="nb">destruct</span> m.
+    + <span class="nb">auto</span>.
+    + <span class="nb">apply</span> IHn. <span class="nb">apply</span> p.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natlthsnminussmsn</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) ( <span class="nv">p</span> : natlth m n ) :
+  natlth ( sub ( S n ) ( S m ) ) ( S n ).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m p. <span class="nb">induction</span> n.
+  - <span class="nb">intros</span> m p. <span class="nb">apply</span> fromempty. <span class="nb">apply</span> (negnatlthn0 m p).
+  - <span class="nb">intros</span> m p. <span class="nb">destruct</span> m.
+    + <span class="nb">assert</span> ( sub ( S ( S n ) ) <span class="mi">1</span> = S n ) <span class="k">as</span> f.
+      { <span class="nb">destruct</span> n.
+        * <span class="nb">auto</span>.
+        * <span class="nb">auto</span>. }
+      <span class="nb">rewrite</span> f. <span class="nb">apply</span> natlthnsn.
+    + <span class="nb">apply</span> ( istransnatlth _ ( S n ) _ ).
+      * <span class="nb">apply</span> IHn. <span class="bp">assumption</span>.
+      * <span class="nb">apply</span> natlthnsn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natlehsnminussmsn</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) ( <span class="nv">p</span> : natleh m n ) :
+  natleh (sub ( S n ) ( S m ) ) ( S n ).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m p. <span class="nb">induction</span> n.
+  - <span class="nb">intros</span> m p. <span class="nb">apply</span> negnatgthtoleh. <span class="nb">intro</span> X. <span class="nb">apply</span> nopathsfalsetotrue. <span class="bp">assumption</span>.
+  - <span class="nb">intros</span> m p. <span class="nb">destruct</span> m.
+    + <span class="nb">apply</span> natlthtoleh. <span class="nb">apply</span> natlthnsn.
+    + <span class="nb">apply</span> ( istransnatleh( m := S n ) ).
+      * <span class="nb">apply</span> IHn. <span class="bp">assumption</span>.
+      * <span class="nb">apply</span> natlthtoleh. <span class="nb">apply</span> natlthnsn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pathssminus</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) ( <span class="nv">p</span> : natlth m ( S n ) ) :
+  S ( sub n m ) = sub ( S n ) m.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m p. <span class="nb">induction</span> n.
+  - <span class="nb">intros</span> m p. <span class="nb">destruct</span> m.
+    + <span class="nb">auto</span>.
+    + <span class="nb">apply</span> fromempty.
+      <span class="nb">apply</span> nopathstruetofalse. <span class="nb">apply</span> pathsinv0. <span class="bp">assumption</span>.
+  - <span class="nb">intros</span> m p. <span class="nb">destruct</span> m.
+    + <span class="nb">auto</span>.
+    + <span class="nb">apply</span> IHn. <span class="nb">apply</span> p.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natlehsminus</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) :
+  natleh ( sub ( S n ) m ) ( S (sub n m ) ).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m. <span class="nb">induction</span> n.
+  - <span class="nb">intros</span> m. <span class="nb">apply</span> negnatgthtoleh. <span class="nb">intro</span> X. <span class="nb">apply</span> nopathstruetofalse.
+    <span class="nb">apply</span> pathsinv0. <span class="nb">destruct</span> m.
+    + <span class="bp">assumption</span>.
+    + <span class="bp">assumption</span>.
+  - <span class="nb">intros</span> m. <span class="nb">destruct</span> m.
+    + <span class="nb">apply</span> isreflnatleh.
+    + <span class="nb">apply</span> IHn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natlthssminus</span> { <span class="nv">n</span> <span class="nv">m</span> <span class="nv">l</span> : nat } ( <span class="nv">p</span> : natlth m ( S n ) )
+      ( <span class="nv">q</span> : natlth l ( S ( sub ( S n ) m ) ) ) : natlth l ( S ( S n ) ).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> ( natlthlehtrans _ ( S ( sub ( S n ) m ) ) ).
+  - <span class="bp">assumption</span>.
+  - <span class="nb">destruct</span> m.
+    + <span class="nb">apply</span> isreflnatleh.
+    + <span class="nb">apply</span> natlthtoleh. <span class="nb">apply</span> natlthsnminussmsn. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natdoubleminus</span> { <span class="nv">n</span> <span class="nv">k</span> <span class="nv">l</span> : nat } ( <span class="nv">p</span> : natleh k n ) ( <span class="nv">q</span> : natleh l k ) :
+  sub n k = sub ( sub n l ) ( sub k l ).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> k l p q. <span class="nb">induction</span> n.
+  - <span class="nb">auto</span>.
+  - <span class="nb">intros</span> k l p q. <span class="nb">destruct</span> k.
+    + <span class="nb">destruct</span> l.
+      * <span class="nb">auto</span>.
+      * <span class="nb">apply</span> fromempty. <span class="bp">exact</span> ( negnatlehsn0 l q ).
+    + <span class="nb">destruct</span> l.
+      * <span class="nb">auto</span>.
+      * <span class="nb">apply</span> ( IHn k l ); <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">minusnleh1</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) ( <span class="nv">p</span> : natlth m n ) : natleh m ( sub n <span class="mi">1</span> ).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m p. <span class="nb">destruct</span> n.
+  - <span class="nb">intros</span> m p. <span class="nb">apply</span> fromempty. <span class="bp">exact</span> (negnatlthn0 m p ).
+  - <span class="nb">intros</span> m p. <span class="nb">destruct</span> m.
+    + <span class="nb">apply</span> natleh0n.
+    + <span class="nb">apply</span> natlthsntoleh.
+      <span class="nb">change</span> ( sub ( S n ) <span class="mi">1</span> ) <span class="k">with</span> ( sub n <span class="mi">0</span> ).
+      <span class="nb">rewrite</span> minus0r. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">doubleminuslehpaths</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) ( <span class="nv">p</span> : natleh m n ) :
+  sub n (sub n m ) = m.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m p. <span class="nb">induction</span> n.
+  - <span class="nb">intros</span> m p. <span class="nb">destruct</span> ( natlehchoice m <span class="mi">0</span> p ) <span class="k">as</span> [ h | k ].
+    + <span class="nb">apply</span> fromempty. <span class="nb">apply</span> negnatlthn0 <span class="k">with</span> ( n := m ). <span class="bp">assumption</span>.
+    + <span class="nb">simpl</span>. <span class="nb">apply</span> pathsinv0. <span class="bp">assumption</span>.
+  - <span class="nb">intros</span>. <span class="nb">destruct</span> m.
+    + <span class="nb">simpl</span>. <span class="nb">apply</span> minusnn0.
+    + <span class="nb">change</span> ( sub ( S n ) (sub n m ) = S m ).
+      <span class="nb">rewrite</span> &lt;- pathssminus.
+      * <span class="nb">rewrite</span> IHn.
+        --  <span class="nb">apply</span> idpath.
+        -- <span class="bp">assumption</span>.
+      * <span class="nb">apply</span> ( minuslth ( S n ) ( S m ) ).
+        -- <span class="nb">apply</span> (natlehlthtrans _ n ).
+           ++ <span class="nb">apply</span> natleh0n.
+           ++ <span class="nb">apply</span> natlthnsn.
+        -- <span class="nb">apply</span> (natlehlthtrans _ m ).
+           ++ <span class="nb">apply</span> natleh0n.
+           ++ <span class="nb">apply</span> natlthnsn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">boolnegtrueimplfalse</span> ( <span class="nv">v</span> : bool ) ( <span class="nv">p</span> : neg ( v = true ) ) : v = false.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> v.
+  - <span class="nb">apply</span> fromempty. <span class="nb">apply</span> p; <span class="nb">auto</span>.
+  - <span class="nb">auto</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natcoface</span> ( <span class="nv">i</span> : nat ) : nat -&gt; nat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> n. <span class="nb">destruct</span> ( natgtb i n ).
+  - <span class="bp">exact</span> n.
+  - <span class="bp">exact</span> ( S n ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natcofaceleh</span> ( <span class="nv">i</span> <span class="nv">n</span> <span class="nv">upper</span> : nat ) ( <span class="nv">p</span> : natleh n upper ) :
+  natleh ( natcoface i n ) ( S upper ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">unfold</span> natcoface.
+  <span class="nb">destruct</span> ( natgtb i n ).
+  - <span class="nb">apply</span> natlthtoleh. <span class="nb">apply</span> (natlehlthtrans _ upper ).
+    + <span class="bp">assumption</span>.
+    + <span class="nb">apply</span> natlthnsn.
+  - <span class="nb">apply</span> p.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natgehimplnatgtbfalse</span> ( <span class="nv">m</span> <span class="nv">n</span> : nat ) ( <span class="nv">p</span> : natgeh n m ) : natgtb m n = false.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> natgeh <span class="k">in</span> p. <span class="nb">unfold</span> natgth <span class="k">in</span> p.
+  <span class="nb">apply</span> boolnegtrueimplfalse.
+  <span class="nb">intro</span> q.
+  <span class="nb">apply</span> natlehneggth <span class="k">in</span> p.
+  <span class="nb">apply</span> p. <span class="nb">auto</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natcofaceretract</span> ( <span class="nv">i</span> : nat ) : nat -&gt; nat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> n. <span class="nb">destruct</span> ( natgtb i n ).
+  - <span class="bp">exact</span> n.
+  - <span class="bp">exact</span> ( sub n <span class="mi">1</span> ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natcofaceretractisretract</span> ( <span class="nv">i</span> : nat ) :
+  funcomp ( natcoface i ) ( natcofaceretract i ) = idfun nat.
+<span class="kn">Proof</span>.
+  <span class="nb">simpl</span>. <span class="nb">apply</span> funextfun.
+  <span class="nb">intro</span> n. <span class="nb">simpl</span>.
+  <span class="nb">set</span> ( c := natlthorgeh n i ). <span class="nb">destruct</span> c <span class="k">as</span> [ h | k ].
+  - <span class="nb">unfold</span> natcoface. <span class="nb">rewrite</span> h. <span class="nb">unfold</span> natcofaceretract. <span class="nb">rewrite</span> h.  <span class="nb">apply</span> idpath.
+  - <span class="nb">assert</span> ( natgtb i n = false ) <span class="k">as</span> f.
+    { <span class="nb">apply</span> natgehimplnatgtbfalse. <span class="bp">assumption</span>. }
+    <span class="nb">unfold</span> natcoface. <span class="nb">rewrite</span> f. <span class="nb">unfold</span> natcofaceretract.
+    <span class="nb">assert</span> ( natgtb i ( S n ) = false ) <span class="k">as</span> ff.
+    { <span class="nb">apply</span> natgehimplnatgtbfalse.
+      <span class="nb">apply</span> ( istransnatgeh _ n ).
+      + <span class="nb">apply</span> natgthtogeh. <span class="nb">apply</span> natgthsnn.
+      + <span class="bp">assumption</span>. }
+    <span class="nb">rewrite</span> ff. <span class="nb">rewrite</span> minussn1. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isinjnatcoface</span> ( <span class="nv">i</span> <span class="nv">x</span> <span class="nv">y</span> : nat ) : natcoface i x = natcoface i y -&gt; x = y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> p.
+  <span class="nb">change</span> x <span class="k">with</span> ( idfun _ x).
+  <span class="nb">rewrite</span> &lt;- ( natcofaceretractisretract i ).
+  <span class="nb">change</span> y <span class="k">with</span> ( idfun _ y ).
+  <span class="nb">rewrite</span> &lt;- ( natcofaceretractisretract i ).
+  <span class="nb">simpl</span>. <span class="nb">rewrite</span> p. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natlehdecomp</span> ( <span class="nv">b</span> <span class="nv">a</span> : nat ) :
+  ( <span class="k">∃</span> <span class="nv">c</span> : nat, ( a + c )%nat = b ) -&gt; natleh a b.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> a. <span class="nb">induction</span> b.
+  - <span class="nb">intros</span> a p. use (hinhuniv _ p).
+    <span class="nb">intro</span> t. <span class="nb">destruct</span> t <span class="k">as</span> [ c f ]. <span class="nb">destruct</span> a.
+    + <span class="nb">apply</span> isreflnatleh.
+    + <span class="nb">apply</span> fromempty.
+      <span class="nb">simpl</span> <span class="k">in</span> f .
+      <span class="bp">exact</span> ( negpathssx0 ( a + c ) f ).
+  - <span class="nb">intros</span> a p. use (hinhuniv _ p).
+    <span class="nb">intro</span> t. <span class="nb">destruct</span> t <span class="k">as</span> [ c f ]. <span class="nb">destruct</span> a.
+    + <span class="nb">apply</span> natleh0n.
+    + <span class="nb">assert</span> ( natleh a b ) <span class="k">as</span> q.
+      { <span class="nb">simpl</span> <span class="k">in</span> f.
+        <span class="nb">apply</span> IHb.
+        <span class="nb">intro</span> P.
+        <span class="nb">intro</span> s. <span class="nb">apply</span> s.
+        <span class="nb">split with</span> c.
+        <span class="nb">apply</span> invmaponpathsS.
+        <span class="bp">assumption</span>. }
+      <span class="nb">apply</span> q.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natdivleh</span> ( <span class="nv">a</span> <span class="nv">b</span> <span class="nv">k</span> : nat ) ( <span class="nv">f</span> : ( a * k )%nat = b ) :
+  natleh a b ⨿ ( b = <span class="mi">0</span>%nat ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> k.
+  - <span class="nb">rewrite</span> natmultcomm <span class="k">in</span> f. <span class="nb">simpl</span> <span class="k">in</span> f. <span class="nb">apply</span> ii2.
+    <span class="nb">apply</span> pathsinv0. <span class="bp">assumption</span>.
+  - <span class="nb">rewrite</span> natmultcomm <span class="k">in</span> f. <span class="nb">simpl</span> <span class="k">in</span> f. <span class="nb">apply</span> ii1.
+    <span class="nb">apply</span> natlehdecomp. <span class="nb">intro</span> P. <span class="nb">intro</span> g. <span class="nb">apply</span> g.
+    <span class="nb">split with</span> ( k * a )%nat. <span class="nb">rewrite</span> natpluscomm.
+    <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * II. Lemmas on rings *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> ring_scope.
+
+<span class="kn">Lemma</span> <span class="nf">ringminusdistr</span> { <span class="nv">X</span> : commring } ( <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : X ) :
+  a * (b - c) = a * b - a * c.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">rewrite</span> ringldistr. <span class="nb">rewrite</span> ringrmultminus. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ringminusdistl</span> { <span class="nv">X</span> : commring } ( <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : X ) :
+  (b - c) * a = b * a - c * a.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">rewrite</span> ringrdistr. <span class="nb">rewrite</span> ringlmultminus. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">multinvmultstable</span> ( <span class="nv">A</span> : commring ) ( <span class="nv">a</span> <span class="nv">b</span> : A ) ( <span class="nv">p</span> : multinvpair A a )
+  ( <span class="nv">q</span> : multinvpair A b ) : multinvpair A ( a * b ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> p <span class="k">as</span> [ a' p ]. <span class="nb">destruct</span> q <span class="k">as</span> [ b' q ].
+  <span class="nb">split with</span> ( b' * a' ). <span class="nb">split</span>.
+  - <span class="nb">change</span> ( ( ( b' * a' ) * ( a * b ) )%<span class="bp">ring</span> = @ringunel2 A ).
+    <span class="nb">rewrite</span> ( ringassoc2 A b').
+    <span class="nb">rewrite</span> &lt;- ( ringassoc2 A a' ).
+    <span class="nb">change</span> ( ( ( a' * a )%<span class="bp">ring</span> = @ringunel2 A ) ×
+             ( ( a * a' )%<span class="bp">ring</span> = @ringunel2 A ) ) <span class="k">in</span> p.
+    <span class="nb">change</span> ( ( ( b' * b )%<span class="bp">ring</span> = @ringunel2 A ) ×
+             ( ( b * b' )%<span class="bp">ring</span> = @ringunel2 A ) ) <span class="k">in</span> q.
+    <span class="nb">rewrite</span> &lt;- ( pr1 q ). <span class="nb">apply</span> maponpaths.
+    <span class="nb">assert</span> ( a' * a * b = <span class="mi">1</span> * b ) <span class="k">as</span> f <span class="bp">by</span>
+          <span class="nb">apply</span> ( maponpaths ( <span class="k">fun</span> <span class="nv">x</span> =&gt; x * b ) ( pr1 p ) ).
+    <span class="nb">rewrite</span> ringlunax2 <span class="k">in</span> f. <span class="bp">assumption</span>.
+  - <span class="nb">change</span> ( ( ( a * b ) * ( b' * a' ) )%<span class="bp">ring</span> = @ringunel2 A ).
+    <span class="nb">rewrite</span> ( ringassoc2 A a). <span class="nb">rewrite</span> &lt;- ( ringassoc2 A b ).
+    <span class="nb">change</span> ( ( ( a' * a )%<span class="bp">ring</span> = @ringunel2 A ) ×
+             ( ( a * a' )%<span class="bp">ring</span> = @ringunel2 A ) ) <span class="k">in</span> p.
+    <span class="nb">change</span> ( ( ( b' * b )%<span class="bp">ring</span> = @ringunel2 A ) ×
+             ( ( b * b' )%<span class="bp">ring</span> = @ringunel2 A ) ) <span class="k">in</span> q.
+    <span class="nb">rewrite</span> &lt;- ( pr2 q ). <span class="nb">rewrite</span> ( pr2 q ).
+    <span class="nb">rewrite</span> ringlunax2. <span class="nb">apply</span> (pr2 p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">commringaddinvunique</span> ( <span class="nv">X</span> : commring ) ( <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : X )
+      ( <span class="nv">p</span> : @op1 X a b = @ringunel1 X )
+      ( <span class="nv">q</span> : @op1 X a c = @ringunel1 X ) : b = c.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">rewrite</span> ( pathsinv0 ( ringrunax1 X b ) ).
+  <span class="nb">rewrite</span> ( pathsinv0 q ).
+  <span class="nb">rewrite</span> ( pathsinv0 ( ringassoc1 X _ _ _ ) ).
+  <span class="nb">rewrite</span> ( ringcomm1 X b _ ).
+  <span class="nb">rewrite</span> p.
+  <span class="nb">rewrite</span> ringlunax1.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isapropmultinvpair</span> ( <span class="nv">X</span> : commring ) ( <span class="nv">a</span> : X ) : isaprop ( multinvpair X a ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> isaprop. <span class="nb">intros</span> b c.
+  <span class="nb">assert</span> ( b = c ) <span class="k">as</span> f.
+  { <span class="nb">destruct</span> b <span class="k">as</span> [ b b' ].
+    <span class="nb">destruct</span> c <span class="k">as</span> [ c c'].
+    <span class="nb">assert</span> ( b = c ) <span class="k">as</span> f0.
+    { <span class="nb">rewrite</span> &lt;- ( @ringrunax2 X b ).
+      <span class="nb">change</span> ( b * @ringunel2 X ) <span class="k">with</span> ( b * <span class="mi">1</span> )%multmonoid.
+      <span class="nb">rewrite</span> &lt;- ( pr2 c' ).
+      <span class="nb">change</span> ( ( b * ( a * c ) )%<span class="bp">ring</span> = c ).
+      <span class="nb">rewrite</span> &lt;- ( ringassoc2 X ).
+      <span class="nb">change</span> ( b * a )%<span class="bp">ring</span> <span class="k">with</span> ( b * a )%multmonoid.
+      <span class="nb">rewrite</span> ( pr1 b' ).
+      <span class="nb">change</span> ( ( @ringunel2 X ) * c = c )%<span class="bp">ring</span>.
+      <span class="nb">apply</span> ringlunax2.
+    }
+    <span class="nb">apply</span> (total2_paths2_f f0 ).
+    <span class="nb">assert</span> ( isaprop ( c * a = ( @ringunel2 X )  ×
+                       a * c = ( @ringunel2 X ) ) ) <span class="k">as</span> isc.
+    { <span class="nb">apply</span> isofhleveldirprod.
+      - <span class="nb">apply</span> ( setproperty X ).
+      - <span class="nb">apply</span> ( setproperty X ).
+    }
+    <span class="nb">apply</span> isc.
+  }
+  <span class="nb">split with</span> f. <span class="nb">intros</span> g.
+  <span class="nb">assert</span> ( isaset ( multinvpair X a ) ) <span class="k">as</span> isc.
+  { <span class="nb">unfold</span> multinvpair. <span class="nb">unfold</span> invpair.
+    <span class="nb">change</span> isaset <span class="k">with</span> ( isofhlevel <span class="mi">2</span> ).
+    <span class="nb">apply</span> isofhleveltotal2.
+    - <span class="nb">apply</span> ( pr2 ( pr1 ( pr1 ( rigmultmonoid X ) ) ) ).
+    - <span class="nb">intros</span>. <span class="nb">apply</span> isofhleveldirprod.
+      + <span class="nb">apply</span> hlevelntosn.
+        <span class="nb">apply</span> ( setproperty X ).
+      + <span class="nb">apply</span> hlevelntosn. <span class="nb">apply</span> (setproperty X ).
+  }
+  <span class="nb">apply</span> isc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Close Scope</span> ring_scope.
+
+<span class="sd">(** * III. Lemmas on hz *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hz_scope.
+
+<span class="kn">Lemma</span> <span class="nf">hzaddinvplus</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : - ( n + m ) = ( - n ) + ( - m ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> commringaddinvunique <span class="k">with</span> ( a := n + m ).
+  - <span class="nb">apply</span> ringrinvax1.
+  - <span class="nb">assert</span> ( ( n + m ) + ( - n + - m ) = n + - n + m + - m ) <span class="k">as</span> i.
+    { <span class="nb">assert</span> ( n + m + ( - n + - m ) = n + ( m + ( - n + - m ) ) ) <span class="k">as</span> i0 <span class="bp">by</span>
+            <span class="nb">apply</span> ringassoc1.
+      <span class="nb">assert</span> ( n + ( m + ( - n + - m ) ) = n + ( m + - n + - m ) ) <span class="k">as</span> i1.
+      { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> ringassoc1. }
+      <span class="nb">assert</span> ( n + ( m + - n + - m ) = n + (- n + m + - m ) ) <span class="k">as</span> i2.
+      { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> ( maponpaths ( <span class="k">fun</span> <span class="nv">x</span> =&gt; x + - m ) ).
+        <span class="nb">apply</span> ringcomm1. }
+      <span class="nb">assert</span> ( n + ( - n + m + - m ) = n + ( - n + m ) + - m ) <span class="k">as</span> i3.
+      { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> ringassoc1. }
+      <span class="nb">assert</span> ( n + ( - n + m ) + - m = n + - n + m + - m ) <span class="k">as</span> i4.
+      { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> ( maponpaths ( <span class="k">fun</span> <span class="nv">x</span> =&gt; x + - m ) ).
+        <span class="nb">apply</span> ringassoc1. }
+      <span class="bp">exact</span> ( pathscomp0 i0 ( pathscomp0 i1 ( pathscomp0 i2 ( pathscomp0 i3 i4 ) ) ) ).    }
+    <span class="nb">assert</span> ( n + - n + m + -m = <span class="mi">0</span> ) <span class="k">as</span> j.
+    { <span class="nb">assert</span> ( n + - n + m + - m = <span class="mi">0</span> + m + - m ) <span class="k">as</span> j0.
+      { <span class="nb">apply</span> ( maponpaths ( <span class="k">fun</span> <span class="nv">x</span> =&gt; x + m + - m ) ).
+        <span class="nb">apply</span> ringrinvax1. }
+      <span class="nb">assert</span> ( <span class="mi">0</span> + m + - m = m + - m ) <span class="k">as</span> j1.
+      { <span class="nb">apply</span> ( maponpaths ( <span class="k">fun</span> <span class="nv">x</span> =&gt; x + - m ) ).
+        <span class="nb">apply</span> ringlunax1. }
+      <span class="nb">assert</span> ( m + - m = <span class="mi">0</span> ) <span class="k">as</span> j2 <span class="bp">by</span> <span class="nb">apply</span> ringrinvax1.
+      <span class="bp">exact</span> ( pathscomp0 j0 ( pathscomp0 j1 j2 ) ).
+    }
+    <span class="bp">exact</span> ( pathscomp0 i j ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzgthsntogeh</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) ( <span class="nv">p</span> : hzgth ( n + <span class="mi">1</span> ) m ) : hzgeh n m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> ( c := hzgthchoice2 ( n + <span class="mi">1</span> ) m ).
+  <span class="nb">destruct</span> c <span class="k">as</span> [ h | k ].
+  - <span class="bp">exact</span> p.
+  - <span class="nb">assert</span> ( hzgth n m ) <span class="k">as</span> a <span class="bp">by</span> <span class="bp">exact</span> ( hzgthandplusrinv n m <span class="mi">1</span> h ).
+    <span class="nb">apply</span> hzgthtogeh. <span class="bp">exact</span> a.
+  - <span class="nb">rewrite</span> ( hzplusrcan n m <span class="mi">1</span> k ). <span class="nb">apply</span> isreflhzgeh.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzlthsntoleh</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) ( <span class="nv">p</span> : hzlth m ( n + <span class="mi">1</span> ) ) : hzleh m n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> hzlth <span class="k">in</span> p.
+  <span class="nb">assert</span> ( hzgeh n m ) <span class="k">as</span> a <span class="bp">by</span> (<span class="nb">apply</span> hzgthsntogeh; <span class="bp">exact</span> p).
+  <span class="bp">exact</span> a.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzabsvalchoice</span> ( <span class="nv">n</span> : hz ) :
+  ( <span class="mi">0</span>%nat = hzabsval n ) ⨿ ( ∑ x : nat, S x = hzabsval n ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">destruct</span> ( natlehchoice _ _ ( natleh0n ( hzabsval n ) ) ) <span class="k">as</span> [ l | r ].
+  - <span class="nb">apply</span> ii2. <span class="nb">split with</span> ( sub ( hzabsval n ) <span class="mi">1</span> ).
+    <span class="nb">rewrite</span> pathssminus.
+    + <span class="nb">change</span> ( sub ( hzabsval n ) <span class="mi">0</span> = hzabsval n ).
+      <span class="nb">rewrite</span> minus0r. <span class="nb">apply</span> idpath.
+    + <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> ii1. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzlthminusswap</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) ( <span class="nv">p</span> : hzlth n m ) : hzlth ( - m ) (- n ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">rewrite</span> &lt;- ( hzplusl0 ( - m ) ). <span class="nb">rewrite</span> &lt;- ( hzrminus n ).
+  <span class="nb">change</span> ( hzlth ( n + - n + - m ) ( - n ) ).
+  <span class="nb">rewrite</span> hzplusassoc. <span class="nb">rewrite</span> ( hzpluscomm ( -n ) ).
+  <span class="nb">rewrite</span> &lt;- hzplusassoc.
+  <span class="nb">assert</span> ( - n = <span class="mi">0</span> + - n ) <span class="k">as</span> f.
+  { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> hzplusl0. }
+  <span class="nb">assert</span> ( hzlth ( n + - m + - n ) ( <span class="mi">0</span> + - n ) ) <span class="k">as</span> q.
+  { <span class="nb">apply</span> hzlthandplusr.  <span class="nb">rewrite</span> &lt;- ( hzrminus m ).
+    <span class="nb">change</span> ( m - m ) <span class="k">with</span> ( m + - m ).
+    <span class="nb">apply</span> hzlthandplusr.
+    <span class="bp">assumption</span>. }
+  <span class="nb">rewrite</span> &lt;- f <span class="k">in</span> q.
+  <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzlthminusequiv</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) :
+  ( hzlth n m  -&gt; hzlth <span class="mi">0</span> ( m - n ) ) ×
+  ( hzlth <span class="mi">0</span> ( m - n ) -&gt; hzlth n m ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">rewrite</span> &lt;- ( hzrminus n ).
+  <span class="nb">change</span> ( n - n ) <span class="k">with</span> ( n + - n ).
+  <span class="nb">change</span> ( m - n ) <span class="k">with</span> ( m + - n ).
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> p. <span class="nb">apply</span> hzlthandplusr. <span class="bp">assumption</span>.
+  - <span class="nb">intro</span> p.
+    <span class="nb">rewrite</span> &lt;- ( hzplusr0 n ).
+    <span class="nb">rewrite</span> &lt;- ( hzplusr0 m ).
+    <span class="nb">rewrite</span> &lt;- ( hzlminus n ).
+    <span class="nb">rewrite</span> &lt;- <span class="mi">2</span>! hzplusassoc.
+    <span class="nb">apply</span> hzlthandplusr.
+    <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzlthminus</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) ( <span class="nv">p</span> : hzlth n k ) ( <span class="nv">q</span> : hzlth m k )
+      ( <span class="nv">q'</span> : hzleh <span class="mi">0</span> m ) : hzlth ( n - m ) k.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">destruct</span> ( hzlehchoice <span class="mi">0</span> m q' ) <span class="k">as</span> [ l | r ].
+  - <span class="nb">apply</span> ( istranshzlth _ n _ ).
+    + <span class="nb">assert</span> ( hzlth ( n - m ) ( n + <span class="mi">0</span> ) ) <span class="k">as</span> i0.
+      { <span class="nb">rewrite</span> &lt;- ( hzrminus m ).
+        <span class="nb">change</span> ( m - m ) <span class="k">with</span> ( m + - m ).
+        <span class="nb">rewrite</span> &lt;- hzplusassoc.
+        <span class="nb">apply</span> hzlthandplusr.
+        <span class="nb">assert</span> ( hzlth ( n + <span class="mi">0</span> ) ( n + m ) ) <span class="k">as</span> i00.
+        { <span class="nb">apply</span> hzlthandplusl. <span class="bp">assumption</span>. }
+        <span class="nb">rewrite</span> hzplusr0 <span class="k">in</span> i00. <span class="bp">assumption</span>.
+      }
+      <span class="nb">rewrite</span> hzplusr0 <span class="k">in</span> i0. <span class="bp">assumption</span>.
+    + <span class="bp">assumption</span>.
+  - <span class="nb">rewrite</span> &lt;- r.
+    <span class="nb">change</span> ( n - <span class="mi">0</span> ) <span class="k">with</span> ( n + - <span class="mi">0</span> ).
+    <span class="nb">rewrite</span> hzminuszero. <span class="nb">rewrite</span> ( hzplusr0 n ). <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzabsvalandminuspos</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) ( <span class="nv">p</span> : hzleh <span class="mi">0</span> n ) ( <span class="nv">q</span> : hzleh <span class="mi">0</span> m ) :
+  nattohz ( hzabsval ( n - m ) ) = nattohz ( hzabsval ( m - n ) ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> ( hzlthorgeh n m ) <span class="k">as</span> [ l | r ].
+  - <span class="nb">assert</span> ( hzlth ( n - m ) <span class="mi">0</span> ) <span class="k">as</span> a.
+    { <span class="nb">change</span> ( n - m ) <span class="k">with</span> ( n + - m ).
+      <span class="nb">rewrite</span> &lt;- ( hzrminus m ).
+      <span class="nb">change</span> ( m - m ) <span class="k">with</span> ( m + - m ).
+      <span class="nb">apply</span> hzlthandplusr. <span class="bp">assumption</span>.
+    }
+    <span class="nb">assert</span> ( hzlth <span class="mi">0</span> ( m - n ) ) <span class="k">as</span> b.
+    { <span class="nb">change</span> ( m - n ) <span class="k">with</span> ( m + - n ).
+      <span class="nb">rewrite</span> &lt;- ( hzrminus n ).
+      <span class="nb">change</span> ( n - n ) <span class="k">with</span> ( n + - n ).
+      <span class="nb">apply</span> hzlthandplusr. <span class="bp">assumption</span>.
+    }
+    <span class="nb">rewrite</span> ( hzabsvallth0 a ).
+    <span class="nb">rewrite</span> hzabsvalgth0.
+    + <span class="nb">change</span> ( n - m ) <span class="k">with</span> ( n + - m ).
+      <span class="nb">rewrite</span> hzaddinvplus.
+      <span class="nb">change</span> ( - - m ) <span class="k">with</span> ( - - m )%<span class="bp">ring</span>.
+      <span class="nb">rewrite</span> ringminusminus.
+      <span class="nb">rewrite</span> hzpluscomm.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> b.
+  - <span class="nb">destruct</span> ( hzgehchoice n m r ) <span class="k">as</span> [ h | k ].
+    + <span class="nb">assert</span> ( hzlth <span class="mi">0</span> ( n - m ) ) <span class="k">as</span> a.
+      { <span class="nb">change</span> ( n - m ) <span class="k">with</span> ( n + - m ).
+        <span class="nb">rewrite</span> &lt;- ( hzrminus m ).
+        <span class="nb">change</span> ( m - m ) <span class="k">with</span> ( m + - m ).
+        <span class="nb">apply</span> hzlthandplusr. <span class="bp">assumption</span>.
+      }
+      <span class="nb">assert</span> ( hzlth ( m - n ) <span class="mi">0</span> ) <span class="k">as</span> b.
+      { <span class="nb">change</span> ( m - n ) <span class="k">with</span> ( m + - n ).
+        <span class="nb">rewrite</span> &lt;- ( hzrminus n ).
+        <span class="nb">apply</span> hzlthandplusr.
+        <span class="nb">apply</span> h.
+      }
+      <span class="nb">rewrite</span> ( hzabsvallth0 b ).
+      <span class="nb">rewrite</span> hzabsvalgth0.
+      * <span class="nb">change</span> ( n + - m = - ( m + - n ) ).
+        <span class="nb">rewrite</span> hzaddinvplus.
+        <span class="nb">change</span> ( - - n ) <span class="k">with</span> ( - - n )%<span class="bp">ring</span>.
+        <span class="nb">rewrite</span> ringminusminus.
+        <span class="nb">rewrite</span> hzpluscomm.
+        <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> a.
+    + <span class="nb">rewrite</span> k. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzabsvalneq0</span> ( <span class="nv">n</span> : hz ) ( <span class="nv">p</span> : hzneq <span class="mi">0</span> n ) :
+  hzlth <span class="mi">0</span> ( nattohz ( hzabsval n ) ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> ( hzneqchoice <span class="mi">0</span> n p ) <span class="k">as</span> [ <span class="nb">left</span> | <span class="nb">right</span> ].
+  - <span class="nb">rewrite</span> hzabsvallth0.
+    + <span class="nb">apply</span> hzlth0andminus. <span class="nb">apply</span> <span class="nb">left</span>.
+    + <span class="nb">apply</span> <span class="nb">left</span>.
+  - <span class="nb">rewrite</span> hzabsvalgth0.
+    + <span class="bp">assumption</span>.
+    + <span class="nb">apply</span> <span class="nb">right</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hzrdistr</span> ( <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : hz ) : ( a + b ) * c = ( a * c ) + ( b * c ) :=
+  ringrdistr hz a b c.
+
+<span class="kn">Definition</span> <span class="nf">hzldistr</span> ( <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : hz ) : c * ( a + b ) = ( c * a ) + ( c * b ) :=
+  ringldistr hz a b c.
+
+
+<span class="kn">Lemma</span> <span class="nf">hzabsvaland1</span> : hzabsval <span class="mi">1</span> = <span class="mi">1</span>%nat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> ( invmaponpathsincl _ isinclnattohz ).
+  <span class="nb">rewrite</span> hzabsvalgth0.
+  - <span class="nb">rewrite</span> nattohzand1.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> &lt;- ( hzplusl0 <span class="mi">1</span> ). <span class="nb">apply</span> ( hzlthnsn <span class="mi">0</span> ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzabsvalandplusnonneg</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) ( <span class="nv">p</span> : hzleh <span class="mi">0</span> n ) ( <span class="nv">q</span> : hzleh <span class="mi">0</span> m ) :
+  hzabsval ( n + m ) = ( ( hzabsval n ) + ( hzabsval m ) )%nat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> ( hzleh <span class="mi">0</span> ( n + m ) ) <span class="k">as</span> r.
+  { <span class="nb">rewrite</span> &lt;- ( hzrminus n ).
+    <span class="nb">change</span> ( n - n ) <span class="k">with</span> ( n + - n ).
+    <span class="nb">apply</span> hzlehandplusl.
+    <span class="nb">apply</span> ( istranshzleh _ <span class="mi">0</span> _ ).
+    - <span class="nb">apply</span> hzgeh0andminus.
+      <span class="nb">apply</span> p.
+    - <span class="bp">assumption</span>.
+  }
+  <span class="nb">apply</span> ( invmaponpathsincl _ isinclnattohz ).
+  <span class="nb">rewrite</span> nattohzandplus.
+  <span class="nb">rewrite</span> hzabsvalgeh0. <span class="c">(* used to start with rewrite 3! hzabsvalgeh0 *)</span>
+  - <span class="nb">rewrite</span> hzabsvalgeh0.
+    + <span class="nb">rewrite</span> hzabsvalgeh0.
+      * <span class="nb">apply</span> idpath.
+      * <span class="bp">assumption</span>.
+    + <span class="bp">assumption</span>.
+  - <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzabsvalandplusneg</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) ( <span class="nv">p</span> : hzlth n <span class="mi">0</span> ) ( <span class="nv">q</span> : hzlth m <span class="mi">0</span> ) :
+  hzabsval ( n + m ) = ( ( hzabsval n ) + ( hzabsval m ) )%nat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> ( hzlth ( n + m ) <span class="mi">0</span> ) <span class="k">as</span> r.
+  { <span class="nb">rewrite</span> &lt;- ( hzrminus n ).
+    <span class="nb">change</span> ( n - n ) <span class="k">with</span> ( n + - n ).
+    <span class="nb">apply</span> hzlthandplusl.
+    <span class="nb">apply</span> ( istranshzlth _ <span class="mi">0</span> _ ).
+    - <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> hzlth0andminus.
+      <span class="bp">assumption</span>.
+  }
+  <span class="nb">apply</span> ( invmaponpathsincl _ isinclnattohz ).
+  <span class="nb">rewrite</span> nattohzandplus.
+  <span class="nb">rewrite</span> hzabsvallth0.
+  - <span class="nb">rewrite</span> hzabsvallth0.
+    + <span class="nb">rewrite</span> hzabsvallth0.
+      * <span class="nb">rewrite</span> hzaddinvplus. <span class="nb">apply</span> idpath.
+      * <span class="bp">assumption</span>.
+    + <span class="bp">assumption</span>.
+  - <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzabsvalandnattohz</span> ( <span class="nv">n</span> : nat ) : hzabsval ( nattohz n ) = n.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n.
+  - <span class="nb">rewrite</span> nattohzand0.
+    <span class="nb">rewrite</span> hzabsval0.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> nattohzandS.
+    <span class="nb">rewrite</span> hzabsvalandplusnonneg.
+    + <span class="nb">rewrite</span> hzabsvaland1. <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths. <span class="bp">assumption</span>.
+    + <span class="nb">rewrite</span> &lt;- (hzplusl0 <span class="mi">1</span>).
+      <span class="nb">apply</span> hzlthtoleh.
+      <span class="nb">apply</span> ( hzlthnsn <span class="mi">0</span> ).
+    + <span class="nb">rewrite</span> &lt;- nattohzand0.
+      <span class="nb">apply</span> nattohzandleh. <span class="nb">apply</span> natleh0n.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzabsvalandlth</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) ( <span class="nv">p</span> : hzleh <span class="mi">0</span> n ) ( <span class="nv">p'</span> : hzlth n m ) :
+  natlth ( hzabsval n ) ( hzabsval m ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">destruct</span> ( natlthorgeh ( hzabsval n ) ( hzabsval m ) ) <span class="k">as</span> [ h | k ].
+  - <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> fromempty.
+    <span class="nb">apply</span> ( isirreflhzlth m ).
+    <span class="nb">apply</span> ( hzlehlthtrans _ n _ ).
+    + <span class="nb">rewrite</span> &lt;- ( hzabsvalgeh0 ).
+      * <span class="nb">rewrite</span> &lt;- ( hzabsvalgeh0 p ).
+        <span class="nb">apply</span> nattohzandleh.
+        <span class="nb">apply</span> k.
+      * <span class="nb">apply</span> hzgthtogeh.
+        <span class="nb">apply</span> ( hzgthgehtrans _ n _ ); <span class="bp">assumption</span>.
+    + <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nattohzandlthinv</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) ( <span class="nv">p</span> : hzlth ( nattohz n ) (nattohz m ) ) :
+  natlth n m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">rewrite</span> &lt;- ( hzabsvalandnattohz n ).
+  <span class="nb">rewrite</span> &lt;- ( hzabsvalandnattohz m ).
+  <span class="nb">apply</span> hzabsvalandlth.
+  - <span class="nb">change</span> <span class="mi">0</span> <span class="k">with</span> ( nattohz <span class="mi">0</span>%nat ).
+    <span class="nb">apply</span> nattohzandleh.
+    <span class="nb">apply</span> natleh0n .
+  - <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Close Scope</span> hz_scope.
+
+<span class="sd">(** * IV. Generalities on apartness relations *)</span>
+
+<span class="kn">Definition</span> <span class="nf">iscomparel</span> { <span class="nv">X</span> : UU } ( <span class="nv">R</span> : hrel X ) :=
+  <span class="k">forall</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : X, R x y -&gt; R x z ⨿ R z y.
+
+<span class="kn">Definition</span> <span class="nf">isapart</span> { <span class="nv">X</span> : UU } ( <span class="nv">R</span> : hrel X ) :=
+  isirrefl R × ( issymm R × iscotrans R ).
+
+<span class="kn">Definition</span> <span class="nf">istightapart</span> { <span class="nv">X</span> : UU } ( <span class="nv">R</span> : hrel X ) :=
+  isapart R × <span class="k">forall</span> <span class="nv">x</span> <span class="nv">y</span> : X, neg ( R x y ) -&gt; x = y.
+
+<span class="kn">Definition</span> <span class="nf">apart</span> ( <span class="nv">X</span> : hSet ) := ∑ R : hrel X, isapart R.
+
+<span class="kn">Definition</span> <span class="nf">isbinopapartl</span> { <span class="nv">X</span> : hSet } ( <span class="nv">R</span> : apart X ) ( <span class="nv">opp</span> : binop X ) :=
+  <span class="k">forall</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : X, ( pr1 R ( opp a b ) ( opp a c ) ) -&gt; pr1 R b c.
+
+<span class="kn">Definition</span> <span class="nf">isbinopapartr</span> { <span class="nv">X</span> : hSet } ( <span class="nv">R</span> : apart X ) ( <span class="nv">opp</span> : binop X ) :=
+  <span class="k">forall</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : X, pr1 R ( opp b a ) ( opp c a ) -&gt; pr1 R b c.
+
+<span class="kn">Definition</span> <span class="nf">isbinopapart</span> { <span class="nv">X</span> : hSet } ( <span class="nv">R</span> : apart X ) ( <span class="nv">opp</span> : binop X ) :=
+  isbinopapartl R opp × isbinopapartr R opp.
+
+<span class="kn">Lemma</span> <span class="nf">deceqtoneqapart</span> { <span class="nv">X</span> : UU } ( <span class="nv">isc</span> : isdeceq X ) : isapart ( neq X ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">split</span>.
+  - <span class="nb">intros</span> a p. <span class="nb">simpl</span> <span class="k">in</span> p. <span class="nb">apply</span> p. <span class="nb">apply</span> idpath.
+  - <span class="nb">split</span>.
+    + <span class="nb">intros</span> a b p q.
+      <span class="nb">simpl</span> <span class="k">in</span> p. <span class="nb">apply</span> p.
+      <span class="nb">apply</span> pathsinv0. <span class="bp">assumption</span>.
+    + <span class="nb">intros</span> a c b p P s.
+      <span class="nb">apply</span> s. <span class="nb">destruct</span> ( isc a c ) <span class="k">as</span> [ l | r ].
+      * <span class="nb">apply</span> ii2. <span class="nb">rewrite</span> &lt;- l. <span class="bp">assumption</span>.
+      * <span class="nb">apply</span> ii1. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isapartdec</span> { <span class="nv">X</span> : hSet } ( <span class="nv">R</span> : apart X ) :=
+  <span class="k">forall</span> <span class="nv">a</span> <span class="nv">b</span> : X, pr1 R a b  ⨿ ( a = b ).
+
+<span class="kn">Lemma</span> <span class="nf">isapartdectodeceq</span> { <span class="nv">X</span> : hSet } ( <span class="nv">R</span> : apart X ) ( <span class="nv">isc</span> : isapartdec R ) :
+  isdeceq X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> y z. <span class="nb">destruct</span> ( isc y z ) <span class="k">as</span> [ l | r ].
+  - <span class="nb">apply</span> ii2. <span class="nb">intros</span> f. <span class="nb">apply</span> ( pr1 ( pr2 R ) z).
+    <span class="nb">rewrite</span> f <span class="k">in</span> l. <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> ii1. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isdeceqtoisapartdec</span> ( <span class="nv">X</span> : hSet ) ( <span class="nv">isc</span> : isdeceq X ) :
+  isapartdec ( tpair _ ( deceqtoneqapart isc ) ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b. <span class="nb">destruct</span> ( isc a b ) <span class="k">as</span> [ l | r ].
+  - <span class="nb">apply</span> ii2. <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> ii1. <span class="nb">intros</span> f. <span class="nb">apply</span> r. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * V. Apartness relations on rings *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> ring_scope.
+
+<span class="kn">Definition</span> <span class="nf">acommring</span> := ∑ (X : commring) (R : apart X),
+  isbinopapart R ( @op1 X ) × isbinopapart R ( @op2 X ).
+
+<span class="kn">Definition</span> <span class="nf">make_acommring</span> := tpair ( P := <span class="k">fun</span> <span class="nv">X</span> : commring =&gt;
+  ∑ R : apart X, isbinopapart R ( @op1 X ) × isbinopapart R ( @op2 X ) ).
+<span class="kn">Definition</span> <span class="nf">acommringconstr</span> := make_acommring.
+
+<span class="kn">Definition</span> <span class="nf">acommringtocommring</span> : acommring -&gt; commring := @pr1 _ _.
+<span class="kn">Coercion</span> <span class="nf">acommringtocommring</span> : acommring &gt;-&gt; commring.
+
+<span class="kn">Definition</span> <span class="nf">acommringapartrel</span> ( <span class="nv">X</span> : acommring ) : hrel (pr1 X) :=
+  pr1 ( pr1 ( pr2 X ) ).
+
+<span class="kn">Notation</span> <span class="s2">" a # b "</span> := ( acommringapartrel _ a b )  <span class="c">(* ( at level 50 ) *)</span> :
+ring_scope.
+
+<span class="kn">Definition</span> <span class="nf">acommring_aadd</span> ( <span class="nv">X</span> : acommring ) : isbinopapart ( pr1 ( pr2 X ) ) op1 :=
+  pr1 ( pr2 ( pr2 X ) ).
+
+<span class="kn">Definition</span> <span class="nf">acommring_amult</span> ( <span class="nv">X</span> : acommring ) : isbinopapart ( pr1 ( pr2 X ) ) op2 :=
+  pr2 ( pr2 ( pr2 X ) ).
+
+<span class="kn">Definition</span> <span class="nf">acommring_airrefl</span> ( <span class="nv">X</span> : acommring ) : isirrefl ( pr1 ( pr1 ( pr2 X ) ) ) :=
+  pr1 ( pr2 ( pr1 ( pr2 X ) ) ).
+
+<span class="kn">Definition</span> <span class="nf">acommring_asymm</span> ( <span class="nv">X</span> : acommring ) : issymm ( pr1 ( pr1 ( pr2 X ) ) ) :=
+  pr1 ( pr2 ( pr2 ( pr1 ( pr2 X ) ) ) ).
+
+<span class="kn">Definition</span> <span class="nf">acommring_acotrans</span> ( <span class="nv">X</span> : acommring ) : iscotrans ( pr1 ( pr1 ( pr2 X ) ) ) :=
+  pr2 ( pr2 ( pr2 ( pr1 ( pr2 X ) ) ) ).
+
+<span class="kn">Definition</span> <span class="nf">aintdom</span> := ∑ A : acommring,
+  ( ringunel2 ( X := A ) ) # <span class="mi">0</span> ×
+  <span class="k">forall</span> <span class="nv">a</span> <span class="nv">b</span> : A, a # <span class="mi">0</span> -&gt; b # <span class="mi">0</span> -&gt; ( a * b ) # <span class="mi">0</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_aintdom</span> := tpair ( P := <span class="k">fun</span> <span class="nv">A</span> : acommring =&gt;
+  ( ringunel2 ( X := A ) ) # <span class="mi">0</span> ×
+  <span class="k">forall</span> <span class="nv">a</span> <span class="nv">b</span> : A, a # <span class="mi">0</span> -&gt; b # <span class="mi">0</span> -&gt; ( a * b ) # <span class="mi">0</span> ).
+<span class="kn">Definition</span> <span class="nf">aintdomconstr</span> := make_aintdom.
+
+<span class="kn">Definition</span> <span class="nf">pr1aintdom</span> : aintdom -&gt; acommring := @pr1 _ _.
+<span class="kn">Coercion</span> <span class="nf">pr1aintdom</span> : aintdom &gt;-&gt; acommring.
+
+<span class="kn">Definition</span> <span class="nf">aintdomazerosubmonoid</span> ( <span class="nv">A</span> : aintdom ) : @subabmonoid ( ringmultabmonoid A ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">split with</span> ( <span class="k">fun</span> <span class="nv">x</span> : A =&gt; x # <span class="mi">0</span> ).
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> a b. <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">apply</span> (pr2 (pr2 A)).
+    + <span class="nb">simpl</span> <span class="k">in</span> a. <span class="nb">apply</span> (pr2 a).
+    + <span class="nb">apply</span> (pr2 b).
+  - <span class="nb">apply</span> (pr2 A).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaafield</span> ( <span class="nv">A</span> : acommring ) :=
+  ( ringunel2 ( X := A ) ) # <span class="mi">0</span> ×
+  <span class="k">forall</span> <span class="nv">x</span> : A, x # <span class="mi">0</span> -&gt; multinvpair A x.
+
+<span class="kn">Definition</span> <span class="nf">afld</span> := ∑ A : acommring, isaafield A.
+<span class="kn">Definition</span> <span class="nf">make_afld</span> ( <span class="nv">A</span> : acommring ) ( <span class="nv">isc</span> : isaafield A ) : afld := tpair A isc .
+<span class="kn">Definition</span> <span class="nf">pr1afld</span> : afld -&gt; acommring := @pr1 _ _ .
+<span class="kn">Coercion</span> <span class="nf">pr1afld</span> : afld &gt;-&gt; acommring.
+
+<span class="kn">Lemma</span> <span class="nf">afldinvertibletoazero</span> ( <span class="nv">A</span> : afld ) ( <span class="nv">a</span> : A ) ( <span class="nv">p</span> : multinvpair A a ) : a # <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> p <span class="k">as</span> [ a' p ].
+  <span class="nb">assert</span> ( a' * a # <span class="mi">0</span> ) <span class="k">as</span> q.
+  { <span class="nb">change</span> ( a' * a # <span class="mi">0</span> ).
+    <span class="nb">assert</span> ( a' * a = a * a' ) <span class="k">as</span> f <span class="bp">by</span> <span class="nb">apply</span> ( ringcomm2 A ).
+    <span class="nb">assert</span> ( a * a' = <span class="mi">1</span> ) <span class="k">as</span> g <span class="bp">by</span> <span class="nb">apply</span> (pr2 p).
+    <span class="nb">rewrite</span> f, g.
+    <span class="nb">apply</span> (pr2 A).
+  }
+  <span class="nb">assert</span> ( a' * a # a' * ( ringunel1 ( X := A ) ) ) <span class="k">as</span> q'.
+  { <span class="nb">assert</span> ( ringunel1 ( X := A ) = a' * ( ringunel1 ( X := A ) ) ) <span class="k">as</span> f.
+    { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> ( ringmultx0 A ). }
+    <span class="nb">rewrite</span> &lt;- f. <span class="bp">assumption</span>.
+  }
+  <span class="nb">apply</span> ( pr1 ( acommring_amult A ) a' ).
+  <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">afldtoaintdom</span> ( <span class="nv">A</span> : afld ) : aintdom .
+<span class="kn">Proof</span>.
+  <span class="nb">split with</span> ( pr1 A ). <span class="nb">split</span>.
+  - <span class="nb">apply</span> (pr2 A).
+  - <span class="nb">intros</span> a b p q.
+    <span class="nb">apply</span> afldinvertibletoazero.
+    <span class="nb">apply</span> multinvmultstable.
+    + <span class="nb">apply</span> (pr2 (pr2 A)). <span class="bp">assumption</span>.
+    + <span class="nb">apply</span> (pr2 (pr2 A)). <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">timesazero</span> { <span class="nv">A</span> : acommring } { <span class="nv">a</span> <span class="nv">b</span> : A } ( <span class="nv">p</span> : a * b # <span class="mi">0</span> ) :
+  a # <span class="mi">0</span> × b # <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">split</span>.
+  - <span class="nb">assert</span> ( a * b # <span class="mi">0</span> * b ) <span class="k">as</span> h.
+    { <span class="nb">rewrite</span> ( ringmult0x A ). <span class="bp">assumption</span>. }
+    <span class="nb">apply</span> ( pr2 ( acommring_amult A ) b ). <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> ( pr1 ( acommring_amult A ) a ).
+    <span class="nb">rewrite</span> ( ringmultx0 A ). <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">aaminuszero</span> { <span class="nv">A</span> : acommring } { <span class="nv">a</span> <span class="nv">b</span> : A } ( <span class="nv">p</span> : a # b ) : ( a - b ) # <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">rewrite</span> &lt;- ( ringrunax1 A a ) <span class="k">in</span> p.
+  <span class="nb">rewrite</span> &lt;- ( ringrunax1 A b ) <span class="k">in</span> p.
+  <span class="nb">assert</span> ( a + <span class="mi">0</span> = a + ( b - b ) ) <span class="k">as</span> f.
+  { <span class="nb">rewrite</span> &lt;- ( ringrinvax1 A b ). <span class="nb">apply</span> idpath. }
+  <span class="nb">rewrite</span> f <span class="k">in</span> p.
+  <span class="nb">rewrite</span> &lt;- ( ringmultwithminus1 A ) <span class="k">in</span> p.
+  <span class="nb">rewrite</span> &lt;- ( ringassoc1 A) <span class="k">in</span> p.
+  <span class="nb">rewrite</span> ( ringcomm1 A a ) <span class="k">in</span> p.
+  <span class="nb">rewrite</span> ( ringassoc1 A b ) <span class="k">in</span> p.
+  <span class="nb">rewrite</span> ( ringmultwithminus1 A ) <span class="k">in</span> p.
+  <span class="nb">apply</span> ( pr1 ( acommring_aadd A ) b ( a - b ) <span class="mi">0</span> ).
+  <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">aminuszeroa</span> { <span class="nv">A</span> : acommring } { <span class="nv">a</span> <span class="nv">b</span> : A } ( <span class="nv">p</span> : ( a - b ) # <span class="mi">0</span> ) : a # b.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">change</span> <span class="mi">0</span> <span class="k">with</span> ( @ringunel1 A ) <span class="k">in</span> p.
+  <span class="nb">rewrite</span> &lt;- ( ringrinvax1 A b ) <span class="k">in</span> p.
+  <span class="nb">rewrite</span> &lt;- ( ringmultwithminus1 A ) <span class="k">in</span> p.
+  <span class="nb">apply</span> ( pr2 ( acommring_aadd A ) ( -<span class="mi">1</span> * b ) a b ).
+  <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Close Scope</span> ring_scope.
+
+<span class="sd">(** * VI. Lemmas on logic *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">horelim</span> ( <span class="nv">A</span> <span class="nv">B</span> : UU ) ( <span class="nv">P</span> : hProp ) :
+  ( ishinh_UU A -&gt; P ) × ( ishinh_UU B -&gt; P ) -&gt; A ∨ B -&gt; P.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> p q. <span class="nb">simpl</span> <span class="k">in</span> q. <span class="nb">apply</span> q.
+  <span class="nb">intro</span> u. <span class="nb">destruct</span> u <span class="k">as</span> [ u | v ].
+  - <span class="nb">apply</span> ( pr1 p ). <span class="nb">intro</span> Q. <span class="nb">intro</span> H. <span class="nb">apply</span> H. <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> ( pr2 p ). <span class="nb">intro</span> Q. <span class="nb">intro</span> H. <span class="nb">apply</span> H. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">stronginduction</span> { <span class="nv">E</span> : nat -&gt; UU } ( <span class="nv">p</span> : E <span class="mi">0</span>%nat )
+  ( <span class="nv">q</span> : <span class="k">forall</span> <span class="nv">n</span> : nat, natneq n <span class="mi">0</span>%nat -&gt; ( <span class="k">forall</span> <span class="nv">m</span> : nat, natlth m n -&gt; E m ) -&gt; E n ) :
+  <span class="k">forall</span> <span class="nv">n</span> : nat, E n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> n.
+  - <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> q.
+    + <span class="nb">split</span>.
+    + <span class="nb">induction</span> n.
+      * <span class="nb">intros</span> m t.
+        <span class="nb">rewrite</span> ( natlth1tois0 m t ). <span class="bp">assumption</span>.
+      * <span class="nb">intros</span> m t.
+        <span class="nb">destruct</span> ( natlehchoice _ _ ( natlthsntoleh _ _ t ) ) <span class="k">as</span> [ <span class="nb">left</span> | <span class="nb">right</span> ].
+        -- <span class="nb">apply</span> IHn. <span class="bp">assumption</span>.
+        -- <span class="nb">apply</span> q.
+           ++ <span class="nb">rewrite</span> <span class="nb">right</span>. <span class="nb">split</span>.
+           ++ <span class="nb">intros</span> k s. <span class="nb">rewrite</span> <span class="nb">right</span> <span class="k">in</span> s. <span class="nb">apply</span> ( IHn k ). <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="c">(* Some lemmas on decidable properties of natural numbers. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isdecnatprop</span> ( <span class="nv">P</span> : nat -&gt; hProp ) :=
+  <span class="k">forall</span> <span class="nv">m</span> : nat, P m ⨿ neg ( P m ).
+
+<span class="kn">Lemma</span> <span class="nf">negisdecnatprop</span> ( <span class="nv">P</span> : nat -&gt; hProp ) ( <span class="nv">isc</span> : isdecnatprop P ) :
+  isdecnatprop ( <span class="k">fun</span> <span class="nv">n</span> : nat =&gt; hneg ( P n ) ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> n. <span class="nb">destruct</span> ( isc n ) <span class="k">as</span> [ l | r ].
+  - <span class="nb">apply</span> ii2. <span class="nb">intro</span> j.
+    <span class="nb">assert</span> hfalse <span class="k">as</span> x.
+    { <span class="nb">simpl</span> <span class="k">in</span> j. <span class="nb">apply</span> j. <span class="bp">assumption</span>. }
+    <span class="nb">apply</span> x.
+  - <span class="nb">apply</span> ii1. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">bndexistsisdecnatprop</span> ( <span class="nv">P</span> : nat -&gt; hProp ) ( <span class="nv">isc</span> : isdecnatprop P ) :
+  isdecnatprop ( <span class="k">fun</span> <span class="nv">n</span> : nat =&gt; <span class="k">∃</span> <span class="nv">m</span> : nat, natleh m n × P m ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> n. <span class="nb">induction</span> n.
+  - <span class="nb">destruct</span> ( isc <span class="mi">0</span>%nat ) <span class="k">as</span> [ l | r ].
+    + <span class="nb">apply</span> ii1. <span class="nb">apply</span> total2tohexists.
+      <span class="nb">split with</span> <span class="mi">0</span>%nat. <span class="nb">split</span>.
+      * <span class="nb">apply</span> isreflnatleh.
+      * <span class="bp">assumption</span>.
+    + <span class="nb">apply</span> ii2. <span class="nb">intro</span> j.
+      <span class="nb">assert</span> hfalse <span class="k">as</span> x.
+      { <span class="nb">simpl</span> <span class="k">in</span> j. <span class="nb">apply</span> j. <span class="nb">intro</span> m.
+        <span class="nb">destruct</span> m <span class="k">as</span> [ m m' ].
+        <span class="nb">apply</span> r.
+        <span class="nb">change</span> ( natleh m <span class="mi">0</span> × P m ) <span class="k">in</span> m'.
+        <span class="nb">rewrite</span> ( natleh0tois0 ( pr1 m' ) ) <span class="k">in</span> m'.
+        <span class="nb">apply</span> (pr2 m').
+      }
+      <span class="nb">apply</span> x.
+  - <span class="nb">destruct</span> ( isc ( S n ) ) <span class="k">as</span> [ l | r ].
+    + <span class="nb">apply</span> ii1.
+      <span class="nb">apply</span> total2tohexists.
+      <span class="nb">split with</span> ( S n ).
+      <span class="nb">split</span>.
+      * <span class="nb">apply</span> ( isreflnatleh ( S n ) ).
+      * <span class="bp">assumption</span>.
+    + <span class="nb">destruct</span> IHn <span class="k">as</span> [ l' | r' ].
+      * <span class="nb">apply</span> ii1.
+        use (hinhuniv _ l').
+        <span class="nb">intro</span> m.
+        <span class="nb">destruct</span> m <span class="k">as</span> [ m m' ].
+        <span class="nb">apply</span> total2tohexists.
+        <span class="nb">split with</span> m. <span class="nb">split</span>.
+        -- <span class="nb">apply</span> ( istransnatleh(m := n) ).
+           ++ <span class="nb">apply</span> m'.
+           ++ <span class="nb">apply</span> natlthtoleh. <span class="nb">apply</span> natlthnsn.
+        -- <span class="nb">apply</span> (pr2 m').
+      * <span class="nb">apply</span> ii2. <span class="nb">intro</span> j.
+        <span class="nb">apply</span> r'.
+        use (hinhuniv _ j).
+        <span class="nb">intro</span> m. <span class="nb">destruct</span> m <span class="k">as</span> [ m m' ].
+        -- <span class="nb">apply</span> total2tohexists. <span class="nb">split with</span> m.
+           <span class="nb">split</span>.
+           ++ <span class="nb">destruct</span> ( natlehchoice m ( S n ) ( pr1 m' ) ) <span class="k">as</span> [ h | p ].
+              ** <span class="nb">apply</span> natlthsntoleh. <span class="bp">assumption</span>.
+              ** <span class="nb">apply</span> fromempty.
+                 <span class="nb">apply</span> r.
+                 <span class="nb">rewrite</span> &lt;- p.
+                 <span class="nb">apply</span> (pr2 m').
+           ++ <span class="nb">apply</span> (pr2 m').
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isdecisbndqdec</span> ( <span class="nv">P</span> : nat -&gt; hProp ) ( <span class="nv">isc</span> : isdecnatprop P ) ( <span class="nv">n</span> : nat ) :
+  ( <span class="k">forall</span> <span class="nv">m</span> : nat, natleh m n -&gt; P m ) ⨿ <span class="k">∃</span> <span class="nv">m</span> : nat, natleh m n × neg ( P m ).
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> ( bndexistsisdecnatprop _ ( negisdecnatprop P isc ) n ) <span class="k">as</span> [ l | r ].
+  - <span class="nb">apply</span> ii2. <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> ii1. <span class="nb">intros</span> m j.
+    <span class="nb">destruct</span> ( isc m ) <span class="k">as</span> [ l' | r' ].
+    + <span class="bp">assumption</span>.
+    + <span class="nb">apply</span> fromempty.
+      <span class="nb">apply</span> r. <span class="nb">apply</span> total2tohexists.
+      <span class="nb">split with</span> m.
+      <span class="nb">split</span>; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">leastelementprinciple</span> ( <span class="nv">n</span> : nat ) ( <span class="nv">P</span> : nat -&gt; hProp )
+      ( <span class="nv">isc</span> : isdecnatprop P ) : P n -&gt;
+      <span class="k">∃</span> <span class="nv">k</span> : nat, P k × <span class="k">forall</span> <span class="nv">m</span> : nat, natlth m k -&gt; neg ( P m ).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> P isc. <span class="nb">induction</span> n.
+  - <span class="nb">intros</span> P isc u.
+    <span class="nb">apply</span> total2tohexists.
+    <span class="nb">split with</span> <span class="mi">0</span>%nat. <span class="nb">split</span>.
+    + <span class="bp">assumption</span>.
+    + <span class="nb">intros</span> m i.
+      <span class="nb">apply</span> fromempty.
+      <span class="nb">apply</span> ( negnatgth0n m i ).
+  - <span class="nb">intros</span> P isc u.
+    <span class="nb">destruct</span> ( isc <span class="mi">0</span>%nat ) <span class="k">as</span> [ l | r ].
+    + <span class="nb">apply</span> total2tohexists. <span class="nb">split with</span> <span class="mi">0</span>%nat. <span class="nb">split</span>.
+      * <span class="bp">assumption</span>.
+      * <span class="nb">intros</span> m i.
+        <span class="nb">apply</span> fromempty.
+        <span class="nb">apply</span> ( negnatgth0n m i ).
+    + <span class="nb">set</span> ( P' := <span class="k">fun</span> <span class="nv">m</span> : nat =&gt; P ( S m ) ).
+      <span class="nb">assert</span> ( <span class="k">forall</span> <span class="nv">m</span> : nat, P' m ⨿ neg ( P' m ) ) <span class="k">as</span> is'.
+      { <span class="nb">intros</span> m. <span class="nb">unfold</span> P'. <span class="nb">apply</span> ( isc ( S m ) ). }
+      <span class="nb">set</span> ( c := IHn P' is' u ).
+      use (hinhuniv _ c).
+      <span class="nb">intros</span> k.
+      <span class="nb">destruct</span> k <span class="k">as</span> [ k v ]. <span class="nb">destruct</span> v <span class="k">as</span> [ v0 v1 ].
+      <span class="nb">apply</span> total2tohexists. <span class="nb">split with</span> ( S k ). <span class="nb">split</span>.
+      * <span class="bp">assumption</span>.
+      * <span class="nb">intros</span> m. <span class="nb">destruct</span> m.
+        -- <span class="nb">intros</span> i. <span class="bp">assumption</span>.
+        -- <span class="nb">intros</span> i. <span class="nb">apply</span> v1. <span class="nb">apply</span> i.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** END OF FILE *)</span></span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/PAdics/lemmas.v</tt>, line 10)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Tactics/EnsureStructuredProofs.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; (** Imports *)
+  &gt; &gt;&gt;&gt;Require Export UniMath.Tactics.EnsureStructuredProofs.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.Foundations.PartA.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

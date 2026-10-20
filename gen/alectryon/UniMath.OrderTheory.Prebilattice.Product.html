@@ -1,0 +1,524 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Product.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Product pre-bilattice *)</span>
+<span class="sd">(** Georgios V. Pitsiladis, Aug. 2024 - *)</span>
+
+<span class="sd">(**</span>
+<span class="sd">  Given two lattices, it is possible to (uniquely)</span>
+<span class="sd">  construct a product pre-bilattice.</span>
+
+<span class="sd">  Product pre-bilattices are always interlaced.</span>
+<span class="sd">  The opposite is called the 'representation theorem'.</span>
+<span class="sd">**)</span>
+<span class="kn">Require Import</span> UniMath.OrderTheory.Prebilattice.Prebilattice.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Prebilattice.Interlaced.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Prebilattice.PrebilatticeDisplayedCat.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Equivalences.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Lattice.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Bounded.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+
+<span class="kn">Section</span> <span class="nf">definition</span> .
+  <span class="kn">Definition</span> <span class="nf">prod_prebilattice_carrier</span> (<span class="nv">X1</span> <span class="nv">X2</span> : hSet) := setdirprod X1 X2 .
+
+  <span class="kn">Definition</span> <span class="nf">prod_prebilattice_meet</span> {<span class="nv">X1</span> <span class="nv">X2</span> : hSet} (<span class="nv">l1</span> : lattice X1) (<span class="nv">l2</span> : lattice X2) : binop (prod_prebilattice_carrier X1 X2) :=
+    <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, (((Lmin l1) (pr1 x) (pr1 y)),, (Lmax l2) (pr2 x) (pr2 y)) .
+  <span class="kn">Definition</span> <span class="nf">prod_prebilattice_join</span>  {<span class="nv">X1</span> <span class="nv">X2</span> : hSet} (<span class="nv">l1</span> : lattice X1) (<span class="nv">l2</span> : lattice X2) : binop (prod_prebilattice_carrier X1 X2) :=
+    <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, (((Lmax l1) (pr1 x) (pr1 y)),, (Lmin l2) (pr2 x) (pr2 y)) .
+  <span class="kn">Definition</span> <span class="nf">prod_prebilattice_consensus</span>  {<span class="nv">X1</span> <span class="nv">X2</span> : hSet} (<span class="nv">l1</span> : lattice X1) (<span class="nv">l2</span> : lattice X2) : binop (prod_prebilattice_carrier X1 X2) :=
+    <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, (((Lmin l1) (pr1 x) (pr1 y)),, (Lmin l2) (pr2 x) (pr2 y)) .
+  <span class="kn">Definition</span> <span class="nf">prod_prebilattice_gullibility</span>  {<span class="nv">X1</span> <span class="nv">X2</span> : hSet} (<span class="nv">l1</span> : lattice X1) (<span class="nv">l2</span> : lattice X2) : binop (prod_prebilattice_carrier X1 X2) :=
+    <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, (((Lmax l1) (pr1 x) (pr1 y)),, (Lmax l2) (pr2 x) (pr2 y)) .
+
+  <span class="kn">Definition</span> <span class="nf">prod_prebilattice</span> (<span class="nv">X1</span> <span class="nv">X2</span> : hSet) (<span class="nv">l1</span> : lattice X1) (<span class="nv">l2</span> : lattice X2) := (islatticeop (prod_prebilattice_meet l1 l2) (prod_prebilattice_join l1 l2)) × (islatticeop (prod_prebilattice_consensus l1 l2) (prod_prebilattice_gullibility l1 l2)).
+
+  <span class="kn">Definition</span> <span class="nf">islatticeop_prod_t</span> {<span class="nv">X1</span> <span class="nv">X2</span> : hSet} (<span class="nv">l1</span> : lattice X1) (<span class="nv">l2</span> : lattice X2) : islatticeop (prod_prebilattice_meet l1 l2) (prod_prebilattice_join l1 l2) .
+  <span class="kn">Proof</span> .
+    <span class="kp">do</span> <span class="mi">4</span> (<span class="kp">try</span> use make_dirprod).
+    - <span class="nb">intros</span> a b c; <span class="nb">induction</span> a, b, c. use dirprod_paths; [use isassoc_Lmin | use isassoc_Lmax].
+    - <span class="nb">intros</span> a b; <span class="nb">induction</span> a, b. use dirprod_paths; [use iscomm_Lmin | use iscomm_Lmax] .
+    - <span class="nb">intros</span> a b c; <span class="nb">induction</span> a, b, c. use dirprod_paths; [use isassoc_Lmax | use isassoc_Lmin] .
+    - <span class="nb">intros</span> a b; <span class="nb">induction</span> a, b. use dirprod_paths; [use iscomm_Lmax | use iscomm_Lmin ].
+    - <span class="nb">intros</span> a b; <span class="nb">induction</span> a, b. use dirprod_paths; [use Lmin_absorb | use Lmax_absorb ].
+    - <span class="nb">intros</span> a b; <span class="nb">induction</span> a, b. use dirprod_paths; [use Lmax_absorb | use Lmin_absorb] .
+  <span class="kn">Defined</span> .
+
+  <span class="kn">Definition</span> <span class="nf">islatticeop_prod_k</span> {<span class="nv">X1</span> <span class="nv">X2</span> : hSet} (<span class="nv">l1</span> : lattice X1) (<span class="nv">l2</span> : lattice X2) : islatticeop (prod_prebilattice_consensus l1 l2) (prod_prebilattice_gullibility l1 l2) .
+  <span class="kn">Proof</span> .
+    <span class="kp">do</span> <span class="mi">4</span> (<span class="kp">try</span> use make_dirprod).
+    - <span class="nb">intros</span> a b c; <span class="nb">induction</span> a, b, c. use dirprod_paths; use isassoc_Lmin.
+    - <span class="nb">intros</span> a b; <span class="nb">induction</span> a, b. use dirprod_paths; use iscomm_Lmin.
+    - <span class="nb">intros</span> a b c; <span class="nb">induction</span> a, b, c. use dirprod_paths; use isassoc_Lmax .
+    - <span class="nb">intros</span> a b; <span class="nb">induction</span> a, b. use dirprod_paths; use iscomm_Lmax .
+    - <span class="nb">intros</span> a b; <span class="nb">induction</span> a, b. use dirprod_paths; use Lmin_absorb .
+    - <span class="nb">intros</span> a b; <span class="nb">induction</span> a, b. use dirprod_paths; use Lmax_absorb .
+  <span class="kn">Defined</span> .
+
+  <span class="kn">Definition</span> <span class="nf">make_prod_prebilattice</span> {<span class="nv">X1</span> <span class="nv">X2</span> : hSet} (<span class="nv">l1</span> : lattice X1) (<span class="nv">l2</span> : lattice X2) : prod_prebilattice X1 X2 l1 l2 :=
+    islatticeop_prod_t l1 l2,,islatticeop_prod_k l1 l2.
+
+  <span class="kn">Lemma</span> <span class="nf">iscontr_prod_prebilattice</span> {<span class="nv">X1</span> <span class="nv">X2</span> : hSet} (<span class="nv">l1</span> : lattice X1) (<span class="nv">l2</span> : lattice X2) : iscontr (prod_prebilattice X1 X2 l1 l2).
+  <span class="kn">Proof</span>.
+    use iscontraprop1.
+    - use isapropdirprod; use isaprop_islatticeop.
+    - <span class="bp">exact</span> (make_prod_prebilattice l1 l2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_prebilattice_to_prebilattice</span> {<span class="nv">X1</span> <span class="nv">X2</span> : hSet} {<span class="nv">l1</span> : lattice X1} {<span class="nv">l2</span> : lattice X2} (<span class="nv">b</span> : prod_prebilattice X1 X2 l1 l2) : prebilattice (prod_prebilattice_carrier X1 X2) :=  make_prebilattice (make_lattice (pr1 b)) (make_lattice (pr2 b)) .
+
+  <span class="kn">Coercion</span> <span class="nf">prod_prebilattice_to_prebilattice</span> : prod_prebilattice &gt;-&gt; prebilattice .
+<span class="kn">End</span> <span class="nf">definition</span> .
+
+<span class="kn">Section</span> <span class="nf">bounded</span>.
+  <span class="kn">Definition</span> <span class="nf">prod_prebilattice_false</span> {<span class="nv">X1</span> <span class="nv">X2</span> : hSet} (<span class="nv">bl1</span> : bounded_lattice X1) (<span class="nv">bl2</span> : bounded_lattice X2) : (prod_prebilattice_carrier X1 X2) :=
+    Lbot bl1,, Ltop bl2 .
+  <span class="kn">Definition</span> <span class="nf">prod_prebilattice_true</span>  {<span class="nv">X1</span> <span class="nv">X2</span> : hSet} (<span class="nv">bl1</span> : bounded_lattice X1) (<span class="nv">bl2</span> : bounded_lattice X2) : (prod_prebilattice_carrier X1 X2) :=
+    Ltop bl1,, Lbot bl2 .
+  <span class="kn">Definition</span> <span class="nf">prod_prebilattice_bottom</span> {<span class="nv">X1</span> <span class="nv">X2</span> : hSet} (<span class="nv">bl1</span> : bounded_lattice X1) (<span class="nv">bl2</span> : bounded_lattice X2) : (prod_prebilattice_carrier X1 X2):=
+    Lbot bl1,, Lbot bl2 .
+  <span class="kn">Definition</span> <span class="nf">prod_prebilattice_top</span> {<span class="nv">X1</span> <span class="nv">X2</span> : hSet} (<span class="nv">bl1</span> : bounded_lattice X1) (<span class="nv">bl2</span> : bounded_lattice X2) : (prod_prebilattice_carrier X1 X2) :=  Ltop bl1,, Ltop bl2.
+
+  <span class="kn">Definition</span> <span class="nf">bounded_prod_prebilattice</span> (<span class="nv">X1</span> <span class="nv">X2</span> : hSet) (<span class="nv">bl1</span> : bounded_lattice X1) (<span class="nv">bl2</span> : bounded_lattice X2) :=
+    bounded_latticeop (make_lattice (islatticeop_prod_t bl1 bl2)) (prod_prebilattice_false bl1 bl2) (prod_prebilattice_true bl1 bl2)
+                      × bounded_latticeop (make_lattice (islatticeop_prod_k bl1 bl2)) (prod_prebilattice_bottom bl1 bl2) (prod_prebilattice_top bl1 bl2).
+
+  <span class="kn">Definition</span> <span class="nf">bounded_islatticeop_prod_t</span>  {<span class="nv">X1</span> <span class="nv">X2</span> : hSet} (<span class="nv">bl1</span> : bounded_lattice X1) (<span class="nv">bl2</span> : bounded_lattice X2) : bounded_latticeop (make_lattice (islatticeop_prod_t bl1 bl2)) (prod_prebilattice_false bl1 bl2) (prod_prebilattice_true bl1 bl2) .
+  <span class="kn">Proof</span>.
+    use make_dirprod; <span class="nb">intro</span>; use dirprod_paths; [use islunit_Lmax_Lbot | use islunit_Lmin_Ltop | use islunit_Lmin_Ltop | use islunit_Lmax_Lbot].
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bounded_islatticeop_prod_k</span>  {<span class="nv">X1</span> <span class="nv">X2</span> : hSet} (<span class="nv">bl1</span> : bounded_lattice X1) (<span class="nv">bl2</span> : bounded_lattice X2) : bounded_latticeop (make_lattice (islatticeop_prod_k bl1 bl2)) (prod_prebilattice_bottom bl1 bl2) (prod_prebilattice_top bl1 bl2) .
+  <span class="kn">Proof</span>.
+    use make_dirprod; <span class="nb">intro</span>; use dirprod_paths; [use islunit_Lmax_Lbot | use islunit_Lmax_Lbot | use islunit_Lmin_Ltop | use islunit_Lmin_Ltop].
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_bounded_prod_prebilattice</span>  {<span class="nv">X1</span> <span class="nv">X2</span> : hSet} (<span class="nv">bl1</span> : bounded_lattice X1) (<span class="nv">bl2</span> : bounded_lattice X2) : bounded_prod_prebilattice X1 X2 bl1 bl2 := bounded_islatticeop_prod_t bl1 bl2,,bounded_islatticeop_prod_k bl1 bl2 .
+
+  <span class="kn">Lemma</span> <span class="nf">iscontr_bounded_prod_prebilattice</span> {<span class="nv">X1</span> <span class="nv">X2</span> : hSet} (<span class="nv">l1</span> : bounded_lattice X1) (<span class="nv">l2</span> : bounded_lattice X2) : iscontr (bounded_prod_prebilattice X1 X2 l1 l2).
+  <span class="kn">Proof</span>.
+    use iscontraprop1.
+    - <span class="kp">do</span> <span class="mi">2</span> (use isapropdirprod); use isapropislunit.
+    - <span class="bp">exact</span> (make_bounded_prod_prebilattice l1 l2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bounded_prod_prebilattices_to_prod_prebilattices</span> {<span class="nv">X1</span> <span class="nv">X2</span> : hSet} {<span class="nv">bl1</span> : bounded_lattice X1} {<span class="nv">bl2</span> : bounded_lattice X2} (<span class="nv">b</span> : bounded_prod_prebilattice X1 X2 bl1 bl2) : prod_prebilattice X1 X2 bl1 bl2 := pr221 (make_bounded_lattice (pr1 b)),, pr221 (make_bounded_lattice (pr2 b)).
+
+  <span class="kn">Coercion</span> <span class="nf">bounded_prod_prebilattices_to_prod_prebilattices</span> : bounded_prod_prebilattice &gt;-&gt; prod_prebilattice.
+
+  <span class="kn">Definition</span> <span class="nf">bounded_prod_prebilattices_to_bounded_prebilattices</span> {<span class="nv">X1</span> <span class="nv">X2</span> : hSet} {<span class="nv">l1</span> : bounded_lattice X1} {<span class="nv">l2</span> : bounded_lattice X2} (<span class="nv">b</span> : bounded_prod_prebilattice X1 X2 l1 l2) : bounded_prebilattice (prod_prebilattice_carrier X1 X2) :=  make_bounded_prebilattice (make_bounded_lattice (pr1 b)) (make_bounded_lattice (pr2 b)) .
+
+  <span class="kn">Coercion</span> <span class="nf">bounded_prod_prebilattices_to_bounded_prebilattices</span> : bounded_prod_prebilattice &gt;-&gt; bounded_prebilattice .
+<span class="kn">End</span> <span class="nf">bounded</span>.
+
+<span class="kn">Section</span> <span class="nf">properties</span>.
+  <span class="kn">Proposition</span> <span class="nf">prod_prebilattices_are_interlaced</span> {<span class="nv">X1</span> <span class="nv">X2</span> : hSet} {<span class="nv">l1</span> : lattice X1} {<span class="nv">l2</span> : lattice X2} (<span class="nv">b</span> : prod_prebilattice X1 X2 l1 l2) : is_interlaced b .
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">3</span> (<span class="kp">try</span> use make_dirprod); <span class="nb">intros</span> [x1 x2] [y1 y2] [z1 z2] H; use dirprod_paths; <span class="nb">cbn</span> <span class="k">in</span> H; <span class="nb">set</span> (H1 := maponpaths dirprod_pr1 H); <span class="nb">cbn</span> <span class="k">in</span> H1; <span class="nb">set</span> (H2 := maponpaths dirprod_pr2 H); <span class="nb">cbn</span> <span class="k">in</span> H2; <span class="nb">cbn</span>.
+    - <span class="nb">rewrite</span> (iscomm_Lmin _ x1 z1), isassoc_Lmin, &lt;- (isassoc_Lmin _ x1 y1 z1), H1, (iscomm_Lmin _ x1 z1), &lt;- isassoc_Lmin, Lmin_id; <span class="bp">reflexivity</span> .
+    - use Lmax_ge_eq_l; use Lmin_ge_case.
+      -- use (istrans_Lge _ x2 y2 (Lmin _ y2 z2)).
+         --- <span class="nb">rewrite</span> &lt;- H2; <span class="bp">exact</span> (Lmax_ge_r _ x2 y2).
+         --- <span class="bp">exact</span> (Lmin_ge_l _ y2 z2).
+      -- <span class="bp">exact</span> (Lmin_ge_r _ y2 z2).
+    - use Lmin_ge_eq_l; use Lmax_ge_case.
+      -- use (istrans_Lle _ x1 y1 (Lmax _ y1 z1)).
+         --- <span class="nb">rewrite</span> &lt;- H1; <span class="bp">exact</span> (Lmin_ge_r _ x1 y1).
+         --- <span class="bp">exact</span> (Lmax_ge_l _ y1 z1).
+      -- <span class="bp">exact</span> (Lmax_ge_r _ y1 z1).
+    - <span class="nb">rewrite</span> (iscomm_Lmax _ x2 z2), (isassoc_Lmax), &lt;- (isassoc_Lmax _ x2 y2 z2), H2, (iscomm_Lmax _ x2 z2), &lt;- isassoc_Lmax, Lmax_id. <span class="bp">reflexivity</span>.
+    - <span class="nb">rewrite</span> (iscomm_Lmin _ x1 z1), isassoc_Lmin, &lt;- (isassoc_Lmin _ x1 y1 z1), H1, (iscomm_Lmin _ x1 z1), &lt;- isassoc_Lmin, Lmin_id; <span class="bp">reflexivity</span> .
+    - use Lmin_ge_eq_l. use Lmax_le_case.
+      -- use (istrans_Lle _ x2 y2 (Lmax _ y2 z2)).
+         --- <span class="nb">rewrite</span> &lt;- H2. <span class="bp">exact</span> (Lmin_le_r _ x2 y2).
+         --- <span class="bp">exact</span> (Lmax_ge_l _ y2 z2).
+      -- <span class="bp">exact</span> (Lmax_le_r _ y2 z2).
+    - use Lmin_ge_eq_l; use Lmax_ge_case.
+      -- use (istrans_Lle _ x1 y1 (Lmax _ y1 z1)).
+         --- <span class="nb">rewrite</span> &lt;- H1; <span class="bp">exact</span> (Lmin_ge_r _ x1 y1).
+         --- <span class="bp">exact</span> (Lmax_ge_l _ y1 z1).
+      -- <span class="bp">exact</span> (Lmax_ge_r _ y1 z1).
+    - <span class="nb">rewrite</span> (iscomm_Lmin _ x2 z2), (isassoc_Lmin), &lt;- (isassoc_Lmin _ x2 y2 z2), H2, (iscomm_Lmin _ x2 z2), &lt;- isassoc_Lmin, Lmin_id. <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">properties</span>.
+
+<span class="sd">(**</span>
+<span class="sd">The representation theorem states that every interlaced prebilattice</span>
+<span class="sd">is isomorphic to a product prebilattice</span>
+<span class="sd">(thus, inverting prod_prebilattices_are_interlaced in some sense).</span>
+
+<span class="sd">The proof below follows the steps of Section 3.1 of the paper</span>
+<span class="sd">Félix Bou and Umberto Rivieccio. The logic of distributive bilattices. Logic</span>
+<span class="sd">Journal of IGPL, 19(1):183–216. doi:10.1093/jigpal/jzq041</span>
+
+<span class="sd">The relation ~1 of the paper is here named rel_same_SW2NE,</span>
+<span class="sd">since two elements related by this relation are in the same</span>
+<span class="sd">southwest-to-northeast 'axis' of the prebilattice.</span>
+<span class="sd">Similarly, ~2 of the paper is here named rel_same_SE2NW.</span>
+<span class="sd">**)</span>
+<span class="kn">Section</span> <span class="nf">representation_theorem</span>.
+  <span class="kn">Definition</span> <span class="nf">rel_same_SW2NE</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) : hrel X := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, eqset (join b x y) (consensus b x y)  .
+  <span class="kn">Lemma</span> <span class="nf">isEq_rel_same_SW2NE</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) : iseqrel (rel_same_SW2NE b).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">2</span> (<span class="kp">try</span> <span class="nb">split</span>).
+    - <span class="nb">intros</span> x y z H1 H2. use (isantisymm_Lle (tlattice b)).
+      -- use Lmax_le_case.
+         --- <span class="nb">assert</span> (r1 : tle b x (consensus b (consensus b x y) z) ).
+             {
+               use (istrans_tle _  x (consensus b x y)).
+               - <span class="nb">rewrite</span> &lt;- H1. <span class="nb">apply</span> (Lmax_le_l (tlattice _)).
+               - <span class="nb">rewrite</span> (isassoc_consensus _ x y z), (iscomm_consensus _ x y), &lt;- H2, (iscomm_consensus _ x).
+                 use interlacing_consensus_t. use Lmin_absorb .
+             }
+             <span class="nb">set</span> (r2 := Lmin_le_r _ _ _ : kle b (consensus b (consensus b x y) z) z ).
+             <span class="nb">rewrite</span> iscomm_consensus. use (interlaced_leqt_leqk_leqtconsensus _ _ _ (_,,r1,,r2)).
+         --- <span class="nb">set</span> (r1 := Lmax_le_r _ _ _  : tle b z (join b (join b x y) z) ).
+             <span class="nb">assert</span> (r2 : kle b (join b (join b x y) z) x).
+             {
+               use (istrans_kle _ (join _ (join b x y) z) (join b x y)).
+               - <span class="nb">rewrite</span> (isassoc_join _ x y z), (iscomm_join _ x y), H2, (iscomm_join _ x).
+                 use interlacing_join_k. use Lmin_le_l.
+               - <span class="nb">rewrite</span> H1. use Lmin_le_l.
+             }
+             use (interlaced_leqt_leqk_leqtconsensus _ _ _ (_,,r1,,r2)).
+      -- use (top_interlacing_consensus_t (Lmax_le_l _ x z) (Lmax_le_r _ x z)).
+    - <span class="nb">intro</span>. <span class="nb">unfold</span> rel_same_SW2NE, consensus. <span class="nb">rewrite</span> Lmin_id. <span class="nb">unfold</span> join. <span class="nb">rewrite</span> Lmax_id. <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> ? ? H. <span class="nb">unfold</span> rel_same_SW2NE. <span class="nb">rewrite</span> iscomm_join, iscomm_consensus. <span class="bp">exact</span> H.
+  <span class="kn">Defined</span>.
+  <span class="kn">Definition</span> <span class="nf">eqrel_same_SW2NE</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) : eqrel X := make_eqrel (rel_same_SW2NE b) (isEq_rel_same_SW2NE b).
+
+  <span class="kn">Definition</span> <span class="nf">rel_same_SE2NW</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) : hrel X := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, eqset (meet b x y) (consensus b x y)  .
+  <span class="kn">Lemma</span> <span class="nf">isEq_rel_same_SE2NW</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) : iseqrel (rel_same_SE2NW b) .
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (isEq_rel_same_SW2NE (make_interlaced_prebilattice (t_opp_prebilattice_is_interlaced b))).
+  <span class="kn">Defined</span>.
+  <span class="kn">Definition</span> <span class="nf">eqrel_same_SE2NW</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) : eqrel X := make_eqrel (rel_same_SE2NW b) (isEq_rel_same_SE2NW b).
+
+  <span class="kn">Lemma</span> <span class="nf">iscomp_consensus_rel_same_SW2NE</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) : iscomprelrelfun2 (eqrel_same_SW2NE b) (eqrel_same_SW2NE b) (consensus b).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y w z H1 H2.
+    use (isantisymm_Lle (klattice b) (join _ (consensus _ x w) (consensus _ y z)) ((consensus _ (consensus _ x w) (consensus _ y z)))).
+    - <span class="nb">rewrite</span> (isassoc_consensus _ x w (consensus _ y z)),
+        (iscomm_consensus _ y z),
+        &lt;- (isassoc_consensus _ w z y),
+        (iscomm_consensus _ (consensus _ w z) y),
+        &lt;- (isassoc_consensus _ x y (consensus _ w z)).
+      use Lmin_le_case.
+      -- <span class="nb">rewrite</span> &lt;- H1.
+         use (double_interlacing_join_k (Lmin_le_l _ x w) (Lmin_le_r _ z y)).
+      -- <span class="nb">rewrite</span> &lt;- H2.
+         use (double_interlacing_join_k (Lmin_le_r _ x w) (Lmin_le_l _ z y)).
+    - use (bottom_interlacing_join_k (Lmin_le_l _ (consensus _ x w) (consensus _ y z)) (Lmin_le_r _ (consensus _ x w) (consensus _ y z))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iscomp_gullibility_rel_same_SW2NE</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) : iscomprelrelfun2 (eqrel_same_SW2NE b) (eqrel_same_SW2NE b) (gullibility b).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y w z H1 H2.
+    use (isantisymm_Lle (tlattice b) (join _ (gullibility _ x w) (gullibility _ y z)) ((consensus _ (gullibility _ x w) (gullibility _ y z)))).
+    - use Lmax_le_case.
+      -- <span class="nb">rewrite</span> iscomm_consensus.
+         use (interlaced_leqt_leqk_leqtconsensus _ (gullibility _ x w) (gullibility _ y z)).
+         <span class="k">exists</span> (<span class="nv">gullibility</span> <span class="nv">b</span> (join b x y) (join b w z)).
+         <span class="nb">split</span>.
+         ---use (double_interlacing_gullibility_t (Lmax_le_l _ x y) (Lmax_le_l _ w z)).
+         --- <span class="nb">rewrite</span> H1, H2.
+             use Lmax_le_case.
+             ---- use (istrans_Lle _ _ y _).
+                  ----- use Lmin_le_r.
+                  ----- use Lmax_le_l.
+             ---- use (istrans_Lle _ _ z _).
+                  ----- use Lmin_le_r.
+                  ----- use Lmax_le_r.
+      -- use (interlaced_leqt_leqk_leqtconsensus _ (gullibility _ y z) (gullibility _ x w)).
+         <span class="k">exists</span> (<span class="nv">gullibility</span> <span class="nv">b</span> (join b x y) (join b w z)).
+         <span class="nb">split</span>.
+         --- use (double_interlacing_gullibility_t (Lmax_le_r _ _ _) (Lmax_le_r _ _ _)).
+         --- <span class="nb">rewrite</span> H1, H2.
+             use Lmax_le_case.
+             ---- use (istrans_Lle _ _ x _).
+                  ----- use Lmin_le_l.
+                  ----- use Lmax_le_l.
+             ---- use (istrans_Lle _ _ w _).
+                  ----- use Lmin_le_l.
+                  ----- use Lmax_le_r.
+    - use (top_interlacing_consensus_t (Lmax_le_l _ _ _) (Lmax_le_r _ _ _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iscomp_consensus_rel_same_SE2NW</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) : iscomprelrelfun2 (eqrel_same_SE2NW b) (eqrel_same_SE2NW b) (consensus b) .
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (iscomp_consensus_rel_same_SW2NE (make_interlaced_prebilattice (t_opp_prebilattice_is_interlaced b))).
+  <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">iscomp_gullibility_rel_same_SE2NW</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) : iscomprelrelfun2 (eqrel_same_SE2NW b) (eqrel_same_SE2NW b) (gullibility b) .
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (iscomp_gullibility_rel_same_SW2NE (make_interlaced_prebilattice (t_opp_prebilattice_is_interlaced b))).
+  <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">iscomp_meet_rel_same_SE2NW</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) : iscomprelrelfun2 (eqrel_same_SE2NW b) (eqrel_same_SE2NW b) (meet b).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ? ? ? ? H1 H2.
+    use (!iscomp_consensus_rel_same_SE2NW (make_interlaced_prebilattice (dual_prebilattice_is_interlaced b)) _ _ _ _ (!H1) (!H2)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iscomp_join_rel_same_SW2NE</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) : iscomprelrelfun2 (eqrel_same_SW2NE b) (eqrel_same_SW2NE b) (join b) .
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (iscomp_meet_rel_same_SE2NW (make_interlaced_prebilattice (t_opp_prebilattice_is_interlaced b))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">rel_same_SW2NE_meet_consensus</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) (<span class="nv">x</span> <span class="nv">y</span> : X): rel_same_SW2NE b (meet b x y) (consensus b x y).
+  <span class="kn">Proof</span>.
+    use (isantisymm_Lle (tlattice b)).
+    - use Lmax_le_case.
+      -- <span class="nb">rewrite</span> (iscomm_consensus _ (meet _ _ _) _ ) .
+         use interlaced_leqt_leqk_leqtconsensus.
+         <span class="k">exists</span> (<span class="nv">consensus</span> <span class="nv">b</span> <span class="nv">x</span> <span class="nv">y</span>).
+         <span class="nb">split</span>.
+         --- use (bottom_interlacing_consensus_t (Lmin_le_l _ _ _) (Lmin_le_r _ _ _)).
+         --- use isrefl_Lle.
+      -- use interlaced_leqk_leqt_leqtconsensus.
+         <span class="k">exists</span> (<span class="nv">meet</span> <span class="nv">b</span> <span class="nv">x</span> <span class="nv">y</span>).
+         <span class="nb">split</span>.
+         --- use (bottom_interlacing_meet_k (Lmin_le_l _ _ _) (Lmin_le_r _ _ _)).
+         --- use isrefl_Lle.
+    - use (top_interlacing_consensus_t (Lmax_le_l _ _ _) (Lmax_le_r _ _ _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iscomp_meet_rel_same_SW2NE</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) : iscomprelrelfun2 (eqrel_same_SW2NE b) (eqrel_same_SW2NE b) (meet b).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z w ? ?.
+    use (eqreltrans (eqrel_same_SW2NE b) _ (consensus b x z) _ (rel_same_SW2NE_meet_consensus _ _ _)).
+    use (eqreltrans (eqrel_same_SW2NE b) _ (consensus b y w) _ (iscomp_consensus_rel_same_SW2NE _ _ _ _ _ _ _)).
+    - <span class="bp">assumption</span>.
+    - <span class="bp">assumption</span>.
+    - use eqrelsymm. use rel_same_SW2NE_meet_consensus.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iscomp_join_rel_same_SE2NW</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) : iscomprelrelfun2 (eqrel_same_SE2NW b) (eqrel_same_SE2NW b) (join b) .
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (iscomp_meet_rel_same_SW2NE (make_interlaced_prebilattice (t_opp_prebilattice_is_interlaced b))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">rel_same_SE2NW_join_consensus</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) (<span class="nv">x</span> <span class="nv">y</span> : X) : rel_same_SE2NW b (join b x y) (consensus b x y)
+  .
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (rel_same_SW2NE_meet_consensus (make_interlaced_prebilattice (t_opp_prebilattice_is_interlaced b)) x y).
+  <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">rel_same_SE2NW_meet_gullibility</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) (<span class="nv">x</span> <span class="nv">y</span> : X) : rel_same_SE2NW b (meet b x y) (gullibility b x y).
+  <span class="kn">Proof</span>.
+    use (isantisymm_Lle (tlattice b)).
+    - use (bottom_interlacing_consensus_t (Lmin_le_l _ _ _) (Lmin_le_r _ _ _)).
+    - use Lmin_le_case.
+      -- <span class="nb">rewrite</span> iscomm_consensus.
+         use interlaced_leqk_geqt_geqtconsensus.
+         <span class="k">exists</span> (<span class="nv">gullibility</span> <span class="nv">b</span> <span class="nv">x</span> <span class="nv">y</span>).
+         <span class="nb">split</span>.
+         --- <span class="bp">exact</span> (top_interlacing_meet_k (Lmax_le_l _ _ _) (Lmax_le_r _ _ _)).
+         --- use isrefl_Lle.
+      -- use interlaced_geqt_leqk_geqtconsensus .
+         <span class="k">exists</span> (<span class="nv">meet</span> <span class="nv">b</span> <span class="nv">x</span> <span class="nv">y</span>).
+         <span class="nb">split</span>.
+         --- <span class="bp">exact</span> (bottom_interlacing_gullibility_t (Lmin_le_l _ _ _) (Lmin_le_r _ _ _)).
+         --- use isrefl_Lle.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">rel_same_SW2NE_join_gullibility</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) (<span class="nv">x</span> <span class="nv">y</span> : X) : rel_same_SW2NE b (join b x y) (gullibility b x y) .
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (rel_same_SE2NW_meet_gullibility (make_interlaced_prebilattice (t_opp_prebilattice_is_interlaced b)) x y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lattice_SW2NE</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) : lattice (setquotinset (rel_same_SW2NE b)).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (iscc := iscomp_consensus_rel_same_SW2NE b).
+    <span class="nb">set</span> (iscg := iscomp_gullibility_rel_same_SW2NE b).
+    <span class="nb">set</span> (cc := setquotfun2 (eqrel_same_SW2NE b) (eqrel_same_SW2NE b) (consensus b) iscc).
+    <span class="nb">set</span> (gg := setquotfun2 (eqrel_same_SW2NE b) (eqrel_same_SW2NE b) (gullibility b) iscg).
+    <span class="k">exists</span> <span class="nv">cc</span>, gg.
+    <span class="kp">do</span> <span class="mi">4</span> (<span class="kp">try</span> <span class="nb">split</span>).
+    - use (isassocsetquotfun2 (consensus b) iscc (isassoc_Lmin (klattice b))).
+    - use (iscommsetquotfun2 (consensus b) iscc (iscomm_consensus b)).
+    - use (isassocsetquotfun2 (gullibility b) iscg (isassoc_Lmax (klattice b))).
+    - use (iscommsetquotfun2 (gullibility b) iscg (iscomm_gullibility b)).
+    - use (setquotuniv2prop _ (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, @eqset (setquotinset _) (cc x (gg x y)) x)).
+      <span class="nb">intros</span> x y.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> (consensus_gullibility_absorb b).
+      <span class="bp">reflexivity</span>.
+    - use (setquotuniv2prop _ (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, @eqset (setquotinset _) (gg x (cc x y)) x)).
+      <span class="nb">intros</span> x y.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> (gullibility_consensus_absorb b).
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lattice_SE2NW</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) : lattice (setquotinset (rel_same_SE2NW b)) :=
+    lattice_SW2NE (make_interlaced_prebilattice (t_opp_prebilattice_is_interlaced b)).
+
+  <span class="kn">Lemma</span> <span class="nf">SE2NW_and_SW2NE_is_id</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) (<span class="nv">x</span> <span class="nv">y</span> : X) (<span class="nv">p1</span> : rel_same_SW2NE b x y) (<span class="nv">p2</span> : rel_same_SE2NW b x y) : x = y.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (p := p1 @ !p2).
+    use (isantisymm_Lle (tlattice b)).
+    - use (istrans_Lle (tlattice _) x (join b x y) y (Lmax_le_l _ _ _)).
+      <span class="nb">rewrite</span> p.
+      use Lmin_le_r.
+    - use (istrans_Lle (tlattice _) y (join b x y) x (Lmax_le_r _ _ _)).
+      <span class="nb">rewrite</span> p.
+      use Lmin_le_l.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">interlaced_prebilattice_to_prod</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) : ∑ (X1 X2 : hSet) (l1 : lattice X1) (l2 : lattice X2) , prod_prebilattice X1 X2 l1 l2 :=
+    setquotinset (rel_same_SW2NE b),, setquotinset (rel_same_SE2NW b),,lattice_SW2NE b,,lattice_SE2NW b,,make_prod_prebilattice (lattice_SW2NE b) (lattice_SE2NW b).
+
+  <span class="kn">Lemma</span> <span class="nf">interlaced_carrier_to_prod_carrier</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) : weq X (prod_prebilattice_carrier (setquotinset (rel_same_SW2NE b)) (setquotinset (rel_same_SE2NW b))) .
+  <span class="kn">Proof</span>.
+    <span class="sd">(** First, move calculation from equivalence classes to representatives **)</span>
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">x</span>, <span class="nv">setquotpr</span> (eqrel_same_SW2NE b) x,, setquotpr (eqrel_same_SE2NW b) x).
+    <span class="nb">intro</span> y; <span class="nb">destruct</span> y <span class="k">as</span> [yL yR].
+    <span class="nb">set</span> (TL := <span class="k">λ</span> <span class="nv">yL</span>, <span class="k">λ</span> <span class="nv">yR</span> : setquotinset (rel_same_SE2NW b), hfiber (<span class="k">λ</span> <span class="nv">x</span> : X, setquotpr (eqrel_same_SW2NE b) x,, setquotpr (eqrel_same_SE2NW b) x) (yL,, yR)).
+    use (setquotunivprop (eqrel_same_SW2NE b) (<span class="k">λ</span> <span class="nv">yL</span>, make_hProp (iscontr (TL yL yR)) (isapropiscontr (TL yL yR)))).
+    <span class="nb">intro</span> y1.
+    <span class="nb">set</span> (TR := <span class="k">λ</span> <span class="nv">yR</span>, TL (setquotpr (eqrel_same_SW2NE b) y1) yR).
+    use (setquotunivprop (eqrel_same_SE2NW b) (<span class="k">λ</span> <span class="nv">yR</span>, make_hProp (iscontr (TR yR)) (isapropiscontr (TR yR)))).
+    <span class="nb">intro</span> y2.
+
+    <span class="sd">(** Then, define the center of contraction  **)</span>
+    <span class="nb">set</span> (c := consensus b (meet b y1 (gullibility b y1 y2)) (join b y2 (gullibility b y1 y2))).
+    <span class="nb">assert</span> (HL : setquotpr (eqrel_same_SW2NE b) c = setquotpr (eqrel_same_SW2NE b) y1).
+    {
+      use weqpathsinsetquot.
+      use (eqreltrans _ _ (meet b (meet b y1 (gullibility b y1 y2)) (join b y2 (gullibility b y1 y2))) _ ).
+      {
+        use eqrelsymm.
+        use rel_same_SW2NE_meet_consensus.
+      }
+      use (eqreltrans _ _ (meet b (meet b y1 (join b y1 y2)) (join b y2 (join b y1 y2))) _ ).
+      {
+        use iscomp_meet_rel_same_SW2NE.
+        - use iscomp_meet_rel_same_SW2NE.
+          -- use eqrelrefl.
+          -- use eqrelsymm.
+             use rel_same_SW2NE_join_gullibility.
+        - use iscomp_join_rel_same_SW2NE.
+          -- use eqrelrefl.
+          -- use eqrelsymm.
+             use rel_same_SW2NE_join_gullibility.
+      }
+      <span class="nb">rewrite</span> meet_join_absorb,
+        iscomm_join,
+        isassoc_join,
+        join_id,
+        meet_join_absorb.
+      use eqrelrefl.
+    }
+    <span class="nb">assert</span> (HR : setquotpr (eqrel_same_SE2NW b) c = setquotpr (eqrel_same_SE2NW b) y2).
+    {
+      use weqpathsinsetquot.
+      use (eqreltrans _ _ (join b (meet b y1 (gullibility b y1 y2)) (join b y2 (gullibility b y1 y2))) _ ).
+      {
+        use eqrelsymm.
+        use rel_same_SE2NW_join_consensus.
+      }
+      use (eqreltrans _ _ (join b (meet b y1 (meet b y1 y2)) (join b y2 (meet b y1 y2))) _ ).
+      {
+        use iscomp_join_rel_same_SE2NW.
+        - use iscomp_meet_rel_same_SE2NW.
+          -- use eqrelrefl.
+          -- use eqrelsymm.
+             use rel_same_SE2NW_meet_gullibility.
+        - use iscomp_join_rel_same_SE2NW.
+          -- use eqrelrefl.
+          -- use eqrelsymm.
+             use rel_same_SE2NW_meet_gullibility.
+      }
+      <span class="nb">rewrite</span> (iscomm_meet _ y1 (meet _ _ _)),
+        (iscomm_meet _ y1 y2),
+        isassoc_meet,
+        meet_id,
+        join_meet_absorb,
+        iscomm_join,
+        join_meet_absorb.
+      use eqrelrefl.
+    }
+    <span class="k">exists</span> (<span class="nv">c</span>,,<span class="nv">pathsdirprod</span> <span class="nv">HL</span> <span class="nv">HR</span>).
+
+    <span class="sd">(** and prove that it is a center of contraction **)</span>
+    <span class="nb">intro</span> t.
+    use total2_paths_f.
+    - use (! SE2NW_and_SW2NE_is_id _ _ _
+             (invmap (weqpathsinsetquot _ _ _) (HL @ ! (maponpaths pr1 (pr2 t))))
+             (invmap (weqpathsinsetquot _ _ _) (HR @ ! (maponpaths dirprod_pr2 (pr2 t))))
+          ).
+    - use (proofirrelevance_hProp (
+               @eqset
+                 (make_hSet _ (isaset_dirprod (isasetsetquot (eqrel_same_SW2NE b)) (isasetsetquot (eqrel_same_SE2NW b))))
+                 (setquotpr (eqrel_same_SW2NE b) c,, setquotpr (eqrel_same_SE2NW b) c)
+                 (setquotpr (eqrel_same_SW2NE b) y1,, setquotpr (eqrel_same_SE2NW b) y2)
+          )).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_interlaced_product</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) : @z_iso (precategory_data_from_precategory prebilattice_disp_category) (X,, (pr1 b))
+                                                                                           (prod_prebilattice_carrier (pr1 (interlaced_prebilattice_to_prod b))
+                                                                                                                      (pr12 (interlaced_prebilattice_to_prod b)),,
+                                                                                                                      (pr1 (make_interlaced_prebilattice
+                                                                                                                              (prod_prebilattices_are_interlaced (pr222 (pr2 (interlaced_prebilattice_to_prod b))))))).
+  <span class="kn">Proof</span>.
+    use (prebilattice_iso b (make_interlaced_prebilattice (prod_prebilattices_are_interlaced (pr2 (pr222 (interlaced_prebilattice_to_prod b))))) (interlaced_carrier_to_prod_carrier b)).
+    <span class="nb">intros</span> x y.
+    <span class="kp">do</span> <span class="mi">4</span> (<span class="kp">try</span> use make_dirprod); use dirprod_paths;
+    use pathsinv0;
+    <span class="kp">try</span> (use (iscompsetquotpr (eqrel_same_SW2NE _)));
+    <span class="kp">try</span> (use (iscompsetquotpr (eqrel_same_SE2NW _))).
+    - use (rel_same_SW2NE_meet_consensus).
+    - use (rel_same_SE2NW_meet_gullibility).
+    - use (rel_same_SW2NE_join_gullibility).
+    - use (rel_same_SE2NW_join_consensus).
+    - use (pr21 (isEq_rel_same_SW2NE _)).
+    - use (pr21 (isEq_rel_same_SE2NW _)).
+    - use (pr21 (isEq_rel_same_SW2NE _)).
+    - use (pr21 (isEq_rel_same_SE2NW _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">interlaced_prebilattice_eq_product</span> {<span class="nv">X</span> : hSet} (<span class="nv">b</span> : interlaced_prebilattice X) : ∑ (X1 X2 : hSet) (l1 : lattice X1) (l2 : lattice X2) (b' : prod_prebilattice X1 X2 l1 l2), (X,, (interlaced_prebilattice_to_prebilattice b)) = (prod_prebilattice_carrier X1 X2,, (prod_prebilattice_to_prebilattice b')).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (interlacedToProd := interlaced_prebilattice_to_prod b).
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">interlacedToProd</span>).
+    <span class="k">exists</span> (<span class="nv">pr12</span> <span class="nv">interlacedToProd</span>).
+    <span class="k">exists</span> (<span class="nv">pr122</span> <span class="nv">interlacedToProd</span>).
+    <span class="k">exists</span> (<span class="nv">pr1</span> (pr222 interlacedToProd)).
+    <span class="k">exists</span> (<span class="nv">pr2</span> (pr222 interlacedToProd)).
+    <span class="bp">exact</span> (isotoid prebilattice_disp_category is_univalent_prebilattice_disp_category (iso_interlaced_product b)).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">representation_theorem</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/Prebilattice/Product.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/OrderTheory/Prebilattice/Prebilattice.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   Product pre-bilattices are always interlaced.
+  &gt;   The opposite is called the 'representation theorem'.
+  &gt; **)&gt;&gt;&gt;Require Import UniMath.OrderTheory.Prebilattice.Prebilattice.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Prebilattice.Interlaced.
+  &gt; Require Import UniMath.OrderTheory.Prebilattice.PrebilatticeDisplayedCat.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>RXGraph.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> Reflexive Graphs</span>
+
+<span class="sd"> We define reflexive graphs for the purpose of characterizing identity types.</span>
+
+<span class="sd"> A reflexive graph consists of:</span>
+<span class="sd"> - a type [A type] called vertices,</span>
+<span class="sd"> - a family of types [a, b : A ⊢ a ≈ b type] called edges,</span>
+<span class="sd"> - and a reflexivity datum [a : A ⊢ refl a : a ≈ a].</span>
+<span class="sd"> A reflexive graph is univalent if edges are equivalent to identifications.</span>
+
+<span class="sd"> Reflexive graphs can be combined using the combinators in [Examples.v]</span>
+<span class="sd"> to characterize the identifications of many types.</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Reflexive graphs</span>
+<span class="sd"> 1.1. Univalence</span>
+<span class="sd"> 1.2. Fundamental Theorem of Identity Types</span>
+<span class="sd"> 2. Path operations for univalent reflexive graphs</span>
+<span class="sd"> 2.1. Induction schemes</span>
+<span class="sd"> 2.2. Edge algebra</span>
+<span class="sd"> 3. Displayed reflexive graphs</span>
+<span class="sd"> 3.1. Univalence</span>
+
+<span class="sd"> Author: B. Szilvasy</span>
+<span class="sd"> February—September 2026</span>
+
+<span class="sd"> ********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Declare Scope</span> rxgraph.
+<span class="kn">Delimit Scope</span> rxgraph <span class="k">with</span> rxgraph.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> rxgraph.
+
+<span class="sd">(** ** Definition of reflexive graphs *)</span>
+
+<span class="kn">Definition</span> <span class="nf">rxgraph</span> := ∑ (A : UU) (edge : A -&gt; A -&gt; UU), ∏ a, edge a a.
+
+<span class="kn">Coercion</span> <span class="nf">rxgraph_vertex</span> (G : rxgraph) : UU := pr1 G.
+
+<span class="kn">Definition</span> <span class="nf">edge</span> (<span class="nv">G</span> : rxgraph) : G -&gt; G -&gt; UU := pr12 G.
+<span class="kn">Notation</span> <span class="s2">"a '≈{' G  '}' b"</span> := (edge G a b) (<span class="kn">at level</span> <span class="mi">70</span>) : rxgraph.
+<span class="kn">Notation</span> <span class="s2">"a '≈' b"</span> := (edge _ a b) (<span class="kn">at level</span> <span class="mi">70</span>) : rxgraph.
+
+<span class="kn">Definition</span> <span class="nf">refl</span> {<span class="nv">G</span> : rxgraph} : ∏ (a : G), a ≈ a := pr22 G.
+
+<span class="kn">Definition</span> <span class="nf">make_rxgraph</span>
+  (<span class="nv">A</span> : UU)
+  (<span class="nv">edge</span> : A -&gt; A -&gt; UU)
+  (<span class="nv">refl</span> : ∏ a, edge a a)
+  : rxgraph
+  := A,, edge,, refl.
+
+<span class="kn">Section</span> <span class="nf">univalence</span>.
+
+  <span class="sd">(** *** Univalence *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">id_to_edge</span> {<span class="nv">G</span> : rxgraph} {<span class="nv">a</span> <span class="nv">b</span> : G} : a = b -&gt; a ≈ b.
+  <span class="kn">Proof</span>. <span class="nb">intro</span> p; <span class="nb">induction</span> p; <span class="nb">apply</span> refl. <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent</span> (<span class="nv">G</span> : rxgraph)
+    := ∏ (a b : G), isweq (<span class="k">λ</span> (<span class="nv">p</span> : a = b), id_to_edge p).
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_univalent</span> (<span class="nv">G</span> : rxgraph)
+    : isaprop (is_univalent G).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isapropisweq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">univalent_rxgraph</span> := ∑ (G : rxgraph), is_univalent G.
+  <span class="kn">Coercion</span> <span class="nf">univalent_rxgraph_to_rxgraph</span> (G : univalent_rxgraph) := pr1 G.
+  <span class="kn">Coercion</span> <span class="nf">rxgraph_univalence</span> (G : univalent_rxgraph)
+    : is_univalent G := pr2 G.
+
+  <span class="kn">Definition</span> <span class="nf">make_univalent_rxgraph</span> (<span class="nv">G</span> : rxgraph)
+    (<span class="nv">H</span> : is_univalent G)
+    : univalent_rxgraph
+    := G,, H.
+
+  <span class="kn">Definition</span> <span class="nf">weq_id_to_edge</span> {<span class="nv">G</span> : rxgraph}
+    (<span class="nv">H</span> : is_univalent G)
+    (<span class="nv">a</span> <span class="nv">b</span> : G) : a = b ≃ a ≈ b
+    := make_weq _ (H a b).
+
+  <span class="kn">Definition</span> <span class="nf">weq_edge_to_id</span> {<span class="nv">G</span> : rxgraph}
+    (<span class="nv">H</span> : is_univalent G)
+    (<span class="nv">a</span> <span class="nv">b</span> : G) : a ≈ b ≃ a = b
+    := invweq (weq_id_to_edge H a b).
+
+  <span class="kn">Definition</span> <span class="nf">edge_to_id</span> {<span class="nv">G</span> : rxgraph}
+    (<span class="nv">H</span> : is_univalent G)
+    {<span class="nv">a</span> <span class="nv">b</span> : G} : a ≈ b -&gt; a = b
+    := invmap (weq_id_to_edge H a b).
+
+  <span class="kn">Definition</span> <span class="nf">edges_from</span> (<span class="nv">G</span> : rxgraph) (<span class="nv">a</span> : G) : UU := ∑ (b : G), a ≈ b.
+  <span class="kn">Definition</span> <span class="nf">edges_to</span>   (<span class="nv">G</span> : rxgraph) (<span class="nv">a</span> : G) : UU := ∑ (b : G), b ≈ a.
+
+  <span class="kn">Definition</span> <span class="nf">make_edges_from</span> {<span class="nv">G</span> : rxgraph} {<span class="nv">a</span> <span class="nv">b</span> : G} (<span class="nv">e</span> : a ≈ b) : edges_from G a := b,, e.
+  <span class="kn">Definition</span> <span class="nf">make_edges_to</span> {<span class="nv">G</span> : rxgraph} {<span class="nv">a</span> <span class="nv">b</span> : G} (<span class="nv">e</span> : a ≈ b) : edges_to G b := a,, e.
+  <span class="kn">Coercion</span> <span class="nf">make_edges_from</span> : edge &gt;-&gt; edges_from.
+  <span class="kn">Coercion</span> <span class="nf">make_edges_to</span> : edge &gt;-&gt; edges_to.
+
+  <span class="kn">Definition</span> <span class="nf">edges_from_refl</span> {<span class="nv">G</span> : rxgraph} (<span class="nv">a</span> : G) : edges_from G a := refl a.
+  <span class="kn">Definition</span> <span class="nf">edges_to_refl</span> {<span class="nv">G</span> : rxgraph} (<span class="nv">a</span> : G) : edges_to G a := refl a.
+
+  <span class="sd">(** *** Fundamental Theorem of Identity Types</span>
+
+<span class="sd">This is a variant of that from Egbert Rijke's "Introduction to Homotopy Type</span>
+<span class="sd">Theory", (DOI:10.1017/9781108933568, arXiv:2212.11082).</span>
+
+<span class="sd">Let [G] be a reflexive graph. The following are equivalent.</span>
+<span class="sd">1. [G] is univalent.</span>
+<span class="sd">2. Every [edges_from a] (or [edges_to a]) for [a : G] is a proposition.</span>
+<span class="sd">3. Every [edges_from a] (or [edges_to a]) for [a : G] is</span>
+<span class="sd">   contractible with centre [edges_*_refl a].</span>
+
+<span class="sd">   *)</span>
+
+  <span class="sd">(** 3 -&gt; 1 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_from_iscontr_edges_from</span> (<span class="nv">G</span> : rxgraph)
+    (<span class="nv">H</span> : ∏ (a : G), iscontr (edges_from G a))
+    : is_univalent G.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b.
+    <span class="nb">apply</span> isweqtotaltofib; <span class="nb">clear</span> b.
+    <span class="nb">apply</span> isweqcontrcontr.
+    - <span class="nb">apply</span> iscontr_paths_from.
+    - <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** 2 -&gt; 1 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_from_isaprop_edges_from</span> (<span class="nv">G</span> : rxgraph)
+    (<span class="nv">H</span> : ∏ (a : G), isaprop (edges_from G a))
+    : is_univalent G.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_from_iscontr_edges_from.
+    <span class="nb">intro</span> a.
+    <span class="nb">apply</span> iscontraprop1; [|<span class="nb">apply</span> edges_from_refl].
+    <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** 1 -&gt; 2 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_to_isaprop_edges_from</span> (<span class="nv">G</span> : rxgraph)
+    (<span class="nv">H</span> : is_univalent G)
+    : ∏ (a : G), isaprop (edges_from G a).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> a.
+    <span class="nb">apply</span> (isofhlevelweqb <span class="mi">1</span> (Y:=paths_from a)).
+    - <span class="nb">refine</span> (make_weq _ (isweqfibtototal _ _ _)).
+      <span class="nb">intro</span> b.
+      <span class="nb">apply</span> weq_edge_to_id, H.
+    - <span class="nb">apply</span> isapropifcontr, iscontr_paths_from.
+  <span class="kn">Qed</span>. <span class="c">(* [isaprop] should not be used transparently *)</span>
+
+  <span class="sd">(** 1 -&gt; 3 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_to_iscontr_edges_from</span> (<span class="nv">G</span> : rxgraph)
+    (<span class="nv">H</span> : is_univalent G)
+    : ∏ (a : G), iscontr (edges_from G a).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> a.
+    <span class="nb">apply</span> iscontraprop1; [|<span class="nb">apply</span> edges_from_refl].
+    <span class="nb">apply</span> is_univalent_to_isaprop_edges_from, H.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** 3 ([edges_to]) -&gt; 3 ([edges_from]) *)</span>
+  <span class="kn">Lemma</span> <span class="nf">isaprop_edges_to_implies_isaprop_edges_from</span> (<span class="nv">G</span> : rxgraph)
+    (<span class="nv">H</span> : ∏ (a : G), isaprop (edges_to G a))
+    : ∏ (a : G), isaprop (edges_from G a).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> a; <span class="nb">apply</span> invproofirrelevance.
+    <span class="nb">intros</span> [b₁ e₁] [b₂ e₂].
+    <span class="nb">assert</span> (p : edges_to_refl _ = a,,e₁); [<span class="nb">apply</span> H|].
+    <span class="nb">apply</span> total2_paths_equiv <span class="k">in</span> p.
+    <span class="nb">induction</span> p <span class="k">as</span> [p q]; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p; <span class="nb">cbn</span> <span class="k">in</span> q.
+    <span class="nb">induction</span> q.
+    <span class="nb">assert</span> (p : edges_to_refl _ = b₁,,e₂); [<span class="nb">apply</span> H|].
+    <span class="nb">apply</span> total2_paths_equiv <span class="k">in</span> p.
+    <span class="nb">induction</span> p <span class="k">as</span> [p q]; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p; <span class="nb">cbn</span> <span class="k">in</span> q.
+    <span class="nb">induction</span> q.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 3 ([edges_from]) -&gt; 3 ([edges_to]) *)</span>
+  <span class="kn">Lemma</span> <span class="nf">isaprop_edges_from_implies_isaprop_edges_to</span> (<span class="nv">G</span> : rxgraph)
+    (<span class="nv">H</span> : ∏ (a : G), isaprop (edges_from G a))
+    : ∏ (a : G), isaprop (edges_to G a).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> a; <span class="nb">apply</span> invproofirrelevance.
+    <span class="nb">intros</span> [b₁ e₁] [b₂ e₂].
+    <span class="nb">assert</span> (p : edges_from_refl _ = a,,e₁); [<span class="nb">apply</span> H|].
+    <span class="nb">apply</span> total2_paths_equiv <span class="k">in</span> p.
+    <span class="nb">induction</span> p <span class="k">as</span> [p q]; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p; <span class="nb">cbn</span> <span class="k">in</span> q.
+    <span class="nb">induction</span> q.
+    <span class="nb">assert</span> (p : edges_from_refl _ = b₁,,e₂); [<span class="nb">apply</span> H|].
+    <span class="nb">apply</span> total2_paths_equiv <span class="k">in</span> p.
+    <span class="nb">induction</span> p <span class="k">as</span> [p q]; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p; <span class="nb">cbn</span> <span class="k">in</span> q.
+    <span class="nb">induction</span> q.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 2 -&gt; 1 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_from_isaprop_edges_to</span> (<span class="nv">G</span> : rxgraph)
+    (<span class="nv">H</span> : ∏ (a : G), isaprop (edges_to G a))
+    : is_univalent G.
+  <span class="kn">Proof</span>.
+    use is_univalent_from_isaprop_edges_from.
+    <span class="bp">exact</span> (isaprop_edges_to_implies_isaprop_edges_from _ H).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** 3 -&gt; 1 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_from_iscontr_edges_to</span> (<span class="nv">G</span> : rxgraph)
+    (<span class="nv">H</span> : ∏ (a : G), iscontr (edges_to G a))
+    : is_univalent G.
+  <span class="kn">Proof</span>.
+    use is_univalent_from_isaprop_edges_to.
+    <span class="nb">intro</span> a; <span class="nb">apply</span> isapropifcontr, H.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** 1 -&gt; 2 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_to_isaprop_edges_to</span> (<span class="nv">G</span> : rxgraph)
+    (<span class="nv">H</span> : is_univalent G)
+    : ∏ (a : G), isaprop (edges_to G a).
+  <span class="kn">Proof</span>.
+    use isaprop_edges_from_implies_isaprop_edges_to.
+    use is_univalent_to_isaprop_edges_from.
+    <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 1 -&gt; 3 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_to_iscontr_edges_to</span> (<span class="nv">G</span> : rxgraph)
+    (<span class="nv">H</span> : is_univalent G)
+    : ∏ (a : G), iscontr (edges_to G a).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> a; <span class="nb">apply</span> iscontraprop1.
+    - <span class="nb">apply</span> is_univalent_to_isaprop_edges_to, H.
+    - <span class="nb">apply</span> edges_to_refl.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** A consequence is that it suffices to give an arbitrary equivalence, rather</span>
+<span class="sd">      than needing to prove that [id_to_edge] specifically is an equivalence. *)</span>
+  <span class="kn">Theorem</span> <span class="nf">is_univalent_from_weq</span> (<span class="nv">G</span> : rxgraph)
+    (<span class="nv">w</span> : ∏ (a b : G), a = b ≃ a ≈ b)
+    : is_univalent G.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_from_iscontr_edges_from.
+    <span class="nb">intro</span> a.
+    <span class="nb">apply</span> (iscontrweqf (X:=paths_from a)).
+    - <span class="nb">apply</span> weqfibtototal, w.
+    - <span class="nb">apply</span> iscontr_paths_from.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">univalence</span>.
+
+<span class="sd">(** ** Path operations for univalent reflexive graphs *)</span>
+
+<span class="kn">Section</span> <span class="nf">induction</span>.
+  <span class="sd">(** *** Induction schemes *)</span>
+
+  <span class="sd">(** Unbased induction *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">rxgraph_edge_rect</span> (<span class="nv">G</span> : rxgraph)
+    (<span class="nv">H</span> : is_univalent G)
+    (<span class="nv">P</span> : ∏ (a b : G), a ≈ b -&gt; UU)
+    (<span class="nv">base</span> : ∏ (a : G), P a a (refl a))
+    : ∏ (a b : G) (e : a ≈ b), P a b e.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b e.
+    <span class="nb">refine</span> (transportb (<span class="k">λ</span> (<span class="nv">c</span> : edges_from G a), P a (pr1 c) (pr2 c))
+              (_ : b,, e = edges_from_refl a)
+              (base a)).
+    <span class="bp">exact</span> (pr2 (is_univalent_to_iscontr_edges_from G H a) _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">rxgraph_edge_rect'</span> (<span class="nv">G</span> : univalent_rxgraph)
+    (<span class="nv">P</span> : ∏ (a b : G), a ≈ b -&gt; UU)
+    (<span class="nv">base</span> : ∏ (a : G), P a a (refl a))
+    : ∏ (a b : G) (e : a ≈ b), P a b e
+    := rxgraph_edge_rect G G P base.
+
+  <span class="kn">Definition</span> <span class="nf">rxgraph_edge_rect_eq</span> (<span class="nv">G</span> : rxgraph)
+    (<span class="nv">H</span> : is_univalent G)
+    (<span class="nv">P</span> : ∏ (a b : G), a ≈ b -&gt; UU)
+    (<span class="nv">base</span> : ∏ (a : G), P a a (refl a))
+    (<span class="nv">a</span> : G)
+    : rxgraph_edge_rect G H P base a a (refl a) = base a.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">p</span>, transportb _ p (base a)) (_ : _ = idpath _)).
+    <span class="nb">apply</span> proofirrelevancecontr, (is_univalent_to_isaprop_edges_from G H).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Based induction *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">rxgraph_edge_rect_left</span> (<span class="nv">G</span> : rxgraph)
+    (<span class="nv">H</span> : is_univalent G)
+    (<span class="nv">a</span> : G)
+    (<span class="nv">P</span> : ∏ (b : G), a ≈ b -&gt; UU)
+    (<span class="nv">base</span> : P a (refl a))
+    : ∏ (b : G) (e : a ≈ b), P b e.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> b e.
+    <span class="nb">refine</span> (transportb (<span class="k">λ</span> (<span class="nv">c</span> : edges_from G a), P (pr1 c) (pr2 c))
+              (_ : b,, e = edges_from_refl a)
+              base).
+    <span class="bp">exact</span> (pr2 (is_univalent_to_iscontr_edges_from G H a) _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">rxgraph_edge_rect_left'</span> (<span class="nv">G</span> : univalent_rxgraph)
+    (<span class="nv">a</span> : G)
+    (<span class="nv">P</span> : ∏ (b : G), a ≈ b -&gt; UU)
+    (<span class="nv">base</span> : P a (refl a))
+    : ∏ (b : G) (e : a ≈ b), P b e
+    := rxgraph_edge_rect_left G G a P base.
+
+  <span class="kn">Definition</span> <span class="nf">rxgraph_edge_rect_left_eq</span> (<span class="nv">G</span> : rxgraph)
+    (<span class="nv">H</span> : is_univalent G)
+    (<span class="nv">a</span> : G)
+    (<span class="nv">P</span> : ∏ (b : G), a ≈ b -&gt; UU)
+    (<span class="nv">base</span> : P a (refl a))
+    : rxgraph_edge_rect_left G H a P base a (refl a) = base.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">p</span>, transportb _ p base) (_ : _ = idpath _)).
+    <span class="nb">apply</span> proofirrelevancecontr, (is_univalent_to_isaprop_edges_from G H).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">rxgraph_edge_rect_right</span> (<span class="nv">G</span> : rxgraph)
+    (<span class="nv">H</span> : is_univalent G)
+    (<span class="nv">b</span> : G)
+    (<span class="nv">P</span> : ∏ (a : G), a ≈ b -&gt; UU)
+    (<span class="nv">base</span> : P b (refl b))
+    : ∏ (a : G) (e : a ≈ b), P a e.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a e.
+    <span class="nb">refine</span> (transportb (<span class="k">λ</span> (<span class="nv">c</span> : edges_to G b), P (pr1 c) (pr2 c))
+              (_ : a,, e = edges_to_refl b)
+              base).
+    <span class="bp">exact</span> (pr2 (is_univalent_to_iscontr_edges_to G H b) _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">rxgraph_edge_rect_right'</span> (<span class="nv">G</span> : univalent_rxgraph)
+    (<span class="nv">b</span> : G)
+    (<span class="nv">P</span> : ∏ (a : G), a ≈ b -&gt; UU)
+    (<span class="nv">base</span> : P b (refl b))
+    : ∏ (a : G) (e : a ≈ b), P a e
+    := rxgraph_edge_rect_right G G b P base.
+
+  <span class="kn">Definition</span> <span class="nf">rxgraph_edge_rect_right_eq</span> (<span class="nv">G</span> : rxgraph)
+    (<span class="nv">H</span> : is_univalent G)
+    (<span class="nv">b</span> : G)
+    (<span class="nv">P</span> : ∏ (a : G), a ≈ b -&gt; UU)
+    (<span class="nv">base</span> : P b (refl b))
+    : rxgraph_edge_rect_right G H b P base b (refl b) = base.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">p</span>, transportb _ p base) (_ : _ = idpath _)).
+    <span class="nb">apply</span> proofirrelevancecontr, (is_univalent_to_isaprop_edges_to G H).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Examples using the induction schemes with the [elim] and [induction]</span>
+<span class="sd">      tactics. *)</span>
+
+  <span class="kn">Goal</span> ∏ (G : univalent_rxgraph) (Q : UU) (a b : G) (f : G -&gt; Q) (e : a ≈ b), f a = f b.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    Succeed <span class="nb">elim</span> e <span class="nb">using</span> rxgraph_edge_rect_left'; <span class="bp">exact</span> (idpath (f a)).
+    Succeed <span class="nb">revert</span> b e; <span class="nb">apply</span> rxgraph_edge_rect_left'.
+    Succeed <span class="nb">induction</span> a, e <span class="nb">using</span> (rxgraph_edge_rect_right' G b); <span class="bp">exact</span> (idpath (f b)).
+    Succeed <span class="nb">revert</span> a b e; <span class="nb">apply</span> rxgraph_edge_rect'; <span class="nb">intro</span> a.
+    <span class="nb">induction</span> e <span class="nb">using</span> rxgraph_edge_rect'.
+    <span class="bp">easy</span>.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">induction</span>.
+
+<span class="kn">Section</span> <span class="nf">algebra</span>.
+  <span class="sd">(** *** Edge algebra *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">edge_inv</span> {<span class="nv">G</span> : rxgraph} (<span class="nv">H</span> : is_univalent G)
+    {<span class="nv">a</span> <span class="nv">b</span> : G} (<span class="nv">e</span> : a ≈ b) : b ≈ a.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (rxgraph_edge_rect _ H
+             (<span class="k">λ</span> (<span class="nv">a</span> <span class="nv">b</span> : G) <span class="nv">_</span>, b ≈ a) refl a b e).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">edge_inv_refl</span> {<span class="nv">G</span> : rxgraph} (<span class="nv">H</span> : is_univalent G)
+    (<span class="nv">a</span> : G) : edge_inv H (refl a) = refl a.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (rxgraph_edge_rect_eq _ H
+             (<span class="k">λ</span> (<span class="nv">a</span> <span class="nv">b</span> : G) <span class="nv">_</span>, b ≈ a) refl a).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">edge_inv_edge_inv</span> {<span class="nv">G</span> : rxgraph} (<span class="nv">H</span> : is_univalent G)
+    {<span class="nv">a</span> <span class="nv">b</span> : G} (<span class="nv">e</span> : a ≈ b)
+    : edge_inv H (edge_inv H e) = e.
+  <span class="kn">Proof</span>.
+    <span class="nb">elim</span> e <span class="nb">using</span> (rxgraph_edge_rect _ H).
+    <span class="nb">clear</span> a b e; <span class="nb">intro</span> a.
+    etrans; [<span class="nb">apply</span> maponpaths, edge_inv_refl|].
+    <span class="nb">apply</span> edge_inv_refl.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isweq_edge_inv</span> {<span class="nv">G</span> : rxgraph} (<span class="nv">H</span> : is_univalent G)
+    : ∏ (a b : G), isweq (<span class="k">λ</span> (<span class="nv">e</span> : a ≈ b), edge_inv H e).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b; use isweq_iso.
+    - <span class="bp">exact</span> (edge_inv H).
+    - <span class="nb">apply</span> edge_inv_edge_inv.
+    - <span class="nb">apply</span> edge_inv_edge_inv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">edge_comp</span> {<span class="nv">G</span> : rxgraph} (<span class="nv">H</span> : is_univalent G)
+    {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : G} (<span class="nv">e</span> : a ≈ b) : b ≈ c -&gt; a ≈ c.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (rxgraph_edge_rect _ H
+             (<span class="k">λ</span> (<span class="nv">a</span> <span class="nv">b</span> : G) <span class="nv">_</span>, b ≈ c -&gt; a ≈ c)
+             (<span class="k">λ</span> (<span class="nv">a</span> : G), idfun (a ≈ c))
+             a b e).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">edge_comp_refl_left</span> {<span class="nv">G</span> : rxgraph} (<span class="nv">H</span> : is_univalent G)
+    {<span class="nv">b</span> <span class="nv">c</span> : G} (<span class="nv">e</span> : b ≈ c)
+    : edge_comp H (refl b) e = e.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (eqtohomot
+             (rxgraph_edge_rect_eq _ H
+                (<span class="k">λ</span> (<span class="nv">a</span> <span class="nv">b</span> : G) <span class="nv">_</span>, b ≈ c -&gt; a ≈ c)
+                (<span class="k">λ</span> (<span class="nv">a</span> : G), idfun (a ≈ c))
+                b)
+             e).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">edge_comp_refl_right</span> {<span class="nv">G</span> : rxgraph} (<span class="nv">H</span> : is_univalent G)
+    {<span class="nv">a</span> <span class="nv">b</span> : G} (<span class="nv">e</span> : a ≈ b)
+    : edge_comp H e (refl b) = e.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (rxgraph_edge_rect _ H
+              (<span class="k">λ</span> (<span class="nv">a</span> <span class="nv">b</span> : G) (<span class="nv">e</span> : a ≈ b),
+                edge_comp H e (refl b) = e)
+              _ a b e).
+    <span class="nb">clear</span> a b e; <span class="nb">intro</span> a.
+    <span class="nb">apply</span> edge_comp_refl_left.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isweq_edge_comp_left</span> {<span class="nv">G</span> : rxgraph} (<span class="nv">H</span> : is_univalent G)
+    {<span class="nv">a</span> <span class="nv">b</span> : G} (<span class="nv">e</span> : a ≈ b)
+    : ∏ c, isweq (<span class="k">λ</span> (<span class="nv">e'</span> : b ≈ c), edge_comp H e e').
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> c.
+    <span class="nb">elim</span> e <span class="nb">using</span> (rxgraph_edge_rect _ H).
+    <span class="nb">clear</span> a b e; <span class="nb">intro</span> a.
+    use isweqhomot.
+    - <span class="bp">exact</span> (idfun _).
+    - <span class="nb">intro</span> e.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> edge_comp_refl_left.
+    - <span class="nb">apply</span> idisweq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isweq_edge_comp_right</span> {<span class="nv">G</span> : rxgraph} (<span class="nv">H</span> : is_univalent G)
+    {<span class="nv">b</span> <span class="nv">c</span> : G} (<span class="nv">e</span> : b ≈ c)
+    : ∏ a, isweq (<span class="k">λ</span> (<span class="nv">e'</span> : a ≈ b), edge_comp H e' e).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> a.
+    <span class="nb">elim</span> e <span class="nb">using</span> (rxgraph_edge_rect _ H).
+    <span class="nb">clear</span> b c e; <span class="nb">intro</span> b.
+    use isweqhomot.
+    - <span class="bp">exact</span> (idfun _).
+    - <span class="nb">intro</span> e.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> edge_comp_refl_right.
+    - <span class="nb">apply</span> idisweq.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">algebra</span>.
+
+<span class="sd">(** ** Displayed reflexive graphs *)</span>
+
+<span class="kn">Definition</span> <span class="nf">disp_rxgraph</span> (<span class="nv">B</span> : rxgraph) :=
+  ∑ (E : B -&gt; UU)
+    (disp_edge : ∏ (x y : B) (e : x ≈ y), E x -&gt; E y -&gt; UU),
+    ∏ (x : B) (a : E x), disp_edge x x (refl x) a a.
+
+<span class="kn">Definition</span> <span class="nf">disp_rxgraph_vertex</span> {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : disp_rxgraph B)
+  : B -&gt; UU := pr1 E.
+<span class="kn">Coercion</span> <span class="nf">disp_rxgraph_vertex</span> : disp_rxgraph &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_edge</span> {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : disp_rxgraph B)
+  : ∏ {x y : B} (e : x ≈ y), E x -&gt; E y -&gt; UU := pr12 E.
+<span class="kn">Notation</span> <span class="s2">"a '≈{' E  '}[' e  ']' b"</span> := (disp_edge E e a b) (<span class="kn">at level</span> <span class="mi">70</span>) : rxgraph.
+<span class="kn">Notation</span> <span class="s2">"a '≈[' e  ']' b"</span> := (disp_edge _ e a b) (<span class="kn">at level</span> <span class="mi">70</span>) : rxgraph.
+
+<span class="kn">Definition</span> <span class="nf">disp_refl</span> {<span class="nv">B</span> : rxgraph} {<span class="nv">E</span> : disp_rxgraph B}
+  : ∏ (x : B) (a : E x), a ≈[ refl x ] a := pr22 E.
+
+<span class="kn">Definition</span> <span class="nf">make_disp_rxgraph</span>
+  (<span class="nv">B</span> : rxgraph)
+  (<span class="nv">E</span> : B -&gt; UU)
+  (<span class="nv">disp_edge</span> : ∏ (x y : B) (e : x ≈ y), E x -&gt; E y -&gt; UU)
+  (<span class="nv">disp_refl</span> : ∏ (x : B) (a : E x), disp_edge x x (refl x) a a)
+  : disp_rxgraph B
+  := E,, disp_edge,, disp_refl.
+
+<span class="kn">Section</span> <span class="nf">univalence</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : rxgraph}.
+
+  <span class="sd">(** *** Univalence</span>
+
+<span class="sd">The component of a displayed reflexive graph [x : B ⊢ E[x]] over [x : B] is the</span>
+<span class="sd">reflexive graph obtained by fixing it at [x].  A displayed reflexive graph is</span>
+<span class="sd">(by definition) univalent if all its components are. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">disp_rxgraph_at</span> (<span class="nv">E</span> : disp_rxgraph B)
+    (<span class="nv">x</span> : B) : rxgraph.
+  <span class="kn">Proof</span>.
+    use make_rxgraph.
+    - <span class="bp">exact</span> (E x).
+    - <span class="nb">intros</span> aa bb.
+      <span class="bp">exact</span> (aa ≈[ refl x ] bb).
+    - <span class="nb">intro</span> aa.
+      <span class="bp">exact</span> (disp_refl x aa).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_disp_univalent</span> (<span class="nv">E</span> : disp_rxgraph B) : UU
+    := ∏ (x : B), is_univalent (disp_rxgraph_at E x).
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_disp_univalent</span> (<span class="nv">E</span> : disp_rxgraph B)
+    : isaprop (is_disp_univalent E).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> impred; <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_univalent.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Another way to characterize displayed univalence is via [PathOver]. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">PathOver_to_disp_edge</span> (<span class="nv">E</span> : disp_rxgraph B)
+    {<span class="nv">x</span> <span class="nv">y</span> : B} (<span class="nv">e</span> : x = y) (<span class="nv">a</span> : E x) (<span class="nv">b</span> : E y)
+    : PathOver e a b -&gt; a ≈[ id_to_edge e ] b.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    <span class="nb">induction</span> e; <span class="nb">induction</span> p.
+    <span class="nb">apply</span> disp_refl.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_disp_univalent_alt</span> (<span class="nv">E</span> : disp_rxgraph B) : UU
+    := ∏ (x y : B) (e : x = y) (a : E x) (b : E y),
+      isweq (PathOver_to_disp_edge E e a b).
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_disp_univalent_alt</span> (<span class="nv">E</span> : disp_rxgraph B)
+    : isaprop (is_disp_univalent_alt E).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">5</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isapropisweq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weq_is_disp_univalent_alt</span> (<span class="nv">E</span> : disp_rxgraph B)
+    : is_disp_univalent E ≃ is_disp_univalent_alt E.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intros</span> H x y e.
+      <span class="nb">induction</span> e; <span class="bp">exact</span> (H x).
+    - <span class="nb">intros</span> H x.
+      <span class="bp">exact</span> (H x x (idpath x)).
+    - <span class="nb">apply</span> isaprop_is_disp_univalent.
+    - <span class="nb">apply</span> isaprop_is_disp_univalent_alt.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_PathOver_to_disp_edge</span> {<span class="nv">E</span> : disp_rxgraph B}
+    (<span class="nv">HE</span> : is_disp_univalent E)
+    {<span class="nv">x</span> <span class="nv">y</span> : B} (<span class="nv">e</span> : x = y) (<span class="nv">a</span> : E x) (<span class="nv">b</span> : E y)
+    : PathOver e a b ≃ a ≈[ id_to_edge e ] b.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (make_weq (PathOver_to_disp_edge E e a b)).
+    <span class="nb">apply</span> (weq_is_disp_univalent_alt E HE).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_PathOver_to_disp_edge'</span> {<span class="nv">E</span> : disp_rxgraph B}
+    (<span class="nv">HB</span> : is_univalent B) (<span class="nv">HE</span> : is_disp_univalent E)
+    {<span class="nv">x</span> <span class="nv">y</span> : B} (<span class="nv">e</span> : x ≈ y) (<span class="nv">a</span> : E x) (<span class="nv">b</span> : E y)
+    : PathOver (edge_to_id HB e) a b ≃ a ≈[ e ] b.
+  <span class="kn">Proof</span>.
+    intermediate_weq (a ≈[ id_to_edge (edge_to_id HB e) ] b).
+    { <span class="nb">apply</span> (weq_PathOver_to_disp_edge HE). }
+    <span class="nb">refine</span> (transportf (<span class="k">λ</span> <span class="nv">e'</span>, a ≈[e'] b ≃ a ≈[e] b) _ (idweq _)).
+    <span class="bp">exact</span> (homotinvweqweq0 (weq_edge_to_id HB x y) _).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">univalence</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_disp_rxgraph</span> (<span class="nv">B</span> : rxgraph)
+  := ∑ (E : disp_rxgraph B), is_disp_univalent E.
+<span class="kn">Coercion</span> <span class="nf">univalent_disp_rxgraph_to_disp_rxgraph</span>
+  {B : rxgraph} (E : univalent_disp_rxgraph B)
+  : disp_rxgraph B := pr1 E.
+<span class="kn">Coercion</span> <span class="nf">disp_rxgraph_univalence</span>
+  {B : rxgraph} (E : univalent_disp_rxgraph B)
+  : is_disp_univalent E := pr2 E.
+
+<span class="kn">Definition</span> <span class="nf">make_univalent_disp_rxgraph</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : disp_rxgraph B)
+  (<span class="nv">H</span> : is_disp_univalent E)
+  : univalent_disp_rxgraph B
+  := E,, H.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/IdentitySystems/RXGraph.v</tt>, line 31)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  ********************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

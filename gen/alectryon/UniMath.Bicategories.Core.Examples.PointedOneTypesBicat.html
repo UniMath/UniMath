@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PointedOneTypesBicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.OneTypes.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** The bicategory *)</span>
+<span class="kn">Definition</span> <span class="nf">pointed_one_type_bicat_data</span>
+  : prebicat_data.
+<span class="kn">Proof</span>.
+  use build_prebicat_data.
+  - <span class="bp">exact</span> (∑ (X : one_type), X).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span>, ∑ (f : pr1 X → pr1 Y), f (pr2 X) = pr2 Y).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span> <span class="nv">g</span>, ∑ (h : pr1 f = pr1 g),
+           transportf (<span class="k">λ</span> <span class="nv">φ</span>, φ (pr2 X) = pr2 Y) h (pr2 f) = pr2 g).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, (<span class="k">λ</span> <span class="nv">x</span>, x) ,, idpath _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> <span class="nv">f</span> <span class="nv">g</span>, (<span class="k">λ</span> <span class="nv">x</span>,pr1 g(pr1 f x)) ,, maponpaths (pr1 g) (pr2 f) @ pr2 g).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span>, idpath _ ,, idpath _).
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">p</span> <span class="nv">q</span>, (pr1 p @ pr1 q) ,, _) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> (!(transport_f_f _ _ _ _) @ maponpaths _ (pr2 p) @ pr2 q).
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">p</span>, (maponpaths (<span class="k">λ</span> <span class="nv">φ</span> <span class="nv">x</span>, φ (pr1 f x)) (pr1 p)) ,, _) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> g <span class="k">as</span> [g1 g2], h <span class="k">as</span> [h1 h2], p <span class="k">as</span> [p1 p2] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p1, p2 ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">p</span>, (maponpaths (<span class="k">λ</span> <span class="nv">φ</span> <span class="nv">x</span>, pr1 h (φ x)) (pr1 p)) ,, _) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> g <span class="k">as</span> [g1 g2], h <span class="k">as</span> [h1 h2], p <span class="k">as</span> [p1 p2] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p1, p2 ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span>, idpath _ ,, idpath _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span>, idpath _ ,, idpath _).
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span>, idpath _ ,, _) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> (pathscomp0rid _ @ maponpathsidfun _).
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span>, idpath _ ,, _) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> (!(pathscomp0rid _ @ maponpathsidfun _)).
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>, idpath _ ,, _) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">refine</span> (path_assoc _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (_ @ !(maponpathscomp0 _ _ _)).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="bp">exact</span> (!(maponpathscomp _ _ _)).
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>, idpath _ ,, ! _) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">refine</span> (path_assoc _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (_ @ !(maponpathscomp0 _ _ _)).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="bp">exact</span> (!(maponpathscomp _ _ _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pointed_one_type_bicat_laws</span>
+  : prebicat_laws pointed_one_type_bicat_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (use tpair).
+  - <span class="nb">intros</span> X Y f g p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> f <span class="k">as</span> [f1 f2], g <span class="k">as</span> [g1 g2], p <span class="k">as</span> [p1 p2] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p1 ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y f g p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> f <span class="k">as</span> [f1 f2], g <span class="k">as</span> [g1 g2], p <span class="k">as</span> [p1 p2] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p1, p2 ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y f g h k p q r ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> f <span class="k">as</span> [f1 f2], g <span class="k">as</span> [g1 g2], h <span class="k">as</span> [h1 h2], k <span class="k">as</span> [k1 k2].
+    <span class="nb">induction</span> p <span class="k">as</span> [p1 p2], q <span class="k">as</span> [q1 q2], r <span class="k">as</span> [r1 r2] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p1, p2, q1, q2, r1, r2.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span>; <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span>; <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y Z f g h i p q ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> f <span class="k">as</span> [f1 f2], g <span class="k">as</span> [g1 g2], h <span class="k">as</span> [h1 h2], i <span class="k">as</span> [i1 i2].
+    <span class="nb">induction</span> p <span class="k">as</span> [p1 p2], q <span class="k">as</span> [q1 q2] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p1, p2, q1, q2 ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y Z f g h i p q ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> f <span class="k">as</span> [f1 f2], g <span class="k">as</span> [g1 g2], h <span class="k">as</span> [h1 h2], i <span class="k">as</span> [i1 i2].
+    <span class="nb">induction</span> p <span class="k">as</span> [p1 p2], q <span class="k">as</span> [q1 q2] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p1, p2, q1, q2 ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y f g p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> f <span class="k">as</span> [f1 f2], g <span class="k">as</span> [g1 g2], p <span class="k">as</span> [p1 p2] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p1, p2 ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y f g p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> f <span class="k">as</span> [f1 f2], g <span class="k">as</span> [g1 g2], p <span class="k">as</span> [p1 p2] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p1, p2, f2 ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> W X Y Z f g h i p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> f <span class="k">as</span> [f1 f2], g <span class="k">as</span> [g1 g2], h <span class="k">as</span> [h1 h2], i <span class="k">as</span> [i1 i2].
+    <span class="nb">induction</span> p <span class="k">as</span> [p1 p2] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p1, p2, f2, g2, h2 ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> W X Y Z f g h i p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> f <span class="k">as</span> [f1 f2], g <span class="k">as</span> [g1 g2], h <span class="k">as</span> [h1 h2], i <span class="k">as</span> [i1 i2].
+    <span class="nb">induction</span> p <span class="k">as</span> [p1 p2] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p1, p2, f2, g2 ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> W X Y Z f g h i p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> f <span class="k">as</span> [f1 f2], g <span class="k">as</span> [g1 g2], h <span class="k">as</span> [h1 h2], i <span class="k">as</span> [i1 i2].
+    <span class="nb">induction</span> p <span class="k">as</span> [p1 p2] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p1, p2, f2, h2 ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y Z f g h i p q ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> f <span class="k">as</span> [f1 f2], g <span class="k">as</span> [g1 g2], h <span class="k">as</span> [h1 h2], i <span class="k">as</span> [i1 i2].
+    <span class="nb">induction</span> p <span class="k">as</span> [p1 p2], q <span class="k">as</span> [q1 q2] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p1, p2, q1, q2, f2, h2 ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span>; <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span>; <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p <span class="k">as</span> [p1 p2].
+    <span class="nb">induction</span> p2 ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p <span class="k">as</span> [p1 p2].
+    <span class="nb">induction</span> p2 ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> W X Y Z f g h ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> f <span class="k">as</span> [f1 f2], g <span class="k">as</span> [g1 g2], h <span class="k">as</span> [h1 h2] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> f2, g2, h2 ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> W X Y Z f g h ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> f <span class="k">as</span> [f1 f2], g <span class="k">as</span> [g1 g2], h <span class="k">as</span> [h1 h2] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> f2, g2, h2 ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y Z f g ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> f <span class="k">as</span> [f1 f2], g <span class="k">as</span> [g1 g2] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> f2, g2 ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> V W X Y Z f g h i.
+    <span class="nb">induction</span> f <span class="k">as</span> [f1 f2], g <span class="k">as</span> [g1 g2], h <span class="k">as</span> [h1 h2], i <span class="k">as</span> [i1 i2] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> f2, g2, h2, i2 ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pointed_one_types</span>
+  : bicat.
+<span class="kn">Proof</span>.
+  use build_bicategory.
+  - <span class="bp">exact</span> pointed_one_type_bicat_data.
+  - <span class="bp">exact</span> pointed_one_type_bicat_laws.
+  - <span class="nb">intros</span> X Y f g ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    use isaset_total2.
+    + <span class="bp">exact</span> (impredfun <span class="mi">3</span> (pr1 X) (pr1 Y) (pr21 Y) (pr1 f) (pr1 g)).
+    + <span class="nb">intro</span> ; <span class="nb">cbn</span>.
+      <span class="kp">repeat</span> <span class="nb">intro</span>.
+      <span class="nb">apply</span> hlevelntosn.
+      <span class="nb">apply</span> (pr21 Y).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Core/Examples/PointedOneTypesBicat.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.Bicategories.Core.Bicat. Import Bicat.Notations.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

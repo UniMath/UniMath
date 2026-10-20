@@ -1,0 +1,550 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EquivalenceSignaturesWithActegoryMorphisms.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Links signatures to lax morphisms in suitable actegories, by exploiting the already established link with action-based strength (in the non-whiskered setting)</span>
+
+<span class="sd">Author: Ralph Matthes 2022</span>
+
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.PointedFunctorsMonoidal.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.Actions.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.ConstructionOfActions.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.ActionOfEndomorphismsInBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.ActionBasedStrength.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.MonoidalFromBicategory.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.ActionBasedStrongFunctorCategory.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfCats.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.Examples.ActionOfEndomorphismsInCATElementary.
+
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.Signatures.
+
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.ActionBasedStrengthOnHomsInBicat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.Actegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.coslicecat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.PointedFunctorsWhiskeredMonoidal.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.ActionOfEndomorphismsInBicatWhiskered.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.BicatOfActegories.
+
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">A</span>.
+
+ <span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> <span class="nv">D'</span> : category).
+
+ <span class="kn">Local Definition</span> <span class="nf">Mon_endo'</span> : MonoidalCategoriesTensored.monoidal_cat
+   := swapping_of_monoidal_cat (monoidal_cat_of_pointedfunctors C).
+ <span class="kn">Local Definition</span> <span class="nf">domain_action</span> : Actions.action Mon_endo' (hom(C:=bicat_of_cats) C D')
+    := ActionBasedStrengthOnHomsInBicat.ab_strength_domain_action(C:=bicat_of_cats) C D' (ActionBasedStrengthOnHomsInBicat.forget C).
+ <span class="kn">Local Definition</span> <span class="nf">target_action</span> : Actions.action Mon_endo' (hom(C:=bicat_of_cats) C D)
+    := ActionBasedStrengthOnHomsInBicat.ab_strength_target_action(C:=bicat_of_cats) C D (ActionBasedStrengthOnHomsInBicat.forget C).
+
+ <span class="kn">Lemma</span> <span class="nf">weqSignatureABStrength</span> : Signature C D D' ≃ actionbased_strong_functor Mon_endo' (ActionBasedStrengthOnHomsInBicat.domain_action C D') (ActionBasedStrengthOnHomsInBicat.target_action C D).
+ <span class="kn">Proof</span>.
+   use weq_iso.
+   - <span class="nb">apply</span> ab_strong_functor_from_signature.
+   - <span class="nb">apply</span> signature_from_strong_functor.
+   - <span class="nb">apply</span> roundtrip1_ob_as_equality.
+   - <span class="nb">apply</span> roundtrip2_ob_as_equality.
+ <span class="kn">Defined</span>.
+
+<span class="c">(* Local Definition endo : category := [C,C]. would not be okay for convertibility *)</span>
+ <span class="kn">Local Definition</span> <span class="nf">endofrombicat</span> : category := ActionOfEndomorphismsInBicatWhiskered.endocat(C:=bicat_of_cats) C.
+ <span class="kn">Local Definition</span> <span class="nf">Mon_endo</span> : monoidal endofrombicat := ActionOfEndomorphismsInBicatWhiskered.Mon_endo(C:=bicat_of_cats) C.
+ <span class="kn">Local Definition</span> <span class="nf">ptdendo</span> : category := coslice_cat_total endofrombicat I_{Mon_endo}.
+ <span class="kn">Local Definition</span> <span class="nf">Mon_ptdendo</span> : monoidal ptdendo
+   := monoidal_pointed_objects Mon_endo.
+
+ <span class="kn">Local Definition</span> <span class="nf">actegoryPtdEndosOnFunctors</span> (<span class="nv">E</span> : category) : actegory Mon_ptdendo [C,E]
+   := reindexed_actegory Mon_endo (actegoryfromprecomp C E) Mon_ptdendo
+        (forget_monoidal_pointed_objects_monoidal Mon_endo).
+
+ <span class="c">(* not possible without some transparent proofs</span>
+<span class="c"> Local Lemma actegoryPtdEndosOnFunctors_as_actegory_with_canonical_pointed_action :</span>
+<span class="c">   actegoryPtdEndosOnFunctors C = actegory_with_canonical_pointed_action Mon_endo.</span>
+<span class="c"> Proof.</span>
+<span class="c">   unfold actegoryPtdEndosOnFunctors.</span>
+<span class="c">   unfold actegoryfromprecomp.</span>
+<span class="c">   rewrite actegory_from_precomp_as_self_action.</span>
+<span class="c">   apply idpath.</span>
+<span class="c"> Qed.</span>
+<span class="c">*)</span>
+
+ <span class="kn">Local Lemma</span> <span class="nf">action_in_actegoryPtdEndosOnFunctors_as_actegory_with_canonical_pointed_action</span> :
+   actegory_action Mon_ptdendo (actegoryPtdEndosOnFunctors C) =
+     actegory_action Mon_ptdendo (actegory_with_canonical_pointed_action Mon_endo).
+ <span class="kn">Proof</span>.
+   use total2_paths_f.
+   <span class="mi">2</span>: { <span class="nb">apply</span> WhiskeredBifunctors.isaprop_is_bifunctor. }
+   <span class="nb">cbn</span>.
+   <span class="nb">apply</span> idpath.
+ <span class="kn">Qed</span>. <span class="c">(* slow *)</span>
+
+ <span class="c">(*</span>
+<span class="c"> Local Lemma lax_lineators_from_reindexed_precomp_and_reindexed_self_action_agree (F : functor [C, C] [C, C]) :</span>
+<span class="c">   lineator_lax Mon_ptdendo (actegoryPtdEndosOnFunctors C) (actegoryPtdEndosOnFunctors C) F ≃</span>
+<span class="c">     lineator_lax Mon_ptdendo (actegory_with_canonical_pointed_action Mon_endo)</span>
+<span class="c">       (actegory_with_canonical_pointed_action Mon_endo) F.</span>
+<span class="c"> Proof.</span>
+<span class="c">   use weqfibtototal. (* not seen to terminate *)</span>
+<span class="c"> *)</span>
+
+
+ <span class="kn">Section</span> <span class="nf">AA</span>.
+
+ <span class="kn">Context</span> (<span class="nv">H</span> : [C, D'] ⟶ [C, D]).
+
+ <span class="kn">Lemma</span> <span class="nf">functor_comp_id_lax_specialized</span> (<span class="nv">F</span> <span class="nv">F'</span> : C ⟶ D') (<span class="nv">α</span>: F ⟹ F') (<span class="nv">β</span>: F' ⟹ F)
+   : nat_trans_comp α β  = nat_trans_id F -&gt; nat_trans_comp (#H α) (#H β) =  nat_trans_id (pr1 (H F)).
+ <span class="kn">Proof</span>.
+   <span class="nb">intro</span> e.
+   intermediate_path (#H (nat_trans_id F)).
+   - <span class="nb">rewrite</span> &lt;- e.
+     <span class="nb">change</span> ( (# H α) · (# H β) = # H ((α:[C,D']⟦ F, F' ⟧) · (β:[C,D']⟦ F', F ⟧)) ).
+     <span class="nb">apply</span> (! functor_comp _ _ _).
+   - <span class="nb">apply</span> functor_id_id.
+     <span class="nb">apply</span> idpath.
+ <span class="kn">Qed</span>.
+
+ <span class="kn">Lemma</span> <span class="nf">weqABStrengthLaxMorphismActegories</span> :
+   actionbased_strength Mon_endo' (ActionBasedStrengthOnHomsInBicat.domain_action C D')
+                                  (ActionBasedStrengthOnHomsInBicat.target_action C D) H
+   ≃ lineator_lax Mon_ptdendo (actegoryPtdEndosOnFunctors D') (actegoryPtdEndosOnFunctors D) H.
+ <span class="kn">Proof</span>.
+   <span class="nb">unfold</span> actionbased_strength.
+   <span class="nb">unfold</span> actionbased_strength_nat.
+   <span class="nb">unfold</span> nat_trans.
+   <span class="nb">eapply</span> weqcomp.
+   { <span class="nb">apply</span> weqtotal2asstor. }
+<span class="c">(*</span>
+<span class="c">   set (P := is_nat_trans (actionbased_strength_dom Mon_endo' (ActionBasedStrengthOnHomsInBicat.target_action C D) H)</span>
+<span class="c">               (actionbased_strength_codom Mon_endo' (ActionBasedStrengthOnHomsInBicat.domain_action C D') H)).</span>
+<span class="c">   set (Q := fun (ζ: actionbased_strength_nat Mon_endo' (ActionBasedStrengthOnHomsInBicat.domain_action C D')</span>
+<span class="c">         (ActionBasedStrengthOnHomsInBicat.target_action C D) H) =&gt; actionbased_strength_triangle_eq Mon_endo' (ActionBasedStrengthOnHomsInBicat.domain_action C D')</span>
+<span class="c">     (ActionBasedStrengthOnHomsInBicat.target_action C D) H ζ</span>
+<span class="c">   × actionbased_strength_pentagon_eq Mon_endo' (ActionBasedStrengthOnHomsInBicat.domain_action C D')</span>
+<span class="c">   (ActionBasedStrengthOnHomsInBicat.target_action C D) H ζ).</span>
+<span class="c">   (* a test for speeding up - not very successful (one would then use [Q'] in place of [Q] in the invocation of [weqtotal2asstor]):</span>
+<span class="c">      set (Q' := fun ζ: ∑ t: nat_trans_data (actionbased_strength_dom Mon_endo' (ActionBasedStrengthOnHomsInBicat.target_action C D) H)</span>
+<span class="c">                            (actionbased_strength_codom Mon_endo' (ActionBasedStrengthOnHomsInBicat.domain_action C D') H),</span>
+<span class="c">                    is_nat_trans (actionbased_strength_dom Mon_endo' (ActionBasedStrengthOnHomsInBicat.target_action C D) H)</span>
+<span class="c">             (actionbased_strength_codom Mon_endo' (ActionBasedStrengthOnHomsInBicat.domain_action C D') H) t  =&gt; Q ζ). *)</span>
+<span class="c">   exact (weqtotal2asstor P Q).</span>
+<span class="c">*)</span>
+   <span class="nb">cbn</span>.
+   <span class="nb">unfold</span> actionbased_strength_triangle_eq, actionbased_strength_pentagon_eq.
+   <span class="nb">cbn</span>.
+   <span class="nb">unfold</span> lineator_lax.
+   use weqbandf.
+   - use weq_iso.
+     + <span class="nb">intros</span> α v f. <span class="bp">exact</span> (α (f,,v)).
+     + <span class="nb">intros</span> β fv. <span class="nb">induction</span> fv <span class="k">as</span> [f v]. <span class="bp">exact</span> (β v f).
+     + <span class="nb">intro</span> α. <span class="nb">cbn</span>. <span class="nb">apply</span> idpath.
+     + <span class="nb">intro</span> β. <span class="nb">cbn</span>. <span class="nb">apply</span> idpath.
+   - <span class="nb">intro</span> γ. <span class="nb">cbn</span>.
+     use weqimplimpl.
+     <span class="mi">4</span>: { <span class="nb">apply</span> isaprop_lineator_laxlaws. }
+     <span class="mi">3</span>: { <span class="nb">apply</span> isapropdirprod ; [| <span class="nb">apply</span> isapropdirprod]; <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> isaset_nat_trans; <span class="nb">apply</span> D. }
+     + <span class="nb">intro</span> Hyps.
+       <span class="nb">induction</span> Hyps <span class="k">as</span> [Hypnat [Hyptriangle Hyppentagon]].
+       <span class="nb">red</span> <span class="k">in</span> Hypnat; <span class="nb">cbn</span> <span class="k">in</span> Hypnat.
+       <span class="kp">repeat</span> <span class="nb">split</span>.
+       * <span class="nb">intros</span> v f1 f2 β.
+         <span class="nb">cbn</span>.
+         <span class="nb">apply</span> (nat_trans_eq D).
+         <span class="nb">intro</span> x.
+         <span class="nb">cbn</span>.
+         <span class="nb">assert</span> (Hypnatinst := toforallpaths _ _ _ (maponpaths pr1 (Hypnat (f1,,v) (f2,,v)
+                                                                      (β,,identity(C:=PointedFunctors.category_Ptd C) v))) x).
+         <span class="nb">cbn</span> <span class="k">in</span> Hypnatinst.
+         <span class="nb">rewrite</span> (functor_id (H f1)) <span class="k">in</span> Hypnatinst.
+         <span class="nb">rewrite</span> post_whisker_identity <span class="k">in</span> Hypnatinst.
+         <span class="nb">rewrite</span> id_left <span class="k">in</span> Hypnatinst.
+         etrans.
+         { <span class="bp">exact</span> Hypnatinst. }
+         <span class="nb">apply</span> maponpaths.
+         <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; pr1(# H z) x)).
+         <span class="nb">apply</span> (@id_left [C,D'] _ _ ((pre_whisker (pr11 v)) β: functor_composite (pr1 v) f1 ⟹ functor_composite (pr1 v) f2)).
+       * <span class="nb">intros</span> v1 v2 f α.
+         <span class="nb">cbn</span>.
+         <span class="nb">apply</span> (nat_trans_eq D).
+         <span class="nb">intro</span> x.
+         <span class="nb">cbn</span>.
+         <span class="nb">assert</span> (Hypnatinst0 := Hypnat (f,,v1) (f,,v2)).
+         transparent <span class="nb">assert</span> (αbetter : (PointedFunctors.category_Ptd C ⟦v1,v2⟧)).
+         { use tpair.
+           - <span class="bp">exact</span> (pr1 α).
+           - <span class="nb">intro</span> c. <span class="nb">unfold</span> PointedFunctors.ptd_pt. <span class="nb">apply</span> (toforallpaths _ _ _ (maponpaths pr1 (pr2 α)) c).
+         }
+         <span class="nb">assert</span> (Hypnatinst := toforallpaths _ _ _ (maponpaths pr1
+                             (Hypnat (f,,v1) (f,,v2) (catbinprodmor (identity(C:=functor_category C D') f) αbetter))) x).
+         <span class="nb">cbn</span> <span class="k">in</span> Hypnatinst.
+         <span class="nb">rewrite</span> (functor_id (H)) <span class="k">in</span> Hypnatinst.
+         <span class="nb">rewrite</span> pre_whisker_identity <span class="k">in</span> Hypnatinst.
+         <span class="nb">rewrite</span> id_right <span class="k">in</span> Hypnatinst.
+         etrans.
+         { <span class="bp">exact</span> Hypnatinst. }
+         <span class="nb">apply</span> maponpaths.
+         <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; pr1(# H z) x)).
+         <span class="nb">apply</span> (@id_right [C,D'] _ _ ((post_whisker (pr1 α)) f: functor_composite (pr1 v1) f ⟹ functor_composite (pr1 v2) f)).
+       * <span class="nb">clear</span> Hyptriangle.
+         <span class="nb">intros</span> v w f.
+         <span class="nb">cbn</span>.
+         <span class="kp">repeat</span> <span class="nb">rewrite</span> post_whisker_identity.
+         <span class="nb">apply</span> (nat_trans_eq D).
+         <span class="nb">intro</span> x.
+         <span class="nb">cbn</span>.
+         <span class="nb">assert</span> (Hyppentagoninst0 := Hyppentagon f w v).
+         <span class="nb">clear</span> Hyppentagon.
+         <span class="kp">repeat</span> <span class="nb">rewrite</span> post_whisker_identity <span class="k">in</span> Hyppentagoninst0.
+         <span class="kp">repeat</span> <span class="nb">rewrite</span> pre_whisker_identity <span class="k">in</span> Hyppentagoninst0.
+         <span class="nb">assert</span> (Hyppentagoninst := toforallpaths _ _ _ (maponpaths pr1 Hyppentagoninst0) x).
+         <span class="nb">clear</span> Hyppentagoninst0.
+         <span class="nb">cbn</span> <span class="k">in</span> Hyppentagoninst.
+         <span class="nb">rewrite</span> id_right.
+         <span class="nb">rewrite</span> id_left.
+         <span class="kp">do</span> <span class="mi">4</span> <span class="nb">rewrite</span> id_left <span class="k">in</span> Hyppentagoninst.
+         <span class="nb">unfold</span> PointedFunctorsComposition.ptd_compose <span class="k">in</span> Hyppentagoninst.
+         <span class="nb">cbn</span> <span class="k">in</span> Hyppentagoninst.
+         <span class="nb">unfold</span> post_whisker_in_funcat, pre_whisker_in_funcat, PointedFunctors.ptd_pt <span class="k">in</span> Hyppentagoninst.
+         <span class="c">(* "morally", hypothesis and goal are the same. *)</span>
+         <span class="c">(* match goal with |[ H1 : _  = _ · ?f |- _ = _   ] =&gt; set (Hf := f) end. *)</span>
+         <span class="nb">set</span> (aux1 := pr1 (#H (identity(C:=[C,D']) (functor_composite (pr1 v) ((pr1 w) · f)) ·
+                                 (identity _ · identity(C:=[C,D']) (functor_compose (pr1 v) (pr1 w) ∙ f)))) x).
+         <span class="c">(* assert (auxH : Hf = aux1).</span>
+<span class="c">         { apply idpath. } *)</span>
+         <span class="k">match goal with</span> |[ H1 : _  = _ · <span class="nl">?f</span> |- _ = _   ] =&gt; <span class="nb">change</span> f <span class="k">with</span> aux1 <span class="k">in</span> H1 <span class="k">end</span>.
+         <span class="nb">unfold</span> aux1 <span class="k">in</span> Hyppentagoninst.
+         <span class="nb">clear</span> aux1.
+         <span class="nb">rewrite</span> (functor_comp H) <span class="k">in</span> Hyppentagoninst.
+         <span class="nb">rewrite</span> id_left <span class="k">in</span> Hyppentagoninst.
+         <span class="nb">rewrite</span> (functor_id H) <span class="k">in</span> Hyppentagoninst.
+         <span class="nb">rewrite</span> id_left <span class="k">in</span> Hyppentagoninst.
+         <span class="c">(* match goal with | [ |- ?l _ · _ = _ ] =&gt; set (Hl := l) end. *)</span>
+         <span class="nb">set</span> (aux2 := nat_trans_data_from_nat_trans_funclass (γ (f,,functor_compose (pr1 v) (pr1 w),,
+               identity(C:=[C,C]) _ · nat_trans_comp (post_whisker_in_funcat C C C (PointedFunctors.ptd_pt C v)
+                        (functor_identity C)) (pre_whisker_in_funcat C C C (pr1 v) (PointedFunctors.ptd_pt C w))))).
+         <span class="c">(* assert (auxH : Hl = aux2).</span>
+<span class="c">         { apply idpath. } *)</span>
+         <span class="k">match goal with</span> | [ |- <span class="nl">?l</span> _ · _ = _ ] =&gt; <span class="nb">change</span> l <span class="k">with</span> aux2 <span class="k">end</span>.
+         <span class="nb">unfold</span> aux2.
+         <span class="nb">rewrite</span> id_left.
+         <span class="nb">clear</span> aux2.
+         etrans.
+         { <span class="nb">apply</span> cancel_postcomposition.
+           <span class="bp">exact</span> Hyppentagoninst. }
+         <span class="nb">clear</span> Hyppentagoninst.
+         <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+         <span class="nb">apply</span> maponpaths.
+         etrans.
+         <span class="mi">2</span>: { <span class="nb">apply</span> id_right. }
+         <span class="nb">apply</span> maponpaths.
+         <span class="c">(* only # H applied to identities remains *)</span>
+         <span class="k">match goal with</span> | [ |- _ <span class="nl">?l1</span> _ · _ <span class="nl">?l2</span> _ = _] =&gt; <span class="nb">set</span> (Hl1 := l1); <span class="nb">set</span> (Hl2 := l2)  <span class="k">end</span>.
+         <span class="nb">assert</span> (aux5: Hl1 · Hl2 = identity _).
+         { <span class="nb">apply</span> functor_comp_id.
+           <span class="nb">apply</span> (nat_trans_eq D').
+           <span class="nb">intro</span> x'.
+           <span class="nb">cbn</span>.
+           <span class="nb">rewrite</span> id_left.
+           <span class="nb">apply</span> id_left. }
+         <span class="bp">exact</span> (toforallpaths _ _ _ (maponpaths pr1 aux5) x).
+       * <span class="nb">clear</span> Hyppentagon.
+         <span class="nb">intro</span> f.
+         <span class="nb">cbn</span>.
+         <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> post_whisker_identity.
+         <span class="nb">unfold</span> total_unit.
+         <span class="nb">apply</span> (nat_trans_eq D).
+         <span class="nb">intro</span> x.
+         <span class="nb">cbn</span>.
+         <span class="nb">rewrite</span> id_left.
+         <span class="nb">assert</span> (Hyptriangleinst0 := Hyptriangle f).
+         <span class="nb">clear</span> Hyptriangle.
+         <span class="kp">repeat</span> <span class="nb">rewrite</span> pre_whisker_identity <span class="k">in</span> Hyptriangleinst0.
+         <span class="nb">assert</span> (Hyptriangleinst := toforallpaths _ _ _ (maponpaths pr1 Hyptriangleinst0) x).
+         <span class="nb">clear</span> Hyptriangleinst0.
+         <span class="nb">cbn</span> <span class="k">in</span>  Hyptriangleinst.
+         <span class="nb">rewrite</span> (functor_id (H f)) <span class="k">in</span> Hyptriangleinst.
+         <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left <span class="k">in</span> Hyptriangleinst.
+         etrans.
+         <span class="mi">2</span>: { <span class="bp">exact</span> Hyptriangleinst. }
+         <span class="nb">clear</span> Hyptriangleinst.
+         <span class="nb">apply</span> maponpaths.
+         <span class="c">(* match goal with | [ |- ?l _ = _ ] =&gt; set (Hl := l) end. *)</span>
+         <span class="nb">set</span> (aux3 := nat_trans_data_from_nat_trans_funclass
+                        (# H ((identity (functor_compose (functor_identity C) f)) · (identity f)))).
+         <span class="c">(* assert (Hl = aux3).</span>
+<span class="c">         { apply idpath. } *)</span>
+         <span class="k">match goal with</span> | [ |- <span class="nl">?l</span> _ = _ ] =&gt; <span class="nb">change</span> l <span class="k">with</span> aux3 <span class="k">end</span>.
+         <span class="nb">unfold</span> aux3; <span class="nb">clear</span> aux3.
+         <span class="nb">rewrite</span> id_left. <span class="nb">rewrite</span> functor_id.
+         <span class="c">(* only # H applied to identities remains *)</span>
+         <span class="c">(* match goal with | [ |- _ = _ ?r _ ] =&gt; set (Hr := r) end. *)</span>
+         <span class="nb">set</span> (argtoH := nat_trans_comp
+             (nat_trans_comp
+                (post_whisker
+                   (nat_z_iso_to_trans_inv
+                      (make_nat_z_iso (functor_identity C) (functor_identity C) (nat_trans_id (functor_identity_data C))
+                         (is_nat_z_iso_nat_trans_id (functor_identity C)))) f)
+                (nat_trans_id (functor_composite_data (functor_identity_data C) (pr1 f)))) (nat_trans_id (pr1 f))).
+         <span class="c">(* assert (G1: Hr = # H argtoH).</span>
+<span class="c">         { apply idpath. } *)</span>
+         <span class="k">match goal with</span> | [ |- _ = _ <span class="nl">?r</span> _ ] =&gt; <span class="nb">change</span> r <span class="k">with</span> (# H argtoH) <span class="k">end</span>.
+         <span class="nb">assert</span> (G2: # H argtoH = identity(C:=[C,D]) (H (functor_identity C ∙ f))).
+         { <span class="nb">apply</span> functor_id_id.
+           <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c.
+           <span class="nb">cbn</span>.
+           <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right.
+           <span class="nb">apply</span> functor_id.
+         }
+         <span class="nb">rewrite</span> G2.
+         <span class="nb">apply</span> idpath.
+     + <span class="c">(* the other direction that is very similar in spirit (but the two naturality laws give the composite one) *)</span>
+       <span class="nb">intro</span> Hyps. <span class="nb">induction</span> Hyps <span class="k">as</span> [Hypnatleft [Hypnatright [Hypactor Hypunitor]]].
+       <span class="kp">repeat</span> <span class="nb">split</span>.
+       * <span class="nb">red</span>. <span class="nb">intros</span> f1v1 f2v2 βα. <span class="nb">induction</span> f1v1 <span class="k">as</span> [f1 v1]; <span class="nb">induction</span> f2v2 <span class="k">as</span> [f2 v2]; <span class="nb">induction</span> βα <span class="k">as</span> [β α].
+         <span class="nb">cbn</span>.
+         <span class="nb">red</span> <span class="k">in</span> Hypnatleft.
+         <span class="nb">assert</span> (Hypnatleftinst := Hypnatleft v2 f1 f2 β).
+         <span class="nb">clear</span> Hypnatleft.
+         <span class="nb">cbn</span> <span class="k">in</span> Hypnatleftinst.
+         transparent <span class="nb">assert</span> (αbetter : (ptdendo ⟦v1,v2⟧)).
+         { use tpair.
+           - <span class="bp">exact</span> (pr1 α).
+           - <span class="nb">cbn</span>. <span class="nb">apply</span> (nat_trans_eq C). <span class="nb">intro</span> c. <span class="nb">cbn</span>. <span class="nb">apply</span> (pr2 α).
+         }
+         <span class="nb">assert</span> (Hypnatrightinst := Hypnatright v1 v2 f1 αbetter).
+         <span class="nb">clear</span> Hypnatright.
+         <span class="nb">cbn</span> <span class="k">in</span> Hypnatrightinst.
+         <span class="nb">change</span> (((post_whisker_in_funcat _ _ _ (pr1 α) (H f1)) · (pre_whisker_in_funcat _ _ _ (pr1 v2) (# H β))) · (γ (f2,, v2)) =
+                   nat_trans_comp (γ (f1,, v1)) (# H ((post_whisker_in_funcat _ _ _ (pr1 α) f1) · (pre_whisker_in_funcat _ _ _ (pr1 v2) β)))).
+         <span class="nb">rewrite</span> assoc'.
+         <span class="nb">rewrite</span> functor_comp.
+         etrans.
+         { <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> Hypnatleftinst. }
+         <span class="nb">clear</span> Hypnatleftinst.
+         <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">intro</span> x.
+         <span class="nb">cbn</span>.
+         <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+         <span class="nb">apply</span> cancel_postcomposition.
+         <span class="bp">exact</span> (toforallpaths _ _ _ (maponpaths pr1 Hypnatrightinst) x).
+       * <span class="nb">clear</span> Hypnatleft Hypnatright Hypactor.
+         <span class="nb">intro</span> f.
+         <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> pre_whisker_identity.
+         <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">intro</span> x. <span class="nb">cbn</span>.
+         <span class="nb">rewrite</span> (functor_id (H f)).
+         <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.
+         <span class="nb">assert</span> (Hypunitorinst0 := Hypunitor f).
+         <span class="nb">cbn</span> <span class="k">in</span> Hypunitorinst0.
+         <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> post_whisker_identity <span class="k">in</span> Hypunitorinst0.
+         <span class="nb">assert</span> (Hypunitorinst := toforallpaths _ _ _ (maponpaths pr1 Hypunitorinst0) x).
+         <span class="nb">clear</span> Hypunitorinst0.
+         <span class="nb">cbn</span> <span class="k">in</span> Hypunitorinst.
+         <span class="nb">rewrite</span> id_right <span class="k">in</span> Hypunitorinst.
+         <span class="nb">unfold</span> total_unit <span class="k">in</span> Hypunitorinst.
+         etrans.
+         <span class="mi">2</span>: { <span class="bp">exact</span> Hypunitorinst. }
+         <span class="nb">clear</span> Hypunitorinst.
+         <span class="nb">apply</span> maponpaths.
+         <span class="c">(* only # H applied to identities remains *)</span>
+         <span class="c">(* match goal with | [ |- _ = _ ?r _ ] =&gt; set (Hr := r) end. *)</span>
+         <span class="nb">set</span> (aux3 := # H ((identity (functor_compose (functor_identity C) f)) · (identity(C:=[C,D']) f))).
+         <span class="k">match goal with</span> | [ |- _ = _ <span class="nl">?r</span> _ ] =&gt; <span class="nb">change</span> r <span class="k">with</span> aux3 <span class="k">end</span>.
+         <span class="nb">unfold</span> aux3; <span class="nb">clear</span> aux3.
+         <span class="nb">rewrite</span> id_left.
+         <span class="nb">rewrite</span> functor_id.
+         <span class="nb">set</span> (argtoH := nat_trans_comp
+             (nat_trans_comp
+                (post_whisker
+                   (nat_z_iso_to_trans_inv
+                      (make_nat_z_iso (functor_identity C) (functor_identity C) (nat_trans_id (functor_identity_data C))
+                         (is_nat_z_iso_nat_trans_id (functor_identity C)))) f)
+                (nat_trans_id (functor_composite_data (functor_identity_data C) (pr1 f)))) (nat_trans_id (pr1 f))).
+         <span class="k">match goal with</span> | [ |- _ <span class="nl">?l</span> _ = _ ] =&gt; <span class="nb">change</span> l <span class="k">with</span> (# H argtoH) <span class="k">end</span>.
+         <span class="nb">assert</span> (G2': # H argtoH = identity(C:=[C,D]) (H (functor_identity C ∙ f))).
+         { <span class="nb">apply</span> functor_id_id.
+           <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c.
+           <span class="nb">cbn</span>.
+           <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right.
+           <span class="nb">apply</span> functor_id.
+         }
+         <span class="nb">rewrite</span> G2'.
+         <span class="nb">apply</span> idpath.
+       * <span class="c">(* the pentagon law as last remaining proof obligation *)</span>
+         <span class="nb">clear</span> Hypnatleft Hypnatright Hypunitor.
+         <span class="nb">intros</span> f w v.
+         <span class="nb">assert</span> (Hypactorinst0 := Hypactor v w f).
+         <span class="nb">cbn</span> <span class="k">in</span> Hypactorinst0.
+         <span class="kp">repeat</span> <span class="nb">rewrite</span> post_whisker_identity <span class="k">in</span> Hypactorinst0.
+         <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> post_whisker_identity.
+         <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> pre_whisker_identity.
+         <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">intro</span> x. <span class="nb">cbn</span>.
+         <span class="kp">repeat</span> <span class="nb">rewrite</span> id_left.
+         <span class="nb">assert</span> (Hypactorinst := toforallpaths _ _ _ (maponpaths pr1 Hypactorinst0) x).
+         <span class="nb">clear</span> Hypactorinst0. <span class="nb">cbn</span> <span class="k">in</span> Hypactorinst.
+         <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left <span class="k">in</span> Hypactorinst.
+         etrans.
+         <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+              <span class="bp">exact</span> Hypactorinst. }
+         <span class="nb">clear</span> Hypactorinst.
+         <span class="nb">rewrite</span> assoc'.
+         etrans.
+         { <span class="nb">apply</span> pathsinv0, id_right. }
+         <span class="c">(* match goal with | [ |- _ = ?r _ · _ ] =&gt; set (Hr := r) end. *)</span>
+         <span class="nb">set</span> (aux6 := nat_trans_data_from_nat_trans_funclass (γ (f,,functor_compose (pr1 v) (pr1 w),,
+               identity(C:=[C,C]) _ · nat_trans_comp (post_whisker_in_funcat C C C (PointedFunctors.ptd_pt C v)
+                        (functor_identity C)) (pre_whisker_in_funcat C C C (pr1 v) (PointedFunctors.ptd_pt C w))))).
+         <span class="c">(* assert (auxH : Hr = aux6).</span>
+<span class="c">         { apply idpath. } *)</span>
+         <span class="k">match goal with</span> | [ |- _ = <span class="nl">?r</span> _ · _ ] =&gt; <span class="nb">change</span> r <span class="k">with</span> aux6 <span class="k">end</span>.
+         <span class="nb">unfold</span> aux6. <span class="nb">clear</span> aux6.
+         <span class="nb">rewrite</span> id_left.
+         <span class="nb">apply</span> maponpaths.
+         <span class="c">(* only # H applied to identities remains *)</span>
+         <span class="c">(* match goal with |[ |- _  = _ · ?f ] =&gt; set (Hf := f) end. *)</span>
+         <span class="nb">set</span> (aux5' := pr1 (#H (identity(C:=[C,D']) (functor_composite (pr1 v) (functor_composite (pr1 w) f)) ·
+                                  (identity (C:=[C,D'])(functor_composite (functor_composite (pr1 v) (pr1 w)) f) ·
+                                     identity(C:=[C,D']) (functor_compose (pr1 v) (pr1 w) ∙ f)))) x).
+         <span class="c">(* assert (auxH : Hf = aux5').</span>
+<span class="c">         { apply idpath. } *)</span>
+         <span class="k">match goal with</span> |[ |- _  = _ · <span class="nl">?f</span> ] =&gt; <span class="nb">change</span> f <span class="k">with</span> aux5' <span class="k">end</span>.
+         <span class="nb">unfold</span> aux5'. <span class="nb">clear</span> aux5'.
+         <span class="nb">rewrite</span> (functor_comp H).
+         <span class="nb">rewrite</span> id_left.
+         <span class="nb">rewrite</span> (functor_id H).
+         <span class="nb">rewrite</span> id_left.
+         <span class="nb">apply</span> pathsinv0.
+         <span class="k">match goal with</span> | [ |- _ <span class="nl">?l1</span> _ · _ <span class="nl">?l2</span> _ = _] =&gt; <span class="nb">set</span> (Hl1 := l1); <span class="nb">set</span> (Hl2 := l2) <span class="k">end</span>.
+         <span class="c">(* It looked like being stuck. One cannot proceed as in the opposite direction stating aux7: Hl1 · Hl2 = identity _ because this does not type-check.</span>
+<span class="c">            But one can state: *)</span>
+         <span class="nb">assert</span> (aux7: nat_trans_comp Hl1 Hl2 = nat_trans_id _).
+         <span class="mi">2</span>: { <span class="bp">exact</span> (toforallpaths _ _ _ (maponpaths pr1 aux7) x). }
+         <span class="c">(* but how can we prove it? Is there something like functor_comp_id available?</span>
+<span class="c">            Yes, specialized for the situation with endofunctor categories as domain a codomain *)</span>
+         <span class="nb">apply</span> functor_comp_id_lax_specialized.
+         <span class="nb">apply</span> nat_trans_eq_alt.
+         <span class="nb">intro</span> x'.
+         <span class="nb">cbn</span>.
+         <span class="nb">rewrite</span> id_left.
+         <span class="nb">apply</span> id_left.
+ <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">AA</span>.
+
+
+ <span class="kn">Lemma</span> <span class="nf">weqSignatureLaxMorphismActegories</span> :
+   Signature C D D' ≃ hom(C:=actbicat Mon_ptdendo) ([C, D'],,actegoryPtdEndosOnFunctors D') ([C, D],,actegoryPtdEndosOnFunctors D).
+ <span class="kn">Proof</span>.
+   <span class="nb">apply</span> (weqcomp weqSignatureABStrength).
+   <span class="nb">apply</span> weqfibtototal.
+   <span class="nb">intro</span> H.
+   <span class="nb">apply</span> weqABStrengthLaxMorphismActegories.
+ <span class="kn">Defined</span>.
+
+ <span class="kn">Lemma</span> <span class="nf">weqSignatureLaxMorphismActegories_alt</span> :
+   Signature C D D' ≃ hom(C:=actbicat Mon_ptdendo) (hom(C:=bicat_of_cats) C D',,actegoryPtdEndosOnFunctors D') (hom(C:=bicat_of_cats) C D,,actegoryPtdEndosOnFunctors D).
+ <span class="kn">Proof</span>.
+   <span class="nb">apply</span> (weqcomp weqSignatureLaxMorphismActegories).
+   <span class="nb">apply</span> weqfibtototal.
+   <span class="nb">intro</span> H.
+   <span class="bp">exact</span> (idweq _).
+ <span class="kn">Defined</span>. <span class="c">(* slow *)</span>
+
+ <span class="c">(* a direct proof without going through weqSignatureLaxMorphismActegories:</span>
+<span class="c"> Lemma weqSignatureLaxMorphismActegories_alt_alt :</span>
+<span class="c">   Signature C D D' ≃ hom(C:=actbicat Mon_ptdendo) (hom(C:=bicat_of_cats) C D',,actegoryPtdEndosOnFunctors D') (hom(C:=bicat_of_cats) C D,,actegoryPtdEndosOnFunctors D).</span>
+<span class="c"> Proof.</span>
+<span class="c">   apply (weqcomp weqSignatureABStrength).</span>
+<span class="c">   apply weqfibtototal.</span>
+<span class="c">   intro H.</span>
+<span class="c">   apply weqABStrengthLaxMorphismActegories. (* very slow *)</span>
+<span class="c"> Defined. (* very slow *)</span>
+<span class="c">*)</span>
+
+<span class="kn">End</span> <span class="nf">A</span>.
+
+<span class="kn">Section</span> <span class="nf">HomogeneousCase</span>.
+
+ <span class="kn">Context</span> (<span class="nv">C</span> : category).
+ <span class="sd">(** this part can be resurrected with some transparent proofs, or hopefully by moving to pointed tensorial strength that is not instantiated from bicategories *)</span>
+ <span class="c">(*</span>
+<span class="c"> Corollary weqSignatureLaxMorphismActegoriesHomogeneous :</span>
+<span class="c">   Signature C C C ≃ ∑ H : endofrombicat C ⟶ endofrombicat C, pointedtensorialstrength (Mon_endo C) H.</span>
+<span class="c"> Proof.</span>
+<span class="c">   eapply weqcomp.</span>
+<span class="c">   { apply weqSignatureLaxMorphismActegories_alt. }</span>
+<span class="c">   cbn.</span>
+<span class="c">   apply weqfibtototal.</span>
+<span class="c">   intro H.</span>
+<span class="c">   unfold pointedtensorialstrength.</span>
+<span class="c">   rewrite (actegoryPtdEndosOnFunctors_as_actegory_with_canonical_pointed_action C).</span>
+<span class="c">   apply idweq.</span>
+<span class="c"> Defined.</span>
+
+<span class="c"> Corollary weqSignatureLaxMorphismActegoriesHomogeneous_alt :</span>
+<span class="c">   Signature C C C ≃ ∑ H : [C, C] ⟶ [C, C], pointedtensorialstrength (Mon_endo C) H.</span>
+<span class="c"> Proof.</span>
+<span class="c">   cbn.</span>
+<span class="c">   apply (weqcomp weqSignatureLaxMorphismActegoriesHomogeneous).</span>
+<span class="c">   apply weqfibtototal.</span>
+<span class="c">   intro H.</span>
+<span class="c">   apply idweq.</span>
+<span class="c"> Defined.</span>
+<span class="c">  *)</span>
+
+
+<span class="kn">End</span> <span class="nf">HomogeneousCase</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/EquivalenceSignaturesWithActegoryMorphisms.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Retract.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+
+<span class="kn">Declare Scope</span> retract.
+<span class="kn">Declare Scope</span> morcls.
+<span class="kn">Delimit Scope</span> morcls <span class="k">with</span> retract.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> retract.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Retract</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+<span class="c">(* structure retract {a b a' b' : C} (f : a ⟶ b) (f' : a' ⟶ b') : Type v :=</span>
+<span class="c">(ix : a' ⟶ a) (ra : a ⟶ a')</span>
+<span class="c">(iy : b' ⟶ b) (ry : b ⟶ b')</span>
+<span class="c">(hx : ix ≫ ra = 𝟙 a')</span>
+<span class="c">(hy : iy ≫ ry = 𝟙 b')</span>
+<span class="c">(hi : ix ≫ f = f' ≫ iy)</span>
+<span class="c">(hr : ra ≫ f' = f ≫ ry) *)</span>
+<span class="c">(*</span>
+<span class="c">        f</span>
+<span class="c">    a ----&gt; b</span>
+<span class="c">  ^ ^       ^ ^</span>
+<span class="c"> ix | ra ry | iy</span>
+<span class="c">    v v   v v</span>
+<span class="c">    a'----&gt; b'</span>
+<span class="c">        f'</span>
+<span class="c">*)</span>
+<span class="c">(* https://github.com/rwbarton/lean-model-categories/blob/e366fccd9aac01154da9dd950ccf49524f1220d1/src/category_theory/retract.lean#L15 *)</span>
+<span class="kn">Definition</span> <span class="nf">is_retract</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">x'</span> <span class="nv">y'</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">f'</span> : x' --&gt; y')
+    (<span class="nv">ix</span> : x' --&gt; x) (<span class="nv">rx</span> : x --&gt; x') (<span class="nv">iy</span> : y' --&gt; y) (<span class="nv">ry</span> : y --&gt; y') : UU :=
+  (ix · rx = identity x') × (iy · ry = identity y')
+  × (ix · f = f' · iy) × (rx · f' = f · ry).
+
+<span class="kn">Definition</span> <span class="nf">make_is_retract</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">x'</span> <span class="nv">y'</span> : C} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">f'</span> : x' --&gt; y'}
+    {<span class="nv">ix</span> : x' --&gt; x} {<span class="nv">rx</span> : x --&gt; x'} {<span class="nv">iy</span> : y' --&gt; y} {<span class="nv">ry</span> : y --&gt; y'}
+    (<span class="nv">hx</span> : rx ∘ ix = identity x') (<span class="nv">hy</span> : ry ∘ iy = identity y')
+    (<span class="nv">hi</span> : f  ∘ ix = iy ∘ f') (<span class="nv">hr</span> : f' ∘ rx = ry ∘ f): is_retract f f' ix rx iy ry :=
+  make_dirprod hx (make_dirprod hy (make_dirprod hi hr)).
+
+<span class="kn">Definition</span> <span class="nf">retract</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">x'</span> <span class="nv">y'</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">f'</span> : x' --&gt; y') : UU :=
+  ∑ (ix : x' --&gt; x) (rx : x --&gt; x') (iy : y' --&gt; y) (ry : y --&gt; y'),
+    is_retract f f' ix rx iy ry.
+
+<span class="kn">Definition</span> <span class="nf">make_retract</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">x'</span> <span class="nv">y'</span> : C} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">f'</span> : x' --&gt; y'}
+    (<span class="nv">ix</span> : x' --&gt; x) (<span class="nv">rx</span> : x --&gt; x') (<span class="nv">iy</span> : y' --&gt; y) (<span class="nv">ry</span> : y --&gt; y')
+    (<span class="nv">r</span> : is_retract f f' ix rx iy ry) :
+  retract f f' :=
+    tpair _ ix (tpair _ rx (tpair _ iy (tpair _ ry r))).
+
+<span class="c">(* https://github.com/rwbarton/lean-model-categories/blob/e366fccd9aac01154da9dd950ccf49524f1220d1/src/category_theory/retract.lean#L23 *)</span>
+<span class="c">(* Lemma 14.1.2 in MCAT *)</span>
+<span class="kn">Lemma</span> <span class="nf">retract_is_iso</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">x'</span> <span class="nv">y'</span> : C} {<span class="nv">f</span> : iso x y} {<span class="nv">f'</span> : x' --&gt; y'}
+    (<span class="nv">r</span> : retract f f') :
+  is_iso f'.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> r <span class="k">as</span> [ix [rx [iy [ry [hx [hy [hi hr]]]]]]].
+
+  <span class="c">(* we construct an explicit inverse from the retract dixgram *)</span>
+  <span class="nb">apply</span> is_iso_from_is_z_iso.
+
+  <span class="c">(* inverse is ra ∘ f^{-1} ∘ iy *)</span>
+  <span class="k">exists</span> (<span class="nv">iy</span> · (inv_from_iso f) · rx).
+  <span class="nb">split</span>.
+  <span class="c">(* dixgram chasing *)</span>
+  - <span class="nb">rewrite</span> assoc, assoc, &lt;- hi.
+    <span class="nb">rewrite</span> &lt;- (assoc ix _ _).
+    <span class="nb">rewrite</span> iso_inv_after_iso, id_right.
+    <span class="bp">exact</span> hx.
+  - <span class="nb">rewrite</span> &lt;- assoc, &lt;- assoc, hr, assoc, assoc.
+    <span class="nb">rewrite</span> &lt;- (assoc iy _ _).
+    <span class="nb">rewrite</span> iso_after_iso_inv, id_right.
+    <span class="bp">exact</span> hy.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Retract</span>.
+
+<span class="c">(* https://github.com/rwbarton/lean-model-categories/blob/e366fccd9aac01154da9dd950ccf49524f1220d1/src/category_theory/retract.lean#L36 *)</span>
+<span class="kn">Lemma</span> <span class="nf">functor_on_retract</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+    (<span class="nv">F</span> : functor C D)
+    {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">x'</span> <span class="nv">y'</span> : C} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">f'</span> : x' --&gt; y'}
+    (<span class="nv">r</span> : retract f f') :
+  retract (#F f) (#F f').
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> r <span class="k">as</span> [ix [ra [iy [ry [hx [hy [hi hr]]]]]]].
+  use (make_retract (#F ix) (#F ra) (#F iy) (#F ry)).
+  use make_is_retract; <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- functor_comp; <span class="kp">try</span> <span class="nb">rewrite</span> &lt;- functor_id.
+  - <span class="bp">now</span> <span class="nb">rewrite</span> hx.
+  - <span class="bp">now</span> <span class="nb">rewrite</span> hy.
+  - <span class="bp">now</span> <span class="nb">rewrite</span> hi.
+  - <span class="bp">now</span> <span class="nb">rewrite</span> hr.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">opp_retract</span> {<span class="nv">C</span> : category}
+    {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">x'</span> <span class="nv">y'</span> : C} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">f'</span> : x' --&gt; y'}
+    (<span class="nv">r</span> : retract f f') :
+  retract (C:=op_cat C) (opp_mor f) (opp_mor f').
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> r <span class="k">as</span> [ix [rx [iy [ry [hx [hy [hi hr]]]]]]].
+  use make_retract.
+  - <span class="bp">exact</span> (opp_mor ry).
+  - <span class="bp">exact</span> (opp_mor iy).
+  - <span class="bp">exact</span> (opp_mor rx).
+  - <span class="bp">exact</span> (opp_mor ix).
+  - use make_is_retract.
+    * <span class="bp">exact</span> hy.
+    * <span class="bp">exact</span> hx.
+    * <span class="nb">symmetry</span>. <span class="bp">exact</span> hr.
+    * <span class="nb">symmetry</span>. <span class="bp">exact</span> hi.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">retract_self</span> {<span class="nv">C</span> : category} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : a --&gt; b) :
+    retract f f.
+<span class="kn">Proof</span>.
+  use make_retract; <span class="kp">try</span> <span class="bp">exact</span> (identity _).
+  <span class="kp">abstract</span> (
+    use make_is_retract; <span class="nb">rewrite</span> id_left; <span class="kp">try</span> <span class="nb">rewrite</span> id_right; <span class="nb">trivial</span>
+  ).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/ModelCategories/Retract.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.opp_precat.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FunctorsIntoCatComprehensionBicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************</span>
+
+<span class="sd"> The comprehension bicategory of functors into the category of strict categories</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The comprehension pseudofunctor</span>
+<span class="sd"> 2. Preservation of cartesian cells</span>
+<span class="sd"> 3. The comprehension bicategory</span>
+
+<span class="sd"> *******************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.StreetOpFibration.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.GrothendieckConstruction.TotalCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.GrothendieckConstruction.IsosInTotal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.GrothendieckConstruction.IsOpfibration.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.GrothendieckConstruction.IsPullback.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.GrothendieckConstruction.Projection.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Examples.FibrationsInStrictCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StrictCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.CartesianPseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Codomain.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.FunctorsIntoCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DisplayMapBicatToDispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.CodomainCleaving.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.FunctorsIntoCatCleaving.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Products.
+<span class="kn">Import</span> Products.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.Logic.ComprehensionBicat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. The comprehension pseudofunctor</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">functors_into_cat_comprehension_data</span>
+  : disp_psfunctor_data
+      disp_bicat_of_functors_into_cat
+      (cod_disp_bicat bicat_of_strict_cats)
+      (id_psfunctor bicat_of_strict_cats).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">F</span>,
+           total_setcategory_of_set_functor F
+           ,,
+           pr1_total_category_of_set_functor F).
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">F</span> <span class="nv">G₁</span> <span class="nv">G₂</span> <span class="nv">α</span>, functor_total_category_of_set_functor F α ,, _).
+    use make_invertible_2cell.
+    + <span class="bp">exact</span> (functor_total_category_of_set_functor_comm F α).
+    + <span class="nb">apply</span> is_invertible_2cell_bicat_of_strict_cat.
+      <span class="bp">exact</span> (is_nat_z_iso_functor_total_category_of_set_functor_comm F α).
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">F₁</span> <span class="nv">F₂</span> <span class="nv">α</span> <span class="nv">G₁</span> <span class="nv">G₂</span> <span class="nv">β₁</span> <span class="nv">β₂</span> <span class="nv">p</span>,
+            nat_trans_total_category_of_set_functor α β₁ β₂ p
+            ,,
+            _).
+    <span class="kp">abstract</span>
+      (use nat_trans_eq ; [ <span class="nb">apply</span> C₂ | ] ;
+       <span class="nb">intro</span> x ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> id_left, id_right ;
+       <span class="nb">apply</span> idpath).
+  - <span class="nb">intros</span> C F.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="nb">simple refine</span> (_ ,, _).
+      * <span class="bp">exact</span> (functor_total_category_of_set_functor_on_id F).
+      * <span class="kp">abstract</span>
+          (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+           <span class="nb">intro</span> x ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !id_left ;
+           <span class="nb">apply</span> idpath).
+    + use is_disp_invertible_2cell_cod.
+      use is_invertible_2cell_bicat_of_strict_cat.
+      <span class="bp">exact</span> (is_nat_z_iso_functor_total_category_of_set_functor_on_id F).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F₁ F₂ G₁ G₂ G₃ α β.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="nb">simple refine</span> (_ ,, _).
+      * <span class="bp">exact</span> (functor_total_category_of_set_functor_on_comp α β).
+      * <span class="kp">abstract</span>
+          (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+           <span class="nb">intro</span> x ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !id_left ;
+           <span class="nb">rewrite</span> (functor_id F₂) ;
+           <span class="nb">rewrite</span> !id_right ;
+           <span class="nb">apply</span> idpath).
+    + use is_disp_invertible_2cell_cod.
+      use is_invertible_2cell_bicat_of_strict_cat.
+      <span class="bp">exact</span> (is_nat_z_iso_functor_total_category_of_set_functor_on_comp α β).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_disp_psfunctor_functors_into_cat_comprehension</span>
+  : is_disp_psfunctor
+      _ _ _
+      functors_into_cat_comprehension_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+    (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property | ]).
+  - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over _ _)).
+    use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ].
+    <span class="nb">intro</span> x.
+    use eq_mor_category_of_set_functor.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ !(id_left _)).
+      <span class="nb">apply</span> setcategory_eq_idtoiso.
+  - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over _ _)).
+    use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ].
+    <span class="nb">intro</span> x.
+    use eq_mor_category_of_set_functor.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ !(id_left _)).
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# (pr1 bb) (pr1 φ (pr1 x)))).
+        }
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat
+                 (eq_in_set_fiber
+                    (functor_comp bb (pr1 η (pr1 x)) (pr1 φ (pr1 x)))
+                    (pr1 (pr1 ff (pr1 x)) (pr2 x)))).
+      }
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat
+                 (eq_in_set_fiber
+                    (functor_comp bb (pr1 η (pr1 x)) (pr1 φ (pr1 x)))
+                    (pr1 (pr1 ff (pr1 x)) (pr2 x))
+                  @ _)).
+      }
+      <span class="nb">apply</span> setcategory_eq_idtoiso.
+  - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over (psfunctor_lunitor _ _) _)).
+    use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ].
+    <span class="nb">intro</span> x.
+    use eq_mor_category_of_set_functor.
+    + <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !id_right ;
+         <span class="nb">rewrite</span> functor_id ;
+         <span class="nb">apply</span> idpath).
+    + <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths_2.
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  etrans.
+                  {
+                    <span class="nb">apply</span> maponpaths.
+                    etrans.
+                    {
+                      <span class="nb">apply</span> maponpaths.
+                      <span class="nb">refine</span> (!_).
+                      <span class="nb">apply</span> (pr1_maponpaths_idtoiso (pr1 ff (pr1 x))).
+                    }
+                    <span class="nb">refine</span> (!_).
+                    <span class="nb">apply</span> (pr1_idtoiso_concat
+                             (functor_total_category_of_set_functor_eq
+                                f ff
+                                (id₁ (pr1 x) ,, _))).
+                  }
+                  <span class="nb">refine</span> (!_).
+                  <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# (pr1 bb) _)).
+                }
+                <span class="nb">refine</span> (!_).
+                <span class="nb">apply</span> (pr1_idtoiso_concat (eq_in_set_fiber (functor_comp bb _ _) _)).
+              }
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_idtoiso_concat _ (eq_in_set_fiber (functor_id bb _) _)).
+            }
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# (pr1 bb) _)).
+          }
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_idtoiso_concat (eq_in_set_fiber (functor_comp bb _ _) _)).
+        }
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat
+                 (eq_in_set_fiber (functor_comp bb _ _) _ @ _)).
+      }
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat
+                 _
+                 ((eq_in_set_fiber (functor_comp bb _ _) _ @ _) @ _)).
+      }
+      <span class="nb">apply</span> setcategory_eq_idtoiso.
+  - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over (psfunctor_runitor _ _) _)).
+    use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ].
+    <span class="nb">intro</span> x.
+    use eq_mor_category_of_set_functor.
+    + <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !id_right ;
+         <span class="nb">apply</span> idpath).
+    + <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths_2.
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  <span class="nb">refine</span> (!_).
+                  <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# (pr1 bb) _)).
+                }
+                <span class="nb">refine</span> (!_).
+                <span class="nb">apply</span> (pr1_idtoiso_concat
+                         (eq_in_set_fiber
+                            (functor_comp bb _ _)
+                            _)).
+              }
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_idtoiso_concat
+                       _
+                       (eq_in_set_fiber
+                          (functor_id bb _)
+                          _)).
+            }
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# (pr1 bb) _)).
+          }
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_idtoiso_concat
+                   (eq_in_set_fiber
+                      (functor_comp bb _ _)
+                      _)).
+        }
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat
+                 (eq_in_set_fiber
+                    (functor_comp bb _ _)
+                    _
+                  @ _)).
+      }
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat
+                 _
+                 ((eq_in_set_fiber (functor_comp bb _ _) _ @ _) @ _)).
+      }
+      <span class="nb">apply</span> setcategory_eq_idtoiso.
+  - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over (psfunctor_lassociator _ _ _ _) _)).
+    use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ].
+    <span class="nb">intro</span> x.
+    use eq_mor_category_of_set_functor.
+    + <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> functor_id ;
+         <span class="nb">apply</span> idpath).
+    + <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">refine</span> (!_).
+                <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# (pr1 dd) _)).
+              }
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_idtoiso_concat
+                       (eq_in_set_fiber
+                          (functor_comp dd _ _)
+                          _)).
+            }
+            <span class="nb">refine</span> (!_).
+            <span class="bp">exact</span> (pr1_idtoiso_concat
+                     _
+                     (eq_in_set_fiber
+                        (functor_id dd _)
+                        _)).
+          }
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# (pr1 dd) _)).
+        }
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat
+                 (eq_in_set_fiber
+                    (functor_comp dd _ _)
+                    _)).
+      }
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat
+                 (eq_in_set_fiber
+                    (functor_comp dd _ _)
+                    _ @ _)).
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  <span class="nb">refine</span> (!_).
+                  <span class="nb">apply</span> (pr1_maponpaths_idtoiso (pr1 hh _)).
+                }
+                <span class="nb">refine</span> (!_).
+                <span class="nb">apply</span> (pr1_idtoiso_concat
+                         _
+                         (maponpaths
+                            (pr11 (pr1 hh _))
+                            (eq_in_set_fiber (functor_id cc _) _))).
+              }
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths_2.
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  <span class="nb">refine</span> (!_).
+                  <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# (pr1 dd) _)).
+                }
+                <span class="nb">refine</span> (!_).
+                <span class="nb">apply</span> (pr1_idtoiso_concat
+                         (eq_in_set_fiber (functor_comp dd _ _) _)).
+              }
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_idtoiso_concat
+                       (eq_in_set_fiber (functor_comp dd _ _) _ @ _)).
+            }
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# (pr1 dd) _)).
+          }
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_idtoiso_concat
+                   (eq_in_set_fiber (functor_comp dd _ _) _)).
+        }
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat
+                 _
+                 (eq_in_set_fiber (functor_id dd _) _)).
+      }
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat
+                 _
+                 (_ @ eq_in_set_fiber (functor_id dd _) _)).
+      }
+      <span class="nb">apply</span> setcategory_eq_idtoiso.
+  - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over (psfunctor_lwhisker _ _ _) _)).
+    use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ].
+    <span class="nb">intro</span> x.
+    use eq_mor_category_of_set_functor.
+    + <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id_left, id_right ;
+         <span class="nb">apply</span> idpath).
+    + <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# (pr1 cc) _)).
+        }
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat (eq_in_set_fiber (functor_comp cc _ _) _)).
+      }
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat (eq_in_set_fiber (functor_comp cc _ _) _ @ _)).
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# (pr1 cc) _)).
+          }
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_idtoiso_concat (eq_in_set_fiber (functor_comp cc _ _) _)).
+        }
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat _ (eq_in_set_fiber (functor_id cc _) _)).
+      }
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat _ (_ @ eq_in_set_fiber (functor_id cc _) _)).
+      }
+      <span class="nb">apply</span> setcategory_eq_idtoiso.
+  - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over (psfunctor_rwhisker _ _ _) _)).
+    use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ].
+    <span class="nb">intro</span> x.
+    use eq_mor_category_of_set_functor.
+    + <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id_left, id_right ;
+         <span class="nb">apply</span> idpath).
+    + <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# (pr1 cc) _)).
+        }
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat (eq_in_set_fiber (functor_comp cc _ _) _)).
+      }
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat (eq_in_set_fiber (functor_comp cc _ _) _ @ _)).
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">refine</span> (!_).
+                <span class="nb">apply</span> (pr1_maponpaths_idtoiso (pr1 gg _)).
+              }
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_idtoiso_concat
+                       (functor_total_category_of_set_functor_eq
+                          g gg
+                          (nat_trans_total_category_of_set_functor_data
+                             η ff₁ ff₂ ηη x))).
+            }
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# (pr1 cc) _)).
+          }
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_idtoiso_concat (eq_in_set_fiber (functor_comp cc _ _) _)).
+        }
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat _ (eq_in_set_fiber (functor_id cc _) _)).
+      }
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat _ (_ @ eq_in_set_fiber (functor_id cc _) _)).
+      }
+      <span class="nb">apply</span> setcategory_eq_idtoiso.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">functors_into_cat_comprehension</span>
+  : disp_psfunctor
+      disp_bicat_of_functors_into_cat
+      (cod_disp_bicat bicat_of_strict_cats)
+      (id_psfunctor bicat_of_strict_cats)
+  := functors_into_cat_comprehension_data
+     ,,
+     is_disp_psfunctor_functors_into_cat_comprehension.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Preservation of cartesian cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">total_set_category_has_pb_ump</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : setcategory}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">G₁</span> : C₁ ⟶ cat_of_setcategory}
+           {<span class="nv">G₂</span> : C₂ ⟶ cat_of_setcategory}
+           (<span class="nv">α</span> : G₁ ⟹ F ∙ G₂)
+           (<span class="nv">Hα</span> : is_nat_z_iso α)
+  : has_pb_ump
+      (@make_pb_cone
+         bicat_of_strict_cats
+         C₁ (total_setcategory_of_set_functor G₂) C₂
+         F (pr1_total_category_of_set_functor G₂)
+         (total_setcategory_of_set_functor G₁)
+         (pr1_total_category_of_set_functor G₁)
+         (functor_total_category_of_set_functor F α)
+         (make_invertible_2cell
+            (is_invertible_2cell_bicat_of_strict_cat
+               (functor_total_category_of_set_functor_comm F α)
+               (is_nat_z_iso_functor_total_category_of_set_functor_comm F α)))).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> x.
+    use make_pb_1cell.
+    + <span class="nb">apply</span> (@total_set_category_pb_ump_1_mor
+               _ _ _ _ _ _ Hα _
+               (pb_cone_pr1 x) (pb_cone_pr2 x)
+               (pr1 (pb_cone_cell x))).
+      <span class="nb">apply</span> from_is_invertible_2cell_bicat_of_strict_cat.
+      <span class="nb">apply</span> property_from_invertible_2cell.
+    + use make_invertible_2cell.
+      * <span class="nb">apply</span> (@total_set_category_pb_ump_1_mor_pr1
+                 _ _ _ _ _ _ Hα _
+                 (pb_cone_pr1 x) (pb_cone_pr2 x)
+                 (pr1 (pb_cone_cell x))).
+      * <span class="nb">apply</span> is_invertible_2cell_bicat_of_strict_cat.
+        <span class="nb">apply</span> total_set_category_pb_ump_1_mor_pr1_is_nat_z_iso.
+    + use make_invertible_2cell.
+      * <span class="nb">apply</span> (@total_set_category_pb_ump_1_mor_pr2
+                 _ _ _ _ _ _ Hα _
+                 (pb_cone_pr1 x) (pb_cone_pr2 x)
+                 (pr1 (pb_cone_cell x))).
+      * <span class="nb">apply</span> is_invertible_2cell_bicat_of_strict_cat.
+        <span class="nb">apply</span> total_set_category_pb_ump_1_mor_pr2_is_nat_z_iso.
+    + <span class="kp">abstract</span>
+        (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+         <span class="nb">intro</span> z ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> (functor_id F) ;
+         <span class="nb">rewrite</span> !id_left, id_right ;
+         <span class="bp">exact</span> (!(nat_trans_eq_pointwise (vcomp_rinv (pb_cone_cell x)) z))).
+  - <span class="nb">intros</span> C₀ φ₁ φ₂ δ₁ δ₂ p.
+    <span class="nb">assert</span> (∏ (x : pr1 C₀), pr1 (pr1 δ₂ x) = # F (pr1 δ₁ x)) <span class="k">as</span> q.
+    {
+      <span class="kp">abstract</span>
+        (<span class="nb">intro</span> x ;
+         <span class="nb">pose</span> (nat_trans_eq_pointwise p x) <span class="k">as</span> q ;
+         <span class="nb">cbn</span> <span class="k">in</span> q ;
+         <span class="nb">rewrite</span> !id_left, !id_right <span class="k">in</span> q ;
+         <span class="bp">exact</span> q).
+    }
+    use iscontraprop1.
+    + <span class="nb">apply</span> total_set_category_pb_ump_2_unique.
+      <span class="nb">apply</span> Hα.
+    + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      * <span class="bp">exact</span> (total_set_category_pb_ump_2_cell _ Hα δ₁ δ₂ q).
+      * <span class="nb">apply</span> total_set_category_pb_ump_2_pr1.
+      * <span class="nb">apply</span> total_set_category_pb_ump_2_pr2.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">local_opcartesian_functors_into_cat_comprehension</span>
+  : local_opcartesian_disp_psfunctor functors_into_cat_comprehension.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> C₁ C₂ F₁ F₂ α G₁ G₂ β₁ β₂ p Hp.
+  use is_opcartesian_2cell_sopfib_to_is_opcartesian_2cell.
+  use strict_pointwise_opcartesian_is_opcartesian.
+  <span class="nb">cbn</span>.
+  <span class="nb">intro</span> x.
+  <span class="nb">apply</span> is_opcartesian_total_setcategory_of_set_functor.
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> z_iso_is_z_isomorphism.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">global_cartesian_functors_into_cat_comprehension</span>
+  : global_cartesian_disp_psfunctor functors_into_cat_comprehension.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> C₁ C₂ F G₁ G₂ α Hα.
+  use is_pb_to_cartesian_1cell.
+  <span class="nb">apply</span> total_set_category_has_pb_ump.
+  <span class="bp">exact</span> (functors_into_cat_cartesian_1cell_is_nat_iso _ Hα).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. The comprehension bicategory</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">functors_into_cat_comprehension_bicat_structure</span>
+  : comprehension_bicat_structure bicat_of_strict_cats
+  := disp_bicat_of_functors_into_cat
+     ,,
+     functors_into_cat_comprehension
+     ,,
+     functors_into_cat_global_cleaving
+     ,,
+     global_cartesian_functors_into_cat_comprehension.
+
+<span class="kn">Definition</span> <span class="nf">is_covariant_functors_into_cat_comprehension_bicat</span>
+  : is_covariant functors_into_cat_comprehension_bicat_structure.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="bp">exact</span> functors_into_cat_local_opcleaving.
+  - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> functors_into_cat_is_opcartesian_2cell.
+  - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> functors_into_cat_is_opcartesian_2cell.
+  - <span class="bp">exact</span> local_opcartesian_functors_into_cat_comprehension.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functors_into_cat_comprehension_bicat</span>
+  : comprehension_bicat
+  := _
+     ,,
+     functors_into_cat_comprehension_bicat_structure
+     ,,
+     is_covariant_functors_into_cat_comprehension_bicat.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Logic/Examples/FunctorsIntoCatComprehensionBicat.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. The comprehension bicategory
+  &gt;
+  &gt;  *******************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

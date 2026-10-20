@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>elems_slice_equiv.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+<span class="sd">Matthew Weaver, 2017</span>
+<span class="sd">************************************************************)</span>
+
+
+<span class="sd">(** **********************************************************</span>
+<span class="sd">Contents : Equivalence of the categories PreShv ∫P and</span>
+<span class="sd">           PreShv C / P for any P in PreShv C</span>
+<span class="sd">************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span>
+        UniMath.CategoryTheory.Equivalences.Core
+        UniMath.CategoryTheory.Categories.HSET.Core
+        UniMath.CategoryTheory.Categories.HSET.MonoEpiIso
+        UniMath.CategoryTheory.slicecat
+        UniMath.CategoryTheory.opp_precat
+        UniMath.CategoryTheory.Presheaf
+        UniMath.CategoryTheory.ElementsOp.
+
+<span class="sd">(** * Proof that PreShv ∫P ≃ PreShv C / P *)</span>
+<span class="kn">Section</span> <span class="nf">elems_slice_equiv</span>.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C / X"</span> := (slice_cat C X).
+  <span class="kn">Local Definition</span> <span class="nf">ap_PreShv</span> {<span class="nv">X</span> : category} := <span class="k">fun</span> (<span class="nv">P</span> : PreShv X) (<span class="nv">x</span> : X) =&gt; pr1hSet ((pr1 P) x).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"##"</span> := ap_PreShv.
+
+  <span class="kn">Variable</span> (<span class="nv">C</span> : category) (<span class="nv">P</span> : PreShv C).
+
+  <span class="sd">(** ** Construction of the functor from PreShv ∫P to PreShv C / P *)</span>
+  <span class="kn">Local Definition</span> <span class="nf">make_ob</span> := @make_ob C P.
+  <span class="kn">Local Definition</span> <span class="nf">make_mor</span> := @make_mor C P.
+
+  <span class="kn">Definition</span> <span class="nf">PreShv_to_slice_ob_funct_fun</span> (<span class="nv">F</span> : PreShv ∫P) : C^op → HSET :=
+    <span class="k">λ</span> <span class="nv">X</span>, total2_hSet (<span class="k">fun</span> <span class="nv">p</span> : ##P X =&gt; (pr1 F) (make_ob X p)).
+
+  <span class="kn">Definition</span> <span class="nf">PreShv_to_slice_ob_funct_mor</span> (<span class="nv">F</span> : PreShv ∫P) {<span class="nv">X</span> <span class="nv">Y</span> : C^op} (<span class="nv">f</span> : X --&gt; Y) :
+    PreShv_to_slice_ob_funct_fun F X --&gt; PreShv_to_slice_ob_funct_fun F Y :=
+    <span class="k">λ</span> <span class="nv">p</span>, # (pr1 P) f (pr1 p) ,, # (pr1 F) (mor_to_el_mor (C:=C) f (pr1 p)) (pr2 p).
+
+
+  <span class="kn">Definition</span> <span class="nf">PreShv_to_slice_ob_funct_data</span> (<span class="nv">F</span> : PreShv ∫P) : functor_data C^op HSET :=
+    PreShv_to_slice_ob_funct_fun F ,, @PreShv_to_slice_ob_funct_mor F.
+
+  <span class="c">(* Proof from Anders:</span>
+<span class="c">     see [ctx_ext] in https://github.com/mortberg/TypeTheory/blob/cube0/TypeTheory/Cubical/cubical.v *)</span>
+  <span class="kn">Definition</span> <span class="nf">PreShv_to_slice_ob_is_funct</span> (<span class="nv">F</span> : PreShv ∫P) : is_functor (PreShv_to_slice_ob_funct_data F).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    + <span class="nb">intros</span> I; <span class="nb">apply</span> funextfun; <span class="nb">intros</span> [ρ u].
+      use total2_paths_f.
+      * <span class="bp">exact</span> (eqtohomot (functor_id P I) ρ).
+      * etrans; [use transportf_make_ob|].
+        etrans; [<span class="nb">apply</span> transportf_PreShv|]; <span class="nb">cbn</span>.
+        <span class="bp">now</span> <span class="nb">rewrite</span> (mor_to_el_mor_id ρ), transportfbinv, (functor_id F).
+    + <span class="nb">intros</span> I J K f g; <span class="nb">apply</span> funextfun; <span class="nb">intros</span> [ρ u].
+      use total2_paths_f.
+      * <span class="bp">exact</span> (eqtohomot (functor_comp P f g) ρ).
+      * etrans; [use transportf_make_ob|].
+        etrans; [<span class="nb">apply</span> transportf_PreShv|].
+        <span class="nb">rewrite</span> (mor_to_el_mor_comp _ f g), transportfbinv.
+        <span class="nb">generalize</span> u; <span class="nb">simpl</span> <span class="k">in</span> *.
+        <span class="nb">apply</span> eqtohomot, (functor_comp F (mor_to_el_mor f ρ) (mor_to_el_mor g (# (pr1 P) f ρ))).
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* Version of proof worked out by Vladimir and me *)</span>
+  <span class="kn">Definition</span> <span class="nf">PreShv_to_slice_ob_is_funct'</span> (<span class="nv">F</span> : PreShv ∫P) : is_functor (PreShv_to_slice_ob_funct_data F).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>;
+      [<span class="nb">intros</span> X | <span class="nb">intros</span> X Y Z f g];
+      <span class="nb">apply</span> funextsec; <span class="nb">intros</span> [p q].
+
+    + <span class="nb">set</span> (T := ∑ p' : ## P X, p' = # (pr1 P) (identity X) p : UU).
+      <span class="nb">set</span> (T' := ∑ p' : ## P X, (pr1 F) (X ,, p) --&gt; (pr1 F) (X ,, p') : UU).
+      <span class="nb">set</span> (phi := <span class="k">λ</span> (<span class="nv">x</span> : T), make_mor (X ,, pr1 x) (X ,, p) (identity X) (pr2 x)).
+      <span class="nb">set</span> (G := <span class="k">λ</span> (<span class="nv">x</span> : T), pr1 x ,, # (pr1 F) (phi x) : T').
+      <span class="nb">set</span> (e := <span class="k">fun</span> (<span class="nv">x</span> : ∫P) =&gt; eqtohomot (!((functor_id P) (pr1 x))) (pr2 x)).
+      <span class="nb">set</span> (h := <span class="k">λ</span> (<span class="nv">x</span> : T'), pr1 x ,, (pr2 x) q : pr1hSet (PreShv_to_slice_ob_funct_fun F X)).
+
+      use (maponpaths (funcomp G h)
+                         (coconustot_isProofIrrelevant ((# (pr1 P) (identity X) p) ,, idpath _) (p ,, e (X ,, p))) @ _).
+      use (@pair_path_in2 _ (<span class="k">λ</span> <span class="nv">x</span>, pr1hSet ((pr1 F) (X ,, x))) p).
+      use (eqtohomot _ q @ eqtohomot (functor_id F (X ,, p)) q).
+      use (maponpaths (# (pr1 F))).
+      use total2_paths_f.
+      * <span class="bp">reflexivity</span>.
+      * <span class="nb">rewrite</span> idpath_transportf;
+        <span class="bp">now</span> <span class="nb">apply</span> setproperty.
+
+    + <span class="nb">set</span> (T := ∑ p' : ## P Z, p' = # (pr1 P) (g ∘ f) p : UU).
+      <span class="nb">set</span> (T' := ∑ p' : ## P Z, (pr1 F) (X ,, p) --&gt; (pr1 F) (Z ,, p') : UU).
+      <span class="nb">set</span> (phi := <span class="k">λ</span> (<span class="nv">x</span> : T), make_mor (Z ,, pr1 x) (X ,, p) (g ∘ f) (pr2 x)).
+      <span class="nb">set</span> (G := <span class="k">λ</span> (<span class="nv">x</span> : T), (pr1 x ,, # (pr1 F) (phi x)) : T').
+      <span class="nb">set</span> (e := <span class="k">fun</span> (<span class="nv">z</span> <span class="nv">y</span> <span class="nv">x</span> : ∫P) (<span class="nv">f</span> : z --&gt; y) (<span class="nv">g</span> : y --&gt; x) =&gt;
+                  ((pr2 f) @ maponpaths (# (pr1 P) (pr1 f)) (pr2 g)
+                    @ (eqtohomot (!(functor_comp P) (pr1 g) (pr1 f)) (pr2 x)))).
+      <span class="nb">set</span> (h := <span class="k">λ</span> (<span class="nv">x</span> : T'), pr1 x ,, (pr2 x) q : pr1hSet (PreShv_to_slice_ob_funct_fun F Z)).
+
+      use (maponpaths (funcomp G h)
+                         (coconustot_isProofIrrelevant (# (pr1 P) (g ∘ f) p ,, idpath _)
+                                              (# (pr1 P) g (# (pr1 P) f p) ,,
+                                                 e (make_ob Z (# (pr1 P) g (# (pr1 P) f p)))
+                                                 (make_ob Y (# (pr1 P) f p)) (make_ob X p)
+                                                 (g ,, idpath _) (f ,, idpath _))) @ _).
+      use (@pair_path_in2 _ (<span class="k">λ</span> <span class="nv">x</span>, pr1hSet ((pr1 F) (Z ,, x))) (# (pr1 P) g (# (pr1 P) f p))).
+      use (eqtohomot _ q @ eqtohomot (@functor_comp _ _ F (make_ob X p)
+                                                       (make_ob Y (# (pr1 P) f p))
+                                                       (make_ob Z (# (pr1 P) g (# (pr1 P) f p)))
+                                                       (f ,, idpath _) (g,, idpath _)) q).
+      use (maponpaths (# (pr1 F))).
+      use total2_paths_f.
+      * <span class="bp">reflexivity</span>.
+      * <span class="nb">rewrite</span> idpath_transportf;
+        <span class="bp">now</span> <span class="nb">apply</span> setproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">PreShv_to_slice_ob_funct</span> (<span class="nv">F</span> : PreShv ∫P) : PreShv C :=
+    PreShv_to_slice_ob_funct_data F ,, PreShv_to_slice_ob_is_funct F.
+
+  <span class="kn">Definition</span> <span class="nf">PreShv_to_slice_ob_nat_fun</span> (<span class="nv">F</span> : PreShv ∫P) (<span class="nv">x</span> : C) : (∑ (Px :##P x), ##F (x,, Px)) → ##P x := pr1.
+
+  <span class="kn">Definition</span> <span class="nf">PreShv_to_slice_ob</span> : PreShv ∫P → PreShv C / P.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> F.
+    <span class="k">exists</span> (<span class="nv">PreShv_to_slice_ob_funct</span> <span class="nv">F</span>).
+    <span class="bp">now</span> <span class="k">exists</span> (<span class="nv">PreShv_to_slice_ob_nat_fun</span> <span class="nv">F</span>).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">PreShv_to_slice_ob_nat</span> {<span class="nv">X</span> <span class="nv">Y</span> : PreShv ∫P} (<span class="nv">f</span> : X --&gt; Y) (<span class="nv">c</span> : C)
+    : (∑ Px : ## P c, ## X (c,, Px)) → (∑ Px : ## P c, ## Y (c,, Px)) :=
+    <span class="k">λ</span> <span class="nv">p</span>, pr1 p ,, (pr1 f) (c ,, (pr1 p)) (pr2 p).
+
+  <span class="kn">Definition</span> <span class="nf">PreShv_to_slice_ob_isnat</span> {<span class="nv">X</span> <span class="nv">Y</span> : PreShv ∫P} (<span class="nv">f</span> : X --&gt; Y) :
+    is_nat_trans (PreShv_to_slice_ob_funct_data X) (PreShv_to_slice_ob_funct_data Y) (PreShv_to_slice_ob_nat f).
+  <span class="kn">Proof</span>.
+    <span class="nb">simpl</span>.
+    <span class="nb">intros</span> c c' g.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> p.
+    <span class="nb">apply</span> pair_path_in2.
+    <span class="bp">exact</span> (eqtohomot ((pr2 f) (c ,, pr1 p) (c',, # (pr1 P) g (pr1 p)) (g,, idpath (# (pr1 P) g (pr1 p)))) (pr2 p)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">PreShv_to_slice_mor</span> {<span class="nv">X</span> <span class="nv">Y</span> : PreShv ∫P} (<span class="nv">f</span> : X --&gt; Y) :
+    PreShv_to_slice_ob X --&gt; PreShv_to_slice_ob Y.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">PreShv_to_slice_ob_nat</span> <span class="nv">f</span> ,, <span class="nv">PreShv_to_slice_ob_isnat</span> <span class="nv">f</span>).
+    <span class="bp">now</span> <span class="nb">apply</span> (nat_trans_eq has_homsets_HSET).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">PreShv_to_slice_data</span> : functor_data (PreShv ∫P) (PreShv C / P) :=
+    PreShv_to_slice_ob ,, @PreShv_to_slice_mor.
+
+  <span class="kn">Definition</span> <span class="nf">PreShv_to_slice_is_funct</span> : is_functor PreShv_to_slice_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; [<span class="nb">intros</span> X | <span class="nb">intros</span> X Y Z f g];
+      <span class="nb">apply</span> eq_mor_slicecat;
+      <span class="nb">apply</span> (nat_trans_eq has_homsets_HSET);
+      <span class="nb">unfold</span> PreShv_to_slice_ob_nat , PreShv_to_slice_ob_funct_fun;
+      <span class="nb">intro</span> c;
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> p;
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">PreShv_to_slice</span> : functor (PreShv ∫P) (PreShv C / P) :=
+    PreShv_to_slice_data ,, PreShv_to_slice_is_funct.
+
+  <span class="sd">(** ** Construction of the functor from PreShv C / P to PreShv ∫P *)</span>
+  <span class="kn">Definition</span> <span class="nf">slice_to_PreShv_ob_ob</span> (<span class="nv">Q</span> : PreShv C / P) : (∫P)^op → HSET :=
+    <span class="k">λ</span> <span class="nv">p</span>,
+      hfiber ((pr1 (pr2 Q)) (pr1 p)) (pr2 p) ,,
+             isaset_hfiber ((pr1 (pr2 Q)) (pr1 p)) (pr2 p) (pr2 (((pr1 (pr1 Q)) (pr1 p)))) (pr2 ((pr1 P) (pr1 p))).
+
+  <span class="kn">Definition</span> <span class="nf">slice_to_PreShv_ob_mor</span> (<span class="nv">Q</span> : PreShv C / P) {<span class="nv">F</span> <span class="nv">G</span> : (∫P)^op} (<span class="nv">f</span> : F --&gt; G) :
+    slice_to_PreShv_ob_ob Q F --&gt; slice_to_PreShv_ob_ob Q G.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> s.
+    <span class="nb">destruct</span> Q <span class="k">as</span> [[[Q Qmor] Qisfunct] [Qnat Qisnat]].
+    <span class="nb">destruct</span> F <span class="k">as</span> [x Px]. <span class="nb">destruct</span> G <span class="k">as</span> [y Py].
+    <span class="nb">destruct</span> f <span class="k">as</span> [f feq].
+    <span class="nb">apply</span> (hfibersgftog (Qmor _ _ f) (Qnat y)).
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">s</span>).
+    <span class="nb">rewrite</span> feq.
+    use (eqtohomot (Qisnat _ _ f) (pr1 s) @ _).
+    <span class="bp">exact</span> (maponpaths (# (pr1 P) f) (pr2 s)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">slice_to_PreShv_ob_funct_data</span> (<span class="nv">Q</span> : PreShv C / P) : functor_data (∫P)^op HSET :=
+    slice_to_PreShv_ob_ob Q ,, @slice_to_PreShv_ob_mor Q.
+
+  <span class="kn">Definition</span> <span class="nf">slice_to_PreShv_ob_is_funct</span> (<span class="nv">Q</span> : PreShv C / P) : is_functor (slice_to_PreShv_ob_funct_data Q).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>;
+      [<span class="nb">intros</span> [x Px] | <span class="nb">intros</span> [x Px] [y Py] [z Pz] [f feq] [g geq]];
+      <span class="nb">destruct</span> Q <span class="k">as</span> [[[Q Qmor] Qisfunct] [Qnat Qisnat]];
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> p;
+        <span class="nb">apply</span> (invmaponpathsincl pr1);
+        <span class="kp">try</span> (<span class="nb">apply</span> isofhlevelfpr1;
+             <span class="nb">intro</span>; <span class="nb">apply</span> setproperty).
+    + <span class="bp">exact</span> (eqtohomot ((pr1 Qisfunct) x) (pr1 p)).
+    + <span class="bp">exact</span> (eqtohomot ((pr2 Qisfunct) x y z f g) (pr1 p)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">slice_to_PreShv_ob</span> : PreShv C / P → PreShv ∫P :=
+    <span class="k">λ</span> <span class="nv">Q</span>,  slice_to_PreShv_ob_funct_data Q ,,  slice_to_PreShv_ob_is_funct Q.
+
+  <span class="kn">Definition</span> <span class="nf">slice_to_PreShv_ob_nat</span> {<span class="nv">X</span> <span class="nv">Y</span> : PreShv C / P} (<span class="nv">F</span> : X --&gt; Y) (<span class="nv">e</span> : (∫P)^op) :
+    (slice_to_PreShv_ob_ob X) e --&gt; (slice_to_PreShv_ob_ob Y) e.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e <span class="k">as</span> [e Pe].
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">p</span>, hfibersgftog ((pr1 (pr1 F)) e)
+                                 ((pr1 (pr2 Y)) e) Pe
+                                 (transportf (<span class="k">λ</span> <span class="nv">x</span>, hfiber (x e) Pe) (base_paths _ _ (pr2 F)) p)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">slice_to_PreShv_ob_is_nat</span> {<span class="nv">X</span> <span class="nv">Y</span> : PreShv C / P} (<span class="nv">F</span> : X --&gt; Y) :
+    is_nat_trans (slice_to_PreShv_ob X : functor _ _) (slice_to_PreShv_ob Y : functor _ _) (slice_to_PreShv_ob_nat F).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [e Pe] [e' Pe'] [f feq].
+    <span class="nb">destruct</span> X <span class="k">as</span> [[[X Xmor] Xisfunct] [Xnat Xisnat]].
+    <span class="nb">destruct</span> Y <span class="k">as</span> [[[Y Ymor] Yisfunct] [Ynat Yisnat]].
+    <span class="nb">destruct</span> F <span class="k">as</span> [[F Fisnat] Feq].
+    <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> funextsec; <span class="nb">intros</span> [p peq].
+    <span class="nb">apply</span> (invmaponpathsincl pr1).
+    + <span class="nb">apply</span> isofhlevelfpr1.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> setproperty.
+    + <span class="nb">simpl</span>.
+      <span class="nb">destruct</span> peq.
+      <span class="nb">unfold</span> hfiber.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> transportf_total2.
+      <span class="nb">simpl</span>.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> transportf_const.
+      <span class="bp">exact</span> (eqtohomot (Fisnat e e' f) p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">slice_to_PreShv_mor</span> {<span class="nv">X</span> <span class="nv">Y</span> : PreShv C / P} (<span class="nv">F</span> : X --&gt; Y) :
+    slice_to_PreShv_ob X --&gt; slice_to_PreShv_ob Y :=
+    slice_to_PreShv_ob_nat F ,, slice_to_PreShv_ob_is_nat F.
+
+  <span class="kn">Definition</span> <span class="nf">slice_to_PreShv_data</span> : functor_data (PreShv C / P) (PreShv ∫P) :=
+    slice_to_PreShv_ob ,, @slice_to_PreShv_mor.
+
+  <span class="kn">Definition</span> <span class="nf">slice_to_PreShv_is_funct</span> : is_functor slice_to_PreShv_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; [ <span class="nb">intros</span> X | <span class="nb">intros</span> X Y Z F G];
+      <span class="nb">apply</span> (nat_trans_eq has_homsets_HSET);
+      <span class="nb">intros</span> [c Pc];
+      <span class="nb">apply</span> funextsec; <span class="nb">intros</span> [p peq];
+      <span class="nb">apply</span> (invmaponpathsincl pr1);
+      <span class="kp">try</span> (<span class="nb">apply</span> isofhlevelfpr1;
+           <span class="nb">intro</span>;
+                  <span class="nb">apply</span> setproperty);
+      <span class="nb">simpl</span>;
+      <span class="nb">unfold</span> hfiber;
+      <span class="nb">unfold</span> hfibersgftog; <span class="nb">unfold</span> make_hfiber;
+      <span class="kp">repeat</span> (<span class="nb">rewrite</span> transportf_total2;
+              <span class="nb">simpl</span>; <span class="nb">unfold</span> hfiber);
+      <span class="bp">now</span> <span class="kp">repeat</span> <span class="nb">rewrite</span> transportf_const.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">slice_to_PreShv</span> : functor (PreShv C / P) (PreShv ∫P) :=
+    slice_to_PreShv_data ,, slice_to_PreShv_is_funct.
+
+  <span class="sd">(** ** Construction of the natural isomorphism from (slice_to_PreShv ∙ PreShv_to_slice) to the identity functor *)</span>
+  <span class="kn">Definition</span> <span class="nf">slice_counit_fun</span> (<span class="nv">X</span> : PreShv C / P) :
+    (slice_to_PreShv ∙ PreShv_to_slice) X --&gt; (functor_identity _) X.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> X <span class="k">as</span> [[[X Xmor] Xisfunct] [Xnat Xisnat]].
+    <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="kp">repeat</span> (use tpair; <span class="nb">simpl</span>).
+    + <span class="nb">intros</span> x [p q].
+      <span class="bp">exact</span> (pr1 q).
+    + <span class="nb">intros</span> A B f.
+      <span class="nb">apply</span> funextsec; <span class="nb">intros</span> [p peq].
+      <span class="bp">reflexivity</span>.
+    + <span class="nb">apply</span> (nat_trans_eq has_homsets_HSET).
+      <span class="nb">intros</span> A.
+      <span class="nb">apply</span> funextsec; <span class="nb">intros</span> [p [q e]].
+      <span class="bp">exact</span> (!e).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_nat_trans_slice_counit</span> : is_nat_trans _ _ slice_counit_fun.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y f.
+    <span class="nb">apply</span> eq_mor_slicecat , (nat_trans_eq has_homsets_HSET).
+    <span class="nb">intros</span> A.
+    <span class="nb">apply</span> funextsec; <span class="nb">intros</span> [p [q e]].
+    <span class="nb">simpl</span>. <span class="nb">unfold</span> compose. <span class="nb">simpl</span>.
+    <span class="nb">destruct</span> X <span class="k">as</span> [[[X Xmor] Xisfunct] [Xnat Xisnat]].
+    <span class="nb">destruct</span> Y <span class="k">as</span> [[[Y Ymor] Yisfunct] [Ynat Yisnat]].
+    <span class="nb">destruct</span> f <span class="k">as</span> [[f fisnat] feq]. <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> maponpaths. <span class="nb">unfold</span> hfiber.
+    <span class="nb">rewrite</span> transportf_total2. <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> transportf_const.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">slice_counit</span> : slice_to_PreShv ∙ PreShv_to_slice ⟹ functor_identity (PreShv C / P) :=
+    slice_counit_fun ,, is_nat_trans_slice_counit.
+
+  <span class="kn">Definition</span> <span class="nf">slice_all_z_iso</span> : <span class="k">forall</span> <span class="nv">F</span> : PreShv C / P, is_z_isomorphism (slice_counit F).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [[[F Fmor] Fisfunct] [Fnat Fisnat]].
+    <span class="nb">apply</span> z_iso_to_slice_precat_z_iso.
+    <span class="nb">apply</span> nat_trafo_z_iso_if_pointwise_z_iso.
+    <span class="nb">intros</span> X; <span class="nb">simpl</span>.
+    <span class="nb">change</span> (<span class="k">λ</span> <span class="nv">X0</span>, pr1 (pr2 X0)) <span class="k">with</span> (fromcoconusf (Fnat X)).
+    <span class="bp">exact</span> (hset_equiv_is_z_iso (make_hSet (coconusf (Fnat X))
+                                         (isaset_total2_hSet _ (<span class="k">λ</span> <span class="nv">y</span>, (hfiber_hSet (Fnat X) y)))) _
+                               (weqfromcoconusf (Fnat X))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">slice_unit</span> : functor_identity (PreShv C / P) ⟹ slice_to_PreShv ∙ PreShv_to_slice :=
+    pr1 (nat_trafo_z_iso_if_pointwise_z_iso (has_homsets_slice_precat ((PreShv C)) P) (slice_counit) slice_all_z_iso).
+
+  <span class="sd">(** ** Construction of the natural isomorphism from the identity functor to (PreShv_to_slice ∙ slice_to_PreShv) *)</span>
+  <span class="kn">Definition</span> <span class="nf">PreShv_unit_fun</span> (<span class="nv">F</span> : PreShv ∫P) :
+    (functor_identity _) F --&gt; (PreShv_to_slice ∙ slice_to_PreShv) F.
+  <span class="kn">Proof</span>.
+    use tpair.
+    + <span class="nb">intros</span> [X p] x.
+      <span class="bp">exact</span> ((p ,, x) ,, idpath p).
+    + <span class="nb">intros</span> [X p] [X' p'] [f feq].
+      <span class="nb">simpl</span> <span class="k">in</span> *.
+      <span class="nb">apply</span> funextsec; <span class="nb">intros</span> x.
+      <span class="nb">apply</span> (invmaponpathsincl pr1).
+      <span class="nb">apply</span> isofhlevelfpr1;
+        <span class="nb">intro</span>;
+               <span class="nb">apply</span> setproperty.
+      <span class="nb">induction</span> (!feq).
+      <span class="nb">apply</span> (total2_paths2_f (idpath _)).
+      <span class="nb">rewrite</span> idpath_transportf.
+      <span class="nb">assert</span> (set_eq : idpath _ = feq).
+      { <span class="nb">apply</span> (pr2 (P X')). }
+      <span class="bp">now</span> <span class="nb">induction</span> set_eq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_nat_trans_PreShv_unit</span> : is_nat_trans _ _ PreShv_unit_fun.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [[F Fmor] Fisfunct] [[G Gmor] Gisfunct] [f fisnat].
+    <span class="nb">apply</span> (nat_trans_eq has_homsets_HSET).
+    <span class="nb">intros</span> [X p].
+    <span class="nb">apply</span> funextsec; <span class="nb">intros</span> q.
+    <span class="nb">apply</span> (invmaponpathsincl pr1).
+    <span class="nb">apply</span> isofhlevelfpr1;
+      <span class="nb">intro</span>;
+             <span class="nb">apply</span> setproperty.
+    <span class="nb">simpl</span>. <span class="nb">unfold</span> hfiber.
+    <span class="nb">rewrite</span> transportf_total2; <span class="nb">simpl</span>.
+    <span class="bp">now</span> <span class="nb">rewrite</span> transportf_const.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">PreShv_unit</span> : functor_identity (PreShv ∫P) ⟹ PreShv_to_slice ∙ slice_to_PreShv :=
+    PreShv_unit_fun ,, is_nat_trans_PreShv_unit.
+
+  <span class="kn">Definition</span> <span class="nf">PreShv_all_iso</span> : <span class="k">forall</span> <span class="nv">F</span> : PreShv ∫P, is_z_isomorphism (PreShv_unit F).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [[F Fmor] Fisfunct].
+    <span class="nb">apply</span> nat_trafo_z_iso_if_pointwise_z_iso.
+    <span class="nb">intros</span> [X p]; <span class="nb">simpl</span>.
+    <span class="nb">assert</span> (H : isweq (<span class="k">λ</span> <span class="nv">x</span> : pr1hSet (F (X,, p)) , (p,, x) ,, idpath p : pr1hSet (slice_to_PreShv_ob_ob (PreShv_to_slice_ob ((F,, Fmor),, Fisfunct)) (X,, p)))).
+    { <span class="nb">unfold</span> isweq. <span class="nb">intros</span> [[p' x'] e'].
+      <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">induction</span> e'.
+      use ((x',, idpath _),, _).
+      <span class="nb">intros</span> [x'' t].
+      <span class="nb">apply</span> (invmaponpathsincl pr1).
+      <span class="nb">apply</span> isofhlevelfpr1;
+        <span class="nb">intro</span>;
+               <span class="bp">exact</span> (pr2 (@eqset
+                             ((slice_to_PreShv_ob_ob (PreShv_to_slice_ob ((F,, Fmor),, Fisfunct)) (X,, p'))) _ _)).
+      <span class="nb">assert</span> (eq_id : base_paths (p',, x'') (p',, x') (maponpaths pr1 t) = idpath p').
+      { <span class="nb">set</span> (c := iscontraprop1 (setproperty _ _ _) (idpath p')).
+        <span class="bp">exact</span> ((pr2 c) _ @ !((pr2 c) _)).
+      }
+      <span class="nb">set</span> (eq := fiber_paths (maponpaths pr1 t)).
+      use (_ @ eq).
+      <span class="nb">rewrite</span> (transportf_paths _ eq_id).
+      <span class="bp">now</span> <span class="nb">rewrite</span> idpath_transportf.
+    }
+    <span class="bp">exact</span> (hset_equiv_is_z_iso (F (X ,, p)) _ (_ ,, H)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">PreShv_counit</span> : PreShv_to_slice ∙ slice_to_PreShv ⟹ functor_identity (PreShv ∫P) :=
+    pr1 (nat_trafo_z_iso_if_pointwise_z_iso (pr2 (PreShv ∫P)) PreShv_unit PreShv_all_iso).
+
+  <span class="sd">(** ** The equivalence of the categories PreShv ∫P and PreShv C / P *)</span>
+  <span class="kn">Definition</span> <span class="nf">PreShv_of_elems_slice_of_PreShv_equiv</span> : equivalence_of_cats (PreShv ∫P) (PreShv C / P) :=
+    (PreShv_to_slice ,,  slice_to_PreShv ,, PreShv_unit ,, slice_counit) ,, (PreShv_all_iso ,, slice_all_z_iso).
+
+  <span class="kn">Definition</span> <span class="nf">PreShv_of_elems_slice_of_PreShv_adj_equiv</span> : adj_equivalence_of_cats PreShv_to_slice :=
+    @adjointification (PreShv ∫P) (PreShv C / P) PreShv_of_elems_slice_of_PreShv_equiv.
+
+<span class="kn">End</span> <span class="nf">elems_slice_equiv</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/elems_slice_equiv.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Sets.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;            PreShv C / P for any P in PreShv C
+  &gt; ************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.Sets.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

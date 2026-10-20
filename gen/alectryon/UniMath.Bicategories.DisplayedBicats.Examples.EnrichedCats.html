@@ -1,0 +1,1205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EnrichedCats.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> The bicategory of univalent enriched categories</span>
+
+<span class="sd"> We construct the bicategory of univalent enriched categories and</span>
+<span class="sd"> we prove that this bicategory is univalent. Note that in order to</span>
+<span class="sd"> prove the univalence, it is sufficient to assume that the</span>
+<span class="sd"> involved monoidal category is univalent as well.</span>
+
+<span class="sd"> To define this bicategory, we use displayed bicategories. The</span>
+<span class="sd"> base bicategory is the bicategory of univalent categories. Note</span>
+<span class="sd"> that we cannot split this displayed bicategory into smaller</span>
+<span class="sd"> parts. That is because to define natural transformations, we</span>
+<span class="sd"> need to use composition of enriched categories.</span>
+
+<span class="sd"> Note that the construction of the bicategories of enriched</span>
+<span class="sd"> categories as a displayed bicategory, provides some explanation</span>
+<span class="sd"> of what the notion of enrichment means. With the usual definition</span>
+<span class="sd"> of enriched category, one has a pseudofunctor `V-Cat -&gt; Cat`,</span>
+<span class="sd"> which sends every enriched category to its underlying category.</span>
+<span class="sd"> The projection pseudofunctor of the displayed bicategory defined</span>
+<span class="sd"> in this file, is precisely this pseudofunctor. The notion of</span>
+<span class="sd"> enrichment given in `Enrichment.v` represents the fibers of the</span>
+<span class="sd"> underlying category pseudofunctor.</span>
+
+<span class="sd"> We also define the category of quantale enriched categories.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The displayed bicategory</span>
+<span class="sd"> 2. Local univalence</span>
+<span class="sd"> 3. Global univalence</span>
+<span class="sd"> 4. Accessors for the bicategory of enriched categories</span>
+<span class="sd"> 5. The category of quantale enriched categories</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.BenabouCosmos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.QuantaleEnriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Discreteness.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Projection.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Opaque</span> mon_linvunitor mon_rinvunitor.
+
+<span class="kn">Section</span> <span class="nf">EnrichedCats</span>.
+  <span class="kn">Context</span> (<span class="nv">V</span> : monoidal_cat).
+
+  <span class="sd">(** * 1. The displayed bicategory *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_cat_ob_mor_of_enriched_cats</span>
+    : disp_cat_ob_mor bicat_of_univ_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">C</span> : univalent_category), enrichment C V).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_category)
+               (<span class="nv">E₁</span> : enrichment C₁ V)
+               (<span class="nv">E₂</span> : enrichment C₂ V)
+               (<span class="nv">F</span> : C₁ ⟶ C₂),
+             functor_enrichment F E₁ E₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cat_id_comp_of_enriched_cats</span>
+    : disp_cat_id_comp bicat_of_univ_cats disp_cat_ob_mor_of_enriched_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">E</span>, functor_id_enrichment E).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">E₁</span> <span class="nv">E₂</span> <span class="nv">E₃</span> <span class="nv">EF</span> <span class="nv">EG</span>, functor_comp_enrichment EF EG).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cat_data_of_enriched_cats</span>
+    : disp_cat_data bicat_of_univ_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> disp_cat_ob_mor_of_enriched_cats.
+    - <span class="bp">exact</span> disp_cat_id_comp_of_enriched_cats.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_prebicat_1_id_comp_cells_of_enriched_cats</span>
+    : disp_prebicat_1_id_comp_cells bicat_of_univ_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> disp_cat_data_of_enriched_cats.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">τ</span> <span class="nv">E₁</span> <span class="nv">E₂</span> <span class="nv">EF</span> <span class="nv">EG</span>, nat_trans_enrichment (pr1 τ) EF EG).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_prebicat_ops_of_enriched_cats</span>
+    : disp_prebicat_ops disp_prebicat_1_id_comp_cells_of_enriched_cats.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">F</span> <span class="nv">E₁</span> <span class="nv">E₂</span> <span class="nv">FE</span>, id_trans_enrichment FE).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">F</span> <span class="nv">E₁</span> <span class="nv">E₂</span> <span class="nv">FE</span>, lunitor_enrichment FE).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">F</span> <span class="nv">E₁</span> <span class="nv">E₂</span> <span class="nv">FE</span>, runitor_enrichment FE).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">F</span> <span class="nv">E₁</span> <span class="nv">E₂</span> <span class="nv">FE</span>, linvunitor_enrichment FE).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">F</span> <span class="nv">E₁</span> <span class="nv">E₂</span> <span class="nv">FE</span>, rinvunitor_enrichment FE).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">H</span> <span class="nv">E₁</span> <span class="nv">E₂</span> <span class="nv">E₃</span> <span class="nv">E₄</span> <span class="nv">FE</span> <span class="nv">GE</span> <span class="nv">HE</span>,
+             lassociator_enrichment FE GE HE).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">H</span> <span class="nv">E₁</span> <span class="nv">E₂</span> <span class="nv">E₃</span> <span class="nv">E₄</span> <span class="nv">FE</span> <span class="nv">GE</span> <span class="nv">HE</span>,
+             rassociator_enrichment FE GE HE).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">H</span> <span class="nv">τ</span> <span class="nv">τ'</span> <span class="nv">E₁</span> <span class="nv">E₂</span> <span class="nv">EF</span> <span class="nv">EG</span> <span class="nv">EH</span> <span class="nv">Eτ</span> <span class="nv">Eτ'</span>, comp_trans_enrichment Eτ Eτ').
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">F</span> <span class="nv">G₁</span> <span class="nv">G₂</span> <span class="nv">τ</span> <span class="nv">E₁</span> <span class="nv">E₂</span> <span class="nv">E₃</span> <span class="nv">EF</span> <span class="nv">EG₁</span> <span class="nv">EG₂</span> <span class="nv">Eτ</span>, pre_whisker_enrichment EF Eτ).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">F₁</span> <span class="nv">F₂</span> <span class="nv">G</span> <span class="nv">τ</span> <span class="nv">E₁</span> <span class="nv">E₂</span> <span class="nv">E₃</span> <span class="nv">EF₁</span> <span class="nv">EF₂</span> <span class="nv">EG</span> <span class="nv">Eτ</span>, post_whisker_enrichment Eτ EG).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_prebicat_data_of_enriched_cats</span>
+    : disp_prebicat_data bicat_of_univ_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> disp_prebicat_1_id_comp_cells_of_enriched_cats.
+    - <span class="bp">exact</span> disp_prebicat_ops_of_enriched_cats.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_prebicat_laws_of_enriched_cats</span>
+    : disp_prebicat_laws disp_prebicat_data_of_enriched_cats.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ; <span class="nb">apply</span> isaprop_nat_trans_enrichment.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_prebicat_of_enriched_cats</span>
+    : disp_prebicat bicat_of_univ_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> disp_prebicat_data_of_enriched_cats.
+    - <span class="bp">exact</span> disp_prebicat_laws_of_enriched_cats.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_bicat_of_enriched_cats</span>
+    : disp_bicat bicat_of_univ_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> disp_prebicat_of_enriched_cats.
+    - <span class="nb">intros</span> C₁ C₂ F G τ E₁ E₂ EF EG.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> isaprop_nat_trans_enrichment.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_2cell_isapprop_enriched_cats</span>
+    : disp_2cells_isaprop disp_bicat_of_enriched_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C₁ C₂ F G τ E₁ E₂ EF EG.
+    <span class="nb">apply</span> isaprop_nat_trans_enrichment.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_locally_sym_enriched_cats</span>
+    : disp_locally_sym disp_bicat_of_enriched_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C₁ C₂ F G τ E₁ E₂ EF EG Eτ.
+    use nat_trans_enrichment_via_comp.
+    <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!(id_right _) @ _).
+    <span class="nb">rewrite</span> &lt;- postcomp_arr_id.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (!(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr1 z y) (vcomp_rinv τ))).
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> postcomp_arr_comp.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> precomp_postcomp_arr.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (!nat_trans_enrichment_to_comp Eτ x y).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- precomp_arr_comp.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr1 z x) (vcomp_linv τ)).
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> precomp_arr_id.
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_locally_groupoid_enriched_cats</span>
+    : disp_locally_groupoid disp_bicat_of_enriched_cats.
+  <span class="kn">Proof</span>.
+    use make_disp_locally_groupoid.
+    - <span class="bp">exact</span> disp_locally_sym_enriched_cats.
+    - <span class="bp">exact</span> disp_2cell_isapprop_enriched_cats.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 2. Local univalence *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_univalent_2_1_enriched_cats</span>
+    : disp_univalent_2_1 disp_bicat_of_enriched_cats.
+  <span class="kn">Proof</span>.
+    use fiberwise_local_univalent_is_univalent_2_1.
+    <span class="nb">intros</span> C F G E₁ E₂ FE GE.
+    use isweqimplimpl.
+    - <span class="nb">cbn</span> <span class="k">in</span> * ; <span class="nb">intro</span> τ.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_functor_enrichment.
+      }
+      use funextsec ; <span class="nb">intro</span> x.
+      use funextsec ; <span class="nb">intro</span> y.
+      <span class="nb">pose</span> (p := pr1 τ x y).
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !enriched_from_arr_id <span class="k">in</span> p.
+      <span class="nb">refine</span> (_ @ !p @ _) ; <span class="nb">clear</span> p.
+      + <span class="nb">rewrite</span> &lt;- !(functor_enrichment_id FE).
+        <span class="nb">rewrite</span> (tensor_comp_r_id_l _ _ (FE x y)).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> &lt;- (functor_enrichment_comp FE).
+        <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)).
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!_).
+          <span class="bp">exact</span> (enrichment_id_left E₁ x y).
+        }
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> mon_linvunitor_lunitor.
+        }
+        <span class="nb">apply</span> id_left.
+      + <span class="nb">rewrite</span> &lt;- !(functor_enrichment_id GE).
+        <span class="nb">rewrite</span> (tensor_comp_l_id_l (GE x y)).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> &lt;- (functor_enrichment_comp GE).
+        <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!_).
+          <span class="bp">exact</span> (enrichment_id_right E₁ x y).
+        }
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> mon_rinvunitor_runitor.
+        }
+        <span class="nb">apply</span> id_left.
+    - <span class="nb">apply</span> isaset_functor_enrichment.
+    - use isaproptotal2.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_disp_invertible_2cell.
+      + <span class="nb">intros</span>.
+        <span class="nb">apply</span> isaprop_nat_trans_enrichment.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 3. Global univalence *)</span>
+  <span class="kn">Section</span> <span class="nf">DispAdjointEquivalence</span>.
+    <span class="kn">Context</span> {<span class="nv">C</span> : bicat_of_univ_cats}
+            (<span class="nv">E₁</span> <span class="nv">E₂</span> : disp_bicat_of_enriched_cats C).
+
+    <span class="kn">Definition</span> <span class="nf">make_disp_adjequiv_enriched</span>
+               (<span class="nv">F₁</span> : functor_enrichment (functor_identity _) E₁ E₂)
+               (<span class="nv">F₂</span> : functor_enrichment (functor_identity _) E₂ E₁)
+               (<span class="nv">η</span> : nat_trans_enrichment
+                      (nat_trans_id _)
+                      (functor_id_enrichment E₁)
+                      (functor_comp_enrichment F₁ F₂))
+               (<span class="nv">ηinv</span> : nat_trans_enrichment
+                      (nat_trans_id _)
+                      (functor_comp_enrichment F₁ F₂)
+                      (functor_id_enrichment E₁))
+               (<span class="nv">ε</span> : nat_trans_enrichment
+                      (nat_trans_id _)
+                      (functor_comp_enrichment F₂ F₁)
+                      (functor_id_enrichment E₂))
+               (<span class="nv">εinv</span> : nat_trans_enrichment
+                      (nat_trans_id _)
+                      (functor_id_enrichment E₂)
+                      (functor_comp_enrichment F₂ F₁))
+      : disp_adjoint_equivalence
+          (internal_adjoint_equivalence_identity C)
+          E₁ E₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (F₁ ,, (F₂ ,, (η ,, ε)) ,, (_ ,, _)).
+      - <span class="kp">abstract</span>
+          (<span class="nb">split</span> ; <span class="nb">apply</span> disp_2cell_isapprop_enriched_cats).
+      - <span class="nb">split</span>.
+        + <span class="nb">refine</span> (ηinv ,, _ ,,  _) ; <span class="nb">apply</span> disp_2cell_isapprop_enriched_cats.
+        + <span class="nb">refine</span> (εinv ,, _ ,,  _) ; <span class="nb">apply</span> disp_2cell_isapprop_enriched_cats.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">from_disp_adjequiv_enriched</span>
+               (<span class="nv">F</span> : disp_adjoint_equivalence
+                      (internal_adjoint_equivalence_identity C)
+                      E₁ E₂)
+      : ∑ (F₁ : functor_enrichment (functor_identity _) E₁ E₂)
+          (F₂ : functor_enrichment (functor_identity _) E₂ E₁),
+        (nat_trans_enrichment
+           (nat_trans_id _)
+           (functor_id_enrichment E₁)
+           (functor_comp_enrichment F₁ F₂))
+        ×
+        (nat_trans_enrichment
+           (nat_trans_id _)
+           (functor_comp_enrichment F₂ F₁)
+           (functor_id_enrichment E₂))
+        ×
+        (nat_trans_enrichment
+           (nat_trans_id _)
+           (functor_comp_enrichment F₁ F₂)
+           (functor_id_enrichment E₁))
+        ×
+        (nat_trans_enrichment
+           (nat_trans_id _)
+           (functor_id_enrichment E₂)
+           (functor_comp_enrichment F₂ F₁)).
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _ ,, _).
+      - <span class="bp">exact</span> (pr1 F).
+      - <span class="bp">exact</span> (pr112 F).
+      - <span class="bp">exact</span> (pr1 (pr212 F)).
+      - <span class="bp">exact</span> (pr2 (pr212 F)).
+      - <span class="bp">exact</span> (pr11 (pr222 F)).
+      - <span class="bp">exact</span> (pr12 (pr222 F)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">weq_disp_adjequiv_enriched</span>
+      : (∑ (F₁ : functor_enrichment (functor_identity _) E₁ E₂)
+           (F₂ : functor_enrichment (functor_identity _) E₂ E₁),
+         (nat_trans_enrichment
+            (nat_trans_id _)
+            (functor_id_enrichment E₁)
+            (functor_comp_enrichment F₁ F₂))
+         ×
+         (nat_trans_enrichment
+            (nat_trans_id _)
+            (functor_comp_enrichment F₂ F₁)
+            (functor_id_enrichment E₂))
+         ×
+         (nat_trans_enrichment
+            (nat_trans_id _)
+            (functor_comp_enrichment F₁ F₂)
+            (functor_id_enrichment E₁))
+         ×
+         (nat_trans_enrichment
+            (nat_trans_id _)
+            (functor_id_enrichment E₂)
+            (functor_comp_enrichment F₂ F₁)))
+        ≃
+        disp_adjoint_equivalence
+          (internal_adjoint_equivalence_identity C)
+          E₁ E₂.
+    <span class="kn">Proof</span>.
+      use weq_iso.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">F</span>,
+               make_disp_adjequiv_enriched
+                 (pr1 F)
+                 (pr12 F) (pr122 F)
+                 (pr12 (pr222 F))
+                 (pr1 (pr222 F))
+                 (pr22 (pr222 F))).
+      - <span class="bp">exact</span> from_disp_adjequiv_enriched.
+      - <span class="nb">intros</span> F.
+        <span class="nb">apply</span> idpath.
+      - <span class="kp">abstract</span>
+          (<span class="nb">intro</span> F ;
+           <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _) ;
+           <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _) ;
+           <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod) ;
+           <span class="kp">try</span> (<span class="nb">apply</span> isaprop_is_disp_invertible_2cell) ;
+           <span class="nb">apply</span> disp_bicat_of_enriched_cats).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">DispAdjointEquivalence</span>.
+
+  <span class="kn">Section</span> <span class="nf">FromEnrichmentPath</span>.
+    <span class="kn">Context</span> {<span class="nv">C</span> : bicat_of_univ_cats}
+            {<span class="nv">E₁</span> <span class="nv">E₂</span> : disp_bicat_of_enriched_cats C}
+            (<span class="nv">F</span> : enrichment_data_hom_path_help (pr1 E₁) (pr1 E₂)).
+
+    <span class="kn">Definition</span> <span class="nf">from_enrichment_path_functor_data</span>
+      : functor_enrichment_data (functor_identity _) E₁ E₂
+      := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, pr1 F x y.
+
+    <span class="kn">Definition</span> <span class="nf">from_enrichment_path_functor_is_functor</span>
+      : is_functor_enrichment from_enrichment_path_functor_data.
+    <span class="kn">Proof</span>.
+      <span class="kp">repeat</span> <span class="nb">split</span>.
+      - <span class="nb">intro</span> x.
+        <span class="bp">exact</span> (pr12 F x).
+      - <span class="nb">intros</span> x y z.
+        <span class="bp">exact</span> (pr122 F x y z).
+      - <span class="nb">intros</span> x y f.
+        <span class="bp">exact</span> (!(pr1 (pr222 F) x y f)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">from_enrichment_path_functor</span>
+      : functor_enrichment (functor_identity _) E₁ E₂
+      := from_enrichment_path_functor_data
+         ,,
+         from_enrichment_path_functor_is_functor.
+
+    <span class="kn">Definition</span> <span class="nf">from_enrichment_path_functor_inv_data</span>
+      : functor_enrichment_data (functor_identity _) E₂ E₁
+      := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, inv_from_z_iso (pr1 F x y).
+
+    <span class="kn">Definition</span> <span class="nf">from_enrichment_path_functor_inv_is_functor</span>
+      : is_functor_enrichment from_enrichment_path_functor_inv_data.
+    <span class="kn">Proof</span>.
+      <span class="kp">repeat</span> <span class="nb">split</span>.
+      - <span class="nb">intros</span> x.
+        <span class="nb">cbn</span> ; <span class="nb">unfold</span> from_enrichment_path_functor_inv_data.
+        <span class="nb">refine</span> (!_).
+        use z_iso_inv_on_left.
+        <span class="nb">refine</span> (!_).
+        <span class="bp">exact</span> (pr12 F x).
+      - <span class="nb">intros</span> x y z.
+        <span class="nb">cbn</span> ; <span class="nb">unfold</span> from_enrichment_path_functor_inv_data.
+        <span class="nb">refine</span> (!_).
+        use z_iso_inv_on_left.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (pr122 F x y z).
+        }
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> tensor_comp_mor.
+        }
+        <span class="nb">rewrite</span> !z_iso_after_z_iso_inv.
+        <span class="nb">rewrite</span> tensor_id_id.
+        <span class="nb">apply</span> id_left.
+      - <span class="nb">intros</span> x y f.
+        <span class="nb">cbn</span> ; <span class="nb">unfold</span> from_enrichment_path_functor_inv_data.
+        use z_iso_inv_on_left.
+        <span class="nb">refine</span> (!_).
+        <span class="bp">exact</span> (pr1 (pr222 F) x y f).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">from_enrichment_path_functor_inv</span>
+      : functor_enrichment (functor_identity _) E₂ E₁
+      := from_enrichment_path_functor_inv_data
+         ,,
+         from_enrichment_path_functor_inv_is_functor.
+
+    <span class="kn">Definition</span> <span class="nf">from_enrichment_path_unit</span>
+      : nat_trans_enrichment
+          (nat_trans_id (functor_identity _))
+          (functor_id_enrichment E₁)
+          (functor_comp_enrichment
+             from_enrichment_path_functor
+             from_enrichment_path_functor_inv).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> from_enrichment_path_functor_data.
+      <span class="nb">unfold</span> from_enrichment_path_functor_inv_data.
+      <span class="nb">rewrite</span> !z_iso_inv_after_z_iso.
+      <span class="nb">rewrite</span> !enriched_from_arr_id.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> enrichment_id_right.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> mon_rinvunitor_runitor.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> enrichment_id_left.
+      }
+      <span class="nb">apply</span> mon_linvunitor_lunitor.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">from_enrichment_path_unit_inv</span>
+      : nat_trans_enrichment
+          (nat_trans_id (functor_identity _))
+          (functor_comp_enrichment
+             from_enrichment_path_functor
+             from_enrichment_path_functor_inv)
+          (functor_id_enrichment E₁).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> from_enrichment_path_functor_data.
+      <span class="nb">unfold</span> from_enrichment_path_functor_inv_data.
+      <span class="nb">rewrite</span> !z_iso_inv_after_z_iso.
+      <span class="nb">rewrite</span> !enriched_from_arr_id.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> enrichment_id_right.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> mon_rinvunitor_runitor.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> enrichment_id_left.
+      }
+      <span class="nb">apply</span> mon_linvunitor_lunitor.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">from_enrichment_path_counit</span>
+      : nat_trans_enrichment
+          (nat_trans_id _)
+          (functor_comp_enrichment
+             from_enrichment_path_functor_inv
+             from_enrichment_path_functor)
+          (functor_id_enrichment E₂).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> from_enrichment_path_functor_data.
+      <span class="nb">unfold</span> from_enrichment_path_functor_inv_data.
+      <span class="nb">rewrite</span> !enriched_from_arr_id.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> enrichment_id_right.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> mon_rinvunitor_runitor.
+      }
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> enrichment_id_left.
+      }
+      <span class="nb">apply</span> mon_linvunitor_lunitor.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">from_enrichment_path_counit_inv</span>
+      : nat_trans_enrichment
+          (nat_trans_id _)
+          (functor_id_enrichment E₂)
+          (functor_comp_enrichment
+             from_enrichment_path_functor_inv
+             from_enrichment_path_functor).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> from_enrichment_path_functor_data.
+      <span class="nb">unfold</span> from_enrichment_path_functor_inv_data.
+      <span class="nb">rewrite</span> !enriched_from_arr_id.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> enrichment_id_left.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> mon_linvunitor_lunitor.
+      }
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> enrichment_id_right.
+      }
+      <span class="nb">apply</span> mon_rinvunitor_runitor.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">from_enrichment_path</span>
+      : ∑ (F₁ : functor_enrichment (functor_identity _) E₁ E₂)
+          (F₂ : functor_enrichment (functor_identity _) E₂ E₁),
+        nat_trans_enrichment
+          (nat_trans_id (functor_identity _))
+          (functor_id_enrichment E₁)
+          (functor_comp_enrichment F₁ F₂)
+        ×
+        nat_trans_enrichment
+          (nat_trans_id _)
+          (functor_comp_enrichment F₂ F₁)
+          (functor_id_enrichment E₂)
+        ×
+        nat_trans_enrichment
+          (nat_trans_id _)
+          (functor_comp_enrichment F₁ F₂)
+          (functor_id_enrichment E₁)
+        ×
+        nat_trans_enrichment
+          (nat_trans_id _)
+          (functor_id_enrichment E₂)
+          (functor_comp_enrichment F₂ F₁)
+      := from_enrichment_path_functor
+         ,,
+         from_enrichment_path_functor_inv
+         ,,
+         from_enrichment_path_unit
+         ,,
+         from_enrichment_path_counit
+         ,,
+         from_enrichment_path_unit_inv
+         ,,
+         from_enrichment_path_counit_inv.
+  <span class="kn">End</span> <span class="nf">FromEnrichmentPath</span>.
+
+  <span class="kn">Section</span> <span class="nf">ToEnrichmentPath</span>.
+    <span class="kn">Context</span> {<span class="nv">C</span> : bicat_of_univ_cats}
+            {<span class="nv">E₁</span> <span class="nv">E₂</span> : disp_bicat_of_enriched_cats C}
+            (<span class="nv">F₁</span> : functor_enrichment (functor_identity _) E₁ E₂)
+            (<span class="nv">F₂</span> : functor_enrichment (functor_identity _) E₂ E₁)
+            (<span class="nv">η</span> : nat_trans_enrichment
+                   (nat_trans_id (functor_identity _))
+                   (functor_id_enrichment E₁)
+                   (functor_comp_enrichment F₁ F₂))
+            (<span class="nv">ε</span> : nat_trans_enrichment
+                   (nat_trans_id _)
+                   (functor_comp_enrichment F₂ F₁)
+                   (functor_id_enrichment E₂)).
+
+    <span class="kn">Definition</span> <span class="nf">to_enrichment_path_inv_left</span>
+               (<span class="nv">x</span> <span class="nv">y</span> : (C : univalent_category))
+      : pr1 F₁ x y · pr1 F₂ x y = identity _.
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (p := η x y).
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !enriched_from_arr_id <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !assoc' <span class="k">in</span> p.
+      <span class="nb">assert</span> (mon_rinvunitor _
+              · ((F₁ x y · F₂ x y) #⊗ enriched_id _ x
+              · enriched_comp _ x x y)
+              =
+              identity _)
+        <span class="k">as</span> p'.
+      {
+        <span class="nb">refine</span> (p @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> enrichment_id_left.
+        }
+        <span class="nb">apply</span> mon_linvunitor_lunitor.
+      }
+      <span class="nb">refine</span> (_ @ p').
+      <span class="nb">rewrite</span> tensor_comp_r_id_l.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> tensor_rinvunitor.
+      }
+      <span class="nb">rewrite</span> !assoc' ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> tensor_split'.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> tensor_rinvunitor.
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> enrichment_id_right.
+      }
+      <span class="nb">apply</span> mon_rinvunitor_runitor.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">to_enrichment_path_inv_right</span>
+               (<span class="nv">x</span> <span class="nv">y</span> : (C : univalent_category))
+      : pr1 F₂ x y · pr1 F₁ x y = identity _.
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (p := ε x y).
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !enriched_from_arr_id <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !assoc' <span class="k">in</span> p.
+      <span class="nb">assert</span> (mon_linvunitor _
+              · (enriched_id _ y #⊗ (F₂ x y · F₁ x y)
+              · enriched_comp _ x y y)
+              =
+              identity _)
+        <span class="k">as</span> p'.
+      {
+        <span class="nb">refine</span> (!p @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> enrichment_id_right.
+        }
+        <span class="nb">apply</span> mon_rinvunitor_runitor.
+      }
+      <span class="nb">refine</span> (_ @ p').
+      <span class="nb">rewrite</span> tensor_comp_l_id_l.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> tensor_linvunitor.
+      }
+      <span class="nb">rewrite</span> !assoc' ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> tensor_linvunitor.
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> enrichment_id_left.
+      }
+      <span class="nb">apply</span> mon_linvunitor_lunitor.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">to_enrichment_path</span>
+      : enrichment_data_hom_path_help (pr1 E₁) (pr1 E₂).
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _).
+      - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, _).
+        use make_z_iso.
+        + <span class="bp">exact</span> (pr1 F₁ x y).
+        + <span class="bp">exact</span> (pr1 F₂ x y).
+        + <span class="nb">split</span>.
+          * <span class="bp">exact</span> (to_enrichment_path_inv_left x y).
+          * <span class="bp">exact</span> (to_enrichment_path_inv_right x y).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x ; <span class="nb">cbn</span> ;
+           <span class="bp">exact</span> (pr12 F₁ x)).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y z ; <span class="nb">cbn</span> ;
+           <span class="bp">exact</span> (pr122 F₁ x y z)).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+           <span class="bp">exact</span> (!(pr222 F₁ x y f))).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+           use (invmaponpathsweq (make_weq _ (isweq_enriched_from_arr E₂ x y))) ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !(enriched_from_to_arr E₂) ;
+           <span class="nb">refine</span> (pr222 F₁ x y (enriched_to_arr (pr1 E₁) f) @ _) ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">rewrite</span> !(enriched_from_to_arr E₁) ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">ToEnrichmentPath</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_univalent_2_0_enriched_cats_help_path</span>
+             {<span class="nv">C</span> : bicat_of_univ_cats}
+             {<span class="nv">E₁</span> <span class="nv">E₂</span> : disp_bicat_of_enriched_cats C}
+             (<span class="nv">F</span> <span class="nv">G</span> : ∑ (F₁ : functor_enrichment (functor_identity _) E₁ E₂)
+                      (F₂ : functor_enrichment (functor_identity _) E₂ E₁),
+                    nat_trans_enrichment
+                      (nat_trans_id (functor_identity _))
+                      (functor_id_enrichment E₁)
+                      (functor_comp_enrichment F₁ F₂)
+                    ×
+                    nat_trans_enrichment
+                      (nat_trans_id _)
+                      (functor_comp_enrichment F₂ F₁)
+                      (functor_id_enrichment E₂)
+                    ×
+                    nat_trans_enrichment
+                      (nat_trans_id _)
+                      (functor_comp_enrichment F₁ F₂)
+                      (functor_id_enrichment E₁)
+                    ×
+                    nat_trans_enrichment
+                      (nat_trans_id _)
+                      (functor_id_enrichment E₂)
+                      (functor_comp_enrichment F₂ F₁))
+             (<span class="nv">p</span> : pr11 F = pr11 G)
+             (<span class="nv">q</span> : pr112 F = pr112 G)
+    : F = G.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> F <span class="k">as</span> [ F₁ F₂ ].
+    <span class="nb">induction</span> F₁ <span class="k">as</span> [ F₁ HF₁ ].
+    <span class="nb">induction</span> F₂ <span class="k">as</span> [ F₂ R ].
+    <span class="nb">induction</span> F₂ <span class="k">as</span> [ F₂ HF₂ ].
+    <span class="nb">induction</span> G <span class="k">as</span> [ G₁ G₂ ].
+    <span class="nb">induction</span> G₁ <span class="k">as</span> [ G₁ HG₁ ].
+    <span class="nb">induction</span> G₂ <span class="k">as</span> [ G₂ Q ].
+    <span class="nb">induction</span> G₂ <span class="k">as</span> [ G₂ HG₂ ].
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p.
+    <span class="nb">induction</span> q.
+    <span class="nb">assert</span> (p : HF₁ = HG₁).
+    {
+      <span class="nb">apply</span> isaprop_is_functor_enrichment.
+    }
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">assert</span> (p : HF₂ = HG₂).
+    {
+      <span class="nb">apply</span> isaprop_is_functor_enrichment.
+    }
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> maponpaths.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod) ; <span class="nb">apply</span> isaprop_nat_trans_enrichment.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_univalent_2_0_enriched_cats_help</span>
+             {<span class="nv">C</span> : bicat_of_univ_cats}
+             (<span class="nv">E₁</span> <span class="nv">E₂</span> : disp_bicat_of_enriched_cats C)
+    : enrichment_data_hom_path_help (pr1 E₁) (pr1 E₂)
+      ≃
+      (∑ (F₁ : functor_enrichment (functor_identity _) E₁ E₂)
+         (F₂ : functor_enrichment (functor_identity _) E₂ E₁),
+       nat_trans_enrichment
+         (nat_trans_id (functor_identity _))
+         (functor_id_enrichment E₁)
+         (functor_comp_enrichment F₁ F₂)
+       ×
+       nat_trans_enrichment
+         (nat_trans_id _)
+         (functor_comp_enrichment F₂ F₁)
+         (functor_id_enrichment E₂)
+       ×
+       nat_trans_enrichment
+         (nat_trans_id _)
+         (functor_comp_enrichment F₁ F₂)
+         (functor_id_enrichment E₁)
+       ×
+       nat_trans_enrichment
+         (nat_trans_id _)
+         (functor_id_enrichment E₂)
+         (functor_comp_enrichment F₂ F₁)).
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> from_enrichment_path.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">F</span>, to_enrichment_path (pr1 F) (pr12 F) (pr122 F) (pr1 (pr222 F))).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> F ;
+         use subtypePath ;
+         [ <span class="nb">intro</span> ;
+           <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod) ;
+           <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>) ;
+           <span class="nb">apply</span> homset_property
+         | ] ;
+         use funextsec ; <span class="nb">intro</span> x ;
+         use funextsec ; <span class="nb">intro</span> y ;
+         use z_iso_eq ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> F ;
+         use disp_univalent_2_0_enriched_cats_help_path ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_univalent_2_0_enriched_cats</span>
+             (<span class="nv">HV</span> : is_univalent V)
+    : disp_univalent_2_0 disp_bicat_of_enriched_cats.
+  <span class="kn">Proof</span>.
+    use fiberwise_univalent_2_0_to_disp_univalent_2_0.
+    <span class="nb">intros</span> C₁ E₁ E₂.
+    use weqhomot.
+    - <span class="bp">exact</span> (weq_disp_adjequiv_enriched _ _
+             ∘ disp_univalent_2_0_enriched_cats_help E₁ E₂
+             ∘ enrichment_data_hom_path HV _ _
+             ∘ total2_paths_equiv _ _ _
+             ∘ path_sigma_hprop _ _ _ (isaprop_enrichment_laws _))%weq.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> p ;
+         <span class="nb">cbn</span> <span class="k">in</span> p ;
+         <span class="nb">induction</span> p ;
+         use subtypePath ;
+         [ <span class="nb">intro</span> ;
+           <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence ;
+           [ <span class="nb">apply</span> univalent_cat_is_univalent_2_1 | ] ;
+           <span class="bp">exact</span> disp_univalent_2_1_enriched_cats
+         | ] ;
+         use subtypePath ;
+         [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_functor_enrichment | ] ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bicat_of_enriched_cats</span>
+    : bicat
+    := total_bicat disp_bicat_of_enriched_cats.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_2_1_bicat_of_enriched_cats</span>
+    : is_univalent_2_1 bicat_of_enriched_cats.
+  <span class="kn">Proof</span>.
+    use total_is_univalent_2_1.
+    - <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+    - <span class="bp">exact</span> disp_univalent_2_1_enriched_cats.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_2_0_bicat_of_enriched_cats</span>
+             (<span class="nv">HV</span> : is_univalent V)
+    : is_univalent_2_0 bicat_of_enriched_cats.
+  <span class="kn">Proof</span>.
+    use total_is_univalent_2_0.
+    - <span class="bp">exact</span> univalent_cat_is_univalent_2_0.
+    - use disp_univalent_2_0_enriched_cats.
+      <span class="bp">exact</span> HV.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_2_bicat_of_enriched_cats</span>
+             (<span class="nv">HV</span> : is_univalent V)
+    : is_univalent_2 bicat_of_enriched_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> (is_univalent_2_0_bicat_of_enriched_cats HV).
+    - <span class="bp">exact</span> is_univalent_2_1_bicat_of_enriched_cats.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">underlying_cat</span>
+    : psfunctor bicat_of_enriched_cats bicat_of_univ_cats
+    := pr1_psfunctor _.
+
+  <span class="sd">(** * 4. Accessors for the bicategory of enriched categories *)</span>
+  <span class="kn">Definition</span> <span class="nf">enriched_cat</span>
+    : UU
+    := bicat_of_enriched_cats.
+
+  <span class="kn">Coercion</span> <span class="nf">enriched_cat_to_univalent_category</span>
+           (E : enriched_cat)
+    : univalent_category
+    := pr1 E.
+
+  <span class="kn">Coercion</span> <span class="nf">enriched_cat_to_enrichment</span>
+           (E : enriched_cat)
+    : enrichment E V
+    := pr2 E.
+
+  <span class="kn">Definition</span> <span class="nf">make_enriched_cat</span>
+             (<span class="nv">C</span> : univalent_category)
+             (<span class="nv">E</span> : enrichment C V)
+    : enriched_cat
+    := C ,, E.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_functor</span>
+             (<span class="nv">E₁</span> <span class="nv">E₂</span> : enriched_cat)
+    : UU
+    := E₁ --&gt; E₂.
+
+  <span class="kn">Coercion</span> <span class="nf">enriched_functor_to_functor</span>
+           {E₁ E₂ : enriched_cat}
+           (F : enriched_functor E₁ E₂)
+    : E₁ ⟶ E₂
+    := pr1 F.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_functor_enrichment</span>
+             {<span class="nv">E₁</span> <span class="nv">E₂</span> : enriched_cat}
+             (<span class="nv">F</span> : enriched_functor E₁ E₂)
+    : functor_enrichment F E₁ E₂
+    := pr2 F.
+
+  <span class="kn">Definition</span> <span class="nf">make_enriched_functor</span>
+             {<span class="nv">E₁</span> <span class="nv">E₂</span> : enriched_cat}
+             (<span class="nv">F</span> : E₁ ⟶ E₂)
+             (<span class="nv">EF</span> : functor_enrichment F E₁ E₂)
+    : enriched_functor E₁ E₂
+    := F ,, EF.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_nat_trans</span>
+             {<span class="nv">E₁</span> <span class="nv">E₂</span> : enriched_cat}
+             (<span class="nv">F</span> <span class="nv">G</span> : enriched_functor E₁ E₂)
+    : UU
+    := F ==&gt; G.
+
+  <span class="kn">Coercion</span> <span class="nf">enriched_nat_trans_to_nat_trans</span>
+           {E₁ E₂ : enriched_cat}
+           {F G : enriched_functor E₁ E₂}
+           (τ : enriched_nat_trans F G)
+    : F ⟹ G
+    := pr1 τ.
+
+  <span class="kn">Coercion</span> <span class="nf">enriched_nat_trans_enrichment</span>
+           {E₁ E₂ : enriched_cat}
+           {F G : enriched_functor E₁ E₂}
+           (τ : enriched_nat_trans F G)
+    : nat_trans_enrichment τ (enriched_functor_enrichment F) (enriched_functor_enrichment G)
+    := pr2 τ.
+
+  <span class="kn">Definition</span> <span class="nf">make_enriched_nat_trans</span>
+             {<span class="nv">E₁</span> <span class="nv">E₂</span> : enriched_cat}
+             {<span class="nv">F</span> <span class="nv">G</span> : enriched_functor E₁ E₂}
+             (<span class="nv">τ</span> : F ⟹ G)
+             (<span class="nv">Eτ</span> : nat_trans_enrichment
+                     τ
+                     (enriched_functor_enrichment F)
+                     (enriched_functor_enrichment G))
+    : enriched_nat_trans F G
+    := τ ,, Eτ.
+
+  <span class="kn">Definition</span> <span class="nf">eq_enriched_nat_trans</span>
+             {<span class="nv">E₁</span> <span class="nv">E₂</span> : enriched_cat}
+             {<span class="nv">F</span> <span class="nv">G</span> : enriched_functor E₁ E₂}
+             {<span class="nv">τ₁</span> <span class="nv">τ₂</span> : enriched_nat_trans F G}
+             (<span class="nv">p</span> : ∏ (x : E₁), τ₁ x = τ₂ x)
+    : τ₁ = τ₂.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_nat_trans_enrichment.
+    }
+    use nat_trans_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">from_eq_enriched_nat_trans</span>
+              {<span class="nv">E₁</span> <span class="nv">E₂</span> : enriched_cat}
+              {<span class="nv">F</span> <span class="nv">G</span> : enriched_functor E₁ E₂}
+              {<span class="nv">τ₁</span> <span class="nv">τ₂</span> : enriched_nat_trans F G}
+              (<span class="nv">p</span> : τ₁ = τ₂)
+              (<span class="nv">x</span> : E₁)
+    : τ₁ x = τ₂ x.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr11 z x) p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_is_invertible_2cell_enriched</span>
+             {<span class="nv">E₁</span> <span class="nv">E₂</span> : enriched_cat}
+             {<span class="nv">F</span> <span class="nv">G</span> : enriched_functor E₁ E₂}
+             (<span class="nv">τ</span> : invertible_2cell F G)
+    : nat_z_iso F G.
+  <span class="kn">Proof</span>.
+    use invertible_2cell_to_nat_z_iso.
+    <span class="bp">exact</span> (_ ,, psfunctor_is_iso underlying_cat τ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_is_invertible_2cell_enriched</span>
+             {<span class="nv">E₁</span> <span class="nv">E₂</span> : enriched_cat}
+             {<span class="nv">F</span> <span class="nv">G</span> : enriched_functor E₁ E₂}
+             (<span class="nv">τ</span> : enriched_nat_trans F G)
+             (<span class="nv">Hτ</span> : is_nat_z_iso τ)
+    : is_invertible_2cell τ.
+  <span class="kn">Proof</span>.
+    use make_is_invertible_2cell.
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (pr1 (nat_z_iso_inv (make_nat_z_iso _ _ _ Hτ))).
+      + <span class="kp">abstract</span>
+          (use nat_z_iso_inv_enrichment ;
+           <span class="bp">exact</span> (pr2 τ)).
+    - <span class="kp">abstract</span>
+        (use eq_enriched_nat_trans ;
+         <span class="nb">intro</span> x ;
+         <span class="nb">apply</span> (z_iso_inv_after_z_iso (_ ,, Hτ x))).
+    - <span class="kp">abstract</span>
+        (use eq_enriched_nat_trans ;
+         <span class="nb">intro</span> x ;
+         <span class="nb">apply</span> (z_iso_after_z_iso_inv (_ ,, Hτ x))).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">EnrichedCats</span>.
+
+<span class="kn">Arguments</span> make_enriched_cat {V} C E.
+<span class="kn">Arguments</span> enriched_functor {V} E₁ E₂.
+<span class="kn">Arguments</span> enriched_functor_enrichment {V E₁ E₂} F.
+<span class="kn">Arguments</span> make_enriched_functor {V E₁ E₂} F EF.
+<span class="kn">Arguments</span> enriched_nat_trans {V E₁ E₂} F G.
+<span class="kn">Arguments</span> make_enriched_nat_trans {V E₁ E₂ F G} τ Eτ.
+<span class="kn">Arguments</span> from_eq_enriched_nat_trans {V E₁ E₂ F G τ₁ τ₂} p x.
+
+<span class="sd">(** * 5. The category of quantale enriched categories *)</span>
+<span class="kn">Section</span> <span class="nf">CatQuantaleEnrichedCat</span>.
+  <span class="kn">Context</span> (<span class="nv">V</span> : quantale_cosmos).
+
+  <span class="kn">Definition</span> <span class="nf">is_locally_posetal_bicat_quantale_enriched_cat</span>
+    : is_locally_posetal_bicat (bicat_of_enriched_cats V).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> (is_univalent_2_1_bicat_of_enriched_cats V).
+    - <span class="nb">intros</span> E₁ E₂ F G τ θ.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_nat_trans_enrichment.
+      }
+      use (nat_trans_eq_quantale_enrichment V).
+      <span class="nb">apply</span> E₂.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cat_of_quantale_enriched_cat</span>
+    : category.
+  <span class="kn">Proof</span>.
+    use locally_posetal_bicat_to_category.
+    - <span class="bp">exact</span> (bicat_of_enriched_cats V).
+    - <span class="bp">exact</span> is_locally_posetal_bicat_quantale_enriched_cat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_univalent_cat_of_quantale_enriched_cat</span>
+    : is_univalent cat_of_quantale_enriched_cat.
+  <span class="kn">Proof</span>.
+    use locally_posetal_bicat_to_category_is_univalent.
+    use is_univalent_2_0_bicat_of_enriched_cats.
+    <span class="nb">apply</span> is_univalent_quantale_cosmos.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">univalent_cat_of_quantale_enriched_cat</span>
+    : univalent_category.
+  <span class="kn">Proof</span>.
+    use make_univalent_category.
+    - <span class="bp">exact</span> cat_of_quantale_enriched_cat.
+    - <span class="bp">exact</span> is_univalent_cat_of_quantale_enriched_cat.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CatQuantaleEnrichedCat</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/Examples/EnrichedCats.v</tt>, line 36)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. The category of quantale enriched categories
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

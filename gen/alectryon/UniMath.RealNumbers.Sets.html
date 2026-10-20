@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Sets.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Additional theorems for Sets.v *)</span>
+
+<span class="sd">(** Previous theorems about hSet and order *)</span>
+
+<span class="kn">Require Export</span> UniMath.Foundations.Sets
+               UniMath.MoreFoundations.QuotientSet.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Orders.
+
+<span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations
+               UniMath.Algebra.Apartness
+               UniMath.OrderTheory.Lattice.Lattice.
+
+<span class="sd">(** * Partially-defined inverse functions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">islinv'</span> {<span class="nv">X</span> : hSet} (<span class="nv">x1</span> : X) (<span class="nv">op</span> : binop X) (<span class="nv">exinv</span> : hsubtype X) (<span class="nv">inv</span> : carrier_subset exinv -&gt; X) :=
+  ∏ (x : X) (Hx : exinv x), op (inv (x ,, Hx)) x = x1.
+<span class="kn">Definition</span> <span class="nf">isrinv'</span> {<span class="nv">X</span> : hSet} (<span class="nv">x1</span> : X) (<span class="nv">op</span> : binop X) (<span class="nv">exinv</span> : hsubtype X) (<span class="nv">inv</span> : carrier_subset exinv -&gt; X) :=
+  ∏ (x : X) (Hx : exinv x), op x (inv (x ,, Hx)) = x1.
+<span class="kn">Definition</span> <span class="nf">isinv'</span> {<span class="nv">X</span> : hSet} (<span class="nv">x1</span> : X) (<span class="nv">op</span> : binop X) (<span class="nv">exinv</span> : hsubtype X) (<span class="nv">inv</span> : carrier_subset exinv -&gt; X)  :=
+  islinv' x1 op exinv inv × isrinv' x1 op exinv inv.
+
+<span class="sd">(** * Effective Orders *)</span>
+<span class="sd">(** An alternative to total orders *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isEffectiveOrder</span> {<span class="nv">X</span> : UU} (<span class="nv">le</span> <span class="nv">lt</span> : hrel X) :=
+  dirprod ((ispreorder le) × (isStrongOrder lt))
+          ((∏ x y : X, (¬ lt x y) &lt;-&gt; (le y x))
+          × (∏ x y z : X, lt x y -&gt; le y z -&gt; lt x z)
+          × (∏ x y z : X, le x y -&gt; lt y z -&gt; lt x z)).
+<span class="kn">Definition</span> <span class="nf">EffectiveOrder</span> (<span class="nv">X</span> : UU) :=
+  ∑ le lt : hrel X, isEffectiveOrder le lt.
+<span class="kn">Definition</span> <span class="nf">pairEffectiveOrder</span> {<span class="nv">X</span> : UU} (<span class="nv">le</span> <span class="nv">lt</span> : hrel X) (<span class="nv">isc</span> : isEffectiveOrder le lt) : EffectiveOrder X :=
+  (le,,lt,,isc).
+
+<span class="kn">Definition</span> <span class="nf">EffectivelyOrderedSet</span> :=
+  ∑ X : hSet, EffectiveOrder X.
+<span class="kn">Definition</span> <span class="nf">pairEffectivelyOrderedSet</span> {<span class="nv">X</span> : hSet} (<span class="nv">isc</span> : EffectiveOrder X) : EffectivelyOrderedSet
+  := tpair _ X isc.
+<span class="kn">Definition</span> <span class="nf">pr1EffectivelyOrderedSet</span> : EffectivelyOrderedSet → hSet := pr1.
+<span class="kn">Coercion</span> <span class="nf">pr1EffectivelyOrderedSet</span> : EffectivelyOrderedSet &gt;-&gt; hSet.
+
+<span class="kn">Definition</span> <span class="nf">EOle</span> {<span class="nv">X</span> : EffectivelyOrderedSet} : po X :=
+  <span class="k">let</span> <span class="nv">R</span> := pr2 X <span class="k">in</span>
+  make_po (pr1 R) (pr1 (pr1 (pr2 (pr2 R)))).
+<span class="kn">Definition</span> <span class="nf">EOle_rel</span> {<span class="nv">X</span> : EffectivelyOrderedSet} : hrel X :=
+  pr1 EOle.
+<span class="kn">Arguments</span> EOle_rel {X} x y: <span class="nb">simpl</span> never.
+<span class="kn">Definition</span> <span class="nf">EOge</span> {<span class="nv">X</span> : EffectivelyOrderedSet} : po X :=
+  po_reverse (@EOle X).
+<span class="kn">Definition</span> <span class="nf">EOge_rel</span> {<span class="nv">X</span> : EffectivelyOrderedSet} : hrel X :=
+  pr1 EOge.
+<span class="kn">Arguments</span> EOge_rel {X} x y: <span class="nb">simpl</span> never.
+
+<span class="kn">Definition</span> <span class="nf">EOlt</span> {<span class="nv">X</span> : EffectivelyOrderedSet} : StrongOrder (pr1 X) :=
+  <span class="k">let</span> <span class="nv">R</span> := pr2 X <span class="k">in</span>
+  make_StrongOrder (pr1 (pr2 R)) (pr2 (pr1 (pr2 (pr2 R)))).
+<span class="kn">Definition</span> <span class="nf">EOlt_rel</span> {<span class="nv">X</span> : EffectivelyOrderedSet} : hrel X :=
+  pr1 EOlt.
+<span class="kn">Arguments</span> EOlt_rel {X} x y: <span class="nb">simpl</span> never.
+<span class="kn">Definition</span> <span class="nf">EOgt</span> {<span class="nv">X</span> : EffectivelyOrderedSet} : StrongOrder (pr1 X) :=
+  StrongOrder_reverse (@EOlt X).
+<span class="kn">Definition</span> <span class="nf">EOgt_rel</span> {<span class="nv">X</span> : EffectivelyOrderedSet} : hrel X :=
+  pr1 EOgt.
+<span class="kn">Arguments</span> EOgt_rel {X} x y: <span class="nb">simpl</span> never.
+
+<span class="kn">Definition</span> <span class="nf">PreorderedSetEffectiveOrder</span> (<span class="nv">X</span> : EffectivelyOrderedSet) : PreorderedSet :=
+  PreorderedSetPair _ (@EOle X).
+
+<span class="kn">Declare Scope</span> eo_scope.
+<span class="kn">Delimit Scope</span> eo_scope <span class="k">with</span> eo.
+
+<span class="kn">Notation</span> <span class="s2">"x &lt;= y"</span> := (EOle_rel x y) : eo_scope.
+<span class="kn">Notation</span> <span class="s2">"x &gt;= y"</span> := (EOge_rel x y) : eo_scope.
+<span class="kn">Notation</span> <span class="s2">"x &lt; y"</span> := (EOlt_rel x y) : eo_scope.
+<span class="kn">Notation</span> <span class="s2">"x &gt; y"</span> := (EOgt_rel x y) : eo_scope.
+
+<span class="kn">Section</span> <span class="nf">eo_pty</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : EffectivelyOrderedSet}.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> eo_scope.
+
+<span class="kn">Lemma</span> <span class="nf">not_EOlt_le</span> :
+  ∏ x y : X, (¬ (x &lt; y)) &lt;-&gt; (y &lt;= x).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (pr2 (pr2 (pr2 (pr2 X))))).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">EOge_le</span>:
+  ∏ x y : X, (x &gt;= y) &lt;-&gt; (y &lt;= x).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">split</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">EOgt_lt</span>:
+  ∏ x y : X, (x &gt; y) &lt;-&gt; (y &lt; x).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">split</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isrefl_EOle</span>:
+  ∏ x : X, x &lt;= x
+  := isrefl_po EOle.
+<span class="kn">Definition</span> <span class="nf">istrans_EOle</span>:
+  ∏ x y z : X, x &lt;= y -&gt; y &lt;= z -&gt; x &lt;= z
+  := istrans_po EOle.
+
+<span class="kn">Definition</span> <span class="nf">isirrefl_EOgt</span>:
+  ∏ x : X, ¬ (x &gt; x)
+  := isirrefl_isStrongOrder EOgt.
+<span class="kn">Definition</span> <span class="nf">istrans_EOgt</span>:
+  ∏ x y z : X, x &gt; y -&gt; y &gt; z -&gt; x &gt; z
+  := istrans_isStrongOrder EOgt.
+
+<span class="kn">Definition</span> <span class="nf">isirrefl_EOlt</span>:
+  ∏ x : X, ¬ (x &lt; x)
+  := isirrefl_isStrongOrder EOlt.
+<span class="kn">Definition</span> <span class="nf">istrans_EOlt</span>:
+  ∏ x y z : X, x &lt; y -&gt; y &lt; z -&gt; x &lt; z
+  := istrans_isStrongOrder EOlt.
+
+<span class="kn">Lemma</span> <span class="nf">EOlt_le</span> :
+  ∏ x y : X, x &lt; y -&gt; x &lt;= y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hxy.
+  <span class="nb">apply</span> not_EOlt_le.
+  <span class="nb">intros</span> H.
+  <span class="nb">refine</span> (isirrefl_EOlt _ _).
+  <span class="nb">refine</span> (istrans_EOlt _ _ _ _ _).
+  <span class="bp">exact</span> Hxy.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">istrans_EOlt_le</span>:
+  ∏ x y z : X, x &lt; y -&gt; y &lt;= z -&gt; x &lt; z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 X)))))).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">istrans_EOle_lt</span>:
+  ∏ x y z : X, x &lt;= y -&gt; y &lt; z -&gt; x &lt; z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 X)))))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">EOlt_noteq</span> :
+  ∏ x y : X, x &lt; y -&gt; x != y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hgt Heq.
+  <span class="nb">rewrite</span> Heq <span class="k">in</span> Hgt.
+  <span class="bp">now</span> <span class="nb">apply</span> isirrefl_EOgt <span class="k">in</span> Hgt.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">EOgt_noteq</span> :
+  ∏ x y : X, x &gt; y -&gt; x != y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hgt Heq.
+  <span class="nb">rewrite</span> Heq <span class="k">in</span> Hgt.
+  <span class="bp">now</span> <span class="nb">apply</span> isirrefl_EOgt <span class="k">in</span> Hgt.
+<span class="kn">Qed</span>.
+
+<span class="kn">Close Scope</span> eo_scope.
+
+<span class="kn">End</span> <span class="nf">eo_pty</span>.
+
+<span class="sd">(** ** Constructive Total Effective Order *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isConstructiveTotalEffectiveOrder</span> {<span class="nv">X</span> : UU} (<span class="nv">ap</span> <span class="nv">le</span> <span class="nv">lt</span> : hrel X) :=
+  istightap ap
+  × isEffectiveOrder le lt
+  × (isantisymm le)
+  × (∏ x y : X, ap x y &lt;-&gt; (lt x y) ⨿ (lt y x)).
+<span class="kn">Definition</span> <span class="nf">ConstructiveTotalEffectiveOrder</span> <span class="nv">X</span> :=
+  ∑ ap lt le : hrel X, isConstructiveTotalEffectiveOrder ap lt le.
+<span class="kn">Definition</span> <span class="nf">ConstructiveTotalEffectivellyOrderedSet</span> :=
+  ∑ X : hSet, ConstructiveTotalEffectiveOrder X.
+
+<span class="sd">(** ** Complete Ordered Space *)</span>
+
+<span class="kn">Section</span> <span class="nf">LeastUpperBound</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : PreorderedSet}.
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"x &lt;= y"</span> := (pr1 (pr2 X) x y).
+
+<span class="kn">Definition</span> <span class="nf">isUpperBound</span> (<span class="nv">E</span> : hsubtype X) (<span class="nv">ub</span> : X) : UU :=
+  ∏ x : X, E x -&gt; x &lt;= ub.
+<span class="kn">Definition</span> <span class="nf">isSmallerThanUpperBounds</span> (<span class="nv">E</span> : hsubtype X) (<span class="nv">lub</span> : X) : UU :=
+  ∏ ub : X, isUpperBound E ub -&gt; lub &lt;= ub.
+
+<span class="kn">Definition</span> <span class="nf">isLeastUpperBound</span> (<span class="nv">E</span> : hsubtype X) (<span class="nv">lub</span> : X) : UU :=
+  (isUpperBound E lub) × (isSmallerThanUpperBounds E lub).
+<span class="kn">Definition</span> <span class="nf">LeastUpperBound</span> (<span class="nv">E</span> : hsubtype X) : UU :=
+  ∑ lub : X, isLeastUpperBound E lub.
+<span class="kn">Definition</span> <span class="nf">pairLeastUpperBound</span> (<span class="nv">E</span> : hsubtype X) (<span class="nv">lub</span> : X)
+           (<span class="nv">isc</span> : isLeastUpperBound E lub) : LeastUpperBound E :=
+  tpair (isLeastUpperBound E) lub isc.
+<span class="kn">Definition</span> <span class="nf">pr1LeastUpperBound</span> {<span class="nv">E</span> : hsubtype X} :
+  LeastUpperBound E → X := pr1.
+
+<span class="kn">Lemma</span> <span class="nf">isapropLeastUpperBound</span> (<span class="nv">E</span> : hsubtype X) (<span class="nv">H</span> : isantisymm (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, x &lt;= y)) :
+  isaprop (LeastUpperBound E).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> (iscontrweqf (X := (pr1 x) = (pr1 y))).
+  - <span class="nb">apply</span> invweq, subtypeInjectivity.
+    <span class="nb">intro</span> t.
+    <span class="nb">apply</span> isapropdirprod.
+    <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropimpl.
+    <span class="bp">now</span> <span class="nb">apply</span> pr2.
+    <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropimpl.
+    <span class="bp">now</span> <span class="nb">apply</span> pr2.
+  - <span class="nb">assert</span> (Heq : (pr1 x) = (pr1 y)).
+    { <span class="nb">apply</span> H.
+      <span class="bp">now</span> <span class="nb">apply</span> (pr2 (pr2 x)), (pr1 (pr2 y)).
+      <span class="bp">now</span> <span class="nb">apply</span> (pr2 (pr2 y)), (pr1 (pr2 x)). }
+    <span class="nb">rewrite</span> &lt;- Heq.
+    <span class="nb">apply</span> iscontrloopsifisaset.
+    <span class="nb">apply</span> pr2.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">LeastUpperBound</span>.
+
+<span class="kn">Section</span> <span class="nf">GreatestLowerBound</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : PreorderedSet}.
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"x &gt;= y"</span> := (pr1 (pr2 X) y x).
+
+<span class="kn">Definition</span> <span class="nf">isLowerBound</span> (<span class="nv">E</span> : hsubtype X) (<span class="nv">ub</span> : X) : UU :=
+  ∏ x : X, E x -&gt; x &gt;= ub.
+<span class="kn">Definition</span> <span class="nf">isBiggerThanLowerBounds</span> (<span class="nv">E</span> : hsubtype X) (<span class="nv">lub</span> : X) : UU :=
+  ∏ ub : X, isLowerBound E ub -&gt; lub &gt;= ub.
+
+<span class="kn">Definition</span> <span class="nf">isGreatestLowerBound</span> (<span class="nv">E</span> : hsubtype X) (<span class="nv">glb</span> : X) : UU :=
+  (isLowerBound E glb) × (isBiggerThanLowerBounds E glb).
+<span class="kn">Definition</span> <span class="nf">GreatestLowerBound</span> (<span class="nv">E</span> : hsubtype X) : UU :=
+  ∑ glb : X, isGreatestLowerBound E glb.
+<span class="kn">Definition</span> <span class="nf">pairGreatestLowerBound</span> (<span class="nv">E</span> : hsubtype X) (<span class="nv">glb</span> : X)
+           (<span class="nv">isc</span> : isGreatestLowerBound E glb) : GreatestLowerBound E :=
+  tpair (isGreatestLowerBound E) glb isc.
+<span class="kn">Definition</span> <span class="nf">pr1GreatestLowerBound</span> {<span class="nv">E</span> : hsubtype X} :
+  GreatestLowerBound E → X := pr1.
+
+<span class="kn">Lemma</span> <span class="nf">isapropGreatestLowerBound</span> (<span class="nv">E</span> : hsubtype X) (<span class="nv">H</span> : isantisymm (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, x &gt;= y)) :
+  isaprop (GreatestLowerBound E).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> (iscontrweqf (X := (pr1 x) = (pr1 y))).
+  - <span class="nb">apply</span> invweq, subtypeInjectivity.
+    <span class="nb">intro</span> t.
+    <span class="nb">apply</span> isapropdirprod.
+    <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropimpl.
+    <span class="bp">now</span> <span class="nb">apply</span> pr2.
+    <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropimpl.
+    <span class="bp">now</span> <span class="nb">apply</span> pr2.
+  - <span class="nb">assert</span> (Heq : (pr1 x) = (pr1 y)).
+    { <span class="nb">apply</span> H.
+      <span class="bp">now</span> <span class="nb">apply</span> (pr2 (pr2 x)), (pr1 (pr2 y)).
+      <span class="bp">now</span> <span class="nb">apply</span> (pr2 (pr2 y)), (pr1 (pr2 x)). }
+    <span class="nb">rewrite</span> &lt;- Heq.
+    <span class="nb">apply</span> iscontrloopsifisaset.
+    <span class="nb">apply</span> pr2.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">GreatestLowerBound</span>.
+
+<span class="kn">Definition</span> <span class="nf">isCompleteSpace</span> (<span class="nv">X</span> : PreorderedSet) :=
+  ∏ E : hsubtype X,
+    hexists (isUpperBound E) -&gt; hexists E -&gt; LeastUpperBound E.
+<span class="kn">Definition</span> <span class="nf">CompleteSpace</span>  :=
+  ∑ X : PreorderedSet, isCompleteSpace X.
+<span class="kn">Definition</span> <span class="nf">pr1CompleteSpace</span> : CompleteSpace → UU := pr1.
+<span class="kn">Coercion</span> <span class="nf">pr1CompleteSpace</span> : CompleteSpace &gt;-&gt; UU.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/RealNumbers/Sets.v</tt>, line 5)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Sets.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; (** Previous theorems about hSet and order *)
+  &gt; &gt;&gt;&gt;Require Export UniMath.Foundations.Sets
+  &gt;                UniMath.MoreFoundations.QuotientSet.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

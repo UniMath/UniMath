@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Univalence.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> Univalence two-sided displayed categories</span>
+
+<span class="sd"> We define univalent two-sided displayed categories. To do so, we first define the</span>
+<span class="sd"> map that sends identities to isomorphisms. Univalence is then expressed the usual</span>
+<span class="sd"> way.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Univalence for two-sided displayed categories</span>
+<span class="sd"> 2. Equivalence with univalent displayed categories</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Univalence for two-sided displayed categories</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">idtoiso_twosided_disp</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C₁ C₂}
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+           {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+           (<span class="nv">p</span> : x₁ = x₂)
+           (<span class="nv">q</span> : y₁ = y₂)
+           {<span class="nv">xy₁</span> : D x₁ y₁}
+           {<span class="nv">xy₂</span> : D x₂ y₂}
+           (<span class="nv">r</span> : transportf (<span class="k">λ</span> <span class="nv">z</span>, D z _) p (transportf (<span class="k">λ</span> <span class="nv">z</span>, D _ z) q xy₁) = xy₂)
+  : iso_twosided_disp (idtoiso p) (idtoiso q) xy₁ xy₂.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">induction</span> q.
+  <span class="nb">induction</span> r.
+  <span class="nb">apply</span> id_iso_twosided_disp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_twosided_disp_cat</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">D</span> : twosided_disp_cat C₁ C₂)
+  : UU
+  := ∏ (x₁ x₂ : C₁)
+       (y₁ y₂ : C₂)
+       (p : x₁ = x₂)
+       (q : y₁ = y₂)
+       (xy₁ : D x₁ y₁)
+       (xy₂ : D x₂ y₂),
+     isweq (idtoiso_twosided_disp p q (xy₁ := xy₁) (xy₂ := xy₂)).
+
+<span class="kn">Definition</span> <span class="nf">isaprop_is_univalent_twosided_disp_cat</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">D</span> : twosided_disp_cat C₁ C₂)
+  : isaprop (is_univalent_twosided_disp_cat D).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">8</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isapropisweq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isotoid_twosided_disp</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C₁ C₂}
+           (<span class="nv">HD</span> : is_univalent_twosided_disp_cat D)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+           {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+           (<span class="nv">p</span> : x₁ = x₂)
+           (<span class="nv">q</span> : y₁ = y₂)
+           {<span class="nv">xy₁</span> : D x₁ y₁}
+           {<span class="nv">xy₂</span> : D x₂ y₂}
+           (<span class="nv">r</span> : iso_twosided_disp (idtoiso p) (idtoiso q) xy₁ xy₂)
+  : transportf (<span class="k">λ</span> <span class="nv">z</span>, D z _) p (transportf (<span class="k">λ</span> <span class="nv">z</span>, D _ z) q xy₁) = xy₂
+  := invmap (_ ,, HD x₁ x₂ y₁ y₂ p q xy₁ xy₂) r.
+
+<span class="kn">Proposition</span> <span class="nf">idtoisotoid_twosided_disp</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C₁ C₂}
+            (<span class="nv">HD</span> : is_univalent_twosided_disp_cat D)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+            {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+            (<span class="nv">p</span> : x₁ = x₂)
+            (<span class="nv">q</span> : y₁ = y₂)
+            {<span class="nv">xy₁</span> : D x₁ y₁}
+            {<span class="nv">xy₂</span> : D x₂ y₂}
+            (<span class="nv">r</span> : transportf (<span class="k">λ</span> <span class="nv">z</span>, D z _) p (transportf (<span class="k">λ</span> <span class="nv">z</span>, D _ z) q xy₁) = xy₂)
+  : isotoid_twosided_disp HD p q (idtoiso_twosided_disp p q r) = r.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> homotinvweqweq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">isotoidtoiso_twosided_disp</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C₁ C₂}
+            (<span class="nv">HD</span> : is_univalent_twosided_disp_cat D)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+            {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+            (<span class="nv">p</span> : x₁ = x₂)
+            (<span class="nv">q</span> : y₁ = y₂)
+            {<span class="nv">xy₁</span> : D x₁ y₁}
+            {<span class="nv">xy₂</span> : D x₂ y₂}
+            (<span class="nv">r</span> : iso_twosided_disp (idtoiso p) (idtoiso q) xy₁ xy₂)
+  : idtoiso_twosided_disp p q (isotoid_twosided_disp HD p q r) = r.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (homotweqinvweq (_ ,, HD x₁ x₂ y₁ y₂ p q xy₁ xy₂)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_twosided_disp_cat</span>
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : category)
+  : UU
+  := ∑ (D : twosided_disp_cat C₁ C₂), is_univalent_twosided_disp_cat D.
+
+<span class="kn">Coercion</span> <span class="nf">univalent_twosided_disp_cat_to_twosided_disp_cat</span>
+         {C₁ C₂ : category}
+         (D : univalent_twosided_disp_cat C₁ C₂)
+  : twosided_disp_cat C₁ C₂
+  := pr1 D.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_univalent_twosided_disp_cat</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            (<span class="nv">D</span> : univalent_twosided_disp_cat C₁ C₂)
+  : is_univalent_twosided_disp_cat D.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 D).
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Equivalence with univalent displayed categories</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">is_univalent_twosided_disp_cat_weq_is_univalent_disp_cat</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">D</span> : twosided_disp_cat C₁ C₂)
+  : is_univalent_twosided_disp_cat D
+    ≃
+    is_univalent_disp (two_sided_disp_cat_weq_disp_cat C₁ C₂ D).
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="nb">intros</span> H.
+    use is_univalent_disp_from_fibers.
+    <span class="nb">intros</span> x xx yy.
+    use weqhomot.
+    + <span class="bp">exact</span> (iso_twosided_disp_weq_z_iso_disp xx yy
+             ∘ make_weq _ (H _ _ _ _ (idpath _) (idpath _) xx yy))%weq.
+    + <span class="nb">intros</span> p.
+      <span class="nb">induction</span> p.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_z_iso_disp.
+      }
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> H x₁ x₂ y₁ y₂ p q xy₁ xy₂.
+    <span class="nb">induction</span> p, q.
+    use weqhomot.
+    + <span class="bp">exact</span> (invweq (iso_twosided_disp_weq_z_iso_disp xy₁ xy₂)
+             ∘ make_weq _ (H (x₁ ,, y₁) (x₁ ,, y₁) (idpath _) xy₁ xy₂))%weq.
+    + <span class="nb">intros</span> p.
+      <span class="nb">induction</span> p.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_iso_twosided_disp.
+      }
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> isaprop_is_univalent_twosided_disp_cat.
+  - <span class="nb">apply</span> isaprop_is_univalent_disp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_twosided_disp_cat_weq_univalent_disp_cat</span>
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : category)
+  : univalent_twosided_disp_cat C₁ C₂
+    ≃
+    disp_univalent_category (category_binproduct C₁ C₂).
+<span class="kn">Proof</span>.
+  use weqtotal2.
+  - <span class="bp">exact</span> (two_sided_disp_cat_weq_disp_cat C₁ C₂).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">D</span>, is_univalent_twosided_disp_cat_weq_is_univalent_disp_cat D).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/TwoSidedDisplayedCats/Univalence.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Equivalence with univalent displayed categories
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

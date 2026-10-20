@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>RegularEpi.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">   Interaction Regular Epimorphisms And Weak Equivalences</span>
+
+<span class="sd">   In this file, we show that weak equivalences reflect and preserve regular epimorphisms.</span>
+<span class="sd">   Furthermore, we show that the preservation of reg. epis is lifts along weak equivalences.</span>
+
+<span class="sd">   Contents.</span>
+<span class="sd">   1. Preservation [weak_equiv_preserves_regular_epi]</span>
+<span class="sd">   2. Reflection [weak_equiv_reflects_regular_epi]</span>
+<span class="sd">   3. Lift Preservation [weak_equiv_lifts_preserves_regular_epi]</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularEpi.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Coequalizers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Preservation *)</span>
+<span class="kn">Lemma</span> <span class="nf">weak_equiv_preserves_regular_epi</span>
+  {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : functor C D} (<span class="nv">F_weq</span> : is_weak_equiv F)
+  : preserves_regular_epi F.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f f_e.
+  use (factor_through_squash _ _ f_e).
+  { <span class="nb">apply</span> isapropishinh. }
+  <span class="nb">intros</span> [w [g₁ [g₂ [p pe]]]].
+
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> (<span class="nv">F</span> <span class="nv">w</span>).
+  <span class="k">exists</span> (#F g₁).
+  <span class="k">exists</span> (#F g₂).
+
+  <span class="nb">assert</span> (p' : # F g₁ · # F f = # F g₂ · #F f). {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> p.
+  }
+  <span class="k">exists</span> <span class="nv">p'</span>.
+  <span class="bp">exact</span> (weak_equiv_preserves_coequalizers F_weq _ _ _ _  _ _ _ p' pe).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Reflection *)</span>
+<span class="kn">Lemma</span> <span class="nf">weak_equiv_reflects_regular_epi</span>
+  {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : functor C D} (<span class="nv">F_weq</span> : is_weak_equiv F)
+  : ∏ (x y : C) (f : C⟦x, y⟧), is_regular_epi (#F f) → is_regular_epi f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f f_e.
+  use (factor_through_squash _ _ f_e).
+  { <span class="nb">apply</span> isapropishinh. }
+  <span class="nb">intros</span> [w [g₁ [g₂ [p pe]]]].
+
+  use (factor_through_squash _ _ (eso_from_weak_equiv _ F_weq w)).
+  { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_regular_epi. }
+  <span class="nb">intros</span> [v i].
+
+  <span class="nb">set</span> (f₁ := fully_faithful_inv_hom (ff_from_weak_equiv _ F_weq) _ _ (i · g₁) : C⟦v, x⟧).
+  <span class="nb">set</span> (f₂ := fully_faithful_inv_hom (ff_from_weak_equiv _ F_weq) _ _ (i · g₂) : C⟦v, x⟧).
+
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> <span class="nv">v</span>.
+  <span class="k">exists</span> <span class="nv">f₁</span>.
+  <span class="k">exists</span> <span class="nv">f₂</span>.
+
+  <span class="nb">assert</span> (p' : f₁ · f = f₂ · f). {
+    <span class="nb">apply</span> (faithful_reflects_morphism_equality _ (ff_from_weak_equiv _ F_weq)).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">unfold</span> f₁, f₂.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> p.
+  }
+
+  <span class="k">exists</span> <span class="nv">p'</span>.
+  use (weak_equiv_reflects_coequalizers F_weq).
+  <span class="nb">intros</span> u h pf.
+  <span class="nb">apply</span> (pe u h).
+
+  <span class="nb">unfold</span> f₁, f₂ <span class="k">in</span> pf.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (functor_on_fully_faithful_inv_hom _ (ff_from_weak_equiv _ F_weq)) <span class="k">in</span> pf.
+  use (cancel_z_iso' i).
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+  <span class="bp">exact</span> pf.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Lift Preservation *)</span>
+<span class="kn">Lemma</span> <span class="nf">weak_equiv_lifts_preserves_regular_epi</span>
+  {<span class="nv">C</span> : category} (<span class="nv">D</span> <span class="nv">E</span> : univalent_category)
+  {<span class="nv">F</span> : functor C E} {<span class="nv">G</span> : functor C D} {<span class="nv">H</span> : functor D E}
+  (<span class="nv">α</span> : nat_z_iso (functor_composite G H) F)
+  (<span class="nv">G_weq</span> : is_weak_equiv G)
+  : preserves_regular_epi F → preserves_regular_epi H.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> F_e.
+  <span class="nb">unfold</span> preserves_regular_epi.
+  <span class="nb">intros</span> d₁ d₂ f_D f_D_e.
+
+  use (factor_through_squash _ _ (eso_from_weak_equiv _ G_weq d₁)).
+  { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_regular_epi. }
+  <span class="nb">intros</span> [c₁ i₁].
+  use (factor_through_squash _ _ (eso_from_weak_equiv _ G_weq d₂)).
+  { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_regular_epi. }
+  <span class="nb">intros</span> [c₂ i₂].
+
+  <span class="nb">set</span> (p₁ := isotoid _ (pr2 D) i₁).
+  <span class="nb">set</span> (p₂ := isotoid _ (pr2 D) i₂).
+  <span class="nb">induction</span> p₁.
+  <span class="nb">induction</span> p₂.
+
+  <span class="nb">set</span> (f_C := fully_faithful_inv_hom (ff_from_weak_equiv _ G_weq) _ _ f_D).
+
+  <span class="nb">assert</span> (f_C_e : is_regular_epi f_C).
+  {
+    use (weak_equiv_reflects_regular_epi G_weq).
+    <span class="nb">unfold</span> f_C.
+    <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+    <span class="bp">exact</span> f_D_e.
+  }
+
+  <span class="nb">set</span> (f_E_e := F_e c₁ c₂ f_C f_C_e).
+  <span class="nb">set</span> (αi := nat_z_iso_inv α).
+  use (is_regular_epi_arrow_z_iso_f _ _ _ _ _ f_E_e).
+  - <span class="nb">apply</span> (nat_z_iso_pointwise_z_iso αi).
+  - <span class="nb">apply</span> (nat_z_iso_pointwise_z_iso αi).
+  - etrans. { <span class="nb">apply</span> (nat_trans_ax αi). }
+    <span class="nb">simpl</span> ; <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> f_C.
+    <span class="bp">now</span> <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/WeakEquivalences/RegularEpi.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;    3. Lift Preservation [weak_equiv_lifts_preserves_regular_epi]
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

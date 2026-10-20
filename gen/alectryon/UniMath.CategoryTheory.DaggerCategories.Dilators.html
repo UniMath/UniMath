@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Dilators.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************</span>
+<span class="sd">Dilators</span>
+
+<span class="sd">A dilation is a presentation of a map in a dagger category by a </span>
+<span class="sd">span of coisometries. A dilator is a terminal dilation. Dagger categories in which</span>
+<span class="sd">every morphism has a dilator have a rich theory, generalizing aspects of </span>
+<span class="sd">allegories and regular categories. </span>
+
+<span class="sd">In this file, we develop the basic theory of dilations and dilators.</span>
+
+<span class="sd">Table of Contents</span>
+<span class="sd">1. Definition of Dilations</span>
+<span class="sd">2. Maps of Dilations</span>
+<span class="sd">3. Definition of Dilators</span>
+<span class="sd">4. Some Lemmas about Dilators</span>
+
+
+<span class="sd">- Matthew Di Meglio: 'R*-categories: The Hilbert-space analogue of abelian categories'</span>
+<span class="sd">- Matthew Di Meglio, Chris Heunen, Jean-Simon Pacaud Lemay, Paolo Perrone, Dario Stein:</span>
+<span class="sd">  'Dagger categories of relations: the equivalence of dilatory dagger categories</span>
+<span class="sd">                                   and epi-regular independence categories'</span>
+<span class="sd">**********************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Unitary.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Isometry.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Definition of Dilations *)</span>
+
+<span class="kn">Section</span> <span class="nf">Dilations</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : dagger_category).
+
+  <span class="kn">Definition</span> <span class="nf">dilation</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) :=
+    ∑ r : C, 
+      ∑ (u : coisometry C r x) (v : coisometry C r y),
+      {u}_C^† · v = f.
+
+  <span class="kn">Definition</span> <span class="nf">make_dilation_from_coisometries</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">r</span> : C}
+    (<span class="nv">f</span> : x --&gt; y) (<span class="nv">u</span> : coisometry C r x) (<span class="nv">v</span> : coisometry C r y) (<span class="nv">eq</span> : {u}_C^† · v = f) : dilation f.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (r ,, u ,, v ,, eq).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_dilation</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">r</span> : C}
+    (<span class="nv">f</span> : x --&gt; y) (<span class="nv">u</span> : r --&gt; x) (<span class="nv">v</span> : r --&gt; y)
+    (<span class="nv">iso_u</span> : is_coisometry C u) (<span class="nv">iso_v</span> : is_coisometry C v) (<span class="nv">eq</span> : {u}_C^† · v = f) : dilation f.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (r ,, _ ,, _ ,, _).
+    - use make_coisometry.
+      * <span class="bp">exact</span> u.
+      * <span class="bp">exact</span> iso_u.
+    - use make_coisometry.
+      * <span class="bp">exact</span> v.
+      * <span class="bp">exact</span> iso_v.
+    - <span class="kp">abstract</span> (<span class="bp">exact</span> eq).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Coercion</span> <span class="nf">apex</span> {x y : C} {f : x --&gt; y} (d : dilation f) : C := pr1 d. 
+  <span class="kn">Definition</span> <span class="nf">left_leg</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">d</span> : dilation f) : coisometry C (apex d) x := pr12 d.
+  <span class="kn">Definition</span> <span class="nf">right_leg</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">d</span> : dilation f) : coisometry C (apex d) y := pr122 d.
+
+  <span class="kn">Proposition</span> <span class="nf">dilation_eq</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">d</span> : dilation f) :
+    {left_leg d}_C^† · right_leg d = f.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr222 d).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Dilations</span>.
+
+<span class="kn">Arguments</span> apex {C} {x y} {f}.
+<span class="kn">Arguments</span> left_leg {C} {x y} {f}.
+<span class="kn">Arguments</span> right_leg {C} {x y} {f}.
+
+<span class="sd">(** * 2. Maps of Dilations *)</span>
+
+<span class="kn">Section</span> <span class="nf">DilationMaps</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : dagger_category).
+
+  <span class="kn">Definition</span> <span class="nf">dilation_map</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">d</span> : dilation C f) (<span class="nv">e</span> : dilation C f) : UU
+    := ∑ h : coisometry C (apex d) (apex e), 
+        (h · left_leg e = left_leg d) × (h · right_leg e = right_leg d).
+
+  <span class="kn">Coercion</span> <span class="nf">dilation_map_to_coisom</span> 
+      {x y : C} {f : x --&gt; y} {d e : dilation C f} (h : dilation_map d e)
+    : coisometry C d e := pr1 h.
+
+  <span class="kn">Definition</span> <span class="nf">make_dilation_map_from_coisometries</span>
+    {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">d</span> : dilation C f} {<span class="nv">e</span> : dilation C f}
+    (<span class="nv">h</span> : coisometry C d e)
+    (<span class="nv">eq_left</span> : h · left_leg e = left_leg d)
+    (<span class="nv">eq_right</span> : h · right_leg e = right_leg d)
+    : dilation_map d e.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (h ,, eq_left ,, eq_right).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_dilation_map</span> 
+      {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">d</span> : dilation C f} {<span class="nv">e</span> : dilation C f}
+      (<span class="nv">h</span> : d --&gt; e)
+      (<span class="nv">coiso_h</span> : is_coisometry C h)
+      (<span class="nv">eq_left</span> : h · left_leg e = left_leg d)
+      (<span class="nv">eq_right</span> : h · right_leg e = right_leg d)
+      : dilation_map d e.
+  <span class="kn">Proof</span>.
+    use make_dilation_map_from_coisometries.
+    - use make_coisometry.
+      * <span class="bp">exact</span> h.
+      * <span class="bp">exact</span> coiso_h.
+    - <span class="bp">exact</span> eq_left.
+    - <span class="bp">exact</span> eq_right.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* Accessors *)</span>
+
+  <span class="kn">Proposition</span> <span class="nf">dilation_map_eq_left</span> 
+      {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">d</span> : dilation C f} {<span class="nv">e</span> : dilation C f} (<span class="nv">h</span> : dilation_map d e)
+    : h · left_leg e = left_leg d.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 h).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">dilation_map_eq_right</span> 
+      {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">d</span> : dilation C f} {<span class="nv">e</span> : dilation C f} (<span class="nv">h</span> : dilation_map d e)
+    : h · right_leg e = right_leg d.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 h).
+  <span class="kn">Qed</span>. 
+
+  <span class="kn">Proposition</span> <span class="nf">dilation_map_ext</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">d</span> <span class="nv">e</span> : dilation C f} (<span class="nv">h1</span> <span class="nv">h2</span> : dilation_map d e)
+    : pr1 h1 = pr1 h2 -&gt; h1 = h2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p.
+    use subtypePath.
+    { <span class="nb">intro</span>. use isapropdirprod; use homset_property. }
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">DilationMaps</span>.
+
+<span class="sd">(** * 3. Definition of Dilators *)</span>
+
+<span class="kn">Section</span> <span class="nf">Dilators</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : dagger_category).
+
+  <span class="c">(* A dilator is a terminal dilation *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">is_dilator</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">e</span> : dilation C f) : UU
+    := ∏ d : dilation C f, iscontr (dilation_map C d e).
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_dilator</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">d</span> : dilation C f} 
+    : isaprop (is_dilator d).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> impred.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropiscontr.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dilator</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) : UU
+    := ∑ d : dilation C f, is_dilator d.
+
+  <span class="kn">Definition</span> <span class="nf">with_dilators</span> : UU :=
+    ∏ (x y : C) (f : x --&gt; y), dilator f.
+
+  <span class="kn">Definition</span> <span class="nf">has_dilators</span> : UU :=
+    ∏ (x y : C) (f : x --&gt; y), ∥dilator f∥.
+
+<span class="kn">End</span> <span class="nf">Dilators</span>.
+
+<span class="sd">(** * 4. Some Lemmas about Dilators *)</span>
+
+<span class="kn">Section</span> <span class="nf">DilatorLemmas</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : dagger_category).
+
+  <span class="c">(* Example: the identity span is a dilation of the identity *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">dilation_id_id</span> (<span class="nv">x</span> : C) : dilation C (identity x).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (x ,, coisometry_id C x ,, coisometry_id C x ,, _).
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> dagger_to_law_id, id_left.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* If C has dilators, then [dilation_id_id] is a dilator *)</span>
+  <span class="kn">Lemma</span> <span class="nf">dilator_id_id</span> (<span class="nv">x</span> : C) (<span class="nv">dil</span> : with_dilators C) : is_dilator C (dilation_id_id x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> d.
+
+    <span class="c">(* Find a dilator of the identity *)</span>
+    <span class="nb">destruct</span> (dil _ _ (identity x)) <span class="k">as</span> ((q &amp; [s sco] &amp; [t tco] &amp; ee) &amp; is_dil).
+
+    <span class="c">(* Factor the dilation (id,id) *)</span>
+    <span class="nb">destruct</span> (pr1 (is_dil (dilation_id_id x))) <span class="k">as</span> (w &amp; e1 &amp; e2).
+
+    <span class="c">(* Factor the dilation d*)</span>
+    <span class="nb">destruct</span> (pr1 (is_dil d)) <span class="k">as</span> (h &amp; f1 &amp; f2).
+
+    <span class="nb">destruct</span> d <span class="k">as</span> (p &amp; [u uco] &amp; [v vco] &amp; e); <span class="nb">cbn</span> <span class="k">in</span> *.
+
+    <span class="nb">assert</span>(eq1 : s = t). {
+      <span class="nb">refine</span> (coisometry_epi _ w _ _ _).
+      <span class="nb">rewrite</span> e2.
+      <span class="bp">exact</span> e1.       
+    } 
+    
+    <span class="nb">assert</span>(eq2 : u = v). { 
+      <span class="nb">rewrite</span> &lt;- f1, &lt;- f2.
+      <span class="nb">rewrite</span> eq1.
+      <span class="bp">reflexivity</span>.
+    }
+
+    use make_iscontr. {
+      <span class="k">exists</span> (<span class="nv">v</span> ,, <span class="nv">vco</span>).
+      <span class="nb">rewrite</span> !id_right.
+      <span class="nb">split</span>.
+      - <span class="nb">rewrite</span> eq2. <span class="bp">reflexivity</span>.
+      - <span class="bp">reflexivity</span>. }
+    
+    <span class="nb">intros</span> [h2 [P Q]].
+    use dilation_map_ext.
+    <span class="nb">apply</span> coisometry_ext.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- eq2.
+    <span class="nb">rewrite</span> &lt;- (id_right (pr1 h2)).
+    <span class="bp">exact</span> P.
+  <span class="kn">Qed</span>.  
+       
+<span class="kn">End</span> <span class="nf">DilatorLemmas</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DaggerCategories/Dilators.v</tt>, line 24)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;                                    and epi-regular independence categories'
+  &gt; **********************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ProdOfTwosidedDispCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(************************************************************************************</span>
+
+<span class="sd"> The product of 2-sided displayed categories</span>
+
+<span class="sd"> Suppose that we have a 2-sided displayed category `D₁` from `C₁` to `C₃` and</span>
+<span class="sd"> a 2-sided displayed category `D₂` from `C₂` to `C₄`. Then we obtain a 2-sided</span>
+<span class="sd"> displayed category from `category_binproduct C₁ C₂` to `category_binproduct C₃ C₄`.</span>
+<span class="sd"> The displayed objects and displayed morphisms are pairs of displayed objects and of</span>
+<span class="sd"> displayed morphisms respectively.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The definition of the product of 2-sided displayed categories</span>
+<span class="sd"> 2. Isos in the product</span>
+<span class="sd"> 3. The univalence of the product</span>
+
+<span class="sd"> ************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">ProdTwoSidedDispCat</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+          (<span class="nv">D₁</span> : twosided_disp_cat C₁ C₃)
+          (<span class="nv">D₂</span> : twosided_disp_cat C₂ C₄).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. The definition of the product of 2-sided displayed categories</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_cat_product_ob_mor</span>
+    : twosided_disp_cat_ob_mor
+        (category_binproduct C₁ C₂)
+        (category_binproduct C₃ C₄).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">wx</span> <span class="nv">yz</span>, D₁ (pr1 wx) (pr1 yz) × D₂ (pr2 wx) (pr2 yz)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">wx₁</span> <span class="nv">wx₂</span> <span class="nv">yz₁</span> <span class="nv">yz₂</span> <span class="nv">d₁</span> <span class="nv">d₂</span> <span class="nv">fg</span> <span class="nv">hk</span>,
+             pr1 d₁ --&gt;[ pr1 fg ][ pr1 hk ] pr1 d₂
+             ×
+             pr2 d₁ --&gt;[ pr2 fg ][ pr2 hk ] pr2 d₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_cat_product_id_comp</span>
+    : twosided_disp_cat_id_comp twosided_disp_cat_product_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">wx</span> <span class="nv">yz</span> <span class="nv">d</span>,
+             id_two_disp (pr1 d)
+             ,,
+             id_two_disp (pr2 d)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">wx₁</span> <span class="nv">wx₂</span> <span class="nv">wx₃</span> <span class="nv">yz₁</span> <span class="nv">yz₂</span> <span class="nv">yz₃</span> <span class="nv">d₁</span> <span class="nv">d₂</span> <span class="nv">d₃</span> <span class="nv">fg₁</span> <span class="nv">fg₂</span> <span class="nv">hk₁</span> <span class="nv">hk₂</span> <span class="nv">φ</span> <span class="nv">ψ</span>,
+             pr1 φ ;;<span class="mi">2</span> pr1 ψ
+             ,,
+             pr2 φ ;;<span class="mi">2</span> pr2 ψ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_cat_product_data</span>
+    : twosided_disp_cat_data
+        (category_binproduct C₁ C₂)
+        (category_binproduct C₃ C₄).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> twosided_disp_cat_product_ob_mor.
+    - <span class="bp">exact</span> twosided_disp_cat_product_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">transportf_twosided_disp_cat_product</span>
+              {<span class="nv">wx₁</span> <span class="nv">wx₂</span> : category_binproduct C₁ C₂}
+              {<span class="nv">yz₁</span> <span class="nv">yz₂</span> : category_binproduct C₃ C₄}
+              {<span class="nv">d₁</span> : twosided_disp_cat_product_data wx₁ yz₁}
+              {<span class="nv">d₂</span> : twosided_disp_cat_product_data wx₂ yz₂}
+              {<span class="nv">fg</span> <span class="nv">fg'</span> : wx₁ --&gt; wx₂}
+              (<span class="nv">p</span> : fg' = fg)
+              {<span class="nv">hk</span> <span class="nv">hk'</span> : yz₁ --&gt; yz₂}
+              (<span class="nv">q</span> : hk' = hk)
+              (<span class="nv">φ</span> : d₁ --&gt;[ fg' ][ hk' ] d₂)
+    : transportf_disp_mor2 p q φ
+      =
+      transportf_disp_mor2
+        (maponpaths pr1 p) (maponpaths pr1 q)
+        (pr1 φ)
+      ,,
+      transportf_disp_mor2
+        (maponpaths dirprod_pr2 p) (maponpaths dirprod_pr2 q)
+        (pr2 φ).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p, q ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">transportb_twosided_disp_cat_product</span>
+              {<span class="nv">wx₁</span> <span class="nv">wx₂</span> : category_binproduct C₁ C₂}
+              {<span class="nv">yz₁</span> <span class="nv">yz₂</span> : category_binproduct C₃ C₄}
+              {<span class="nv">d₁</span> : twosided_disp_cat_product_data wx₁ yz₁}
+              {<span class="nv">d₂</span> : twosided_disp_cat_product_data wx₂ yz₂}
+              {<span class="nv">fg</span> <span class="nv">fg'</span> : wx₁ --&gt; wx₂}
+              (<span class="nv">p</span> : fg = fg')
+              {<span class="nv">hk</span> <span class="nv">hk'</span> : yz₁ --&gt; yz₂}
+              (<span class="nv">q</span> : hk = hk')
+              (<span class="nv">φ</span> : d₁ --&gt;[ fg' ][ hk' ] d₂)
+    : transportb_disp_mor2 p q φ
+      =
+      transportb_disp_mor2
+        (maponpaths pr1 p) (maponpaths pr1 q)
+        (pr1 φ)
+      ,,
+      transportb_disp_mor2
+        (maponpaths dirprod_pr2 p) (maponpaths dirprod_pr2 q)
+        (pr2 φ).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p, q ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">twosided_disp_cat_product_axioms</span>
+    : twosided_disp_cat_axioms twosided_disp_cat_product_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">rewrite</span> transportb_twosided_disp_cat_product.
+      use pathsdirprod.
+      + <span class="nb">refine</span> (id_two_disp_left _ @ _).
+        <span class="nb">apply</span> transportb_disp_mor2_eq.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">refine</span> (id_two_disp_left _ @ _).
+        <span class="nb">apply</span> transportb_disp_mor2_eq.
+        <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">rewrite</span> transportb_twosided_disp_cat_product.
+      use pathsdirprod.
+      + <span class="nb">refine</span> (id_two_disp_right _ @ _).
+        <span class="nb">apply</span> transportb_disp_mor2_eq.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">refine</span> (id_two_disp_right _ @ _).
+        <span class="nb">apply</span> transportb_disp_mor2_eq.
+        <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">rewrite</span> transportb_twosided_disp_cat_product.
+      use pathsdirprod.
+      + <span class="nb">refine</span> (assoc_two_disp _ _ _  @ _).
+        <span class="nb">apply</span> transportb_disp_mor2_eq.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">refine</span> (assoc_two_disp _ _ _  @ _).
+        <span class="nb">apply</span> transportb_disp_mor2_eq.
+        <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> isaset_dirprod.
+      + <span class="nb">apply</span> isaset_disp_mor.
+      + <span class="nb">apply</span> isaset_disp_mor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_cat_product</span>
+    : twosided_disp_cat
+        (category_binproduct C₁ C₂)
+        (category_binproduct C₃ C₄).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> twosided_disp_cat_product_data.
+    - <span class="bp">exact</span> twosided_disp_cat_product_axioms.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Isos in the product</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_isotwosided_disp_twosided_disp_cat_product</span>
+             {<span class="nv">wx</span> : category_binproduct C₁ C₂}
+             {<span class="nv">yz</span> : category_binproduct C₃ C₄}
+             {<span class="nv">d₁</span> <span class="nv">d₂</span> : twosided_disp_cat_product_data wx yz}
+             {<span class="nv">fg</span> : pr1 d₁ --&gt;[ identity _ ][ identity _ ] pr1 d₂}
+             (<span class="nv">Hfg</span> : is_iso_twosided_disp
+                      (identity_is_z_iso (pr1 wx))
+                      (identity_is_z_iso (pr1 yz))
+                      fg)
+             {<span class="nv">hk</span> : pr2 d₁ --&gt;[ identity _ ][ identity _ ] pr2 d₂}
+             (<span class="nv">Hhk</span> : is_iso_twosided_disp
+                      (identity_is_z_iso (pr2 wx))
+                      (identity_is_z_iso (pr2 yz))
+                      hk)
+    : @is_iso_twosided_disp
+         _ _
+         twosided_disp_cat_product
+         _ _ _ _ _ _ _ _
+         (identity_is_z_iso wx) (identity_is_z_iso yz)
+         (fg ,, hk).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (iso_inv_twosided_disp Hfg ,, iso_inv_twosided_disp Hhk).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> transportb_twosided_disp_cat_product ;
+         use dirprodeq ; <span class="nb">cbn</span> ;
+         [ <span class="nb">refine</span> (inv_after_iso_twosided_disp Hfg @ _)
+         | <span class="nb">refine</span> (inv_after_iso_twosided_disp Hhk @ _) ] ;
+         use transportb_disp_mor2_eq ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> transportb_twosided_disp_cat_product ;
+         use dirprodeq ; <span class="nb">cbn</span> ;
+         [ <span class="nb">refine</span> (iso_after_inv_twosided_disp Hfg @ _)
+         | <span class="nb">refine</span> (iso_after_inv_twosided_disp Hhk @ _) ] ;
+         use transportb_disp_mor2_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_cat_product_iso_weq_map</span>
+             {<span class="nv">wx</span> : category_binproduct C₁ C₂}
+             {<span class="nv">yz</span> : category_binproduct C₃ C₄}
+             {<span class="nv">d₁</span> <span class="nv">d₂</span> : twosided_disp_cat_product_data wx yz}
+             (<span class="nv">fg</span> : iso_twosided_disp
+                     (identity_z_iso (pr1 wx))
+                     (identity_z_iso (pr1 yz))
+                     (pr1 d₁) (pr1 d₂))
+             (<span class="nv">hk</span> : iso_twosided_disp
+                     (identity_z_iso (pr2 wx))
+                     (identity_z_iso (pr2 yz))
+                     (pr2 d₁) (pr2 d₂))
+    : @iso_twosided_disp
+         _ _
+         twosided_disp_cat_product
+         _ _ _ _
+         (identity_z_iso wx) (identity_z_iso yz)
+         d₁ d₂.
+  <span class="kn">Proof</span>.
+    use make_iso_twosided_disp.
+    - <span class="bp">exact</span> (pr1 fg ,, pr1 hk).
+    - <span class="nb">apply</span> is_isotwosided_disp_twosided_disp_cat_product.
+      + <span class="nb">apply</span> fg.
+      + <span class="nb">apply</span> hk.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_twosided_disp_cat_iso_pr1</span>
+             {<span class="nv">wx</span> : category_binproduct C₁ C₂}
+             {<span class="nv">yz</span> : category_binproduct C₃ C₄}
+             {<span class="nv">d₁</span> <span class="nv">d₂</span> : twosided_disp_cat_product_data wx yz}
+             (<span class="nv">φ</span> : d₁ --&gt;[ identity _ ][ identity _ ] d₂)
+             (<span class="nv">Hφ</span> : @is_iso_twosided_disp
+                      _ _
+                      twosided_disp_cat_product
+                      _ _ _ _ _ _
+                      _ _
+                      (identity_is_z_iso _) (identity_is_z_iso _)
+                      φ)
+    : is_iso_twosided_disp
+        (identity_is_z_iso _) (identity_is_z_iso _)
+        (pr1 φ).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (pr1 (iso_inv_twosided_disp Hφ)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (maponpaths pr1 (inv_after_iso_twosided_disp Hφ) @ _) ;
+         <span class="nb">rewrite</span> transportb_twosided_disp_cat_product ;
+         <span class="nb">cbn</span> ;
+         use transportb_disp_mor2_eq ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (maponpaths pr1 (iso_after_inv_twosided_disp Hφ) @ _) ;
+         <span class="nb">rewrite</span> transportb_twosided_disp_cat_product ;
+         <span class="nb">cbn</span> ;
+         use transportb_disp_mor2_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_cat_product_iso_weq_inv_pr1</span>
+             {<span class="nv">wx</span> : category_binproduct C₁ C₂}
+             {<span class="nv">yz</span> : category_binproduct C₃ C₄}
+             {<span class="nv">d₁</span> <span class="nv">d₂</span> : twosided_disp_cat_product_data wx yz}
+             (<span class="nv">φ</span> : @iso_twosided_disp
+                     _ _
+                     twosided_disp_cat_product
+                     _ _ _ _
+                     (identity_z_iso wx) (identity_z_iso yz)
+                     d₁ d₂)
+    : iso_twosided_disp
+        (identity_z_iso (pr1 wx))
+        (identity_z_iso (pr1 yz))
+        (pr1 d₁) (pr1 d₂).
+  <span class="kn">Proof</span>.
+    use make_iso_twosided_disp.
+    - <span class="bp">exact</span> (pr11 φ).
+    - <span class="nb">apply</span> is_twosided_disp_cat_iso_pr1.
+      <span class="nb">apply</span> φ.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_twosided_disp_cat_iso_pr2</span>
+             {<span class="nv">wx</span> : category_binproduct C₁ C₂}
+             {<span class="nv">yz</span> : category_binproduct C₃ C₄}
+             {<span class="nv">d₁</span> <span class="nv">d₂</span> : twosided_disp_cat_product_data wx yz}
+             (<span class="nv">φ</span> : d₁ --&gt;[ identity _ ][ identity _ ] d₂)
+             (<span class="nv">Hφ</span> : @is_iso_twosided_disp
+                      _ _
+                      twosided_disp_cat_product
+                      _ _ _ _ _ _
+                      _ _
+                      (identity_is_z_iso _) (identity_is_z_iso _)
+                      φ)
+    : is_iso_twosided_disp
+        (identity_is_z_iso _) (identity_is_z_iso _)
+        (pr2 φ).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (pr2 (iso_inv_twosided_disp Hφ)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (maponpaths dirprod_pr2 (inv_after_iso_twosided_disp Hφ) @ _) ;
+         <span class="nb">rewrite</span> transportb_twosided_disp_cat_product ;
+         <span class="nb">cbn</span> ;
+         use transportb_disp_mor2_eq ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (maponpaths dirprod_pr2 (iso_after_inv_twosided_disp Hφ) @ _) ;
+         <span class="nb">rewrite</span> transportb_twosided_disp_cat_product ;
+         <span class="nb">cbn</span> ;
+         use transportb_disp_mor2_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_cat_product_iso_weq_inv_pr2</span>
+             {<span class="nv">wx</span> : category_binproduct C₁ C₂}
+             {<span class="nv">yz</span> : category_binproduct C₃ C₄}
+             {<span class="nv">d₁</span> <span class="nv">d₂</span> : twosided_disp_cat_product_data wx yz}
+             (<span class="nv">φ</span> : @iso_twosided_disp
+                     _ _
+                     twosided_disp_cat_product
+                     _ _ _ _
+                     (identity_z_iso wx) (identity_z_iso yz)
+                     d₁ d₂)
+    : iso_twosided_disp
+        (identity_z_iso (pr2 wx))
+        (identity_z_iso (pr2 yz))
+        (pr2 d₁) (pr2 d₂).
+  <span class="kn">Proof</span>.
+    use make_iso_twosided_disp.
+    - <span class="bp">exact</span> (pr21 φ).
+    - <span class="nb">apply</span> is_twosided_disp_cat_iso_pr2.
+      <span class="nb">apply</span> φ.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_cat_product_iso_weq</span>
+              {<span class="nv">wx</span> : category_binproduct C₁ C₂}
+              {<span class="nv">yz</span> : category_binproduct C₃ C₄}
+              (<span class="nv">d₁</span> <span class="nv">d₂</span> : twosided_disp_cat_product_data wx yz)
+    : iso_twosided_disp
+        (identity_z_iso (pr1 wx))
+        (identity_z_iso (pr1 yz))
+        (pr1 d₁) (pr1 d₂)
+      ×
+      iso_twosided_disp
+        (identity_z_iso (pr2 wx))
+        (identity_z_iso (pr2 yz))
+        (pr2 d₁) (pr2 d₂)
+      ≃
+      @iso_twosided_disp
+         _ _
+         twosided_disp_cat_product
+         _ _ _ _
+         (identity_z_iso wx) (identity_z_iso yz)
+         d₁ d₂.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">fghk</span>, twosided_disp_cat_product_iso_weq_map (pr1 fghk) (pr2 fghk)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">φ</span>,
+             twosided_disp_cat_product_iso_weq_inv_pr1 φ
+             ,,
+             twosided_disp_cat_product_iso_weq_inv_pr2 φ).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> fghk ;
+         use dirprodeq ;
+         (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_iso_twosided_disp | ]) ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> φ ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_iso_twosided_disp | ] ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. The univalence of the product</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">is_univalent_twosided_disp_cat_product</span>
+              (<span class="nv">HD₁</span> : is_univalent_twosided_disp_cat D₁)
+              (<span class="nv">HD₂</span> : is_univalent_twosided_disp_cat D₂)
+    : is_univalent_twosided_disp_cat twosided_disp_cat_product.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> wx₁ wx₂ yz₁ yz₂ p q d₁ d₂.
+    <span class="nb">induction</span> p, q.
+    use weqhomot.
+    - <span class="bp">exact</span> (twosided_disp_cat_product_iso_weq d₁ d₂
+             ∘ weqdirprodf
+                 (make_weq
+                    _
+                    (HD₁ _ _ _ _ (idpath (pr1 wx₁)) (idpath (pr1 yz₁)) (pr1 d₁) (pr1 d₂)))
+                 (make_weq
+                    _
+                    (HD₂ _ _ _ _ (idpath (pr2 wx₁)) (idpath (pr2 yz₁)) (pr2 d₁) (pr2 d₂)))
+             ∘ pathsdirprodweq)%weq.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> p ; <span class="nb">cbn</span> <span class="k">in</span> p ;
+         <span class="nb">induction</span> p ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_iso_twosided_disp | ] ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ProdTwoSidedDispCat</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/TwoSidedDisplayedCats/Examples/ProdOfTwosidedDispCat.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. The univalence of the product
+  &gt;
+  &gt;  ************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

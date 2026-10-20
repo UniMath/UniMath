@@ -1,0 +1,1429 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CartesianObject.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************</span>
+
+<span class="sd"> Cartesian  objects</span>
+
+<span class="sd"> We define the notions of cartesian objects internal to</span>
+<span class="sd"> arbitrary bicategories. To define this notion, we use two steps. We first</span>
+<span class="sd"> define objects 'with terminal objects' and objects 'with products'.</span>
+
+<span class="sd"> Each of these concepts can be defined in 2 ways. We can use a representable</span>
+<span class="sd"> variation or we use adjunctions. This is similar for categories: we can</span>
+<span class="sd"> define whether a category has limits/colimits by saying that a certain functor</span>
+<span class="sd"> has a right or a left adjoint.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The representable definition of cartesian objects</span>
+<span class="sd"> 2. Being cartesian is a proposition</span>
+<span class="sd"> 3. The definitions of cartesian objects via adjunctions</span>
+<span class="sd"> 4. Equivalence of the two definitions of cartesian object</span>
+
+<span class="sd"> *******************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.UnivalenceOp.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Final.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Products.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. The representable definition of cartesian objects</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">cartesian_terminal</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">b</span> : B)
+  : UU
+  := (∏ (x : B), Terminal (hom x b))
+     ×
+     (∏ (x y : B) (f : x --&gt; y), preserves_terminal (pre_comp b f)).
+
+<span class="kn">Definition</span> <span class="nf">cartesian_prod</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">b</span> : B)
+  : UU
+  := (∏ (x : B), BinProducts (hom x b))
+     ×
+     (∏ (x y : B) (f : x --&gt; y), preserves_binproduct (pre_comp b f)).
+
+<span class="kn">Definition</span> <span class="nf">cartesian_ob</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">b</span> : B)
+  : UU
+  := cartesian_terminal b × cartesian_prod b.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Being cartesian is a proposition</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">isaprop_cartesian_terminal</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB</span> : is_univalent_2_1 B)
+           (<span class="nv">b</span> : B)
+  : isaprop (cartesian_terminal b).
+<span class="kn">Proof</span>.
+  use isapropdirprod.
+  - use impred ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_Terminal.
+    <span class="nb">apply</span> is_univ_hom.
+    <span class="bp">exact</span> HB.
+  - <span class="kp">do</span> <span class="mi">3</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isaprop_preserves_terminal.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_cartesian_prod</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB</span> : is_univalent_2_1 B)
+           (<span class="nv">b</span> : B)
+  : isaprop (cartesian_prod b).
+<span class="kn">Proof</span>.
+  use isapropdirprod.
+  - <span class="kp">do</span> <span class="mi">3</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isaprop_BinProduct.
+    <span class="nb">apply</span> is_univ_hom.
+    <span class="bp">exact</span> HB.
+  - <span class="kp">do</span> <span class="mi">3</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isaprop_preserves_binproduct.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_cartesian_ob</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB</span> : is_univalent_2_1 B)
+           (<span class="nv">b</span> : B)
+  : isaprop (cartesian_ob b).
+<span class="kn">Proof</span>.
+  use isapropdirprod.
+  - <span class="nb">apply</span> isaprop_cartesian_terminal.
+    <span class="bp">exact</span> HB.
+  - <span class="nb">apply</span> isaprop_cartesian_prod.
+    <span class="bp">exact</span> HB.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. The definitions of cartesian objects via adjunctions</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">CartesianViaAdjunction</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">b</span> : B).
+
+  <span class="kn">Section</span> <span class="nf">Terminal</span>.
+    <span class="kn">Context</span> (<span class="nv">T</span> : bifinal_obj B).
+
+    <span class="kn">Let</span> <span class="nf">f</span> : b --&gt; pr1 T
+      := is_bifinal_1cell_property (pr2 T) b.
+
+    <span class="kn">Definition</span> <span class="nf">cartesian_terminal_via_adj</span>
+      : UU
+      := left_adjoint f.
+
+    <span class="kn">Definition</span> <span class="nf">isaprop_cartesian_terminal_via_adj</span>
+               (<span class="nv">HB</span> : is_univalent_2_1 B)
+      : isaprop cartesian_terminal_via_adj.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> isaprop_left_adjoint.
+      <span class="bp">exact</span> HB.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Terminal</span>.
+
+  <span class="kn">Section</span> <span class="nf">Prod</span>.
+    <span class="kn">Context</span> (<span class="nv">prod</span> : has_binprod B).
+
+    <span class="kn">Let</span> <span class="nf">δ</span> : b --&gt; pr1 (prod b b)
+      := binprod_ump_1cell (pr2 (prod b b)) (id₁ b) (id₁ b).
+
+    <span class="kn">Definition</span> <span class="nf">cartesian_prod_via_adj</span>
+      : UU
+      := left_adjoint δ.
+
+    <span class="kn">Definition</span> <span class="nf">isaprop_cartesian_prod_via_adj</span>
+               (<span class="nv">HB</span> : is_univalent_2_1 B)
+      : isaprop cartesian_prod_via_adj.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> isaprop_left_adjoint.
+      <span class="bp">exact</span> HB.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Prod</span>.
+
+  <span class="kn">Section</span> <span class="nf">Cartesian</span>.
+    <span class="kn">Context</span> (<span class="nv">T</span> : bifinal_obj B)
+            (<span class="nv">prod</span> : has_binprod B).
+
+    <span class="kn">Definition</span> <span class="nf">cartesian_ob_via_adj</span>
+      : UU
+      := cartesian_terminal_via_adj T × cartesian_prod_via_adj prod.
+
+    <span class="kn">Definition</span> <span class="nf">isaprop_cartesian_ob_via_adj</span>
+               (<span class="nv">HB</span> : is_univalent_2_1 B)
+      : isaprop cartesian_ob_via_adj.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> isapropdirprod.
+      - <span class="nb">apply</span> isaprop_cartesian_terminal_via_adj.
+        <span class="bp">exact</span> HB.
+      - <span class="nb">apply</span> isaprop_cartesian_prod_via_adj.
+        <span class="bp">exact</span> HB.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Cartesian</span>.
+<span class="kn">End</span> <span class="nf">CartesianViaAdjunction</span>.
+
+<span class="sd">(**</span>
+<span class="sd">4. Equivalence of the two definitions of cartesian object</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">EquivalenceCartesian</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">T</span> : bifinal_obj B)
+          (<span class="nv">prod</span> : has_binprod B)
+          (<span class="nv">b</span> : B).
+
+  <span class="kn">Section</span> <span class="nf">ToAdj</span>.
+    <span class="kn">Context</span> (<span class="nv">Hb</span> : cartesian_terminal b).
+
+    <span class="kn">Let</span> <span class="nf">term</span> : Terminal (hom (pr1 T) b) := pr1 Hb (pr1 T).
+
+    <span class="kn">Let</span> <span class="nf">l</span> : b --&gt; pr1 T := is_bifinal_1cell_property (pr2 T) b.
+    <span class="kn">Let</span> <span class="nf">r</span> : pr1 T --&gt; b := pr1 term.
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_terminal_to_cartesian_terminal_via_adj_unit</span>
+      : id₁ b ==&gt; l · r
+      := TerminalArrow (_ ,, pr2 Hb _ _ l _ (pr2 term)) (id₁ b).
+
+    <span class="kn">Let</span> <span class="nf">η</span> : id₁ b ==&gt; l · r
+      := cartesian_terminal_to_cartesian_terminal_via_adj_unit.
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_terminal_to_cartesian_terminal_via_adj_counit</span>
+      : r · l ==&gt; id₁ (pr1 T)
+      := is_bifinal_2cell_property (pr2 T) (pr1 T) (r · l) (id₁ (pr1 T)).
+
+    <span class="kn">Let</span> <span class="nf">ε</span> : r · l ==&gt; id₁ (pr1 T)
+      := cartesian_terminal_to_cartesian_terminal_via_adj_counit.
+
+    <span class="kn">Definition</span> <span class="nf">cartesian_terminal_to_cartesian_terminal_via_adj</span>
+      : cartesian_terminal_via_adj b T.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> ((_ ,, (_ ,, _)) ,, (_ ,, _)).
+      - <span class="bp">exact</span> r.
+      - <span class="bp">exact</span> η.
+      - <span class="bp">exact</span> ε.
+      - <span class="nb">apply</span> (is_bifinal_eq_property (pr2 T)).
+      - <span class="nb">apply</span> (@TerminalArrowEq _ term).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">ToAdj</span>.
+
+  <span class="kn">Section</span> <span class="nf">FromAdj</span>.
+    <span class="kn">Context</span> (<span class="nv">Hb</span> : cartesian_terminal_via_adj b T).
+
+    <span class="kn">Let</span> <span class="nf">l</span> : b --&gt; pr1 T := is_bifinal_1cell_property (pr2 T) b.
+    <span class="kn">Let</span> <span class="nf">r</span> : pr1 T --&gt; b := left_adjoint_right_adjoint (pr1 Hb).
+    <span class="kn">Let</span> <span class="nf">η</span> : id₁ b ==&gt; l · r := left_adjoint_unit (pr1 Hb).
+    <span class="kn">Let</span> <span class="nf">ε</span> : r · l ==&gt; id₁ (pr1 T) := left_adjoint_counit (pr1 Hb).
+    <span class="kn">Let</span> <span class="nf">p</span>
+      : rinvunitor r • (r ◃ η) • lassociator r l r • (ε ▹ r) • lunitor r
+        =
+        id₂ r
+      := internal_triangle2 (pr2 Hb).
+
+    <span class="kn">Definition</span> <span class="nf">cartesian_terminal_via_adj_to_cartesian_terminal_1cell</span>
+               (<span class="nv">x</span> : B)
+      : x --&gt; b
+      := is_bifinal_1cell_property (pr2 T) x · r.
+
+    <span class="kn">Definition</span> <span class="nf">cartesian_terminal_via_adj_to_cartesian_terminal_2cell</span>
+               (<span class="nv">x</span> : B)
+               (<span class="nv">f</span> : x --&gt; b)
+      : f ==&gt; cartesian_terminal_via_adj_to_cartesian_terminal_1cell x
+      := rinvunitor _
+         • (_ ◃ η)
+         • lassociator _ _ _
+         • (is_bifinal_2cell_property (pr2 T) _ _ _ ▹ r).
+
+    <span class="kn">Definition</span> <span class="nf">cartesian_terminal_via_adj_to_cartesian_terminal_eq</span>
+               (<span class="nv">x</span> : B)
+               (<span class="nv">f</span> : x --&gt; b)
+      : isaprop (f ==&gt; cartesian_terminal_via_adj_to_cartesian_terminal_1cell x).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> α β.
+      <span class="nb">refine</span> (!(id2_right _) @ _ @ id2_right _).
+      <span class="nb">unfold</span> cartesian_terminal_via_adj_to_cartesian_terminal_1cell.
+      <span class="nb">rewrite</span> &lt;- lwhisker_id2.
+      <span class="nb">rewrite</span> &lt;- p.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> !left_unit_inv_assoc.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> !rinvunitor_natural.
+      <span class="nb">rewrite</span> &lt;- !rwhisker_hcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)).
+      <span class="nb">rewrite</span> !lwhisker_lwhisker_rassociator.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> !vcomp_whisker.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)).
+      <span class="nb">rewrite</span> !lwhisker_hcomp.
+      <span class="nb">rewrite</span> inverse_pentagon_4.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_hcomp, &lt;- !rwhisker_hcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> &lt;- !rwhisker_rwhisker.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (is_bifinal_eq_property (pr2 T)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cartesian_terminal_via_adj_to_cartesian_terminal_obj</span>
+               (<span class="nv">x</span> : B)
+      : Terminal (hom x b).
+    <span class="kn">Proof</span>.
+      use make_Terminal.
+      - <span class="bp">exact</span> (cartesian_terminal_via_adj_to_cartesian_terminal_1cell x).
+      - <span class="nb">intro</span> f.
+        use iscontraprop1.
+        + <span class="bp">exact</span> (cartesian_terminal_via_adj_to_cartesian_terminal_eq x f).
+        + <span class="bp">exact</span> (cartesian_terminal_via_adj_to_cartesian_terminal_2cell x f).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cartesian_terminal_via_adj_to_cartesian_terminal_preserves</span>
+               {<span class="nv">x</span> <span class="nv">y</span> : B}
+               (<span class="nv">f</span> : x --&gt; y)
+      : preserves_terminal (pre_comp b f).
+    <span class="kn">Proof</span>.
+      use preserves_terminal_if_preserves_chosen.
+      - <span class="nb">apply</span> cartesian_terminal_via_adj_to_cartesian_terminal_obj.
+      - use (iso_to_Terminal
+               (cartesian_terminal_via_adj_to_cartesian_terminal_obj x)).
+        use inv2cell_to_z_iso.
+        <span class="nb">refine</span> (comp_of_invertible_2cell
+                  (rwhisker_of_invertible_2cell
+                     _
+                     _)
+                  (rassociator_invertible_2cell _ _ _)).
+        <span class="nb">apply</span> (is_bifinal_invertible_2cell_property (pr2 T)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cartesian_terminal_via_adj_to_cartesian_terminal</span>
+      : cartesian_terminal b.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="bp">exact</span> cartesian_terminal_via_adj_to_cartesian_terminal_obj.
+      - <span class="bp">exact</span> @cartesian_terminal_via_adj_to_cartesian_terminal_preserves.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">FromAdj</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cartesian_terminal_weq_cartesian_terminal_via_adj</span>
+             (<span class="nv">HB</span> : is_univalent_2_1 B)
+    : cartesian_terminal b ≃ cartesian_terminal_via_adj b T.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="bp">exact</span> cartesian_terminal_to_cartesian_terminal_via_adj.
+    - <span class="bp">exact</span> cartesian_terminal_via_adj_to_cartesian_terminal.
+    - <span class="nb">apply</span> isaprop_cartesian_terminal.
+      <span class="bp">exact</span> HB.
+    - <span class="nb">apply</span> isaprop_cartesian_terminal_via_adj.
+      <span class="bp">exact</span> HB.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">ToAdj</span>.
+    <span class="kn">Context</span> (<span class="nv">Hb</span> : cartesian_prod b).
+
+    <span class="kn">Let</span> <span class="nf">δ</span> : b --&gt; pr1 (prod b b)
+      := binprod_ump_1cell (pr2 (prod b b)) (id₁ b) (id₁ b).
+
+    <span class="kn">Let</span> <span class="nf">product</span>
+      : BinProduct
+          (hom (pr1 (prod b b)) b)
+          (binprod_cone_pr1 (pr1 (prod b b)))
+          (binprod_cone_pr2 (pr1 (prod b b)))
+      := pr1 Hb (pr1 (prod b b))
+                (binprod_cone_pr1 (pr1 (prod b b)))
+                (binprod_cone_pr2 (pr1 (prod b b))).
+
+    <span class="kn">Let</span> <span class="nf">r</span> : pr1 (prod b b) --&gt; b
+      := BinProductObject _ product.
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_prod_to_cartesian_prod_via_adj_unit</span>
+      : id₁ b ==&gt; δ · r.
+    <span class="kn">Proof</span>.
+      use (BinProductArrow
+             _
+             (make_BinProduct
+                _ _ _ _ _ _
+                (pr2 Hb _ _ δ _ _ _ _ _ (pr2 product)))).
+      - <span class="bp">exact</span> ((binprod_ump_1cell_pr1 (pr2 (prod b b)) _ (id₁ b) (id₁ b))^-<span class="mi">1</span>).
+      - <span class="bp">exact</span> ((binprod_ump_1cell_pr2 (pr2 (prod b b)) _ (id₁ b) (id₁ b))^-<span class="mi">1</span>).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">η</span> : id₁ b ==&gt; δ · r
+      := cartesian_prod_to_cartesian_prod_via_adj_unit.
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_prod_to_cartesian_prod_via_adj_counit</span>
+      : r · δ ==&gt; id₁ _.
+    <span class="kn">Proof</span>.
+      use (binprod_ump_2cell (pr2 (prod b b))).
+      - <span class="bp">exact</span> (rassociator _ _ _
+               • (r ◃ binprod_ump_1cell_pr1 (pr2 (prod b b)) _ (id₁ b) (id₁ b))
+               • runitor _
+               • BinProductPr1 _ product
+               • linvunitor _).
+      - <span class="bp">exact</span> (rassociator _ _ _
+               • (r ◃ binprod_ump_1cell_pr2 (pr2 (prod b b)) _ (id₁ b) (id₁ b))
+               • runitor _
+               • BinProductPr2 _ product
+               • linvunitor _).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">ε</span> : r · δ ==&gt; id₁ _
+      := cartesian_prod_to_cartesian_prod_via_adj_counit.
+
+    <span class="kn">Local Lemma</span> <span class="nf">cartesian_prod_to_cartesian_prod_via_adj_triangle1</span>
+      : linvunitor δ • (η ▹ δ) • rassociator δ r δ • (δ ◃ ε) • runitor δ
+        =
+        id₂ δ.
+    <span class="kn">Proof</span>.
+      use (binprod_ump_2cell_unique_alt (pr2 (prod b b))).
+      - <span class="nb">rewrite</span> id2_rwhisker.
+        <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+        <span class="nb">rewrite</span> &lt;- lunitor_lwhisker.
+        <span class="nb">rewrite</span> !vassocl.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> &lt;- rwhisker_lwhisker_rassociator.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">rewrite</span> lwhisker_vcomp.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> binprod_ump_2cell_pr1.
+          }
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">rewrite</span> linvunitor_lunitor.
+          <span class="nb">rewrite</span> id2_right.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> rassociator_rassociator.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">apply</span> idpath.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> rwhisker_rwhisker_alt.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !vassocr.
+            <span class="nb">rewrite</span> lwhisker_lwhisker_rassociator.
+            <span class="nb">rewrite</span> !vassocl.
+            <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> vcomp_whisker.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !vassocr.
+            <span class="nb">rewrite</span> runitor_triangle.
+            <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> vcomp_runitor.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (BinProductPr1Commutes
+                   _ _ _
+                   (make_BinProduct
+                      _ _ _ _ _ _
+                      (pr2 Hb _ _ δ _ _ _ _ _ (pr2 product)))).
+        }
+        etrans.
+        {
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> &lt;- linvunitor_assoc.
+          <span class="nb">rewrite</span> lwhisker_hcomp.
+          <span class="nb">rewrite</span> &lt;- linvunitor_natural.
+          <span class="nb">rewrite</span> !vassocl.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !vassocr.
+            <span class="nb">rewrite</span> runitor_lunitor_identity.
+            <span class="nb">rewrite</span> linvunitor_lunitor.
+            <span class="nb">apply</span> id2_left.
+          }
+          <span class="nb">apply</span> vcomp_rinv.
+        }
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> id2_rwhisker.
+        <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+        <span class="nb">rewrite</span> &lt;- lunitor_lwhisker.
+        <span class="nb">rewrite</span> !vassocl.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> &lt;- rwhisker_lwhisker_rassociator.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">rewrite</span> lwhisker_vcomp.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> binprod_ump_2cell_pr2.
+          }
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">rewrite</span> linvunitor_lunitor.
+          <span class="nb">rewrite</span> id2_right.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> rassociator_rassociator.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">apply</span> idpath.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> rwhisker_rwhisker_alt.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !vassocr.
+            <span class="nb">rewrite</span> lwhisker_lwhisker_rassociator.
+            <span class="nb">rewrite</span> !vassocl.
+            <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> vcomp_whisker.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !vassocr.
+            <span class="nb">rewrite</span> runitor_triangle.
+            <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> vcomp_runitor.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (BinProductPr2Commutes
+                   _ _ _
+                   (make_BinProduct
+                      _ _ _ _ _ _
+                      (pr2 Hb _ _ δ _ _ _ _ _ (pr2 product)))).
+        }
+        etrans.
+        {
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> &lt;- linvunitor_assoc.
+          <span class="nb">rewrite</span> lwhisker_hcomp.
+          <span class="nb">rewrite</span> &lt;- linvunitor_natural.
+          <span class="nb">rewrite</span> !vassocl.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !vassocr.
+            <span class="nb">rewrite</span> runitor_lunitor_identity.
+            <span class="nb">rewrite</span> linvunitor_lunitor.
+            <span class="nb">apply</span> id2_left.
+          }
+          <span class="nb">apply</span> vcomp_rinv.
+        }
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">cartesian_prod_to_cartesian_prod_via_adj_triangle2</span>
+      : rinvunitor r • (r ◃ η) • lassociator r δ r • (ε ▹ r) • lunitor r
+        =
+        id₂ r.
+    <span class="kn">Proof</span>.
+      use (BinProductArrowsEq _ _ _ (product)) ; <span class="nb">cbn</span>.
+      - <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> id2_left.
+        <span class="nb">rewrite</span> &lt;- vcomp_lunitor.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> vcomp_whisker.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">apply</span> idpath.
+        }
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> &lt;- lwhisker_lwhisker.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">apply</span> idpath.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> lwhisker_vcomp.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (BinProductPr1Commutes
+                   _ _ _
+                   (make_BinProduct
+                      _ _ _ _ _ _
+                      (pr2 Hb _ _ δ _ _ _ _ _ (pr2 product)))).
+        }
+        <span class="nb">rewrite</span> !vassocl.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> binprod_ump_2cell_pr1.
+        }
+        <span class="nb">rewrite</span> !vassocl.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> lassociator_rassociator.
+          <span class="nb">rewrite</span> id2_left.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">apply</span> idpath.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> lwhisker_vcomp.
+          <span class="nb">rewrite</span> vcomp_linv.
+          <span class="nb">rewrite</span> lwhisker_id2.
+          <span class="nb">rewrite</span> id2_left.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> rinvunitor_runitor.
+        <span class="nb">rewrite</span> id2_left.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> linvunitor_lunitor.
+        <span class="nb">apply</span> id2_right.
+      - <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> id2_left.
+        <span class="nb">rewrite</span> &lt;- vcomp_lunitor.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> vcomp_whisker.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">apply</span> idpath.
+        }
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> &lt;- lwhisker_lwhisker.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">apply</span> idpath.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> lwhisker_vcomp.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (BinProductPr2Commutes
+                   _ _ _
+                   (make_BinProduct
+                      _ _ _ _ _ _
+                      (pr2 Hb _ _ δ _ _ _ _ _ (pr2 product)))).
+        }
+        <span class="nb">rewrite</span> !vassocl.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> binprod_ump_2cell_pr2.
+        }
+        <span class="nb">rewrite</span> !vassocl.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> lassociator_rassociator.
+          <span class="nb">rewrite</span> id2_left.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">apply</span> idpath.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> lwhisker_vcomp.
+          <span class="nb">rewrite</span> vcomp_linv.
+          <span class="nb">rewrite</span> lwhisker_id2.
+          <span class="nb">rewrite</span> id2_left.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> rinvunitor_runitor.
+        <span class="nb">rewrite</span> id2_left.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> linvunitor_lunitor.
+        <span class="nb">apply</span> id2_right.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cartesian_prod_to_cartesian_prod_via_adj</span>
+      : cartesian_prod_via_adj b prod.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> ((_ ,, (_ ,, _)) ,, (_ ,, _)).
+      - <span class="bp">exact</span> r.
+      - <span class="bp">exact</span> η.
+      - <span class="bp">exact</span> ε.
+      - <span class="bp">exact</span> cartesian_prod_to_cartesian_prod_via_adj_triangle1.
+      - <span class="bp">exact</span> cartesian_prod_to_cartesian_prod_via_adj_triangle2.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">ToAdj</span>.
+
+  <span class="kn">Section</span> <span class="nf">FromAdj</span>.
+    <span class="kn">Context</span> (<span class="nv">Hb</span> : cartesian_prod_via_adj b prod).
+
+    <span class="kn">Let</span> <span class="nf">δ</span> : b --&gt; pr1 (prod b b)
+      := binprod_ump_1cell (pr2 (prod b b)) (id₁ b) (id₁ b).
+    <span class="kn">Let</span> <span class="nf">r</span> : pr1 (prod b b) --&gt; b := left_adjoint_right_adjoint (pr1 Hb).
+    <span class="kn">Let</span> <span class="nf">η</span> : id₁ b ==&gt; δ · r := left_adjoint_unit (pr1 Hb).
+    <span class="kn">Let</span> <span class="nf">ε</span> : r · δ ==&gt; id₁ _ := left_adjoint_counit (pr1 Hb).
+    <span class="kn">Let</span> <span class="nf">p</span>
+      : rinvunitor r • (r ◃ η) • lassociator r δ r • (ε ▹ r) • lunitor r
+        =
+        id₂ r
+      := internal_triangle2 (pr2 Hb).
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_prod_via_adj_to_cartesian_prod_1cell</span>
+                     {<span class="nv">x</span> : B}
+                     (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; b)
+      : x --&gt; b
+      := binprod_ump_1cell (pr2 (prod b b)) f g · r.
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_prod_via_adj_to_cartesian_prod_pr1_help</span>
+      : r ==&gt; binprod_cone_pr1 (pr1 (prod b b))
+      := rinvunitor _
+         • (r ◃ (binprod_ump_1cell_pr1 (pr2 (prod b b)) _ (id₁ b) (id₁ b))^-<span class="mi">1</span>)
+         • lassociator _ _ _
+         • (ε ▹ _)
+         • lunitor _.
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_prod_via_adj_to_cartesian_prod_pr1</span>
+                     {<span class="nv">x</span> : B}
+                     (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; b)
+      : cartesian_prod_via_adj_to_cartesian_prod_1cell f g ==&gt; f
+      := (_ ◃ cartesian_prod_via_adj_to_cartesian_prod_pr1_help)
+         • binprod_ump_1cell_pr1 (pr2 (prod b b)) _ f g.
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_prod_via_adj_to_cartesian_prod_pr2_help</span>
+      : r ==&gt; binprod_cone_pr2 (pr1 (prod b b))
+      := rinvunitor _
+         • (r ◃ (binprod_ump_1cell_pr2 (pr2 (prod b b)) _ (id₁ b) (id₁ b))^-<span class="mi">1</span>)
+         • lassociator _ _ _
+         • (ε ▹ _)
+         • lunitor _.
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_prod_via_adj_to_cartesian_prod_pr2</span>
+                     {<span class="nv">x</span> : B}
+                     (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; b)
+      : cartesian_prod_via_adj_to_cartesian_prod_1cell f g ==&gt; g
+      := (_ ◃ cartesian_prod_via_adj_to_cartesian_prod_pr2_help)
+         • binprod_ump_1cell_pr2 (pr2 (prod b b)) _ f g.
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_prod_via_adj_to_cartesian_prod_2cell</span>
+                     {<span class="nv">x</span> : B}
+                     {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">k</span> : x --&gt; b}
+                     (<span class="nv">α</span> : k ==&gt; f)
+                     (<span class="nv">β</span> : k ==&gt; g)
+      : k ==&gt; cartesian_prod_via_adj_to_cartesian_prod_1cell f g.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (rinvunitor _
+              • (_ ◃ η)
+              • lassociator _ _ _
+              • (binprod_ump_2cell (pr2 (prod b b)) _ _ ▹ r)).
+      - <span class="bp">exact</span> (rassociator _ _ _
+               • (k ◃ binprod_ump_1cell_pr1 (pr2 (prod b b)) _ _ _)
+               • runitor _
+               • α
+               • (binprod_ump_1cell_pr1 (pr2 (prod b b)) _ _ _)^-<span class="mi">1</span>).
+      - <span class="bp">exact</span> (rassociator _ _ _
+               • (k ◃ binprod_ump_1cell_pr2 (pr2 (prod b b)) _ _ _)
+               • runitor _
+               • β
+               • (binprod_ump_1cell_pr2 (pr2 (prod b b)) _ _ _)^-<span class="mi">1</span>).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_prod_via_adj_to_cartesian_prod_2cell_pr1</span>
+                     {<span class="nv">x</span> : B}
+                     {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">k</span> : x --&gt; b}
+                     (<span class="nv">α</span> : k ==&gt; f)
+                     (<span class="nv">β</span> : k ==&gt; g)
+      : cartesian_prod_via_adj_to_cartesian_prod_2cell α β
+        • cartesian_prod_via_adj_to_cartesian_prod_pr1 f g
+        =
+        α.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> cartesian_prod_via_adj_to_cartesian_prod_2cell.
+      <span class="nb">unfold</span> cartesian_prod_via_adj_to_cartesian_prod_pr1.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (vcomp_whisker _ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> binprod_ump_2cell_pr1.
+      }
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> vcomp_linv.
+      <span class="nb">rewrite</span> id2_right.
+      <span class="nb">refine</span> (_ @ id2_left _).
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> &lt;- lwhisker_lwhisker.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> lassociator_rassociator.
+        <span class="nb">rewrite</span> id2_left.
+        <span class="nb">apply</span> idpath.
+      }
+      use vcomp_move_R_pM ; [ is_iso | ] ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_right.
+      <span class="nb">refine</span> (_ @ id2_left _).
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !lwhisker_vcomp.
+      <span class="nb">refine</span> (_ @ lwhisker_id2 _ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> cartesian_prod_via_adj_to_cartesian_prod_pr1_help.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> left_unit_inv_assoc.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> lwhisker_lwhisker_rassociator.
+        <span class="nb">rewrite</span> !vassocl.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> lwhisker_hcomp.
+          <span class="nb">rewrite</span> inverse_pentagon_4.
+          <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> rwhisker_lwhisker_rassociator.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> lunitor_lwhisker.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> rinvunitor_natural.
+      <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> vcomp_whisker.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> &lt;- lunitor_V_id_is_left_unit_V_id.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> lwhisker_hcomp.
+      <span class="nb">rewrite</span> &lt;- linvunitor_natural.
+      <span class="nb">rewrite</span> !vassocl.
+      use vcomp_move_R_pM ; [ is_iso | ] ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_right.
+      <span class="nb">refine</span> (_ @ id2_left _).
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> &lt;- rwhisker_rwhisker.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> linvunitor_assoc.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> rassociator_lassociator.
+        <span class="nb">rewrite</span> id2_left.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !rwhisker_vcomp.
+      <span class="nb">refine</span> (_ @ id2_rwhisker _ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="bp">exact</span> (pr12 Hb).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_prod_via_adj_to_cartesian_prod_2cell_pr2</span>
+                     {<span class="nv">x</span> : B}
+                     {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">k</span> : x --&gt; b}
+                     (<span class="nv">α</span> : k ==&gt; f)
+                     (<span class="nv">β</span> : k ==&gt; g)
+      : cartesian_prod_via_adj_to_cartesian_prod_2cell α β
+        • cartesian_prod_via_adj_to_cartesian_prod_pr2 f g
+        =
+        β.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> cartesian_prod_via_adj_to_cartesian_prod_2cell.
+      <span class="nb">unfold</span> cartesian_prod_via_adj_to_cartesian_prod_pr2.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (vcomp_whisker _ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> binprod_ump_2cell_pr2.
+      }
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> vcomp_linv.
+      <span class="nb">rewrite</span> id2_right.
+      <span class="nb">refine</span> (_ @ id2_left _).
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> &lt;- lwhisker_lwhisker.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> lassociator_rassociator.
+        <span class="nb">rewrite</span> id2_left.
+        <span class="nb">apply</span> idpath.
+      }
+      use vcomp_move_R_pM ; [ is_iso | ] ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_right.
+      <span class="nb">refine</span> (_ @ id2_left _).
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !lwhisker_vcomp.
+      <span class="nb">refine</span> (_ @ lwhisker_id2 _ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> cartesian_prod_via_adj_to_cartesian_prod_pr2_help.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> left_unit_inv_assoc.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> lwhisker_lwhisker_rassociator.
+        <span class="nb">rewrite</span> !vassocl.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> lwhisker_hcomp.
+          <span class="nb">rewrite</span> inverse_pentagon_4.
+          <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> rwhisker_lwhisker_rassociator.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> lunitor_lwhisker.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> rinvunitor_natural.
+      <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> vcomp_whisker.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> &lt;- lunitor_V_id_is_left_unit_V_id.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> lwhisker_hcomp.
+      <span class="nb">rewrite</span> &lt;- linvunitor_natural.
+      <span class="nb">rewrite</span> !vassocl.
+      use vcomp_move_R_pM ; [ is_iso | ] ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_right.
+      <span class="nb">refine</span> (_ @ id2_left _).
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> &lt;- rwhisker_rwhisker.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> linvunitor_assoc.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> rassociator_lassociator.
+        <span class="nb">rewrite</span> id2_left.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !rwhisker_vcomp.
+      <span class="nb">refine</span> (_ @ id2_rwhisker _ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="bp">exact</span> (pr12 Hb).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_prod_via_adj_to_cartesian_prod_eq</span>
+                     {<span class="nv">x</span> : B}
+                     {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">k</span> : x --&gt; b}
+                     (<span class="nv">α</span> : k ==&gt; f)
+                     (<span class="nv">β</span> : k ==&gt; g)
+                     (<span class="nv">φ</span> : ∑ (fg : k ==&gt; cartesian_prod_via_adj_to_cartesian_prod_1cell f g),
+                          fg • cartesian_prod_via_adj_to_cartesian_prod_pr1 f g = α
+                          ×
+                          fg • cartesian_prod_via_adj_to_cartesian_prod_pr2 f g = β)
+      : φ
+        =
+        cartesian_prod_via_adj_to_cartesian_prod_2cell α β
+        ,,
+        cartesian_prod_via_adj_to_cartesian_prod_2cell_pr1 α β
+        ,,
+        cartesian_prod_via_adj_to_cartesian_prod_2cell_pr2 α β.
+    <span class="kn">Proof</span>.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!(id2_right _) @ _).
+      <span class="nb">unfold</span> cartesian_prod_via_adj_to_cartesian_prod_1cell.
+      <span class="nb">rewrite</span> &lt;- lwhisker_id2.
+      <span class="nb">rewrite</span> &lt;- p.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> !left_unit_inv_assoc.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> !rinvunitor_natural.
+      <span class="nb">rewrite</span> &lt;- !rwhisker_hcomp.
+      <span class="nb">unfold</span> cartesian_prod_via_adj_to_cartesian_prod_2cell.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)).
+      <span class="nb">rewrite</span> !lwhisker_lwhisker_rassociator.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> !vcomp_whisker.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)).
+      <span class="nb">rewrite</span> !lwhisker_hcomp.
+      <span class="nb">rewrite</span> inverse_pentagon_4.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_hcomp, &lt;- !rwhisker_hcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> &lt;- !rwhisker_rwhisker.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • (_ • z)) (vassocr _ _ _)).
+      <span class="nb">rewrite</span> rwhisker_lwhisker_rassociator.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> lunitor_lwhisker.
+      <span class="nb">rewrite</span> !rwhisker_vcomp.
+      <span class="nb">apply</span> maponpaths.
+      use (binprod_ump_2cell_unique_alt (pr2 (prod b b))).
+      - <span class="nb">rewrite</span> binprod_ump_2cell_pr1.
+        <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+        use vcomp_move_L_pM ; [ is_iso | ] ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> rwhisker_rwhisker.
+        <span class="nb">rewrite</span> !vassocl.
+        use vcomp_move_L_pM ; [ is_iso ; <span class="nb">apply</span> property_from_invertible_2cell | ] ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> &lt;- vcomp_whisker.
+        <span class="nb">rewrite</span> !vassocl.
+        use vcomp_move_L_pM ; [ is_iso | ] ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> rwhisker_hcomp.
+        <span class="nb">rewrite</span> &lt;- rinvunitor_natural.
+        <span class="nb">rewrite</span> !vassocl.
+        use vcomp_move_L_Mp ; [ is_iso | ] ; <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (_ @ pr12 φ).
+        <span class="nb">unfold</span> cartesian_prod_via_adj_to_cartesian_prod_pr1 ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">unfold</span> cartesian_prod_via_adj_to_cartesian_prod_pr1_help.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> &lt;- rinvunitor_triangle.
+        <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> &lt;- lwhisker_lwhisker.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> &lt;- lassociator_lassociator.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> rwhisker_vcomp.
+          <span class="nb">rewrite</span> lassociator_rassociator.
+          <span class="nb">rewrite</span> id2_rwhisker.
+          <span class="nb">rewrite</span> id2_left.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> &lt;- rwhisker_lwhisker.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> runitor_rwhisker.
+      - <span class="nb">rewrite</span> binprod_ump_2cell_pr2.
+        <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+        use vcomp_move_L_pM ; [ is_iso | ] ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> rwhisker_rwhisker.
+        <span class="nb">rewrite</span> !vassocl.
+        use vcomp_move_L_pM ; [ is_iso ; <span class="nb">apply</span> property_from_invertible_2cell | ] ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> &lt;- vcomp_whisker.
+        <span class="nb">rewrite</span> !vassocl.
+        use vcomp_move_L_pM ; [ is_iso | ] ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> rwhisker_hcomp.
+        <span class="nb">rewrite</span> &lt;- rinvunitor_natural.
+        <span class="nb">rewrite</span> !vassocl.
+        use vcomp_move_L_Mp ; [ is_iso | ] ; <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (_ @ pr22 φ).
+        <span class="nb">unfold</span> cartesian_prod_via_adj_to_cartesian_prod_pr2 ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">unfold</span> cartesian_prod_via_adj_to_cartesian_prod_pr2_help.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> &lt;- rinvunitor_triangle.
+        <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> &lt;- lwhisker_lwhisker.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> &lt;- lassociator_lassociator.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> rwhisker_vcomp.
+          <span class="nb">rewrite</span> lassociator_rassociator.
+          <span class="nb">rewrite</span> id2_rwhisker.
+          <span class="nb">rewrite</span> id2_left.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> &lt;- rwhisker_lwhisker.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> runitor_rwhisker.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">cartesian_prod_via_adj_to_cartesian_prod_obj</span>
+                     (<span class="nv">x</span> : B)
+      : BinProducts (hom x b).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> f g.
+      use make_BinProduct.
+      - <span class="bp">exact</span> (cartesian_prod_via_adj_to_cartesian_prod_1cell f g).
+      - <span class="bp">exact</span> (cartesian_prod_via_adj_to_cartesian_prod_pr1 f g).
+      - <span class="bp">exact</span> (cartesian_prod_via_adj_to_cartesian_prod_pr2 f g).
+      - <span class="nb">intros</span> k α β.
+        use make_iscontr.
+        + <span class="nb">simple refine</span> (_ ,, (_ ,, _)).
+          * <span class="bp">exact</span> (cartesian_prod_via_adj_to_cartesian_prod_2cell α β).
+          * <span class="bp">exact</span> (cartesian_prod_via_adj_to_cartesian_prod_2cell_pr1 α β).
+          * <span class="bp">exact</span> (cartesian_prod_via_adj_to_cartesian_prod_2cell_pr2 α β).
+        + <span class="nb">apply</span> cartesian_prod_via_adj_to_cartesian_prod_eq.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">help_inv2cell</span>
+                     {<span class="nv">x</span> <span class="nv">y</span> : B}
+                     (<span class="nv">f</span> : x --&gt; y)
+                     (<span class="nv">h₁</span> <span class="nv">h₂</span> : y --&gt; b)
+      : invertible_2cell
+          (f
+           · BinProductObject
+               (hom y b)
+               (cartesian_prod_via_adj_to_cartesian_prod_obj y h₁ h₂))
+          (BinProductObject
+             (hom x b)
+             (cartesian_prod_via_adj_to_cartesian_prod_obj x (f · h₁) (f · h₂))).
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (comp_of_invertible_2cell
+                (lassociator_invertible_2cell _ _ _)
+                (rwhisker_of_invertible_2cell
+                   _
+                   _)).
+      use make_invertible_2cell.
+      - use (binprod_ump_2cell (pr2 (prod b b))).
+        + <span class="bp">exact</span> (rassociator _ _ _
+                 • (_ ◃ binprod_ump_1cell_pr1 (pr2 (prod b b)) _ h₁ h₂)
+                 • (binprod_ump_1cell_pr1 (pr2 (prod b b)) _ _ _)^-<span class="mi">1</span>).
+        + <span class="bp">exact</span> (rassociator _ _ _
+                 • (_ ◃ binprod_ump_1cell_pr2 (pr2 (prod b b)) _ h₁ h₂)
+                 • (binprod_ump_1cell_pr2 (pr2 (prod b b)) _ _ _)^-<span class="mi">1</span>).
+      - use binprod_ump_2cell_invertible.
+        + is_iso.
+          <span class="nb">apply</span> property_from_invertible_2cell.
+        + is_iso.
+          <span class="nb">apply</span> property_from_invertible_2cell.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cartesian_prod_via_adj_to_cartesian_prod_preserves</span>
+               {<span class="nv">x</span> <span class="nv">y</span> : B}
+               (<span class="nv">f</span> : x --&gt; y)
+      : preserves_binproduct (pre_comp b f).
+    <span class="kn">Proof</span>.
+      use preserves_binproduct_if_preserves_chosen.
+      - <span class="nb">apply</span> cartesian_prod_via_adj_to_cartesian_prod_obj.
+      - <span class="nb">intros</span> h₁ h₂.
+        use (isBinProduct_eq_arrow
+               _ _
+               (pr2 (iso_to_BinProduct
+                       _
+                       (cartesian_prod_via_adj_to_cartesian_prod_obj x (f · h₁) (f · h₂))
+                       (z_iso_to_iso
+                          (inv2cell_to_z_iso
+                             (help_inv2cell f h₁ h₂)))))).
+        + <span class="nb">cbn</span>.
+          <span class="nb">unfold</span> cartesian_prod_via_adj_to_cartesian_prod_pr1.
+          <span class="nb">rewrite</span> !vassocl.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !vassocr.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">apply</span> vcomp_whisker.
+            }
+            <span class="nb">rewrite</span> !vassocl.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">apply</span> binprod_ump_2cell_pr1.
+            }
+            <span class="nb">rewrite</span> !vassocl.
+            <span class="nb">rewrite</span> vcomp_linv.
+            <span class="nb">rewrite</span> id2_right.
+            <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">rewrite</span> !vassocr.
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> lwhisker_lwhisker.
+          }
+          <span class="nb">rewrite</span> !vassocl.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !vassocr.
+            <span class="nb">rewrite</span> lassociator_rassociator.
+            <span class="nb">apply</span> id2_left.
+          }
+          <span class="nb">apply</span> lwhisker_vcomp.
+        + <span class="nb">cbn</span>.
+          <span class="nb">unfold</span> cartesian_prod_via_adj_to_cartesian_prod_pr2.
+          <span class="nb">rewrite</span> !vassocl.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !vassocr.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">apply</span> vcomp_whisker.
+            }
+            <span class="nb">rewrite</span> !vassocl.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">apply</span> binprod_ump_2cell_pr2.
+            }
+            <span class="nb">rewrite</span> !vassocl.
+            <span class="nb">rewrite</span> vcomp_linv.
+            <span class="nb">rewrite</span> id2_right.
+            <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">rewrite</span> !vassocr.
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> lwhisker_lwhisker.
+          }
+          <span class="nb">rewrite</span> !vassocl.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !vassocr.
+            <span class="nb">rewrite</span> lassociator_rassociator.
+            <span class="nb">apply</span> id2_left.
+          }
+          <span class="nb">apply</span> lwhisker_vcomp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cartesian_prod_via_adj_to_cartesian_prod</span>
+      : cartesian_prod b.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="bp">exact</span> cartesian_prod_via_adj_to_cartesian_prod_obj.
+      - <span class="bp">exact</span> @cartesian_prod_via_adj_to_cartesian_prod_preserves.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">FromAdj</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cartesian_prod_weq_cartesian_prod_via_adj</span>
+             (<span class="nv">HB</span> : is_univalent_2_1 B)
+    : cartesian_prod b ≃ cartesian_prod_via_adj b prod.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="bp">exact</span> cartesian_prod_to_cartesian_prod_via_adj.
+    - <span class="bp">exact</span> cartesian_prod_via_adj_to_cartesian_prod.
+    - <span class="nb">apply</span> isaprop_cartesian_prod.
+      <span class="bp">exact</span> HB.
+    - <span class="nb">apply</span> isaprop_cartesian_prod_via_adj.
+      <span class="bp">exact</span> HB.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cartesian_weq_cartesian_via_adj</span>
+             (<span class="nv">HB</span> : is_univalent_2_1 B)
+    : cartesian_ob b ≃ cartesian_ob_via_adj b T prod.
+  <span class="kn">Proof</span>.
+    use weqdirprodf.
+    - <span class="bp">exact</span> (cartesian_terminal_weq_cartesian_terminal_via_adj HB).
+    - <span class="bp">exact</span> (cartesian_prod_weq_cartesian_prod_via_adj HB).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">EquivalenceCartesian</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Objects/CartesianObject.v</tt>, line 21)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Equivalence of the two definitions of cartesian object
+  &gt;
+  &gt;  *******************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

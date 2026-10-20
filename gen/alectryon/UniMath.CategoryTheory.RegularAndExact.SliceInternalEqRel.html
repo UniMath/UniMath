@@ -1,0 +1,1114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SliceInternalEqRel.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Internal equivalence relations in the slice category</span>
+
+<span class="sd"> A regular category is said to be exact if every internal equivalence relation is</span>
+<span class="sd"> effective, which implies, among others, that it has a coequalizer. In this file, we</span>
+<span class="sd"> study internal equivalence relations in slice categories. More specific, we show that</span>
+<span class="sd"> internal equivalence relations in the slice category correspond to a more type theoretic</span>
+<span class="sd"> notion of equivalence relation.</span>
+
+<span class="sd"> To understand this type theoretic notion, we look at the comprehension category arising</span>
+<span class="sd"> from the codomain fibration. In this fibration, propositions in context `Γ` correspond to</span>
+<span class="sd"> monomorphisms into `Γ`. If `A` is a type in context `Γ`(i.e., we have a morphism</span>
+<span class="sd"> `π : A --&gt; Γ`), then a relation on `A` corresponds to a monomorphism into the pullback of</span>
+<span class="sd"> `π` with `π`. This is different from an internal relation, which is defined to be a jointly</span>
+<span class="sd"> monic span. We show that the type theoretic notion of relation corresponds to the usual</span>
+<span class="sd"> internal notion of relation. In addition, we define when a type theoretic relation is an</span>
+<span class="sd"> equivalence relation, and we show that type theoretic equivalence relations correspond to</span>
+<span class="sd"> internal equivalence relations defined via spans.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Internal relations (defined in a type theoretic style)</span>
+<span class="sd"> 2. Properties of such relations</span>
+<span class="sd"> 3. Type theoretic equivalence relations</span>
+<span class="sd"> 4. Internal relations in the internal and type theoretic style correspond</span>
+<span class="sd"> 5. Correspondence in their provability</span>
+<span class="sd"> 6. Correspondence for properties of internal relations</span>
+<span class="sd"> 7. Correspondence for internal equivalence relations</span>
+<span class="sd"> 8. Quotients of internal equivalence relations (type theoretic style)</span>
+
+<span class="sd">                                                                                       *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularEpi.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularEpiFacts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.ExactCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodRegular.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">InternalTypeRel</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">PB</span> : Pullbacks C}
+          {<span class="nv">Γ</span> <span class="nv">A</span> : C}
+          {<span class="nv">π</span> : A --&gt; Γ}.
+
+  <span class="sd">(** * 1. Internal relations (defined in a type theoretic style) *)</span>
+  <span class="kn">Definition</span> <span class="nf">internal_type_rel</span>
+    : UU
+    := ∑ (r : C), Monic _ r (PB _ _ _ π π).
+
+  <span class="kn">Definition</span> <span class="nf">make_internal_type_rel</span>
+             (<span class="nv">r</span> : C)
+             (<span class="nv">m</span> : Monic _ r (PB _ _ _ π π))
+    : internal_type_rel
+    := r ,, m.
+
+  <span class="kn">Coercion</span> <span class="nf">internal_type_rel_to_ty</span>
+           (r : internal_type_rel)
+    : C
+    := pr1 r.
+
+  <span class="kn">Definition</span> <span class="nf">internal_type_rel_monic</span>
+             (<span class="nv">r</span> : internal_type_rel)
+    : Monic _ r (PB _ _ _ π π)
+    := pr2 r.
+
+  <span class="kn">Definition</span> <span class="nf">path_internal_type_rel_help</span>
+             {<span class="nv">r₁</span> <span class="nv">r₂</span> : internal_type_rel}
+             (<span class="nv">p</span> : (r₁ : C) = r₂)
+             (<span class="nv">q</span> : idtoiso p · internal_type_rel_monic r₂
+                  =
+                  internal_type_rel_monic r₁)
+    : r₁ = r₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> r₁ <span class="k">as</span> [ r₁ M₁ ].
+    <span class="nb">induction</span> r₂ <span class="k">as</span> [ r₂ M₂ ].
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">cbn</span> <span class="k">in</span> q.
+    <span class="nb">rewrite</span> id_left <span class="k">in</span> q.
+    use Monic_eq.
+    <span class="bp">exact</span> (!q).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">path_internal_type_rel</span>
+             (<span class="nv">HC</span> : is_univalent C)
+             {<span class="nv">r₁</span> <span class="nv">r₂</span> : internal_type_rel}
+             (<span class="nv">p</span> : z_iso r₁ r₂)
+             (<span class="nv">q</span> : p · internal_type_rel_monic r₂
+                  =
+                  internal_type_rel_monic r₁)
+    : r₁ = r₂.
+  <span class="kn">Proof</span>.
+    use path_internal_type_rel_help.
+    - <span class="bp">exact</span> (isotoid C HC p).
+    - <span class="nb">rewrite</span> idtoiso_isotoid.
+      <span class="bp">exact</span> q.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">     The function [subst_rel] allows us to instantiate a type theoretic relation</span>
+<span class="sd">     with two concrete terms.</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">subst_rel</span>
+             {<span class="nv">Δ</span> : C}
+             {<span class="nv">s</span> : Δ --&gt; Γ}
+             (<span class="nv">t₁</span> <span class="nv">t₂</span> : section_of_mor (PullbackPr2 (PB _ _ _ π s)))
+    : Δ --&gt; PB _ _ _ π π.
+  <span class="kn">Proof</span>.
+    use PullbackArrow.
+    - <span class="bp">exact</span> (pr1 t₁ · PullbackPr1 _).
+    - <span class="bp">exact</span> (pr1 t₂ · PullbackPr1 _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">rewrite</span> PullbackSqrCommutes ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">refine</span> (section_of_mor_eq t₁ @ _) ;
+         <span class="nb">refine</span> (!_) ;
+         <span class="nb">apply</span> (section_of_mor_eq t₂)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">internal_type_rel_prf</span>
+             (<span class="nv">r</span> : internal_type_rel)
+             {<span class="nv">Δ</span> : C}
+             {<span class="nv">s</span> : Δ --&gt; Γ}
+             (<span class="nv">t₁</span> <span class="nv">t₂</span> : section_of_mor (PullbackPr2 (PB _ _ _ π s)))
+    : UU
+    := section_of_mor
+         (PullbackPr2
+            (PB _ _ _ (internal_type_rel_monic r) (subst_rel t₁ t₂))).
+
+  <span class="kn">Identity Coercion</span> <span class="nf">prf_to_tm</span> : internal_type_rel_prf &gt;-&gt; section_of_mor.
+
+  <span class="sd">(** * 2. Properties of such relations *)</span>
+  <span class="kn">Definition</span> <span class="nf">internal_type_rel_isrefl</span>
+             (<span class="nv">r</span> : internal_type_rel)
+    : UU
+    := ∏ (Δ : C)
+         (s : Δ --&gt; Γ)
+         (t : section_of_mor (PullbackPr2 (PB _ _ _ π s))),
+       internal_type_rel_prf r t t.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_internal_type_rel_isrefl</span>
+              (<span class="nv">r</span> : internal_type_rel)
+    : isaprop (internal_type_rel_isrefl r).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> refl₁ refl₂.
+    use funextsec ; <span class="nb">intro</span> Δ.
+    use funextsec ; <span class="nb">intro</span> s.
+    use funextsec ; <span class="nb">intro</span> t.
+    use eq_section_of_mor.
+    <span class="nb">cbn</span>.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+    - use (MonicisMonic _ (internal_type_rel_monic r) _).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> PullbackSqrCommutes.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (section_of_mor_eq _ @ !(section_of_mor_eq _)).
+    - <span class="bp">exact</span> (section_of_mor_eq _ @ !(section_of_mor_eq _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">internal_type_rel_issymm</span>
+             (<span class="nv">r</span> : internal_type_rel)
+    : UU
+    := ∏ (Δ : C)
+         (s : Δ --&gt; Γ)
+         (t₁ t₂ : section_of_mor (PullbackPr2 (PB _ _ _ π s))),
+       internal_type_rel_prf r t₁ t₂
+       →
+       internal_type_rel_prf r t₂ t₁.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_internal_type_rel_issymm</span>
+              (<span class="nv">r</span> : internal_type_rel)
+    : isaprop (internal_type_rel_issymm r).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> sym₁ sym₂.
+    use funextsec ; <span class="nb">intro</span> Δ.
+    use funextsec ; <span class="nb">intro</span> s.
+    use funextsec ; <span class="nb">intro</span> t₁.
+    use funextsec ; <span class="nb">intro</span> t₂.
+    use funextsec ; <span class="nb">intro</span> p.
+    use eq_section_of_mor.
+    <span class="nb">cbn</span>.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+    - use (MonicisMonic _ (internal_type_rel_monic r) _).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> PullbackSqrCommutes.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (section_of_mor_eq _ @ !(section_of_mor_eq _)).
+    - <span class="bp">exact</span> (section_of_mor_eq _ @ !(section_of_mor_eq _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">internal_type_rel_istrans</span>
+             (<span class="nv">r</span> : internal_type_rel)
+    : UU
+    := ∏ (Δ : C)
+         (s : Δ --&gt; Γ)
+         (t₁ t₂ t₃ : section_of_mor (PullbackPr2 (PB _ _ _ π s))),
+       internal_type_rel_prf r t₁ t₂
+       →
+       internal_type_rel_prf r t₂ t₃
+       →
+       internal_type_rel_prf r t₁ t₃.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_internal_type_rel_istrans</span>
+              (<span class="nv">r</span> : internal_type_rel)
+    : isaprop (internal_type_rel_istrans r).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> trans₁ trans₂.
+    use funextsec ; <span class="nb">intro</span> Δ.
+    use funextsec ; <span class="nb">intro</span> s.
+    use funextsec ; <span class="nb">intro</span> t₁.
+    use funextsec ; <span class="nb">intro</span> t₂.
+    use funextsec ; <span class="nb">intro</span> t₃.
+    use funextsec ; <span class="nb">intro</span> p.
+    use funextsec ; <span class="nb">intro</span> q.
+    use eq_section_of_mor.
+    <span class="nb">cbn</span>.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+    - use (MonicisMonic _ (internal_type_rel_monic r) _).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> PullbackSqrCommutes.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (section_of_mor_eq _ @ !(section_of_mor_eq _)).
+    - <span class="bp">exact</span> (section_of_mor_eq _ @ !(section_of_mor_eq _)).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 3. Type theoretic equivalence relations *)</span>
+  <span class="kn">Definition</span> <span class="nf">internal_type_rel_iseqrel</span>
+             (<span class="nv">r</span> : internal_type_rel)
+    : UU
+    := internal_type_rel_isrefl r
+       ×
+       internal_type_rel_issymm r
+       ×
+       internal_type_rel_istrans r.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_internal_type_rel_iseqrel</span>
+              (<span class="nv">r</span> : internal_type_rel)
+    : isaprop (internal_type_rel_iseqrel r).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> use isapropdirprod.
+    - <span class="nb">apply</span> isaprop_internal_type_rel_isrefl.
+    - <span class="nb">apply</span> isaprop_internal_type_rel_issymm.
+    - <span class="nb">apply</span> isaprop_internal_type_rel_istrans.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">internal_type_eqrel</span>
+    : UU
+    := ∑ (r : internal_type_rel), internal_type_rel_iseqrel r.
+
+  <span class="kn">Definition</span> <span class="nf">make_internal_type_eqrel</span>
+             (<span class="nv">r</span> : internal_type_rel)
+             (<span class="nv">Hr</span> : internal_type_rel_iseqrel r)
+    : internal_type_eqrel
+    := r ,, Hr.
+
+  <span class="kn">Coercion</span> <span class="nf">internal_type_eqrel_to_internal_type_rel</span>
+           (r : internal_type_eqrel)
+    : internal_type_rel
+    := pr1 r.
+
+  <span class="kn">Proposition</span> <span class="nf">isrefl_internal_type_eqrel</span>
+              (<span class="nv">r</span> : internal_type_eqrel)
+              {<span class="nv">Δ</span> : C}
+              {<span class="nv">s</span> : Δ --&gt; Γ}
+              (<span class="nv">t</span> : section_of_mor (PullbackPr2 (PB _ _ _ π s)))
+    : internal_type_rel_prf r t t.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 r Δ s t).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">issymm_internal_type_eqrel</span>
+              (<span class="nv">r</span> : internal_type_eqrel)
+              {<span class="nv">Δ</span> : C}
+              {<span class="nv">s</span> : Δ --&gt; Γ}
+              {<span class="nv">t₁</span> <span class="nv">t₂</span> : section_of_mor (PullbackPr2 (PB _ _ _ π s))}
+              (<span class="nv">p</span> : internal_type_rel_prf r t₁ t₂)
+    : internal_type_rel_prf r t₂ t₁.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr122 r Δ s t₁ t₂ p).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">istrans_internal_type_eqrel</span>
+              (<span class="nv">r</span> : internal_type_eqrel)
+              {<span class="nv">Δ</span> : C}
+              {<span class="nv">s</span> : Δ --&gt; Γ}
+              {<span class="nv">t₁</span> <span class="nv">t₂</span> <span class="nv">t₃</span> : section_of_mor (PullbackPr2 (PB _ _ _ π s))}
+              (<span class="nv">p</span> : internal_type_rel_prf r t₁ t₂)
+              (<span class="nv">q</span> : internal_type_rel_prf r t₂ t₃)
+    : internal_type_rel_prf r t₁ t₃.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr222 r Δ s t₁ t₂ t₃ p q).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">path_internal_type_eqrel</span>
+              (<span class="nv">HC</span> : is_univalent C)
+              {<span class="nv">r₁</span> <span class="nv">r₂</span> : internal_type_eqrel}
+              (<span class="nv">p</span> : z_iso r₁ r₂)
+              (<span class="nv">q</span> : p · internal_type_rel_monic r₂
+                   =
+                   internal_type_rel_monic r₁)
+    : r₁ = r₂.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_internal_type_rel_iseqrel.
+    }
+    use path_internal_type_rel.
+    - <span class="bp">exact</span> HC.
+    - <span class="bp">exact</span> p.
+    - <span class="bp">exact</span> q.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">InternalTypeRel</span>.
+
+<span class="kn">Arguments</span> internal_type_rel {C} PB {Γ A} π.
+<span class="kn">Arguments</span> internal_type_eqrel {C} PB {Γ A} π.
+
+<span class="kn">Section</span> <span class="nf">RelationVersusMono</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">PB</span> : Pullbacks C)
+          {<span class="nv">Γ</span> <span class="nv">A</span> : C}
+          (<span class="nv">π</span> : A --&gt; Γ)
+          (<span class="nv">Aπ</span> := make_cod_fib_ob π : C/Γ).
+
+  <span class="sd">(** * 4. Internal relations in the internal and type theoretic style correspond *)</span>
+  <span class="kn">Definition</span> <span class="nf">interal_relation_to_type_rel_ob</span>
+             (<span class="nv">r</span> : internal_relation Aπ)
+    : cod_dom r --&gt; PB Γ A A π π.
+  <span class="kn">Proof</span>.
+    use PullbackArrow.
+    - <span class="bp">exact</span> (dom_mor (internal_relation_src r)).
+    - <span class="bp">exact</span> (dom_mor (internal_relation_tar r)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (mor_eq (internal_relation_src r) @ _) ;
+         <span class="bp">exact</span> (!(mor_eq (internal_relation_tar r)))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Arguments</span> interal_relation_to_type_rel_ob /.
+
+  <span class="kn">Proposition</span> <span class="nf">is_monic_interal_relation_to_type_rel_is_monic</span>
+              (<span class="nv">r</span> : internal_relation Aπ)
+    : isMonic (interal_relation_to_type_rel_ob r).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">intros</span> w g h p.
+    use from_internal_relation_slice_monic.
+    - <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · PullbackPr1 _) p @ _).
+      + <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · PullbackPr2 _) p @ _).
+      + <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monic_interal_relation_to_type_rel_monic</span>
+             (<span class="nv">r</span> : internal_relation Aπ)
+    : Monic C (cod_dom r) (PB Γ A A π π).
+  <span class="kn">Proof</span>.
+    use make_Monic.
+    - <span class="bp">exact</span> (interal_relation_to_type_rel_ob r).
+    - <span class="bp">exact</span> (is_monic_interal_relation_to_type_rel_is_monic r).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">interal_relation_to_type_rel</span>
+             (<span class="nv">r</span> : internal_relation Aπ)
+    : internal_type_rel PB π.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (cod_dom r).
+    - <span class="bp">exact</span> (monic_interal_relation_to_type_rel_monic r).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">internal_type_rel_to_slice_rel_ob</span>
+             (<span class="nv">r</span> : internal_type_rel PB π)
+    : C/Γ.
+  <span class="kn">Proof</span>.
+    use make_cod_fib_ob.
+    - <span class="bp">exact</span> r.
+    - <span class="bp">exact</span> (internal_type_rel_monic r · PullbackPr1 _ · π).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">internal_type_rel_to_slice_rel_src</span>
+             (<span class="nv">r</span> : internal_type_rel PB π)
+    : internal_type_rel_to_slice_rel_ob r --&gt; Aπ.
+  <span class="kn">Proof</span>.
+    use make_cod_fib_mor.
+    - <span class="bp">exact</span> (internal_type_rel_monic r · PullbackPr1 _).
+    - <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">internal_type_rel_to_slice_rel_tar</span>
+             (<span class="nv">r</span> : internal_type_rel PB π)
+    : internal_type_rel_to_slice_rel_ob r --&gt; Aπ.
+  <span class="kn">Proof</span>.
+    use make_cod_fib_mor.
+    - <span class="bp">exact</span> (internal_type_rel_monic r · PullbackPr2 _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">rewrite</span> PullbackSqrCommutes ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">internal_type_rel_to_slice_rel_monic</span>
+              (<span class="nv">r</span> : internal_type_rel PB π)
+              {<span class="nv">w</span> : C/Γ}
+              {<span class="nv">f</span> <span class="nv">g</span> : w --&gt; internal_type_rel_to_slice_rel_ob r}
+              (<span class="nv">p</span> : f · internal_type_rel_to_slice_rel_src r
+                   =
+                   g · internal_type_rel_to_slice_rel_src r)
+              (<span class="nv">q</span> : f · internal_type_rel_to_slice_rel_tar r
+                   =
+                   g · internal_type_rel_to_slice_rel_tar r)
+    : f = g.
+  <span class="kn">Proof</span>.
+    use eq_mor_cod_fib.
+    use (MonicisMonic _ (internal_type_rel_monic r)).
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback (PB Γ A A π π))).
+    - <span class="nb">pose</span> (maponpaths dom_mor p) <span class="k">as</span> p'.
+      <span class="nb">rewrite</span> !comp_in_cod_fib <span class="k">in</span> p'.
+      <span class="nb">cbn</span> <span class="k">in</span> p'.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="bp">exact</span> p'.
+    - <span class="nb">pose</span> (maponpaths dom_mor q) <span class="k">as</span> q'.
+      <span class="nb">rewrite</span> !comp_in_cod_fib <span class="k">in</span> q'.
+      <span class="nb">cbn</span> <span class="k">in</span> q'.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="bp">exact</span> q'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">internal_type_rel_to_slice_rel</span>
+             (<span class="nv">r</span> : internal_type_rel PB π)
+    : internal_relation Aπ.
+  <span class="kn">Proof</span>.
+    use make_internal_relation.
+    - <span class="bp">exact</span> (internal_type_rel_to_slice_rel_ob r).
+    - <span class="bp">exact</span> (internal_type_rel_to_slice_rel_src r).
+    - <span class="bp">exact</span> (internal_type_rel_to_slice_rel_tar r).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">w</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">p</span> <span class="nv">q</span>, internal_type_rel_to_slice_rel_monic r p q).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Context</span> (<span class="nv">HC</span> : is_univalent C).
+
+  <span class="kn">Let</span> <span class="nf">CC</span> : univalent_category := make_univalent_category C HC.
+
+  <span class="kn">Proposition</span> <span class="nf">internal_relation_to_type_rel_to_relation</span>
+              (<span class="nv">r</span> : internal_relation Aπ)
+    : internal_type_rel_to_slice_rel (interal_relation_to_type_rel r)
+      =
+      r.
+  <span class="kn">Proof</span>.
+    use path_internal_relation.
+    - <span class="nb">apply</span> (is_univalent_cod_slice (C := CC)).
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + use make_cod_fib_mor.
+        * <span class="nb">apply</span> identity.
+        * <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> PullbackArrow_PullbackPr1 ;
+             <span class="nb">rewrite</span> id_left ;
+             <span class="bp">exact</span> (!(mor_eq (internal_relation_src r)))).
+      + use make_is_z_iso_in_slice.
+        <span class="nb">apply</span> is_z_isomorphism_identity.
+    - use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> comp_in_cod_fib ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    - use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> comp_in_cod_fib ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">internal_type_rel_to_slice_rel_to_type_rel</span>
+              (<span class="nv">r</span> : internal_type_rel PB π)
+    : interal_relation_to_type_rel (internal_type_rel_to_slice_rel r)
+      =
+      r.
+  <span class="kn">Proof</span>.
+    use path_internal_type_rel.
+    - <span class="bp">exact</span> HC.
+    - <span class="nb">apply</span> identity_z_iso.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback (PB Γ A A π π))).
+      + <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">internal_slice_rel_weq_internal_type_rel</span>
+    : internal_relation Aπ ≃ internal_type_rel PB π.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> interal_relation_to_type_rel.
+    - <span class="bp">exact</span> internal_type_rel_to_slice_rel.
+    - <span class="bp">exact</span> internal_relation_to_type_rel_to_relation.
+    - <span class="bp">exact</span> internal_type_rel_to_slice_rel_to_type_rel.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 5. Correspondence in their provability *)</span>
+  <span class="kn">Definition</span> <span class="nf">subst_to_slice_ob_internal_rel</span>
+             (<span class="nv">r</span> : internal_relation Aπ)
+             {<span class="nv">Δ</span> : C}
+             (<span class="nv">s</span> : Δ --&gt; Γ)
+    : C/Γ
+    := make_cod_fib_ob s.
+
+  <span class="kn">Definition</span> <span class="nf">tm_to_slice_mor</span>
+             (<span class="nv">r</span> : internal_relation Aπ)
+             {<span class="nv">Δ</span> : C}
+             {<span class="nv">s</span> : Δ --&gt; Γ}
+             (<span class="nv">t</span> : section_of_mor (PullbackPr2 (PB Γ A Δ π s)))
+    : subst_to_slice_ob_internal_rel r s --&gt; Aπ.
+  <span class="kn">Proof</span>.
+    use make_cod_fib_mor.
+    - <span class="bp">exact</span> (t · PullbackPr1 _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">rewrite</span> PullbackSqrCommutes ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">refine</span> (_ @ id_left _) ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> section_of_mor_eq).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">ToPrfRelation</span>.
+    <span class="kn">Context</span> (<span class="nv">r</span> : internal_relation Aπ)
+            {<span class="nv">Δ</span> : C}
+            {<span class="nv">s</span> : Δ --&gt; Γ}
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : section_of_mor (PullbackPr2 (PB Γ A Δ π s))}
+            (<span class="nv">p</span> : internal_type_rel_prf (interal_relation_to_type_rel r) t₁ t₂).
+
+    <span class="kn">Definition</span> <span class="nf">prf_to_internal_relation_dom_mor</span>
+      : cod_dom (subst_to_slice_ob_internal_rel r s) --&gt; cod_dom r
+      := p · PullbackPr1 _.
+
+    <span class="kn">Arguments</span> prf_to_internal_relation_dom_mor /.
+
+    <span class="kn">Proposition</span> <span class="nf">prf_to_internal_relation_mor_eq</span>
+      : prf_to_internal_relation_dom_mor · cod_mor r
+        =
+        cod_mor (subst_to_slice_ob_internal_rel r s).
+    <span class="kn">Proof</span>.
+      <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (!(mor_eq (internal_relation_src r))).
+      }
+      <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · PullbackPr1 _) (PullbackSqrCommutes _)).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">unfold</span> subst_rel.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">rewrite</span> PullbackSqrCommutes.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> section_of_mor_eq.
+      }
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">refine</span> (_ @ id_left _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> section_of_mor_eq.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">prf_to_internal_relation_mor</span>
+      : subst_to_slice_ob_internal_rel r s --&gt; r.
+    <span class="kn">Proof</span>.
+      use make_cod_fib_mor.
+      - <span class="bp">exact</span> prf_to_internal_relation_dom_mor.
+      - <span class="bp">exact</span> prf_to_internal_relation_mor_eq.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">prf_to_internal_relation_src</span>
+      : prf_to_internal_relation_mor · internal_relation_src r
+        =
+        tm_to_slice_mor r t₁.
+    <span class="kn">Proof</span>.
+      use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · PullbackPr1 _) (PullbackSqrCommutes _)).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">unfold</span> subst_rel.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> section_of_mor_eq.
+      }
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">prf_to_internal_relation_tar</span>
+      : prf_to_internal_relation_mor · internal_relation_tar r
+        =
+        tm_to_slice_mor r t₂.
+    <span class="kn">Proof</span>.
+      use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · PullbackPr2 _) (PullbackSqrCommutes _)).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">unfold</span> subst_rel.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> section_of_mor_eq.
+      }
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">prf_to_internal_relation</span>
+      : internal_relation_to_arr_hrel
+          r
+          (subst_to_slice_ob_internal_rel r s)
+          (tm_to_slice_mor r t₁)
+          (tm_to_slice_mor r t₂).
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> prf_to_internal_relation_mor.
+      - <span class="nb">split</span>.
+        + <span class="bp">exact</span> prf_to_internal_relation_src.
+        + <span class="bp">exact</span> prf_to_internal_relation_tar.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">ToPrfRelation</span>.
+
+  <span class="kn">Section</span> <span class="nf">FromPrfRelation</span>.
+    <span class="kn">Context</span> (<span class="nv">r</span> : internal_relation Aπ)
+            {<span class="nv">Δ</span> : C}
+            {<span class="nv">s</span> : Δ --&gt; Γ}
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : section_of_mor (PullbackPr2 (PB Γ A Δ π s))}
+            (<span class="nv">p</span> : internal_relation_to_arr_hrel
+                   r
+                   (subst_to_slice_ob_internal_rel r s)
+                   (tm_to_slice_mor r t₁)
+                   (tm_to_slice_mor r t₂)).
+
+    <span class="kn">Let</span> <span class="nf">prf</span> : subst_to_slice_ob_internal_rel r s --&gt; r := pr1 p.
+
+    <span class="kn">Proposition</span> <span class="nf">internal_relation_to_prf_eq</span>
+      : dom_mor prf · internal_type_rel_monic (interal_relation_to_type_rel r)
+        =
+        identity Δ · subst_rel t₁ t₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> id_left.
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+      - <span class="nb">unfold</span> subst_rel, internal_type_rel_monic ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> !PullbackArrow_PullbackPr1.
+        <span class="nb">refine</span> (_ @ maponpaths dom_mor (pr12 p)).
+        <span class="nb">rewrite</span> comp_in_cod_fib.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">unfold</span> subst_rel, internal_type_rel_monic ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+        <span class="nb">refine</span> (_ @ maponpaths dom_mor (pr22 p)).
+        <span class="nb">rewrite</span> comp_in_cod_fib.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">internal_relation_to_prf</span>
+      : internal_type_rel_prf (interal_relation_to_type_rel r) t₁ t₂.
+    <span class="kn">Proof</span>.
+      use make_section_of_mor.
+      - use PullbackArrow.
+        + <span class="bp">exact</span> (dom_mor prf).
+        + <span class="nb">apply</span> identity.
+        + <span class="nb">apply</span> internal_relation_to_prf_eq.
+      - <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">FromPrfRelation</span>.
+
+  <span class="kn">Definition</span> <span class="nf">slice_mor_to_tm</span>
+             (<span class="nv">r</span> : internal_type_rel PB π)
+             {<span class="nv">Δs</span> : C/Γ}
+             (<span class="nv">t</span> : Δs --&gt; Aπ)
+    : section_of_mor (PullbackPr2 (PB Γ A _ π (cod_mor Δs))).
+  <span class="kn">Proof</span>.
+    use make_section_of_mor.
+    - use PullbackArrow.
+      + <span class="bp">exact</span> (dom_mor t).
+      + <span class="nb">apply</span> identity.
+      + <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> id_left ;
+           <span class="bp">exact</span> (mor_eq t)).
+    - <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">ToPrfTypeRelation</span>.
+    <span class="kn">Context</span> {<span class="nv">r</span> : internal_type_rel PB π}
+            {<span class="nv">Δs</span> : C/Γ}
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : Δs --&gt; Aπ}
+            (<span class="nv">p</span> : internal_type_rel_prf
+                   r
+                   (slice_mor_to_tm r t₁)
+                   (slice_mor_to_tm r t₂)).
+
+    <span class="kn">Definition</span> <span class="nf">internal_type_rel_from_prf_mor</span>
+      : Δs --&gt; internal_type_rel_to_slice_rel r.
+    <span class="kn">Proof</span>.
+      use make_cod_fib_mor.
+      - <span class="bp">exact</span> (pr1 p · PullbackPr1 _).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> PullbackSqrCommutes ;
+           <span class="nb">rewrite</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)) ;
+           <span class="nb">rewrite</span> PullbackSqrCommutes ;
+           <span class="nb">rewrite</span> !assoc ;
+           etrans ;
+           [ <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2 ;
+             <span class="nb">apply</span> section_of_mor_eq
+           | ] ;
+           <span class="nb">rewrite</span> id_left ;
+           <span class="nb">unfold</span> subst_rel ;
+           <span class="nb">rewrite</span> PullbackArrow_PullbackPr2 ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> PullbackArrow_PullbackPr1 ;
+           <span class="nb">apply</span> (mor_eq t₂)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">internal_type_rel_from_prf_src</span>
+      : internal_type_rel_from_prf_mor
+        · internal_relation_src (internal_type_rel_to_slice_rel r)
+        =
+        t₁.
+    <span class="kn">Proof</span>.
+      use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> PullbackSqrCommutes.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">unfold</span> subst_rel.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> section_of_mor_eq.
+      }
+      <span class="nb">apply</span> id_left.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">internal_type_rel_from_prf_tar</span>
+      : internal_type_rel_from_prf_mor
+        · internal_relation_tar (internal_type_rel_to_slice_rel r)
+        =
+        t₂.
+    <span class="kn">Proof</span>.
+      use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> PullbackSqrCommutes.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">unfold</span> subst_rel.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> section_of_mor_eq.
+      }
+      <span class="nb">apply</span> id_left.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">internal_type_rel_from_prf</span>
+      : internal_relation_to_arr_hrel (internal_type_rel_to_slice_rel r) Δs t₁ t₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (internal_type_rel_from_prf_mor ,, _ ,, _).
+      - <span class="bp">exact</span> internal_type_rel_from_prf_src.
+      - <span class="bp">exact</span> internal_type_rel_from_prf_tar.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">ToPrfTypeRelation</span>.
+
+  <span class="kn">Section</span> <span class="nf">FromPrfTypeRelation</span>.
+    <span class="kn">Context</span> {<span class="nv">r</span> : internal_type_rel PB π}
+            {<span class="nv">Δs</span> : C/Γ}
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : Δs --&gt; Aπ}
+            (<span class="nv">p</span> : internal_relation_to_arr_hrel
+                   (internal_type_rel_to_slice_rel r)
+                   Δs
+                   t₁
+                   t₂).
+
+    <span class="kn">Proposition</span> <span class="nf">prf_from_internal_type_rel_mor_eq</span>
+      : dom_mor (pr1 p) · internal_type_rel_monic r
+        =
+        identity _ · subst_rel (slice_mor_to_tm r t₁) (slice_mor_to_tm r t₂).
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">unfold</span> subst_rel.
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+      - <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !PullbackArrow_PullbackPr1.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">refine</span> (_ @ maponpaths dom_mor (pr12 p)).
+        <span class="nb">rewrite</span> comp_in_cod_fib.
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">refine</span> (_ @ maponpaths dom_mor (pr22 p)).
+        <span class="nb">rewrite</span> comp_in_cod_fib.
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">prf_from_internal_type_rel_mor</span>
+      : cod_dom Δs
+        --&gt;
+        PB (PB Γ A A π π) r (cod_dom Δs)
+           (internal_type_rel_monic r)
+           (subst_rel (slice_mor_to_tm r t₁) (slice_mor_to_tm r t₂)).
+    <span class="kn">Proof</span>.
+      use PullbackArrow.
+      - <span class="bp">exact</span> (dom_mor (pr1 p)).
+      - <span class="nb">apply</span> identity.
+      - <span class="bp">exact</span> prf_from_internal_type_rel_mor_eq.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">prf_from_internal_type_rel</span>
+      : internal_type_rel_prf
+          r
+          (slice_mor_to_tm r t₁)
+          (slice_mor_to_tm r t₂).
+    <span class="kn">Proof</span>.
+      use make_section_of_mor.
+      - <span class="nb">apply</span> prf_from_internal_type_rel_mor.
+      - <span class="kp">abstract</span>
+          (<span class="nb">apply</span> PullbackArrow_PullbackPr2).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">FromPrfTypeRelation</span>.
+
+  <span class="sd">(** * 6. Correspondence for properties of internal relations *)</span>
+  <span class="kn">Proposition</span> <span class="nf">is_refl_slice_rel_to_refl_type_rel</span>
+              {<span class="nv">r</span> : internal_relation Aπ}
+              (<span class="nv">Hr</span> : internal_isrefl r)
+    : internal_type_rel_isrefl (interal_relation_to_type_rel r).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Δ s t.
+    use internal_relation_to_prf.
+    <span class="nb">apply</span> Hr.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_refl_type_rel_to_refl_slice_rel</span>
+              {<span class="nv">r</span> : internal_type_rel PB π}
+              (<span class="nv">Hr</span> : internal_type_rel_isrefl r)
+    : internal_isrefl (internal_type_rel_to_slice_rel r).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Δs t.
+    use internal_type_rel_from_prf.
+    <span class="nb">apply</span> Hr.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_symm_slice_rel_to_symm_type_rel</span>
+              {<span class="nv">r</span> : internal_relation Aπ}
+              (<span class="nv">Hr</span> : internal_issymm r)
+    : internal_type_rel_issymm (interal_relation_to_type_rel r).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Δ s t₁ t₂ p.
+    use internal_relation_to_prf.
+    <span class="nb">apply</span> Hr.
+    use prf_to_internal_relation.
+    <span class="nb">apply</span> p.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_symm_type_rel_to_symm_slice_rel</span>
+              {<span class="nv">r</span> : internal_type_rel PB π}
+              (<span class="nv">Hr</span> : internal_type_rel_issymm r)
+    : internal_issymm (internal_type_rel_to_slice_rel r).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Δs t₁ t₂ p.
+    use internal_type_rel_from_prf.
+    <span class="nb">apply</span> Hr.
+    use prf_from_internal_type_rel.
+    <span class="nb">apply</span> p.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_trans_slice_rel_to_trans_type_rel</span>
+              {<span class="nv">r</span> : internal_relation Aπ}
+              (<span class="nv">Hr</span> : internal_istrans r)
+    : internal_type_rel_istrans (interal_relation_to_type_rel r).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Δ s t₁ t₂ t₃ p q.
+    use internal_relation_to_prf.
+    use Hr.
+    - <span class="bp">exact</span> (tm_to_slice_mor r t₂).
+    - use prf_to_internal_relation.
+      <span class="nb">apply</span> p.
+    - use prf_to_internal_relation.
+      <span class="nb">apply</span> q.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_trans_type_rel_to_trans_slice_rel</span>
+              {<span class="nv">r</span> : internal_type_rel PB π}
+              (<span class="nv">Hr</span> : internal_type_rel_istrans r)
+    : internal_istrans (internal_type_rel_to_slice_rel r).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Δs t₁ t₂ t₃ p q.
+    use internal_type_rel_from_prf.
+    use Hr.
+    - <span class="bp">exact</span> (slice_mor_to_tm r t₂).
+    - use prf_from_internal_type_rel.
+      <span class="nb">apply</span> p.
+    - use prf_from_internal_type_rel.
+      <span class="nb">apply</span> q.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 7. Correspondence for internal equivalence relations *)</span>
+  <span class="kn">Definition</span> <span class="nf">internal_slice_eqrel_to_internal_type_eqrel</span>
+             (<span class="nv">r</span> : internal_eqrel Aπ)
+    : internal_type_eqrel PB π.
+  <span class="kn">Proof</span>.
+    use make_internal_type_eqrel.
+    - <span class="bp">exact</span> (interal_relation_to_type_rel r).
+    - <span class="kp">repeat</span> <span class="nb">split</span>.
+      + <span class="nb">apply</span> is_refl_slice_rel_to_refl_type_rel.
+        <span class="nb">apply</span> r.
+      + <span class="nb">apply</span> is_symm_slice_rel_to_symm_type_rel.
+        <span class="nb">apply</span> r.
+      + <span class="nb">apply</span> is_trans_slice_rel_to_trans_type_rel.
+        <span class="nb">apply</span> r.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">internal_type_eqrel_to_internal_slice_eqrel</span>
+             (<span class="nv">r</span> : internal_type_eqrel PB π)
+    : internal_eqrel Aπ.
+  <span class="kn">Proof</span>.
+    use make_internal_eqrel.
+    - <span class="bp">exact</span> (internal_type_rel_to_slice_rel r).
+    - <span class="kp">repeat</span> <span class="nb">split</span>.
+      + <span class="nb">apply</span> is_refl_type_rel_to_refl_slice_rel.
+        <span class="nb">apply</span> r.
+      + <span class="nb">apply</span> is_symm_type_rel_to_symm_slice_rel.
+        <span class="nb">apply</span> r.
+      + <span class="nb">apply</span> is_trans_type_rel_to_trans_slice_rel.
+        <span class="nb">apply</span> r.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">internal_slice_eqrel_weq_internal_type_eqrel</span>
+    : internal_eqrel Aπ ≃ internal_type_eqrel PB π.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> internal_slice_eqrel_to_internal_type_eqrel.
+    - <span class="bp">exact</span> internal_type_eqrel_to_internal_slice_eqrel.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> r ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_internal_iseqrel | ] ;
+         <span class="nb">apply</span> internal_relation_to_type_rel_to_relation).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> r ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_internal_type_rel_iseqrel | ] ;
+         <span class="nb">apply</span> internal_type_rel_to_slice_rel_to_type_rel).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">RelationVersusMono</span>.
+
+<span class="sd">(** * 8. Quotients of internal equivalence relations (type theoretic style) *)</span>
+<span class="kn">Definition</span> <span class="nf">quot_internal_type_eqrel</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">HC</span> : is_exact C)
+           (<span class="nv">PB</span> : Pullbacks C)
+           {<span class="nv">Γ</span> <span class="nv">A</span> : C}
+           {<span class="nv">π</span> : A --&gt; Γ}
+           (<span class="nv">r</span> : internal_type_eqrel PB π)
+  : Coequalizer
+      (internal_relation_src (internal_type_eqrel_to_internal_slice_eqrel PB π r))
+      (internal_relation_tar (internal_type_eqrel_to_internal_slice_eqrel PB π r))
+  := quotient_internal_eqrel
+       (is_exact_disp_cod HC Γ)
+       (internal_type_eqrel_to_internal_slice_eqrel PB π r).
+
+<span class="kn">Proposition</span> <span class="nf">is_regular_epi_quot_internal_type_eqrel</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">HC</span> : is_exact C)
+            (<span class="nv">PB</span> : Pullbacks C)
+            {<span class="nv">Γ</span> <span class="nv">A</span> : C}
+            {<span class="nv">π</span> : A --&gt; Γ}
+            (<span class="nv">r</span> : internal_type_eqrel PB π)
+  : is_regular_epi (CoequalizerArrow (quot_internal_type_eqrel HC PB r)).
+<span class="kn">Proof</span>.
+  use hinhpr.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _).
+  - <span class="bp">exact</span> (internal_type_eqrel_to_internal_slice_eqrel PB π r).
+  - <span class="bp">exact</span> (internal_relation_src (internal_type_eqrel_to_internal_slice_eqrel PB π r)).
+  - <span class="bp">exact</span> (internal_relation_tar (internal_type_eqrel_to_internal_slice_eqrel PB π r)).
+  - <span class="nb">apply</span> CoequalizerEqAr.
+  - <span class="nb">apply</span> isCoequalizer_Coequalizer.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/RegularAndExact/SliceInternalEqRel.v</tt>, line 32)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. Quotients of internal equivalence relations (type theoretic style)
+  &gt;
+  &gt;                                                                                        *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

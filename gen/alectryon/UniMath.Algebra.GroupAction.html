@@ -1,0 +1,789 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>GroupAction.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Group actions *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Propositions.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Notations.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Univalence.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+<span class="kn">Require Import</span> UniMath.OrderTheory.OrderedSets.OrderedSets.
+
+<span class="kn">Import</span> UniMath.MoreFoundations.PartA.
+
+<span class="sd">(** ** Definitions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">action_op</span> <span class="nv">G</span> (<span class="nv">X</span>:hSet) : <span class="kt">Type</span> := ∏ (g:G) (x:X), X.
+
+<span class="kn">Section</span> <span class="nf">A</span>.
+  <span class="kn">Context</span> (<span class="nv">G</span>:gr) (<span class="nv">X</span>:hSet).
+  <span class="kn">Definition</span> <span class="nf">ActionStructure</span> : <span class="kt">Type</span> :=
+    ∑ (act_mult  :    action_op G X)
+      (act_unit  :    ∏ x, act_mult (unel G) x = x),
+   <span class="c">(*  act_assoc : *)</span> ∏ g h x, act_mult (op g h) x = act_mult g (act_mult h x).
+  <span class="kn">Definition</span> <span class="nf">make</span> <span class="nv">act_mult</span> <span class="nv">act_unit</span> <span class="nv">act_assoc</span> : ActionStructure := act_mult,, act_unit,, act_assoc.
+  <span class="kn">Definition</span> <span class="nf">act_mult</span> (<span class="nv">x</span>:ActionStructure) := pr1 x.
+  <span class="kn">Definition</span> <span class="nf">act_unit</span> (<span class="nv">x</span>:ActionStructure) := pr12 x.
+  <span class="kn">Definition</span> <span class="nf">act_assoc</span> (<span class="nv">x</span>:ActionStructure) := pr22 x.
+<span class="kn">End</span> <span class="nf">A</span>.
+<span class="kn">Arguments</span> act_mult {_ _} _ _ _.
+
+<span class="kn">Lemma</span> <span class="nf">isaset_ActionStructure</span> (<span class="nv">G</span>:gr) (<span class="nv">X</span>:hSet) : isaset (ActionStructure G X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> isaset_total2.
+  { <span class="nb">apply</span> (impred <span class="mi">2</span>); <span class="nb">intro</span> g. <span class="nb">apply</span> impred; <span class="nb">intro</span> x. <span class="nb">apply</span> setproperty. }
+  <span class="nb">intro</span> op.
+  <span class="nb">apply</span> isaset_total2.
+  { <span class="nb">apply</span> (impred <span class="mi">2</span>); <span class="nb">intro</span> x. <span class="nb">apply</span> hlevelntosn. <span class="nb">apply</span> setproperty. }
+  <span class="nb">intro</span> un. <span class="nb">apply</span> (impred <span class="mi">2</span>); <span class="nb">intro</span> g. <span class="nb">apply</span> (impred <span class="mi">2</span>); <span class="nb">intro</span> h. <span class="nb">apply</span> (impred <span class="mi">2</span>); <span class="nb">intro</span> x.
+  <span class="nb">apply</span> hlevelntosn. <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Action</span> (<span class="nv">G</span>:gr) := total2 (ActionStructure G).
+<span class="kn">Definition</span> <span class="nf">makeAction</span> {<span class="nv">G</span>:gr} (<span class="nv">X</span>:hSet) (<span class="nv">ac</span>:ActionStructure G X) :=
+  X,,ac : Action G.
+
+<span class="kn">Definition</span> <span class="nf">ac_set</span> {<span class="nv">G</span>:gr} (<span class="nv">X</span>:Action G) := pr1 X.
+<span class="kn">Coercion</span> <span class="nf">ac_set</span> : Action &gt;-&gt; hSet.
+<span class="kn">Definition</span> <span class="nf">ac_type</span> {<span class="nv">G</span>:gr} (<span class="nv">X</span>:Action G) := pr1hSet (ac_set X).
+<span class="kn">Definition</span> <span class="nf">ac_str</span> {<span class="nv">G</span>:gr} (<span class="nv">X</span>:Action G) := pr2 X : ActionStructure G (ac_set X).
+<span class="kn">Definition</span> <span class="nf">ac_mult</span> {<span class="nv">G</span>:gr} (<span class="nv">X</span>:Action G) := act_mult (pr2 X).
+<span class="kn">Declare Scope</span> action_scope.
+<span class="kn">Delimit Scope</span> action_scope <span class="k">with</span> action.
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"g * x"</span> := (ac_mult _ g x) : action_scope.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> action_scope.
+<span class="kn">Definition</span> <span class="nf">ac_assoc</span> {<span class="nv">G</span>:gr} (<span class="nv">X</span>:Action G) := act_assoc _ _ (pr2 X) : ∏ g h x, (op g h)*x = g*(h*x).
+
+<span class="kn">Definition</span> <span class="nf">right_mult</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span>:Action G} (<span class="nv">x</span>:X) := <span class="k">λ</span> <span class="nv">g</span>, g*x.
+<span class="kn">Definition</span> <span class="nf">left_mult</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span>:Action G} (<span class="nv">g</span>:G) := <span class="k">λ</span> <span class="nv">x</span>:X, g*x.
+
+<span class="kn">Definition</span> <span class="nf">is_equivariant</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Action G} (<span class="nv">f</span>:X-&gt;Y) : hProp :=
+  (<span class="k">∀</span> <span class="nv">g</span> <span class="nv">x</span>, f (g*x) = g*(f x))%logic.
+
+<span class="kn">Definition</span> <span class="nf">is_equivariant_isaprop</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Action G} (<span class="nv">f</span>:X-&gt;Y) :
+  isaprop (is_equivariant f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** The following fact is fundamental: it shows that our definition of</span>
+<span class="sd">    [is_equivariant] captures all of the structure.  The proof reduces to</span>
+<span class="sd">    showing that if G acts on a set X in two ways, and the identity function is</span>
+<span class="sd">    equivariant, then the two actions are equal.  A similar fact will hold in</span>
+<span class="sd">    other cases: groups, rings, monoids, etc.  Refer to section 9.8 of the HoTT</span>
+<span class="sd">    book, on the "structure identity principle", a term coined by Peter Aczel. *)</span>
+<span class="kn">Local</span> <span class="kn">Open Scope</span> transport.
+
+<span class="kn">Definition</span> <span class="nf">is_equivariant_identity</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Action G}
+           (<span class="nv">p</span>:ac_set X = ac_set Y) :
+  p # ac_str X = ac_str Y ≃ is_equivariant (cast (maponpaths pr1hSet p)).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> X Y p; <span class="nb">intros</span> [X [Xm [Xu Xa]]] [Y [Ym [Yu Ya]]] ? .
+  <span class="c">(* should just apply hPropUnivalence at this point, as in Poset_univalence_prelim! *)</span>
+  <span class="nb">simpl</span> <span class="k">in</span> p. <span class="nb">destruct</span> p; <span class="nb">simpl</span>. <span class="nb">unfold</span> transportf; <span class="nb">simpl</span>.
+  <span class="nb">simple refine</span> (make_weq _ _).
+  { <span class="nb">intros</span> p g x. <span class="nb">simpl</span> <span class="k">in</span> x. <span class="nb">simpl</span>.
+    <span class="bp">exact</span> (eqtohomot (eqtohomot (maponpaths act_mult p) g) x). }
+  use isweq_iso.
+  { <span class="nb">unfold</span> cast; <span class="nb">simpl</span>.
+    <span class="nb">intro</span> i.
+    <span class="nb">assert</span> (p:Xm=Ym).
+    { <span class="nb">apply</span> funextsec; <span class="nb">intro</span> g. <span class="nb">apply</span> funextsec; <span class="nb">intro</span> x; <span class="nb">simpl</span> <span class="k">in</span> x.
+      <span class="bp">exact</span> (i g x). }
+    <span class="nb">destruct</span> p. <span class="nb">clear</span> i. <span class="nb">assert</span> (p:Xu=Yu).
+    { <span class="nb">apply</span> funextsec; <span class="nb">intro</span> x; <span class="nb">simpl</span> <span class="k">in</span> x. <span class="nb">apply</span> setproperty. }
+    <span class="nb">destruct</span> p. <span class="nb">assert</span> (p:Xa=Ya).
+    { <span class="nb">apply</span> funextsec; <span class="nb">intro</span> g. <span class="nb">apply</span> funextsec; <span class="nb">intro</span> h.
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> x. <span class="nb">apply</span> setproperty. }
+    <span class="nb">destruct</span> p. <span class="nb">apply</span> idpath. }
+  { <span class="nb">intro</span> p. <span class="nb">apply</span> isaset_ActionStructure. }
+  { <span class="nb">intro</span> isc. <span class="nb">apply</span> proofirrelevance.
+    <span class="nb">apply</span> impred; <span class="nb">intros</span> g.
+    <span class="nb">apply</span> impred; <span class="nb">intros</span> x.
+    <span class="nb">apply</span> setproperty. }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_equivariant_comp</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span>:Action G}
+           (<span class="nv">p</span>:X-&gt;Y) (<span class="nv">i</span>:is_equivariant p)
+           (<span class="nv">q</span>:Y-&gt;Z) (<span class="nv">j</span>:is_equivariant q) : is_equivariant (funcomp p q).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intros</span> g x. <span class="bp">exact</span> (maponpaths q (i g x) @ j g (p x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ActionMap</span> {<span class="nv">G</span>:gr} (<span class="nv">X</span> <span class="nv">Y</span>:Action G) := total2 (@is_equivariant _ X Y).
+
+<span class="kn">Definition</span> <span class="nf">underlyingFunction</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Action G} (<span class="nv">f</span>:ActionMap X Y) := pr1 f.
+
+<span class="kn">Coercion</span> <span class="nf">underlyingFunction</span> : ActionMap &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">equivariance</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Action G} (<span class="nv">f</span>:ActionMap X Y) : is_equivariant f
+  := pr2 f.
+
+<span class="kn">Definition</span> <span class="nf">composeActionMap</span> {<span class="nv">G</span>:gr} (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span>:Action G)
+           (<span class="nv">p</span>:ActionMap X Y) (<span class="nv">q</span>:ActionMap Y Z) : ActionMap X Z.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> p q; <span class="nb">intros</span> [p i] [q j]. <span class="k">exists</span> (<span class="nv">funcomp</span> <span class="nv">p</span> <span class="nv">q</span>).
+  <span class="nb">apply</span> is_equivariant_comp. <span class="bp">assumption</span>. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ActionIso</span> {<span class="nv">G</span>:gr} (<span class="nv">X</span> <span class="nv">Y</span>:Action G) : <span class="kt">Type</span>.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span>  (∑ f:(ac_set X) ≃ (ac_set Y), is_equivariant f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ActionIso_isaset</span> {<span class="nv">G</span>:gr} (<span class="nv">X</span> <span class="nv">Y</span>:Action G) : isaset (ActionIso X Y).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isofhlevelsninclb _ pr1).
+  { <span class="nb">apply</span> isinclpr1; <span class="nb">intro</span> f. <span class="nb">apply</span> propproperty. }
+  <span class="nb">apply</span> isofhlevelsnweqtohlevelsn.
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Coercion</span> <span class="nf">underlyingIso</span> {G:gr} {X Y:Action G} (e:ActionIso X Y) : X ≃ Y := pr1 e.
+
+<span class="kn">Lemma</span> <span class="nf">underlyingIso_incl</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Action G} :
+  isincl (underlyingIso : ActionIso X Y → X ≃ Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> isinclpr1; <span class="nb">intro</span> f. <span class="nb">apply</span> propproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local</span> <span class="kn">Goal</span> ∏ G (X Y:Action G) (i : ActionIso X Y) (x:X), Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="bp">exact</span> (i x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">underlyingIso_injectivity</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Action G}
+      (<span class="nv">e</span> <span class="nv">f</span>:ActionIso X Y) :
+  (e = f) ≃ (underlyingIso e = underlyingIso f).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> weqonpathsincl. <span class="nb">apply</span> underlyingIso_incl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">underlyingActionMap</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Action G} (<span class="nv">e</span>:ActionIso X Y) : ActionMap X Y :=
+  pr1weq (pr1 e),, pr2 e.
+
+<span class="kn">Definition</span> <span class="nf">idActionIso</span> {<span class="nv">G</span>:gr} (<span class="nv">X</span>:Action G) : ActionIso X X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">idweq</span> <span class="nv">_</span>). <span class="nb">intros</span> g x. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">composeActionIso</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span>:Action G}
+           (<span class="nv">e</span>:ActionIso X Y) (<span class="nv">f</span>:ActionIso Y Z) : ActionIso X Z.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> e f; <span class="nb">intros</span> [e i] [f j]. <span class="k">exists</span> (<span class="nv">weqcomp</span> <span class="nv">e</span> <span class="nv">f</span>).
+  <span class="nb">destruct</span> e <span class="k">as</span> [e e'], f <span class="k">as</span> [f f']; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> is_equivariant_comp. <span class="bp">exact</span> i. <span class="bp">exact</span> j.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">composeActionIsoId</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Action G} (<span class="nv">f</span> : ActionIso X Y) : composeActionIso (idActionIso X) f = f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath.
+  { <span class="nb">intros</span> g. <span class="nb">apply</span> propproperty. }
+  <span class="nb">apply</span> subtypePath.
+  { <span class="nb">intros</span> g. <span class="nb">apply</span> isapropisweq. }
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">composeActionIsoId'</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Action G} (<span class="nv">f</span> : ActionIso X Y) : composeActionIso f (idActionIso Y) = f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath.
+  { <span class="nb">intros</span> g. <span class="nb">apply</span> propproperty. }
+  <span class="nb">apply</span> subtypePath.
+  { <span class="nb">intros</span> g. <span class="nb">apply</span> isapropisweq. }
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_to_ActionIso</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Action G} (<span class="nv">e</span>:X = Y) : ActionIso X Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> e. <span class="bp">exact</span> (idActionIso X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">castAction</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Action G} (<span class="nv">e</span>:X = Y) : X → Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x. <span class="bp">exact</span> (path_to_ActionIso e x).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Applications of univalence *)</span>
+
+<span class="kn">Definition</span> <span class="nf">Action_univalence_prelim</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Action G} :
+  (X = Y) ≃ (ActionIso X Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">simple refine</span> (weqcomp (total2_paths_equiv (ActionStructure G) X Y) _).
+  <span class="nb">simple refine</span> (weqbandf _ _ _ _).
+  { <span class="nb">apply</span> hSet_univalence. }
+  <span class="nb">simpl</span>. <span class="nb">intro</span> p. <span class="nb">simple refine</span> (weqcomp (is_equivariant_identity p) _).
+  <span class="bp">exact</span> (eqweqmap (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, hProptoType (is_equivariant f)) (pr1_eqweqmap (maponpaths pr1hSet p)))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Action_univalence_prelim_comp</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Action G} (<span class="nv">p</span>:X = Y) :
+   Action_univalence_prelim p = path_to_ActionIso p.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> p. <span class="nb">apply</span> (maponpaths (tpair _ _)). <span class="nb">apply</span> funextsec; <span class="nb">intro</span> g.
+  <span class="nb">apply</span> funextsec; <span class="nb">intro</span> x. <span class="nb">apply</span> setproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">path_to_ActionIsweq_iso</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Action G}  :
+   isweq (@path_to_ActionIso G X Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="bp">exact</span> (isweqhomot Action_univalence_prelim
+                            path_to_ActionIso
+                            Action_univalence_prelim_comp
+                            (pr2 Action_univalence_prelim)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Action_univalence</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Action G} :
+  (X = Y) ≃ (ActionIso X Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> <span class="nv">path_to_ActionIso</span>. <span class="nb">apply</span> path_to_ActionIsweq_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Action_univalence_comp</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Action G} (<span class="nv">p</span>:X = Y) :
+   Action_univalence p = path_to_ActionIso p.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Action_univalence_inv</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Action G}
+  : (ActionIso X Y) ≃ (X=Y) := invweq Action_univalence.
+
+<span class="kn">Definition</span> <span class="nf">Action_univalence_inv_comp</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Action G} (<span class="nv">f</span>:ActionIso X Y) :
+  path_to_ActionIso (Action_univalence_inv f) = f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">unfold</span> Action_univalence_inv, Action_univalence.
+  <span class="nb">apply</span> (homotweqinvweq Action_univalence f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Action_univalence_inv_comp_eval</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Action G} (<span class="nv">f</span>:ActionIso X Y) (<span class="nv">x</span>:X) :
+  castAction (Action_univalence_inv f) x = f x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="bp">exact</span> (eqtohomot
+                   (maponpaths pr1weq
+                               (maponpaths underlyingIso
+                                           (Action_univalence_inv_comp f)))
+                   x).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Torsors *)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_torsor</span> {<span class="nv">G</span>:gr} (<span class="nv">X</span>:Action G) :=
+  nonempty X × ∏ x:X, isweq (right_mult x).
+
+<span class="kn">Lemma</span> <span class="nf">is_torsor_isaprop</span> {<span class="nv">G</span>:gr} (<span class="nv">X</span>:Action G) : isaprop (is_torsor X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> isapropdirprod.
+  { <span class="nb">apply</span> propproperty. }
+  { <span class="nb">apply</span> impred; <span class="nb">intro</span> x. <span class="nb">apply</span> isapropisweq. }
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Torsor</span> (<span class="nv">G</span>:gr) := total2 (@is_torsor G).
+
+<span class="kn">Coercion</span> <span class="nf">underlyingAction</span> {G} (X:Torsor G) := pr1 X : Action G.
+
+<span class="kn">Definition</span> <span class="nf">is_torsor_prop</span> {<span class="nv">G</span>} (<span class="nv">X</span>:Torsor G) := pr2 X.
+
+<span class="kn">Definition</span> <span class="nf">torsor_nonempty</span> {<span class="nv">G</span>} (<span class="nv">X</span>:Torsor G) := pr1 (is_torsor_prop X).
+
+<span class="kn">Definition</span> <span class="nf">torsor_splitting</span> {<span class="nv">G</span>} (<span class="nv">X</span>:Torsor G) := pr2 (is_torsor_prop X).
+
+<span class="kn">Definition</span> <span class="nf">torsor_mult_weq</span> {<span class="nv">G</span>} (<span class="nv">X</span>:Torsor G) (<span class="nv">x</span>:X) :=
+  make_weq (right_mult x) (torsor_splitting X x) : G ≃ X.
+
+<span class="kn">Definition</span> <span class="nf">torsor_mult_weq'</span> {<span class="nv">G</span>} (<span class="nv">X</span>:Torsor G) (<span class="nv">g</span>:G) : X ≃ X.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">left_mult</span> <span class="nv">g</span>).
+  use isweq_iso.
+    - <span class="bp">exact</span> (left_mult (grinv G g)).
+    - <span class="nb">intros</span> x. <span class="nb">unfold</span> left_mult.
+      intermediate_path ((grinv G g * g)%multmonoid * x).
+      + <span class="nb">apply</span> pathsinv0,act_assoc.
+      + intermediate_path (unel G * x).
+        * <span class="nb">apply</span> (maponpaths (right_mult x)). <span class="nb">apply</span> grlinvax.
+        * <span class="nb">apply</span> act_unit.
+    - <span class="nb">intros</span> x. <span class="nb">unfold</span> left_mult.
+      intermediate_path ((g * grinv G g)%multmonoid * x).
+      + <span class="nb">apply</span> pathsinv0,act_assoc.
+      + intermediate_path (unel G * x).
+        * <span class="nb">apply</span> (maponpaths (right_mult x)). <span class="nb">apply</span> grrinvax.
+        * <span class="nb">apply</span> act_unit.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">left_mult_Iso</span> {<span class="nv">G</span>:abgr} (<span class="nv">X</span>:Torsor G) (<span class="nv">g</span>:G) : ActionIso X X.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">torsor_mult_weq'</span> <span class="nv">X</span> <span class="nv">g</span>). <span class="nb">intros</span> h x.
+  <span class="nb">change</span> (g * (h * x) = h * (g * x)).
+  <span class="nb">refine</span> (! ac_assoc X g h x @ _ @ ac_assoc X h g x).
+  <span class="bp">exact</span> (maponpaths (right_mult x) (commax G g h)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">torsor_update_nonempty</span> {<span class="nv">G</span>} (<span class="nv">X</span>:Torsor G) (<span class="nv">x</span>:nonempty X) : Torsor G.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (underlyingAction X,,(x,,pr2(is_torsor_prop X))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">castTorsor</span> {<span class="nv">G</span>} {<span class="nv">T</span> <span class="nv">T'</span>:Torsor G} (<span class="nv">q</span>:T = T') : T → T'.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (castAction (maponpaths underlyingAction q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">castTorsor_transportf</span> {<span class="nv">G</span>} {<span class="nv">T</span> <span class="nv">T'</span>:Torsor G} (<span class="nv">q</span>:T = T') (<span class="nv">t</span>:T) :
+  transportf (<span class="k">λ</span> <span class="nv">S</span>, underlyingAction S) q t = castTorsor q t.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">induction</span> q.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">underlyingAction_incl</span> {<span class="nv">G</span>:gr} :
+  isincl (underlyingAction : Torsor G → Action G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">refine</span> (isinclpr1 _ _); <span class="nb">intro</span> X. <span class="nb">apply</span> is_torsor_isaprop.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">underlyingAction_injectivity</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Torsor G} :
+      (X = Y) ≃ (underlyingAction X = underlyingAction Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> weqonpathsincl. <span class="nb">apply</span> underlyingAction_incl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">underlyingAction_injectivity_comp</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Torsor G} (<span class="nv">p</span>:X = Y) :
+  underlyingAction_injectivity p = maponpaths underlyingAction p.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">underlyingAction_injectivity_comp'</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Torsor G} :
+     pr1weq (@underlyingAction_injectivity G X Y)
+  = @maponpaths (Torsor G) (Action G) (@underlyingAction G) X Y.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">underlyingAction_injectivity_inv_comp</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Torsor G}
+           (<span class="nv">f</span>:underlyingAction X = underlyingAction Y) :
+  maponpaths underlyingAction (invmap underlyingAction_injectivity f) = f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> (homotweqinvweq underlyingAction_injectivity f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">PointedTorsor</span> (<span class="nv">G</span>:gr) := ∑ X:Torsor G, X.
+<span class="kn">Definition</span> <span class="nf">underlyingTorsor</span> {<span class="nv">G</span>} (<span class="nv">X</span>:PointedTorsor G) := pr1 X : Torsor G.
+<span class="kn">Coercion</span> <span class="nf">underlyingTorsor</span> : PointedTorsor &gt;-&gt; Torsor.
+<span class="kn">Definition</span> <span class="nf">underlyingPoint</span> {<span class="nv">G</span>} (<span class="nv">X</span>:PointedTorsor G) := pr2 X : X.
+
+<span class="kn">Lemma</span> <span class="nf">is_quotient</span> {<span class="nv">G</span>} (<span class="nv">X</span>:Torsor G) (<span class="nv">y</span> <span class="nv">x</span>:X) : <span class="k">∃</span>! g, g*x = y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="bp">exact</span> (pr2 (is_torsor_prop X) x y).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">quotient</span> {<span class="nv">G</span>} (<span class="nv">X</span>:Torsor G) (<span class="nv">y</span> <span class="nv">x</span>:X) := pr1 (iscontrpr1 (is_quotient X y x)) : G.
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"y / x"</span> := (quotient _ y x) : action_scope.
+
+<span class="kn">Lemma</span> <span class="nf">quotient_times</span> {<span class="nv">G</span>} {<span class="nv">X</span>:Torsor G} (<span class="nv">y</span> <span class="nv">x</span>:X) : (y/x)*x = y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="bp">exact</span> (pr2 (iscontrpr1 (is_quotient _ y x))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">quotient_uniqueness</span> {<span class="nv">G</span>} {<span class="nv">X</span>:Torsor G} (<span class="nv">y</span> <span class="nv">x</span>:X) (<span class="nv">g</span>:G) : g*x = y → g = y/x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e.
+  <span class="bp">exact</span> (maponpaths pr1 (uniqueness (is_quotient _ y x) (g,,e))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">quotient_mult</span> {<span class="nv">G</span>} (<span class="nv">X</span>:Torsor G) (<span class="nv">g</span>:G) (<span class="nv">x</span>:X) : (g*x)/x = g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> quotient_uniqueness. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">quotient_1</span> {<span class="nv">G</span>} (<span class="nv">X</span>:Torsor G) (<span class="nv">x</span>:X) : x/x = <span class="mi">1</span>%multmonoid.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> quotient_uniqueness. <span class="nb">apply</span> act_unit.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">quotient_product</span> {<span class="nv">G</span>} (<span class="nv">X</span>:Torsor G) (<span class="nv">z</span> <span class="nv">y</span> <span class="nv">x</span>:X) : op (z/y) (y/x) = z/x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> quotient_uniqueness.
+  <span class="bp">exact</span> (ac_assoc _ _ _ _
+                  @ maponpaths (left_mult (z/y)) (quotient_times y x)
+                  @ quotient_times z y).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">quotient_map</span> {<span class="nv">G</span>} {<span class="nv">X</span> <span class="nv">Y</span>:Torsor G} (<span class="nv">f</span> : ActionMap X Y) (<span class="nv">x</span> <span class="nv">x'</span>:X) : f x' / f x = x' / x.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (! (quotient_uniqueness (f x') (f x) (x' / x) _)).
+  <span class="nb">assert</span> (p := equivariance f (x'/x) x).
+  <span class="nb">refine</span> (!p @ _); <span class="nb">clear</span> p.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> quotient_times.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">torsorMapIsIso</span> {<span class="nv">G</span>} {<span class="nv">X</span> <span class="nv">Y</span> : Torsor G} (<span class="nv">f</span> : ActionMap X Y) : isweq f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (squash_to_prop (torsor_nonempty X)).
+  - <span class="nb">apply</span> isapropisweq.
+  - <span class="nb">intros</span> x.
+    <span class="nb">set</span> (y := f x).
+    <span class="nb">set</span> (f' := <span class="k">λ</span> <span class="nv">y'</span>, y' / y * x).
+    <span class="nb">apply</span> (isweq_iso f f').
+    + <span class="nb">intros</span> x'.
+      <span class="nb">unfold</span> f', y.
+      <span class="nb">assert</span> (p := quotient_times x' x).
+      <span class="nb">refine</span> (_ @ p); <span class="nb">clear</span> p.
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">g</span>, g * x)).
+      <span class="nb">apply</span> quotient_map.
+    + <span class="nb">intros</span> y'.
+      <span class="nb">unfold</span> f'.
+      <span class="nb">assert</span> (p := equivariance f (y'/y) x).
+      <span class="nb">refine</span> (p @ _); <span class="nb">clear</span> p.
+      <span class="nb">fold</span> y.
+      <span class="nb">apply</span> quotient_times.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">torsorMap_to_torsorIso</span> {<span class="nv">G</span>} {<span class="nv">X</span> <span class="nv">Y</span> : Torsor G} (<span class="nv">f</span> : ActionMap X Y) : ActionIso X Y.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="k">exists</span> <span class="nv">f</span>. <span class="nb">apply</span> torsorMapIsIso.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> equivariance.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">trivialTorsor</span> (<span class="nv">G</span>:gr) : Torsor G.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">makeAction</span> <span class="nv">G</span> (make G G op (lunax G) (assocax G))).
+  <span class="bp">exact</span> (hinhpr (unel G),,
+         <span class="k">λ</span> <span class="nv">x</span>, isweq_iso
+           (<span class="k">λ</span> <span class="nv">g</span>, op g x)
+           (<span class="k">λ</span> <span class="nv">g</span>, op g (grinv _ x))
+           (<span class="k">λ</span> <span class="nv">g</span>, assocax _ g x (grinv _ x) @ maponpaths (op g) (grrinvax G x) @ runax _ g)
+           (<span class="k">λ</span> <span class="nv">g</span>, assocax _ g (grinv _ x) x @ maponpaths (op g) (grlinvax G x) @ runax _ g)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">toTrivialTorsor</span> {<span class="nv">G</span>:gr} (<span class="nv">g</span>:G) : trivialTorsor G.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> g.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pointedTrivialTorsor</span> (<span class="nv">G</span>:gr) : PointedTorsor G.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">trivialTorsor</span> <span class="nv">G</span>). <span class="bp">exact</span> (unel G).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">univ_function</span> {<span class="nv">G</span>:gr} (<span class="nv">X</span>:Torsor G) (<span class="nv">x</span>:X) : trivialTorsor G → X.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> right_mult. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">univ_function_pointed</span> {<span class="nv">G</span>:gr} (<span class="nv">X</span>:Torsor G) (<span class="nv">x</span>:X) :
+  univ_function X x (unel _) = x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> act_unit.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">univ_function_is_equivariant</span> {<span class="nv">G</span>:gr} (<span class="nv">X</span>:Torsor G) (<span class="nv">x</span>:X) :
+  is_equivariant (univ_function X x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intros</span> g h. <span class="nb">apply</span> act_assoc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">triviality_isomorphism</span> {<span class="nv">G</span>:gr} (<span class="nv">X</span>:Torsor G) (<span class="nv">x</span>:X) :
+  ActionIso (trivialTorsor G) X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="bp">exact</span> (torsor_mult_weq X x,, univ_function_is_equivariant X x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">triviality_isomorphism_compute</span> (<span class="nv">G</span>:gr) :
+  triviality_isomorphism (trivialTorsor G) (unel G) = idActionIso (trivialTorsor G).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="nb">apply</span> subtypePath.
+  { <span class="nb">intros</span> X. <span class="nb">apply</span> isapropisweq. }
+  <span class="nb">apply</span> funextsec; <span class="nb">intros</span> g.
+  <span class="nb">change</span> (op g (unel _) = g).
+  <span class="nb">apply</span> runax.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">trivialTorsor_weq</span> (<span class="nv">G</span>:gr) (<span class="nv">g</span>:G) : (trivialTorsor G) ≃ (trivialTorsor G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">h</span>, <span class="nv">op</span> <span class="nv">h</span> <span class="nv">g</span>). <span class="nb">apply</span> (isweq_iso _ (<span class="k">λ</span> <span class="nv">h</span>, op h (grinv G g))).
+  { <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">h</span>, assocax _ _ _ _ @ maponpaths (op _) (grrinvax _ _) @ runax _ _). }
+  { <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">h</span>, assocax _ _ _ _ @ maponpaths (op _) (grlinvax _ _) @ runax _ _). }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">trivialTorsorAuto</span> (<span class="nv">G</span>:gr) (<span class="nv">g</span>:G) :
+  ActionIso (trivialTorsor G) (trivialTorsor G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">trivialTorsor_weq</span> <span class="nv">G</span> <span class="nv">g</span>).
+  <span class="nb">intros</span> h x. <span class="nb">simpl</span>.  <span class="bp">exact</span> (assocax _ h x g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pr1weq_injectivity</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">f</span> <span class="nv">g</span>:X ≃ Y) : (f = g) ≃ (pr1weq f = pr1weq g).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> weqonpathsincl. <span class="nb">apply</span> isinclpr1weq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">trivialTorsorRightMultiplication</span> (<span class="nv">G</span>:gr) : G ≃ ActionIso (trivialTorsor G) (trivialTorsor G).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">trivialTorsorAuto</span> <span class="nv">G</span>). <span class="nb">simple refine</span> (isweq_iso _ _ _ _).
+  { <span class="nb">intro</span> f. <span class="bp">exact</span> (f (unel G)). }
+  { <span class="nb">intro</span> g; <span class="nb">simpl</span>. <span class="bp">exact</span> (lunax _ g). }
+  { <span class="nb">intro</span> f; <span class="nb">simpl</span>. <span class="nb">apply</span> (invweq (underlyingIso_injectivity _ _)); <span class="nb">simpl</span>.
+    <span class="nb">apply</span> (invweq (pr1weq_injectivity _ _)). <span class="nb">apply</span> funextsec; <span class="nb">intro</span> g.
+    <span class="nb">simpl</span>. <span class="bp">exact</span> ((! (pr2 f) g (unel G)) @ (maponpaths (pr1 f) (runax G g))). }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">autos_comp</span> (<span class="nv">G</span>:gr) (<span class="nv">g</span>:G) :
+  underlyingIso (trivialTorsorRightMultiplication G g) = trivialTorsor_weq G g.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.             <span class="c">(* don't change the proof *)</span>
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">autos_comp_apply</span> (<span class="nv">G</span>:gr) (<span class="nv">g</span> <span class="nv">h</span>:G) :
+  (trivialTorsorRightMultiplication _ g) h = (h * g)%multmonoid.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.             <span class="c">(* don't change the proof *)</span>
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">trivialTorsorAuto_unit</span> (<span class="nv">G</span>:gr) :
+  trivialTorsorAuto G (unel _) = idActionIso _.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">simple refine</span> (subtypePath _ _).
+  { <span class="nb">intro</span> k. <span class="nb">apply</span> is_equivariant_isaprop. }
+  { <span class="nb">simple refine</span> (subtypePath _ _).
+    { <span class="nb">intro</span>; <span class="nb">apply</span> isapropisweq. }
+    { <span class="nb">apply</span> funextsec; <span class="nb">intro</span> x; <span class="nb">simpl</span>. <span class="bp">exact</span> (runax G x). } }
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">trivialTorsorAuto_mult</span> (<span class="nv">G</span>:gr) (<span class="nv">g</span> <span class="nv">h</span>:G) :
+  composeActionIso (trivialTorsorAuto G g) (trivialTorsorAuto G h)
+  = (trivialTorsorAuto G (op g h)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">simple refine</span> (subtypePath _ _).
+  { <span class="nb">intro</span>; <span class="nb">apply</span> is_equivariant_isaprop. }
+  { <span class="nb">simple refine</span> (subtypePath _ _).
+    { <span class="nb">intro</span>; <span class="nb">apply</span> isapropisweq. }
+    { <span class="nb">apply</span> funextsec; <span class="nb">intro</span> x; <span class="nb">simpl</span>. <span class="bp">exact</span> (assocax _ x g h). } }
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Applications of univalence *)</span>
+
+<span class="kn">Definition</span> <span class="nf">torsor_univalence</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Torsor G} : (X = Y) ≃ (ActionIso X Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">simple refine</span> (weqcomp underlyingAction_injectivity _).
+  <span class="nb">apply</span> Action_univalence.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">torsor_univalence_transport</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Torsor G} (<span class="nv">p</span>:X=Y) (<span class="nv">x</span>:X) :
+  torsor_univalence p x = transportf (<span class="k">λ</span> <span class="nv">X</span>:Torsor G, X:<span class="kt">Type</span>) p x.
+<span class="c">(* compare with castTorsor_transportf above *)</span>
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">induction</span> p.
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">torsor_hlevel</span> {<span class="nv">G</span>:gr} : isofhlevel <span class="mi">3</span> (Torsor G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y.
+  <span class="nb">apply</span> (isofhlevelweqb <span class="mi">2</span> torsor_univalence).
+  <span class="nb">apply</span> ActionIso_isaset.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">torsor_univalence_comp</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Torsor G} (<span class="nv">p</span>:X = Y) :
+   torsor_univalence p = path_to_ActionIso (maponpaths underlyingAction p).
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">torsor_univalence_inv_comp_eval</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Torsor G}
+           (<span class="nv">f</span>:ActionIso X Y) (<span class="nv">x</span>:X) :
+  castTorsor (invmap torsor_univalence f) x = f x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> torsor_univalence.
+  <span class="nb">unfold</span> castTorsor. <span class="nb">rewrite</span> invmapweqcomp. <span class="c">(* too slow *)</span>
+  <span class="nb">unfold</span> weqcomp; <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> underlyingAction_injectivity_inv_comp.
+  <span class="nb">apply</span> Action_univalence_inv_comp_eval.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">torsor_eqweq_to_path</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Torsor G} : ActionIso X Y → X = Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f. <span class="bp">exact</span> (invweq torsor_univalence f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">torsorMap_to_path</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:Torsor G} : ActionMap X Y → X = Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f.
+  <span class="nb">apply</span> (invweq torsor_univalence).
+  <span class="nb">apply</span> torsorMap_to_torsorIso.
+  <span class="bp">exact</span> f.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">TorsorIso_rect</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span> : Torsor G} (<span class="nv">P</span> : ActionIso X Y → UU) :
+  (∏ e : X = Y, P (torsor_univalence e)) → ∏ f, P f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ih ?.
+  <span class="nb">set</span> (p := ih (invmap torsor_univalence f)).
+  <span class="nb">set</span> (h := homotweqinvweq torsor_univalence f).
+  <span class="bp">exact</span> (transportf P h p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Ltac</span> <span class="nf">torsor_induction</span> f e :=
+  <span class="nb">generalize</span> f; <span class="nb">apply</span> TorsorIso_rect; <span class="nb">intro</span> e; <span class="nb">clear</span> f.
+
+<span class="kn">Theorem</span> <span class="nf">TorsorIso_rect'</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> : Torsor G} (<span class="nv">P</span> : ∏ Y : Torsor G, ActionIso X Y → <span class="kt">Type</span>) :
+  P X (idActionIso X) → ∏ (Y : Torsor G) (f:ActionIso X Y), P Y f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> p ? ?. torsor_induction f q. <span class="nb">induction</span> q. <span class="bp">exact</span> p.
+<span class="kn">Defined</span>.
+
+<span class="kn">Ltac</span> <span class="nf">torsor_induction'</span> f X :=
+  <span class="nb">generalize</span> f; <span class="nb">generalize</span> X; <span class="nb">apply</span> TorsorIso_rect'; <span class="nb">clear</span> f X.
+
+<span class="kn">Lemma</span> <span class="nf">torsor_univalence_id</span> {<span class="nv">G</span>:gr} (<span class="nv">X</span>:Torsor G) : invmap torsor_univalence (idActionIso X) = idpath X.
+<span class="c">(* upstream *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">change</span> (idActionIso X) <span class="k">with</span> (torsor_univalence (idpath X)).
+  <span class="nb">apply</span> homotinvweqweq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">invUnivalenceCompose</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : Torsor G} (<span class="nv">f</span> : ActionIso X Y) (<span class="nv">g</span> : ActionIso Y Z) :
+  invmap torsor_univalence f @ invmap torsor_univalence g = invmap torsor_univalence (composeActionIso f g).
+<span class="kn">Proof</span>.
+  torsor_induction' g Z. <span class="nb">rewrite</span> composeActionIsoId'. <span class="nb">rewrite</span> torsor_univalence_id. <span class="nb">apply</span> pathscomp0rid.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">PointedActionIso</span> {<span class="nv">G</span>:gr} (<span class="nv">X</span> <span class="nv">Y</span>:PointedTorsor G)
+    := ∑ f:ActionIso X Y, f (underlyingPoint X) = underlyingPoint Y.
+
+<span class="kn">Definition</span> <span class="nf">pointed_triviality_isomorphism</span> {<span class="nv">G</span>:gr} (<span class="nv">X</span>:PointedTorsor G) :
+  PointedActionIso (pointedTrivialTorsor G) X.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> X; <span class="nb">intros</span> [X x]. <span class="k">exists</span> (<span class="nv">triviality_isomorphism</span> <span class="nv">X</span> <span class="nv">x</span>).
+  <span class="nb">simpl</span>. <span class="nb">apply</span> univ_function_pointed.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Pointedtorsor_univalence</span> {<span class="nv">G</span>:gr} {<span class="nv">X</span> <span class="nv">Y</span>:PointedTorsor G} :
+  (X = Y) ≃ (PointedActionIso X Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">simple refine</span> (weqcomp (total2_paths_equiv _ X Y) _).
+  <span class="nb">simple refine</span> (weqbandf _ _ _ _).
+  { <span class="nb">intros</span>.
+    <span class="bp">exact</span> (weqcomp (weqonpathsincl underlyingAction underlyingAction_incl X Y)
+                   Action_univalence). }
+  <span class="nb">destruct</span> X <span class="k">as</span> [X x], Y <span class="k">as</span> [Y y]; <span class="nb">simpl</span>. <span class="nb">intro</span> p. <span class="nb">destruct</span> p; <span class="nb">simpl</span>.
+  <span class="bp">exact</span> (idweq _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ClassifyingSpace</span> <span class="nv">G</span> := pointedType (Torsor G) (trivialTorsor G).
+<span class="kn">Definition</span> <span class="nf">E</span> := PointedTorsor.
+<span class="kn">Definition</span> <span class="nf">B</span> := ClassifyingSpace.
+<span class="kn">Definition</span> <span class="nf">π</span> {<span class="nv">G</span>:gr} := underlyingTorsor : E G → B G.
+
+<span class="kn">Lemma</span> <span class="nf">isBaseConnected_BG</span> (<span class="nv">G</span>:gr) : isBaseConnected (B G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X. use (hinhfun _ (torsor_nonempty X)); <span class="nb">intros</span> x.
+  <span class="bp">exact</span> (torsor_eqweq_to_path (triviality_isomorphism X x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Goal</span> ∏ (G:gr), triviality_isomorphism (trivialTorsor G) (unel G) = idActionIso (trivialTorsor G).
+<span class="kn">Proof</span>.
+  <span class="kn">Fail</span> <span class="bp">reflexivity</span>.
+<span class="kn">Abort</span>.
+
+<span class="kn">Goal</span> ∏ (G:gr), isBaseConnected_BG G (trivialTorsor G) = hinhpr (idpath (trivialTorsor G)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">unfold</span> isBaseConnected_BG, pr2.
+  <span class="nb">change</span> (pr1 (trivialTorsor G) : <span class="kt">Type</span>) <span class="k">with</span> (G : <span class="kt">Type</span>).
+  <span class="nb">change</span> (torsor_nonempty (trivialTorsor G)) <span class="k">with</span> (hinhpr (unel G)).
+  <span class="nb">change</span> (hinhpr (torsor_eqweq_to_path (triviality_isomorphism (trivialTorsor G) (unel G)))
+          = hinhpr (idpath (trivialTorsor G))).
+  <span class="nb">apply</span> maponpaths.
+  <span class="kn">Fail</span> <span class="bp">reflexivity</span>.
+<span class="kn">Abort</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isConnected_BG</span> (<span class="nv">G</span>:gr) : isConnected (B G).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> baseConnectedness. <span class="nb">apply</span> isBaseConnected_BG.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscontr_EG</span> (<span class="nv">G</span>:gr) : iscontr (E G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">pointedTrivialTorsor</span> <span class="nv">G</span>). <span class="nb">intros</span> [X x].
+  <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> (invweq Pointedtorsor_univalence).
+  <span class="nb">apply</span> pointed_triviality_isomorphism.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">loopsBG</span> (<span class="nv">G</span>:gr) : G ≃ Ω (B G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">simple refine</span> (weqcomp _ (invweq torsor_univalence)).
+  <span class="nb">apply</span> trivialTorsorRightMultiplication.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">loopsBG_comp</span> (<span class="nv">G</span>:gr) (<span class="nv">g</span>:G) :
+  loopsBG G g = invmap torsor_univalence (trivialTorsorAuto G g).
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">loopsBG_comp'</span> {<span class="nv">G</span>:gr} (<span class="nv">p</span> : Ω (B G)) :
+  invmap (loopsBG G) p = path_to_ActionIso (maponpaths underlyingAction p) (unel G).
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">loopsBG_comp_2</span> (<span class="nv">G</span>:gr) (<span class="nv">g</span> <span class="nv">h</span>:G)
+  : castTorsor (loopsBG G g) h = (h*g)%multmonoid.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (torsor_univalence_inv_comp_eval (trivialTorsorAuto G g) h).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Theorem [loopsBG] also follows from the Rezk Completion theorem of the CategoryTheory</span>
+<span class="sd">    package.  To see that, regard G as a category with one object.  Consider a</span>
+<span class="sd">    merely representable functor F : G^op → Set.  Let X be F of the object *.</span>
+<span class="sd">    Apply F to the arrows to get an action of G on X.  Try to prove that X is a</span>
+<span class="sd">    torsor.  Since being a torsor is a mere property, we may assume F is</span>
+<span class="sd">    actually representable.  There is only one object *, so F is isomorphic to</span>
+<span class="sd">    h_*.  Apply h_* to * and we get Hom(*,*), which is G, regarded as a G-set.</span>
+<span class="sd">    That's a torsor.  So the Rezk completion RCG is equivalent to BG, the type</span>
+<span class="sd">    of G-torsors.  Now the theorem also says there is an equivalence G → RCG.</span>
+<span class="sd">    So RCG is connected and its loop space is G.</span>
+
+<span class="sd">    A formalization of that argument should be added eventually. *)</span></span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/GroupAction.v</tt>, line 3)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** * Group actions *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Propositions.
+  &gt; Require Import UniMath.MoreFoundations.Notations.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

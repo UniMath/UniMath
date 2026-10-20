@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ActionOfEndomorphismsInCATElementary.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Constructs the actegory with the action of the endomorphisms on [C] by precomposition on a fixed functor category with source category [C]</span>
+
+<span class="sd">   a general construction is available for bicategories and a fixed object therein</span>
+
+<span class="sd">author: Ralph Matthes, 2023</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.BicatOfCatsElementary.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.Actegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.CoproductsInActegories.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Action_From_Precomposition</span>.
+
+  <span class="c">(*</span>
+<span class="c">  Import BifunctorNotations.</span>
+<span class="c">  Import MonoidalNotations.</span>
+<span class="c">  Import ActegoryNotations.</span>
+<span class="c">   *)</span>
+
+  <span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> : category).
+
+<span class="kn">Local Definition</span> <span class="nf">Mon_endo</span>: monoidal [C, C] := monendocat_monoidal C.
+
+<span class="kn">Definition</span> <span class="nf">action_from_precomp_CAT_data</span> : bifunctor_data [C, C] [C, D] [C, D].
+<span class="kn">Proof</span>.
+  use make_bifunctor_data.
+  - <span class="nb">intros</span> v f. <span class="bp">exact</span> (functor_composite v f).
+  - <span class="nb">intros</span> v f1 f2 β. <span class="bp">exact</span> (lwhisker_CAT v β).
+  - <span class="nb">intros</span> f v1 v2 α. <span class="bp">exact</span> (rwhisker_CAT f α).
+<span class="kn">Defined</span>.
+
+<span class="c">(* (** we explicitly do not opacify the following definition: *) *)</span>
+<span class="kn">Definition</span> <span class="nf">action_from_precomp_CAT_laws</span> : is_bifunctor action_from_precomp_CAT_data.
+<span class="kn">Proof</span>.
+  split5.
+  - <span class="nb">intros</span> v f. <span class="nb">apply</span> lwhisker_id2_CAT.
+  - <span class="nb">intros</span> f v. <span class="nb">apply</span> id2_rwhisker_CAT.
+  - <span class="nb">intros</span> v f1 f2 f3 β1 β2. <span class="nb">apply</span> pathsinv0, lwhisker_vcomp_CAT.
+  - <span class="nb">intros</span> f v1 v2 v3 α1 α2. <span class="nb">apply</span> pathsinv0, rwhisker_vcomp_CAT.
+  - <span class="nb">intros</span> v1 v2 f1 f2 α β. <span class="nb">apply</span> vcomp_whisker_CAT.
+<span class="kn">Qed</span>. <span class="c">(* Defined. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">action_from_precomp_CAT</span> : bifunctor [C, C] [C, D] [C, D] :=
+  make_bifunctor action_from_precomp_CAT_data action_from_precomp_CAT_laws.
+
+<span class="kn">Definition</span> <span class="nf">actegory_from_precomp_CAT_data</span> : actegory_data Mon_endo [C, D].
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">action_from_precomp_CAT_data</span>.
+  split4.
+  - <span class="nb">intro</span> f. <span class="nb">apply</span> lunitor_CAT.
+  - <span class="nb">intro</span> f. <span class="nb">apply</span> linvunitor_CAT.
+  - <span class="nb">intros</span> v w f. <span class="nb">apply</span> rassociator_CAT.
+  - <span class="nb">intros</span> v w f. <span class="nb">apply</span> lassociator_CAT.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">actegory_from_precomp_CAT_laws</span> : actegory_laws Mon_endo actegory_from_precomp_CAT_data.
+<span class="kn">Proof</span>.
+  split5.
+  - <span class="bp">exact</span> action_from_precomp_CAT_laws.
+  - split3.
+    + <span class="nb">intros</span> f g β. <span class="nb">apply</span> vcomp_lunitor_CAT.
+    + <span class="nb">apply</span> lunitor_linvunitor_CAT.
+    + <span class="nb">apply</span> linvunitor_lunitor_CAT.
+  - split4.
+    + <span class="nb">intros</span> v w f f' β. <span class="nb">apply</span> lwhisker_lwhisker_rassociator_CAT.
+    + <span class="nb">intros</span> v v' w f α. <span class="nb">apply</span> pathsinv0, rwhisker_rwhisker_alt_CAT.
+    + <span class="nb">intros</span> v w w' f α. <span class="nb">apply</span> rwhisker_lwhisker_rassociator_CAT.
+    + <span class="nb">split</span>.
+      * <span class="nb">apply</span> rassociator_lassociator_CAT.
+      * <span class="nb">apply</span> lassociator_rassociator_CAT.
+  - <span class="nb">intros</span> v f. <span class="nb">apply</span> lunitor_lwhisker_CAT.
+  - <span class="nb">intros</span> w v v' f. <span class="nb">apply</span> rassociator_rassociator_CAT.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">actegory_from_precomp_CAT</span> : actegory Mon_endo [C, D] :=
+  actegory_from_precomp_CAT_data,,actegory_from_precomp_CAT_laws.
+
+<span class="kn">End</span> <span class="nf">Action_From_Precomposition</span>.
+
+<span class="kn">Section</span> <span class="nf">TheHomogeneousCase</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+<span class="c">(* (** requires [action_from_precomp_CAT] with known proofs of the laws to be even convertibility *) *)</span>
+<span class="kn">Definition</span> <span class="nf">action_in_actegory_from_precomp_CAT_as_self_action</span> :
+  actegory_action (Mon_endo C) (actegory_from_precomp_CAT C C) =
+    actegory_action (Mon_endo C) (actegory_with_canonical_self_action (Mon_endo C)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath.
+  { <span class="nb">intro</span>; <span class="nb">apply</span> isaprop_is_bifunctor. }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="c">(* (** only possible if the previous is convertibility *)</span>
+<span class="c">Lemma actegory_from_precomp_CAT_as_self_action :</span>
+<span class="c">  actegory_from_precomp_CAT C C = actegory_with_canonical_self_action (Mon_endo C).</span>
+<span class="c">Proof.</span>
+<span class="c">  use total2_paths_f.</span>
+<span class="c">  2: { apply isaprop_actegory_laws. }</span>
+<span class="c">  use total2_paths_f.</span>
+<span class="c">  { apply action_in_actegory_from_precomp_CAT_as_self_action. }</span>
+<span class="c">  use total2_paths_f.</span>
+<span class="c">  { apply idpath. }</span>
+<span class="c">  use total2_paths_f.</span>
+<span class="c">  { apply idpath. }</span>
+<span class="c">  apply idpath.</span>
+<span class="c">Qed. *)</span>
+
+<span class="c">(* (** we should no longer need the proofs of the laws after this result  - is the following command effective? *)</span>
+<span class="c">Opaque action_from_precomp_CAT_laws. *)</span>
+
+<span class="sd">(** on the way to what we really need is the following convertibility: *)</span>
+<span class="kn">Lemma</span> <span class="nf">lax_lineators_for_actegory_from_precomp_CAT_and_self_action_agree</span> (<span class="nv">F</span> : functor [C, C] [C, C]) :
+  lineator_lax (Mon_endo C) (actegory_from_precomp_CAT C C) (actegory_from_precomp_CAT C C) F =
+    lineator_lax (Mon_endo C) (actegory_with_canonical_self_action (Mon_endo C))
+      (actegory_with_canonical_self_action (Mon_endo C)) F.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+<span class="sd">(** in fact, we need this with reindexed actegories everywhere *)</span>
+
+<span class="kn">End</span> <span class="nf">TheHomogeneousCase</span>.
+
+<span class="kn">Section</span> <span class="nf">LineatorForPostcomposition</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category) (<span class="nv">G</span> : functor D E).
+
+  <span class="kn">Definition</span> <span class="nf">lax_lineator_postcomp_actegories_from_precomp_CAT_data</span> :
+    lineator_data (Mon_endo C) (actegory_from_precomp_CAT C D) (actegory_from_precomp_CAT C E) (post_comp_functor G).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> F K. <span class="nb">cbn</span>.
+    <span class="nb">apply</span> rassociator_CAT.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lax_lineator_postcomp_actegories_from_precomp_CAT_laws</span> :
+    lineator_laxlaws (Mon_endo C) (actegory_from_precomp_CAT C D) (actegory_from_precomp_CAT C E) (post_comp_functor G)
+      lax_lineator_postcomp_actegories_from_precomp_CAT_data.
+  <span class="kn">Proof</span>.
+    split4.
+    - <span class="nb">intro</span>; <span class="nb">intros</span>.
+      <span class="nb">apply</span> (nat_trans_eq E).
+      <span class="nb">intro</span> c.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left; <span class="nb">apply</span> id_right.
+    - <span class="nb">intro</span>; <span class="nb">intros</span>.
+      <span class="nb">apply</span> (nat_trans_eq E).
+      <span class="nb">intro</span> c.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left; <span class="nb">apply</span> id_right.
+    - <span class="nb">intro</span>; <span class="nb">intros</span>.
+      <span class="nb">apply</span> (nat_trans_eq E).
+      <span class="nb">intro</span> c.
+      <span class="nb">cbn</span>.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> functor_id.
+    - <span class="nb">intro</span>; <span class="nb">intros</span>.
+      <span class="nb">apply</span> (nat_trans_eq E).
+      <span class="nb">intro</span> c.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> functor_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lax_lineator_postcomp_actegories_from_precomp_CAT</span> :
+    lineator_lax (Mon_endo C) (actegory_from_precomp_CAT C D) (actegory_from_precomp_CAT C E) (post_comp_functor G) :=
+    _,,lax_lineator_postcomp_actegories_from_precomp_CAT_laws.
+
+<span class="kn">End</span> <span class="nf">LineatorForPostcomposition</span>.
+
+<span class="kn">Section</span> <span class="nf">LineatorForConstConstFunctor</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category} (<span class="nv">ActD</span> : actegory (Mon_endo C) D) (<span class="nv">e0</span>: E).
+
+  <span class="kn">Definition</span> <span class="nf">constconst_functor_lax_lineator_data</span> : lineator_data (Mon_endo C)
+    ActD (actegory_from_precomp_CAT C E) (constant_functor D [C,E] (constant_functor C E e0)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> F d. <span class="nb">apply</span> nat_trans_id.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">constconst_functor_lax_lineator_laws</span> :
+    lineator_laxlaws _ _ _  _ constconst_functor_lax_lineator_data.
+  <span class="kn">Proof</span>.
+    split4.
+    - <span class="nb">intro</span>; <span class="nb">intros</span>; <span class="nb">apply</span> (nat_trans_eq E); <span class="nb">intro</span> c; <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span>; <span class="nb">intros</span>; <span class="nb">apply</span> (nat_trans_eq E); <span class="nb">intro</span> c; <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span>; <span class="nb">intros</span>; <span class="nb">apply</span> (nat_trans_eq E); <span class="nb">intro</span> c. <span class="nb">apply</span> pathsinv0, id_right.
+    - <span class="nb">intro</span>; <span class="nb">intros</span>; <span class="nb">apply</span> (nat_trans_eq E); <span class="nb">intro</span> c. <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">constconst_functor_lax_lineator</span> : lineator_lax (Mon_endo C)
+    ActD (actegory_from_precomp_CAT C E) (constant_functor D [C,E] (constant_functor C E e0))
+    := _,,constconst_functor_lax_lineator_laws.
+
+<span class="kn">End</span> <span class="nf">LineatorForConstConstFunctor</span>.
+
+<span class="kn">Section</span> <span class="nf">DistributionOfCoproducts</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> : category).
+
+<span class="kn">Section</span> <span class="nf">BinaryCoproduct</span>.
+
+  <span class="kn">Context</span> (<span class="nv">BCP</span> : BinCoproducts D).
+
+  <span class="kn">Let</span> <span class="nf">BCPCD</span> : BinCoproducts [C, D] := BinCoproducts_functor_precat C D BCP.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_from_precomp_CAT_bincoprod_distributor_data</span> :
+    actegory_bincoprod_distributor_data (Mon_endo C) BCPCD (actegory_from_precomp_CAT C D).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> F.
+    <span class="nb">apply</span> precomp_bincoprod_distributor_data.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** a sanity check *)</span>
+  <span class="kn">Goal</span> ∏ F G1 G2 c, pr1 (actegory_from_precomp_CAT_bincoprod_distributor_data F G1 G2) c = identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">actegory_from_precomp_CAT_bincoprod_distributor_law</span> :
+    actegory_bincoprod_distributor_iso_law _ _ _ actegory_from_precomp_CAT_bincoprod_distributor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> F.
+    <span class="nb">apply</span> precomp_bincoprod_distributor_law.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_from_precomp_CAT_bincoprod_distributor</span> :
+    actegory_bincoprod_distributor (Mon_endo C) BCPCD (actegory_from_precomp_CAT C D) :=
+    _,,actegory_from_precomp_CAT_bincoprod_distributor_law.
+
+<span class="kn">End</span> <span class="nf">BinaryCoproduct</span>.
+
+<span class="kn">Section</span> <span class="nf">Coproduct</span>.
+
+  <span class="kn">Context</span> {<span class="nv">I</span> : UU} (<span class="nv">CP</span> : Coproducts I D).
+
+  <span class="kn">Let</span> <span class="nf">CPCD</span> : Coproducts I [C, D] := Coproducts_functor_precat I C D CP.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_from_precomp_CAT_coprod_distributor_data</span> :
+    actegory_coprod_distributor_data (Mon_endo C) CPCD (actegory_from_precomp_CAT C D).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> F Gs.
+    <span class="nb">apply</span> precomp_coprod_distributor_data.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">actegory_from_precomp_CAT_coprod_distributor_law</span> :
+    actegory_coprod_distributor_iso_law _ _ _ actegory_from_precomp_CAT_coprod_distributor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> F Gs.
+    <span class="nb">apply</span> precomp_coprod_distributor_law.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_from_precomp_CAT_coprod_distributor</span> :
+    actegory_coprod_distributor (Mon_endo C) CPCD (actegory_from_precomp_CAT C D) :=
+    _,,actegory_from_precomp_CAT_coprod_distributor_law.
+
+<span class="kn">End</span> <span class="nf">Coproduct</span>.
+
+<span class="kn">End</span> <span class="nf">DistributionOfCoproducts</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Actegories/Examples/ActionOfEndomorphismsInCATElementary.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; author: Ralph Matthes, 2023
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

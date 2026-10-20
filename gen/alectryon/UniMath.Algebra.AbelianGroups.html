@@ -1,0 +1,856 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>AbelianGroups.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">  Abelian (Commutative) Groups</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. Basic definitions</span>
+<span class="sd">  2. Subobjects</span>
+<span class="sd">  3. Kernels</span>
+<span class="sd">  4. Quotient objects</span>
+<span class="sd">  5. Direct products</span>
+<span class="sd">  6. Abelian group of fractions of an abelian unitary monoid</span>
+<span class="sd">  7. Abelian group of fractions and abelian monoid of fractions</span>
+<span class="sd">  8. Canonical homomorphism to the abelian group of fractions</span>
+<span class="sd">  9. Abelian group of fractions in the case when all elements are cancelable</span>
+<span class="sd">  10. Relations on the abelian group of fractions</span>
+<span class="sd">  11. Relations and the canonical homomorphism to [abgrdiff]</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Orders.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Subtypes.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Magma.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+
+<span class="kn">Require Export</span> UniMath.Algebra.Groups2.
+<span class="kn">Require Export</span> UniMath.Algebra.AbelianMonoids.
+
+<span class="sd">(** * 1. Basic definitions *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> addmonoid.
+
+<span class="kn">Definition</span> <span class="nf">abgr</span> : UU := abelian_group_category.
+
+<span class="kn">Definition</span> <span class="nf">make_abgr</span> (<span class="nv">X</span> : setwithbinop) (<span class="nv">isc</span> : isabgrop (@op X)) : abgr :=
+  X ,, isc.
+
+<span class="kn">Definition</span> <span class="nf">abgrconstr</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">inv0</span> : X → X) (<span class="nv">isc</span> : isinv (@op X) <span class="mi">0</span> inv0) : abgr.
+<span class="kn">Proof</span>.
+  use make_abgr.
+  - <span class="bp">exact</span> X.
+  - use make_isabgrop.
+    + use make_isgrop.
+      * <span class="nb">apply</span> (make_ismonoidop (assocax X)).
+        <span class="bp">exact</span> (make_isunital (unel X) (unax X)).
+      * <span class="bp">exact</span> (make_invstruct inv0 isc).
+    + <span class="bp">exact</span> (commax X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">abgrtogr</span> : abgr → gr := <span class="k">λ</span> <span class="nv">X</span>, make_gr (pr1 X) (pr1 (pr2 X)).
+<span class="kn">Coercion</span> <span class="nf">abgrtogr</span> : abgr &gt;-&gt; gr.
+
+<span class="kn">Definition</span> <span class="nf">abgrtoabmonoid</span> : abgr → abmonoid :=
+  <span class="k">λ</span> <span class="nv">X</span>, make_abmonoid (pr1 X) (pr1 (pr1 (pr2 X)) ,, pr2 (pr2 X)).
+<span class="kn">Coercion</span> <span class="nf">abgrtoabmonoid</span> : abgr &gt;-&gt; abmonoid.
+
+<span class="kn">Definition</span> <span class="nf">abgr_of_gr</span> (<span class="nv">X</span> : gr) (<span class="nv">H</span> : iscomm (@op X)) : abgr :=
+  make_abgr X (make_isabgrop (pr2 X) H).
+
+<span class="kn">Declare Scope</span> abgr.
+<span class="kn">Delimit Scope</span> abgr <span class="k">with</span> abgr.
+<span class="kn">Notation</span> <span class="s2">"x - y"</span> := (op x (grinv _ y)) : abgr.
+<span class="kn">Notation</span>   <span class="s2">"- y"</span> := (grinv _ y) : abgr.
+
+<span class="kn">Definition</span> <span class="nf">abelian_group_morphism</span>
+  (<span class="nv">X</span> <span class="nv">Y</span> : abgr)
+  : UU
+  := abelian_group_category⟦X, Y⟧%cat.
+
+<span class="kn">Definition</span> <span class="nf">abelian_group_morphism_to_group_morphism</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : abgr}
+  (<span class="nv">f</span> : abelian_group_morphism X Y)
+  : group_morphism X Y
+  := pr1 f ,, pr12 f.
+
+<span class="kn">Coercion</span> <span class="nf">abelian_group_morphism_to_group_morphism</span> : abelian_group_morphism &gt;-&gt; group_morphism.
+
+<span class="kn">Definition</span> <span class="nf">abelian_group_to_monoid_morphism</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : abgr}
+  (<span class="nv">f</span> : abelian_group_morphism X Y)
+  : abelian_monoid_morphism X Y.
+<span class="kn">Proof</span>.
+  use make_abelian_monoid_morphism.
+  - <span class="bp">exact</span> f.
+  - <span class="nb">apply</span> make_ismonoidfun.
+    + <span class="nb">apply</span> binopfunisbinopfun.
+    + <span class="bp">exact</span> (monoidfununel f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_abelian_group_morphism</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : abgr}
+  (<span class="nv">f</span> : X → Y)
+  (<span class="nv">H</span> : isbinopfun f)
+  : abelian_group_morphism X Y
+  := (f ,, H) ,, (((tt ,, binopfun_preserves_unit f H) ,, binopfun_preserves_inv f H) ,, tt).
+
+<span class="kn">Definition</span> <span class="nf">binopfun_to_abelian_group_morphism</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : abgr}
+  (<span class="nv">f</span> : binopfun X Y)
+  : abelian_group_morphism X Y
+  := make_abelian_group_morphism f (binopfunisbinopfun f).
+
+<span class="kn">Lemma</span> <span class="nf">abelian_group_morphism_paths</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : abgr}
+  (<span class="nv">f</span> <span class="nv">g</span> : abelian_group_morphism X Y)
+  (<span class="nv">H</span> : (f : X → Y) = g)
+  : f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath.
+  {
+    <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">h</span> : magma_morphism _ _), _).
+    <span class="nb">refine</span> (isapropdirprod _ _ _ isapropunit).
+    <span class="nb">apply</span> (isapropdirprod _ (∏ x, (h (grinv X x) = grinv Y (h x)))).
+    - <span class="nb">apply</span> (isapropdirprod _ _ isapropunit).
+      <span class="nb">apply</span> setproperty.
+    - <span class="nb">apply</span> impred_isaprop.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> setproperty.
+  }
+  <span class="nb">apply</span> binopfun_paths.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">abelian_group_morphism_eq</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : abgr}
+  {<span class="nv">f</span> <span class="nv">g</span> : abelian_group_morphism X Y}
+  : (f = g) ≃ (∏ x, f x = g x).
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="nb">intros</span> e x.
+    <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> (<span class="nv">f</span> : abelian_group_morphism _ _), f x) e).
+  - <span class="nb">intro</span> e.
+    <span class="nb">apply</span> abelian_group_morphism_paths, funextfun.
+    <span class="bp">exact</span> e.
+  - <span class="kp">abstract</span> <span class="nb">apply</span> homset_property.
+  - <span class="kp">abstract</span> (
+      <span class="nb">apply</span> impred_isaprop;
+      <span class="nb">intro</span>;
+      <span class="nb">apply</span> setproperty
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">identity_abelian_group_morphism</span>
+  (<span class="nv">X</span> : abgr)
+  : abelian_group_morphism X X
+  := identity X.
+
+<span class="kn">Definition</span> <span class="nf">composite_abelian_group_morphism</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : abgr}
+  (<span class="nv">f</span> : abelian_group_morphism X Y)
+  (<span class="nv">g</span> : abelian_group_morphism Y Z)
+  : abelian_group_morphism X Z
+  := (f · g)%cat.
+
+<span class="sd">(** *** Construction of the trivial abgr consisting of one element given by unit. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">unitabgr_isabgrop</span> : isabgrop (@op unitabmonoid).
+<span class="kn">Proof</span>.
+  use make_isabgrop.
+  - <span class="bp">exact</span> unitgr_isgrop.
+  - <span class="kp">abstract</span> <span class="bp">exact</span> (commax unitabmonoid).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">unitabgr</span> : abgr := make_abgr unitabmonoid unitabgr_isabgrop.
+
+<span class="kn">Definition</span> <span class="nf">unel_abelian_group_morphism</span> (<span class="nv">X</span> <span class="nv">Y</span> : abgr) : abelian_group_morphism X Y :=
+  binopfun_to_abelian_group_morphism (unelmonoidfun X Y).
+
+<span class="sd">(** *** Abelian group structure on morphism between abelian groups *)</span>
+
+<span class="kn">Definition</span> <span class="nf">abgrshombinop</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : abgr} (<span class="nv">f</span> <span class="nv">g</span> : abelian_group_morphism X Y)
+  : abelian_group_morphism X Y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> binopfun_to_abelian_group_morphism.
+  <span class="bp">exact</span> (abmonoidshombinop (X := X) (Y := Y) f g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">abgrshombinop_inv_isbinopfun</span> {<span class="nv">X</span> <span class="nv">Y</span> : abgr} (<span class="nv">f</span> : abelian_group_morphism X Y) :
+  isbinopfun (<span class="k">λ</span> <span class="nv">x</span> : X, grinv Y (f x)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_isbinopfun. <span class="nb">intros</span> x x'. <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> (monoidfunmul f). <span class="nb">rewrite</span> (pr2 (pr2 Y)). <span class="nb">apply</span> (grinvop Y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">abgrshombinop_inv</span> {<span class="nv">X</span> <span class="nv">Y</span> : abgr} (<span class="nv">f</span> : abelian_group_morphism X Y) : abelian_group_morphism X Y :=
+  make_abelian_group_morphism _ (abgrshombinop_inv_isbinopfun f).
+
+<span class="kn">Definition</span> <span class="nf">abgrshombinop_linvax</span> {<span class="nv">X</span> <span class="nv">Y</span> : abgr} (<span class="nv">f</span> : abelian_group_morphism X Y) :
+  abgrshombinop (abgrshombinop_inv f) f = unel_abelian_group_morphism X Y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x. <span class="nb">apply</span> (@grlinvax Y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">abgrshombinop_rinvax</span> {<span class="nv">X</span> <span class="nv">Y</span> : abgr} (<span class="nv">f</span> : abelian_group_morphism X Y) :
+  abgrshombinop f (abgrshombinop_inv f) = unel_abelian_group_morphism X Y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x. <span class="nb">apply</span> (grrinvax Y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">abgrshomabgr_isabgrop</span> (<span class="nv">X</span> <span class="nv">Y</span> : abgr) :
+  isabgrop (abgrshombinop (X := X) (Y := Y)).
+<span class="kn">Proof</span>.
+  use make_isabgrop.
+  - use make_isgrop.
+    + <span class="nb">apply</span> make_ismonoidop.
+      * <span class="kp">abstract</span> (
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">intro</span>;
+          <span class="nb">apply</span> abelian_group_morphism_eq;
+          <span class="nb">intro</span>;
+          <span class="nb">apply</span> assocax
+        ).
+      * <span class="nb">apply</span> (make_isunital (unel_abelian_group_morphism X Y));
+          <span class="kp">abstract</span> (
+            <span class="nb">apply</span> make_isunit;
+            <span class="nb">intro</span>;
+            <span class="nb">apply</span> abelian_group_morphism_eq;
+            <span class="nb">intro</span>;
+            [ <span class="nb">apply</span> lunax
+            | <span class="nb">apply</span> runax ]
+          ).
+    + use make_invstruct.
+      * <span class="nb">intros</span> f. <span class="bp">exact</span> (abgrshombinop_inv f).
+      * use make_isinv.
+          <span class="nb">intros</span> f. <span class="bp">exact</span> (abgrshombinop_linvax f).
+          <span class="nb">intros</span> f. <span class="bp">exact</span> (abgrshombinop_rinvax f).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> f g;
+      <span class="nb">apply</span> abelian_group_morphism_eq;
+      <span class="nb">intro</span>;
+      <span class="nb">apply</span> (commax Y)
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">abgrshomabgr</span> (<span class="nv">X</span> <span class="nv">Y</span> : abgr) : abgr.
+<span class="kn">Proof</span>.
+  use make_abgr.
+  - <span class="bp">exact</span> (make_setwithbinop (homset X Y) abgrshombinop).
+  - <span class="bp">exact</span> (abgrshomabgr_isabgrop X Y).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** * 2. Subobjects *)</span>
+
+<span class="kn">Definition</span> <span class="nf">subabgr</span> (<span class="nv">X</span> : abgr) := subgr X.
+<span class="kn">Identity Coercion</span> <span class="nf">id_subabgr</span> : subabgr &gt;-&gt; subgr.
+
+<span class="kn">Lemma</span> <span class="nf">isabgrcarrier</span> {<span class="nv">X</span> : abgr} (<span class="nv">A</span> : subgr X) : isabgrop (@op A).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">isgrcarrier</span> <span class="nv">A</span>).
+  <span class="nb">apply</span> (pr2 (@isabmonoidcarrier X A)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">carrierofasubabgr</span> {<span class="nv">X</span> : abgr} (<span class="nv">A</span> : subabgr X) : abgr.
+<span class="kn">Proof</span>.
+  use make_abgr.
+  - <span class="bp">exact</span> A.
+  - <span class="nb">apply</span> isabgrcarrier.
+<span class="kn">Defined</span>.
+<span class="kn">Coercion</span> <span class="nf">carrierofasubabgr</span> : subabgr &gt;-&gt; abgr.
+
+<span class="kn">Definition</span> <span class="nf">subabgr_incl</span> {<span class="nv">X</span> : abgr} (<span class="nv">A</span> : subabgr X) : abelian_group_morphism A X :=
+  binopfun_to_abelian_group_morphism (X := A) (submonoid_incl A).
+
+<span class="kn">Definition</span> <span class="nf">abgr_kernel_hsubtype</span> {<span class="nv">A</span> <span class="nv">B</span> : abgr} (<span class="nv">f</span> : abelian_group_morphism A B) : hsubtype A :=
+  monoid_kernel_hsubtype f.
+
+<span class="kn">Definition</span> <span class="nf">abgr_image_hsubtype</span> {<span class="nv">A</span> <span class="nv">B</span> : abgr} (<span class="nv">f</span> : abelian_group_morphism A B) : hsubtype B :=
+  (<span class="k">λ</span> <span class="nv">y</span> : B, <span class="k">∃</span> <span class="nv">x</span> : A, (f x) = y).
+
+<span class="sd">(** * 3. Kernels</span>
+<span class="sd">    Let f : X → Y be a morphism of abelian groups. A kernel of f is given by the subgroup of X</span>
+<span class="sd">    consisting of elements x such that [f x = 0].</span>
+<span class="sd"> *)</span>
+
+<span class="sd">(** ** Kernel as abelian group *)</span>
+
+<span class="kn">Definition</span> <span class="nf">abgr_Kernel_subabgr_issubgr</span> {<span class="nv">A</span> <span class="nv">B</span> : abgr} (<span class="nv">f</span> : abelian_group_morphism A B) :
+  issubgr (abgr_kernel_hsubtype f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_issubgr.
+  - <span class="nb">apply</span> kernel_issubmonoid.
+  - <span class="nb">intros</span> x a.
+    <span class="nb">apply</span> (grrcan B (f x)).
+    <span class="nb">refine</span> (! (binopfunisbinopfun f (grinv A x) x) @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">a</span> : A, f a) (grlinvax A x) @ _).
+    <span class="nb">refine</span> (monoidfununel f @ !_).
+    <span class="nb">refine</span> (lunax B (f x) @ _).
+    <span class="bp">exact</span> a.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">abgr_Kernel_subabgr</span> {<span class="nv">A</span> <span class="nv">B</span> : abgr} (<span class="nv">f</span> : abelian_group_morphism A B) : @subabgr A :=
+  subgrconstr (@abgr_kernel_hsubtype A B f) (abgr_Kernel_subabgr_issubgr f).
+
+<span class="sd">(** ** The inclusion Kernel f --&gt; X is a morphism of abelian groups *)</span>
+
+<span class="kn">Definition</span> <span class="nf">abgr_Kernel_abelian_group_morphism_isbinopfun</span> {<span class="nv">A</span> <span class="nv">B</span> : abgr} (<span class="nv">f</span> : abelian_group_morphism A B) :
+  isbinopfun (X := abgr_Kernel_subabgr f)
+               (make_incl (pr1carrier (abgr_kernel_hsubtype f))
+                         (isinclpr1carrier (abgr_kernel_hsubtype f))).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_isbinopfun. <span class="nb">intros</span> x x'. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+  <span class="sd">(** ** Image of f is a subgroup *)</span>
+
+<span class="kn">Definition</span> <span class="nf">abgr_image_issubgr</span> {<span class="nv">A</span> <span class="nv">B</span> : abgr} (<span class="nv">f</span> : abelian_group_morphism A B) : issubgr (abgr_image_hsubtype f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_issubgr.
+  - <span class="nb">apply</span> make_issubmonoid.
+    + <span class="nb">intros</span> a a'.
+      <span class="nb">refine</span> (hinhuniv _ (pr2 a)). <span class="nb">intros</span> ae.
+      <span class="nb">refine</span> (hinhuniv _ (pr2 a')). <span class="nb">intros</span> a'e.
+      <span class="nb">apply</span> hinhpr.
+      use tpair.
+      * <span class="bp">exact</span> (@op A (pr1 ae) (pr1 a'e)).
+      * <span class="nb">refine</span> (binopfunisbinopfun f (pr1 ae) (pr1 a'e) @ _).
+        use two_arg_paths.
+          <span class="bp">exact</span> (pr2 ae).
+          <span class="bp">exact</span> (pr2 a'e).
+    + use hinhpr. use tpair.
+      * <span class="bp">exact</span> (unel A).
+      * <span class="bp">exact</span> (monoidfununel f).
+  - <span class="nb">intros</span> b b'.
+    use (hinhuniv _ b'). <span class="nb">intros</span> eb.
+    use hinhpr.
+    use tpair.
+    + <span class="bp">exact</span> (grinv A (pr1 eb)).
+    + <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">bb</span> : B, (grinv B bb)) (pr2 eb)).
+      <span class="nb">apply</span> group_morphism_inv.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">abgr_image</span> {<span class="nv">A</span> <span class="nv">B</span> : abgr} (<span class="nv">f</span> : abelian_group_morphism A B) : @subabgr B :=
+  @subgrconstr B (@abgr_image_hsubtype A B f) (abgr_image_issubgr f).
+
+
+<span class="sd">(** * 4. Quotient objects *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isabgrquot</span> {<span class="nv">X</span> : abgr} (<span class="nv">R</span> : binopeqrel X) : isabgrop (@op (setwithbinopquot R)).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">isgrquot</span> <span class="nv">R</span>).
+  <span class="nb">apply</span> (pr2 (@isabmonoidquot X R)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">abgrquot</span> {<span class="nv">X</span> : abgr} (<span class="nv">R</span> : binopeqrel X) : abgr.
+<span class="kn">Proof</span>. <span class="k">exists</span> (<span class="nv">setwithbinopquot</span> <span class="nv">R</span>). <span class="nb">apply</span> isabgrquot. <span class="kn">Defined</span>.
+
+
+<span class="sd">(** * 5. Direct products *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isabgrdirprod</span> (<span class="nv">X</span> <span class="nv">Y</span> : abgr) : isabgrop (@op (setwithbinopdirprod X Y)).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">isgrdirprod</span> <span class="nv">X</span> <span class="nv">Y</span>).
+  <span class="nb">apply</span> (pr2 (isabmonoiddirprod X Y)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">abgrdirprod</span> (<span class="nv">X</span> <span class="nv">Y</span> : abgr) : abgr.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">setwithbinopdirprod</span> <span class="nv">X</span> <span class="nv">Y</span>).
+  <span class="nb">apply</span> isabgrdirprod.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 6. Abelian group of fractions of an abelian unitary monoid *)</span>
+
+<span class="kn">Section</span> <span class="nf">Fractions</span>.
+
+<span class="kn">Definition</span> <span class="nf">hrelabgrdiff</span> (<span class="nv">X</span> : abmonoid) : hrel (X × X) :=
+  <span class="k">λ</span> <span class="nv">xa1</span> <span class="nv">xa2</span>, <span class="k">∃</span> (<span class="nv">x0</span> : X), (pr1 xa1 + pr2 xa2) + x0 = (pr1 xa2 + pr2 xa1) + x0.
+
+<span class="kn">Definition</span> <span class="nf">abgrdiffphi</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">xa</span> : X × X) :
+  X × (totalsubtype X) := pr1 xa ,, make_carrier (<span class="k">λ</span> <span class="nv">x</span> : X, htrue) (pr2 xa) tt.
+
+<span class="kn">Definition</span> <span class="nf">hrelabgrdiff'</span> (<span class="nv">X</span> : abmonoid) : hrel (X × X) :=
+  <span class="k">λ</span> <span class="nv">xa1</span> <span class="nv">xa2</span>, eqrelabmonoidfrac X (totalsubmonoid X) (abgrdiffphi X xa1) (abgrdiffphi X xa2).
+
+<span class="kn">Lemma</span> <span class="nf">logeqhrelsabgrdiff</span> (<span class="nv">X</span> : abmonoid) : hrellogeq (hrelabgrdiff' X) (hrelabgrdiff X).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>. <span class="nb">simpl</span>. <span class="nb">apply</span> hinhfun. <span class="nb">intro</span> t2.
+  <span class="nb">set</span> (a0 := pr1 (pr1 t2)). <span class="k">exists</span> <span class="nv">a0</span>. <span class="nb">apply</span> (pr2 t2). <span class="nb">simpl</span>.
+  <span class="nb">apply</span> hinhfun. <span class="nb">intro</span> t2. <span class="nb">set</span> (x0 := pr1 t2). <span class="k">exists</span> (<span class="nv">x0</span> ,, <span class="nv">tt</span>).
+  <span class="nb">apply</span> (pr2 t2).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iseqrelabgrdiff</span> (<span class="nv">X</span> : abmonoid) : iseqrel (hrelabgrdiff X).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (iseqrellogeqf (logeqhrelsabgrdiff X)).
+  <span class="nb">apply</span> (iseqrelconstr).
+  <span class="nb">intros</span> xx' xx'' xx'''.
+  <span class="nb">intros</span> r1 r2.
+  <span class="nb">apply</span> (eqreltrans (eqrelabmonoidfrac X (totalsubmonoid X)) _ _ _ r1 r2).
+  <span class="nb">intro</span> xx. <span class="nb">apply</span> (eqrelrefl (eqrelabmonoidfrac X (totalsubmonoid X)) _).
+  <span class="nb">intros</span> xx xx'. <span class="nb">intro</span> r.
+  <span class="nb">apply</span> (eqrelsymm (eqrelabmonoidfrac X (totalsubmonoid X)) _ _ r).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">eqrelabgrdiff</span> (<span class="nv">X</span> : abmonoid) : @eqrel (abmonoiddirprod X X) :=
+  make_eqrel _ (iseqrelabgrdiff X).
+
+<span class="kn">Lemma</span> <span class="nf">isbinophrelabgrdiff</span> (<span class="nv">X</span> : abmonoid) : @isbinophrel (abmonoiddirprod X X) (hrelabgrdiff X).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (@isbinophrellogeqf (abmonoiddirprod X X) _ _ (logeqhrelsabgrdiff X)).
+  <span class="nb">split</span>. <span class="nb">intros</span> a b c r.
+  <span class="nb">apply</span> (pr1 (isbinophrelabmonoidfrac X (totalsubmonoid X)) _ _
+             (pr1 c ,, make_carrier (<span class="k">λ</span> <span class="nv">x</span> : X, htrue) (pr2 c) tt)
+             r).
+  <span class="nb">intros</span> a b c r.
+  <span class="nb">apply</span> (pr2 (isbinophrelabmonoidfrac X (totalsubmonoid X)) _ _
+             (pr1 c ,, make_carrier (<span class="k">λ</span> <span class="nv">x</span> : X, htrue) (pr2 c) tt)
+             r).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">binopeqrelabgrdiff</span> (<span class="nv">X</span> : abmonoid) : binopeqrel (abmonoiddirprod X X) :=
+  make_binopeqrel (eqrelabgrdiff X) (isbinophrelabgrdiff X).
+
+<span class="kn">Definition</span> <span class="nf">abgrdiffcarrier</span> (<span class="nv">X</span> : abmonoid) : abmonoid := @abmonoidquot (abmonoiddirprod X X)
+                                                                      (binopeqrelabgrdiff X).
+
+<span class="kn">Definition</span> <span class="nf">abgrdiffinvint</span> (<span class="nv">X</span> : abmonoid) : X × X → X × X :=
+  <span class="k">λ</span> <span class="nv">xs</span>, pr2 xs ,, pr1 xs.
+
+<span class="kn">Lemma</span> <span class="nf">abgrdiffinvcomp</span> (<span class="nv">X</span> : abmonoid) :
+  iscomprelrelfun (hrelabgrdiff X) (eqrelabgrdiff X) (abgrdiffinvint X).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> iscomprelrelfun. <span class="nb">unfold</span> eqrelabgrdiff. <span class="nb">unfold</span> hrelabgrdiff.
+  <span class="nb">unfold</span> eqrelabmonoidfrac. <span class="nb">unfold</span> hrelabmonoidfrac. <span class="nb">simpl</span>. <span class="nb">intros</span> xs xs'.
+  <span class="nb">apply</span> (hinhfun). <span class="nb">intro</span> tt0.
+  <span class="nb">set</span> (x := pr1 xs). <span class="nb">set</span> (s := pr2 xs).
+  <span class="nb">set</span> (x' := pr1 xs'). <span class="nb">set</span> (s' := pr2 xs').
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">tt0</span>).
+  <span class="nb">induction</span> tt0 <span class="k">as</span> [ a eq ]. <span class="nb">change</span> (s + x' + a = s' + x + a).
+  <span class="nb">set</span>(e := commax X s' x). <span class="nb">simpl</span> <span class="k">in</span> e. <span class="nb">rewrite</span> e. <span class="nb">clear</span> e.
+  <span class="nb">set</span> (e := commax X s x'). <span class="nb">simpl</span> <span class="k">in</span> e. <span class="nb">rewrite</span> e. <span class="nb">clear</span> e.
+  <span class="bp">exact</span> (!eq).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">abgrdiffinv</span> (<span class="nv">X</span> : abmonoid) : abgrdiffcarrier X → abgrdiffcarrier X :=
+  setquotfun (hrelabgrdiff X) (eqrelabgrdiff X) (abgrdiffinvint X) (abgrdiffinvcomp X).
+
+<span class="kn">Lemma</span> <span class="nf">abgrdiffisinv</span> (<span class="nv">X</span> : abmonoid) :
+  isinv (@op (abgrdiffcarrier X)) <span class="mi">0</span> (abgrdiffinv X).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (R := eqrelabgrdiff X).
+  <span class="nb">assert</span> (isl : islinv (@op (abgrdiffcarrier X)) <span class="mi">0</span> (abgrdiffinv X)).
+  {
+    <span class="nb">unfold</span> islinv.
+    <span class="nb">apply</span> (setquotunivprop R (<span class="k">λ</span> <span class="nv">x</span>, _ = _)%logic).
+    <span class="nb">intro</span> xs.
+    <span class="nb">set</span> (x := pr1 xs). <span class="nb">set</span> (s := pr2 xs).
+    <span class="nb">apply</span> (iscompsetquotpr R (@op (abmonoiddirprod X X) (abgrdiffinvint X xs) xs) <span class="mi">0</span>).
+    <span class="nb">simpl</span>. <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">unel</span> <span class="nv">X</span>).
+    <span class="nb">change</span> (s + x + <span class="mi">0</span> + <span class="mi">0</span> = <span class="mi">0</span> + (x + s) + <span class="mi">0</span>).
+    <span class="nb">induction</span> (commax X x s). <span class="nb">induction</span> (commax X <span class="mi">0</span> (x + s)).
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="bp">exact</span> (isl ,, weqlinvrinv (@op (abgrdiffcarrier X)) (commax (abgrdiffcarrier X))
+                                      <span class="mi">0</span> (abgrdiffinv X) isl).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">abgrdiff</span> (<span class="nv">X</span> : abmonoid) : abgr
+  := abgrconstr (abgrdiffcarrier X) (abgrdiffinv X) (abgrdiffisinv X).
+
+<span class="kn">Definition</span> <span class="nf">prabgrdiff</span> (<span class="nv">X</span> : abmonoid) : X → X → abgrdiff X :=
+  <span class="k">λ</span> <span class="nv">x</span> <span class="nv">x'</span> : X, setquotpr (eqrelabgrdiff X) (x ,, x').
+
+
+<span class="sd">(** * 7. Abelian group of fractions and abelian monoid of fractions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">weqabgrdiffint</span> (<span class="nv">X</span> : abmonoid) : weq (X × X) (X × totalsubtype X) :=
+  weqdirprodf (idweq X) (invweq (weqtotalsubtype X)).
+
+<span class="kn">Definition</span> <span class="nf">weqabgrdiff</span> (<span class="nv">X</span> : abmonoid) : weq (abgrdiff X) (abmonoidfrac X (totalsubmonoid X)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> (weqsetquotweq (eqrelabgrdiff X)
+                       (eqrelabmonoidfrac X (totalsubmonoid X)) (weqabgrdiffint X)).
+  - <span class="nb">simpl</span>. <span class="nb">intros</span> x x'. <span class="nb">induction</span> x <span class="k">as</span> [ x1 x2 ]. <span class="nb">induction</span> x' <span class="k">as</span> [ x1' x2' ].
+    <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">apply</span> hinhfun. <span class="nb">intro</span> tt0. <span class="nb">induction</span> tt0 <span class="k">as</span> [ xx0 is0 ].
+    <span class="k">exists</span> (<span class="nv">make_carrier</span> (<span class="k">λ</span> <span class="nv">x</span> : X, htrue) xx0 tt). <span class="nb">apply</span> is0.
+  - <span class="nb">simpl</span>. <span class="nb">intros</span> x x'. <span class="nb">induction</span> x <span class="k">as</span> [ x1 x2 ]. <span class="nb">induction</span> x' <span class="k">as</span> [ x1' x2' ].
+    <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">apply</span> hinhfun. <span class="nb">intro</span> tt0. <span class="nb">induction</span> tt0 <span class="k">as</span> [ xx0 is0 ].
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">xx0</span>). <span class="nb">apply</span> is0.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** * 8. Canonical homomorphism to the abelian group of fractions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">toabgrdiff</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">x</span> : X) : abgrdiff X := setquotpr _ (x ,, <span class="mi">0</span>).
+
+<span class="kn">Lemma</span> <span class="nf">isbinopfuntoabgrdiff</span> (<span class="nv">X</span> : abmonoid) : isbinopfun (toabgrdiff X).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> isbinopfun. <span class="nb">intros</span> x1 x2.
+  <span class="nb">change</span> (setquotpr _ (x1 + x2 ,, <span class="mi">0</span>) =
+          setquotpr (eqrelabgrdiff X) (x1 + x2 ,, <span class="mi">0</span> + <span class="mi">0</span>)).
+  <span class="nb">apply</span> (maponpaths (setquotpr _)).
+  <span class="nb">apply</span> (@pathsdirprod X X).
+  - <span class="nb">apply</span> idpath.
+  - <span class="bp">exact</span> (!lunax X <span class="mi">0</span>).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** * 9. Abelian group of fractions in the case when all elements are cancelable *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isinclprabgrdiff</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">iscanc</span> : ∏ x : X, isrcancelable (@op X) x) :
+  ∏ x' : X, isincl (<span class="k">λ</span> <span class="nv">x</span>, prabgrdiff X x x').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (int := isinclprabmonoidfrac X (totalsubmonoid X) (<span class="k">λ</span> <span class="nv">a</span> : totalsubmonoid X, iscanc (pr1 a))
+                                   (make_carrier (<span class="k">λ</span> <span class="nv">x</span> : X, htrue) x' tt)).
+  <span class="nb">set</span> (int1 := isinclcomp (make_incl _ int) (weqtoincl (invweq (weqabgrdiff X)))).
+  <span class="nb">apply</span> int1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isincltoabgrdiff</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">iscanc</span> : ∏ x : X, isrcancelable (@op X) x) :
+  isincl (toabgrdiff X) := isinclprabgrdiff X iscanc <span class="mi">0</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isdeceqabgrdiff</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">iscanc</span> : ∏ x : X, isrcancelable (@op X) x) (<span class="nv">isc</span> : isdeceq X) :
+  isdeceq (abgrdiff X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> (isdeceqweqf (invweq (weqabgrdiff X))).
+  <span class="nb">apply</span> (isdeceqabmonoidfrac X (totalsubmonoid X) (<span class="k">λ</span> <span class="nv">a</span> : totalsubmonoid X, iscanc (pr1 a)) isc).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** * 10. Relations on the abelian group of fractions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">abgrdiffrelint</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">L</span> : hrel X) : hrel (setwithbinopdirprod X X) :=
+  <span class="k">λ</span> <span class="nv">xa</span> <span class="nv">yb</span>, <span class="k">∃</span> (<span class="nv">c0</span> : X), L ((pr1 xa + pr2 yb) + c0) ((pr1 yb + pr2 xa) + c0).
+
+<span class="kn">Definition</span> <span class="nf">abgrdiffrelint'</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">L</span> : hrel X) : hrel (setwithbinopdirprod X X) :=
+  <span class="k">λ</span> <span class="nv">xa1</span> <span class="nv">xa2</span>, abmonoidfracrelint _ (totalsubmonoid X) L (abgrdiffphi X xa1) (abgrdiffphi X xa2).
+
+<span class="kn">Lemma</span> <span class="nf">logeqabgrdiffrelints</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">L</span> : hrel X) :
+  hrellogeq (abgrdiffrelint' X L) (abgrdiffrelint X L).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>. <span class="nb">unfold</span> abgrdiffrelint. <span class="nb">unfold</span> abgrdiffrelint'.
+  <span class="nb">simpl</span>. <span class="nb">apply</span> hinhfun. <span class="nb">intro</span> t2. <span class="nb">set</span> (a0 := pr1 (pr1 t2)).
+  <span class="k">exists</span> <span class="nv">a0</span>. <span class="nb">apply</span> (pr2 t2). <span class="nb">simpl</span>. <span class="nb">apply</span> hinhfun.
+  <span class="nb">intro</span> t2. <span class="nb">set</span> (x0 := pr1 t2). <span class="k">exists</span> (<span class="nv">x0</span> ,, <span class="nv">tt</span>). <span class="nb">apply</span> (pr2 t2).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscomprelabgrdiffrelint</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) :
+  iscomprelrel (eqrelabgrdiff X) (abgrdiffrelint X L).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (iscomprelrellogeqf1 _ (logeqhrelsabgrdiff X)).
+  <span class="nb">apply</span> (iscomprelrellogeqf2 _ (logeqabgrdiffrelints X L)).
+  <span class="nb">intros</span> x x' x0 x0' r r0.
+  <span class="nb">apply</span> (iscomprelabmonoidfracrelint
+           _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc)  _ _ _ _ r r0).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">abgrdiffrel</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) :=
+  quotrel (iscomprelabgrdiffrelint X isc).
+
+<span class="kn">Definition</span> <span class="nf">abgrdiffrel'</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) : hrel (abgrdiff X) :=
+  <span class="k">λ</span> <span class="nv">x</span> <span class="nv">x'</span>, abmonoidfracrel X (totalsubmonoid X) (isbinoptoispartbinop _ _ isc)
+                           (weqabgrdiff X x) (weqabgrdiff X x').
+
+<span class="kn">Definition</span> <span class="nf">logeqabgrdiffrels</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) :
+  hrellogeq (abgrdiffrel' X isc) (abgrdiffrel X isc).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x1 x2. <span class="nb">split</span>.
+  - <span class="nb">assert</span> (int : ∏ x x', isaprop (abgrdiffrel' X isc x x' → abgrdiffrel X isc x x')).
+    {
+      <span class="nb">intros</span> x x'.
+      <span class="nb">apply</span> impred. <span class="nb">intro</span>.
+      <span class="nb">apply</span> (pr2 _).
+    }
+    <span class="nb">generalize</span> x1 x2. <span class="nb">clear</span> x1 x2.
+    <span class="nb">apply</span> (setquotuniv2prop _ (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">x'</span>, make_hProp _ (int x x'))).
+    <span class="nb">intros</span> x x'.
+    <span class="nb">change</span> ((abgrdiffrelint' X L x x') → (abgrdiffrelint _ L x x')).
+    <span class="nb">apply</span> (pr1 (logeqabgrdiffrelints X L x x')).
+  - <span class="nb">assert</span> (int : ∏ x x', isaprop (abgrdiffrel X isc x x' → abgrdiffrel' X isc x x')).
+    <span class="nb">intros</span> x x'.
+    <span class="nb">apply</span> impred. <span class="nb">intro</span>.
+    <span class="nb">apply</span> (pr2 _).
+    <span class="nb">generalize</span> x1 x2. <span class="nb">clear</span> x1 x2.
+    <span class="nb">apply</span> (setquotuniv2prop _ (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">x'</span>, make_hProp _ (int x x'))).
+    <span class="nb">intros</span> x x'.
+    <span class="nb">change</span> ((abgrdiffrelint X L x x') → (abgrdiffrelint' _ L x x')).
+    <span class="nb">apply</span> (pr2 (logeqabgrdiffrelints X L x x')).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">istransabgrdiffrelint</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) (<span class="nv">isl</span> : istrans L) :
+  istrans (abgrdiffrelint X L).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (istranslogeqf (logeqabgrdiffrelints X L)).
+  <span class="nb">intros</span> a b c rab rbc.
+  <span class="nb">apply</span> (istransabmonoidfracrelint
+           _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc)  isl _ _ _ rab rbc).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">istransabgrdiffrel</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) (<span class="nv">isl</span> : istrans L) :
+  istrans (abgrdiffrel X isc).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (istransquotrel _ _). <span class="nb">apply</span> istransabgrdiffrelint.
+  - <span class="nb">apply</span> isc.
+  - <span class="nb">apply</span> isl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">issymmabgrdiffrelint</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) (<span class="nv">isl</span> : issymm L) :
+  issymm (abgrdiffrelint X L).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (issymmlogeqf (logeqabgrdiffrelints X L)).
+  <span class="nb">intros</span> a b rab.
+  <span class="nb">apply</span> (issymmabmonoidfracrelint _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc) isl _ _ rab).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">issymmabgrdiffrel</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) (<span class="nv">isl</span> : issymm L) :
+  issymm (abgrdiffrel X isc).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (issymmquotrel _ _). <span class="nb">apply</span> issymmabgrdiffrelint.
+  - <span class="nb">apply</span> isc.
+  - <span class="nb">apply</span> isl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isreflabgrdiffrelint</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) (<span class="nv">isl</span> : isrefl L) :
+  isrefl (abgrdiffrelint X L).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> xa. <span class="nb">unfold</span> abgrdiffrelint. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">unel</span> <span class="nv">X</span>). <span class="nb">apply</span> (isl _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isreflabgrdiffrel</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) (<span class="nv">isl</span> : isrefl L) :
+  isrefl (abgrdiffrel X isc).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (isreflquotrel _ _). <span class="nb">apply</span> isreflabgrdiffrelint.
+  - <span class="nb">apply</span> isc.
+  - <span class="nb">apply</span> isl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ispoabgrdiffrelint</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) (<span class="nv">isl</span> : ispreorder L) :
+  ispreorder (abgrdiffrelint X L).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">istransabgrdiffrelint</span> <span class="nv">X</span> <span class="nv">isc</span> (pr1 isl)).
+  <span class="nb">apply</span> (isreflabgrdiffrelint X isc (pr2 isl)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ispoabgrdiffrel</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) (<span class="nv">isl</span> : ispreorder L) :
+  ispreorder (abgrdiffrel X isc).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (ispoquotrel _ _). <span class="nb">apply</span> ispoabgrdiffrelint.
+  - <span class="nb">apply</span> isc.
+  - <span class="nb">apply</span> isl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iseqrelabgrdiffrelint</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) (<span class="nv">isl</span> : iseqrel L) :
+  iseqrel (abgrdiffrelint X L).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">ispoabgrdiffrelint</span> <span class="nv">X</span> <span class="nv">isc</span> (pr1 isl)).
+  <span class="nb">apply</span> (issymmabgrdiffrelint X isc (pr2 isl)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iseqrelabgrdiffrel</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) (<span class="nv">isl</span> : iseqrel L) :
+  iseqrel (abgrdiffrel X isc).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (iseqrelquotrel _ _). <span class="nb">apply</span> iseqrelabgrdiffrelint.
+  - <span class="nb">apply</span> isc.
+  - <span class="nb">apply</span> isl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isantisymmnegabgrdiffrel</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L)
+      (<span class="nv">isl</span> : isantisymmneg L) : isantisymmneg (abgrdiffrel X isc).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isantisymmneglogeqf (logeqabgrdiffrels X isc)).
+  <span class="nb">intros</span> a b rab rba.
+  <span class="nb">set</span> (int := isantisymmnegabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc)
+                                           isl (weqabgrdiff X a) (weqabgrdiff X b) rab rba).
+  <span class="nb">apply</span> (invmaponpathsweq _ _ _ int).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isantisymmabgrdiffrel</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) (<span class="nv">isl</span> : isantisymm L) :
+  isantisymm (abgrdiffrel X isc).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isantisymmlogeqf (logeqabgrdiffrels X isc)).
+  <span class="nb">intros</span> a b rab rba.
+  <span class="nb">set</span> (int := isantisymmabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc)
+                                        isl (weqabgrdiff X a) (weqabgrdiff X b) rab rba).
+  <span class="nb">apply</span> (invmaponpathsweq _ _ _ int).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isirreflabgrdiffrel</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) (<span class="nv">isl</span> : isirrefl L) :
+  isirrefl (abgrdiffrel X isc).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isirrefllogeqf (logeqabgrdiffrels X isc)).
+  <span class="nb">intros</span> a raa.
+  <span class="nb">apply</span> (isirreflabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc)
+                                 isl (weqabgrdiff X a) raa).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isasymmabgrdiffrel</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) (<span class="nv">isl</span> : isasymm L) :
+  isasymm (abgrdiffrel X isc).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isasymmlogeqf (logeqabgrdiffrels X isc)).
+  <span class="nb">intros</span> a b rab rba.
+  <span class="nb">apply</span> (isasymmabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc)
+                                isl (weqabgrdiff X a) (weqabgrdiff X b) rab rba).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscoasymmabgrdiffrel</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) (<span class="nv">isl</span> : iscoasymm L) :
+  iscoasymm (abgrdiffrel X isc).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (iscoasymmlogeqf (logeqabgrdiffrels X isc)).
+  <span class="nb">intros</span> a b rab.
+  <span class="nb">apply</span> (iscoasymmabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc)
+                                  isl (weqabgrdiff X a) (weqabgrdiff X b) rab).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">istotalabgrdiffrel</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) (<span class="nv">isl</span> : istotal L) :
+  istotal (abgrdiffrel X isc).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (istotallogeqf (logeqabgrdiffrels X isc)).
+  <span class="nb">intros</span> a b.
+  <span class="nb">apply</span> (istotalabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc)
+                                isl (weqabgrdiff X a) (weqabgrdiff X b)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscotransabgrdiffrel</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) (<span class="nv">isl</span> : iscotrans L) :
+  iscotrans (abgrdiffrel X isc).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (iscotranslogeqf (logeqabgrdiffrels X isc)).
+  <span class="nb">intros</span> a b c.
+  <span class="nb">apply</span> (iscotransabmonoidfracrel _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc)
+                                  isl (weqabgrdiff X a) (weqabgrdiff X b) (weqabgrdiff X c)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isStrongOrder_abgrdiff</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">gt</span> : hrel X)
+      (<span class="nv">Hgt</span> : isbinophrel gt) :
+  isStrongOrder gt → isStrongOrder (abgrdiffrel X Hgt).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">apply</span> istransabgrdiffrel, (istrans_isStrongOrder H).
+  - <span class="nb">apply</span> iscotransabgrdiffrel, (iscotrans_isStrongOrder H).
+  - <span class="nb">apply</span> isirreflabgrdiffrel, (isirrefl_isStrongOrder H).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">StrongOrder_abgrdiff</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">gt</span> : StrongOrder X)
+           (<span class="nv">Hgt</span> : isbinophrel gt) : StrongOrder (abgrdiff X) :=
+  abgrdiffrel X Hgt,, isStrongOrder_abgrdiff gt Hgt (pr2 gt).
+
+<span class="kn">Lemma</span> <span class="nf">abgrdiffrelimpl</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> <span class="nv">L'</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) (<span class="nv">is'</span> : isbinophrel L')
+      (<span class="nv">impl</span> : ∏ x x', L x x' → L' x x') (<span class="nv">x</span> <span class="nv">x'</span> : abgrdiff X) (<span class="nv">ql</span> : abgrdiffrel X isc x x') :
+  abgrdiffrel X is' x x'.
+<span class="kn">Proof</span>.
+  <span class="nb">generalize</span> ql. <span class="nb">refine</span> (quotrelimpl _ _ _ _ _).
+  <span class="nb">intros</span> x0 x0'. <span class="nb">simpl</span>. <span class="nb">apply</span> hinhfun. <span class="nb">intro</span> t2. <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">t2</span>).
+  <span class="nb">apply</span> (impl _ _ (pr2 t2)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">abgrdiffrellogeq</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> <span class="nv">L'</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) (<span class="nv">is'</span> : isbinophrel L')
+      (<span class="nv">lg</span> : ∏ x x', L x x' &lt;-&gt; L' x x') (<span class="nv">x</span> <span class="nv">x'</span> : abgrdiff X) :
+  (abgrdiffrel X isc x x') &lt;-&gt; (abgrdiffrel X is' x x').
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (quotrellogeq _ _ _ _ _). <span class="nb">intros</span> x0 x0'. <span class="nb">split</span>.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> hinhfun. <span class="nb">intro</span> t2. <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">t2</span>).
+    <span class="nb">apply</span> (pr1 (lg _ _) (pr2 t2)).
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> hinhfun. <span class="nb">intro</span> t2. <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">t2</span>).
+    <span class="nb">apply</span> (pr2 (lg _ _) (pr2 t2)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isbinopabgrdiffrelint</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) :
+  @isbinophrel (setwithbinopdirprod X X) (abgrdiffrelint X L).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isbinophrellogeqf (logeqabgrdiffrelints X L)). <span class="nb">split</span>.
+  - <span class="nb">intros</span> a b c lab.
+    <span class="nb">apply</span> (pr1 (ispartbinopabmonoidfracrelint _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc))
+               (abgrdiffphi X a) (abgrdiffphi X b) (abgrdiffphi X c) tt lab).
+  - <span class="nb">intros</span> a b c lab.
+    <span class="nb">apply</span> (pr2 (ispartbinopabmonoidfracrelint _ (totalsubmonoid X) (isbinoptoispartbinop _ _ isc))
+               (abgrdiffphi X a) (abgrdiffphi X b) (abgrdiffphi X c) tt lab).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isbinopabgrdiffrel</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) :
+  @isbinophrel (abgrdiff X) (abgrdiffrel X isc).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> (isbinopquotrel (binopeqrelabgrdiff X) (iscomprelabgrdiffrelint X isc)).
+  <span class="nb">apply</span> (isbinopabgrdiffrelint X isc).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isdecabgrdiffrelint</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X}
+           (<span class="nv">isc</span> : isinvbinophrel L) (<span class="nv">isl</span> : isdecrel L) : isdecrel (abgrdiffrelint X L).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> xa1 xa2.
+  <span class="nb">set</span> (x1 := pr1 xa1). <span class="nb">set</span> (a1 := pr2 xa1).
+  <span class="nb">set</span> (x2 := pr1 xa2). <span class="nb">set</span> (a2 := pr2 xa2).
+  <span class="nb">assert</span> (int : coprod (L (x1 + a2) (x2 + a1)) (neg (L (x1 + a2) (x2 + a1)))) <span class="bp">by</span> <span class="nb">apply</span> (isl _ _).
+  <span class="nb">induction</span> int <span class="k">as</span> [ l | nl ].
+  - <span class="nb">apply</span> ii1. <span class="nb">unfold</span> abgrdiffrelint. <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="mi">0</span>.
+    <span class="nb">rewrite</span> (runax X _). <span class="nb">rewrite</span> (runax X _). <span class="nb">apply</span> l.
+  - <span class="nb">apply</span> ii2. <span class="nb">generalize</span> nl. <span class="nb">clear</span> nl. <span class="nb">apply</span> negf. <span class="nb">unfold</span> abgrdiffrelint.
+    <span class="nb">simpl</span>. <span class="nb">apply</span> (@hinhuniv _ (make_hProp _ (pr2 (L _ _)))).
+    <span class="nb">intro</span> t2l. <span class="nb">induction</span> t2l <span class="k">as</span> [ c0a l ]. <span class="nb">simpl</span>. <span class="nb">apply</span> ((pr2 isc) _ _ c0a l).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isdecabgrdiffrel</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L)
+           (<span class="nv">isi</span> : isinvbinophrel L) (<span class="nv">isl</span> : isdecrel L) : isdecrel (abgrdiffrel X isc).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (isdecquotrel _ _). <span class="nb">apply</span> isdecabgrdiffrelint.
+  - <span class="nb">apply</span> isi.
+  - <span class="nb">apply</span> isl.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** * 11. Relations and the canonical homomorphism to [abgrdiff] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">iscomptoabgrdiff</span> (<span class="nv">X</span> : abmonoid) {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : isbinophrel L) :
+  iscomprelrelfun L (abgrdiffrel X isc) (toabgrdiff X).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> iscomprelrelfun.
+  <span class="nb">intros</span> x x' l.
+  <span class="nb">change</span> (abgrdiffrelint X L (x ,, <span class="mi">0</span>) (x' ,, <span class="mi">0</span>)).
+  <span class="nb">simpl</span>. <span class="nb">apply</span> (hinhpr). <span class="k">exists</span> (<span class="nv">unel</span> <span class="nv">X</span>).
+  <span class="nb">apply</span> ((pr2 isc) _ _ <span class="mi">0</span>). <span class="nb">apply</span> ((pr2 isc) _ _ <span class="mi">0</span>).
+  <span class="nb">apply</span> l.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Fractions</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/AbelianGroups.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/Orders.vo has
+  &gt; bad version number 90299 (expected 81601). It is corrupted or was compiled
+  &gt; with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   11. Relations and the canonical homomorphism to [abgrdiff]
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.Orders.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Subtypes.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

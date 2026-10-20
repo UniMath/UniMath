@@ -1,0 +1,1551 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>WellOrderedSets.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Well Ordered Sets *)</span>
+
+<span class="sd">(** In this file our goal is to prove Zorn's Lemma and Zermelo's Well-Ordering Theorem. *)</span>
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.DecidablePropositions.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Propositions.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Subtypes.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.AxiomOfChoice.
+<span class="kn">Require Import</span> UniMath.OrderTheory.OrderedSets.OrderedSets.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> logic.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> <span class="nb">set</span>.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> subtype.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> poset.
+
+<span class="kn">Declare Scope</span> tosubset.
+<span class="kn">Delimit Scope</span> tosubset <span class="k">with</span> tosubset. <span class="c">(* subsets equipped with a well ordering *)</span>
+<span class="kn">Local</span> <span class="kn">Open Scope</span> tosubset.
+
+<span class="kn">Declare Scope</span> wosubset.
+<span class="kn">Delimit Scope</span> wosubset <span class="k">with</span> wosubset. <span class="c">(* subsets equipped with a well ordering *)</span>
+<span class="kn">Local</span> <span class="kn">Open Scope</span> wosubset.
+
+<span class="sd">(** ** Totally ordered subsets of a set *)</span>
+
+<span class="kn">Definition</span> <span class="nf">TotalOrdering</span> (<span class="nv">S</span>:hSet) : hSet := ∑ (R : hrel_set S), hProp_to_hSet (isTotalOrder R).
+
+<span class="kn">Definition</span> <span class="nf">TOSubset_set</span> (<span class="nv">X</span>:hSet) : hSet := ∑ (S:subtype_set X), TotalOrdering (carrier_subset S).
+
+<span class="kn">Definition</span> <span class="nf">TOSubset</span> (<span class="nv">X</span>:hSet) : UU := TOSubset_set X.
+
+<span class="kn">Definition</span> <span class="nf">TOSubset_to_subtype</span> {<span class="nv">X</span>:hSet} : TOSubset X -&gt; hsubtype X
+  := pr1.
+
+<span class="kn">Coercion</span> <span class="nf">TOSubset_to_subtype</span> : TOSubset &gt;-&gt; hsubtype.
+
+<span class="kn">Local Definition</span> <span class="nf">TOSrel</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span> : TOSubset X) : hrel (carrier_subset S) := pr12 S.
+
+<span class="kn">Notation</span> <span class="s2">"s ≤ s'"</span> := (TOSrel _ s s') : tosubset.
+
+<span class="kn">Definition</span> <span class="nf">TOtotal</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span> : TOSubset X) : isTotalOrder (TOSrel S) := pr22 S.
+
+<span class="kn">Definition</span> <span class="nf">TOtot</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span> : TOSubset X) : istotal (TOSrel S) := pr222 S.
+
+<span class="kn">Definition</span> <span class="nf">TOanti</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span> : TOSubset X) : isantisymm (TOSrel S) := pr2 (pr122 S).
+
+<span class="kn">Definition</span> <span class="nf">TOrefl</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span> : TOSubset X) : isrefl (TOSrel S) := pr211 (pr22 S).
+
+<span class="kn">Definition</span> <span class="nf">TOeq_to_refl</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span> : TOSubset X) : <span class="k">∀</span> <span class="nv">s</span> <span class="nv">t</span> : carrier_subset S, s = t ⇒ s ≤ t.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> s t e. <span class="nb">induction</span> e. <span class="nb">apply</span> TOrefl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">TOeq_to_refl_1</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span> : TOSubset X) : <span class="k">∀</span> <span class="nv">s</span> <span class="nv">t</span> : carrier_subset S, pr1 s = pr1 t ⇒ s ≤ t.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> s t e. <span class="nb">induction</span> (subtypePath_prop e). <span class="nb">apply</span> TOrefl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">TOtrans</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span> : TOSubset X) : istrans (TOSrel S).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (pr2 S).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">h1''</span> {<span class="nv">X</span>:hSet} {<span class="nv">S</span>:TOSubset X} {<span class="nv">r</span> <span class="nv">s</span> <span class="nv">t</span> <span class="nv">u</span>:S} : (r ≤ t -&gt; pr1 r = pr1 s -&gt; pr1 t = pr1 u -&gt; s ≤ u)%tosubset.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> le p q. <span class="nb">induction</span> (subtypePath_prop p). <span class="nb">induction</span> (subtypePath_prop q). <span class="bp">exact</span> le.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">tosub_order_compat</span> {<span class="nv">X</span>:hSet} {<span class="nv">S</span> <span class="nv">T</span> : TOSubset X} (<span class="nv">le</span> : S ⊆ T) : hProp
+  := <span class="k">∀</span> <span class="nv">s</span> <span class="nv">s'</span> : S, s ≤ s' ⇒ subtype_inc le s ≤ subtype_inc le s'.
+
+<span class="kn">Definition</span> <span class="nf">tosub_le</span> (<span class="nv">X</span>:hSet) (<span class="nv">S</span> <span class="nv">T</span> : TOSubset X) : hProp
+  := (∑ le : S ⊆ T, tosub_order_compat le)%prop.
+
+<span class="kn">Notation</span> <span class="s2">"S ≼ T"</span> := (tosub_le _ S T) (<span class="kn">at level</span> <span class="mi">70</span>) : tosubset.
+
+<span class="kn">Definition</span> <span class="nf">sub_initial</span> {<span class="nv">X</span>:hSet} {<span class="nv">S</span> : hsubtype X} {<span class="nv">T</span> : TOSubset X} (<span class="nv">le</span> : S ⊆ T) : hProp
+  := <span class="k">∀</span> (<span class="nv">s</span> <span class="nv">t</span> : X) (<span class="nv">Ss</span> : S s) (<span class="nv">Tt</span> : T t), TOSrel T (t,,Tt) (s,,le s Ss) ⇒ S t.
+
+<span class="kn">Definition</span> <span class="nf">same_induced_ordering</span> {<span class="nv">X</span>:hSet} {<span class="nv">S</span> <span class="nv">T</span> : TOSubset X} {<span class="nv">B</span> : hsubtype X} (<span class="nv">BS</span> : B ⊆ S) (<span class="nv">BT</span> : B ⊆ T)
+  := <span class="k">∀</span> <span class="nv">x</span> <span class="nv">y</span> : B,
+             subtype_inc BS x ≤ subtype_inc BS y
+                         ⇔
+             subtype_inc BT x ≤ subtype_inc BT y.
+
+<span class="kn">Definition</span> <span class="nf">common_initial</span> {<span class="nv">X</span>:hSet} (<span class="nv">B</span> : hsubtype X) (<span class="nv">S</span> <span class="nv">T</span> : TOSubset X) : hProp
+  := (∑ (BS : B ⊆ S) (BT : B ⊆ T), sub_initial BS ∧ sub_initial BT ∧ same_induced_ordering BS BT)%prop.
+
+<span class="c">(* the largest initial common ordered subset of S and of T, as the union of all of them *)</span>
+<span class="kn">Definition</span> <span class="nf">max_common_initial</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span> <span class="nv">T</span> : TOSubset X) : hsubtype X
+  := <span class="k">λ</span> <span class="nv">x</span>, <span class="k">∃</span> (<span class="nv">B</span> : hsubtype X), B x ∧ common_initial B S T.
+
+<span class="kn">Lemma</span> <span class="nf">max_common_initial_is_max</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span> <span class="nv">T</span> : TOSubset X) (<span class="nv">A</span> : hsubtype X) :
+  common_initial A S T -&gt; A ⊆ max_common_initial S T.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c x Ax. <span class="bp">exact</span> (hinhpr (A,,Ax,,c)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">max_common_initial_is_sub</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span> <span class="nv">T</span> : TOSubset X) :
+  max_common_initial S T ⊆ S
+  ∧
+  max_common_initial S T ⊆ T.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x m. <span class="nb">apply</span> (squash_to_hProp m); <span class="nb">intros</span> [B [Bx [BS [_ _]]]]; <span class="nb">clear</span> m. <span class="bp">exact</span> (BS _ Bx).
+  - <span class="nb">intros</span> x m. <span class="nb">apply</span> (squash_to_hProp m); <span class="nb">intros</span> [B [Bx [_ [BT _]]]]; <span class="nb">clear</span> m. <span class="bp">exact</span> (BT _ Bx).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">max_common_initial_is_common_initial</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span> <span class="nv">T</span> : TOSubset X) :
+  common_initial (max_common_initial S T) S T.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">pr1</span> (max_common_initial_is_sub S T)).
+  <span class="k">exists</span> (<span class="nv">pr2</span> (max_common_initial_is_sub S T)).
+  <span class="nb">split</span>.
+  { <span class="nb">intros</span> x s M Ss le.
+    <span class="nb">apply</span> (squash_to_hProp M); <span class="nb">intros</span> [B [Bx [BS [BT [BSi [BTi BST]]]]]].
+    <span class="nb">unfold</span> sub_initial <span class="k">in</span> BSi.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> <span class="nv">B</span>.
+    <span class="nb">split</span>.
+    + <span class="nb">apply</span> (BSi x s Bx Ss). <span class="bp">now</span> <span class="nb">apply</span> (h1'' le).
+    + <span class="bp">exact</span> (BS,,BT,,BSi,,BTi,,BST). }
+  <span class="nb">split</span>.
+  { <span class="nb">intros</span> x t M Tt le.
+    <span class="nb">apply</span> (squash_to_hProp M); <span class="nb">intros</span> [B [Bx [BS [BT [BSi [BTi BST]]]]]].
+    <span class="nb">unfold</span> sub_initial <span class="k">in</span> BSi.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> <span class="nv">B</span>.
+    <span class="nb">split</span>.
+    + <span class="nb">apply</span> (BTi x t Bx Tt). <span class="bp">now</span> <span class="nb">apply</span> (h1'' le).
+    + <span class="bp">exact</span> (BS,,BT,,BSi,,BTi,,BST). }
+  <span class="nb">intros</span> x y.
+  <span class="nb">split</span>.
+  { <span class="nb">intros</span> le. <span class="nb">induction</span> x <span class="k">as</span> [x xm], y <span class="k">as</span> [y ym].
+    <span class="nb">apply</span> (squash_to_hProp xm); <span class="nb">intros</span> [B [Bx [BS [BT [BSi [BTi BST]]]]]].
+    <span class="nb">apply</span> (squash_to_hProp ym); <span class="nb">intros</span> [C [Cy [CS [CT [CSi [CTi CST]]]]]].
+    <span class="nb">assert</span> (Cx : C x).
+    { <span class="nb">apply</span> (CSi y x Cy (BS x Bx)). <span class="bp">now</span> <span class="nb">apply</span> (h1'' le). }
+    <span class="nb">assert</span> (Q := pr1 (CST (x,,Cx) (y,,Cy))); <span class="nb">simpl</span> <span class="k">in</span> Q.
+    <span class="nb">assert</span> (E : subtype_inc CS (x,, Cx) ≤ subtype_inc CS (y,, Cy)).
+    { <span class="bp">now</span> <span class="nb">apply</span> (h1'' le). }
+    <span class="nb">clear</span> le. <span class="bp">now</span> <span class="nb">apply</span> (h1'' (Q E)). }
+  { <span class="nb">intros</span> le. <span class="nb">induction</span> x <span class="k">as</span> [x xm], y <span class="k">as</span> [y ym].
+    <span class="nb">apply</span> (squash_to_hProp xm); <span class="nb">intros</span> [B [Bx [BS [BT [BSi [BTi BST]]]]]].
+    <span class="nb">apply</span> (squash_to_hProp ym); <span class="nb">intros</span> [C [Cy [CS [CT [CSi [CTi CST]]]]]].
+    <span class="nb">assert</span> (Cx : C x).
+    { <span class="nb">apply</span> (CTi y x Cy (BT x Bx)). <span class="bp">now</span> <span class="nb">apply</span> (h1'' le). }
+    <span class="nb">assert</span> (Q := pr2 (CST (x,,Cx) (y,,Cy))); <span class="nb">simpl</span> <span class="k">in</span> Q.
+    <span class="nb">assert</span> (E : subtype_inc CT (x,, Cx) ≤ subtype_inc CT (y,, Cy)).
+    { <span class="bp">now</span> <span class="nb">apply</span> (h1'' le). }
+    <span class="nb">clear</span> le. <span class="bp">now</span> <span class="nb">apply</span> (h1'' (Q E)). }
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">tosub_fidelity</span> {<span class="nv">X</span>:hSet} {<span class="nv">S</span> <span class="nv">T</span>:TOSubset X} (<span class="nv">le</span> : S ≼ T)
+      (<span class="nv">s</span> <span class="nv">s'</span> : S) : s ≤ s' ⇔ subtype_inc (pr1 le) s ≤ subtype_inc (pr1 le) s'.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  { <span class="bp">exact</span> (pr2 le s s'). }
+  { <span class="nb">intro</span> l. <span class="nb">apply</span> (squash_to_hProp (TOtot S s s')). <span class="nb">intros</span> [c|c].
+    - <span class="bp">exact</span> c.
+    - <span class="nb">apply</span> (TOeq_to_refl S s s'). <span class="nb">assert</span> (k := pr2 le _ _ c); <span class="nb">clear</span> c.
+      <span class="nb">assert</span> (k' := TOanti T _ _ l k); <span class="nb">clear</span> k l.
+      <span class="nb">apply</span> subtypePath_prop. <span class="bp">exact</span> (maponpaths pr1 k'). }
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Adding a point on top of a totally ordered subset *)</span>
+
+<span class="sd">(** We proceed directly.  An indirect way would be to form the corresponding totally ordered</span>
+<span class="sd">    set, add a point to it, set up an equivalence between that and the union of our subset and</span>
+<span class="sd">    the new point (assuming decidability of equality), and transport the ordering along the</span>
+<span class="sd">    equivalence. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">TOSubset_plus_point_rel</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span>:TOSubset X) (<span class="nv">z</span>:X) (<span class="nv">nSz</span> : ¬ S z) :
+  hrel (carrier_subset (subtype_plus S z)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> [s i] [t j]. <span class="nb">unfold</span> subtype_plus <span class="k">in</span> i,j. <span class="nb">change</span> hPropset.
+  use (squash_to_hSet_2' _ _ i j); <span class="nb">clear</span> i j.
+  { <span class="nb">intros</span> [Ss|ezs] [St|ezt].
+    { <span class="bp">exact</span> (TOSrel S (s,,Ss) (t,,St)). } { <span class="bp">exact</span> htrue. }
+    { <span class="bp">exact</span> hfalse. }                    { <span class="bp">exact</span> htrue. } }
+  { <span class="nb">split</span>.
+    { <span class="nb">intros</span> [Ss|ezs] [Ss'|ezs'] [St|ezt]. <span class="kp">repeat</span> <span class="nb">split</span>.
+      - <span class="bp">now</span> induction_hProp Ss Ss'.
+      - <span class="bp">reflexivity</span>.
+      - <span class="nb">apply</span> fromempty. <span class="nb">induction</span> ezs'. <span class="bp">exact</span> (nSz Ss).
+      - <span class="bp">reflexivity</span>.
+      - <span class="nb">apply</span> fromempty. <span class="nb">induction</span> ezs. <span class="bp">exact</span> (nSz Ss').
+      - <span class="bp">reflexivity</span>.
+      - <span class="bp">reflexivity</span>.
+      - <span class="bp">reflexivity</span>. }
+    { <span class="nb">intros</span> [Ss|ezs] [St|ezt] [St'|ezt']. <span class="kp">repeat</span> <span class="nb">split</span>.
+      - <span class="bp">now</span> induction_hProp St St'.
+      - <span class="nb">apply</span> fromempty. <span class="nb">induction</span> ezt'. <span class="bp">exact</span> (nSz St).
+      - <span class="nb">apply</span> fromempty. <span class="nb">induction</span> ezt. <span class="bp">exact</span> (nSz St').
+      - <span class="bp">reflexivity</span>.
+      - <span class="bp">reflexivity</span>.
+      - <span class="nb">apply</span> fromempty. <span class="nb">induction</span> ezt'. <span class="bp">exact</span> (nSz St).
+      - <span class="nb">apply</span> fromempty. <span class="nb">induction</span> ezt. <span class="bp">exact</span> (nSz St').
+      - <span class="bp">reflexivity</span>. } }
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isTotalOrder_TOSubset_plus_point</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span>:TOSubset X) (<span class="nv">z</span>:X) (<span class="nv">nSz</span> : ¬ S z) :
+  isTotalOrder (TOSubset_plus_point_rel S z nSz).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  { <span class="nb">split</span>.
+    { <span class="nb">split</span>.
+      {                         <span class="c">(* transitivity *)</span>
+        <span class="nb">intros</span> [w Ww] [x Wx] [y Wy] wx xy.
+        <span class="nb">apply</span> (squash_to_hProp Wy); <span class="nb">intros</span> [Sy|ezy].
+        - <span class="nb">induction</span> (ishinh_irrel (ii1 Sy) Wy).
+          <span class="nb">apply</span> (squash_to_hProp Ww); <span class="nb">intros</span> [Sw|ezw].
+          + <span class="nb">induction</span> (ishinh_irrel (ii1 Sw) Ww).
+            <span class="nb">apply</span> (squash_to_hProp Wx); <span class="nb">intros</span> [Sx|ezx].
+            * <span class="nb">induction</span> (ishinh_irrel (ii1 Sx) Wx);
+              <span class="nb">change</span> (hProptoType (TOSrel S (w,,Sw) (x,,Sx))) <span class="k">in</span> wx;
+              <span class="nb">change</span> (hProptoType (TOSrel S (x,,Sx) (y,,Sy))) <span class="k">in</span> xy;
+              <span class="nb">change</span> (hProptoType (TOSrel S (w,,Sw) (y,,Sy))).
+              <span class="bp">exact</span> (TOtrans _ _ _ _ wx xy).
+            * <span class="nb">induction</span> ezx;
+              <span class="nb">induction</span> (ishinh_irrel (ii2 (idpath z)) Wx);
+              <span class="nb">change</span> empty <span class="k">in</span> xy.
+              <span class="bp">exact</span> (fromempty xy).
+          + <span class="nb">induction</span> ezw.
+            <span class="nb">induction</span> (ishinh_irrel (ii2 (idpath z)) Ww).
+            <span class="nb">change</span> hfalse.
+            <span class="nb">apply</span> (squash_to_hProp Wx); <span class="nb">intros</span> [Sx|ezx].
+            * <span class="nb">induction</span> (ishinh_irrel (ii1 Sx) Wx);
+              <span class="nb">change</span> (hProptoType (TOSrel S (x,,Sx) (y,,Sy))) <span class="k">in</span> xy;
+              <span class="nb">change</span> empty <span class="k">in</span> wx.
+              <span class="bp">exact</span> wx.
+            * <span class="nb">induction</span> ezx;
+              <span class="nb">induction</span> (ishinh_irrel (ii2 (idpath z)) Wx);
+              <span class="nb">change</span> unit <span class="k">in</span> wx; <span class="nb">change</span> empty <span class="k">in</span> xy.
+              <span class="bp">exact</span> xy.
+        - <span class="nb">induction</span> ezy. <span class="nb">apply</span> (squash_to_hProp Ww); <span class="nb">intros</span> [Sw|ezw].
+          + <span class="nb">induction</span> (ishinh_irrel (ii1 Sw) Ww), (ishinh_irrel (ii2 (idpath z)) Wy).
+            <span class="bp">exact</span> tt.
+          + <span class="nb">induction</span> ezw, (ishinh_irrel (ii2 (idpath z)) Wy).
+            <span class="nb">induction</span> (ishinh_irrel (ii2 (idpath z)) Ww).
+            <span class="bp">exact</span> tt.
+      }
+      {                         <span class="c">(* reflexivity *)</span>
+        <span class="nb">intros</span> [x Wx].
+        <span class="nb">apply</span> (squash_to_hProp Wx); <span class="nb">intros</span> [Sx|ezx].
+        - <span class="nb">induction</span> (ishinh_irrel (ii1 Sx) Wx).
+          <span class="nb">change</span> (hProptoType (TOSrel S (x,,Sx) (x,,Sx))).
+          <span class="nb">apply</span> TOrefl.
+        - <span class="nb">induction</span> ezx.
+          <span class="nb">induction</span> (ishinh_irrel (ii2 (idpath z)) Wx); <span class="nb">change</span> unit.
+          <span class="bp">exact</span> tt. } }
+    {                           <span class="c">(* antisymmetry *)</span>
+      <span class="nb">intros</span> [x Wx] [y Wy] xy yx.
+      <span class="nb">apply</span> eqset_to_path.
+      <span class="nb">apply</span> (squash_to_hProp Wx); <span class="nb">intros</span> [Sx|ezx].
+      - <span class="nb">induction</span> (ishinh_irrel (ii1 Sx) Wx).
+        <span class="nb">apply</span> (squash_to_hProp Wy); <span class="nb">intros</span> [Sy|ezy].
+        + <span class="nb">induction</span> (ishinh_irrel (ii1 Sy) Wy);
+          <span class="nb">change</span> (hProptoType (TOSrel S (x,,Sx) (y,,Sy))) <span class="k">in</span> xy;
+          <span class="nb">change</span> (hProptoType (TOSrel S (y,,Sy) (x,,Sx))) <span class="k">in</span> yx.
+          <span class="nb">apply</span> subtypePath_prop; <span class="nb">change</span> (x=y).
+          <span class="bp">exact</span> (maponpaths pr1 (TOanti S _ _ xy yx)).
+        + <span class="nb">induction</span> ezy.
+          <span class="nb">induction</span> (ishinh_irrel (ii2 (idpath z)) Wy);
+          <span class="nb">change</span> unit <span class="k">in</span> xy;
+          <span class="nb">change</span> empty <span class="k">in</span> yx.
+          <span class="nb">apply</span> subtypePath_prop; <span class="nb">change</span> (x=z).
+          <span class="bp">exact</span> (fromempty yx).
+      - <span class="nb">induction</span> ezx.
+        <span class="nb">induction</span> (ishinh_irrel (ii2 (idpath z)) Wx).
+        <span class="nb">apply</span> (squash_to_hProp Wy); <span class="nb">intros</span> [Sy|ezy].
+        + <span class="nb">induction</span> (ishinh_irrel (ii1 Sy) Wy);
+          <span class="nb">change</span> unit <span class="k">in</span> yx;
+          <span class="nb">change</span> empty <span class="k">in</span> xy.
+          <span class="nb">apply</span> subtypePath_prop; <span class="nb">change</span> (z=y).
+          <span class="bp">exact</span> (fromempty xy).
+        + <span class="nb">induction</span> ezy.
+          <span class="nb">apply</span> subtypePath_prop; <span class="nb">change</span> (z=z).
+          <span class="bp">reflexivity</span>. } }
+  {                             <span class="c">(* totality *)</span>
+    <span class="nb">intros</span> [x Wx] [y Wy].
+    <span class="nb">apply</span> (squash_to_hProp Wx); <span class="nb">intros</span> [Sx|ezx].
+    - <span class="nb">induction</span> (ishinh_irrel (ii1 Sx) Wx).
+      <span class="nb">apply</span> (squash_to_hProp Wy); <span class="nb">intros</span> [Sy|ezy].
+      + <span class="nb">induction</span> (ishinh_irrel (ii1 Sy) Wy).
+        <span class="nb">generalize</span> (TOtot S (x,,Sx) (y,,Sy)); <span class="nb">apply</span> hinhfun; <span class="nb">intros</span> [xy|yx].
+        * <span class="nb">apply</span> ii1. <span class="bp">exact</span> xy.
+        * <span class="nb">apply</span> ii2. <span class="bp">exact</span> yx.
+      + <span class="nb">induction</span> ezy. <span class="nb">induction</span> (ishinh_irrel (ii2 (idpath z)) Wy);
+        <span class="nb">change</span> (htrue ∨ hfalse).
+        <span class="bp">exact</span> (hinhpr (ii1 tt)).
+    - <span class="nb">induction</span> ezx. <span class="nb">induction</span> (ishinh_irrel (ii2 (idpath z)) Wx).
+      <span class="nb">apply</span> (squash_to_hProp Wy); <span class="nb">intros</span> [Sy|ezy].
+      + <span class="nb">induction</span> (ishinh_irrel (ii1 Sy) Wy); <span class="nb">change</span> (hfalse ∨ htrue).
+        <span class="bp">exact</span> (hinhpr (ii2 tt)).
+      + <span class="nb">induction</span> ezy.
+        <span class="nb">induction</span> (ishinh_irrel (ii2 (idpath z)) Wy); <span class="nb">change</span> (htrue ∨ htrue).
+        <span class="bp">exact</span> (hinhpr (ii2 tt)). }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">TOSubset_plus_point</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span>:TOSubset X) (<span class="nv">z</span>:X) (<span class="nv">nSz</span> : ¬ S z) : TOSubset X
+  :=  subtype_plus S z,,
+      TOSubset_plus_point_rel S z nSz,,
+      isTotalOrder_TOSubset_plus_point S z nSz.
+
+<span class="kn">Lemma</span> <span class="nf">TOSubset_plus_point_incl</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span>:TOSubset X) (<span class="nv">z</span>:X) (<span class="nv">nSz</span> : ¬ S z) :
+  S ⊆ TOSubset_plus_point S z nSz.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtype_plus_incl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">TOSubset_plus_point_le</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span>:TOSubset X) (<span class="nv">z</span>:X) (<span class="nv">nSz</span> : ¬ S z) :
+  S ≼ TOSubset_plus_point S z nSz.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">apply</span> TOSubset_plus_point_incl.
+  - <span class="nb">intros</span> s t le. <span class="bp">exact</span> le.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">TOSubset_plus_point_initial</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span>:TOSubset X) (<span class="nv">z</span>:X) (<span class="nv">nSz</span> : ¬ S z) :
+  sub_initial (TOSubset_plus_point_incl S z nSz).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> s t Ss Tt le.
+  <span class="nb">apply</span> (squash_to_hProp Tt); <span class="nb">intros</span> [St|ezt].
+  - <span class="bp">exact</span> St.
+  - <span class="nb">induction</span> ezt, (ishinh_irrel (ii2 (idpath z)) Tt); <span class="nb">change</span> empty <span class="k">in</span> le.
+    <span class="bp">exact</span> (fromempty le).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Well ordered subsets of a set *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hasSmallest</span> {<span class="nv">X</span> : UU} (<span class="nv">R</span> : hrel X) : hProp
+  := <span class="k">∀</span> <span class="nv">S</span> : hsubtype X, (<span class="k">∃</span> <span class="nv">x</span>, S x) ⇒ <span class="k">∃</span> <span class="nv">x</span>:X, S x ∧ <span class="k">∀</span> <span class="nv">y</span>:X, S y ⇒ R x y.
+
+<span class="kn">Definition</span> <span class="nf">isWellOrder</span> {<span class="nv">X</span> : hSet} (<span class="nv">R</span> : hrel X) : hProp := isTotalOrder R ∧ hasSmallest R.
+
+<span class="kn">Definition</span> <span class="nf">WellOrdering</span> (<span class="nv">S</span>:hSet) : hSet := ∑ (R : hrel_set S), hProp_to_hSet (isWellOrder R).
+
+<span class="kn">Definition</span> <span class="nf">WOSubset_set</span> (<span class="nv">X</span>:hSet) : hSet := ∑ (S:subtype_set X), WellOrdering (carrier_subset S).
+
+<span class="kn">Definition</span> <span class="nf">WOSubset</span> (<span class="nv">X</span>:hSet) : UU := WOSubset_set X.
+
+<span class="kn">Definition</span> <span class="nf">WOSubset_to_subtype</span> {<span class="nv">X</span>:hSet} : WOSubset X -&gt; hsubtype X
+  := pr1.
+
+<span class="kn">Definition</span> <span class="nf">WOSrel</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span> : WOSubset X)
+  : hrel (carrier_subset (WOSubset_to_subtype S))
+  := pr12 S.
+
+<span class="kn">Definition</span> <span class="nf">WOStotal</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span> : WOSubset X) : isTotalOrder (WOSrel S) := pr122 S.
+
+<span class="kn">Definition</span> <span class="nf">WOSubset_to_TOSubset</span> {<span class="nv">X</span>:hSet} : WOSubset X -&gt; TOSubset X
+  := <span class="k">λ</span> <span class="nv">S</span>, WOSubset_to_subtype S,, WOSrel S,, WOStotal S.
+
+<span class="kn">Coercion</span> <span class="nf">WOSubset_to_TOSubset</span> : WOSubset &gt;-&gt; TOSubset.
+
+<span class="kn">Definition</span> <span class="nf">WOSwo</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span> : WOSubset X) : WellOrdering (carrier_subset S) := pr2 S.
+
+<span class="kn">Notation</span> <span class="s2">"s ≤ s'"</span> := (WOSrel _ s s') : wosubset.
+
+<span class="kn">Local Definition</span> <span class="nf">lt</span> {<span class="nv">X</span>:hSet} {<span class="nv">S</span> : WOSubset X} (<span class="nv">s</span> <span class="nv">s'</span> : S) := ¬ (s' ≤ s)%wosubset.
+
+<span class="kn">Notation</span> <span class="s2">"s &lt; s'"</span> := (lt s s') : wosubset.
+
+<span class="kn">Definition</span> <span class="nf">WOS_hasSmallest</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span> : WOSubset X) : hasSmallest (WOSrel S)
+  := pr222 S.
+
+<span class="kn">Lemma</span> <span class="nf">wo_lt_to_le</span> {<span class="nv">X</span>:hSet} {<span class="nv">S</span> : WOSubset X} (<span class="nv">s</span> <span class="nv">s'</span> : S) : s &lt; s' -&gt; s ≤ s'.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> lt.
+  <span class="nb">intros</span> lt.
+  <span class="nb">apply</span> (squash_to_hProp (TOtot S s s')); <span class="nb">intros</span> [c|c].
+  - <span class="bp">exact</span> c.
+  - <span class="bp">exact</span> (fromempty (lt c)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">wosub_le</span> (<span class="nv">X</span>:hSet) : hrel (WOSubset X)
+  := (<span class="k">λ</span> <span class="nv">S</span> <span class="nv">T</span> : WOSubset X, ∑ (le : S ⊆ T), tosub_order_compat le ∧ sub_initial le)%prop.
+
+<span class="kn">Notation</span> <span class="s2">"S ≼ T"</span> := (wosub_le _ S T) (<span class="kn">at level</span> <span class="mi">70</span>) : wosubset.
+
+<span class="kn">Definition</span> <span class="nf">wosub_le_inc</span> {<span class="nv">X</span>:hSet} {<span class="nv">S</span> <span class="nv">T</span> : WOSubset X} : S ≼ T -&gt; S ⊆ T := pr1.
+
+<span class="kn">Definition</span> <span class="nf">wosub_le_comp</span> {<span class="nv">X</span>:hSet} {<span class="nv">S</span> <span class="nv">T</span> : WOSubset X} (<span class="nv">le</span> : S ≼ T) : tosub_order_compat (pr1 le)
+  := pr12 le.
+
+<span class="kn">Definition</span> <span class="nf">wosub_le_subi</span> {<span class="nv">X</span>:hSet} {<span class="nv">S</span> <span class="nv">T</span> : WOSubset X} (<span class="nv">le</span> : S ≼ T) : sub_initial (pr1 le)
+  := pr22 le.
+
+<span class="kn">Lemma</span> <span class="nf">wosub_le_isrefl</span> {<span class="nv">X</span>:hSet} : isrefl (wosub_le X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> S.
+  use tpair.
+  + <span class="nb">intros</span> x xinS. <span class="bp">exact</span> xinS.
+  + <span class="nb">split</span>.
+    * <span class="nb">intros</span> s s' le. <span class="bp">exact</span> le.
+    * <span class="nb">intros</span> s s' Ss Ss' le. <span class="bp">exact</span> Ss'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">wosub_equal</span> {<span class="nv">X</span>:hSet} : hrel (WOSubset X) := <span class="k">λ</span> <span class="nv">S</span> <span class="nv">T</span>, S ≼ T ∧ T ≼ S.
+
+<span class="kn">Notation</span> <span class="s2">"S ≣ T"</span> := (wosub_equal S T) (<span class="kn">at level</span> <span class="mi">70</span>) : wosubset.
+
+<span class="kn">Definition</span> <span class="nf">wosub_comparable</span> {<span class="nv">X</span>:hSet} : hrel (WOSubset X) := <span class="k">λ</span> <span class="nv">S</span> <span class="nv">T</span>, S ≼ T ∨ T ≼ S.
+
+<span class="kn">Definition</span> <span class="nf">hasSmallest_WOSubset_plus_point</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span>:WOSubset X) (<span class="nv">z</span>:X) (<span class="nv">nSz</span> : ¬ S z) :
+  LEM ⇒ hasSmallest (TOSrel (TOSubset_plus_point S z nSz)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> lem T ne.
+  <span class="c">(* T is a nonempty set.  We need to find the smallest element of it *)</span>
+  <span class="nb">set</span> (S' := TOSubset_plus_point S z nSz).
+  <span class="nb">assert</span> (S'z := subtype_plus_has_point S z : S' z).
+  <span class="nb">set</span> (z' := (z,,S'z) : carrier S').
+  <span class="nb">set</span> (j := TOSubset_plus_point_incl S z nSz). <span class="nb">fold</span> S' <span class="k">in</span> j.
+  <span class="nb">set</span> (jmap := subtype_inc j).
+  <span class="nb">set</span> (SiT := <span class="k">λ</span> <span class="nv">s</span>:S, T (subtype_inc j s)).
+  <span class="c">(* Decide whether [S ∩ T] is nonempty: *)</span>
+  <span class="nb">induction</span> (lem (<span class="k">∃</span> <span class="nv">s</span>, SiT s)) <span class="k">as</span> [q|q].
+  - <span class="c">(* ... use the smallest element of SiT *)</span>
+    <span class="nb">assert</span> (SiTmin := WOS_hasSmallest _ _ q).
+    <span class="nb">apply</span> (squash_to_hProp SiTmin); <span class="nb">clear</span> SiTmin; <span class="nb">intros</span> [m [SiTm min]].
+    <span class="nb">apply</span> hinhpr. <span class="nb">set</span> (m' := jmap m). <span class="k">exists</span> <span class="nv">m'</span>. <span class="nb">split</span>.
+    + <span class="bp">exact</span> SiTm.
+    + <span class="nb">intros</span> [t S't] Tt.
+      <span class="nb">apply</span> (squash_to_hProp S't); <span class="nb">intros</span> [St|etz].
+      * <span class="nb">induction</span> (ishinh_irrel (ii1 St) S't); <span class="nb">change</span> (m ≤ (t,,St)). <span class="bp">exact</span> (min (t,,St) Tt).
+      * <span class="nb">induction</span> etz; <span class="nb">induction</span> (ishinh_irrel (ii2 (idpath z)) S't); <span class="nb">change</span> unit.
+        <span class="bp">exact</span> tt.
+  - <span class="c">(* ... use z *)</span>
+    <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">z'</span>. <span class="nb">split</span>.
+    + <span class="c">(* T doesn't meet S, so it must contain z *)</span>
+      <span class="nb">apply</span> (squash_to_hProp ne); <span class="nb">clear</span> ne; <span class="nb">intros</span> [[t SiTt] Tt].
+      <span class="nb">apply</span> (squash_to_hProp SiTt); <span class="nb">intros</span> [St|ezt].
+      * <span class="nb">apply</span> fromempty.
+        <span class="c">(* S also meets T, so get a contradiction *)</span>
+        <span class="nb">apply</span> q. <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">t</span>,,<span class="nv">St</span>).
+        <span class="nb">change</span> (T (t,, j t St)).
+        <span class="nb">induction</span> (proofirrelevance_hProp _ SiTt (j t St)).
+        <span class="bp">exact</span> Tt.
+      * <span class="nb">induction</span> ezt. <span class="nb">unfold</span> z'.
+        <span class="nb">induction</span> (proofirrelevance_hProp _ SiTt S'z).
+        <span class="bp">exact</span> Tt.
+    + <span class="c">(* now show z' is the smallest element of T *)</span>
+      <span class="nb">intros</span> [t S't] Tt.
+      <span class="nb">apply</span> (squash_to_hProp S't); <span class="nb">intros</span> [St|ezt].
+      * <span class="nb">apply</span> fromempty.
+        <span class="c">(* t is in S ∩ T, but that's empty *)</span>
+        <span class="nb">apply</span> q; <span class="nb">clear</span> q. <span class="nb">apply</span> hinhpr.
+        <span class="k">exists</span> (<span class="nv">t</span>,,<span class="nv">St</span>).
+        <span class="nb">change</span> (T (t,, j t St)).
+        <span class="nb">induction</span> (proofirrelevance_hProp _ S't (j t St)).
+        <span class="bp">exact</span> Tt.
+      * <span class="nb">induction</span> ezt.
+        <span class="c">(* now show [z ≤ z], by reflexivity *)</span>
+        <span class="nb">change</span> (TOSrel S' (z,,S'z) (z,,S't)).
+        <span class="nb">induction</span> (proofirrelevance_hProp _ S'z S't).
+        <span class="bp">exact</span> (TOrefl S' _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">WOSubset_plus_point</span> {<span class="nv">X</span>:hSet}
+           (<span class="nv">S</span>:WOSubset X) (<span class="nv">z</span>:X) (<span class="nv">nSz</span> : ¬ S z) : LEM -&gt; WOSubset X
+  := <span class="k">λ</span> <span class="nv">lem</span>, subtype_plus S z,,
+            TOSrel (TOSubset_plus_point S z nSz),,
+            TOtotal (TOSubset_plus_point S z nSz),,
+            hasSmallest_WOSubset_plus_point S z nSz lem.
+
+<span class="kn">Definition</span> <span class="nf">wosub_univalence_map</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span> <span class="nv">T</span> : WOSubset X) : (S = T) -&gt; (S ≣ T).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="nb">induction</span> e. <span class="nb">unfold</span> wosub_equal.
+  <span class="nb">simple refine</span> ((<span class="k">λ</span> <span class="nv">L</span>, make_dirprod L L) _).
+  use tpair.
+  + <span class="nb">intros</span> x s. <span class="bp">assumption</span>.
+  + <span class="nb">split</span>.
+    * <span class="nb">intros</span> s s' le. <span class="bp">assumption</span>.
+    * <span class="nb">intros</span> s t Ss St le. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">wosub_univalence</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span> <span class="nv">T</span> : WOSubset X) : (S = T) ≃ (S ≣ T).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (remakeweq _).
+  { <span class="nb">unfold</span> wosub_equal.
+    intermediate_weq (S ╝ T).
+    - <span class="nb">apply</span> total2_paths_equiv.
+    - intermediate_weq (∑ e : S ≡ T, S ≼ T ∧ T ≼ S)%prop.
+      + <span class="nb">apply</span> weqbandf.
+        * <span class="nb">apply</span> hsubtype_univalence.
+        * <span class="nb">intro</span> p. <span class="nb">induction</span> S <span class="k">as</span> [S v], T <span class="k">as</span> [T w]. <span class="nb">simpl</span> <span class="k">in</span> p. <span class="nb">induction</span> p.
+          <span class="nb">change</span> (v=w ≃ (S,, v ≼ S,, w ∧ S,, w ≼ S,, v)).
+          <span class="nb">induction</span> v <span class="k">as</span> [v i], w <span class="k">as</span> [w j].
+          intermediate_weq (v=w)%type.
+          { <span class="nb">apply</span> subtypeInjectivity. <span class="nb">change</span> (isPredicate (<span class="k">λ</span> <span class="nv">R</span> : hrel (carrier_subset S), isWellOrder R)).
+            <span class="nb">intros</span> R. <span class="nb">apply</span> propproperty. }
+          <span class="nb">apply</span> weqimplimpl.
+          { <span class="nb">intros</span> p. <span class="nb">induction</span> p. <span class="nb">split</span>.
+            { use tpair.
+              { <span class="nb">intros</span> s. <span class="nb">change</span> (S s → S s). <span class="bp">exact</span> (idfun _). }
+              { <span class="nb">split</span>.
+                { <span class="nb">intros</span> s s' le. <span class="bp">exact</span> le. }
+                { <span class="nb">intros</span> s t Ss St le. <span class="bp">exact</span> St. } } }
+            { use tpair.
+              { <span class="nb">intros</span> s. <span class="nb">change</span> (S s → S s). <span class="bp">exact</span> (idfun _). }
+              { <span class="nb">split</span>.
+                { <span class="nb">intros</span> s s' le. <span class="bp">exact</span> le. }
+                { <span class="nb">intros</span> s t Ss St le. <span class="bp">exact</span> St. } } } }
+          { <span class="nb">simpl</span>. <span class="nb">unfold</span> WOSrel. <span class="nb">simpl</span>. <span class="nb">intros</span> [[a [b _]] [d [e _]]].
+            <span class="nb">assert</span> (triv : ∏ (f:∏ x : X, S x → S x) (x:carrier_subset S), subtype_inc f x = x).
+            { <span class="nb">intros</span> f s. <span class="nb">apply</span> subtypePath_prop. <span class="bp">reflexivity</span>. }
+            <span class="nb">apply</span> funextfun; <span class="nb">intros</span> s. <span class="nb">apply</span> funextfun; <span class="nb">intros</span> t.
+            <span class="nb">apply</span> hPropUnivalence.
+            { <span class="nb">intros</span> le. <span class="nb">assert</span> (q := b s t le). <span class="nb">rewrite</span> <span class="mi">2</span> triv <span class="k">in</span> q. <span class="bp">exact</span> q. }
+            { <span class="nb">intros</span> le. <span class="nb">assert</span> (q := e s t le). <span class="nb">rewrite</span> <span class="mi">2</span> triv <span class="k">in</span> q. <span class="bp">exact</span> q. } }
+          { <span class="nb">apply</span> setproperty. }
+          { <span class="nb">apply</span> propproperty. }
+      + <span class="nb">apply</span> weqimplimpl.
+        { <span class="nb">intros</span> k. <span class="nb">split</span> ; <span class="nb">apply</span> k. }
+        { <span class="nb">intros</span> c. <span class="nb">split</span>.
+          { <span class="nb">intros</span> x. <span class="bp">exact</span> (wosub_le_inc (pr1 c) x,,wosub_le_inc (pr2 c) x). }
+          { <span class="bp">exact</span> c. } }
+        { <span class="nb">apply</span> propproperty. }
+        { <span class="nb">apply</span> propproperty. } }
+  { <span class="nb">apply</span> wosub_univalence_map. }
+  { <span class="nb">intros</span> e. <span class="nb">induction</span> e. <span class="bp">reflexivity</span>. }
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">wosub_univalence_compute</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span> <span class="nv">T</span> : WOSubset X) (<span class="nv">e</span> : S = T) :
+  wosub_univalence S T e = wosub_univalence_map S T e.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">wosub_inc</span> {<span class="nv">X</span>:hSet} {<span class="nv">S</span> <span class="nv">T</span> : WOSubset X} : (S ≼ T) -&gt; S -&gt; T.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> le s. <span class="bp">exact</span> (subtype_inc (pr1 le) s).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">wosub_fidelity</span> {<span class="nv">X</span>:hSet} {<span class="nv">S</span> <span class="nv">T</span>:WOSubset X} (<span class="nv">le</span> : S ≼ T)
+      (<span class="nv">s</span> <span class="nv">s'</span> : S) : s ≤ s' ⇔ wosub_inc le s ≤ wosub_inc le s'.
+<span class="c">(* we want this lemma available after showing the union of a chain is totally ordered</span>
+<span class="c">   but before showing it has the smallest element condition *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (Srel := WOSrel S).
+  <span class="nb">assert</span> (Stot : istotal Srel).
+  { <span class="nb">apply</span> (WOSwo S). }
+  <span class="nb">set</span> (Trel := WOSrel T).
+  <span class="nb">assert</span> (Tanti : isantisymm Trel).
+  { <span class="nb">apply</span> (WOSwo T). }
+  <span class="nb">split</span>.
+  { <span class="nb">intro</span> l. <span class="bp">exact</span> (wosub_le_comp le s s' l). }
+  { <span class="nb">intro</span> l. <span class="nb">apply</span> (squash_to_hProp (Stot s s')).
+    <span class="nb">change</span> ((s ≤ s') ⨿ (s' ≤ s) → s ≤ s').
+    <span class="nb">intro</span> c. <span class="nb">induction</span> c <span class="k">as</span> [c|c].
+    - <span class="bp">exact</span> c.
+    - <span class="nb">induction</span> le <span class="k">as</span> [le [com ini]].
+      <span class="nb">assert</span> (k := com s' s c).
+      <span class="nb">assert</span> (k' := Tanti _ _ l k); <span class="nb">clear</span> k.
+      <span class="nb">assert</span> (p : s = s').
+      { <span class="nb">apply</span> subtypePath_prop. <span class="bp">exact</span> (maponpaths pr1 k'). }
+      <span class="nb">induction</span> p. <span class="nb">apply</span> (pr2 S). <span class="c">(* refl *)</span> }
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">h1</span> {<span class="nv">X</span>} {<span class="nv">S</span>:WOSubset X} {<span class="nv">s</span> <span class="nv">t</span> <span class="nv">u</span>:S} : s = t -&gt; t ≤ u -&gt; s ≤ u.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> p le. <span class="nb">induction</span> p. <span class="bp">exact</span> le.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">wosub_le_isPartialOrder</span> <span class="nv">X</span> : isPartialOrder (wosub_le X).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> S T U i j.
+    <span class="k">exists</span> (<span class="nv">pr11</span> (subtype_containment_isPartialOrder X) S T U (pr1 i) (pr1 j)).
+    <span class="nb">split</span>.
+    + <span class="nb">intros</span> s s' l. <span class="bp">exact</span> (wosub_le_comp j _ _ (wosub_le_comp i _ _ l)).
+    + <span class="nb">intros</span> s u Ss Uu l.
+      <span class="nb">change</span> (hProptoType ((u,,Uu) ≤ subtype_inc (pr1 j) (subtype_inc (pr1 i) (s,,Ss)))) <span class="k">in</span> l.
+      <span class="nb">set</span> (uinT := u ,, wosub_le_subi j s u (pr1 i s Ss) Uu l : T).
+      <span class="nb">assert</span> (p : subtype_inc (pr1 j) uinT = u,,Uu).
+      { <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop. }
+      <span class="nb">assert</span> (q := h1 p l : subtype_inc (pr1 j) uinT ≤ subtype_inc (pr1 j) (subtype_inc (pr1 i) (s,,Ss))).
+      <span class="nb">assert</span> (r := pr2 (wosub_fidelity j _ _) q).
+      <span class="nb">assert</span> (b := wosub_le_subi i _ _ _ _ r); <span class="nb">simpl</span> <span class="k">in</span> b.
+      <span class="bp">exact</span> b.
+  - <span class="nb">apply</span> wosub_le_isrefl.
+  - <span class="nb">intros</span> S T i j. <span class="nb">apply</span> (invmap (wosub_univalence _ _)). <span class="bp">exact</span> (i,,j).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">WosubPoset</span> (<span class="nv">X</span>:hSet) : Poset.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">WOSubset_set</span> <span class="nv">X</span>).
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">S</span> <span class="nv">T</span>, <span class="nv">S</span> ≼ T).
+  <span class="bp">exact</span> (wosub_le_isPartialOrder X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">wosub_le_smaller</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span> <span class="nv">T</span>:WOSubset X) : hProp := (S ≼ T) ∧ (<span class="k">∃</span> <span class="nv">t</span>:T, t ∉ S).
+
+<span class="kn">Notation</span> <span class="s2">"S ≺ T"</span> := (wosub_le_smaller S T) (<span class="kn">at level</span> <span class="mi">70</span>) : wosubset.
+
+<span class="c">(* [upto s x] means x is in S and, as an element of S, it is strictly less than s *)</span>
+<span class="kn">Definition</span> <span class="nf">upto</span> {<span class="nv">X</span>:hSet} {<span class="nv">S</span>:WOSubset X} (<span class="nv">s</span>:S) : hsubtype X
+  := (<span class="k">λ</span> <span class="nv">x</span>, ∑ h:S x, (x,,h) &lt; s)%prop.
+
+<span class="kn">Lemma</span> <span class="nf">upto_eqn</span> {<span class="nv">X</span>:hSet} {<span class="nv">S</span> <span class="nv">T</span>:WOSubset X} (<span class="nv">x</span>:X) (<span class="nv">Sx</span> : S x) (<span class="nv">Tx</span> : T x) :
+  S ≼ T -&gt; upto (x,,Sx) = upto (x,,Tx).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ST.
+  <span class="nb">apply</span> (invmap (hsubtype_univalence _ _)).
+  <span class="nb">intros</span> y.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> [Sy lt].
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">ST</span> <span class="nv">y</span> <span class="nv">Sy</span>).
+    <span class="nb">generalize</span> lt; <span class="nb">clear</span> lt.
+    <span class="nb">apply</span> negf.
+    <span class="nb">intros</span> le'.
+    <span class="nb">apply</span> (pr2 (wosub_fidelity ST (x,, Sx) (y,, Sy))).
+    <span class="bp">now</span> <span class="nb">apply</span> (h1'' (S := T) le').
+  - <span class="nb">intros</span> [Ty lt].
+    <span class="nb">assert</span> (Q := wosub_le_subi ST x y Sx Ty); <span class="nb">simpl</span> <span class="k">in</span> Q.
+    <span class="nb">assert</span> (e : pr1 ST x Sx = Tx).
+    { <span class="nb">apply</span> propproperty. }
+    <span class="nb">induction</span> e.
+    <span class="nb">assert</span> (Sy := Q (wo_lt_to_le _ _ lt) : S y); <span class="nb">clear</span> Q.
+    <span class="k">exists</span> <span class="nv">Sy</span>.
+    <span class="nb">generalize</span> lt; <span class="nb">clear</span> lt.
+    <span class="nb">apply</span> negf.
+    <span class="nb">intros</span> le'.
+    <span class="bp">now</span> <span class="nb">apply</span> (h1'' (wosub_le_comp ST _ _ le')).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isInterval</span> {<span class="nv">X</span>:hSet} (<span class="nv">S</span>:hsubtype X) (<span class="nv">T</span>:WOSubset X) (<span class="nv">le</span> : S ⊆ T) :
+  LEM -&gt; sub_initial le -&gt; T ⊈ S -&gt; <span class="k">∃</span> <span class="nv">t</span>:T, S ≡ upto t.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> lem ini ne.
+  <span class="nb">set</span> (R := WOSrel T).
+  <span class="nb">assert</span> (min := WOS_hasSmallest T).
+  <span class="nb">set</span> (U := (<span class="k">λ</span> <span class="nv">t</span>:T, t ∉ S) : hsubtype (carrier T)). <span class="c">(* complement of S in T *)</span>
+  <span class="nb">assert</span> (neU : nonempty (carrier U)).
+  { <span class="nb">apply</span> (squash_to_hProp ne); <span class="nb">intros</span> [x [Tx nSx]]. <span class="nb">apply</span> hinhpr. <span class="bp">exact</span> ((x,,Tx),,nSx). }
+  <span class="nb">clear</span> ne. <span class="nb">assert</span> (minU := min U neU); <span class="nb">clear</span> min neU.
+  <span class="nb">apply</span> (squash_to_hProp minU); <span class="nb">clear</span> minU; <span class="nb">intros</span> [u [Uu minu]].
+  <span class="c">(* minu says that u is the smallest element of T not in S *)</span>
+  <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">u</span>. <span class="nb">intro</span> y. <span class="nb">split</span>.
+  - <span class="nb">intro</span> Sy. <span class="nb">change</span> (∑ Ty : T y, neg (u ≤ y,, Ty)).
+    <span class="k">exists</span> (<span class="nv">le</span> <span class="nv">y</span> <span class="nv">Sy</span>). <span class="nb">intro</span> ules. use Uu. <span class="bp">exact</span> (ini _ _ _ _ ules).
+  - <span class="nb">intro</span> yltu. <span class="nb">induction</span> yltu <span class="k">as</span> [yinT yltu].
+    <span class="c">(* Goal : [S y].  We know y is smaller than the smallest element of T not in S, *)</span>
+<span class="c">(*        so at best, constructively, we know [¬ ¬ (S y)].  So prove it by contradiction. *)</span>
+    <span class="nb">apply</span> (proof_by_contradiction lem).
+    <span class="nb">intro</span> bc. use yltu. <span class="bp">now</span> use minu.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** The union of a chain of totally ordered subsets *)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_wosubset_chain</span> {<span class="nv">X</span> : hSet} {<span class="nv">I</span> : UU} (<span class="nv">S</span> : I → WOSubset X)
+  := <span class="k">∀</span> <span class="nv">i</span> <span class="nv">j</span> : I, wosub_comparable (S i) (S j).
+
+<span class="kn">Lemma</span> <span class="nf">common_index</span> {<span class="nv">X</span> : hSet} {<span class="nv">I</span> : UU} {<span class="nv">S</span> : I → WOSubset X}
+      (<span class="nv">chain</span> : is_wosubset_chain S) (<span class="nv">i</span> : I) (<span class="nv">x</span> : carrier_subset (⋃ (<span class="k">λ</span> <span class="nv">i</span>, S i))) :
+   <span class="k">∃</span> <span class="nv">j</span>, S i ≼ S j ∧ S j (pr1 x).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> x <span class="k">as</span> [x xinU]. <span class="nb">apply</span> (squash_to_hProp xinU); <span class="nb">intros</span> [k xinSk].
+  <span class="nb">change</span> (<span class="k">∃</span> <span class="nv">j</span> : I, S i ≼ S j ∧ S j x).
+  <span class="nb">apply</span> (squash_to_hProp (chain i k)). <span class="nb">intros</span> c. <span class="nb">apply</span> hinhpr. <span class="nb">induction</span> c <span class="k">as</span> [c|c].
+  - <span class="k">exists</span> <span class="nv">k</span>. <span class="nb">split</span>.
+    + <span class="bp">exact</span> c.
+    + <span class="bp">exact</span> xinSk.
+  - <span class="k">exists</span> <span class="nv">i</span>. <span class="nb">split</span>.
+    + <span class="nb">apply</span> wosub_le_isrefl.
+    + <span class="bp">exact</span> (pr1 c x xinSk).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">common_index2</span> {<span class="nv">X</span> : hSet} {<span class="nv">I</span> : UU} {<span class="nv">S</span> : I → WOSubset X}
+      (<span class="nv">chain</span> : is_wosubset_chain S) (<span class="nv">x</span> <span class="nv">y</span> : carrier_subset (⋃ (<span class="k">λ</span> <span class="nv">i</span>, S i))) :
+   <span class="k">∃</span> <span class="nv">i</span>, S i (pr1 x) ∧ S i (pr1 y).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> x <span class="k">as</span> [x j], y <span class="k">as</span> [y k]. <span class="nb">change</span> (<span class="k">∃</span> <span class="nv">i</span>, S i x ∧ S i y).
+  <span class="nb">apply</span> (squash_to_hProp j). <span class="nb">clear</span> j. <span class="nb">intros</span> [j s].
+  <span class="nb">apply</span> (squash_to_hProp k). <span class="nb">clear</span> k. <span class="nb">intros</span> [k t].
+  <span class="nb">apply</span> (squash_to_hProp (chain j k)). <span class="nb">clear</span> chain. <span class="nb">intros</span> [c|c].
+  - <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">k</span>. <span class="nb">split</span>.
+    + <span class="bp">exact</span> (pr1 c x s).
+    + <span class="bp">exact</span> t.
+  - <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">j</span>. <span class="nb">split</span>.
+    + <span class="bp">exact</span> s.
+    + <span class="bp">exact</span> (pr1 c y t).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">common_index3</span> {<span class="nv">X</span> : hSet} {<span class="nv">I</span> : UU} {<span class="nv">S</span> : I → WOSubset X}
+      (<span class="nv">chain</span> : is_wosubset_chain S) (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : carrier_subset (⋃ (<span class="k">λ</span> <span class="nv">i</span>, S i))) :
+   <span class="k">∃</span> <span class="nv">i</span>, S i (pr1 x) ∧ S i (pr1 y) ∧ S i (pr1 z).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> x <span class="k">as</span> [x j], y <span class="k">as</span> [y k], z <span class="k">as</span> [z l]. <span class="nb">change</span> (<span class="k">∃</span> <span class="nv">i</span>, S i x ∧ S i y ∧ S i z).
+  <span class="nb">apply</span> (squash_to_hProp j). <span class="nb">clear</span> j. <span class="nb">intros</span> [j s].
+  <span class="nb">apply</span> (squash_to_hProp k). <span class="nb">clear</span> k. <span class="nb">intros</span> [k t].
+  <span class="nb">apply</span> (squash_to_hProp l). <span class="nb">clear</span> l. <span class="nb">intros</span> [l u].
+  <span class="nb">apply</span> (squash_to_hProp (chain j k)). <span class="nb">intros</span> [c|c].
+  - <span class="nb">apply</span> (squash_to_hProp (chain k l)). <span class="nb">clear</span> chain. <span class="nb">intros</span> [d|d].
+    + <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">l</span>. <span class="kp">repeat</span> <span class="nb">split</span>.
+      * <span class="bp">exact</span> (pr1 d x (pr1 c x s)).
+      * <span class="bp">exact</span> (pr1 d y t).
+      * <span class="bp">exact</span> u.
+    + <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">k</span>. <span class="kp">repeat</span> <span class="nb">split</span>.
+      * <span class="bp">exact</span> (pr1 c x s).
+      * <span class="bp">exact</span> t.
+      * <span class="bp">exact</span> (pr1 d z u).
+  - <span class="nb">apply</span> (squash_to_hProp (chain j l)). <span class="nb">clear</span> chain. <span class="nb">intros</span> [d|d].
+    + <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">l</span>. <span class="kp">repeat</span> <span class="nb">split</span>.
+      * <span class="bp">exact</span> (pr1 d x s).
+      * <span class="bp">exact</span> (pr1 d y (pr1 c y t)).
+      * <span class="bp">exact</span> u.
+    + <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">j</span>. <span class="kp">repeat</span> <span class="nb">split</span>.
+      * <span class="bp">exact</span> s.
+      * <span class="bp">exact</span> (pr1 c y t).
+      * <span class="bp">exact</span> (pr1 d z u).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">chain_union_prelim_eq0</span> {<span class="nv">X</span> : hSet} {<span class="nv">I</span> : UU} {<span class="nv">S</span> : I → WOSubset X}
+           (<span class="nv">chain</span> : is_wosubset_chain S)
+           (<span class="nv">x</span> <span class="nv">y</span> : X) (<span class="nv">i</span> <span class="nv">j</span>: I) (<span class="nv">xi</span> : S i x) (<span class="nv">xj</span> : S j x) (<span class="nv">yi</span> : S i y) (<span class="nv">yj</span> : S j y) :
+  WOSrel (S i) (x ,, xi) (y ,, yi) = WOSrel (S j) (x ,, xj) (y ,, yj).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> weqlogeq.
+  <span class="nb">apply</span> (squash_to_hProp (chain i j)). <span class="nb">intros</span> [c|c].
+  - <span class="nb">split</span>.
+    + <span class="nb">intro</span> l. <span class="nb">assert</span> (q := wosub_le_comp c _ _ l); <span class="nb">clear</span> l. <span class="bp">now</span> <span class="nb">apply</span> (h1'' q).
+    + <span class="nb">intro</span> l. <span class="nb">apply</span> (pr2 ((wosub_fidelity c) (x,,xi) (y,,yi))).
+      <span class="bp">now</span> <span class="nb">apply</span> (@h1'' X (S j) _ _ _ _ l).
+  - <span class="nb">split</span>.
+    + <span class="nb">intro</span> l. <span class="nb">apply</span> (pr2 ((wosub_fidelity c) (x,,xj) (y,,yj))).
+      <span class="bp">now</span> <span class="nb">apply</span> (@h1'' X (S i) _ _ _ _ l).
+    + <span class="nb">intro</span> l. <span class="nb">assert</span> (q := wosub_le_comp c _ _ l); <span class="nb">clear</span> l. <span class="bp">now</span> <span class="nb">apply</span> (h1'' q).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">chain_union_rel</span> {<span class="nv">X</span> : hSet} {<span class="nv">I</span> : UU} {<span class="nv">S</span> : I → WOSubset X}
+           (<span class="nv">chain</span> : is_wosubset_chain S) :
+  hrel (carrier_subset (⋃ (<span class="k">λ</span> <span class="nv">i</span>, S i))).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">change</span> (hPropset). <span class="nb">simple refine</span> (squash_to_hSet _ _ (common_index2 chain x y)).
+  - <span class="nb">intros</span> [i [s t]]. <span class="bp">exact</span> (WOSrel (S i) (pr1 x,,s) (pr1 y,,t)).
+  - <span class="nb">intros</span> i j. <span class="bp">now</span> <span class="nb">apply</span> chain_union_prelim_eq0.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">chain_union_rel_eqn</span> {<span class="nv">X</span> : hSet} {<span class="nv">I</span> : UU} {<span class="nv">S</span> : I → WOSubset X}
+           (<span class="nv">chain</span> : is_wosubset_chain S)
+           (<span class="nv">x</span> <span class="nv">y</span> : carrier_subset (⋃ (<span class="k">λ</span> <span class="nv">i</span>, S i)))
+           <span class="nv">i</span> (<span class="nv">s</span> : S i (pr1 x)) (<span class="nv">t</span> : S i (pr1 y)) :
+  chain_union_rel chain x y = WOSrel (S i) (pr1 x,,s) (pr1 y,,t).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> chain_union_rel. <span class="nb">generalize</span> (common_index2 chain x y); <span class="nb">intro</span> h.
+  <span class="nb">assert</span> (e : hinhpr (i,,s,,t) = h).
+  { <span class="nb">apply</span> propproperty. }
+  <span class="bp">now</span> <span class="nb">induction</span> e.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">chain_union_rel_istrans</span> {<span class="nv">X</span> : hSet} {<span class="nv">I</span> : UU} {<span class="nv">S</span> : I → WOSubset X}
+           (<span class="nv">chain</span> : is_wosubset_chain S) :
+  istrans (chain_union_rel chain).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z l m.
+  <span class="nb">apply</span> (squash_to_hProp (common_index3 chain x y z)); <span class="nb">intros</span> [i [r [s t]]].
+  <span class="nb">assert</span> (p := chain_union_rel_eqn chain x y i r s).
+  <span class="nb">assert</span> (q := chain_union_rel_eqn chain y z i s t).
+  <span class="nb">assert</span> (e := chain_union_rel_eqn chain x z i r t).
+  <span class="nb">rewrite</span> p <span class="k">in</span> l; <span class="nb">clear</span> p.
+  <span class="nb">rewrite</span> q <span class="k">in</span> m; <span class="nb">clear</span> q.
+  <span class="nb">rewrite</span> e; <span class="nb">clear</span> e.
+  <span class="nb">assert</span> (tot : istrans (WOSrel (S i))).
+  { <span class="nb">apply</span> (pr2 (S i)). }
+  <span class="bp">exact</span> (tot _ _ _ l m).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">chain_union_rel_isrefl</span> {<span class="nv">X</span> : hSet} {<span class="nv">I</span> : UU} {<span class="nv">S</span> : I → WOSubset X}
+           (<span class="nv">chain</span> : is_wosubset_chain S) :
+  isrefl (chain_union_rel chain).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x. <span class="nb">apply</span> (squash_to_hProp (pr2 x)). <span class="nb">intros</span> [i r].
+  <span class="nb">assert</span> (p := chain_union_rel_eqn chain x x i r r). <span class="nb">rewrite</span> p; <span class="nb">clear</span> p. <span class="nb">apply</span> (pr2 (S i)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">chain_union_rel_isantisymm</span> {<span class="nv">X</span> : hSet} {<span class="nv">I</span> : UU} {<span class="nv">S</span> : I → WOSubset X}
+           (<span class="nv">chain</span> : is_wosubset_chain S) :
+  isantisymm (chain_union_rel chain).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y l m.
+  <span class="nb">change</span> (x=y)%logic.
+  <span class="nb">apply</span> (squash_to_hProp (common_index2 chain x y)); <span class="nb">intros</span> [i [r s]].
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="nb">assert</span> (p := chain_union_rel_eqn chain x y i r s). <span class="nb">rewrite</span> p <span class="k">in</span> l; <span class="nb">clear</span> p.
+  <span class="nb">assert</span> (q := chain_union_rel_eqn chain y x i s r). <span class="nb">rewrite</span> q <span class="k">in</span> m; <span class="nb">clear</span> q.
+  <span class="nb">assert</span> (anti : isantisymm (WOSrel (S i))).
+  { <span class="nb">apply</span> (pr2 (S i)). }
+  <span class="nb">assert</span> (b := anti _ _ l m); <span class="nb">clear</span> anti l m.
+  <span class="bp">exact</span> (maponpaths pr1 b).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">chain_union_rel_istotal</span> {<span class="nv">X</span> : hSet} {<span class="nv">I</span> : UU} {<span class="nv">S</span> : I → WOSubset X}
+           (<span class="nv">chain</span> : is_wosubset_chain S) :
+  istotal (chain_union_rel chain).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> (squash_to_hProp (common_index2 chain x y)); <span class="nb">intros</span> [i [r s]].
+  <span class="nb">assert</span> (p := chain_union_rel_eqn chain x y i r s). <span class="nb">rewrite</span> p; <span class="nb">clear</span> p.
+  <span class="nb">assert</span> (p := chain_union_rel_eqn chain y x i s r). <span class="nb">rewrite</span> p; <span class="nb">clear</span> p.
+  <span class="nb">apply</span> (pr2 (S i)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">chain_union_rel_isTotalOrder</span> {<span class="nv">X</span> : hSet} {<span class="nv">I</span> : UU} {<span class="nv">S</span> : I → WOSubset X}
+           (<span class="nv">chain</span> : is_wosubset_chain S) :
+  isTotalOrder (chain_union_rel chain).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">apply</span> chain_union_rel_istrans.
+  - <span class="nb">apply</span> chain_union_rel_isrefl.
+  - <span class="nb">apply</span> chain_union_rel_isantisymm.
+  - <span class="nb">apply</span> chain_union_rel_istotal.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">chain_union_TOSubset</span> {<span class="nv">X</span> : hSet} {<span class="nv">I</span> : UU} {<span class="nv">S</span> : I → WOSubset X}
+           (<span class="nv">Schain</span> : is_wosubset_chain S) : TOSubset X.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (⋃ S).
+  <span class="k">exists</span> (<span class="nv">chain_union_rel</span> <span class="nv">Schain</span>).
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">apply</span> chain_union_rel_istrans.
+  - <span class="nb">apply</span> chain_union_rel_isrefl.
+  - <span class="nb">apply</span> chain_union_rel_isantisymm.
+  - <span class="nb">apply</span> chain_union_rel_istotal.
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"⋃ chain"</span> := (chain_union_TOSubset chain) (<span class="kn">at level</span> <span class="mi">100</span>, <span class="kn">no associativity</span>) : tosubset.
+
+<span class="sd">(** ** The union of a chain of well ordered subsets *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">chain_union_tosub_le</span> {<span class="nv">X</span> : hSet} {<span class="nv">I</span> : UU} {<span class="nv">S</span> : I → WOSubset X}
+      (<span class="nv">Schain</span> : is_wosubset_chain S) (<span class="nv">i</span>:I)
+      (<span class="nv">inc</span> := subtype_inc (subtype_union_containedIn S i)) :
+  ( S i ≼ ⋃ Schain ) % tosubset.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">subtype_union_containedIn</span> <span class="nv">S</span> <span class="nv">i</span>).
+  <span class="nb">intros</span> s s' j.
+  <span class="nb">set</span> (u := subtype_inc (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">J</span>, hinhpr (i,, J)) s : ⋃ Schain).
+  <span class="nb">set</span> (u':= subtype_inc (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">J</span>, hinhpr (i,, J)) s': ⋃ Schain).
+  <span class="nb">change</span> (chain_union_rel Schain u u').
+  <span class="nb">assert</span> (q := chain_union_rel_eqn Schain u u' i (pr2 s) (pr2 s')).
+  <span class="nb">rewrite</span> q; <span class="nb">clear</span> q. <span class="bp">exact</span> j.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">chain_union_rel_initial</span> {<span class="nv">X</span> : hSet} {<span class="nv">I</span> : UU} {<span class="nv">S</span> : I → WOSubset X}
+      (<span class="nv">Schain</span> : is_wosubset_chain S) (<span class="nv">i</span>:I)
+      (<span class="nv">inc</span> := subtype_inc (subtype_union_containedIn S i)) :
+    (<span class="k">∀</span> <span class="nv">s</span>:S i, <span class="k">∀</span> <span class="nv">t</span>:⋃ Schain, t ≤ inc s ⇒ t ∈ S i)%tosubset.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> s t le.
+  <span class="nb">apply</span> (squash_to_hProp (common_index Schain i t)).
+  <span class="nb">intros</span> [j [[ij [com ini]] tinSj]]. <span class="nb">set</span> (t' := (pr1 t,,tinSj) : S j). <span class="nb">unfold</span> sub_initial <span class="k">in</span> ini.
+  <span class="nb">assert</span> (K := ini (pr1 s) (pr1 t') (pr2 s) (pr2 t')); <span class="nb">simpl</span> <span class="k">in</span> K. <span class="nb">change</span> (t' ≤ subtype_inc ij s → t ∈ S i) <span class="k">in</span> K.
+  <span class="nb">apply</span> K; <span class="nb">clear</span> K. <span class="nb">unfold</span> tosub_order_compat <span class="k">in</span> com.
+  <span class="nb">apply</span> (pr2 (tosub_fidelity (chain_union_tosub_le Schain j) t' (subtype_inc ij s))).
+  <span class="nb">clear</span> com ini.
+  <span class="nb">assert</span> (p : t = subtype_inc (pr1 (chain_union_tosub_le _ j)) t').
+  { <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop. }
+  <span class="nb">induction</span> p.
+  <span class="nb">assert</span> (q : inc s = subtype_inc (pr1 (chain_union_tosub_le Schain j)) (subtype_inc ij s)).
+  { <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop. }
+  <span class="nb">induction</span> q.
+  <span class="bp">exact</span> le.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">chain_union_rel_hasSmallest</span> {<span class="nv">X</span> : hSet} {<span class="nv">I</span> : UU} {<span class="nv">S</span> : I → WOSubset X}
+           (<span class="nv">chain</span> : is_wosubset_chain S) :
+  hasSmallest (chain_union_rel chain).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> T t'.
+  <span class="nb">apply</span> (squash_to_hProp t'); <span class="nb">clear</span> t'; <span class="nb">intros</span> [[x i] xinT].
+  <span class="nb">apply</span> (squash_to_hProp i); <span class="nb">intros</span> [j xinSj].
+  <span class="nb">induction</span> (ishinh_irrel ( j ,, xinSj ) i).
+  <span class="c">(* T' is the intersection of T with S j *)</span>
+  <span class="nb">set</span> (T' := (<span class="k">λ</span> <span class="nv">s</span>, T (subtype_inc (subtype_union_containedIn S j) s))).
+  <span class="nb">assert</span> (t' := hinhpr ((x,,xinSj),,xinT) : ∥ carrier T' ∥); <span class="nb">clear</span> x xinSj xinT.
+  <span class="nb">assert</span> (min := WOS_hasSmallest (S j) T' t'); <span class="nb">clear</span> t'.
+  <span class="nb">apply</span> (squash_to_hProp min); <span class="nb">clear</span> min; <span class="nb">intros</span> [t0 [t0inT' t0min]].
+  <span class="c">(* t0 is the minimal element of T' *)</span>
+  <span class="nb">set</span> (t0' := subtype_inc (subtype_union_containedIn S j) t0).
+  <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">t0'</span>. <span class="nb">split</span>.
+  - <span class="bp">exact</span> t0inT'.
+  - <span class="nb">intros</span> t tinT.
+    <span class="c">(* now show any other element t of T is at least as big as t0' *)</span>
+    <span class="c">(* for that purpose, we may assume t ≤ t0' *)</span>
+    <span class="nb">apply</span> (hdisj_impl_2 (chain_union_rel_istotal chain _ _)); <span class="nb">intro</span> tle.
+    <span class="nb">set</span> (q := chain_union_rel_initial chain j t0 t tle).
+    <span class="nb">set</span> (t' := (pr1 t,,q) : S j).
+    <span class="nb">assert</span> (E : subtype_inc (subtype_union_containedIn S j) t' = t).
+    { <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop. }
+    <span class="nb">rewrite</span> &lt;- E. <span class="nb">unfold</span> t0'.
+    <span class="nb">apply</span> (pr2 (chain_union_tosub_le chain j) t0 t'). <span class="nb">apply</span> (t0min t').
+    <span class="nb">unfold</span> T'. <span class="nb">rewrite</span> E. <span class="bp">exact</span> tinT.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">chain_union_WOSubset</span> {<span class="nv">X</span>:hSet} {<span class="nv">I</span>:UU} {<span class="nv">S</span> : I -&gt; WOSubset X} (<span class="nv">Schain</span> : is_wosubset_chain S)
+  : WOSubset X.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (⋃ Schain). <span class="k">exists</span> (<span class="nv">chain_union_rel</span> <span class="nv">Schain</span>).
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">apply</span> chain_union_rel_istrans.
+  - <span class="nb">apply</span> chain_union_rel_isrefl.
+  - <span class="nb">apply</span> chain_union_rel_isantisymm.
+  - <span class="nb">apply</span> chain_union_rel_istotal.
+  - <span class="nb">apply</span> chain_union_rel_hasSmallest.
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"⋃ chain"</span> := (chain_union_WOSubset chain) (<span class="kn">at level</span> <span class="mi">100</span>, <span class="kn">no associativity</span>) : wosubset.
+
+<span class="kn">Lemma</span> <span class="nf">chain_union_le</span> {<span class="nv">X</span>:hSet} {<span class="nv">I</span>:UU} (<span class="nv">S</span> : I -&gt; WOSubset X) (<span class="nv">Schain</span> : is_wosubset_chain S) :
+  <span class="k">∀</span> <span class="nv">i</span>, S i ≼ ⋃ Schain.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i. <span class="k">exists</span> (<span class="nv">subtype_union_containedIn</span> <span class="nv">S</span> <span class="nv">i</span>). <span class="nb">split</span>.
+  * <span class="bp">exact</span> (pr2 (chain_union_tosub_le _ i)).
+  * <span class="nb">intros</span> s t Ss Tt.
+    <span class="bp">exact</span> (chain_union_rel_initial Schain i (s,,Ss) (t,,Tt)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">proper_subtypes_set</span> (<span class="nv">X</span>:UU) : hSet := ∑ S : subtype_set X, hProp_to_hSet (<span class="k">∃</span> <span class="nv">x</span>, ¬ (S x)).
+
+<span class="c">(* the interval up to c, as a proper subset of X *)</span>
+<span class="kn">Definition</span> <span class="nf">upto'</span> {<span class="nv">X</span>:hSet} {<span class="nv">C</span>:WOSubset X} (<span class="nv">c</span>:C) : proper_subtypes_set X.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">upto</span> <span class="nv">c</span>). <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">c</span>). <span class="nb">intro</span> n.
+  <span class="nb">simpl</span> <span class="k">in</span> n. <span class="nb">induction</span> n <span class="k">as</span> [n o]. <span class="nb">apply</span> o; <span class="nb">clear</span> o.
+  <span class="nb">apply</span> (TOeq_to_refl C _ _). <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Choice functions *)</span>
+
+<span class="sd">(** A choice function provides an element not in each proper subset.  *)</span>
+
+<span class="kn">Definition</span> <span class="nf">choice_fun</span> (<span class="nv">X</span>:hSet) : hSet := ∏ S : proper_subtypes_set X, ∑ x : X, hProp_to_hSet (¬ pr1 S x).
+
+<span class="kn">Lemma</span> <span class="nf">AC_to_choice_fun</span> (<span class="nv">X</span>:hSet) : AxiomOfChoice ⇒ ∥ choice_fun X ∥.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ac.
+  <span class="bp">exact</span> (squash_to_hProp (ac (proper_subtypes_set X)
+                             (<span class="k">λ</span> <span class="nv">S</span>, ∑ x, hProp_to_hSet (¬ (pr1 S x))) pr2)
+                         hinhpr).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Given a choice function g, we single out well ordered subsets C of X that</span>
+<span class="sd">    follow the choice functions advice when constructed by adding one element at</span>
+<span class="sd">    a time to the top.  We may say that C is "guided" by g. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_guided_WOSubset</span> {<span class="nv">X</span>:hSet} (<span class="nv">g</span> : choice_fun X) (<span class="nv">C</span> : WOSubset X) : hProp
+  := <span class="k">∀</span> <span class="nv">c</span>:C, pr1 c = pr1 (g (upto' c)).
+
+<span class="kn">Lemma</span> <span class="nf">upto'_eqn</span> {<span class="nv">X</span>:hSet} (<span class="nv">g</span> : choice_fun X) (<span class="nv">C</span> <span class="nv">D</span> : WOSubset X) (<span class="nv">j</span> : C ≼ D)
+      (<span class="nv">c</span> : C) (<span class="nv">d</span> : D) :
+  pr1 (subtype_inc (pr1 j) c) = pr1 d -&gt;
+  pr1 (g (upto' c)) = pr1 (g (upto' d)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> p. <span class="nb">assert</span> (e' : upto' c = upto' d).
+  { <span class="nb">apply</span> subtypePath_prop. <span class="nb">change</span> (upto c = upto d).
+    <span class="nb">assert</span> (q : subtype_inc (pr1 j) c = d).
+    { <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop. }
+    <span class="nb">clear</span> p. <span class="nb">induction</span> q.
+    <span class="bp">now</span> <span class="nb">apply</span> upto_eqn. }
+  <span class="bp">now</span> <span class="nb">induction</span> e'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Guided_WOSubset</span> {<span class="nv">X</span>:hSet} (<span class="nv">g</span> : choice_fun X) := (∑ C, is_guided_WOSubset g C)%type.
+
+<span class="kn">Definition</span> <span class="nf">guidedFamily</span> {<span class="nv">X</span>:hSet} (<span class="nv">g</span> : choice_fun X) : Guided_WOSubset g -&gt; WOSubset X
+  := pr1.
+
+<span class="kn">Coercion</span> <span class="nf">guidedFamily</span> : Guided_WOSubset &gt;-&gt; WOSubset.
+
+<span class="sd">(** ** The guided well ordered subsets form a chain *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">guided_WOSubset_total</span> {<span class="nv">X</span>:hSet} (<span class="nv">g</span> : choice_fun X) :
+  LEM -&gt; is_wosubset_chain (guidedFamily g).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> lem [C gC] [D gD].
+  <span class="nb">set</span> (W := max_common_initial C D).
+  <span class="nb">assert</span> (Q := max_common_initial_is_common_initial C D).
+  <span class="nb">induction</span> Q <span class="k">as</span> [WC [WD [WCi [WDi WCD]]]]; <span class="nb">fold</span> W <span class="k">in</span> WC, WD, WCi, WDi.
+  <span class="nb">assert</span> (E : W ≡ C ∨ W ≡ D).
+  { <span class="nb">apply</span> (proof_by_contradiction lem); <span class="nb">intro</span> h.
+    <span class="nb">assert</span> (k := fromnegcoprod_prop h); <span class="nb">clear</span> h; <span class="nb">induction</span> k <span class="k">as</span> [nc nd].
+    <span class="nb">assert</span> (nCW : C ⊈ W).
+    { use subtype_notEqual_containedIn.
+      - <span class="bp">exact</span> WC.
+      - <span class="bp">now</span> <span class="nb">apply</span> subtype_notEqual_from_negEqual. }
+    <span class="nb">assert</span> (nDW : D ⊈ W).
+    { use subtype_notEqual_containedIn.
+      - <span class="bp">exact</span> WD.
+      - <span class="bp">now</span> <span class="nb">apply</span> subtype_notEqual_from_negEqual. }
+    <span class="nb">assert</span> (p : <span class="k">∃</span> <span class="nv">t</span> : C, W ≡ upto t). { <span class="bp">now</span> use isInterval. }
+    <span class="nb">assert</span> (q : <span class="k">∃</span> <span class="nv">t</span> : D, W ≡ upto t). { <span class="bp">now</span> use isInterval. }
+    <span class="nb">change</span> hfalse.
+    <span class="nb">apply</span> (squash_to_hProp p); <span class="nb">clear</span> p; <span class="nb">intros</span> [c cE].
+    <span class="nb">apply</span> (squash_to_hProp q); <span class="nb">clear</span> q; <span class="nb">intros</span> [d dE].
+    <span class="nb">assert</span> (ce : W = upto c).
+    { <span class="bp">now</span> <span class="nb">apply</span> (invmap (hsubtype_univalence _ _)). }
+    <span class="nb">assert</span> (de : W = upto d).
+    { <span class="bp">now</span> <span class="nb">apply</span> (invmap (hsubtype_univalence _ _)). }
+    <span class="nb">assert</span> (cd := !ce @ de : upto c = upto d).
+    <span class="nb">assert</span> (cd' : upto' c = upto' d).
+    { <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop. }
+    <span class="nb">assert</span> (p := gC c); <span class="nb">simpl</span> <span class="k">in</span> p.
+    <span class="nb">assert</span> (q := gD d); <span class="nb">simpl</span> <span class="k">in</span> q.
+    <span class="nb">unfold</span> choice_fun <span class="k">in</span> g.
+    <span class="nb">assert</span> (cd1 : pr1 c = pr1 d).
+    { <span class="nb">simple refine</span> (p @ _ @ !q). <span class="bp">now</span> <span class="nb">induction</span> cd'. }
+    <span class="nb">clear</span> cd'.
+    <span class="nb">set</span> (W' := subtype_plus W (pr1 c)).
+    <span class="nb">assert</span> (j := subtype_plus_incl W (pr1 c) : W ⊆ W').
+    <span class="nb">assert</span> (W'c := subtype_plus_has_point W (pr1 c) : W' (pr1 c)).
+    <span class="nb">assert</span> (W'd := transportf W' cd1 W'c : W' (pr1 d)).
+    <span class="nb">assert</span> (ci : common_initial W' C D).
+    { <span class="nb">assert</span> (W'C := subtype_plus_in WC (pr2 c));
+        <span class="nb">assert</span> (W'D := subtype_plus_in WD (transportb (<span class="k">λ</span> <span class="nv">x</span> : X, D x) cd1 (pr2 d)));
+        <span class="nb">fold</span> W' <span class="k">in</span> W'C, W'D.
+      <span class="k">exists</span> <span class="nv">W'C</span>, W'D.
+      <span class="nb">assert</span> (cmax : ∏ (v : carrier W') (W'c : W' (pr1 c)),
+                     subtype_inc W'C v ≤ subtype_inc W'C (pr1 c,,W'c)).
+      { <span class="nb">intros</span> v W'c'. <span class="nb">assert</span> (e : c = subtype_inc W'C (pr1 c,, W'c')).
+        { <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop. }
+        <span class="nb">induction</span> e. <span class="nb">clear</span> W'c'. <span class="nb">induction</span> v <span class="k">as</span> [v W'v]. <span class="nb">apply</span> (squash_to_hProp W'v); <span class="nb">intros</span> [Wv|k].
+        - <span class="nb">assert</span> (L := pr1 (cE v) Wv). <span class="nb">unfold</span> upto,lt <span class="k">in</span> L.
+          <span class="nb">assert</span> (Q := @tot_nge_to_le (carrier_subset C) (TOSrel C) (TOtot C) _ _ (pr2 L)).
+          <span class="bp">now</span> <span class="nb">apply</span>(h1'' Q).
+        - use (TOeq_to_refl C). <span class="nb">apply</span> subtypePath_prop. <span class="nb">simpl</span>. <span class="bp">exact</span> (!k). }
+      <span class="nb">assert</span> (cmax' : ∏ (w : carrier W) (W'c : W' (pr1 c)),
+                     subtype_inc W'C (subtype_inc j w) &lt; subtype_inc W'C (pr1 c,,W'c)).
+      { <span class="nb">intros</span> w W'c'. <span class="nb">assert</span> (e : c = subtype_inc W'C (pr1 c,, W'c')).
+        { <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop. }
+        <span class="nb">induction</span> e. <span class="nb">clear</span> W'c'. <span class="nb">induction</span> w <span class="k">as</span> [v Wv].
+        <span class="nb">assert</span> (L := pr1 (cE v) Wv). <span class="nb">unfold</span> upto,lt <span class="k">in</span> L.
+        <span class="nb">assert</span> (Q := @tot_nge_to_le (carrier_subset C) (TOSrel C) (TOtot C) _ _ (pr2 L)).
+        <span class="nb">apply</span> (@tot_nle_iff_gt (carrier_subset C) (TOSrel C) (pr122 C)).
+        <span class="nb">split</span>.
+        - <span class="bp">now</span> <span class="nb">apply</span> (h1'' Q).
+        - <span class="nb">intros</span> e. <span class="nb">assert</span> (e' := maponpaths pr1 e); <span class="nb">clear</span> e. <span class="nb">change</span> (v = pr1 c)%type <span class="k">in</span> e'.
+          <span class="nb">assert</span> ( L' := pr2 L ). <span class="nb">simpl</span> <span class="k">in</span> L'. <span class="nb">apply</span> L'; <span class="nb">clear</span> L'.
+          <span class="bp">exact</span> (TOeq_to_refl_1 C c (v,, pr1 L) (!e')). }
+      <span class="nb">assert</span> (dmax : ∏ (v : carrier W') (W'd : W' (pr1 d)),
+                     subtype_inc W'D v ≤ subtype_inc W'D (pr1 d,,W'd)).
+      { <span class="nb">intros</span> v W'd'. <span class="nb">assert</span> (e : d = subtype_inc W'D (pr1 d,, W'd')).
+        { <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop. }
+        <span class="nb">induction</span> e. <span class="nb">clear</span> W'd'. <span class="nb">induction</span> v <span class="k">as</span> [v W'v]. <span class="nb">apply</span> (squash_to_hProp W'v); <span class="nb">intros</span> [Wv|k].
+        - <span class="nb">assert</span> (L := pr1 (dE v) Wv). <span class="nb">unfold</span> upto,lt <span class="k">in</span> L.
+          <span class="nb">assert</span> (Q := @tot_nge_to_le (carrier_subset D) (TOSrel D) (TOtot D) _ _ (pr2 L)).
+          <span class="bp">now</span> <span class="nb">apply</span>(h1'' Q).
+        - use (TOeq_to_refl D). <span class="nb">apply</span> subtypePath_prop. <span class="nb">simpl</span>. <span class="bp">exact</span> (!k @ cd1). }
+      <span class="nb">assert</span> (dmax' : ∏ (w : carrier W) (W'd : W' (pr1 d)),
+                     subtype_inc W'D (subtype_inc j w) &lt; subtype_inc W'D (pr1 d,,W'd)).
+      { <span class="nb">intros</span> w W'd'. <span class="nb">assert</span> (e : d = subtype_inc W'D (pr1 d,, W'd')).
+        { <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop. }
+        <span class="nb">induction</span> e. <span class="nb">clear</span> W'd'. <span class="nb">induction</span> w <span class="k">as</span> [v Wv].
+        <span class="nb">assert</span> (L := pr1 (dE v) Wv). <span class="nb">unfold</span> upto,lt <span class="k">in</span> L.
+        <span class="nb">assert</span> (Q := @tot_nge_to_le (carrier_subset D) (TOSrel D) (TOtot D) _ _ (pr2 L)).
+        <span class="nb">apply</span> (@tot_nle_iff_gt (carrier_subset D) (TOSrel D) (pr122 D)).
+        <span class="nb">split</span>.
+        - <span class="bp">now</span> <span class="nb">apply</span> (h1'' Q).
+        - <span class="nb">intros</span> e. <span class="nb">assert</span> (e' := maponpaths pr1 e); <span class="nb">clear</span> e. <span class="nb">change</span> (v = pr1 d)%type <span class="k">in</span> e'.
+          <span class="nb">assert</span> ( L' := pr2 L ). <span class="nb">simpl</span> <span class="k">in</span> L'. <span class="nb">apply</span> L'; <span class="nb">clear</span> L'.
+          <span class="bp">exact</span> (TOeq_to_refl_1 D d (v,, pr1 L) (!e')). }
+      <span class="nb">split</span>.
+      { <span class="nb">intros</span> w' c' W'w' Cc' le.
+        <span class="nb">apply</span> (squash_to_hProp W'w'); <span class="nb">intros</span> B. <span class="nb">induction</span> B <span class="k">as</span> [Ww'|e].
+        - <span class="nb">apply</span> hinhpr, ii1. <span class="nb">apply</span> (WCi w' c' Ww' Cc'). <span class="bp">now</span> <span class="nb">apply</span> (h1'' le).
+        - <span class="nb">induction</span> e.
+          <span class="nb">induction</span> (lem (pr1 c = c')) <span class="k">as</span> [e|ne].
+          + <span class="nb">induction</span> e. <span class="bp">exact</span> W'c.
+          + use j. <span class="nb">rewrite</span> ce. <span class="k">exists</span> <span class="nv">Cc'</span>. <span class="nb">unfold</span> lt. <span class="nb">intro</span> le'. <span class="nb">apply</span> ne.
+            <span class="nb">assert</span> (e : c = (c',,Cc')).
+            { <span class="nb">apply</span> (TOanti C).
+              - <span class="bp">exact</span> le'.
+              - <span class="bp">now</span> <span class="nb">apply</span> (h1'' le). }
+            <span class="bp">exact</span> (maponpaths pr1 e). }
+      <span class="nb">split</span>.
+      { <span class="nb">intros</span> w' d' W'w' Dd' le.
+        <span class="nb">apply</span> (squash_to_hProp W'w'); <span class="nb">intros</span> B. <span class="nb">induction</span> B <span class="k">as</span> [Ww'|e].
+        - <span class="nb">apply</span> hinhpr, ii1. <span class="nb">apply</span> (WDi w' d' Ww' Dd'). <span class="bp">now</span> <span class="nb">apply</span> (h1'' le).
+        - <span class="nb">induction</span> e.
+          <span class="nb">induction</span> (lem (pr1 d = d')) <span class="k">as</span> [e|ne].
+          + <span class="nb">induction</span> e. <span class="bp">exact</span> W'd.
+          + use j. <span class="nb">rewrite</span> de. <span class="k">exists</span> <span class="nv">Dd'</span>. <span class="nb">unfold</span> lt. <span class="nb">intro</span> le'. <span class="nb">apply</span> ne.
+            <span class="nb">assert</span> (e : d = (d',,Dd')).
+            { <span class="nb">apply</span> (TOanti D).
+              - <span class="bp">exact</span> le'.
+              - <span class="bp">now</span> <span class="nb">apply</span> (h1'' le). }
+            <span class="bp">exact</span> (maponpaths pr1 e). }
+      {
+        <span class="nb">intros</span> [v W'v] [w W'w]. <span class="nb">change</span> (hProptoType (W' v)) <span class="k">in</span> W'v; <span class="nb">change</span> (hProptoType (W' w)) <span class="k">in</span> W'w.
+        <span class="nb">apply</span> (squash_to_hProp W'v); <span class="nb">intros</span> [Wv|Ev].
+        - <span class="nb">apply</span> (squash_to_hProp W'w); <span class="nb">intros</span> [Ww|Ew].
+          + <span class="nb">assert</span> (Q := WCD (v,,Wv) (w,,Ww)).
+            <span class="nb">change</span> (hProptoType (
+                        (subtype_inc WC (v,, Wv) ≤ subtype_inc WC (w,, Ww))
+                          ⇔
+                          (subtype_inc WD (v,, Wv) ≤ subtype_inc WD (w,, Ww))
+                      )%tosubset) <span class="k">in</span> Q.
+            <span class="nb">assert</span> (e : subtype_inc W'C (v,, W'v) = subtype_inc WC (v,, Wv)).
+            { <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop. }
+            <span class="nb">induction</span> e.
+            <span class="nb">assert</span> (e : subtype_inc W'C (w,, W'w) = subtype_inc WC (w,, Ww)).
+            { <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop. }
+            <span class="nb">induction</span> e.
+            <span class="nb">assert</span> (e : subtype_inc W'D (v,, W'v) = subtype_inc WD (v,, Wv)).
+            { <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop. }
+            <span class="nb">induction</span> e.
+            <span class="nb">assert</span> (e : subtype_inc W'D (w,, W'w) = subtype_inc WD (w,, Ww)).
+            { <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop. }
+            <span class="nb">induction</span> e.
+            <span class="bp">exact</span> Q.
+          + <span class="nb">induction</span> Ew. <span class="nb">apply</span> logeq_if_both_true.
+            * <span class="nb">apply</span> cmax.
+            * <span class="nb">induction</span> (!cd1). <span class="nb">apply</span> dmax.
+        - <span class="nb">induction</span> Ev. <span class="nb">apply</span> (squash_to_hProp W'w); <span class="nb">intros</span> [Ww|Ew].
+          + <span class="nb">apply</span> logeq_if_both_false.
+            * <span class="nb">assert</span> (Q := cmax' (w,,Ww) W'v). <span class="nb">unfold</span> lt <span class="k">in</span> Q.
+              <span class="nb">assert</span> (e : (w,, W'w) = (subtype_inc j (w,, Ww))).
+              { <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop. }
+              <span class="nb">induction</span> e.
+              <span class="bp">exact</span> Q.
+            * <span class="nb">assert</span> (Q := dmax' (w,,Ww) W'd). <span class="nb">unfold</span> lt <span class="k">in</span> Q.
+              <span class="nb">assert</span> (e : (w,, W'w) = (subtype_inc j (w,, Ww))).
+              { <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop. }
+              <span class="nb">induction</span> e.
+              <span class="nb">assert</span> (e : subtype_inc W'D (pr1 c,, W'v) = subtype_inc W'D (pr1 d,, W'd)).
+              { <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop. }
+              <span class="nb">induction</span> e.
+              <span class="bp">exact</span> Q.
+          + <span class="nb">induction</span> Ew. <span class="nb">apply</span> logeq_if_both_true ; <span class="bp">now</span> use TOeq_to_refl_1. } }
+    <span class="nb">assert</span> (K := max_common_initial_is_max C D W' ci); <span class="nb">fold</span> W <span class="k">in</span> K.
+    <span class="nb">assert</span> (Wc : W (pr1 c)).
+    { <span class="bp">exact</span> (K (pr1 c) W'c). }
+    <span class="nb">assert</span> (L := pr1 (cE (pr1 c)) Wc). <span class="nb">induction</span> L <span class="k">as</span> [Cc Q]. <span class="nb">change</span> (neg (c ≤ pr1 c,, Cc)) <span class="k">in</span> Q.
+    <span class="nb">apply</span> Q; <span class="nb">clear</span> Q.
+    <span class="nb">simple refine</span> (transportf (<span class="k">λ</span> <span class="nv">c'</span>, c ≤ c') _ (TOrefl C c)).
+    <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop. }
+  <span class="nb">change</span> (wosub_comparable C D). <span class="nb">unfold</span> wosub_comparable.
+  <span class="nb">apply</span> (squash_to_hProp E); <span class="nb">clear</span> E; <span class="nb">intros</span> E. <span class="nb">apply</span> hinhpr.
+  <span class="kn">Set Printing Coercions</span>.
+  <span class="nb">induction</span> E <span class="k">as</span> [eWC|eWD].
+  - <span class="nb">apply</span> ii1.
+    <span class="nb">assert</span> (e : W = C).
+    { <span class="bp">now</span> <span class="nb">apply</span> hsubtype_univalence. }
+    <span class="nb">unfold</span> W <span class="k">in</span> *. <span class="nb">clear</span> W.
+    <span class="nb">induction</span> (!e); <span class="nb">clear</span> e.
+    use tpair.
+    { <span class="bp">exact</span> WD. }
+    <span class="nb">split</span>.
+    { <span class="nb">intros</span> x y le. <span class="nb">apply</span> (pr1 (WCD x y)). <span class="bp">now</span> <span class="nb">apply</span> (h1'' le). }
+    <span class="bp">exact</span> WDi.
+  - <span class="nb">apply</span> ii2.
+    <span class="nb">assert</span> (e : W = D).
+    { <span class="bp">now</span> <span class="nb">apply</span> hsubtype_univalence. }
+    <span class="nb">unfold</span> W <span class="k">in</span> *. <span class="nb">clear</span> W.
+    <span class="nb">induction</span> (!e); <span class="nb">clear</span> e.
+    use tpair.
+    { <span class="bp">exact</span> WC. }
+    <span class="nb">split</span>.
+    { <span class="nb">intros</span> x y le. <span class="nb">apply</span> (pr2 (WCD x y)). <span class="bp">now</span> <span class="nb">apply</span> (h1'' le). }
+    <span class="bp">exact</span> WCi.
+  <span class="kn">Unset Printing Coercions</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** The proof of the well ordering theorem of Zermelo *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">ZermeloWellOrdering</span> {<span class="nv">X</span>:hSet} : AxiomOfChoice ⇒ <span class="k">∃</span> <span class="nv">R</span> : hrel X, isWellOrder R.
+<span class="c">(* see http://www.math.illinois.edu/~dan/ShortProofs/WellOrdering.pdf *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ac. <span class="nb">assert</span> (lem := AC_to_LEM ac).
+  <span class="c">(* a choice function g allows us to single out the "guided" well ordered subsets of X *)</span>
+  <span class="nb">apply</span> (squash_to_hProp (AC_to_choice_fun X ac)); <span class="nb">intro</span> g.
+  <span class="nb">set</span> (S := guidedFamily g).
+  <span class="nb">set</span> (Schain := guided_WOSubset_total g lem).
+  <span class="c">(* we form the union, W, of all the guided (well ordered) subsets of X *)</span>
+  <span class="nb">set</span> (W := ⋃ Schain).
+  <span class="c">(* we show W itself is guided, so W is the biggest guided subset of X *)</span>
+  <span class="nb">assert</span> (Wguided : is_guided_WOSubset g W).
+  { <span class="nb">intros</span> [w Ww]. <span class="nb">apply</span> (squash_to_hProp Ww); <span class="nb">intros</span> [C Cw].
+    <span class="nb">change</span> (hProptoType (C w)) <span class="k">in</span> Cw. <span class="nb">simpl</span>.
+    <span class="nb">assert</span> (Q := pr2 C (w,,Cw)); <span class="nb">simpl</span> <span class="k">in</span> Q.
+    <span class="nb">simple refine</span> (Q @ _); <span class="nb">clear</span> Q.
+    <span class="nb">assert</span> (CW := chain_union_le S Schain C : C ≼ W).
+    use upto'_eqn.
+    - <span class="bp">exact</span> CW.
+    - <span class="bp">reflexivity</span>. }
+  <span class="c">(* now we prove W is all of X *)</span>
+  <span class="nb">assert</span> (<span class="kp">all</span> : <span class="k">∀</span> <span class="nv">x</span>, W x).
+  { <span class="c">(* ... for if not, we can add a guided element and get a bigger guided subset *)</span>
+    <span class="nb">apply</span> (proof_by_contradiction lem); <span class="nb">intro</span> n.
+    <span class="c">(* it's not constructive to get an element not in W: *)</span>
+    <span class="nb">assert</span> (Q := negforall_to_existsneg _ lem n); <span class="nb">clear</span> n.
+    <span class="nb">change</span> hfalse.
+    <span class="c">(* zn is the guided element not in W: *)</span>
+    <span class="nb">set</span> (znW := g (pr1 W,,Q) : ∑ z : X, ¬ pr1 W z).
+    <span class="nb">set</span> (z := pr1 znW).
+    <span class="nb">set</span> (nWz := pr2 znW : ¬ pr1 W z).
+    <span class="c">(* make a larger well ordered subset of X by appending z to the top of W *)</span>
+    <span class="nb">set</span> (W' := WOSubset_plus_point W z nWz lem).
+    <span class="nb">assert</span> (W'z := subtype_plus_has_point W z : W' z).
+    <span class="nb">set</span> (j := TOSubset_plus_point_incl W z nWz : W ⊆ W').
+    <span class="nb">set</span> (jmap := subtype_inc j).
+    <span class="nb">assert</span> (W'guided : is_guided_WOSubset g W').
+    { <span class="nb">unfold</span> is_guided_WOSubset.
+      <span class="nb">intros</span> [x W'x].
+      <span class="nb">change</span> (x = pr1 (g (@upto' X W' (x,, W'x))))%logic.
+      <span class="nb">apply</span> (squash_to_hProp W'x); <span class="nb">intros</span> [Wx|ezx].
+      - <span class="nb">assert</span> (x_guided := Wguided (x,,Wx)).
+        <span class="nb">change</span> (x = pr1 (g (@upto' X W (x,, Wx))))%type <span class="k">in</span> x_guided.
+        <span class="nb">simple refine</span> (x_guided @ _); <span class="nb">clear</span> x_guided.
+        use upto'_eqn.
+        + <span class="c">(* show W ≼ W'; abstract later *)</span>
+          <span class="nb">assert</span> (WW' := TOSubset_plus_point_le W z nWz).
+          <span class="nb">induction</span> WW' <span class="k">as</span> [WW' comp].
+          <span class="k">exists</span> <span class="nv">WW'</span>.
+          <span class="nb">split</span>.
+          * <span class="bp">exact</span> comp.
+          * <span class="nb">intros</span> w w' Ww W'w' le.
+            <span class="nb">simple refine</span> (TOSubset_plus_point_initial W z nWz w w' Ww W'w' _).
+            <span class="bp">now</span> <span class="nb">apply</span> (h1'' le).
+        + <span class="bp">reflexivity</span>.
+      - <span class="nb">induction</span> ezx.
+        <span class="nb">change</span> (pr1 (g (pr1 W,, Q)) = pr1 (g (@upto' X W' (z,, W'x)))).
+        <span class="nb">assert</span> (e : (pr1 W,, Q) = @upto' X W' (z,, W'x)).
+        { <span class="nb">apply</span> subtypePath_prop. <span class="nb">apply</span> (invmap (hsubtype_univalence _ _)).
+          <span class="nb">intros</span> y.
+          <span class="nb">change</span> (W y ⇔ @upto X W' (z,, W'x) y).
+          <span class="nb">split</span>.
+          - <span class="nb">intros</span> Wy.
+            <span class="c">(* show that the element y in W is less than z *)</span>
+            <span class="k">exists</span> (<span class="nv">j</span> <span class="nv">y</span> <span class="nv">Wy</span>). <span class="nb">unfold</span> lt. <span class="nb">intros</span> le.
+            <span class="nb">induction</span> (ishinh_irrel (ii2 (idpath z)) W'x).
+            <span class="nb">change</span> empty <span class="k">in</span> le.
+            <span class="bp">exact</span> le.
+          - <span class="nb">intros</span> [W'y yz].
+            <span class="c">(* show that if y in W' is less than z, then it's in W *)</span>
+            <span class="nb">apply</span> (squash_to_hProp W'y); <span class="nb">intros</span> [Wy|ezy].
+            + <span class="bp">exact</span> Wy.         <span class="c">(* it was in W, anyway *)</span>
+            + <span class="nb">induction</span> ezy.    <span class="c">(* y = x, and we know z&lt;z *)</span>
+              <span class="nb">apply</span> fromempty. <span class="nb">unfold</span> lt,hneg <span class="k">in</span> yz. <span class="nb">apply</span> yz.
+              <span class="nb">induction</span> (proofirrelevance_hProp _ W'y W'x).
+              <span class="bp">exact</span> (TOrefl W' (z,, W'y)). }
+        <span class="bp">now</span> <span class="nb">induction</span> e. }
+    <span class="nb">assert</span> (W'W := chain_union_le S Schain (W',,W'guided) : W' ≼ W).
+    <span class="nb">assert</span> (K := pr2 (subtype_inc (pr1 W'W) (z,,W'z)) : W z).
+    <span class="bp">exact</span> (nWz K).
+    }
+  <span class="nb">clear</span> Wguided.
+  <span class="nb">apply</span> hinhpr.
+  <span class="nb">induction</span> W <span class="k">as</span> [W R'].
+  <span class="nb">change</span> (∏ x : X, W x)%type <span class="k">in</span> <span class="kp">all</span>.
+  <span class="nb">change</span> (WellOrdering X).
+  <span class="nb">assert</span> (e : X = carrier_subset W).
+  { <span class="nb">apply</span> (invmap (hSet_univalence _ _)). <span class="nb">apply</span> invweq. <span class="nb">apply</span> weqpr1.
+    <span class="nb">intros</span> x.
+    <span class="nb">simpl</span> <span class="k">in</span> <span class="kp">all</span>.
+    <span class="nb">apply</span> iscontraprop1.
+    - <span class="nb">apply</span> propproperty.
+    - <span class="nb">apply</span> <span class="kp">all</span>. }
+  <span class="nb">induction</span> e. <span class="bp">exact</span> R'.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Well ordered sets *)</span>
+
+<span class="kn">Definition</span> <span class="nf">WellOrderedSet</span> : UU := (∑ (S:hSet), WellOrdering S)%type.
+
+<span class="kn">Definition</span> <span class="nf">WellOrderedSet_to_hSet</span> : WellOrderedSet -&gt; hSet := pr1.
+
+<span class="kn">Coercion</span> <span class="nf">WellOrderedSet_to_hSet</span> : WellOrderedSet &gt;-&gt; hSet.
+
+<span class="kn">Declare Scope</span> woset.
+<span class="kn">Delimit Scope</span> woset <span class="k">with</span> woset.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> woset.
+
+<span class="kn">Definition</span> <span class="nf">WOrel</span> (<span class="nv">X</span>:WellOrderedSet) : hrel X := pr12 X.
+
+<span class="kn">Notation</span> <span class="s2">"x ≤ y"</span> := (WOrel _ x y) : woset.
+
+<span class="kn">Definition</span> <span class="nf">WOlt</span> {<span class="nv">X</span>:WellOrderedSet} (<span class="nv">x</span> <span class="nv">y</span> : X) := ¬ (y ≤ x).
+
+<span class="kn">Notation</span> <span class="s2">"x &lt; y"</span> := (WOlt x y) : woset.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_theSmallest</span> {<span class="nv">X</span> : hSet}
+      (<span class="nv">R</span> : hrel X) (<span class="nv">total</span> : isTotalOrder R) (<span class="nv">S</span> : hsubtype X) :
+  isaprop (∑ s:X, hProp_to_hSet (S s ∧ <span class="k">∀</span> <span class="nv">t</span>:X, S t ⇒ R s t)).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> total <span class="k">as</span> [[po anti] tot].
+  <span class="nb">apply</span> invproofirrelevance; <span class="nb">intros</span> s t. <span class="nb">apply</span> subtypePath_prop.
+  <span class="nb">induction</span> s <span class="k">as</span> [x i], t <span class="k">as</span> [y j], i <span class="k">as</span> [I i], j <span class="k">as</span> [J j]. <span class="nb">change</span> (x=y)%logic.
+  <span class="nb">apply</span> (squash_to_hProp (tot x y)); <span class="nb">intros</span> [c|c].
+  { <span class="nb">apply</span> anti. { <span class="bp">exact</span> c. } { <span class="bp">exact</span> (j x I). } }
+  { <span class="nb">apply</span> anti. { <span class="bp">exact</span> (i y J). } { <span class="bp">exact</span> c. } }
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Accessor functions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">WO_isTotalOrder</span> (<span class="nv">X</span> : WellOrderedSet) : isTotalOrder (WOrel X) := pr122 X.
+
+<span class="kn">Definition</span> <span class="nf">WO_isrefl</span> (<span class="nv">X</span> : WellOrderedSet) : isrefl (WOrel X) := pr211 (WO_isTotalOrder X).
+
+<span class="kn">Definition</span> <span class="nf">WO_istrans</span> (<span class="nv">X</span> : WellOrderedSet) : istrans (WOrel X) := pr111 (WO_isTotalOrder X).
+
+<span class="kn">Definition</span> <span class="nf">WO_istotal</span> (<span class="nv">X</span> : WellOrderedSet) : istotal (WOrel X) := pr2 (WO_isTotalOrder X).
+
+<span class="kn">Definition</span> <span class="nf">WO_isantisymm</span> (<span class="nv">X</span> : WellOrderedSet) : isantisymm (WOrel X) := pr21 (WO_isTotalOrder X).
+
+<span class="kn">Definition</span> <span class="nf">WO_hasSmallest</span> (<span class="nv">X</span> : WellOrderedSet) : hasSmallest (WOrel X) := pr222 X.
+
+<span class="sd">(** Lemmas about WOlt *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">WOlt_istrans</span> (<span class="nv">X</span> : WellOrderedSet) : istrans (@WOlt X).
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> x y z H1 H2 H3; <span class="nb">simpl</span> <span class="k">in</span> *.
+<span class="nb">apply</span> (@squash_to_hProp _ (_,,isapropempty) (WO_istotal X y z)); <span class="nb">intros</span> [H|H]; <span class="nb">simpl</span>.
+- <span class="bp">now</span> <span class="nb">apply</span> H1, (WO_istrans X y z x H H3).
+- <span class="bp">now</span> <span class="nb">apply</span> H2.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">WOlt_isirrefl</span> (<span class="nv">X</span> : WellOrderedSet) : isirrefl (@WOlt X).
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> x; <span class="nb">simpl</span>; <span class="nb">intros</span> H; <span class="nb">apply</span> H, WO_isrefl.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Equivalent definition (assuming decidable equality) of the WOlt relation *)</span>
+<span class="kn">Definition</span> <span class="nf">WOlt'</span> (<span class="nv">X</span> : WellOrderedSet) (<span class="nv">x</span> <span class="nv">y</span> : X) : hProp.
+<span class="kn">Proof</span>.
+<span class="k">exists</span> ((x ≤ y) × (x != y))%type.
+<span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">apply</span> isapropdirprod; [ <span class="nb">apply</span> propproperty | <span class="nb">apply</span> isapropneg ]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">WOlt'_to_WOlt</span> (<span class="nv">X</span> : WellOrderedSet) (<span class="nv">x</span> <span class="nv">y</span> : X) : WOlt' X x y → x &lt; y.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> [H1 H2] H3.
+<span class="bp">now</span> use H2; <span class="nb">apply</span> (WO_isantisymm X x y H1 H3).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** One direction of the equivalence requires decidable equality *)</span>
+<span class="kn">Lemma</span> <span class="nf">WOlt_to_WOlt'</span> (<span class="nv">X</span> : WellOrderedSet) (<span class="nv">hX</span> : isdeceq X) (<span class="nv">x</span> <span class="nv">y</span> : X) : x &lt; y → WOlt' X x y.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> H.
+<span class="nb">apply</span> (squash_to_hProp (WO_istotal X x y)); <span class="nb">intros</span> [Hle|Hle]; <span class="nb">simpl</span>.
+- <span class="nb">induction</span> (hX x y) <span class="k">as</span> [Heq|Hneq].
+  + <span class="nb">rewrite</span> Heq <span class="k">in</span> H.
+    <span class="nb">induction</span> (WOlt_isirrefl _ _ H).
+  + <span class="bp">now</span> <span class="nb">split</span>.
+- <span class="nb">induction</span> (H Hle).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Assuming decidable equality we can prove that &lt; is a trichotomy *)</span>
+<span class="kn">Lemma</span> <span class="nf">WOlt_trich</span> (<span class="nv">X</span> : WellOrderedSet) (<span class="nv">hX</span> : isdeceq X) (<span class="nv">x</span> <span class="nv">y</span> : X) :
+  y &lt; x ∨ x = y ∨ x &lt; y.
+<span class="kn">Proof</span>.
+<span class="nb">induction</span> (hX x y) <span class="k">as</span> [Heq|Hneq].
+- <span class="bp">now</span> <span class="nb">apply</span> hinhpr, inr, hinhpr, inl.
+- <span class="nb">apply</span> (squash_to_hProp (WO_istotal X x y)); <span class="nb">intros</span> [Hle|Hle].
+  + <span class="bp">now</span> <span class="nb">apply</span> hinhpr, inr, hinhpr, inr, WOlt'_to_WOlt.
+  + <span class="nb">apply</span> hinhpr, inl, WOlt'_to_WOlt; <span class="nb">split</span>; <span class="nb">trivial</span>.
+    <span class="bp">now</span> <span class="nb">intros</span> H; <span class="nb">apply</span> Hneq.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">theSmallest</span> {<span class="nv">X</span> : WellOrderedSet} (<span class="nv">S</span> : hsubtype X) : hProp
+  := (<span class="k">∃</span> <span class="nv">s</span>, S s) ⇒ make_hProp
+                (∑ s:X, S s ∧ <span class="k">∀</span> <span class="nv">t</span>:X, S t ⇒ WOrel X s t)%type
+                (isaprop_theSmallest _ (WO_isTotalOrder X) S).
+
+<span class="sd">(** actually get the smallest element: *)</span>
+<span class="kn">Lemma</span> <span class="nf">WO_theSmallest</span> {<span class="nv">X</span> : WellOrderedSet} (<span class="nv">S</span> : hsubtype X) : theSmallest S.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ne. <span class="nb">apply</span> (squash_to_hProp (WO_hasSmallest X S ne)).
+  <span class="nb">intro</span> c. <span class="bp">exact</span> c.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">WO_theUniqueSmallest</span> {<span class="nv">X</span> : WellOrderedSet} (<span class="nv">S</span> : hsubtype X) :
+ (<span class="k">∃</span> <span class="nv">s</span>, S s) ⇒ <span class="k">∃</span>! s:X, S s ∧ <span class="k">∀</span> <span class="nv">t</span>:X, S t ⇒ s ≤ t.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ne. <span class="nb">apply</span> iscontraprop1.
+  - <span class="nb">apply</span> isaprop_theSmallest. <span class="nb">apply</span> WO_isTotalOrder.
+  - <span class="bp">exact</span> (WO_theSmallest S ne).
+<span class="kn">Defined</span>.
+
+<span class="c">(* Close these for now *)</span>
+<span class="kn">Local</span> <span class="kn">Close Scope</span> <span class="nb">set</span>.
+<span class="kn">Local</span> <span class="kn">Close Scope</span> prop.
+
+<span class="sd">(** Functions of well-ordered sets that preserve the ordering and initial segments *)</span>
+<span class="kn">Definition</span> <span class="nf">iswofun</span> {<span class="nv">X</span> <span class="nv">Y</span> : WellOrderedSet} (<span class="nv">f</span> : X → Y) : UU :=
+  (iscomprelrelfun (WOrel X) (WOrel Y) f) ×
+  (∏ (x : X) (y : Y), y &lt; f x → <span class="k">∃</span> (<span class="nv">z</span> : X), z &lt; x × f z = y).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_iswofun</span> {<span class="nv">X</span> <span class="nv">Y</span> : WellOrderedSet} (<span class="nv">f</span> : X → Y) : isaprop (iswofun f).
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> h; <span class="nb">apply</span> isapropdirprod; <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intros</span>).
+- <span class="bp">now</span> <span class="nb">apply</span> propproperty.
+- <span class="bp">now</span> <span class="nb">apply</span> isapropishinh.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">wofun</span> (<span class="nv">X</span> <span class="nv">Y</span> : WellOrderedSet) : UU := ∑ (f : X -&gt; Y), iswofun f.
+
+<span class="kn">Definition</span> <span class="nf">pr1wofun</span> (<span class="nv">X</span> <span class="nv">Y</span> : WellOrderedSet) : wofun X Y → (X → Y) := @pr1 _ _.
+
+<span class="kn">Lemma</span> <span class="nf">wofun_eq</span> {<span class="nv">X</span> <span class="nv">Y</span> : WellOrderedSet} {<span class="nv">f</span> <span class="nv">g</span> : wofun X Y} : pr1 f = pr1 g → f = g.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> Heq.
+<span class="nb">apply</span> subtypePath; <span class="nb">trivial</span>.
+<span class="bp">now</span> <span class="nb">intros</span> h; <span class="nb">apply</span> isaprop_iswofun.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iswofun_idfun</span> {<span class="nv">X</span> : WellOrderedSet} : iswofun (idfun X).
+<span class="kn">Proof</span>.
+<span class="nb">split</span>.
+- <span class="bp">now</span> <span class="nb">intros</span> x.
+- <span class="nb">intros</span> x y hxy.
+  <span class="bp">now</span> <span class="nb">apply</span> hinhpr; <span class="k">exists</span> <span class="nv">y</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iswofun_funcomp</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : WellOrderedSet} (<span class="nv">f</span> : wofun X Y) (<span class="nv">g</span> : wofun Y Z) :
+  iswofun (pr1 g ∘ pr1 f).
+<span class="kn">Proof</span>.
+<span class="nb">induction</span> f <span class="k">as</span> [f [h1f h2f]].
+<span class="nb">induction</span> g <span class="k">as</span> [g [h1g h2g]].
+<span class="nb">split</span>.
+- <span class="nb">intros</span> x y hxy.
+  <span class="bp">exact</span> (h1g _ _ (h1f _ _ hxy)).
+- <span class="nb">intros</span> x z hf.
+  <span class="nb">apply</span> (squash_to_hProp (h2g (f x) z hf)); <span class="nb">intros</span> [y [h1y h2y]].
+  <span class="nb">apply</span> (squash_to_hProp (h2f x y h1y)); <span class="nb">intros</span> [x' [h1x' h2x']].
+  <span class="nb">apply</span> hinhpr; <span class="k">exists</span> <span class="nv">x'</span>; <span class="nb">cbn</span>.
+  <span class="bp">now</span> <span class="nb">rewrite</span> h2x'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> <span class="nb">set</span>.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> prop.
+
+<span class="sd">(** The empty set is well-ordered *)</span>
+<span class="kn">Definition</span> <span class="nf">empty_woset</span> : WellOrderedSet.
+<span class="kn">Proof</span>.
+<span class="k">exists</span> (<span class="nv">_</span>,,<span class="nv">isasetempty</span>).
+use tpair.
+- <span class="nb">intros</span> [].
+- <span class="kp">abstract</span> (<span class="kp">repeat</span> <span class="nb">split</span>; <span class="kp">try</span> (<span class="bp">now</span> <span class="nb">intros</span> []);
+            <span class="bp">now</span> <span class="nb">intros</span> T t'; <span class="nb">apply</span> (squash_to_hProp t'); <span class="nb">intros</span> [[]]).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The unit set is well-ordered *)</span>
+<span class="kn">Definition</span> <span class="nf">unit_woset</span> : WellOrderedSet.
+<span class="kn">Proof</span>.
+<span class="k">exists</span> (<span class="nv">_</span>,,<span class="nv">isasetunit</span>).
+use tpair.
+- <span class="nb">intros</span> x y.
+  <span class="k">exists</span> (<span class="nv">x</span> = y).
+  <span class="kp">abstract</span> (<span class="nb">apply</span> isapropifcontr, isapropunit).
+- <span class="kp">repeat</span> <span class="nb">split</span>.
+  + <span class="bp">now</span> <span class="nb">intros</span> x y z [].
+  + <span class="bp">now</span> <span class="nb">intros</span> x.
+  + <span class="nb">intros</span> [] [] H H2.
+    <span class="bp">now</span> <span class="nb">apply</span> H2, inl.
+  + <span class="nb">intros</span> T t'; <span class="nb">apply</span> (squash_to_hProp t'); <span class="nb">clear</span> t'; <span class="nb">intros</span> [[] H].
+    <span class="nb">apply</span> hinhpr; <span class="k">exists</span> <span class="nv">tt</span>.
+    <span class="bp">now</span> <span class="nb">split</span>; [|<span class="nb">intros</span> []].
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">isaset_WellOrderedSet</span> : isaset WellOrderedSet.
+<span class="kn">Proof</span>.
+  <span class="c">(*</span>
+<span class="c">     First show that an order preserving equivalence f : X ≃ Y of well</span>
+<span class="c">     ordered sets has the property that for any x, f x is least element</span>
+<span class="c">     greater than f y for every y &lt; x.  Now given also an order</span>
+<span class="c">     preserving f' : X ≃ Y, take the smallest x where f x ≠ f y.  Since</span>
+<span class="c">     they agree on previous values, they agree at x, too, using the previous</span>
+<span class="c">     statement.</span>
+<span class="c">   *)</span>
+
+<span class="kn">Abort</span>.
+
+<span class="c">(* ** Transfinite recursion *)</span>
+
+<span class="c">(*</span>
+<span class="c">   We should be able to prove Zorn's lemma from transfinite recursion, or,</span>
+<span class="c">   better yet, make it unneeded.</span>
+<span class="c"> *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">transfiniteRecursion</span> {<span class="nv">X</span>:WellOrderedSet} (<span class="nv">P</span> : X -&gt; <span class="kt">Type</span>) :
+  LEM -&gt; (∏ x:X, (∏ y, y&lt;x -&gt; P y) -&gt; P x) -&gt; (∏ x, P x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> g.
+  <span class="c">(*</span>
+<span class="c">     Consider subsets C of X that are initial segments for the ordering,</span>
+<span class="c">     each of which is equipped with a section f of P and a proof of</span>
+<span class="c">     ∏ x ∈ C, g x = f x (λ y, g y).  One may say that f is guided by g.</span>
+<span class="c">     Then two pairs (C,f), (C',f') agree on their common intersection, which</span>
+<span class="c">     is C or C', and thus the union U of all their graphs is a maximal guided</span>
+<span class="c">     function.  If U were a proper subset, then its upper bound</span>
+<span class="c">     could be added to U, contradiction, so U = X.</span>
+<span class="c">   *)</span>
+
+<span class="kn">Abort</span>.
+
+<span class="kn">Lemma</span> <span class="nf">bigSet</span> (<span class="nv">X</span>:<span class="kt">Type</span>) : (∑ Y:hSet, ∏ f : Y -&gt; X, ¬ isincl f)%type.
+<span class="kn">Proof</span>.
+  <span class="c">(*</span>
+<span class="c">     This lemma is useful in arguments by contradiction, where one uses</span>
+<span class="c">     transfinite recursion to define an injective function f, after first</span>
+<span class="c">     equipping Y with a well ordering.</span>
+
+<span class="c">     To prove it, let Y be the set of subsets of π_0 (X).</span>
+<span class="c">   *)</span>
+
+
+<span class="kn">Abort</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/OrderedSets/WellOrderedSets.v</tt>, line 5)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/DecidablePropositions.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; (** In this file our goal is to prove Zorn's Lemma and Zermelo's Well-Ordering Theorem. *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.DecidablePropositions.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Propositions.
+  &gt; Require Import UniMath.MoreFoundations.Subtypes.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

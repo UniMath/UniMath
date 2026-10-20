@@ -1,0 +1,575 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FLists.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Finite sequences</span>
+
+<span class="sd">Defined in March 2018 by Langston Barrett (@siddharthist).</span>
+<span class="sd"> *)</span>
+
+<span class="sd">(** ** Contents</span>
+
+<span class="sd">  Sequences</span>
+<span class="sd">  - Definitions</span>
+<span class="sd">  - Lemmas</span>
+
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.FiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Lists.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Vectors.
+<span class="kn">Require Import</span> UniMath.Combinatorics.FVectors.
+
+<span class="sd">(** ** Sequences *)</span>
+
+<span class="sd">(** *** Definitions *)</span>
+
+<span class="sd">(** A [Sequence] is a [Vector] of any length. *)</span>
+<span class="kn">Definition</span> <span class="nf">Sequence</span> (<span class="nv">X</span> : UU) := ∑ n, Vector X n.
+
+<span class="kn">Definition</span> <span class="nf">NonemptySequence</span> (<span class="nv">X</span>:UU) := ∑ n, stn (S n) -&gt; X.
+
+<span class="kn">Definition</span> <span class="nf">UnorderedSequence</span> (<span class="nv">X</span>:UU) := ∑ I:FiniteSet, I -&gt; X.
+
+<span class="kn">Definition</span> <span class="nf">length</span> {<span class="nv">X</span>} : Sequence X -&gt; nat := pr1.
+
+<span class="kn">Definition</span> <span class="nf">sequenceToFunction</span> {<span class="nv">X</span>} (<span class="nv">x</span>:Sequence X) := pr2 x : stn (length x) -&gt; X.
+
+<span class="kn">Coercion</span> <span class="nf">sequenceToFunction</span> : Sequence &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">unorderedSequenceToFunction</span> {<span class="nv">X</span>} (<span class="nv">x</span>:UnorderedSequence X) := pr2 x : pr1 (pr1 x) -&gt; X.
+
+<span class="kn">Coercion</span> <span class="nf">unorderedSequenceToFunction</span> : UnorderedSequence &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">sequenceToUnorderedSequence</span> {<span class="nv">X</span>} : Sequence X -&gt; UnorderedSequence X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="k">exists</span> (<span class="nv">standardFiniteSet</span> (length x)).
+  <span class="bp">exact</span> x.
+<span class="kn">Defined</span>.
+
+<span class="kn">Coercion</span> <span class="nf">sequenceToUnorderedSequence</span> : Sequence &gt;-&gt; UnorderedSequence.
+
+<span class="kn">Definition</span> <span class="nf">length'</span>{<span class="nv">X</span>} : NonemptySequence X -&gt; nat := <span class="k">λ</span> <span class="nv">x</span>, S(pr1 x).
+
+<span class="kn">Definition</span> <span class="nf">functionToSequence</span> {<span class="nv">X</span> <span class="nv">n</span>} (<span class="nv">f</span>:stn n -&gt; X) : Sequence X
+  := (n,,f).
+
+<span class="kn">Definition</span> <span class="nf">functionToUnorderedSequence</span> {<span class="nv">X</span>} {<span class="nv">I</span> : FiniteSet} (<span class="nv">f</span>:I -&gt; X) : UnorderedSequence X := (I,,f).
+
+<span class="kn">Definition</span> <span class="nf">NonemptySequenceToFunction</span> {<span class="nv">X</span>} (<span class="nv">x</span>:NonemptySequence X) := pr2 x : stn (length' x) -&gt; X.
+
+<span class="kn">Coercion</span> <span class="nf">NonemptySequenceToFunction</span> : NonemptySequence &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">NonemptySequenceToSequence</span> {<span class="nv">X</span>} (<span class="nv">x</span>:NonemptySequence X) := functionToSequence (NonemptySequenceToFunction x) : Sequence X.
+
+<span class="kn">Coercion</span> <span class="nf">NonemptySequenceToSequence</span> : NonemptySequence &gt;-&gt; Sequence.
+
+<span class="sd">(** *** Lemmas *)</span>
+
+<span class="kn">Definition</span> <span class="nf">composeSequence</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">f</span>:X-&gt;Y) : Sequence X -&gt; Sequence Y := <span class="k">λ</span> <span class="nv">x</span>, functionToSequence (f ∘ x).
+
+<span class="kn">Definition</span> <span class="nf">composeSequence'</span> {<span class="nv">X</span> <span class="nv">m</span> <span class="nv">n</span>} (<span class="nv">f</span>:stn n -&gt; X) (<span class="nv">g</span>:stn m -&gt; stn n) : Sequence X
+  := functionToSequence (f ∘ g).
+
+<span class="kn">Definition</span> <span class="nf">composeUnorderedSequence</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">f</span>:X-&gt;Y) : UnorderedSequence X -&gt; UnorderedSequence Y
+  := <span class="k">λ</span> <span class="nv">x</span>, functionToUnorderedSequence(f ∘ x).
+
+<span class="kn">Definition</span> <span class="nf">weqListSequence</span> {<span class="nv">X</span>} : list X ≃ Sequence X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> n.
+  <span class="nb">apply</span> weqvecfun.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">transport_stn</span> <span class="nv">m</span> <span class="nv">n</span> <span class="nv">i</span> (<span class="nv">b</span>:i&lt;m) (<span class="nv">p</span>:m=n) :
+  transportf stn p (i,,b) = (i,,transportf (<span class="k">λ</span> <span class="nv">m</span>,i&lt;m) p b).
+<span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="nb">induction</span> p. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">sequenceEquality2</span> {<span class="nv">X</span>} (<span class="nv">f</span> <span class="nv">g</span>:Sequence X) (<span class="nv">p</span>:length f=length g) :
+  (∏ i, f i = g (transportf stn p i)) -&gt; f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="nb">induction</span> f <span class="k">as</span> [m f]. <span class="nb">induction</span> g <span class="k">as</span> [n g]. <span class="nb">simpl</span> <span class="k">in</span> p.
+  <span class="nb">apply</span> (total2_paths2_f p). <span class="bp">now</span> <span class="nb">apply</span> vectorEquality.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The following two lemmas are the key lemmas that allow to prove (transportational) equality of</span>
+<span class="sd"> sequences whose lengths are not definitionally equal. In particular, these lemmas can be used in</span>
+<span class="sd">the proofs of such results as associativity of concatenation of sequences and the right unity</span>
+<span class="sd">axiom for the empty sequence. **)</span>
+
+<span class="kn">Definition</span> <span class="nf">seq_key_eq_lemma</span> {<span class="nv">X</span> :UU}( <span class="nv">g</span> <span class="nv">g'</span> : Sequence X)(<span class="nv">e_len</span> : length g = length g')
+           (<span class="nv">e_el</span> : <span class="k">forall</span> ( <span class="nv">i</span> : nat )(<span class="nv">ltg</span> : i &lt; length g )(<span class="nv">ltg'</span> : i &lt; length g' ),
+               g (i ,, ltg) = g' (i ,, ltg')) : g=g'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> g <span class="k">as</span> [m g]; <span class="nb">induction</span> g' <span class="k">as</span> [m' g']. <span class="nb">simpl</span> <span class="k">in</span> e_len, e_el.
+  intermediate_path (m' ,, transportf (<span class="k">λ</span> <span class="nv">i</span>, stn i -&gt; X) e_len g).
+  - <span class="nb">apply</span> transportf_eq.
+  - <span class="nb">apply</span> maponpaths.
+    intermediate_path (g ∘ transportb stn e_len).
+    + <span class="nb">apply</span> transportf_fun.
+    + <span class="nb">apply</span> funextfun. <span class="nb">intro</span> x. <span class="nb">induction</span> x <span class="k">as</span> [ i b ].
+      <span class="nb">simple refine</span> (_ @ e_el _ _ _).
+      * <span class="nb">simpl</span>.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> transport_stn.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The following lemma requires in the assumption [ e_el ] only one comparison [ i &lt; length g ]</span>
+<span class="sd"> and one comparison [ i &lt; length g' ] for each i instead of all such comparisons as in the</span>
+<span class="sd"> original version [ seq_key_eq_lemma ] . **)</span>
+
+<span class="kn">Definition</span> <span class="nf">seq_key_eq_lemma'</span> {<span class="nv">X</span> :UU} (<span class="nv">g</span> <span class="nv">g'</span> : Sequence X) :
+  length g = length g' -&gt;
+  (∏ i, ∑ ltg : i &lt; length g, ∑ ltg' : i &lt; length g',
+                                        g (i ,, ltg) = g' (i ,, ltg')) -&gt;
+  g=g'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k r.
+  <span class="nb">apply</span> seq_key_eq_lemma.
+  * <span class="bp">assumption</span>.
+  * <span class="nb">intros</span>.
+    <span class="nb">induction</span> (r i) <span class="k">as</span> [ p [ q e ]].
+    <span class="nb">simple refine</span> (_ @ e @ _).
+    - <span class="bp">now</span> <span class="nb">apply</span> maponpaths, isinjstntonat.
+    - <span class="bp">now</span> <span class="nb">apply</span> maponpaths, isinjstntonat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="nf">fromstn0</span> := empty_vec.
+
+<span class="kn">Definition</span> <span class="nf">nil</span> {<span class="nv">X</span>} : Sequence X.
+<span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="bp">exact</span> (<span class="mi">0</span>,, empty_vec). <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">append</span> {<span class="nv">X</span>} : Sequence X -&gt; X -&gt; Sequence X.
+<span class="kn">Proof</span>. <span class="nb">intros</span> x y. <span class="bp">exact</span> (S (length x),, append_vec (pr2 x) y).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">drop_and_append</span> {<span class="nv">X</span> <span class="nv">n</span>} (<span class="nv">x</span> : stn (S n) -&gt; X) :
+  append (n,,x ∘ dni_lastelement) (x lastelement) = (S n,, x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> pair_path_in2. <span class="nb">apply</span> drop_and_append_vec.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"s □ x"</span> := (append s x) (<span class="kn">at level</span> <span class="mi">64</span>, <span class="kn">left associativity</span>).
+
+<span class="kn">Definition</span> <span class="nf">nil_unique</span> {<span class="nv">X</span>} (<span class="nv">x</span> : stn <span class="mi">0</span> -&gt; X) : nil = (<span class="mi">0</span>,,x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> nil. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isapropifcontr. <span class="nb">apply</span> iscontr_vector_0.
+<span class="kn">Defined</span>.
+
+<span class="c">(* induction principle for contractible types, as a warmup *)</span>
+
+<span class="c">(* Three ways.  Use induction: *)</span>
+
+<span class="kn">Definition</span> <span class="nf">iscontr_rect'</span> <span class="nv">X</span> (<span class="nv">i</span> : iscontr X) (<span class="nv">x0</span> : X) (<span class="nv">P</span> : X -&gt;UU) (<span class="nv">p0</span> : P x0) : ∏ x:X, P x.
+<span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="nb">induction</span> (pr1 (isapropifcontr i x0 x)). <span class="bp">exact</span> p0. <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">iscontr_rect_compute'</span> <span class="nv">X</span> (<span class="nv">i</span> : iscontr X) (<span class="nv">x</span> : X) (<span class="nv">P</span> : X -&gt;UU) (<span class="nv">p</span> : P x) :
+  iscontr_rect' X i x P p x = p.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="c">(* this step might be a problem in more complicated situations: *)</span>
+  <span class="nb">unfold</span> iscontr_rect'.
+  <span class="nb">induction</span> (pr1 (isasetifcontr i x x (idpath _) (pr1 (isapropifcontr i x x)))).
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="c">(* ... or use weqsecovercontr, but specializing x to pr1 i: *)</span>
+
+<span class="kn">Definition</span> <span class="nf">iscontr_rect''</span> <span class="nv">X</span> (<span class="nv">i</span> : iscontr X) (<span class="nv">P</span> : X -&gt;UU) (<span class="nv">p0</span> : P (pr1 i)) : ∏ x:X, P x.
+<span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="bp">exact</span> (invmap (weqsecovercontr P i) p0 x). <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">iscontr_rect_compute''</span> <span class="nv">X</span> (<span class="nv">i</span> : iscontr X) (<span class="nv">P</span> : X -&gt;UU) (<span class="nv">p</span> : P(pr1 i)) :
+  iscontr_rect'' X i P p (pr1 i) = p.
+<span class="kn">Proof</span>. <span class="kp">try</span> <span class="bp">reflexivity</span>. <span class="nb">intros</span>. <span class="bp">exact</span> (homotweqinvweq (weqsecovercontr P i) p).
+<span class="kn">Defined</span>.
+
+<span class="c">(* .... or use transport explicitly: *)</span>
+
+<span class="kn">Definition</span> <span class="nf">iscontr_adjointness</span> <span class="nv">X</span> (<span class="nv">isc</span>:iscontr X) (<span class="nv">x</span>:X) : pr1 (isapropifcontr isc x x) = idpath x.
+<span class="c">(* we call this adjointness, because if [unit] had η-reduction, then adjointness of</span>
+<span class="c">   the weq [unit ≃ X] would give it to us, in the case where x is [pr1 is] *)</span>
+<span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="bp">now</span> <span class="nb">apply</span> isasetifcontr. <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">iscontr_rect</span> <span class="nv">X</span> (<span class="nv">isc</span> : iscontr X) (<span class="nv">x0</span> : X) (<span class="nv">P</span> : X -&gt;UU) (<span class="nv">p0</span> : P x0) : ∏ x:X, P x.
+<span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="bp">exact</span> (transportf P (pr1 (isapropifcontr isc x0 x)) p0). <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">iscontr_rect_compute</span> <span class="nv">X</span> (<span class="nv">isc</span> : iscontr X) (<span class="nv">x</span> : X) (<span class="nv">P</span> : X -&gt;UU) (<span class="nv">p</span> : P x) :
+  iscontr_rect X isc x P p x = p.
+<span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="nb">unfold</span> iscontr_rect. <span class="bp">now</span> <span class="nb">rewrite</span> iscontr_adjointness. <span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">weqsecovercontr'</span>:     <span class="c">(* reprove weqsecovercontr, move upstream *)</span>
+  ∏ (X:UU) (P:X-&gt;UU) (isc:iscontr X), (∏ x:X, P x) ≃ P (pr1 isc).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (x0 := pr1 isc).
+  <span class="nb">set</span> (secs := ∏ x : X, P x).
+  <span class="nb">set</span> (fib  := P x0).
+  <span class="nb">set</span> (destr := (<span class="k">λ</span> <span class="nv">f</span>, f x0) : secs-&gt;fib).
+  <span class="nb">set</span> (<span class="kp">constr</span>:= iscontr_rect X isc x0 P : fib-&gt;secs).
+  <span class="k">exists</span> <span class="nv">destr</span>.
+  <span class="nb">apply</span> (isweq_iso destr <span class="kp">constr</span>).
+  - <span class="nb">intros</span> f. <span class="nb">apply</span> funextsec; <span class="nb">intros</span> x.
+    <span class="nb">unfold</span> destr, <span class="kp">constr</span>.
+    <span class="nb">apply</span> transport_section.
+  - <span class="nb">apply</span> iscontr_rect_compute.
+<span class="kn">Defined</span>.
+
+<span class="c">(*  *)</span>
+
+<span class="kn">Definition</span> <span class="nf">nil_length</span> {<span class="nv">X</span>} (<span class="nv">x</span> : Sequence X) : length x = <span class="mi">0</span> &lt;-&gt; x = nil.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">split</span>.
+  - <span class="nb">intro</span> e. <span class="nb">induction</span> x <span class="k">as</span> [n x]. <span class="nb">simpl</span> <span class="k">in</span> e.
+    <span class="nb">induction</span> (!e). <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> nil_unique.
+  - <span class="nb">intro</span> h. <span class="nb">induction</span> (!h). <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">drop</span> {<span class="nv">X</span>} (<span class="nv">x</span>:Sequence X) : length x != <span class="mi">0</span> -&gt; Sequence X.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> x. <span class="nb">intros</span> [n x] h.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n].
+  - <span class="nb">simpl</span> <span class="k">in</span> h. contradicts h (idpath <span class="mi">0</span>).
+  - <span class="bp">exact</span> (n,,x ∘ dni_lastelement).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">drop'</span> {<span class="nv">X</span>} (<span class="nv">x</span>:Sequence X) : x != nil -&gt; Sequence X.
+<span class="kn">Proof</span>. <span class="nb">intros</span> h. <span class="bp">exact</span> (drop x (pr2 (logeqnegs (nil_length x)) h)). <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">append_and_drop_fun</span> {<span class="nv">X</span> <span class="nv">n</span>} (<span class="nv">x</span> : stn n -&gt; X) <span class="nv">y</span> :
+  append_vec x y ∘ dni lastelement = x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> funextsec; <span class="nb">intros</span> i.
+  <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> append_vec.
+  <span class="nb">induction</span> (natlehchoice4 (pr1 (dni lastelement i)) n (pr2 (dni lastelement i))) <span class="k">as</span> [I|J].
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> subtypePath_prop. <span class="nb">simpl</span>. <span class="nb">apply</span> di_eq1. <span class="bp">exact</span> (stnlt i).
+  - <span class="nb">apply</span> fromempty. <span class="nb">simpl</span> <span class="k">in</span> J.
+    <span class="nb">assert</span> (P : di n i = i).
+    { <span class="nb">apply</span> di_eq1. <span class="bp">exact</span> (stnlt i). }
+    <span class="nb">induction</span> (!P); <span class="nb">clear</span> P.
+    <span class="nb">induction</span> i <span class="k">as</span> [i r]. <span class="nb">simpl</span> <span class="k">in</span> J. <span class="nb">induction</span> J.
+    <span class="bp">exact</span> (isirreflnatlth _ r).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">drop_and_append'</span> {<span class="nv">X</span> <span class="nv">n</span>} (<span class="nv">x</span> : stn (S n) -&gt; X) :
+  append (drop (S n,,x) (negpathssx0 _)) (x lastelement) = (S n,, x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">simpl</span>. <span class="nb">apply</span> pair_path_in2. <span class="nb">apply</span> drop_and_append_vec.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disassembleSequence</span> {<span class="nv">X</span>} : Sequence X -&gt; coprod unit (X × Sequence X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">induction</span> x <span class="k">as</span> [n x].
+  <span class="nb">induction</span> n <span class="k">as</span> [|n].
+  - <span class="bp">exact</span> (ii1 tt).
+  - <span class="bp">exact</span> (ii2(x lastelement,,(n,,x ∘ dni_lastelement))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">assembleSequence</span> {<span class="nv">X</span>} : coprod unit (X × Sequence X) -&gt; Sequence X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> co.
+  <span class="nb">induction</span> co <span class="k">as</span> [t|p].
+  - <span class="bp">exact</span> nil.
+  - <span class="bp">exact</span> (append (pr2 p) (pr1 p)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">assembleSequence_ii2</span> {<span class="nv">X</span>} (<span class="nv">p</span> : X × Sequence X) :
+  assembleSequence (ii2 p) = append (pr2 p) (pr1 p).
+<span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">SequenceAssembly</span> {<span class="nv">X</span>} : Sequence X ≃ unit ⨿ (X × Sequence X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> <span class="nv">disassembleSequence</span>. <span class="nb">apply</span> (isweq_iso _ assembleSequence).
+  { <span class="nb">intros</span>. <span class="nb">induction</span> x <span class="k">as</span> [n x]. <span class="nb">induction</span> n <span class="k">as</span> [|n].
+    { <span class="nb">apply</span> nil_unique. }
+    <span class="nb">apply</span> drop_and_append'. }
+  <span class="nb">intros</span> co. <span class="nb">induction</span> co <span class="k">as</span> [t|p].
+  { <span class="nb">unfold</span> disassembleSequence; <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> proofirrelevancecontr. <span class="nb">apply</span> iscontrunit. }
+  <span class="nb">induction</span> p <span class="k">as</span> [x y]. <span class="nb">induction</span> y <span class="k">as</span> [n y].
+  <span class="nb">apply</span> (maponpaths (@inr unit (X × Sequence X))).
+  <span class="nb">unfold</span> append_vec, lastelement; <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> append_vec. <span class="nb">simpl</span>.
+  <span class="nb">induction</span> (natlehchoice4 n n (natgthsnn n)) <span class="k">as</span> [e|e].
+  { contradicts e (isirreflnatlth n). }
+  <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths, maponpaths.
+  <span class="nb">apply</span> funextfun; <span class="nb">intro</span> i. <span class="nb">clear</span> e. <span class="nb">induction</span> i <span class="k">as</span> [i b].
+  <span class="nb">unfold</span> dni_lastelement; <span class="nb">simpl</span>.
+  <span class="nb">induction</span> (natlehchoice4 i n (natlthtolths i n b)) <span class="k">as</span> [d|d].
+  { <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths. <span class="bp">now</span> <span class="nb">apply</span> isinjstntonat. }
+  <span class="nb">simpl</span>. <span class="nb">induction</span> d; contradicts b (isirreflnatlth i).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">Sequence_rect</span> {<span class="nv">X</span>} {<span class="nv">P</span> : Sequence X -&gt;UU}
+           (<span class="nv">p0</span> : P nil)
+           (<span class="nv">ind</span> : ∏ (x : Sequence X) (y : X), P x -&gt; P (append x y))
+           (<span class="nv">x</span> : Sequence X) : P x.
+<span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="nb">induction</span> x <span class="k">as</span> [n x]. <span class="nb">induction</span> n <span class="k">as</span> [|n IH].
+  - <span class="bp">exact</span> (transportf P (nil_unique x) p0).
+  - <span class="bp">exact</span> (transportf P (drop_and_append x)
+                      (ind (n,,x ∘ dni_lastelement)
+                           (x lastelement)
+                           (IH (x ∘ dni_lastelement)))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Sequence_rect_compute_nil</span> {<span class="nv">X</span>} {<span class="nv">P</span> : Sequence X -&gt;UU} (<span class="nv">p0</span> : P nil)
+      (<span class="nv">ind</span> : ∏ (s : Sequence X) (x : X), P s -&gt; P (append s x)) :
+  Sequence_rect p0 ind nil = p0.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="kp">try</span> <span class="bp">reflexivity</span>.
+  <span class="nb">unfold</span> Sequence_rect; <span class="nb">simpl</span>.
+  <span class="nb">change</span> p0 <span class="k">with</span> (transportf P (idpath nil) p0) <span class="nb">at</span> <span class="mi">2</span>.
+  <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">e</span>, transportf P e p0)).
+  <span class="bp">exact</span> (maponpaths (maponpaths functionToSequence) (iscontr_adjointness _ _ _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Sequence_rect_compute_cons</span>
+      {<span class="nv">X</span>} {<span class="nv">P</span> : Sequence X -&gt;UU} (<span class="nv">p0</span> : P nil)
+      (<span class="nv">ind</span> : ∏ (s : Sequence X) (x : X), P s -&gt; P (append s x))
+      (<span class="nv">p</span> := Sequence_rect p0 ind) (<span class="nv">x</span>:X) (<span class="nv">l</span>:Sequence X) :
+  p (append l x) = ind l x (p l).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">cbn</span>.
+  <span class="c">(* proof needed to complete induction for sequences *)</span>
+<span class="kn">Abort</span>.
+
+<span class="kn">Lemma</span> <span class="nf">append_length</span> {<span class="nv">X</span>} (<span class="nv">x</span>:Sequence X) (<span class="nv">y</span>:X) :
+  length (append x y) = S (length x).
+<span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">concatenate</span> {<span class="nv">X</span> : UU} : binop (Sequence X)
+  := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, functionToSequence (concatenate' x y).
+
+<span class="kn">Definition</span> <span class="nf">concatenate_length</span> {<span class="nv">X</span>} (<span class="nv">x</span> <span class="nv">y</span>:Sequence X) :
+  length (concatenate x y) = length x + length y.
+<span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">concatenate_0</span> {<span class="nv">X</span>} (<span class="nv">s</span> <span class="nv">t</span>:Sequence X) : length t = <span class="mi">0</span> -&gt; concatenate s t = s.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> s <span class="k">as</span> [m s]. <span class="nb">induction</span> t <span class="k">as</span> [n t].
+  <span class="nb">intro</span> e; <span class="nb">simpl</span> <span class="k">in</span> e. <span class="nb">induction</span> (!e).
+  <span class="nb">simple refine</span> (sequenceEquality2 _ _ _ _).
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> natplusr0.
+  - <span class="nb">intro</span> i; <span class="nb">simpl</span> <span class="k">in</span> i. <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> concatenate'.
+    <span class="nb">rewrite</span> weqfromcoprodofstn_invmap_r0.
+    <span class="nb">simpl</span>.
+    <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">concatenateStep</span> {<span class="nv">X</span> : UU} (<span class="nv">x</span> : Sequence X) {<span class="nv">n</span> : nat} (<span class="nv">y</span> : stn (S n) -&gt; X) :
+  concatenate x (S n,,y) = append (concatenate x (n,,y ∘ dni lastelement)) (y lastelement).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> x n y. <span class="nb">induction</span> x <span class="k">as</span> [m l]. <span class="nb">intros</span> n y.
+  use seq_key_eq_lemma.
+  - <span class="nb">cbn</span>. <span class="nb">apply</span> natplusnsm.
+  - <span class="nb">intros</span> i r s.
+    <span class="nb">unfold</span> concatenate, concatenate', weqfromcoprodofstn_invmap; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> append_vec, coprod_rect; <span class="nb">cbn</span>.
+    <span class="nb">induction</span> (natlthorgeh i m) <span class="k">as</span> [H | H].
+    + <span class="nb">induction</span> (natlehchoice4 i (m + n) s) <span class="k">as</span> [H1 | H1].
+      * <span class="bp">reflexivity</span>.
+      * <span class="nb">apply</span> fromempty. <span class="nb">induction</span> (!H1); <span class="nb">clear</span> H1.
+        <span class="nb">set</span> (tmp := natlehnplusnm m n).
+        <span class="nb">set</span> (tmp2 := natlehlthtrans _ _ _ tmp H).
+        <span class="bp">exact</span> (isirreflnatlth _ tmp2).
+    + <span class="nb">induction</span> (natlehchoice4 i (m + n) s) <span class="k">as</span> [I|J].
+      * <span class="nb">apply</span> maponpaths, subtypePath_prop. <span class="nb">rewrite</span> replace_dni_last. <span class="bp">reflexivity</span>.
+      * <span class="nb">apply</span> maponpaths, subtypePath_prop. <span class="nb">simpl</span>.
+        <span class="nb">induction</span> (!J). <span class="nb">rewrite</span> natpluscomm. <span class="nb">apply</span> plusminusnmm.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">flatten</span> {<span class="nv">X</span> : UU} : Sequence (Sequence X) -&gt; Sequence X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x. <span class="k">exists</span> (<span class="nv">stnsum</span> (length ∘ x)). <span class="bp">exact</span> (flatten' (sequenceToFunction ∘ x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">flattenUnorderedSequence</span> {<span class="nv">X</span> : UU} : UnorderedSequence (UnorderedSequence X) -&gt; UnorderedSequence X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  use tpair.
+  - <span class="bp">exact</span> ((∑ i, pr1 (x i))%finset).
+  - <span class="nb">intros</span> ij. <span class="bp">exact</span> (x (pr1 ij) (pr2 ij)). <span class="c">(* could also have used (uncurry (unorderedSequenceToFunction x)) here *)</span>
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">flattenStep'</span> {<span class="nv">X</span> <span class="nv">n</span>}
+           (<span class="nv">m</span> : stn (S n) → nat)
+           (<span class="nv">x</span> : ∏ i : stn (S n), stn (m i) → X)
+           (<span class="nv">m'</span> := m ∘ dni lastelement)
+           (<span class="nv">x'</span> := x ∘ dni lastelement) :
+  flatten' x = concatenate' (flatten' x') (x lastelement).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> funextfun; <span class="nb">intro</span> i.
+  <span class="nb">unfold</span> flatten'.
+  <span class="nb">unfold</span> funcomp.
+  <span class="nb">rewrite</span> <span class="mi">2</span> weqstnsum1_eq'.
+  <span class="nb">unfold</span> StandardFiniteSets.weqstnsum_invmap <span class="nb">at</span> <span class="mi">1</span>.
+  <span class="nb">unfold</span> concatenate'.
+  <span class="nb">unfold</span> nat_rect, coprod_rect, funcomp.
+  <span class="nb">change</span> (weqfromcoprodofstn_invmap (stnsum (<span class="k">λ</span> <span class="nv">r</span> : stn n, m (dni lastelement r))))
+  <span class="k">with</span> (weqfromcoprodofstn_invmap (stnsum m')) <span class="nb">at</span> <span class="mi">1</span> <span class="mi">2</span>.
+  <span class="nb">induction</span> (weqfromcoprodofstn_invmap (stnsum m')) <span class="k">as</span> [B|C].
+  - <span class="bp">reflexivity</span>.
+  - <span class="bp">now</span> <span class="nb">induction</span> C.            <span class="c">(* not needed with primitive projections *)</span>
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">flattenStep</span> {<span class="nv">X</span>} (<span class="nv">x</span>: NonemptySequence (Sequence X)) :
+  flatten x = concatenate (flatten (composeSequence' x (dni lastelement))) (lastValue x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> pair_path_in2.
+  <span class="nb">set</span> (xlens := <span class="k">λ</span> <span class="nv">i</span>, length(x i)).
+  <span class="nb">set</span> (xvals := <span class="k">λ</span> <span class="nv">i</span>, <span class="k">λ</span> <span class="nv">j</span>:stn (xlens i), x i j).
+  <span class="bp">exact</span> (flattenStep' xlens xvals).
+<span class="kn">Defined</span>.
+
+<span class="c">(* partitions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">partition'</span> {<span class="nv">X</span> <span class="nv">n</span>} (<span class="nv">f</span>:stn n -&gt; nat) (<span class="nv">x</span>:stn (stnsum f) -&gt; X) : stn n -&gt; Sequence X.
+<span class="kn">Proof</span>. <span class="nb">intros</span> i. <span class="k">exists</span> (<span class="nv">f</span> <span class="nv">i</span>). <span class="nb">intro</span> j. <span class="bp">exact</span> (x(inverse_lexicalEnumeration f (i,,j))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">partition</span> {<span class="nv">X</span> <span class="nv">n</span>} (<span class="nv">f</span>:stn n -&gt; nat) (<span class="nv">x</span>:stn (stnsum f) -&gt; X) : Sequence (Sequence X).
+<span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="k">exists</span> <span class="nv">n</span>. <span class="bp">exact</span> (partition' f x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">flatten_partition</span> {<span class="nv">X</span> <span class="nv">n</span>} (<span class="nv">f</span>:stn n -&gt; nat) (<span class="nv">x</span>:stn (stnsum f) -&gt; X) :
+  flatten (partition f x) ~ x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> i.
+  <span class="nb">change</span> (x (weqstnsum1 f (pr1 (invmap (weqstnsum1 f) i),, pr2 (invmap (weqstnsum1 f) i))) = x i).
+  <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> subtypePath_prop. <span class="bp">now</span> <span class="nb">rewrite</span> homotweqinvweq.
+<span class="kn">Defined</span>.
+
+<span class="c">(* associativity of "concatenate" *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isassoc_concatenate</span> {<span class="nv">X</span> : UU} (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : Sequence X) :
+  concatenate (concatenate x y) z = concatenate x (concatenate y z).
+<span class="kn">Proof</span>.
+  use seq_key_eq_lemma.
+  - <span class="nb">cbn</span>. <span class="nb">apply</span> natplusassoc.
+  - <span class="nb">intros</span> i ltg ltg'. <span class="nb">cbn</span>. <span class="nb">unfold</span> concatenate'. <span class="nb">unfold</span> weqfromcoprodofstn_invmap. <span class="nb">unfold</span> coprod_rect. <span class="nb">cbn</span>.
+    <span class="nb">induction</span> (natlthorgeh i (length x + length y)) <span class="k">as</span> [H | H].
+    + <span class="nb">induction</span> (natlthorgeh (make_stn (length x + length y) i H) (length x)) <span class="k">as</span> [H1 | H1].
+      * <span class="nb">induction</span> (natlthorgeh i (length x)) <span class="k">as</span> [H2 | H2].
+        -- <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isinjstntonat. <span class="nb">apply</span> idpath.
+        -- <span class="nb">apply</span> fromempty. <span class="bp">exact</span> (natlthtonegnatgeh i (length x) H1 H2).
+      * <span class="nb">induction</span> (natchoice0 (length y)) <span class="k">as</span> [H2 | H2].
+        -- <span class="nb">apply</span> fromempty. <span class="nb">induction</span> H2. <span class="nb">induction</span> (! (natplusr0 (length x))).
+           <span class="nb">apply</span> (natlthtonegnatgeh i (length x) H H1).
+        -- <span class="nb">induction</span> (natlthorgeh i (length x)) <span class="k">as</span> [H3 | H3].
+           ++ <span class="nb">apply</span> fromempty. <span class="nb">apply</span> (natlthtonegnatgeh i (length x) H3 H1).
+           ++ <span class="nb">induction</span> (natchoice0 (length y + length z)) <span class="k">as</span> [H4 | H4].
+              ** <span class="nb">apply</span> fromempty. <span class="nb">induction</span> (! H4).
+                 use (isirrefl_natneq (length y)).
+                 use natlthtoneq.
+                 use (natlehlthtrans (length y) (length y + length z) (length y) _ H2).
+                 <span class="nb">apply</span> natlehnplusnm.
+              ** <span class="nb">cbn</span>. <span class="nb">induction</span> (natlthorgeh (i - length x) (length y)) <span class="k">as</span> [H5 | H5].
+                 --- <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isinjstntonat. <span class="nb">apply</span> idpath.
+                 --- <span class="nb">apply</span> fromempty.
+                     use (natlthtonegnatgeh (i - (length x)) (length y)).
+                     +++ <span class="nb">set</span> (tmp := natlthandminusl i (length x + length y) (length x) H
+                                                     (natlthandplusm (length x) _ H2)).
+                         <span class="nb">rewrite</span> (natpluscomm (length x) (length y)) <span class="k">in</span> tmp.
+                         <span class="nb">rewrite</span> plusminusnmm <span class="k">in</span> tmp. <span class="bp">exact</span> tmp.
+                     +++ <span class="bp">exact</span> H5.
+    + <span class="nb">induction</span> (natchoice0 (length z)) <span class="k">as</span> [H1 | H1].
+      * <span class="nb">apply</span> fromempty. <span class="nb">cbn</span> <span class="k">in</span> ltg. <span class="nb">induction</span> H1. <span class="nb">rewrite</span> natplusr0 <span class="k">in</span> ltg.
+        <span class="bp">exact</span> (natlthtonegnatgeh i (length x + length y) ltg H).
+      * <span class="nb">induction</span> (natlthorgeh i (length x)) <span class="k">as</span> [H2 | H2].
+        -- <span class="nb">apply</span> fromempty.
+           use (natlthtonegnatgeh i (length x) H2).
+           use (istransnatgeh i (length x + length y) (length x) H).
+           <span class="nb">apply</span> natgehplusnmn.
+        -- <span class="nb">induction</span> (natchoice0 (length y + length z)) <span class="k">as</span> [H3 | H3].
+           ++ <span class="nb">apply</span> fromempty. <span class="nb">cbn</span> <span class="k">in</span> ltg'. <span class="nb">induction</span> H3. <span class="nb">rewrite</span> natplusr0 <span class="k">in</span> ltg'.
+              <span class="bp">exact</span> (natlthtonegnatgeh i (length x) ltg' H2).
+           ++ <span class="nb">cbn</span>. <span class="nb">induction</span> (natlthorgeh (i - length x) (length y)) <span class="k">as</span> [H4 | H4].
+              ** <span class="nb">apply</span> fromempty.
+                 use (natlthtonegnatgeh i (length x + length y) _ H).
+                 <span class="nb">apply</span> (natlthandplusr _ _ (length x)) <span class="k">in</span> H4.
+                 <span class="nb">rewrite</span> minusplusnmm <span class="k">in</span> H4.
+                 --- <span class="nb">rewrite</span> natpluscomm <span class="k">in</span> H4. <span class="bp">exact</span> H4.
+                 --- <span class="bp">exact</span> H2.
+              ** <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isinjstntonat. <span class="nb">cbn</span>. <span class="nb">apply</span> (! (natminusminus _ _ _)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Reverse *)</span>
+
+<span class="kn">Definition</span> <span class="nf">reverse</span> {<span class="nv">X</span> : UU} (<span class="nv">x</span> : Sequence X) : Sequence X :=
+  functionToSequence (<span class="k">fun</span> <span class="nv">i</span> : (stn (length x)) =&gt; x (dualelement i)).
+
+<span class="kn">Lemma</span> <span class="nf">reversereverse</span> {<span class="nv">X</span> : UU} (<span class="nv">x</span> : Sequence X) : reverse (reverse x) = x.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> x <span class="k">as</span> [n x].
+  <span class="nb">apply</span> pair_path_in2.
+  <span class="nb">apply</span> funextfun; <span class="nb">intro</span> i.
+  <span class="nb">unfold</span> reverse, dualelement, coprod_rect. <span class="nb">cbn</span>.
+  <span class="nb">induction</span> (natchoice0 n) <span class="k">as</span> [H | H].
+  + <span class="nb">apply</span> fromempty. <span class="nb">rewrite</span> &lt;- H <span class="k">in</span> i. <span class="bp">now</span> <span class="nb">apply</span> negstn0.
+  + <span class="nb">cbn</span>. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isinjstntonat. <span class="nb">apply</span> minusminusmmn. <span class="nb">apply</span> natgthtogehm1. <span class="nb">apply</span> stnlt.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">reverse_index</span> {<span class="nv">X</span> : UU} (<span class="nv">x</span> : Sequence X) (<span class="nv">i</span> : stn (length x)) :
+  (reverse x) (dualelement i) = x i.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>. <span class="nb">unfold</span> dualelement, coprod_rect.
+  <span class="nb">set</span> (e := natgthtogehm1 (length x) i (stnlt i)).
+  <span class="nb">induction</span> (natchoice0 (length x)) <span class="k">as</span> [H' | H'].
+  - <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isinjstntonat. <span class="nb">cbn</span>. <span class="nb">apply</span> (minusminusmmn _ _ e).
+  - <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isinjstntonat. <span class="nb">cbn</span>. <span class="nb">apply</span> (minusminusmmn _ _ e).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">reverse_index'</span> {<span class="nv">X</span> : UU} (<span class="nv">x</span> : Sequence X) (<span class="nv">i</span> : stn (length x)) :
+  (reverse x) i = x (dualelement i).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>. <span class="nb">unfold</span> dualelement, coprod_rect.
+  <span class="nb">induction</span> (natchoice0 (length x)) <span class="k">as</span> [H' | H'].
+  - <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isinjstntonat. <span class="nb">cbn</span>. <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isinjstntonat. <span class="nb">cbn</span>. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Combinatorics/FLists.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

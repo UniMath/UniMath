@@ -1,0 +1,731 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EnrichedRelation.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> Enriched relations</span>
+
+<span class="sd"> Let `V` be a quantale. Then an enriched relation between two sets `X` and `Y` is given by</span>
+<span class="sd"> a map `X → Y → V`. This generalizes the notion of a binary relation, which would be a</span>
+<span class="sd"> relation enriched in `hProp`. In this file, we give the basic definitions on enriched</span>
+<span class="sd"> relations.</span>
+
+<span class="sd"> Recall that the identity relation on a set `X` is defined to be the relation that sends</span>
+<span class="sd"> every `x : X` and `y : X` to the proposition `x = y`. To define the enriched version of</span>
+<span class="sd"> this relation, we take the supremum of a constant diagram over `x = y`, whose value are</span>
+<span class="sd"> given by the monoidal unit of `V`. The composition of quantale enriched relations follows</span>
+<span class="sd"> the same idea as the composition of ordinary relations.</span>
+
+<span class="sd"> To define all operations (unitors, associators, identity, composition) on squares, we use</span>
+<span class="sd"> the universal property. Here we use that `V` is symmetric monoidal closed. More specifically,</span>
+<span class="sd"> we use that tensoring preserves coproducts. The remainder is a matter of applying universal</span>
+<span class="sd"> properties.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Enriched relations</span>
+<span class="sd"> 2. Identity and composition of enriched relations</span>
+<span class="sd"> 3. Order on enriched relations</span>
+<span class="sd"> 4. Squares of enriched relations</span>
+<span class="sd"> 5. Associators and unitors</span>
+<span class="sd"> 6. Identity squares</span>
+<span class="sd"> 7. Composition of squares</span>
+<span class="sd"> 8. Converses of enriched relations</span>
+<span class="sd"> 9. Companion pairs of enriched relations</span>
+<span class="sd"> 10. Conjoints of enriched relations</span>
+<span class="sd"> 11. Calculational lemmas</span>
+<span class="sd"> 12. Basic properties of the order of enriched relations</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.PosetCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coends.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.BenabouCosmos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="sd">(** * 1. Enriched relations *)</span>
+<span class="kn">Definition</span> <span class="nf">enriched_relation</span>
+           (<span class="nv">V</span> : quantale_cosmos)
+           (<span class="nv">X</span> <span class="nv">Y</span> : hSet)
+  : UU
+  := X → Y → V.
+
+<span class="kn">Proposition</span> <span class="nf">isaset_enriched_relation</span>
+            (<span class="nv">V</span> : quantale_cosmos)
+            (<span class="nv">X</span> <span class="nv">Y</span> : hSet)
+  : isaset (enriched_relation V X Y).
+<span class="kn">Proof</span>.
+  use funspace_isaset.
+  use funspace_isaset.
+  <span class="bp">exact</span> (isaset_ob_poset (_ ,, is_poset_category_quantale_cosmos V)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">eq_enriched_relation</span>
+            {<span class="nv">V</span> : quantale_cosmos}
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            {<span class="nv">R</span> <span class="nv">R'</span> : enriched_relation V X Y}
+            (<span class="nv">p</span> : ∏ (x : X) (y : Y), R x y --&gt; R' x y)
+            (<span class="nv">q</span> : ∏ (x : X) (y : Y), R' x y --&gt; R x y)
+  : R = R'.
+<span class="kn">Proof</span>.
+  use funextsec ; <span class="nb">intro</span> x.
+  use funextsec ; <span class="nb">intro</span> y.
+  use isotoid.
+  {
+    <span class="nb">apply</span> is_univalent_quantale_cosmos.
+  }
+  use make_z_iso.
+  - <span class="bp">exact</span> (p x y).
+  - <span class="bp">exact</span> (q x y).
+  - <span class="nb">split</span> ; <span class="nb">apply</span> is_poset_category_quantale_cosmos.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">EnrichedRelation</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : quantale_cosmos}.
+
+  <span class="sd">(** * 2. Identity and composition of enriched relations *)</span>
+  <span class="kn">Definition</span> <span class="nf">id_enriched_relation</span>
+             (<span class="nv">X</span> : hSet)
+    : enriched_relation V X X
+    := <span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : X),
+       benabou_cosmos_coproducts
+         V
+         (x = y)
+         (<span class="k">λ</span> <span class="nv">_</span>, I_{V}).
+
+  <span class="kn">Definition</span> <span class="nf">comp_enriched_relation</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet}
+             (<span class="nv">R</span> : enriched_relation V X Y)
+             (<span class="nv">S</span> : enriched_relation V Y Z)
+    : enriched_relation V X Z
+    := <span class="k">λ</span> (<span class="nv">x</span> : X)
+         (<span class="nv">z</span> : Z),
+       benabou_cosmos_coproducts
+         V
+         Y
+         (<span class="k">λ</span> (<span class="nv">y</span> : Y), R x y ⊗ S y z).
+
+
+  <span class="kn">Notation</span> <span class="s2">"R ·e S"</span> := (comp_enriched_relation R S) (<span class="kn">at level</span> <span class="mi">40</span>) : cat.
+
+  <span class="sd">(** * 3. Order on enriched relations *)</span>
+  <span class="kn">Definition</span> <span class="nf">enriched_relation_le</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+             (<span class="nv">R</span> <span class="nv">S</span> : enriched_relation V X Y)
+    : UU
+    := ∏ (x : X) (y : Y), R x y --&gt; S x y.
+
+  <span class="kn">Notation</span> <span class="s2">"R ≤e S"</span> := (enriched_relation_le R S) (<span class="kn">at level</span> <span class="mi">70</span>) : cat.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_enriched_relation_le</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              (<span class="nv">R</span> <span class="nv">S</span> : enriched_relation V X Y)
+    : isaprop (enriched_relation_le R S).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">2</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> is_poset_category_quantale_cosmos.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_enriched_relation_le</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              {<span class="nv">R</span> <span class="nv">R'</span> : enriched_relation V X Y}
+              (<span class="nv">p</span> : R ≤e R')
+              (<span class="nv">q</span> : R' ≤e R)
+    : R = R'.
+  <span class="kn">Proof</span>.
+    use eq_enriched_relation.
+    - <span class="bp">exact</span> p.
+    - <span class="bp">exact</span> q.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 4. Squares of enriched relations *)</span>
+  <span class="kn">Definition</span> <span class="nf">fun_comp_enriched_relation</span>
+              {<span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet}
+              (<span class="nv">R</span> : enriched_relation V X Y)
+              (<span class="nv">f</span> : W → X)
+              (<span class="nv">g</span> : Z → Y)
+    : enriched_relation V W Z
+    := <span class="k">λ</span> (<span class="nv">w</span> : W) (<span class="nv">z</span> : Z), R (f w) (g z).
+
+  <span class="kn">Definition</span> <span class="nf">enriched_relation_square</span>
+             {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> : hSet}
+             (<span class="nv">f</span> : X₁ → X₂)
+             (<span class="nv">g</span> : Y₁ → Y₂)
+             (<span class="nv">R₁</span> : enriched_relation V X₁ Y₁)
+             (<span class="nv">R₂</span> : enriched_relation V X₂ Y₂)
+    : UU
+    := R₁ ≤e fun_comp_enriched_relation R₂ f g.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_enriched_relation_square</span>
+              {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> : hSet}
+              (<span class="nv">f</span> : X₁ → X₂)
+              (<span class="nv">g</span> : Y₁ → Y₂)
+              (<span class="nv">R₁</span> : enriched_relation V X₁ Y₁)
+              (<span class="nv">R₂</span> : enriched_relation V X₂ Y₂)
+    : isaprop (enriched_relation_square f g R₁ R₂).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">2</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> is_poset_category_quantale_cosmos.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_relation_square_to_le</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              {<span class="nv">R₁</span> : enriched_relation V X Y}
+              {<span class="nv">R₂</span> : enriched_relation V X Y}
+              (<span class="nv">p</span> : enriched_relation_square (idfun _) (idfun _) R₁ R₂)
+    : R₁ ≤e R₂.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_relation_le_to_square</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              {<span class="nv">R₁</span> : enriched_relation V X Y}
+              {<span class="nv">R₂</span> : enriched_relation V X Y}
+              (<span class="nv">p</span> : R₁ ≤e R₂)
+    : enriched_relation_square (idfun _) (idfun _) R₁ R₂.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 5. Associators and unitors *)</span>
+  <span class="kn">Proposition</span> <span class="nf">enriched_relation_lunitor</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              (<span class="nv">R</span> : enriched_relation V X Y)
+    : enriched_relation_square
+        (idfun _)
+        (idfun _)
+        (id_enriched_relation _ ·e R)
+        R.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+    use CoproductArrow.
+    <span class="nb">intro</span> y' ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (sym_mon_braiding _ _ _ · _).
+    use arrow_from_tensor_coproduct_benabou_cosmos.
+    <span class="nb">intro</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> mon_runitor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_relation_linvunitor</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              (<span class="nv">R</span> : enriched_relation V X Y)
+    : enriched_relation_square
+        (idfun _)
+        (idfun _)
+        R
+        (id_enriched_relation _ ·e R).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ · CoproductIn _ _ _ x).
+    <span class="nb">refine</span> (mon_linvunitor _ · _).
+    <span class="nb">refine</span> (_ #⊗ identity _).
+    <span class="bp">exact</span> (CoproductIn _ _ _ (idpath x)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_relation_runitor</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              (<span class="nv">R</span> : enriched_relation V X Y)
+    : enriched_relation_square
+        (idfun _)
+        (idfun _)
+        (R ·e id_enriched_relation _)
+        R.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+    use CoproductArrow.
+    <span class="nb">intro</span> y'.
+    use arrow_from_tensor_coproduct_benabou_cosmos.
+    <span class="nb">intro</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> mon_runitor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_relation_rinvunitor</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              (<span class="nv">R</span> : enriched_relation V X Y)
+    : enriched_relation_square
+        (idfun _)
+        (idfun _)
+        R
+        (R ·e id_enriched_relation _).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ · CoproductIn _ _ _ y).
+    <span class="nb">refine</span> (mon_rinvunitor _ · _).
+    <span class="nb">refine</span> (identity _ #⊗ _).
+    <span class="bp">exact</span> (CoproductIn _ _ _ (idpath y)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_relation_lassociator</span>
+              {<span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet}
+              (<span class="nv">R₁</span> : enriched_relation V W X)
+              (<span class="nv">R₂</span> : enriched_relation V X Y)
+              (<span class="nv">R₃</span> : enriched_relation V Y Z)
+    : enriched_relation_square
+        (idfun _)
+        (idfun _)
+        ((R₁ ·e R₂) ·e R₃)
+        (R₁ ·e (R₂ ·e R₃)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w z ; <span class="nb">cbn</span>.
+    use CoproductArrow.
+    <span class="nb">intro</span> y ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (sym_mon_braiding _ _ _ · _).
+    use arrow_from_tensor_coproduct_benabou_cosmos.
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (sym_mon_braiding _ _ _ · _).
+    <span class="nb">refine</span> (mon_lassociator _ _ _ · _).
+    <span class="nb">refine</span> ((identity _ #⊗ _)· CoproductIn _ _ _ x).
+    <span class="bp">exact</span> (CoproductIn _ _ _ y).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_relation_rassociator</span>
+              {<span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet}
+              (<span class="nv">R₁</span> : enriched_relation V W X)
+              (<span class="nv">R₂</span> : enriched_relation V X Y)
+              (<span class="nv">R₃</span> : enriched_relation V Y Z)
+    : enriched_relation_square
+        (idfun _)
+        (idfun _)
+        (R₁ ·e (R₂ ·e R₃))
+        ((R₁ ·e R₂) ·e R₃).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w z ; <span class="nb">cbn</span>.
+    use CoproductArrow.
+    <span class="nb">intro</span> x.
+    use arrow_from_tensor_coproduct_benabou_cosmos.
+    <span class="nb">intro</span> y ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (mon_rassociator _ _ _ · _).
+    <span class="nb">refine</span> ((_ #⊗ identity _)· CoproductIn _ _ _ y).
+    <span class="bp">exact</span> (CoproductIn _ _ _ x).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 6. Identity squares *)</span>
+  <span class="kn">Definition</span> <span class="nf">id_v_enriched_relation_square</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+             (<span class="nv">R</span> : enriched_relation V X Y)
+    : enriched_relation_square (idfun _) (idfun _) R R.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> identity.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">id_h_enriched_relation_square</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+             (<span class="nv">f</span> : X → Y)
+    : enriched_relation_square
+        f f
+        (id_enriched_relation X) (id_enriched_relation Y).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use CoproductArrow.
+    <span class="nb">intro</span> p.
+    <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (CoproductIn _ _ _ (idpath _)).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 7. Composition of squares *)</span>
+  <span class="kn">Definition</span> <span class="nf">comp_v_enriched_relation_square</span>
+             {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">X₃</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> <span class="nv">Y₃</span> : hSet}
+             {<span class="nv">f₁</span> : X₁ → X₂} {<span class="nv">f₂</span> : X₂ → X₃}
+             {<span class="nv">g₁</span> : Y₁ → Y₂} {<span class="nv">g₂</span> : Y₂ → Y₃}
+             {<span class="nv">R₁</span> : enriched_relation V X₁ Y₁}
+             {<span class="nv">R₂</span> : enriched_relation V X₂ Y₂}
+             {<span class="nv">R₃</span> : enriched_relation V X₃ Y₃}
+             (<span class="nv">τ</span> : enriched_relation_square f₁ g₁ R₁ R₂)
+             (<span class="nv">θ</span> : enriched_relation_square f₂ g₂ R₂ R₃)
+    : enriched_relation_square (f₂ ∘ f₁)%functions (g₂ ∘ g₁)%functions R₁ R₃.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="bp">exact</span> (τ x y · θ (f₁ x) (g₁ y)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_h_enriched_relation_square</span>
+             {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> <span class="nv">Z₁</span> <span class="nv">Z₂</span> : hSet}
+             {<span class="nv">f</span> : X₁ → X₂}
+             {<span class="nv">g</span> : Y₁ → Y₂}
+             {<span class="nv">h</span> : Z₁ → Z₂}
+             {<span class="nv">R₁</span> : enriched_relation V X₁ Y₁}
+             {<span class="nv">S₁</span> : enriched_relation V Y₁ Z₁}
+             {<span class="nv">R₂</span> : enriched_relation V X₂ Y₂}
+             {<span class="nv">S₂</span> : enriched_relation V Y₂ Z₂}
+             (<span class="nv">τ</span> : enriched_relation_square f g R₁ R₂)
+             (<span class="nv">θ</span> : enriched_relation_square g h S₁ S₂)
+    : enriched_relation_square
+        f h
+        (R₁ ·e S₁)
+        (R₂ ·e S₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x z.
+    use CoproductArrow.
+    <span class="nb">intro</span> y ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ · CoproductIn _ _ _ (g y)).
+    <span class="bp">exact</span> (τ x y #⊗ θ y z).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 8. Converses of enriched relations *)</span>
+  <span class="kn">Definition</span> <span class="nf">enriched_relation_converse</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+             (<span class="nv">R</span> : enriched_relation V X Y)
+    : enriched_relation V Y X
+    := <span class="k">λ</span> <span class="nv">y</span> <span class="nv">x</span>, R x y.
+
+  <span class="sd">(** * 9. Companion pairs of enriched relations *)</span>
+  <span class="kn">Definition</span> <span class="nf">companion_enriched_relation</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+             (<span class="nv">f</span> : X → Y)
+    : enriched_relation V X Y
+    := <span class="k">λ</span> (<span class="nv">x</span> : X) (<span class="nv">y</span> : Y),
+       benabou_cosmos_coproducts
+         V
+         (f x = y)
+         (<span class="k">λ</span> <span class="nv">_</span>, I_{V}).
+
+  <span class="kn">Notation</span> <span class="s2">"f ^*"</span> := (companion_enriched_relation f) (<span class="kn">at level</span> <span class="mi">20</span>) : cat.
+
+  <span class="kn">Proposition</span> <span class="nf">companion_enriched_relation_id</span>
+              (<span class="nv">X</span> : hSet)
+    : (idfun X)^* = id_enriched_relation X.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">companion_enriched_relation_comp</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet}
+              (<span class="nv">f</span> : X → Y)
+              (<span class="nv">g</span> : Y → Z)
+    : (<span class="k">λ</span> <span class="nv">x</span>, g(f x))^* ≤e f^* ·e g^*.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x z.
+    use CoproductArrow ; <span class="nb">cbn</span>.
+    <span class="nb">intro</span> p.
+    <span class="nb">refine</span> (_ · CoproductIn _ _ _ (f x)).
+    <span class="nb">refine</span> (_ · (CoproductIn _ _ _ (idpath _) #⊗ CoproductIn _ _ _ p)).
+    <span class="nb">apply</span> mon_linvunitor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">companion_enriched_relation_left</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              (<span class="nv">f</span> : X → Y)
+    : enriched_relation_square
+        f (idfun _)
+        (f^*) (id_enriched_relation Y).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use CoproductArrow.
+    <span class="nb">intro</span> p.
+    <span class="bp">exact</span> (CoproductIn _ _ _ p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">companion_enriched_relation_right</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              (<span class="nv">f</span> : X → Y)
+    : enriched_relation_square
+        (idfun _) f
+        (id_enriched_relation X) (f^*).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use CoproductArrow.
+    <span class="nb">intro</span> p.
+    <span class="bp">exact</span> (CoproductIn _ _ _ (maponpaths f p)).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 10. Conjoints of enriched relations *)</span>
+  <span class="kn">Definition</span> <span class="nf">conjoint_enriched_relation</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+             (<span class="nv">f</span> : X → Y)
+    : enriched_relation V Y X
+    := enriched_relation_converse (companion_enriched_relation f).
+
+  <span class="kn">Notation</span> <span class="s2">"f ^o"</span> := (conjoint_enriched_relation f) (<span class="kn">at level</span> <span class="mi">20</span>) : cat.
+
+  <span class="kn">Proposition</span> <span class="nf">conjoint_enriched_relation_id</span>
+              (<span class="nv">X</span> : hSet)
+    : (idfun X)^o = id_enriched_relation X.
+  <span class="kn">Proof</span>.
+    use eq_enriched_relation.
+    - <span class="nb">intros</span> x y.
+      use CoproductArrow ; <span class="nb">cbn</span>.
+      <span class="nb">intro</span> p.
+      <span class="bp">exact</span> (CoproductIn _ _ _ (!p)).
+    - <span class="nb">intros</span> x y.
+      use CoproductArrow ; <span class="nb">cbn</span>.
+      <span class="nb">intro</span> p.
+      <span class="bp">exact</span> (CoproductIn _ _ _ (!p)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">conjoint_enriched_relation_comp</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet}
+              (<span class="nv">f</span> : X → Y)
+              (<span class="nv">g</span> : Y → Z)
+    : (<span class="k">λ</span> <span class="nv">x</span>, g(f x))^o ≤e g^o ·e f^o.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> z x.
+    use CoproductArrow ; <span class="nb">cbn</span>.
+    <span class="nb">intro</span> p.
+    <span class="nb">refine</span> (_ · CoproductIn _ _ _ (f x)).
+    <span class="nb">refine</span> (_ · (CoproductIn _ _ _ p #⊗ CoproductIn _ _ _ (idpath _))).
+    <span class="nb">apply</span> mon_linvunitor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">conjoint_enriched_relation_left</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              (<span class="nv">f</span> : X → Y)
+    : enriched_relation_square
+        f (idfun _)
+        (id_enriched_relation X) (f^o).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use CoproductArrow.
+    <span class="nb">intro</span> p.
+    <span class="bp">exact</span> (CoproductIn _ _ _ (maponpaths f (!p))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">conjoint_enriched_relation_right</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              (<span class="nv">f</span> : X → Y)
+    : enriched_relation_square
+        (idfun _) f
+        (f^o) (id_enriched_relation Y).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use CoproductArrow.
+    <span class="nb">intro</span> p.
+    <span class="bp">exact</span> (CoproductIn _ _ _ (!p)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">comp_companion_conjoint_enriched_relation</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              (<span class="nv">f</span> : X → Y)
+    : enriched_relation_le
+        (id_enriched_relation _)
+        (f^* ·e f^o).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x x'.
+    use CoproductArrow.
+    <span class="nb">intro</span> p ; <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ · CoproductIn _ _ _ (f x)).
+    <span class="nb">refine</span> (_ · (CoproductIn _ _ _ (idpath _) #⊗ CoproductIn _ _ _ (idpath _))).
+    <span class="nb">apply</span> mon_linvunitor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">comp_conjoint_companion_enriched_relation</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              (<span class="nv">f</span> : X → Y)
+    : enriched_relation_le
+        (f^o ·e f^*)
+        (id_enriched_relation _).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y y'.
+    use CoproductArrow ; <span class="nb">cbn</span>.
+    <span class="nb">intro</span> x.
+    use arrow_from_tensor_coproduct_benabou_cosmos.
+    <span class="nb">intro</span> p.
+    <span class="nb">refine</span> (sym_mon_braiding _ _ _ · _).
+    use arrow_from_tensor_coproduct_benabou_cosmos.
+    <span class="nb">intro</span> q.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ · CoproductIn _ _ _ _).
+    - <span class="nb">apply</span> mon_lunitor.
+    - <span class="bp">exact</span> (!q @ p).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 11. Calculational lemmas *)</span>
+  <span class="kn">Proposition</span> <span class="nf">enriched_relation_comp_fun_left</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet}
+              (<span class="nv">f</span> : X → Y)
+              (<span class="nv">R</span> : enriched_relation V Y Z)
+    : f^* ·e R
+      =
+      fun_comp_enriched_relation R f (idfun _).
+  <span class="kn">Proof</span>.
+    use eq_enriched_relation.
+    - <span class="nb">intros</span> x z.
+      use CoproductArrow.
+      <span class="nb">intro</span> y.
+      <span class="nb">refine</span> (sym_mon_braiding _ _ _ · _).
+      use arrow_from_tensor_coproduct_benabou_cosmos.
+      <span class="nb">intro</span> p ; <span class="nb">cbn</span>.
+      <span class="nb">induction</span> p.
+      <span class="nb">apply</span> mon_runitor.
+    - <span class="nb">intros</span> x z.
+      <span class="bp">exact</span> (mon_linvunitor _
+             · (CoproductIn _ _ _ (idpath _) #⊗ identity _)
+             · CoproductIn _ _ _ (f x)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_relation_conj_fun_right</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet}
+              (<span class="nv">R</span> : enriched_relation V X Y)
+              (<span class="nv">f</span> : Z → Y)
+    : R ·e f^o
+      =
+      fun_comp_enriched_relation R (idfun _) f.
+  <span class="kn">Proof</span>.
+    use eq_enriched_relation.
+    - <span class="nb">intros</span> x z.
+      use CoproductArrow.
+      <span class="nb">intro</span> y.
+      use arrow_from_tensor_coproduct_benabou_cosmos.
+      <span class="nb">intro</span> p ; <span class="nb">cbn</span>.
+      <span class="nb">induction</span> p.
+      <span class="nb">apply</span> mon_runitor.
+    - <span class="nb">intros</span> x z.
+      <span class="bp">exact</span> (mon_rinvunitor _
+             · (identity _ #⊗ CoproductIn _ _ _ (idpath _))
+             · CoproductIn _ _ _ (f z)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_relation_comp_conj</span>
+              {<span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet}
+              (<span class="nv">R</span> : enriched_relation V X Y)
+              (<span class="nv">f</span> : W → X)
+              (<span class="nv">g</span> : Z → Y)
+    : f^* ·e (R ·e g^o)
+      =
+      fun_comp_enriched_relation R f g.
+  <span class="kn">Proof</span>.
+    use eq_enriched_relation.
+    - <span class="nb">intros</span> w z.
+      use CoproductArrow.
+      <span class="nb">intro</span> x.
+      use arrow_from_tensor_coproduct_benabou_cosmos.
+      <span class="nb">intro</span> y.
+      <span class="nb">refine</span> (sym_mon_braiding _ _ _ · _).
+      use arrow_from_tensor_coproduct_benabou_cosmos.
+      <span class="nb">intro</span> p ; <span class="nb">cbn</span>.
+      <span class="nb">induction</span> p.
+      <span class="nb">refine</span> (mon_runitor _ · _).
+      use arrow_from_tensor_coproduct_benabou_cosmos.
+      <span class="nb">intro</span> q ; <span class="nb">cbn</span>.
+      <span class="nb">induction</span> q.
+      <span class="nb">apply</span> mon_runitor.
+    - <span class="nb">intros</span> w z.
+      <span class="nb">refine</span> (_ · CoproductIn _ _ _ (f w)) ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ · (CoproductIn _ _ _ (idpath _) #⊗ identity _)).
+      <span class="nb">refine</span> (mon_linvunitor _ · (identity _ #⊗ _)).
+      <span class="nb">refine</span> (_ · CoproductIn _ _ _ (g z)).
+      <span class="nb">refine</span> (mon_rinvunitor _ · (identity _ #⊗ _)).
+      <span class="bp">exact</span> (CoproductIn _ _ _ (idpath _)).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 12. Basic properties of the order of enriched relations *)</span>
+  <span class="kn">Proposition</span> <span class="nf">enriched_relation_le_refl</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              (<span class="nv">R</span> : enriched_relation V X Y)
+    : enriched_relation_le R R.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="nb">apply</span> identity.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_relation_eq_to_le</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              {<span class="nv">R</span> <span class="nv">S</span> : enriched_relation V X Y}
+              (<span class="nv">p</span> : R = S)
+    : enriched_relation_le R S.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> enriched_relation_le_refl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_relation_le_trans</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              {<span class="nv">R₁</span> <span class="nv">R₂</span> <span class="nv">R₃</span> : enriched_relation V X Y}
+              (<span class="nv">p</span> : enriched_relation_le R₁ R₂)
+              (<span class="nv">q</span> : enriched_relation_le R₂ R₃)
+    : enriched_relation_le R₁ R₃.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="bp">exact</span> (p _ _ · q _ _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_relation_le_comp</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet}
+              {<span class="nv">R₁</span> <span class="nv">R₂</span> : enriched_relation V X Y}
+              {<span class="nv">S₁</span> <span class="nv">S₂</span> : enriched_relation V Y Z}
+              (<span class="nv">p</span> : enriched_relation_le R₁ R₂)
+              (<span class="nv">q</span> : enriched_relation_le S₁ S₂)
+    : enriched_relation_le
+        (R₁ ·e S₁)
+        (R₂ ·e S₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x z.
+    use CoproductArrow.
+    <span class="nb">intros</span> y ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> ((p _ _ #⊗ q _ _) · CoproductIn _ _ _ y).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_relation_companion_le</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              {<span class="nv">f</span> <span class="nv">g</span> : X → Y}
+              (<span class="nv">p</span> : f = g)
+    : enriched_relation_le (f^*) (g^*).
+  <span class="kn">Proof</span>.
+    use enriched_relation_eq_to_le.
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_relation_conjoint_le</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+              {<span class="nv">f</span> <span class="nv">g</span> : X → Y}
+              (<span class="nv">p</span> : f = g)
+    : enriched_relation_le (f^o) (g^o).
+  <span class="kn">Proof</span>.
+    use enriched_relation_eq_to_le.
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">EnrichedRelation</span>.
+
+<span class="kn">Notation</span> <span class="s2">"R ·e S"</span> := (comp_enriched_relation R S) (<span class="kn">at level</span> <span class="mi">40</span>) : cat.
+<span class="kn">Notation</span> <span class="s2">"R ≤e S"</span> := (enriched_relation_le R S) (<span class="kn">at level</span> <span class="mi">70</span>) : cat.
+<span class="kn">Notation</span> <span class="s2">"f ^*"</span> := (companion_enriched_relation f) (<span class="kn">at level</span> <span class="mi">20</span>) : cat.
+<span class="kn">Notation</span> <span class="s2">"f ^o"</span> := (conjoint_enriched_relation f) (<span class="kn">at level</span> <span class="mi">20</span>) : cat.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/EnrichedRelation.v</tt>, line 36)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  12. Basic properties of the order of enriched relations
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonadsInStructuredCategories.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.EndoMap.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Prod.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.
+<span class="kn">Require Import</span> UniMath.Bicategories.Monads.Examples.MonadsInBicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Monads.Examples.MonadsInBicatOfCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Monads.Examples.MonadsInTotalBicat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.Actegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.BicatOfActegories.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Monads in the bicategory of categories with a terminal object</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">make_mnd_univ_cat_with_terminal_obj</span>
+           (<span class="nv">C</span> : univalent_category)
+           (<span class="nv">M</span> : Monad C)
+           (<span class="nv">TC</span> : Terminal C)
+           (<span class="nv">MT</span> : preserves_terminal M)
+  : mnd univ_cat_with_terminal_obj.
+<span class="kn">Proof</span>.
+  use make_mnd_total_bicat.
+  - <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+  - use Monad_to_mnd_bicat_of_univ_cats.
+    + <span class="bp">exact</span> C.
+    + <span class="bp">exact</span> M.
+  - use make_disp_mnd.
+    + <span class="bp">exact</span> (TC ,, tt).
+    + <span class="bp">exact</span> (tt ,, MT).
+    + <span class="bp">exact</span> (tt ,, tt).
+    + <span class="bp">exact</span> (tt ,, tt).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Monads in the bicategory of categories with binary products</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">make_mnd_univ_cat_with_binprod</span>
+           (<span class="nv">C</span> : univalent_category)
+           (<span class="nv">M</span> : Monad C)
+           (<span class="nv">BC</span> : BinProducts C)
+           (<span class="nv">MB</span> : preserves_binproduct M)
+  : mnd univ_cat_with_binprod.
+<span class="kn">Proof</span>.
+  use make_mnd_total_bicat.
+  - <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+  - use Monad_to_mnd_bicat_of_univ_cats.
+    + <span class="bp">exact</span> C.
+    + <span class="bp">exact</span> M.
+  - use make_disp_mnd.
+    + <span class="bp">exact</span> (BC ,, tt).
+    + <span class="bp">exact</span> (tt ,, MB).
+    + <span class="bp">exact</span> (tt ,, tt).
+    + <span class="bp">exact</span> (tt ,, tt).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Monads in the bicategory of categories with pullbacks</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">make_mnd_univ_cat_with_pb</span>
+           (<span class="nv">C</span> : univalent_category)
+           (<span class="nv">M</span> : Monad C)
+           (<span class="nv">PC</span> : Pullbacks C)
+           (<span class="nv">MP</span> : preserves_pullback M)
+  : mnd univ_cat_with_pb.
+<span class="kn">Proof</span>.
+  use make_mnd_total_bicat.
+  - <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+  - use Monad_to_mnd_bicat_of_univ_cats.
+    + <span class="bp">exact</span> C.
+    + <span class="bp">exact</span> M.
+  - use make_disp_mnd.
+    + <span class="bp">exact</span> (PC ,, tt).
+    + <span class="bp">exact</span> (tt ,, MP).
+    + <span class="bp">exact</span> (tt ,, tt).
+    + <span class="bp">exact</span> (tt ,, tt).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Monads in the bicategory of categories with finite limits</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">make_mnd_bicat_of_univ_cat_with_finlim</span>
+           (<span class="nv">C</span> : univalent_category)
+           (<span class="nv">M</span> : Monad C)
+           (<span class="nv">TC</span> : Terminal C)
+           (<span class="nv">PC</span> : Pullbacks C)
+           (<span class="nv">MT</span> : preserves_terminal M)
+           (<span class="nv">MP</span> : preserves_pullback M)
+  : mnd bicat_of_univ_cat_with_finlim.
+<span class="kn">Proof</span>.
+  use make_mnd_total_bicat.
+  - <span class="nb">apply</span> disp_2cells_isaprop_prod ; <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+  - use Monad_to_mnd_bicat_of_univ_cats.
+    + <span class="bp">exact</span> C.
+    + <span class="bp">exact</span> M.
+  - use make_disp_mnd.
+    + <span class="bp">exact</span> ((TC ,, tt) ,, (PC ,, tt)).
+    + <span class="bp">exact</span> ((tt ,, MT) ,, (tt ,, MP)).
+    + <span class="nb">cbn</span>.
+      <span class="bp">exact</span> ((tt ,, tt) ,, (tt ,, tt)).
+    + <span class="nb">cbn</span>.
+      <span class="bp">exact</span> ((tt ,, tt) ,, (tt ,, tt)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Monads in the bicategory of categories with an initial object</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">make_mnd_univ_cat_with_initial</span>
+           (<span class="nv">C</span> : univalent_category)
+           (<span class="nv">M</span> : Monad C)
+           (<span class="nv">IC</span> : Initial C)
+           (<span class="nv">MI</span> : preserves_initial M)
+  : mnd univ_cat_with_initial.
+<span class="kn">Proof</span>.
+  use make_mnd_total_bicat.
+  - <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+  - use Monad_to_mnd_bicat_of_univ_cats.
+    + <span class="bp">exact</span> C.
+    + <span class="bp">exact</span> M.
+  - use make_disp_mnd.
+    + <span class="bp">exact</span> (IC ,, tt).
+    + <span class="bp">exact</span> (tt ,, MI).
+    + <span class="bp">exact</span> (tt ,, tt).
+    + <span class="bp">exact</span> (tt ,, tt).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Monads in the bicategory of categories with binary coproducts</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">make_mnd_univ_cat_with_bincoprod</span>
+           (<span class="nv">C</span> : univalent_category)
+           (<span class="nv">M</span> : Monad C)
+           (<span class="nv">SC</span> : BinCoproducts C)
+           (<span class="nv">MS</span> : preserves_bincoproduct M)
+  : mnd univ_cat_with_bincoprod.
+<span class="kn">Proof</span>.
+  use make_mnd_total_bicat.
+  - <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+  - use Monad_to_mnd_bicat_of_univ_cats.
+    + <span class="bp">exact</span> C.
+    + <span class="bp">exact</span> M.
+  - use make_disp_mnd.
+    + <span class="bp">exact</span> (SC ,, tt).
+    + <span class="bp">exact</span> (tt ,, MS).
+    + <span class="bp">exact</span> (tt ,, tt).
+    + <span class="bp">exact</span> (tt ,, tt).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 7. Monads in the bicategory of actegories</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">make_mnd_actegory</span>
+           (<span class="nv">V</span> : category)
+           (<span class="nv">Mon_V</span> : monoidal V)
+           (<span class="nv">C</span> : category)
+           (<span class="nv">M</span> : Monad C)
+           (<span class="nv">Act</span> : actegory Mon_V C)
+           (<span class="nv">Ml</span> : lineator_lax Mon_V Act Act M)
+           (<span class="nv">ηlinear</span> : is_linear_nat_trans (identity_lineator_lax Mon_V Act) Ml (η M))
+           (<span class="nv">μlinear</span> : is_linear_nat_trans (comp_lineator_lax Mon_V Ml Ml) Ml (μ M))
+  : mnd (actbicat Mon_V).
+<span class="kn">Proof</span>.
+  use make_mnd_total_bicat.
+  - <span class="nb">apply</span> actbicat_disp_2cells_isaprop.
+  - use Monad_to_mnd_bicat_of_cats.
+    + <span class="bp">exact</span> C.
+    + <span class="bp">exact</span> M.
+  - use make_disp_mnd.
+    + <span class="bp">exact</span> Act.
+    + <span class="bp">exact</span> Ml.
+    + <span class="bp">exact</span> ηlinear.
+    + <span class="bp">exact</span> μlinear.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Monads/Examples/MonadsInStructuredCategories.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

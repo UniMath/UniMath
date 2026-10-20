@@ -1,0 +1,778 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Corollaries.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Nat.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.Algebra.Matrix.
+
+<span class="kn">Require Import</span> UniMath.Algebra.Domains_and_Fields.
+<span class="kn">Require Import</span> UniMath.Algebra.Matrix.
+<span class="kn">Require Import</span> UniMath.Algebra.RigsAndRings.
+<span class="kn">Require Import</span> UniMath.Algebra.IteratedBinaryOperations.
+
+<span class="kn">Require Import</span> UniMath.Algebra.GaussianElimination.Auxiliary.
+<span class="kn">Require Import</span> UniMath.Algebra.GaussianElimination.Vectors.
+<span class="kn">Require Import</span> UniMath.Algebra.GaussianElimination.Matrices.
+<span class="kn">Require Import</span> UniMath.Algebra.GaussianElimination.Elimination.
+
+<span class="sd">(**</span>
+<span class="sd">  In this module, we define a back-substitution procedure that works on</span>
+<span class="sd">  nxn matrices that are upper triangular with all non-zero diagonal.</span>
+
+<span class="sd">  We use this procedure to show that any nxn matrix either not invertible,</span>
+<span class="sd">  or calculate its inverse.</span>
+
+<span class="sd">  Primary Author: Daniel @Skantz (November 2022)</span>
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">matrix_inverse_or_non_invertible_stmt</span>
+  { <span class="nv">n</span> : nat } {<span class="nv">F</span> : fld}
+  (<span class="nv">A</span> : Matrix F n n)
+  := coprod (@matrix_inverse F n A)
+            (@matrix_inverse F n A -&gt; empty).
+
+<span class="kn">Definition</span> <span class="nf">back_sub_stmt</span>
+  { <span class="nv">n</span> : nat } {<span class="nv">F</span> : fld}
+  (<span class="nv">mat</span> : Matrix F n n)
+  (<span class="nv">vec</span> : Vector F n)
+  (<span class="nv">ut</span> : @is_upper_triangular F _ _ mat)
+  (<span class="nv">df</span> : @diagonal_all_nonzero F _ mat)
+  := ∑ v : (Vector F n),
+    (@matrix_mult F _ _ mat _ (col_vec v)) = (col_vec vec).
+
+
+<span class="kn">Section</span> <span class="nf">BackSub</span>.
+
+  <span class="kn">Context</span> (<span class="nv">F</span> : fld).
+
+  <span class="kn">Local Notation</span> <span class="nf">Σ</span> := (iterop_fun (@ringunel1 F) op1).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"A ** B"</span> := (@matrix_mult F _ _ A _ B) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"R1 *pw R2"</span> := ((pointwise _ op2) R1 R2) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>).
+
+  <span class="sd">(** output: a solution [x]_[row] to [mat ** x = b]_[row] if one exists</span>
+<span class="sd">     - given mat upper triangular, non-zero diagonal. Later applied inductively in [back_sub]. *)</span>
+  <span class="kn">Definition</span> <span class="nf">back_sub_step</span> { <span class="nv">n</span> : nat } ( <span class="nv">row</span> : (⟦ n ⟧)%stn )
+    (<span class="nv">mat</span> : Matrix F n n) (<span class="nv">x</span> : Vector F n) (<span class="nv">b</span> : Vector F n) : Vector F n.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i.
+    <span class="nb">destruct</span> (nat_eq_or_neq row i).
+    - <span class="bp">exact</span> (((b i) * fldmultinv' (mat i i))
+           - ((Σ (mat i *pw x) - (x  i)* (mat i i))
+           * (fldmultinv' (mat i i))))%<span class="bp">ring</span>.
+    - <span class="bp">exact</span> (x i).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** procedure gives [x_i] s.t. [(mat ** x)_i = b_i], given previous assumptions *)</span>
+  <span class="kn">Lemma</span> <span class="nf">back_sub_step_inv0</span> { <span class="nv">n</span> : nat }
+    (<span class="nv">row</span> : ⟦ n ⟧%stn) (<span class="nv">mat</span> : Matrix F n n)
+    (<span class="nv">x</span> : Vector F n) (<span class="nv">b</span> : Vector F n)
+    (<span class="nv">p</span>: @is_upper_triangular F n n mat)
+    (<span class="nv">p'</span> : (mat row row != <span class="mi">0</span>)%<span class="bp">ring</span>)
+    : (mat ** (col_vec (back_sub_step row mat x b))) row = (col_vec b) row.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> back_sub_step, col_vec.
+    <span class="nb">unfold</span> fldmultinv'.
+    <span class="nb">rewrite</span> matrix_mult_eq; <span class="nb">unfold</span> matrix_mult_unf, pointwise.
+    <span class="nb">set</span> (m := n - (S row)).
+    <span class="nb">assert</span> (split_eq : n = (S row) + m).
+    { <span class="nb">unfold</span> m.
+      <span class="nb">rewrite</span> natpluscomm, minusplusnmm.
+      - <span class="nb">apply</span> idpath.
+      - <span class="bp">exact</span> (pr2 row). }
+    <span class="nb">destruct</span> (stn_inhabited_implies_succ row)
+      <span class="k">as</span> [s_row s_row_eq], (!s_row_eq).
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> ?.
+    <span class="nb">rewrite</span> (@vecsum_dni _ (s_row) _ row)
+    , nat_eq_or_neq_refl.
+    <span class="nb">destruct</span> (fldchoice0 _) <span class="k">as</span> [? | neq].
+    {<span class="bp">contradiction</span>. }
+    etrans.
+    { <span class="nb">apply</span> maponpaths_2; <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> funextfun; <span class="nb">intros</span> q.
+      <span class="nb">unfold</span> funcomp.
+      <span class="bp">now</span> <span class="nb">rewrite</span> (nat_eq_or_neq_right (dni_neq_i row q)). }
+    <span class="nb">rewrite</span> (@vecsum_dni F (s_row) _ row).
+    etrans.
+    { <span class="nb">apply</span> maponpaths.
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> (@ringcomm2 F).
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">now</span> <span class="nb">rewrite</span> (@ringcomm2 F). }
+      <span class="nb">apply</span> (@ringminusdistr' F (mat row row)).
+    }
+    etrans.
+    { <span class="nb">apply</span> maponpaths; <span class="nb">apply</span> map_on_two_paths.
+      - <span class="nb">rewrite</span> &lt;- (@rigassoc2 F), (@fldmultinvrax F).
+      { <span class="bp">now</span> <span class="nb">rewrite</span> (@riglunax2 F). }
+      - <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> &lt;- (@rigassoc2 F), (@fldmultinvrax F).
+        <span class="nb">apply</span> (@riglunax2 F). }
+    etrans.
+    { <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">now</span> <span class="nb">rewrite</span> (@rigcomm2 F), (@ringplusminus F). }
+    <span class="nb">rewrite</span> (@rigcomm1 F); <span class="nb">rewrite</span> (@rigassoc1 F).
+    <span class="bp">now</span> <span class="nb">rewrite</span> (@ringlinvax1 F), (@rigrunax1 F).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** [back_sub_step] only modifies target element *)</span>
+  <span class="kn">Lemma</span> <span class="nf">back_sub_step_inv1</span>
+    { <span class="nv">n</span> : nat } (<span class="nv">row</span> : ⟦ n ⟧%stn)
+    (<span class="nv">mat</span> : Matrix F n n)
+    (<span class="nv">x</span> : Vector F n) (<span class="nv">b</span> : Vector F n)
+    : ∏ i : ⟦ n ⟧%stn, i ≠ row -&gt;
+      (col_vec (back_sub_step row mat x b) i = (col_vec x) i).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i ne.
+    <span class="nb">unfold</span> back_sub_step, col_vec.
+    <span class="nb">apply</span> funextfun. <span class="nb">intros</span> j; <span class="nb">simpl</span>.
+    <span class="nb">destruct</span> (nat_eq_or_neq row i) <span class="k">as</span> [eq | ?];
+      <span class="kp">try</span> <span class="nb">apply</span> idpath.
+    <span class="nb">rewrite</span> eq <span class="k">in</span> ne.
+    <span class="bp">contradiction</span> (isirrefl_natneq _ ne).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">back_sub_step_inv2</span>
+    { <span class="nv">n</span> : nat }
+    (<span class="nv">row</span> : ⟦ n ⟧%stn)
+    (<span class="nv">mat</span> : Matrix F n n)
+    (<span class="nv">x</span> : Vector F n) (<span class="nv">b</span> : Vector F n)
+    (<span class="nv">is_ut</span>: @is_upper_triangular F n n mat)
+    : ∏ i : ⟦ n ⟧%stn, i ≥ row
+    -&gt; (mat i i != <span class="mi">0</span>)%<span class="bp">ring</span>
+    -&gt; (mat ** (col_vec x)) i = (col_vec b) i
+    -&gt; (mat ** (col_vec (back_sub_step row mat x b))) i = (col_vec b) i.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> transpose, flip.
+    <span class="nb">intros</span> i le neq0 H.
+    <span class="nb">rewrite</span> &lt;- H.
+    <span class="nb">destruct</span> (natlehchoice row i) <span class="k">as</span> [lt | eq]. {<span class="nb">apply</span> le. }
+    - <span class="nb">rewrite</span> matrix_mult_eq <span class="k">in</span> *.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">rewrite</span> matrix_mult_eq.
+      <span class="nb">unfold</span> matrix_mult_unf <span class="k">in</span> *.
+      <span class="nb">apply</span> funextfun; <span class="nb">intros</span> ?.
+      <span class="nb">apply</span> maponpaths, funextfun; <span class="nb">intros</span> i'.
+      <span class="nb">destruct</span> (stn_eq_or_neq i' (row)) <span class="k">as</span> [eq | neq].
+      <span class="mi">2</span> : { <span class="bp">now</span> <span class="nb">rewrite</span> back_sub_step_inv1. }
+      <span class="nb">rewrite</span> is_ut. <span class="mi">2</span>: { <span class="nb">rewrite</span> eq. <span class="bp">assumption</span>. }
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (@rigmult0x F).
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> (stn_eq _ _ eq)
+      , back_sub_step_inv0; <span class="kp">try</span> <span class="bp">assumption</span>.
+      <span class="bp">now</span> <span class="nb">rewrite</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Back-substituting repeatedly using step procedure defined earlier.</span>
+<span class="sd">      Carries an additional [row] parameter that allows for partially applying the substition,</span>
+<span class="sd">      that is used later for showing that diagonal must be non-zero. *)</span>
+  <span class="kn">Definition</span> <span class="nf">back_sub_internal</span>
+    { <span class="nv">n</span> : nat }
+    (<span class="nv">mat</span> : Matrix F n n)
+    (<span class="nv">x</span> : Vector F n) (<span class="nv">b</span> : Vector F n)
+    (<span class="nv">sep</span> : ⟦ S n ⟧%stn)
+    (<span class="nv">row</span> : ⟦ S n ⟧%stn)
+    : Vector F n.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> sep <span class="k">as</span> [sep p].
+    <span class="nb">induction</span> sep <span class="k">as</span> [| m IH]. {<span class="bp">exact</span> x. }
+    <span class="nb">destruct</span> (natlthorgeh (dualelement (m,, p)) row).
+    <span class="mi">2</span>: {<span class="bp">exact</span> x. }
+    <span class="nb">refine</span> (back_sub_step (dualelement (m,, p)) mat (IH _) b).
+    <span class="nb">apply</span> (istransnatlth _ _ _ (natgthsnn m) p).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">back_sub_internal_inv0</span>
+    { <span class="nv">n</span> : nat }
+    (<span class="nv">mat</span> : Matrix F n n)
+    (<span class="nv">x</span> : Vector F n) (<span class="nv">b</span> : Vector F n)
+    (<span class="nv">ut</span> : @is_upper_triangular F _ _ mat)
+    (<span class="nv">sep</span> : ⟦ S n ⟧%stn)
+    (<span class="nv">row</span> : ⟦ S n ⟧%stn)
+    : ∏ (i : ⟦ n ⟧%stn), i &gt;= row
+    -&gt; (col_vec (back_sub_internal mat x b sep row)) i = (col_vec x) i.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> sep <span class="k">as</span> [sep p].
+    <span class="nb">induction</span> sep <span class="k">as</span> [| sep IH].
+    { <span class="nb">intros</span> i H; <span class="bp">now</span> <span class="nb">destruct</span> (natchoice0 (S n)) <span class="k">in</span> H. }
+    <span class="nb">unfold</span> back_sub_internal.
+    <span class="nb">intros</span> i i_lt_row.
+    <span class="nb">rewrite</span> nat_rect_step.
+    <span class="nb">destruct</span> (natlthorgeh _ _) <span class="k">as</span> [lt | geh].
+    <span class="mi">2</span>: {<span class="bp">reflexivity</span>. }
+    <span class="nb">assert</span> (p': sep &lt; S n). { <span class="nb">apply</span> (istransnatlth _ _ _ (natgthsnn sep) p). }
+    <span class="nb">rewrite</span> &lt;- (IH p'); <span class="kp">try</span> <span class="bp">assumption</span>.
+    <span class="nb">unfold</span> back_sub_internal.
+    <span class="nb">rewrite</span> back_sub_step_inv1; <span class="kp">try</span> <span class="bp">easy</span>.
+    {<span class="nb">apply</span> maponpaths_2, maponpaths, proofirrelevance, propproperty. }
+    <span class="nb">apply</span> natgthtoneq.
+    <span class="nb">refine</span> (natlthlehtrans _ _ _ lt i_lt_row).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">back_sub_internal_inv1</span>
+    { <span class="nv">n</span> : nat }
+    (<span class="nv">mat</span> : Matrix F n n)
+    (<span class="nv">x</span> : Vector F n) (<span class="nv">b</span> : Vector F n)
+    (<span class="nv">ut</span> : @is_upper_triangular F _ _ mat)
+    (<span class="nv">sep</span> : ⟦ S n ⟧%stn)
+    (<span class="nv">row</span> : ⟦ S n ⟧%stn)
+    : ∏ i : stn n, i &gt;= row
+    -&gt; (back_sub_internal mat x b sep row) i = x i.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">rewrite</span> (@col_vec_inj_pointwise F n
+      (back_sub_internal mat x b sep row) x i).
+    - <span class="nb">apply</span> idpath.
+    - <span class="bp">now</span> <span class="nb">apply</span> (back_sub_internal_inv0).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">back_sub_internal_inv2</span>
+    { <span class="nv">n</span> : nat }
+    (<span class="nv">mat</span> : Matrix F n n)
+    (<span class="nv">x</span> : Vector F n) (<span class="nv">b</span> : Vector F n)
+    (<span class="nv">ut</span> : @is_upper_triangular F _ _ mat)
+    (<span class="nv">sep</span> : ⟦ S n ⟧%stn)
+    (<span class="nv">row</span> : ⟦ S n ⟧%stn)
+    : ∏ (i : ⟦ n ⟧%stn), i ≥ (dualelement sep)
+    -&gt; (mat i i != <span class="mi">0</span>)%<span class="bp">ring</span>
+    -&gt; i &lt; row
+    -&gt; (mat ** (col_vec (back_sub_internal mat x b sep row))) i = (col_vec b) i.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> transpose, flip.
+    <span class="nb">intros</span> i i_le_sep neq0 lt.
+    <span class="nb">unfold</span> back_sub_internal.
+    <span class="nb">destruct</span> sep <span class="k">as</span> [sep p].
+    <span class="nb">induction</span> sep <span class="k">as</span> [| sep IH].
+    { <span class="nb">apply</span> fromempty, (dualelement_sn_stn_nge_0 _ _ i_le_sep). }
+    <span class="nb">rewrite</span> nat_rect_step.
+    <span class="nb">destruct</span> (natlehchoice (dualelement (sep,, p)) i) <span class="k">as</span> [leh | eq].
+    { <span class="nb">refine</span> (istransnatleh _ i_le_sep).
+      <span class="bp">now</span> <span class="nb">apply</span> (@dualelement_sn_le). }
+    - <span class="nb">destruct</span> (natlthorgeh _ _) <span class="k">as</span> [? | contr_geh].
+      <span class="mi">2</span> : { <span class="bp">contradiction</span> (isirreflnatlth _
+              (natlthlehtrans _ _ _ (istransnatlth _ _ _ leh lt) contr_geh)).
+      }
+      <span class="nb">rewrite</span> back_sub_step_inv2; <span class="kp">try</span> <span class="bp">easy</span>.
+      { <span class="nb">unfold</span> dualelement. <span class="nb">unfold</span> dualelement <span class="k">in</span> leh.
+        <span class="nb">destruct</span> (natchoice0 _) <span class="k">as</span> [contr_eq | ?].
+        {<span class="nb">apply</span> fromstn0. <span class="bp">now</span> <span class="nb">rewrite</span> contr_eq. }
+        <span class="bp">now</span> <span class="nb">apply</span> natgthtogeh. }
+      <span class="nb">rewrite</span> IH; <span class="kp">try</span> <span class="bp">reflexivity</span>.
+        <span class="bp">now</span> <span class="nb">apply</span> dualelement_lt_to_le_s.
+    - <span class="nb">destruct</span> (natlthorgeh _ _) <span class="k">as</span> [? | contr_geh].
+      + <span class="nb">rewrite</span> (stn_eq _ _ eq).
+        <span class="bp">now</span> <span class="nb">rewrite</span> back_sub_step_inv0.
+      + <span class="nb">rewrite</span> &lt;- (stn_eq _ _ eq) <span class="k">in</span> lt.
+        <span class="bp">contradiction</span> (isirreflnatlth _ (natlthlehtrans _ _ _ lt contr_geh)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">back_sub</span>
+    {<span class="nv">n</span> : nat}
+    (<span class="nv">mat</span> : Matrix F n n)
+    (<span class="nv">vec</span> : Vector F n)
+  := back_sub_internal mat vec vec (n,, natgthsnn _) (n,, natgthsnn _).
+
+  <span class="kn">Lemma</span> <span class="nf">back_sub_inv0</span>
+    { <span class="nv">n</span> : nat }
+    (<span class="nv">mat</span> : Matrix F n n) (<span class="nv">b</span> : Vector F n)
+    (<span class="nv">ut</span> : @is_upper_triangular F _ _ mat)
+    (<span class="nv">df</span> : @diagonal_all_nonzero F _ mat)
+    : back_sub_stmt mat b ut df.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">back_sub</span> <span class="nv">mat</span> <span class="nv">b</span>).
+    <span class="nb">intros</span>; <span class="nb">unfold</span> back_sub.
+    <span class="nb">destruct</span> (natchoice0 n) <span class="k">as</span> [eq0 | ?].
+    { <span class="nb">apply</span> funextfun. <span class="nb">intros</span> i. <span class="nb">apply</span> fromstn0. <span class="bp">now</span> <span class="nb">rewrite</span> eq0. }
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> i.
+    <span class="nb">apply</span> back_sub_internal_inv2;
+      <span class="kp">try</span> <span class="bp">assumption</span>; <span class="nb">unfold</span> dualelement; <span class="kp">try</span> <span class="bp">easy</span>.
+    <span class="mi">2</span>: {<span class="bp">exact</span> (pr2 i). }
+    <span class="nb">destruct</span> (natchoice0 _) <span class="k">as</span> [eq0 | ?].
+    { <span class="nb">apply</span> fromempty; <span class="bp">now</span> <span class="nb">apply</span> negpaths0sx <span class="k">in</span> eq0. }
+    <span class="nb">simpl</span>; <span class="bp">now</span> <span class="nb">rewrite</span> natminuseqn, minuseq0'.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">BackSub</span>.
+
+
+<span class="kn">Section</span> <span class="nf">BackSubZero</span>.
+
+  <span class="sd">(** First, Helper functions for finding first zero value in a vector.</span>
+<span class="sd">      Then proof we can't have invertible, upper triangular matrix unless</span>
+<span class="sd">      non-zero diagonal *)</span>
+
+  <span class="kn">Context</span> (<span class="nv">F</span> : fld).
+
+  <span class="kn">Local Notation</span> <span class="nf">Σ</span> := (iterop_fun (@ringunel1 F) op1).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"A ** B"</span> := (@matrix_mult F _ _ A _ B) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"R1 *pw R2"</span> := ((pointwise _ op2) R1 R2) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"0"</span> := (@rigunel1 F).
+
+  <span class="c">(* For using nonzeroax *)</span>
+  <span class="kn">Local Definition</span> <span class="nf">flip_fld_bin</span>
+    (<span class="nv">e</span> : F) : F.
+  <span class="kn">Proof</span>.
+  <span class="nb">destruct</span> (fldchoice0 e).
+  - <span class="bp">exact</span> <span class="mi">1</span>%<span class="bp">ring</span>.
+  - <span class="bp">exact</span> <span class="mi">0</span>%<span class="bp">ring</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">flip_fld_bin_vec</span>
+  {<span class="nv">n</span> : nat} (<span class="nv">v</span> : Vector F n) := <span class="k">λ</span> <span class="nv">i</span> : (stn n), flip_fld_bin (v i).
+
+  <span class="c">(* Below, we find the first zero value in a vector [v] by looking for the leading element</span>
+<span class="c">     in the transformed vector. Perhaps not a pretty solution, maybe we instead want to generalize</span>
+<span class="c">     the notion of leading entry. *)</span>
+
+  <span class="kn">Local Definition</span> <span class="nf">vector_all_nonzero_compute_internal</span>
+  {<span class="nv">n</span> : nat} (<span class="nv">v</span> : Vector F n)
+  : coprod (∏ j : (stn n), (v j) != <span class="mi">0</span>%<span class="bp">ring</span>)
+          (∑ i : (stn n), ((v i) = <span class="mi">0</span>%<span class="bp">ring</span>)
+        × (<span class="k">forall</span> <span class="nv">j</span> : stn n, (j &lt; (pr1 i) -&gt; (v j) != <span class="mi">0</span>%<span class="bp">ring</span>))).
+  <span class="kn">Proof</span>.
+  <span class="nb">pose</span> (leading_entry := leading_entry_compute F (flip_fld_bin_vec v)).
+  <span class="nb">destruct</span> (maybe_choice' leading_entry) <span class="k">as</span> [some | none].
+  - <span class="nb">right</span>; use tpair; <span class="nb">simpl</span>. {<span class="nb">apply</span> some. }
+    <span class="nb">destruct</span> (@leading_entry_compute_inv2 F _ (flip_fld_bin_vec v) (pr1 some) (pr2 some))
+      <span class="k">as</span> [some_neq_0 prev_eq_0].
+    <span class="nb">unfold</span> is_leading_entry, flip_fld_bin_vec, flip_fld_bin <span class="k">in</span> * |-.
+    <span class="nb">destruct</span> (fldchoice0 (v _)); <span class="kp">try</span> <span class="bp">contradiction</span>.
+    use tpair; <span class="kp">try</span> <span class="bp">assumption</span>.
+    <span class="nb">intros</span> ? lt.
+    <span class="nb">specialize</span> (prev_eq_0 _ lt).
+    <span class="bp">now</span> <span class="nb">destruct</span> (fldchoice0 (v j)).
+  - <span class="nb">left</span>; <span class="nb">intros</span> j.
+    <span class="nb">rewrite</span> &lt;- (@leading_entry_compute_inv1 _ _ (flip_fld_bin_vec v) none j).
+    <span class="kp">try</span> <span class="nb">apply</span> (pr2 (dualelement j)).
+    <span class="nb">destruct</span> (fldchoice0 (v j)) <span class="k">as</span> [eq | neq];
+      <span class="nb">unfold</span> is_leading_entry, flip_fld_bin_vec, flip_fld_bin <span class="k">in</span> *
+      ; <span class="nb">destruct</span> (fldchoice0 _); <span class="kp">try</span> <span class="bp">assumption</span>.
+    + <span class="nb">rewrite</span> eq; <span class="nb">intros</span> contr_neq.
+      <span class="bp">contradiction</span> (nonzeroax _ (pathsinv0 contr_neq)).
+    + <span class="nb">destruct</span> (fldchoice0 (v j)) <span class="k">as</span> [contr_eq | ?].
+      * <span class="nb">rewrite</span> contr_eq <span class="k">in</span> neq.
+        <span class="bp">contradiction</span>.
+      * <span class="bp">contradiction</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">vector_all_nonzero_compute</span>
+  {<span class="nv">n</span> : nat} (<span class="nv">v</span> : Vector F n)
+  : coprod (∏ j : (stn n), (v j) != <span class="mi">0</span>%<span class="bp">ring</span>)
+           (∑ i : (stn n), (v i)  = <span class="mi">0</span>%<span class="bp">ring</span>).
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> (@vector_all_nonzero_compute_internal n v) <span class="k">as</span> [l | r]. {<span class="bp">now</span> <span class="nb">left</span>. }
+    <span class="nb">right</span>; <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">r</span>); <span class="bp">exact</span> (pr1 (pr2 r)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Showing that right invertible matrix, upper triangular,</span>
+<span class="sd">     must have all non-zero diagonal. *)</span>
+
+  <span class="sd">(** Ax = 0 would have two solutions for x, but A invertible... *)</span>
+  <span class="kn">Lemma</span> <span class="nf">back_sub_zero</span>
+    { <span class="nv">n</span> : nat }
+    (<span class="nv">mat</span> : Matrix F n n)
+    (<span class="nv">ut</span> : @is_upper_triangular F _ _ mat)
+    (<span class="nv">zero</span>: ∑ i : stn n, (mat i i = <span class="mi">0</span>)%<span class="bp">ring</span>
+      × (<span class="k">forall</span> <span class="nv">j</span> : stn n, j &lt; i -&gt; ((mat j j) != <span class="mi">0</span>)%<span class="bp">ring</span>))
+    (<span class="nv">inv</span> : @matrix_left_inverse F _ _ mat)
+    : empty.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> transpose, flip.
+    <span class="nb">destruct</span> (natchoice0 (pr1 zero)) <span class="k">as</span> [eq0_1 | gt].
+    { <span class="nb">apply</span> (zero_row_to_non_right_invertibility (transpose mat) (pr1 zero));
+        <span class="kp">try</span> <span class="bp">assumption</span>.
+      <span class="mi">2</span>: { <span class="bp">now</span> <span class="nb">apply</span> (@matrix_left_inverse_to_transpose_right_inverse F). }
+      <span class="nb">apply</span> funextfun; <span class="nb">intros</span> k.
+      <span class="nb">destruct</span> (natchoice0 k) <span class="k">as</span> [eq0_2 | ?].
+      - <span class="nb">rewrite</span> &lt;- (pr1 (pr2 zero)).
+        <span class="nb">unfold</span> const_vec.
+        <span class="nb">rewrite</span> eq0_1 <span class="k">in</span> eq0_2.
+        <span class="bp">now</span> <span class="nb">rewrite</span> (stn_eq _ _ eq0_2).
+      - <span class="nb">unfold</span> transpose, flip.
+        <span class="nb">rewrite</span> ut; <span class="kp">try</span> <span class="bp">reflexivity</span>.
+        <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- eq0_1.
+    }
+    <span class="nb">assert</span> (contr_exists :  ∑ x : (Vector F n), (∑ i' : stn n,
+      (x i' != <span class="mi">0</span>) × (mat ** (col_vec x)) = (@col_vec F _ (const_vec <span class="mi">0</span>)))).
+    <span class="mi">2</span>: { <span class="nb">assert</span> (eqz : (mat ** (@col_vec F _ (const_vec <span class="mi">0</span>)))
+          = (@col_vec F _ (const_vec <span class="mi">0</span>))).
+        { <span class="nb">rewrite</span> matrix_mult_eq; <span class="nb">unfold</span> matrix_mult_unf.
+          <span class="nb">apply</span> funextfun; <span class="nb">intros</span> k.
+          <span class="nb">unfold</span> col_vec, const_vec.
+          etrans.
+          { <span class="nb">rewrite</span> vecsum_eq_zero.
+            - <span class="nb">apply</span> idpath.
+            - <span class="nb">intros</span> ?; <span class="nb">apply</span> rigmultx0. }
+          <span class="bp">reflexivity</span>.
+        }
+        <span class="nb">assert</span> (contr_eq' : (@ringunel1 F) != (@ringunel1 F)).
+        <span class="mi">2</span>: {<span class="bp">contradiction</span>. }
+        <span class="nb">rewrite</span> &lt;- eqz <span class="k">in</span> contr_exists.
+        <span class="nb">destruct</span> contr_exists <span class="k">as</span> [x1 [x2 [x3 contr_exists]]].
+        <span class="nb">destruct</span> inv <span class="k">as</span> [inv isinv].
+        <span class="nb">rewrite</span> &lt;- contr_exists <span class="k">in</span> eqz.
+        <span class="nb">assert</span> (eq : @matrix_mult F _ _ inv _
+          (@matrix_mult F _ _ mat _ (col_vec x1)) =
+           @matrix_mult F _ _ inv _ (@col_vec F _ (const_vec <span class="mi">0</span>))).
+        {<span class="bp">now</span> <span class="nb">rewrite</span> eqz. }
+        <span class="nb">rewrite</span> &lt;- matrix_mult_assoc, isinv, matlunax2 <span class="k">in</span> eq.
+        <span class="nb">pose</span> (eq' := @matrix_mult_zero_vec_eq _ _ _ inv).
+        <span class="nb">unfold</span> col_vec, const_vec <span class="k">in</span> * |-.
+        <span class="nb">rewrite</span> eq' <span class="k">in</span> eq.
+        <span class="nb">destruct</span> zero <span class="k">as</span> [zero iszero].
+        <span class="nb">apply</span> toforallpaths <span class="k">in</span> eq.
+        <span class="nb">set</span> (idx0 := (make_stn _ <span class="mi">0</span> (stn_implies_ngt0 zero))).
+        <span class="nb">assert</span> (contr_eq' :
+          (<span class="k">λ</span> (<span class="nv">_</span> : _) (<span class="nv">_</span> : _), (@rigunel1 F)) idx0 =
+          (<span class="k">λ</span> (<span class="nv">_</span> : _) (<span class="nv">_</span> : (⟦ <span class="mi">1</span> ⟧)%stn), x1 x2) idx0
+        ). { <span class="bp">now</span> <span class="nb">rewrite</span> eq. }
+        <span class="nb">apply</span> toforallpaths <span class="k">in</span> contr_eq'.
+        <span class="nb">rewrite</span> contr_eq' <span class="k">in</span> x3.
+        <span class="mi">2</span>: { <span class="bp">exact</span> (make_stn _ _ (natgthsnn <span class="mi">0</span>)). }
+        <span class="bp">contradiction</span>.
+    }
+    <span class="nb">destruct</span> zero <span class="k">as</span> [zero iszero].
+    use tpair.
+    { <span class="nb">apply</span> back_sub_internal.
+      - <span class="bp">exact</span> mat.
+      - <span class="nb">intros</span> j.
+        <span class="nb">destruct</span> (natlthorgeh (pr1 zero) j).
+        + <span class="bp">exact</span> <span class="mi">0</span>.
+        + <span class="nb">destruct</span> (natgehchoice (pr1 zero) j); <span class="kp">try</span> <span class="bp">assumption</span>.
+          * <span class="bp">exact</span> <span class="mi">0</span>.
+          * <span class="bp">exact</span> (@rigunel2 F).
+      - <span class="bp">exact</span> (const_vec <span class="mi">0</span>).
+      - <span class="bp">exact</span> (n,, natgthsnn _).
+      - <span class="bp">exact</span> (pr1 zero,, (istransnatlth _ _ _ (pr2 zero) (natgthsnn _))).
+    }
+    <span class="k">exists</span> <span class="nv">zero</span>.
+    use tpair.
+    - <span class="nb">rewrite</span> back_sub_internal_inv1; <span class="kp">try</span> <span class="bp">assumption</span>.
+      <span class="mi">2</span>: {<span class="nb">apply</span> isreflnatleh. }
+      <span class="nb">destruct</span> (natlthorgeh _ _) <span class="k">as</span> [lt | ge].
+      * <span class="bp">contradiction</span> (isirreflnatgth _ lt).
+      * <span class="nb">simpl</span>; <span class="nb">clear</span> gt. <span class="nb">destruct</span> (natgehchoice _ _) <span class="k">as</span> [gt | eq].
+        {<span class="bp">contradiction</span> (isirreflnatlth _ gt). }
+        <span class="nb">apply</span> (@nonzeroax F).
+    - <span class="nb">apply</span> funextfun; <span class="nb">intros</span> j.
+      <span class="nb">destruct</span> (natlthorgeh j zero) <span class="k">as</span> [? | ge].
+      + <span class="nb">rewrite</span> back_sub_internal_inv2; <span class="kp">try</span> <span class="bp">easy</span>.
+        * <span class="nb">apply</span> dualelement_sn_stn_ge_n.
+        * <span class="bp">now</span> <span class="nb">apply</span> (pr2 iszero).
+      + <span class="nb">rewrite</span> matrix_mult_eq; <span class="nb">unfold</span> matrix_mult_unf.
+        <span class="nb">unfold</span> col_vec, const_vec.
+        <span class="nb">apply</span> funextfun; <span class="nb">intros</span> ?.
+        <span class="nb">eapply</span> (@vecsum_eq_zero F).
+        <span class="nb">intros</span> k.
+        <span class="nb">destruct</span> (natgthorleh j k) <span class="k">as</span> [? | le].
+        {<span class="nb">rewrite</span> ut; <span class="kp">try</span> <span class="bp">assumption</span>; <span class="nb">apply</span> rigmult0x. }
+        <span class="nb">destruct</span> (stn_eq_or_neq (zero) k) <span class="k">as</span> [eq | ?].
+        * <span class="nb">rewrite</span> &lt;- eq <span class="k">in</span> *.
+          <span class="nb">rewrite</span> &lt;- (stn_eq _ _ (isantisymmnatgeh _ _ le ge)).
+          <span class="nb">rewrite</span> (pr1 iszero); <span class="nb">apply</span> rigmult0x.
+        * etrans. <span class="mi">2</span>: {<span class="nb">apply</span> rigmultx0. }
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> back_sub_internal_inv1; <span class="kp">try</span> <span class="bp">assumption</span>.
+          <span class="mi">2</span>: {<span class="nb">apply</span> (istransnatleh ge le). }
+          <span class="nb">destruct</span> (natlthorgeh _ _) <span class="k">as</span> [? | ?]; <span class="kp">try</span> <span class="bp">reflexivity</span>.
+          <span class="nb">destruct</span> (natgehchoice _ _) <span class="k">as</span> [? | eq];
+            <span class="kp">try</span> <span class="bp">reflexivity</span>.
+          <span class="nb">rewrite</span> (stn_eq _ _ eq) <span class="k">in</span> * |-.
+          <span class="bp">contradiction</span> (isirrefl_natneq k).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">BackSubZero</span>.
+
+<span class="sd">(** Some results that are useful in the next section. *)</span>
+<span class="kn">Section</span> <span class="nf">Misc</span>.
+
+  <span class="kn">Context</span> (<span class="nv">F</span>: fld).
+
+  <span class="sd">(** Row echelon form implies upper triangularity*)</span>
+  <span class="kn">Lemma</span> <span class="nf">row_echelon_partial_to_upper_triangular_partial</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat }
+    (<span class="nv">mat</span> : Matrix F m n)
+    (<span class="nv">p</span> : n &gt; <span class="mi">0</span>)
+    (<span class="nv">iter</span> : ⟦ S m ⟧%stn)
+    : @is_row_echelon_partial F m n mat iter
+   -&gt; @is_upper_triangular_partial F m n iter mat.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_row_echelon_partial, is_upper_triangular_partial.
+    <span class="nb">destruct</span> iter <span class="k">as</span> [iter p'].
+    <span class="nb">unfold</span> is_row_echelon_partial_1, is_row_echelon_partial_2.
+    <span class="nb">induction</span> iter <span class="k">as</span> [| iter IH].
+    { <span class="nb">intros</span> ? ? ? ? contr; <span class="bp">contradiction</span> (negnatlthn0 n contr). }
+    <span class="nb">intros</span> [re_1 re_2] i j lt lt'.
+    <span class="nb">simpl</span> <span class="k">in</span> p'.
+    <span class="nb">pose</span> (iter_lt_sn := (istransnatlth _ _ _ p' (natgthsnn m))).
+    <span class="nb">destruct</span> (natlehchoice i iter) <span class="k">as</span> [? | eq]. {<span class="bp">now</span> <span class="nb">apply</span> natlthsntoleh. }
+    - <span class="nb">destruct</span> (maybe_choice' (leading_entry_compute _ (mat i))) <span class="k">as</span> [t | none].
+      + <span class="nb">destruct</span> t <span class="k">as</span> [t eq].
+        <span class="nb">rewrite</span> (IH iter_lt_sn); <span class="kp">try</span> <span class="bp">easy</span>.
+        use tpair; <span class="nb">simpl</span>.
+        * <span class="nb">intros</span> i_1 i_2 j_1 j_2 i1_lt_iter H ? ?.
+          <span class="nb">rewrite</span> (re_1 i_1 i_2 j_1 j_2); <span class="kp">try</span> <span class="bp">easy</span>.
+          <span class="nb">apply</span> (istransnatlth _ _ _ i1_lt_iter (natgthsnn iter)).
+        * <span class="nb">intros</span> i_1 i_2 i1_lt_iter ? ?; <span class="nb">rewrite</span> (re_2 i_1 i_2); <span class="kp">try</span> <span class="bp">easy</span>.
+          <span class="nb">apply</span> (istransnatlth _ _ _ i1_lt_iter (natgthsnn iter)).
+      + <span class="bp">now</span> <span class="nb">rewrite</span> (leading_entry_compute_inv1 _ _ none).
+    - <span class="nb">assert</span> (eq' : i = (iter,, p')). { <span class="nb">apply</span> subtypePath_prop; <span class="nb">apply</span> eq. }
+      <span class="nb">destruct</span> (maybe_choice' (leading_entry_compute F (mat i))) <span class="k">as</span> [[t jst] | none].
+      <span class="mi">2</span>: { <span class="bp">now</span> <span class="nb">rewrite</span> (leading_entry_compute_inv1 _ _ none). }
+      <span class="nb">destruct</span> (natlthorgeh j t) <span class="k">as</span> [j_lt_t | contr_gt].
+      { <span class="nb">rewrite</span> (pr2 (leading_entry_compute_inv2 _ _ _ jst)); <span class="kp">try</span> <span class="bp">easy</span>. }
+      <span class="nb">pose</span> (H1 := leading_entry_compute_inv2 _ _ _ jst).
+      <span class="nb">destruct</span> (natchoice0 i) <span class="k">as</span> [contr0 | ?].
+      { <span class="nb">apply</span> fromempty; <span class="nb">refine</span> (negnatgth0n _ _); <span class="nb">rewrite</span> contr0; <span class="nb">apply</span> lt. }
+      <span class="nb">destruct</span> (prev_stn i) <span class="k">as</span> [u u_lt]; <span class="kp">try</span> <span class="bp">assumption</span>.
+      <span class="nb">destruct</span> (maybe_choice' (leading_entry_compute _ (mat u)))
+        <span class="k">as</span> [[prev eq''] | none_prev].
+      + <span class="nb">pose</span> (H2 := (leading_entry_compute_inv2 _ _ _ eq'')).
+        <span class="bp">contradiction</span> (pr1 H2); <span class="nb">rewrite</span> (IH iter_lt_sn); <span class="kp">try</span> <span class="bp">easy</span>.
+        * use tpair; <span class="nb">simpl</span>.
+          -- <span class="nb">intros</span> i_1 i_2 j_1 j_2 i1_lt_iter H' ? ?.
+             <span class="nb">rewrite</span> (re_1 i_1 i_2 j_1 j_2); <span class="kp">try</span> <span class="bp">easy</span>.
+             <span class="nb">apply</span> (istransnatlth _ _ _ i1_lt_iter (natgthsnn iter)).
+          -- <span class="nb">intros</span> i_1 i_2 i1_lt_iter ? ?; <span class="nb">rewrite</span> (re_2 i_1 i_2); <span class="kp">try</span> <span class="bp">easy</span>.
+             <span class="nb">apply</span> (istransnatlth _ _ _ i1_lt_iter (natgthsnn _)).
+        * <span class="nb">destruct</span> (natgthorleh u prev) <span class="k">as</span> [gt | leh]; <span class="kp">try</span> <span class="bp">assumption</span>.
+          <span class="bp">contradiction</span> (pr1 H1); <span class="nb">rewrite</span> (re_1 u i t prev); <span class="kp">try</span> <span class="bp">easy</span>.
+          -- <span class="nb">apply</span> natgehsntogth; <span class="nb">rewrite</span> u_lt, eq'; <span class="nb">apply</span> natgehsnn.
+          -- <span class="nb">apply</span> natgehsntogth; <span class="nb">rewrite</span> u_lt, eq'; <span class="nb">apply</span> isreflnatleh.
+          -- <span class="nb">destruct</span> (natgthorleh t prev) <span class="k">as</span> [gt | leh']; <span class="kp">try</span> <span class="bp">assumption</span>.
+             <span class="nb">apply</span> (istransnatleh contr_gt); <span class="nb">refine</span> (istransnatleh _ leh).
+             <span class="nb">apply</span> natlehsntolth, natlthsntoleh; <span class="nb">rewrite</span> u_lt; <span class="nb">apply</span> lt.
+        * <span class="nb">apply</span> natgehsntogth; <span class="nb">rewrite</span> u_lt, eq'; <span class="nb">apply</span> (isreflnatleh).
+      + <span class="nb">rewrite</span> (re_2 u i ); <span class="kp">try</span> <span class="bp">easy</span>.
+        * <span class="nb">simpl</span>; <span class="nb">apply</span> natlthtolths. <span class="nb">rewrite</span> &lt;- eq.
+          <span class="kp">try</span> <span class="nb">apply</span> (natlehlthtrans _ _ _ contr_gt lt ).
+          <span class="nb">apply</span> natgehsntogth; <span class="nb">rewrite</span> u_lt, eq'; <span class="nb">apply</span> isreflnatleh.
+        * <span class="nb">apply</span> funextfun; <span class="nb">intros</span> j';
+          <span class="nb">rewrite</span> ((leading_entry_compute_inv1 _ _ none_prev) j');
+          <span class="bp">reflexivity</span>.
+        * <span class="kp">try</span> <span class="nb">apply</span> (natlehlthtrans _ _ _ contr_gt lt).
+          <span class="nb">apply</span> natgehsntogth; <span class="nb">rewrite</span> u_lt, eq'; <span class="nb">apply</span> isreflnatleh.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">row_echelon_to_upper_triangular</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat }
+    (<span class="nv">mat</span> : Matrix F m n)
+    : is_row_echelon mat
+    -&gt; @is_upper_triangular F _ _ mat.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> (natchoice0 n) <span class="k">as</span> [contr_eq0 | p].
+    { <span class="nb">intros</span> ? ? j; <span class="nb">apply</span> fromstn0; <span class="bp">now</span> <span class="nb">rewrite</span> contr_eq0. }
+    <span class="nb">intros</span> H; <span class="nb">unfold</span> is_upper_triangular; <span class="nb">intros</span>.
+    <span class="nb">rewrite</span> (row_echelon_partial_to_upper_triangular_partial mat p (m,, natgthsnn _))
+    ; <span class="kp">try</span> <span class="bp">easy</span>. <span class="mi">2</span>: {<span class="bp">exact</span> (pr2 i). }
+    use tpair; <span class="nb">intros</span> i_1 i_2 j_1 j_2; <span class="nb">intros</span>; <span class="nb">simpl</span>.
+    - <span class="nb">destruct</span> (H i_1 i_2) <span class="k">as</span> [H1 _]; <span class="bp">now</span> <span class="nb">rewrite</span> (H1 j_2 j_1).
+    - <span class="nb">destruct</span> (H i_1 i_2) <span class="k">as</span> [_ H2]; <span class="bp">now</span> <span class="nb">rewrite</span> H2.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Misc</span>.
+
+
+<span class="kn">Section</span> <span class="nf">Inverse</span>.
+
+  <span class="sd">(** Some additional properties of matrix inverses,</span>
+<span class="sd">      having now defined Gaussian elimination and</span>
+<span class="sd">      back-substitution.</span>
+
+<span class="sd">      Computes a matrix inverse or shows it is non-invertible. *)</span>
+
+  <span class="kn">Context</span> (<span class="nv">F</span> : fld).
+
+  <span class="kn">Local Notation</span> <span class="nf">Σ</span> := (iterop_fun (@ringunel1 F) op1).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"A ** B"</span> := (@matrix_mult F _ _ A _ B) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"R1 *pw R2"</span> := ((pointwise _ op2) R1 R2) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>).
+
+  <span class="sd">(** Construct the inverse,</span>
+<span class="sd">    if additionally mat is upper triangular with non-zero diagonal *)</span>
+  <span class="kn">Definition</span> <span class="nf">upper_triangular_right_inverse_construction</span>
+    { <span class="nv">n</span> : nat }
+    (<span class="nv">mat</span> : Matrix F n n)
+    := transpose (<span class="k">λ</span> <span class="nv">i</span> : (stn n), (back_sub _ mat (@identity_matrix F n i))).
+
+  <span class="kn">Lemma</span> <span class="nf">left_invertible_upper_triangular_to_diagonal_all_nonzero</span>
+    {<span class="nv">n</span> : nat }
+    (<span class="nv">A</span> : Matrix F n n)
+    (<span class="nv">p</span> : @is_upper_triangular F _ _ A)
+    (<span class="nv">p'</span>: @matrix_left_inverse F _ _ A)
+    : (@diagonal_all_nonzero F _ A).
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> (@vector_all_nonzero_compute_internal _ _ (@diagonal_sq F _ A)) <span class="k">as</span> [l | r].
+    { <span class="nb">unfold</span> diagonal_all_nonzero; <span class="nb">intros</span>; <span class="nb">unfold</span> diagonal_sq <span class="k">in</span> l; <span class="nb">apply</span> l. }
+    <span class="nb">unfold</span> diagonal_sq <span class="k">in</span> r; <span class="nb">apply</span> fromempty; <span class="bp">now</span> <span class="nb">apply</span> (@back_sub_zero _ _ A p).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">matrix_right_inverse_construction_inv</span>
+    { <span class="nv">n</span> : nat } (<span class="nv">mat</span> : Matrix F n n)
+    (<span class="nv">ut</span> : @is_upper_triangular F _ _ mat)
+    (<span class="nv">df</span>: @diagonal_all_nonzero F _ mat)
+    : (mat ** (upper_triangular_right_inverse_construction mat))
+      = (@identity_matrix F n).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> i.
+    <span class="nb">unfold</span> matrix_mult, row, col, transpose, flip.
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> ?.
+    <span class="nb">unfold</span> upper_triangular_right_inverse_construction.
+    <span class="nb">rewrite</span> (@col_vec_mult_eq F _ _ mat _ (@identity_matrix F _ x)).
+    - <span class="nb">destruct</span> (stn_eq_or_neq i x) <span class="k">as</span> [eq | neq].
+      { <span class="bp">now</span> <span class="nb">rewrite</span> eq. }
+      <span class="nb">rewrite</span> id_mat_ij; <span class="kp">try</span> <span class="nb">rewrite</span> id_mat_ij; <span class="kp">try</span> <span class="bp">easy</span>.
+      <span class="nb">apply</span> (issymm_natneq _ _ neq).
+    - <span class="nb">unfold</span> upper_triangular_right_inverse_construction.
+      <span class="nb">pose</span> (back_sub_inv := @back_sub_inv0).
+      <span class="nb">destruct</span> (natchoice0 n) <span class="k">as</span> [eq | ?].
+      {<span class="nb">apply</span> fromstn0; <span class="bp">now</span> <span class="nb">rewrite</span> eq. }
+      <span class="nb">apply</span> (back_sub_inv _ _ _ _ ut df).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">matrix_left_inverse_implies_right</span> { <span class="nv">n</span> : nat } (<span class="nv">A</span> <span class="nv">B</span>: Matrix F n n)
+    : (B ** A) = (@identity_matrix F n)
+    -&gt; (@matrix_right_inverse F n n A).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ?.
+    <span class="nb">destruct</span> (natchoice0 n) <span class="k">as</span> [eq0 | gt]. { <span class="nb">destruct</span> eq0; <span class="bp">now</span> use tpair. }
+    <span class="nb">pose</span> (C := pr1 (gaussian_elimination _ A)).
+    <span class="nb">pose</span> (is_gauss := pr2 (gaussian_elimination _ A)).
+    <span class="nb">destruct</span> is_gauss <span class="k">as</span> [inv is_re].
+    <span class="nb">pose</span> (CA := C ** A).
+    <span class="nb">pose</span> (D := @upper_triangular_right_inverse_construction _ CA).
+    <span class="k">exists</span> (<span class="nv">D</span> ** C).
+    <span class="nb">assert</span> (CA_ut : is_upper_triangular CA).
+    { <span class="nb">apply</span> (@row_echelon_to_upper_triangular _ _ _ CA), is_re. }
+    <span class="nb">assert</span> (nonz : @diagonal_all_nonzero F _ CA).
+    { <span class="nb">apply</span> left_invertible_upper_triangular_to_diagonal_all_nonzero;
+      <span class="kp">try</span> <span class="bp">assumption</span>.
+      <span class="nb">apply</span> left_inv_matrix_prod_is_left_inv.
+      - <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">inv</span>).
+        <span class="nb">apply</span> (pr2 (pr2 inv)).
+      - <span class="bp">now</span> <span class="k">exists</span> <span class="nv">B</span>.
+    }
+    <span class="nb">pose</span> (invmat := @matrix_right_inverse_construction_inv _ _ CA_ut nonz).
+    <span class="nb">unfold</span> CA <span class="k">in</span> invmat.
+    <span class="nb">rewrite</span> matrix_mult_assoc <span class="k">in</span> invmat.
+    <span class="nb">assert</span> (eq : (C ** A ** D) = (A ** D ** C)).
+    { <span class="nb">unfold</span> CA <span class="k">in</span> invmat. <span class="nb">unfold</span> D, CA.
+      <span class="nb">rewrite</span> matrix_mult_assoc, invmat.
+      <span class="nb">pose</span> (left_inv_eq_right := @matrix_left_inverse_equals_right_inverse).
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">pose</span> (gauss_mat_invertible := inv).
+      <span class="nb">apply</span> (matrix_inverse_to_right_and_left_inverse) <span class="k">in</span> gauss_mat_invertible.
+      <span class="nb">destruct</span> gauss_mat_invertible <span class="k">as</span> [gauss_mat gauss_mat_invertible].
+      <span class="nb">pose</span> (left_inv_eq_right_app
+        := left_inv_eq_right F n _ n C gauss_mat ((A ** D),, invmat)).
+      <span class="nb">set</span> (<span class="kp">constr</span> := (upper_triangular_right_inverse_construction
+        (@matrix_mult F _ _ C _ A))).
+      <span class="nb">assert</span> (eq: (@matrix_mult F _ _ A n <span class="kp">constr</span>) = (pr1 gauss_mat)).
+      { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> (left_inv_eq_right_app). }
+      <span class="nb">rewrite</span> eq.
+      <span class="nb">apply</span> gauss_mat.
+    }
+    <span class="nb">refine</span> (_ @ invmat); <span class="nb">rewrite</span> &lt;- matrix_mult_assoc; <span class="nb">refine</span> (!eq @ _).
+    <span class="nb">apply</span> matrix_mult_assoc.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">matrix_right_inverse_implies_left</span>
+    { <span class="nv">n</span> : nat } (<span class="nv">A</span> <span class="nv">B</span>: Matrix F n n)
+    : @matrix_right_inverse F _ _ A -&gt; (@matrix_left_inverse F _ _ A).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [rinv isrinv].
+    <span class="nb">pose</span> (linv := @make_matrix_left_inverse F _ _ n A rinv isrinv).
+    <span class="nb">pose</span> (linv_to_rinv := @matrix_left_inverse_implies_right _ _ _ isrinv).
+    <span class="k">exists</span> <span class="nv">rinv</span>.
+    <span class="nb">pose</span> (inv_eq := @matrix_left_inverse_equals_right_inverse _ n _ n _ linv linv_to_rinv).
+    <span class="nb">simpl</span> <span class="k">in</span> inv_eq; <span class="nb">rewrite</span> inv_eq;
+    <span class="nb">apply</span> linv_to_rinv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">matrix_inverse_or_non_invertible</span> { <span class="nv">n</span> : nat }
+    (<span class="nv">A</span> : Matrix F n n)
+    : @matrix_inverse_or_non_invertible_stmt _ _ A.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> matrix_inverse_or_non_invertible_stmt.
+    <span class="nb">destruct</span> (natchoice0 n) <span class="k">as</span> [eq0 | gt].
+    { <span class="nb">left</span>; <span class="nb">destruct</span> eq0; <span class="nb">apply</span> (@nil_matrix_invertible F <span class="mi">0</span> A). }
+    <span class="nb">set</span> (B:= @gauss_clear_all_rows_as_left_matrix _ _ _ A gt).
+    <span class="nb">set</span> (BA := B ** A).
+    <span class="nb">set</span> (C := upper_triangular_right_inverse_construction BA).
+    <span class="nb">assert</span> (ut : is_upper_triangular BA).
+    { <span class="nb">unfold</span> BA.
+      <span class="nb">pose</span> (is_echelon := @gauss_clear_all_rows_inv3 F _ _ A gt).
+      <span class="nb">rewrite</span> &lt;- (gauss_clear_all_rows_as_matrix_eq _ _ gt) <span class="k">in</span> is_echelon.
+      <span class="bp">now</span> <span class="nb">apply</span> row_echelon_to_upper_triangular. }
+    <span class="nb">destruct</span> (vector_all_nonzero_compute _ (<span class="k">λ</span> <span class="nv">i</span> : stn n, BA i i)) <span class="k">as</span> [nz | [idx isnotz]].
+    - <span class="nb">left</span>.
+      <span class="nb">set</span> (BAC_id := @matrix_right_inverse_construction_inv _ _ ut nz).
+      <span class="nb">assert</span> (rinv_eq : (C ** BA) = identity_matrix).
+      { <span class="nb">apply</span> (@matrix_right_inverse_implies_left _ _ C (C,, BAC_id)). }
+      <span class="k">exists</span> (<span class="nv">C</span> ** B); <span class="nb">simpl</span>; use tpair.
+      <span class="mi">2</span>: { <span class="nb">simpl</span>; <span class="nb">rewrite</span> matrix_mult_assoc; <span class="nb">apply</span> rinv_eq. }
+      <span class="nb">rewrite</span> &lt;- matrix_mult_assoc.
+      <span class="nb">unfold</span> BA <span class="k">in</span> BAC_id.
+      <span class="nb">assert</span> (linv_eq : ((B ** A ** C) = (A ** C ** B))).
+      { <span class="nb">rewrite</span> matrix_mult_assoc <span class="k">in</span> BAC_id |- *.
+        <span class="nb">unfold</span> C <span class="k">in</span> *; <span class="nb">clear</span> C;
+        <span class="nb">set</span> (C := (upper_triangular_right_inverse_construction BA)).
+        <span class="nb">pose</span> (B_rinv := @make_matrix_right_inverse F _ _ n B (A ** C) BAC_id).
+        <span class="nb">pose</span> (linv := @matrix_right_inverse_implies_left _ _ C B_rinv).
+        <span class="nb">pose</span> (eq := @matrix_left_inverse_equals_right_inverse F n _ n B linv ((A ** C),, BAC_id)).
+        etrans.
+        { <span class="nb">change</span> (@matrix_mult F _ _ A _ C) <span class="k">with</span> (pr1 B_rinv).
+          <span class="nb">rewrite</span> (pr2 B_rinv); <span class="bp">reflexivity</span>. }
+        <span class="nb">change</span> (pr1 (@matrix_mult F _ _ A _ C,, BAC_id))
+          <span class="k">with</span> (@matrix_mult F _ _ A _ C) <span class="k">in</span> *.
+        <span class="nb">rewrite</span> &lt;- eq, (pr2 linv).
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">simpl</span> <span class="k">in</span> * |- ;
+      <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- BAC_id, &lt;- linv_eq.
+    - <span class="nb">right</span>.
+      <span class="nb">intros</span> [invM [isl isr]].
+      <span class="nb">pose</span> (isinv := @make_matrix_left_inverse _ _ _ n _ _ isr).
+      <span class="nb">assert</span> (isinvprod : (matrix_left_inverse BA)).
+      { <span class="nb">apply</span> left_inv_matrix_prod_is_left_inv; <span class="kp">try</span> <span class="bp">assumption</span>.
+        <span class="nb">apply</span> (@matrix_inverse_to_right_and_left_inverse F _ B),
+          gauss_clear_all_rows_matrix_invertible. }
+      <span class="nb">pose</span> (contr_eq := @left_invertible_upper_triangular_to_diagonal_all_nonzero _ _ ut isinvprod idx).
+      <span class="nb">rewrite</span> isnotz <span class="k">in</span> contr_eq.
+      <span class="bp">contradiction</span>.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Inverse</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/GaussianElimination/Corollaries.v</tt>, line 2)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/PartA.vo has
+  &gt; bad version number 90299 (expected 81601). It is corrupted or was compiled
+  &gt; with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.PartA.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Nat.
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

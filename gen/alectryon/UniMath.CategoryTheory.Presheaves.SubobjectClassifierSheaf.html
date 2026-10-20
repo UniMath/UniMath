@@ -1,0 +1,985 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SubobjectClassifierSheaf.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> The subobject classifier of sheaves</span>
+
+<span class="sd"> We show that the sheaf model of type theory comes with subobject classifier types. To do</span>
+<span class="sd"> so, we equip each category of dependent sheaves (which are the categories of types in</span>
+<span class="sd"> the sheaf model) with a subobject classifier, and we show that this choice is stable</span>
+<span class="sd"> under reindexing. In essence, this corresponds to equipping the category of sheaves</span>
+<span class="sd"> with a subobject classifier.</span>
+
+<span class="sd"> Recall that the subobject classifier of sheaves is defined to be the presheaf of all</span>
+<span class="sd"> closed sieves. Note the difference with presheaf where all sieves are considered rather</span>
+<span class="sd"> than only the closed ones. The importance of only considering the closed sieves, comes</span>
+<span class="sd"> from the following. If we have a natural transformation from some dependent sheaf to the</span>
+<span class="sd"> collection of all sieves, then the subobject represented by this predicate is only</span>
+<span class="sd"> guaranteed to be a presheaf, and not necessarily a sheaf. In a sheaf, we must be able</span>
+<span class="sd"> to find amalgamations for matching families, and we can only do so if we look at closed</span>
+<span class="sd"> sieves rather than arbitrary sieves.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The presheaf of closed sieves</span>
+<span class="sd"> 2. The sheaf of closed sieves</span>
+<span class="sd"> 2.1. The closed sieve that is the amalgamation</span>
+<span class="sd"> 2.2. The law for the amalgamation</span>
+<span class="sd"> 2.3. The proof that the presheaf of closed sieves is a sheaf</span>
+<span class="sd"> 3. The truth morphism for closed sieves</span>
+<span class="sd"> 4. The universal property of the subobject classifier</span>
+<span class="sd"> 4.1. The characteristic morphism</span>
+<span class="sd"> 4.2. The pullback square</span>
+<span class="sd"> 4.3. Uniqueness of the characteristic morphism</span>
+<span class="sd"> 5. Stability of the subobject classifier</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.PosetCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.FullSubDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifierIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Sites.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Sheaves.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.ConstructionsSheaves.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.ClosedSieves.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">SubobjectClassifier</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : site}.
+
+  <span class="sd">(** * 1. The presheaf of closed sieves *)</span>
+  <span class="kn">Definition</span> <span class="nf">dep_psh_closed_sieves</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+    : dep_psh Γ.
+  <span class="kn">Proof</span>.
+    use make_dep_psh.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, set_of_closed_sieves x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">s</span> <span class="nv">p</span> <span class="nv">ω</span>, precomp_closed_sieve ω s).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x xx p ω ; <span class="nb">cbn</span> ;
+         use closed_sieve_eq ;
+         <span class="nb">apply</span> id_precomp_sieve).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y z xx yy zz s₁ s₂ p₁ p₂ p₃ ω ; <span class="nb">cbn</span> ;
+         use closed_sieve_eq ;
+         <span class="nb">apply</span> comp_precomp_sieve).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. The sheaf of closed sieves *)</span>
+  <span class="kn">Section</span> <span class="nf">SubobjectClassifierSheaf</span>.
+    <span class="kn">Context</span> {<span class="nv">Γ</span> : C^op ⟶ HSET}
+            {<span class="nv">x</span> : C}
+            {<span class="nv">ω</span> : sieve x}
+            (<span class="nv">p</span> : C x ω)
+            {<span class="nv">z</span> : matching_family Γ ω}
+            (<span class="nv">zz</span> : matching_family_dep (dep_psh_closed_sieves Γ) z).
+
+    <span class="sd">(** * 2.1. The closed sieve that is the amalgamation *)</span>
+    <span class="kn">Definition</span> <span class="nf">dep_psh_closed_sieves_amalgamation_ob</span>
+               {<span class="nv">y</span> : C}
+               (<span class="nv">f</span> : y --&gt; x)
+      : hProp
+      := <span class="k">∃</span> (<span class="nv">z</span> : C)
+           (<span class="nv">g₁</span> : y --&gt; z)
+           (<span class="nv">g₂</span> : z --&gt; x)
+           (<span class="nv">p</span> : ω _ g₂),
+         (f = g₁ · g₂)
+         ×
+         ((zz _ g₂ p : closed_sieve _) _ g₁).
+
+    <span class="kn">Proposition</span> <span class="nf">is_sieve_dep_psh_closed_sieves_amalgamation_ob</span>
+                {<span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+                {<span class="nv">g₁</span> : y₁ --&gt; x}
+                {<span class="nv">g₂</span> : y₂ --&gt; x}
+                {<span class="nv">h</span> : y₂ --&gt; y₁}
+                (<span class="nv">q</span> : h · g₁ = g₂)
+      : dep_psh_closed_sieves_amalgamation_ob g₁
+        →
+        dep_psh_closed_sieves_amalgamation_ob g₂.
+    <span class="kn">Proof</span>.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( w &amp; k₁ &amp; k₂ &amp; r₁ &amp; r₂ &amp; r₃ ).
+      use hinhpr.
+      <span class="nb">refine</span> (w ,, _).
+      <span class="nb">refine</span> (h · k₁ ,, _).
+      <span class="nb">refine</span> (k₂ ,, _).
+      <span class="nb">refine</span> (r₁ ,, _).
+      <span class="nb">split</span>.
+      - <span class="nb">rewrite</span> &lt;- q.
+        <span class="nb">rewrite</span> r₂.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> idpath.
+      - <span class="bp">exact</span> (#ω (zz w k₂ r₁ : closed_sieve _) h (idpath _) r₃).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">dep_psh_closed_sieves_amalgamation_sieve</span>
+      : sieve x.
+    <span class="kn">Proof</span>.
+      use make_sieve.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">f</span>, dep_psh_closed_sieves_amalgamation_ob f).
+      - <span class="nb">intros</span> y₁ y₂ g₁ g₂ h q.
+        <span class="bp">exact</span> (is_sieve_dep_psh_closed_sieves_amalgamation_ob q).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">dep_psh_closed_sieves_amalgamation_closed_sieve</span>
+      : closed_sieve x.
+    <span class="kn">Proof</span>.
+      use closure_closed_sieve.
+      <span class="bp">exact</span> dep_psh_closed_sieves_amalgamation_sieve.
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** * 2.2. The law for the amalgamation *)</span>
+    <span class="kn">Proposition</span> <span class="nf">dep_psh_closed_sieves_amalgamation_law</span>
+                (<span class="nv">a</span> : amalgamation z)
+      : amalgamation_dep_law
+          (a := a)
+          zz
+          dep_psh_closed_sieves_amalgamation_closed_sieve.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> y f q ; <span class="nb">cbn</span>.
+      use closed_sieve_eq.
+      use sieve_eq.
+      - <span class="nb">intros</span> w g.
+        <span class="nb">cbn</span> -[precomp_sieve].
+        <span class="nb">rewrite</span> precomp_closure_sieve.
+        use contains_closure_sieve.
+        <span class="nb">intros</span> w' h.
+        use factor_through_squash_hProp ; <span class="nb">cbn</span>.
+        <span class="nb">intros</span> (w'' &amp; k₁ &amp; k₂ &amp; r₁ &amp; r₂ &amp; r₃).
+        <span class="nb">pose proof</span> (maponpaths
+                      (<span class="k">λ</span> (<span class="nv">φ</span> : closed_sieve _), φ _ (identity _))
+                      (matching_family_dep_restr zz r₂ (#ω ω _ r₂ q) q))
+          <span class="k">as</span> eq.
+        <span class="nb">cbn</span> <span class="k">in</span> eq.
+        <span class="nb">rewrite</span> id_left <span class="k">in</span> eq.
+        <span class="nb">rewrite</span> eq.
+        <span class="nb">clear</span> eq.
+        <span class="nb">pose proof</span> (maponpaths
+                      (<span class="k">λ</span> (<span class="nv">φ</span> : closed_sieve _), φ _ (identity _))
+                      (matching_family_dep_restr zz (!r₂) (#ω ω _ (!r₂) r₁) r₁))
+          <span class="k">as</span> eq.
+        <span class="nb">cbn</span> <span class="k">in</span> eq.
+        <span class="nb">rewrite</span> id_left <span class="k">in</span> eq.
+        <span class="nb">rewrite</span> eq <span class="k">in</span> r₃.
+        <span class="nb">rewrite</span> r₂ <span class="k">in</span> r₃.
+        <span class="nb">assert</span> (#ω ω k₁ (! idpath (k₁ · k₂)) r₁ = #ω ω h r₂ q) <span class="k">as</span> &lt;-.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="bp">exact</span> r₃.
+      - <span class="nb">intros</span> w g r.
+        <span class="nb">cbn</span> -[precomp_sieve].
+        <span class="nb">rewrite</span> precomp_closure_sieve.
+        use closure_sieve_contains.
+        use hinhpr ; <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (y ,, _).
+        <span class="nb">refine</span> (g ,, _).
+        <span class="nb">refine</span> (f ,, _).
+        <span class="nb">refine</span> (q ,, _).
+        <span class="nb">split</span>.
+        + <span class="nb">apply</span> idpath.
+        + <span class="bp">exact</span> r.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">dep_psh_closed_sieves_amalgamation</span>
+               (<span class="nv">a</span> : amalgamation z)
+      : amalgamation_dep a zz.
+    <span class="kn">Proof</span>.
+      use make_amalgamation_dep.
+      - <span class="bp">exact</span> dep_psh_closed_sieves_amalgamation_closed_sieve.
+      - <span class="bp">exact</span> (dep_psh_closed_sieves_amalgamation_law a).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">dep_psh_closed_sieves_amalgamation_unique</span>
+                {<span class="nv">a</span> : amalgamation z}
+                (<span class="nv">aa</span> : amalgamation_dep a zz)
+      : aa = dep_psh_closed_sieves_amalgamation a.
+    <span class="kn">Proof</span>.
+      use amalgamation_dep_eq.
+      use (closed_sieve_eq_cover p) ; <span class="nb">cbn</span> -[closure_sieve].
+      + <span class="nb">intros</span> y g q r.
+        use closure_sieve_contains.
+        use hinhpr ; <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (y ,, _).
+        <span class="nb">refine</span> (identity _ ,, _).
+        <span class="nb">refine</span> (g ,, _).
+        <span class="nb">refine</span> (q ,, _).
+        <span class="nb">split</span>.
+        * <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+        * <span class="nb">rewrite</span> &lt;- (amalgamation_dep_restr aa g q).
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> id_left.
+          <span class="bp">exact</span> r.
+      + <span class="nb">intros</span> y f q.
+        <span class="nb">clear</span> q.
+        <span class="nb">revert</span> y f.
+        use contains_closure_sieve.
+        <span class="nb">intros</span> y f.
+        use factor_through_squash_hProp ; <span class="nb">cbn</span>.
+        <span class="nb">intros</span> (w &amp; g₁ &amp; g₂ &amp; q₁ &amp; q₂ &amp; q₃).
+        <span class="nb">rewrite</span> q₂.
+        <span class="nb">pose proof</span> (maponpaths
+                      (<span class="k">λ</span> (<span class="nv">φ</span> : closed_sieve _), φ y g₁)
+                      (amalgamation_dep_restr aa g₂ q₁))
+          <span class="k">as</span> eq.
+        <span class="nb">cbn</span> <span class="k">in</span> eq.
+        <span class="nb">rewrite</span> &lt;- eq <span class="k">in</span> q₃.
+        <span class="bp">exact</span> q₃.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">SubobjectClassifierSheaf</span>.
+
+  <span class="sd">(** * 2.3. The proof that the presheaf of closed sieves is a sheaf *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_sheaf_dep_psh_closed_sieves</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+    : is_dep_sheaf (dep_psh_closed_sieves Γ).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x ω p z a zz.
+    use make_iscontr.
+    - <span class="bp">exact</span> (dep_psh_closed_sieves_amalgamation zz a).
+    - <span class="bp">exact</span> (dep_psh_closed_sieves_amalgamation_unique p zz).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">subobject_classifier_dep_sheaf</span>
+             (<span class="nv">Γ</span> : sheaf C)
+    : dep_sheaf Γ.
+  <span class="kn">Proof</span>.
+    use make_dep_sheaf.
+    - <span class="bp">exact</span> (dep_psh_closed_sieves Γ).
+    - <span class="bp">exact</span> (is_sheaf_dep_psh_closed_sieves Γ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">subobject_classifier_sheaf</span>
+    : sheaf C
+    := total_sheaf (subobject_classifier_dep_sheaf (terminal_sheaf C)).
+
+  <span class="kn">Definition</span> <span class="nf">subobject_classifier_sheaf_inclusion</span>
+    : subobject_classifier_sheaf ⟹ subobject_classifier_psh.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">ω</span>, pr1 ω ,, closed_sieve_to_sieve (pr2 ω)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">subobject_classifier_psh_closure</span>
+    : subobject_classifier_psh ⟹ subobject_classifier_sheaf.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">ω</span>, pr1 ω ,, closure_closed_sieve (pr2 ω)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+         use funextsec ;
+         <span class="nb">intro</span> ω ;
+         <span class="nb">apply</span> maponpaths ;
+         use closed_sieve_eq ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> precomp_closure_sieve ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. The truth morphism for closed sieves *)</span>
+  <span class="kn">Definition</span> <span class="nf">dep_sheaf_truth</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+    : dep_psh_nat_trans
+        (unit_dep_psh Γ)
+        (dep_psh_closed_sieves Γ)
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">_</span> <span class="nv">_</span>, truth_closed_sieve x).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y xx yy f p q t ;
+         use closed_sieve_eq ;
+         <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> (truth_sieve_comp f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dep_sheaf_truth_mor</span>
+             (<span class="nv">Γ</span> : sheaf C)
+    : terminal_in_fib (fiberwise_terminal_disp_cat_of_dep_sheaves C) Γ
+      --&gt;
+      subobject_classifier_dep_sheaf Γ
+    := dep_sheaf_truth Γ.
+
+  <span class="kn">Definition</span> <span class="nf">subobject_classifier_sheaf_truth</span>
+    : sheaf_nat_trans (terminal_sheaf C) subobject_classifier_sheaf.
+  <span class="kn">Proof</span>.
+    use make_sheaf_nat_trans.
+    use make_nat_trans.
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">_</span>, tt ,, _).
+      <span class="bp">exact</span> (dep_sheaf_truth (terminal_sheaf C) x tt tt).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ;
+         use funextsec ;
+         <span class="nb">intros</span> [ ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> maponpaths ;
+         use closed_sieve_eq ;
+         <span class="bp">exact</span> (truth_sieve_comp (C := C) f)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 4. The universal property of the subobject classifier *)</span>
+  <span class="kn">Section</span> <span class="nf">SubobjectClassifierUMP</span>.
+    <span class="kn">Context</span> {<span class="nv">Γ</span> : sheaf C}
+            {<span class="nv">A</span> <span class="nv">B</span> : dep_sheaf Γ}
+            (<span class="nv">τM</span> : Monic ((disp_cat_of_dep_sheaves C)[{Γ}]) A B).
+
+    <span class="kn">Let</span> <span class="nf">τ</span> : dep_psh_nat_trans A B (nat_trans_id _) := pr1 τM.
+    <span class="kn">Let</span> <span class="nf">τP</span> : Monic (disp_cat_dep_psh C)[{pr1 Γ}] (pr1 A) (pr1 B).
+    <span class="kn">Proof</span>.
+      use make_Monic.
+      - <span class="bp">exact</span> τ.
+      - <span class="nb">apply</span> preserves_monic_dep_sheaf_incl.
+        <span class="bp">exact</span> (pr2 τM).
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** * 4.1. The characteristic morphism *)</span>
+    <span class="kn">Section</span> <span class="nf">Predicate</span>.
+      <span class="kn">Context</span> {<span class="nv">x</span> : C}
+              {<span class="nv">xx</span> : (Γ x : hSet)}
+              (<span class="nv">b</span> : B x xx).
+
+      <span class="kn">Definition</span> <span class="nf">is_closed_fiber_sieve_matching_fam</span>
+                 {<span class="nv">y</span> : C}
+                 (<span class="nv">f</span> : y --&gt; x)
+        : matching_family Γ (f ^* fiber_sieve τP b).
+      <span class="kn">Proof</span>.
+        use make_matching_family.
+        - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">z</span> <span class="nv">g</span> <span class="nv">_</span>, #Γ (g · f) xx).
+        - <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">intros</span> z₁ z₂ g₁ g₂ h p a₁ a₂ ;
+             <span class="nb">refine</span> (!(eqtohomot (functor_comp Γ _ _) _) @ _) ; <span class="nb">cbn</span> ;
+             <span class="nb">apply</span> maponpaths_2 ;
+             <span class="nb">rewrite</span> !assoc ;
+             <span class="nb">rewrite</span> p ;
+             <span class="nb">apply</span> idpath).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">is_closed_fiber_sieve_amalgamation</span>
+                 {<span class="nv">y</span> : C}
+                 (<span class="nv">f</span> : y --&gt; x)
+        : amalgamation (is_closed_fiber_sieve_matching_fam f).
+      <span class="kn">Proof</span>.
+        use make_amalgamation.
+        - <span class="bp">exact</span> (#Γ f xx).
+        - <span class="kp">abstract</span>
+            (<span class="nb">intros</span> z g p ; <span class="nb">cbn</span> ;
+             <span class="bp">exact</span> (!(eqtohomot (functor_comp Γ _ _) _))).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">is_closed_fiber_sieve_matching_fam_dep</span>
+                 {<span class="nv">y</span> : C}
+                 (<span class="nv">f</span> : y --&gt; x)
+        : matching_family_dep A (is_closed_fiber_sieve_matching_fam f).
+      <span class="kn">Proof</span>.
+        use make_matching_family_dep.
+        - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">z</span> <span class="nv">g</span> <span class="nv">aa</span>, pr1 aa).
+        - <span class="kp">abstract</span>
+            (<span class="nb">intros</span> z₁ z₂ g₁ g₂ h p q₁ q₂ ; <span class="nb">cbn</span> <span class="k">in</span> q₁, q₂ ; <span class="nb">cbn</span> ;
+             use (monic_dep_psh_nat_trans_monic τP) ;
+             <span class="nb">unfold</span> in_fiber <span class="k">in</span> q₁, q₂ ;
+             <span class="nb">cbn</span> <span class="k">in</span> q₁, q₂ ;
+             <span class="nb">refine</span> (_ @ !(pr2 q₁)) ;
+             <span class="nb">simple refine</span> (dep_psh_nat_trans_ax τ _ _ _ _ @ _) ;
+             [ <span class="nb">refine</span> (eqtohomot (!(functor_comp Γ _ _)) _ @ _) ;
+               <span class="nb">cbn</span> ;
+               <span class="nb">apply</span> maponpaths_2 ;
+               <span class="nb">rewrite</span> &lt;- p ;
+               <span class="nb">rewrite</span> assoc ;
+               <span class="nb">apply</span> idpath
+             | etrans ;
+               [ <span class="nb">apply</span> maponpaths ;
+                 <span class="bp">exact</span> (pr2 q₂)
+               | ] ;
+               <span class="nb">rewrite</span> dep_psh_mor_comp' ;
+               use dep_psh_mor_path_eq ;
+               <span class="nb">rewrite</span> assoc ;
+               <span class="nb">rewrite</span> p ;
+               <span class="nb">apply</span> idpath ]).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">is_closed_fiber_sieve</span>
+        : is_closed_sieve (fiber_sieve τP b).
+      <span class="kn">Proof</span>.
+        <span class="nb">intros</span> y f p.
+        <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> in_fiber.
+        <span class="nb">pose</span> (dep_sheaf_amalgamation
+                (is_dep_sheaf_dep_sheaf A)
+                p
+                (is_closed_fiber_sieve_matching_fam f)
+                (is_closed_fiber_sieve_amalgamation f)
+                (is_closed_fiber_sieve_matching_fam_dep f))
+          <span class="k">as</span> aa.
+        <span class="nb">cbn</span> <span class="k">in</span> aa.
+        <span class="nb">refine</span> (aa ,, _).
+        use (dep_sheaf_amalgamation_unique
+               (is_dep_sheaf_dep_sheaf B)
+               p
+               (a := is_closed_fiber_sieve_amalgamation f)).
+        - <span class="bp">exact</span> (dep_psh_nat_trans_on_matching_family
+                   τ
+                   (is_closed_fiber_sieve_matching_fam_dep f)).
+        - <span class="nb">cbn</span>.
+          <span class="nb">intros</span> z g q.
+          <span class="nb">refine</span> (!(dep_psh_nat_trans_ax τ _ _ _ _) @ _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (dep_sheaf_amalgamation_restr
+                   (is_dep_sheaf_dep_sheaf A)
+                   p
+                   (is_closed_fiber_sieve_matching_fam f)
+                   (is_closed_fiber_sieve_amalgamation f)
+                   (is_closed_fiber_sieve_matching_fam_dep f)).
+        - <span class="nb">cbn</span>.
+          <span class="nb">intros</span> z g q.
+          <span class="nb">rewrite</span> dep_psh_mor_comp'.
+          <span class="nb">refine</span> (_ @ !(pr2 q)).
+          use dep_psh_mor_path_eq.
+          <span class="nb">apply</span> idpath.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">monic_to_closed_sieve</span>
+        : closed_sieve x.
+      <span class="kn">Proof</span>.
+        use make_closed_sieve.
+        - <span class="bp">exact</span> (fiber_sieve τP b).
+        - <span class="bp">exact</span> is_closed_fiber_sieve.
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">Predicate</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">dep_sheaf_characteristic_mor_naturality</span>
+                {<span class="nv">x₁</span> <span class="nv">x₂</span> : C}
+                {<span class="nv">xx₁</span> : (Γ x₁ : hSet)}
+                {<span class="nv">xx₂</span> : (Γ x₂ : hSet)}
+                {<span class="nv">f</span> : x₂ --&gt; x₁}
+                (<span class="nv">p</span> : # Γ f xx₁ = xx₂)
+                (<span class="nv">b</span> : B x₁ xx₁)
+      : monic_to_closed_sieve (#d B f p b)
+        =
+        precomp_closed_sieve (monic_to_closed_sieve b) f.
+    <span class="kn">Proof</span>.
+      use closed_sieve_eq.
+      use sieve_eq.
+      + <span class="nb">intros</span> y g [ a q ].
+        <span class="nb">cbn</span> <span class="k">in</span> a, q ; <span class="nb">cbn</span>.
+        <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="nb">refine</span> (#d A (identity _) _ a).
+          <span class="kp">abstract</span>
+            (<span class="nb">refine</span> (eqtohomot (!(functor_comp Γ _ _)) _ @ _) ;
+             <span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> id_left ;
+             <span class="nb">rewrite</span> &lt;- p ;
+             <span class="bp">exact</span> (eqtohomot (!(functor_comp Γ _ _)) _)).
+        * <span class="nb">cbn</span>.
+          <span class="nb">unfold</span> in_fiber <span class="k">in</span> *.
+          <span class="nb">simple refine</span> (dep_psh_nat_trans_ax τ _ _ _ _ @ _).
+          {
+            <span class="kp">abstract</span>
+              (<span class="nb">refine</span> (eqtohomot (!(functor_comp Γ _ _)) _ @ _) ;
+               <span class="nb">cbn</span> ;
+               <span class="nb">rewrite</span> id_left ;
+               <span class="nb">rewrite</span> &lt;- p ;
+               <span class="bp">exact</span> (eqtohomot (!(functor_comp Γ _ _)) _)).
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> q.
+          }
+          <span class="nb">rewrite</span> !dep_psh_mor_comp'.
+          use dep_psh_mor_path_eq.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+      + <span class="nb">intros</span> y g [ a q ].
+        <span class="nb">cbn</span> <span class="k">in</span> a, q ; <span class="nb">cbn</span>.
+        <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="nb">refine</span> (#d A (identity _) _ a).
+          <span class="kp">abstract</span>
+            (<span class="nb">refine</span> (eqtohomot (functor_id Γ _) _ @ _) ;
+             <span class="nb">refine</span> (eqtohomot (functor_comp Γ _ _) _ @ _) ;
+             <span class="nb">cbn</span> ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="bp">exact</span> p).
+        * <span class="nb">cbn</span>.
+          <span class="nb">unfold</span> in_fiber <span class="k">in</span> *.
+          <span class="nb">simple refine</span> (dep_psh_nat_trans_ax τ _ _ _ _ @ _).
+          {
+            <span class="kp">abstract</span>
+              (<span class="nb">refine</span> (eqtohomot (functor_id Γ _) _ @ _) ;
+               <span class="nb">refine</span> (eqtohomot (functor_comp Γ _ _) _ @ _) ;
+               <span class="nb">cbn</span> ;
+               <span class="nb">apply</span> maponpaths ;
+               <span class="bp">exact</span> p).
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> q.
+          }
+          <span class="nb">rewrite</span> !dep_psh_mor_comp'.
+          use dep_psh_mor_path_eq.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">dep_sheaf_characteristic_mor</span>
+      : dep_psh_nat_trans B (dep_psh_closed_sieves Γ) (nat_trans_id _).
+    <span class="kn">Proof</span>.
+      use make_dep_psh_nat_trans.
+      - <span class="nb">intros</span> x xx b.
+        <span class="bp">exact</span> (monic_to_closed_sieve b).
+      - <span class="nb">intros</span> x₁ x₂ xx₁ xx₂ f p₁ p₂ b.
+        <span class="bp">exact</span> (dep_sheaf_characteristic_mor_naturality p₁ b).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">θ</span> : (disp_cat_of_dep_sheaves C)[{Γ}] ⟦ B , subobject_classifier_dep_sheaf Γ ⟧
+      := dep_sheaf_characteristic_mor.
+
+    <span class="sd">(** * 4.2. The pullback square *)</span>
+    <span class="kn">Proposition</span> <span class="nf">dep_sheaf_characteristic_mor_eq</span>
+      : τM · θ
+        =
+        TerminalArrow (dep_sheaves_terminal Γ) A
+        · dep_sheaf_truth_mor Γ.
+    <span class="kn">Proof</span>.
+      use dep_psh_nat_trans_eq.
+      <span class="nb">intros</span> x xx a.
+      <span class="nb">refine</span> (dep_sheaf_fiber_comp τM θ a @ _).
+      <span class="nb">refine</span> (_ @ !(dep_sheaf_fiber_comp _ _ a)).
+      <span class="nb">cbn</span>.
+      use closed_sieve_eq.
+      use sieve_eq.
+      - <span class="nb">intros</span>.
+        <span class="bp">exact</span> tt.
+      - <span class="nb">intros</span> y f _ ; <span class="nb">cbn</span>.
+        <span class="nb">simple refine</span> (_ ,, _).
+        + <span class="bp">exact</span> (#d A f (idpath _) a).
+        + <span class="nb">unfold</span> in_fiber ; <span class="nb">cbn</span>.
+          <span class="bp">exact</span> (dep_psh_nat_trans_ax τ _ _ (idpath _) _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Section</span> <span class="nf">PullbackUMP</span>.
+      <span class="kn">Context</span> {<span class="nv">Z</span> : (disp_cat_of_dep_sheaves C)[{Γ}]}
+              {<span class="nv">ζ₁</span> : Z --&gt; B}
+              {<span class="nv">ζ₂</span> : Z --&gt; dep_sheaves_terminal Γ}
+              (<span class="nv">p</span> : ζ₁ · θ = ζ₂ · dep_sheaf_truth_mor Γ).
+
+      <span class="kn">Definition</span> <span class="nf">unique_im_dep_sheaf_characteristic_mor</span>
+                 {<span class="nv">x</span> : C}
+                 {<span class="nv">xx</span> : (Γ x : hSet)}
+                 (<span class="nv">z</span> : (Z : dep_sheaf Γ) x xx)
+        : <span class="k">∃</span>! (a : A x xx), τ x xx a = (ζ₁ : dep_psh_nat_trans _ _ _) x xx z.
+      <span class="kn">Proof</span>.
+        use iscontraprop1.
+        - <span class="kp">abstract</span>
+            (use invproofirrelevance ;
+             <span class="nb">intros</span> [ a₁ p₁ ] [ a₂ p₂ ] ;
+             use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ] ;
+             <span class="nb">cbn</span> ;
+             use (monic_dep_psh_nat_trans_monic τP) ;
+             <span class="bp">exact</span> (p₁ @ !p₂)).
+        - <span class="nb">pose proof</span> (maponpaths (<span class="k">λ</span> (<span class="nv">ξ</span> : dep_psh_nat_trans _ _ _), ξ x xx z) p)
+            <span class="k">as</span> q₁.
+          <span class="nb">simpl</span> <span class="k">in</span> q₁.
+          <span class="nb">pose</span> (!(dep_sheaf_fiber_comp ζ₁ θ z) @ q₁)
+            <span class="k">as</span> q₂.
+          <span class="nb">simpl</span> <span class="k">in</span> q₂.
+          <span class="nb">pose</span> (q₂ @ dep_sheaf_fiber_comp ζ₂ (dep_sheaf_truth_mor Γ) z)
+            <span class="k">as</span> q₃.
+          <span class="nb">simpl</span> <span class="k">in</span> q₃.
+          <span class="nb">pose</span> (from_sieve_eq_r (maponpaths pr1 q₃) (identity x) tt) <span class="k">as</span> a.
+          <span class="nb">simple refine</span> (_ ,, _).
+          + <span class="nb">refine</span> (#d A (identity _) _ (pr1 a)).
+            <span class="bp">exact</span> (eqtohomot (functor_id Γ _) _ @ eqtohomot (functor_id Γ _) _).
+          + <span class="nb">cbn</span>.
+            <span class="nb">pose</span> (pr2 a) <span class="k">as</span> r.
+            <span class="nb">unfold</span> in_fiber <span class="k">in</span> r.
+            <span class="nb">cbn</span> <span class="k">in</span> r.
+            <span class="nb">simple refine</span> (dep_psh_nat_trans_ax τ _ _ _ _ @ _) ;
+              [ <span class="bp">exact</span> (eqtohomot (functor_id Γ _) _ @ eqtohomot (functor_id Γ _) _)
+              | ].
+            <span class="nb">refine</span> (maponpaths (#d B _ _) (pr2 a) @ _).
+            <span class="nb">cbn</span>.
+            <span class="nb">rewrite</span> !dep_psh_mor_comp'.
+            <span class="nb">apply</span> dep_psh_mor_id'.
+            <span class="nb">rewrite</span> id_left.
+            <span class="nb">apply</span> idpath.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">dep_sheaf_characteristic_mor_pb_mor_data</span>
+                 (<span class="nv">x</span> : C)
+                 (<span class="nv">xx</span> : (Γ x : hSet))
+                 (<span class="nv">z</span> : (Z : dep_sheaf Γ) x xx)
+        : A x (nat_trans_id Γ x xx)
+        := pr11 (unique_im_dep_sheaf_characteristic_mor z).
+
+      <span class="kn">Proposition</span> <span class="nf">dep_sheaf_characteristic_mor_pb_mor_laws</span>
+        : dep_psh_nat_trans_naturality dep_sheaf_characteristic_mor_pb_mor_data.
+      <span class="kn">Proof</span>.
+        <span class="nb">intros</span> x y xx yy f q₁ q₂ z.
+        use (monic_dep_psh_nat_trans_monic τP).
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (pr21 (unique_im_dep_sheaf_characteristic_mor _) @ _).
+        <span class="nb">refine</span> (!_).
+        <span class="nb">simple refine</span> (dep_psh_nat_trans_ax τ _ _ q₁ _ @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (pr21 (unique_im_dep_sheaf_characteristic_mor _)).
+        }
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> dep_psh_nat_trans_ax.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">dep_sheaf_characteristic_mor_pb_mor</span>
+        : Z --&gt; A.
+      <span class="kn">Proof</span>.
+        use make_dep_psh_nat_trans.
+        - <span class="bp">exact</span> dep_sheaf_characteristic_mor_pb_mor_data.
+        - <span class="bp">exact</span> dep_sheaf_characteristic_mor_pb_mor_laws.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">dep_sheaf_characteristic_mor_pb_comm</span>
+        : dep_sheaf_characteristic_mor_pb_mor · τM = ζ₁.
+      <span class="kn">Proof</span>.
+        use dep_psh_nat_trans_eq.
+        <span class="nb">intros</span> x xx z.
+        <span class="nb">refine</span> (dep_sheaf_fiber_comp _ _ _ @ _).
+        <span class="nb">cbn</span>.
+        <span class="bp">exact</span> (pr21 (unique_im_dep_sheaf_characteristic_mor z)).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">dep_sheaf_characteristic_mor_pb_unique</span>
+                  (<span class="nv">ξ</span> : Z --&gt; A)
+                  (<span class="nv">q</span> : ξ · τM = ζ₁)
+        : ξ = dep_sheaf_characteristic_mor_pb_mor.
+      <span class="kn">Proof</span>.
+        <span class="nb">cbn</span> <span class="k">in</span> ξ.
+        use dep_psh_nat_trans_eq.
+        <span class="nb">intros</span> x xx z.
+        use (monic_dep_psh_nat_trans_monic τP).
+        <span class="nb">cbn</span>.
+        <span class="nb">pose proof</span> (maponpaths (<span class="k">λ</span> (<span class="nv">ξ</span> : dep_psh_nat_trans _ _ _), ξ x xx z) q)
+          <span class="k">as</span> r.
+        <span class="nb">simpl</span> <span class="k">in</span> r.
+        <span class="nb">refine</span> (!(dep_sheaf_fiber_comp ξ τ z) @ r @ _).
+        <span class="nb">refine</span> (!_).
+        <span class="bp">exact</span> (pr21 (unique_im_dep_sheaf_characteristic_mor z)).
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">PullbackUMP</span>.
+
+    <span class="kn">Definition</span> <span class="nf">dep_sheaf_characteristic_mor_isPullback</span>
+      : isPullback dep_sheaf_characteristic_mor_eq.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> Z ζ₁ ζ₂ p.
+      use make_iscontr.
+      - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        + <span class="bp">exact</span> (dep_sheaf_characteristic_mor_pb_mor p).
+        + <span class="bp">exact</span> (dep_sheaf_characteristic_mor_pb_comm p).
+        + <span class="kp">abstract</span>
+            (use dep_psh_nat_trans_eq ;
+             <span class="nb">intros</span> ;
+             <span class="nb">apply</span> isapropunit).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> ξ ;
+           use subtypePath ;
+           [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> dep_sheaf_characteristic_mor_pb_unique ;
+           <span class="bp">exact</span> (pr12 ξ)).
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** * 4.3. Uniqueness of the characteristic morphism *)</span>
+    <span class="kn">Proposition</span> <span class="nf">dep_sheaf_characteristic_mor_unique</span>
+                (<span class="nv">χ</span> : dep_psh_nat_trans
+                       B
+                       (subobject_classifier_dep_sheaf Γ)
+                       (nat_trans_id _))
+                (<span class="nv">p</span> : τM · χ
+                     =
+                     TerminalArrow (dep_sheaves_terminal Γ) A
+                     · dep_sheaf_truth_mor Γ)
+                (<span class="nv">H</span> : isPullback p)
+      : χ = dep_sheaf_characteristic_mor.
+    <span class="kn">Proof</span>.
+      <span class="nb">assert</span> (# (fiber_functor _ Γ) τM
+              · # (fiber_functor (dep_sheaf_incl C) Γ) χ
+              =
+              # (fiber_functor _ Γ) (TerminalArrow (dep_sheaves_terminal Γ) A)
+              · # (fiber_functor _ Γ) (dep_sheaf_truth_mor Γ))
+        <span class="k">as</span> r.
+      {
+        <span class="nb">refine</span> (!(functor_comp _ _ _) @ _ @ functor_comp _ _ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> p.
+      }
+      <span class="nb">pose</span> (PB := make_Pullback
+                    _
+                    (preserves_pullback_dep_sheaf_incl Γ _ _ _ _ _ _ _ _ _ r H)).
+      use dep_psh_nat_trans_eq.
+      <span class="nb">intros</span> x xx b.
+      use closed_sieve_eq.
+      use sieve_eq.
+      - <span class="nb">cbn</span> ; <span class="nb">intros</span> y g γ.
+        <span class="nb">assert</span> (compose
+                  (C := (disp_cat_dep_psh C)[{pr1 Γ}])
+                  (dep_psh_nat_trans_from_mor_dep_psh (#d B g (idpath _) b))
+                  (#(fiber_functor (dep_sheaf_incl C) Γ) χ)
+                =
+                compose
+                  (C := (disp_cat_dep_psh C)[{pr1 Γ}])
+                  (dep_psh_nat_trans_to_unit _)
+                  (#(fiber_functor (dep_sheaf_incl C) Γ) (dep_sheaf_truth_mor Γ)))
+          <span class="k">as</span> q.
+        {
+          <span class="nb">rewrite</span> !fiber_functor_dep_sheaf_incl.
+          use dep_psh_nat_trans_eq.
+          <span class="nb">intros</span> z zz a.
+          <span class="nb">refine</span> (dep_psh_fiber_comp _ _ _ _ @ _).
+          <span class="nb">refine</span> (_ @ !(dep_psh_fiber_comp _ _ _ _)).
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> dep_psh_mor_comp'.
+          <span class="nb">assert</span> (#Γ (pr1 a · g) xx = zz) <span class="k">as</span> q.
+          {
+            <span class="nb">refine</span> (_ @ pr2 a).
+            <span class="bp">exact</span> (eqtohomot (functor_comp Γ _ _) _).
+          }
+          <span class="nb">refine</span> (dep_psh_nat_trans_ax χ (pr1 a · g) _ q _ @ _).
+          use closed_sieve_eq.
+          use sieve_eq.
+          {
+            <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, tt).
+          }
+          <span class="nb">intros</span> w h _.
+          <span class="nb">simple refine</span> (#ω (χ _ _ _ : closed_sieve _) _ _ γ).
+          + <span class="bp">exact</span> (h · pr1 a).
+          + <span class="nb">cbn</span>.
+            <span class="nb">rewrite</span> assoc'.
+            <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">pose</span> (PullbackArrow
+                PB
+                (mor_dep_psh (#Γ g xx))
+                (dep_psh_nat_trans_from_mor_dep_psh (#d B g (idpath _) b))
+                (dep_psh_nat_trans_to_unit _)
+                q : dep_psh_nat_trans _ _ _)
+          <span class="k">as</span> f.
+        <span class="nb">simple refine</span> (_ ,, _).
+        + <span class="bp">exact</span> (f _ _ (id_mor_dep_psh _)).
+        + <span class="nb">unfold</span> in_fiber ; <span class="nb">cbn</span>.
+          <span class="nb">pose</span> (PullbackArrow_PullbackPr1
+                  PB
+                  _ _ _
+                  q)
+            <span class="k">as</span> r'.
+          etrans.
+          {
+            <span class="nb">pose</span> (maponpaths
+                    (<span class="k">λ</span> (<span class="nv">h</span> : dep_psh_nat_trans _ _ _), h _ _ (id_mor_dep_psh _))
+                    r')
+              <span class="k">as</span> eq.
+            <span class="nb">refine</span> (_ @ eq).
+            <span class="nb">refine</span> (_ @ !(dep_psh_fiber_comp _ _ _ _)).
+            <span class="nb">cbn</span> -[fiber_category fiber_functor].
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (fiber_functor_dep_sheaf_incl_pt τ).
+          }
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> dep_psh_mor_comp'.
+          use dep_psh_mor_path_eq.
+          <span class="nb">apply</span> id_left.
+      - <span class="nb">cbn</span> ; <span class="nb">intros</span> y g [ a q ].
+        <span class="nb">unfold</span> in_fiber <span class="k">in</span> q ; <span class="nb">cbn</span> <span class="k">in</span> a, q.
+        <span class="nb">simple refine</span> (#ω (χ x xx b : closed_sieve _) (identity _) _ _).
+        + <span class="bp">exact</span> (identity _ · g).
+        + <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> !id_left.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">pose proof</span> (dep_psh_nat_trans_ax χ g (idpath _) (idpath _) b)
+            <span class="k">as</span> r₁.
+          <span class="nb">cbn</span> <span class="k">in</span> r₁.
+          <span class="nb">pose proof</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span> : closed_sieve _, z _ (identity _)) r₁
+              : _ = (χ x xx b : closed_sieve _) y (identity y · g))
+            <span class="k">as</span> r₂.
+          <span class="nb">cbn</span> <span class="k">in</span> r₂.
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> &lt;- r₂.
+          <span class="nb">clear</span> r₁ r₂.
+          <span class="nb">pose proof</span> (maponpaths (<span class="k">λ</span> (<span class="nv">h</span> : dep_psh_nat_trans _ _ _), h _ _ a) p)
+            <span class="k">as</span> r₁.
+          <span class="nb">cbn</span> -[fiber_category] <span class="k">in</span> r₁.
+          <span class="nb">pose proof</span> (!(dep_sheaf_fiber_comp τM χ a)
+                      @ r₁
+                      @ dep_sheaf_fiber_comp _ (dep_sheaf_truth_mor Γ) a)
+            <span class="k">as</span> r₂.
+          <span class="nb">clear</span> r₁.
+          <span class="nb">cbn</span> <span class="k">in</span> r₂, a.
+          <span class="nb">pose</span> (from_sieve_eq_r (maponpaths pr1 r₂) (identity _) tt) <span class="k">as</span> r₃.
+          use (transportf (<span class="k">λ</span> (<span class="nv">P</span> : hProp), P) _ r₃).
+          <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> (<span class="nv">z</span> : closed_sieve _), z y (identity _)) _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> q.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">SubobjectClassifierUMP</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dep_sheaf_subobject_classifier</span>
+             (<span class="nv">Γ</span> : sheaf C)
+    : subobject_classifier (dep_sheaves_terminal Γ).
+  <span class="kn">Proof</span>.
+    use make_subobject_classifier.
+    - <span class="bp">exact</span> (subobject_classifier_dep_sheaf Γ).
+    - <span class="bp">exact</span> (dep_sheaf_truth Γ).
+    - <span class="nb">intros</span> A B τ.
+      use make_iscontr.
+      + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        * <span class="bp">exact</span> (dep_sheaf_characteristic_mor τ).
+        * <span class="bp">exact</span> (dep_sheaf_characteristic_mor_eq τ).
+        * <span class="bp">exact</span> (dep_sheaf_characteristic_mor_isPullback τ).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> χ ;
+           use subtypePath ;
+           [ <span class="nb">intro</span> ;
+             use isaproptotal2 ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_isPullback | ] ;
+             <span class="nb">intros</span> ;
+             <span class="nb">apply</span> homset_property
+           | ] ;
+           <span class="bp">exact</span> (dep_sheaf_characteristic_mor_unique τ (pr1 χ) (pr12 χ) (pr22 χ))).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 5. Stability of the subobject classifier *)</span>
+  <span class="kn">Definition</span> <span class="nf">dep_sheaf_subobject_classifier_subst</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : sheaf C}
+             (<span class="nv">s</span> : sheaf_nat_trans Γ₁ Γ₂)
+    : (disp_cat_of_dep_sheaves C)[{Γ₁}]
+        ⟦ subobject_classifier_dep_sheaf Γ₁
+        , dep_sheaf_subst s (subobject_classifier_dep_sheaf Γ₂) ⟧.
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">ω</span>, ω).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y xx yy f p q ω ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dep_sheaf_subobject_classifier_subst_inv</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : sheaf C}
+             (<span class="nv">s</span> : sheaf_nat_trans Γ₁ Γ₂)
+    : (disp_cat_of_dep_sheaves C)[{Γ₁}]
+        ⟦ dep_sheaf_subst s (subobject_classifier_dep_sheaf Γ₂)
+        , subobject_classifier_dep_sheaf Γ₁ ⟧.
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">ω</span>, ω).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y xx yy f p q ω ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dep_sheaf_subobject_classifier_preservation</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : sheaf C}
+             (<span class="nv">s</span> : sheaf_nat_trans Γ₁ Γ₂)
+    : preserves_subobject_classifier
+        (fiber_functor_from_cleaving
+           (disp_cat_of_dep_sheaves C)
+           (cleaving_disp_cat_of_dep_sheaves C)
+           s)
+        (dep_sheaves_terminal Γ₂)
+        (dep_sheaves_terminal Γ₁)
+        (dep_sheaves_preserves_terminal s).
+  <span class="kn">Proof</span>.
+    use preserves_chosen_to_preserves_subobject_classifier'.
+    - use is_univalent_fiber.
+      <span class="nb">apply</span> disp_univalent_category_is_univalent_disp.
+    - use is_univalent_fiber.
+      <span class="nb">apply</span> disp_univalent_category_is_univalent_disp.
+    - <span class="bp">exact</span> (dep_sheaf_subobject_classifier Γ₂).
+    - use (z_iso_to_is_subobject_classifier
+             (C := univalent_fiber_category (disp_cat_of_dep_sheaves C) _)).
+      + <span class="bp">exact</span> (dep_sheaf_subobject_classifier Γ₁).
+      + use make_z_iso.
+        * <span class="bp">exact</span> (dep_sheaf_subobject_classifier_subst s).
+        * <span class="bp">exact</span> (dep_sheaf_subobject_classifier_subst_inv s).
+        * <span class="kp">abstract</span>
+            (<span class="nb">split</span> ;
+             use dep_psh_nat_trans_eq ;
+             <span class="nb">intros</span> x xx ω ;
+             [ <span class="bp">exact</span> (dep_sheaf_fiber_comp
+                        (dep_sheaf_subobject_classifier_subst s)
+                        (dep_sheaf_subobject_classifier_subst_inv s)
+                        _)
+             | <span class="bp">exact</span> (dep_sheaf_fiber_comp
+                        (dep_sheaf_subobject_classifier_subst_inv s)
+                        (dep_sheaf_subobject_classifier_subst s)
+                        _) ]).
+      + <span class="kp">abstract</span>
+          (use dep_psh_nat_trans_eq ;
+           <span class="nb">intros</span> x xx ω ;
+           <span class="nb">refine</span> (dep_sheaf_fiber_comp
+                     (dep_sheaf_truth_mor Γ₁)
+                     (dep_sheaf_subobject_classifier_subst s) _ @ _) ;
+           <span class="nb">refine</span> (_ @ !(dep_sheaf_fiber_comp _ _ _)) ;
+           <span class="nb">refine</span> (_ @ !(fiber_functor_from_cleaving_dep_sheaf s _ _)) ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">SubobjectClassifier</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Presheaves/SubobjectClassifierSheaf.v</tt>, line 34)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Stability of the subobject classifier
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.PosetCat.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

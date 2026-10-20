@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Bimodules.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> The category of bimodules</span>
+
+<span class="sd"> Let `R₁` and `R₂` be rings. A bimodule `B` from `R₁` to `R₂` is an abelian group</span>
+<span class="sd"> together with a linear biaction of `R₁` and `R₂` on `B`. In this file, we define</span>
+<span class="sd"> the category of bimodules using two-sided displayed categories.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Definition via two-sided displayed categories</span>
+<span class="sd"> 2. Univalence</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.Algebra.RigsAndRings.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.AbelianGroup.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Commring.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Constant.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.DispCatOnTwoSidedDispCat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Definition via two-sided displayed categories</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">bimodule_abgr</span>
+  : twosided_disp_cat commring_category commring_category
+  := constant_twosided_disp_cat _ _ abelian_group_category.
+
+<span class="kn">Definition</span> <span class="nf">action_on_bimodule_ob_mor</span>
+  : disp_cat_ob_mor (total_twosided_disp_category bimodule_abgr).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">B</span>,
+           <span class="k">let</span> <span class="nv">R₁</span> := (pr1 B : commring) <span class="k">in</span>
+           <span class="k">let</span> <span class="nv">G</span> := (pr22 B : abgr) <span class="k">in</span>
+           <span class="k">let</span> <span class="nv">R₂</span> := (pr12 B : commring) <span class="k">in</span>
+           R₁ → G → R₂ → G).
+  - <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">B₁</span> <span class="nv">B₂</span>,
+           <span class="k">let</span> <span class="nv">R₁</span> := (pr1 B₁ : commring) <span class="k">in</span>
+           <span class="k">let</span> <span class="nv">G</span> := (pr22 B₁ : abgr) <span class="k">in</span>
+           <span class="k">let</span> <span class="nv">R₂</span> := (pr12 B₁ : commring) <span class="k">in</span>
+           <span class="k">let</span> <span class="nv">S₁</span> := (pr1 B₂ : commring) <span class="k">in</span>
+           <span class="k">let</span> <span class="nv">H</span> := (pr22 B₂ : abgr) <span class="k">in</span>
+           <span class="k">let</span> <span class="nv">S₂</span> := (pr12 B₂ : commring) <span class="k">in</span>
+           <span class="k">λ</span> (<span class="nv">μ₁</span> : R₁ → G → R₂ → G) (<span class="nv">μ₂</span> : S₁ → H → S₂ → H) <span class="nv">f</span>,
+           <span class="k">let</span> <span class="nv">f₁</span> := (pr1 f : R₁ → S₁) <span class="k">in</span>
+           <span class="k">let</span> <span class="nv">f₂</span> := (pr12 f : R₂ → S₂) <span class="k">in</span>
+           <span class="k">let</span> <span class="nv">g</span> := ((pr22 f : abelian_group_morphism _ _) : G → H) <span class="k">in</span>
+           ∏ (x : R₁) (y : G) (z : R₂),
+           g (μ₁ x y z)
+           =
+           μ₂ (f₁ x) (g y) (f₂ z)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">action_on_bimodule_id_comp</span>
+  : disp_cat_id_comp
+      (total_twosided_disp_category bimodule_abgr)
+      action_on_bimodule_ob_mor.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> B μ x y z ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> B₁ B₂ B₃ f g μ₁ μ₂ μ₃ p q x y z ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">rewrite</span> p.
+    <span class="nb">rewrite</span> q.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">action_on_bimodule_data</span>
+  : disp_cat_data (total_twosided_disp_category bimodule_abgr).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> action_on_bimodule_ob_mor.
+  - <span class="bp">exact</span> action_on_bimodule_id_comp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">action_on_bimodule_axioms</span>
+  : disp_cat_axioms
+      (total_twosided_disp_category bimodule_abgr)
+      action_on_bimodule_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> B₁ B₂ ; <span class="nb">intros</span>.
+    <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> (pr11 (pr22 B₂)).
+  - <span class="nb">intros</span> B₁ B₂ ; <span class="nb">intros</span>.
+    <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> (pr11 (pr22 B₂)).
+  - <span class="nb">intros</span> B₁ B₂ B₃ B₄ ; <span class="nb">intros</span>.
+    <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> (pr11 (pr22 B₄)).
+  - <span class="nb">intros</span> B₁ B₂ ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> (pr11 (pr22 B₂)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">action_on_bimodule</span>
+  : disp_cat (total_twosided_disp_category bimodule_abgr).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> action_on_bimodule_data.
+  - <span class="bp">exact</span> action_on_bimodule_axioms.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bimodule_action</span>
+  : twosided_disp_cat commring_category commring_category
+  := sigma_twosided_disp_cat _ action_on_bimodule.
+
+<span class="kn">Definition</span> <span class="nf">bimodule_laws</span>
+           {<span class="nv">R</span> <span class="nv">S</span> : commring}
+           {<span class="nv">G</span> : abgr}
+           (<span class="nv">μ</span> : R → G → S → G)
+  : UU
+  := (∏ (x : G), μ <span class="mi">1</span> x <span class="mi">1</span> = x)%<span class="bp">ring</span>
+     ×
+     (∏ (r₁ r₂ : R) (s₁ s₂ : S) (x : G),
+      μ (r₁ * r₂)%<span class="bp">ring</span> x (s₁ * s₂)%<span class="bp">ring</span>
+      =
+      μ r₁ (μ r₂ x s₁) s₂)
+     ×
+     (∏ (r₁ r₂ : R) (s : S) (x : G),
+      op (μ r₁ x s) (μ r₂ x s)
+      =
+      μ (r₁ + r₂)%<span class="bp">ring</span> x s)
+     ×
+     (∏ (r : R) (s : S) (x₁ x₂ : G),
+      op (μ r x₁ s) (μ r x₂ s)
+      =
+      μ r (op x₁ x₂) s)
+     ×
+     (∏ (r : R) (s₁ s₂ : S) (x : G),
+      op (μ r x s₁) (μ r x s₂)
+      =
+      μ r x (s₁ + s₂)%<span class="bp">ring</span>).
+
+<span class="kn">Definition</span> <span class="nf">isaprop_bimodule_laws</span>
+           {<span class="nv">R</span> <span class="nv">S</span> : commring}
+           {<span class="nv">G</span> : abgr}
+           (<span class="nv">μ</span> : R → G → S → G)
+  : isaprop (bimodule_laws μ).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod) ;
+  <span class="kp">repeat</span> (<span class="nb">apply</span> impred ; <span class="nb">intro</span>) ;
+  <span class="nb">apply</span> (pr11 G).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_bimodule_laws</span>
+  : disp_cat (total_twosided_disp_category bimodule_action).
+<span class="kn">Proof</span>.
+  use disp_full_sub.
+  <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, bimodule_laws (pr222 X)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bimodule_twosided_disp_cat</span>
+  : twosided_disp_cat commring_category commring_category
+  := sigma_twosided_disp_cat _ disp_cat_bimodule_laws.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Univalence</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">is_univalent_action_on_bimodule</span>
+  : is_univalent_disp action_on_bimodule.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> B₁ B₂ p μ₁ μ₂.
+  <span class="nb">induction</span> p.
+  use isweqimplimpl.
+  - <span class="nb">cbn</span> ; <span class="nb">intro</span> f.
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    use funextsec ; <span class="nb">intro</span> z.
+    <span class="bp">exact</span> (pr1 f x y z).
+  - <span class="nb">cbn</span> <span class="k">in</span> * ; <span class="kp">repeat</span> (use funspace_isaset).
+    <span class="nb">apply</span> (pr11 (pr22 B₁)).
+  - use isaproptotal2.
+    + <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_z_iso_disp.
+    + <span class="nb">intros</span>.
+      <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> (pr11 (pr22 B₁)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_disp_cat_bimodule_laws</span>
+  : is_univalent_disp disp_cat_bimodule_laws.
+<span class="kn">Proof</span>.
+  use disp_full_sub_univalent.
+  <span class="nb">intro</span>.
+  <span class="nb">apply</span> isaprop_bimodule_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_bimodule_twosided_disp_cat</span>
+  : is_univalent_twosided_disp_cat bimodule_twosided_disp_cat.
+<span class="kn">Proof</span>.
+  use is_univalent_sigma_of_twosided_disp_cat.
+  - use is_univalent_sigma_of_twosided_disp_cat.
+    + use is_univalent_constant_twosided_disp_cat.
+      <span class="bp">exact</span> is_univalent_abelian_group_category.
+    + <span class="bp">exact</span> is_univalent_action_on_bimodule.
+  - <span class="bp">exact</span> is_univalent_disp_cat_bimodule_laws.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/TwoSidedDisplayedCats/Examples/Bimodules.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Univalence
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.Algebra.RigsAndRings.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

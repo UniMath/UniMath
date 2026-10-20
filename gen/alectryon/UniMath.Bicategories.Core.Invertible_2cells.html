@@ -1,0 +1,571 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Invertible_2cells.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* *********************************************************************************** *)</span>
+<span class="sd">(** * More on invertible 2cells                                                        *)</span>
+<span class="c">(* *********************************************************************************** *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Definition</span> <span class="nf">eq_is_invertible_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b}
+           {<span class="nv">α</span> <span class="nv">β</span> : f ==&gt; g}
+           (<span class="nv">p</span> : α = β)
+           (<span class="nv">Hα</span> : is_invertible_2cell α)
+  : is_invertible_2cell β.
+<span class="kn">Proof</span>.
+  use make_is_invertible_2cell.
+  - <span class="bp">exact</span> Hα^-<span class="mi">1</span>.
+  - <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> &lt;- p ;
+       <span class="nb">apply</span> vcomp_rinv).
+  - <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> &lt;- p ;
+       <span class="nb">apply</span> vcomp_linv).
+<span class="kn">Defined</span>.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Inverse 2cell of a composition                                                  *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">is_invertible_2cell_vcomp</span> {<span class="nv">C</span> : prebicat} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>: C ⟦a, b⟧}
+      {<span class="nv">x</span> : f ==&gt; g} (<span class="nv">inv_x</span> : is_invertible_2cell x)
+      {<span class="nv">y</span> : g ==&gt; h} (<span class="nv">inv_y</span> : is_invertible_2cell y)
+  : is_invertible_2cell (x • y).
+<span class="kn">Proof</span>.
+  use make_is_invertible_2cell.
+  - <span class="bp">exact</span> (inv_y^-<span class="mi">1</span> • inv_x^-<span class="mi">1</span>).
+  - <span class="kp">abstract</span> (
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl;
+        etrans; [<span class="nb">apply</span> vassoc4|];
+        etrans; [ <span class="nb">apply</span> maponpaths_2, maponpaths;
+                  <span class="nb">apply</span> (vcomp_rinv inv_y) |];
+        <span class="nb">rewrite</span> id2_right;
+        <span class="nb">apply</span>  (vcomp_rinv inv_x)
+      ).
+  - <span class="kp">abstract</span> (
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl;
+        etrans; [<span class="nb">apply</span> vassoc4|];
+        etrans; [ <span class="nb">apply</span> maponpaths_2, maponpaths;
+                  <span class="nb">apply</span> (vcomp_linv inv_x) |];
+        <span class="nb">rewrite</span> id2_right;
+        <span class="nb">apply</span>  (vcomp_linv inv_y)
+      ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_invertible_2cell_lwhisker</span> {<span class="nv">C</span> : prebicat} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+      (<span class="nv">f</span> : a --&gt; b) {<span class="nv">g1</span> <span class="nv">g2</span> : b --&gt; c}
+      {<span class="nv">x</span> : g1 ==&gt; g2} (<span class="nv">inv_x</span> : is_invertible_2cell x)
+  : is_invertible_2cell (f ◃ x).
+<span class="kn">Proof</span>.
+  use make_is_invertible_2cell.
+  - <span class="bp">exact</span> (f ◃ inv_x^-<span class="mi">1</span>).
+  - <span class="kp">abstract</span> (
+        etrans; [ <span class="nb">apply</span> lwhisker_vcomp |];
+        etrans; [ <span class="nb">apply</span> maponpaths; <span class="nb">apply</span> (vcomp_rinv inv_x) |];
+        <span class="nb">apply</span> lwhisker_id2).
+  - <span class="kp">abstract</span> (
+        etrans; [ <span class="nb">apply</span> lwhisker_vcomp |];
+        etrans; [ <span class="nb">apply</span> maponpaths; <span class="nb">apply</span> (vcomp_linv inv_x) |];
+        <span class="nb">apply</span> lwhisker_id2).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_invertible_2cell_rwhisker</span> {<span class="nv">C</span> : prebicat} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f1</span> <span class="nv">f2</span> : a --&gt; b} (<span class="nv">g</span> : b --&gt; c)
+      {<span class="nv">x</span> : f1 ==&gt; f2} (<span class="nv">inv_x</span> : is_invertible_2cell x)
+  : is_invertible_2cell (x ▹ g).
+<span class="kn">Proof</span>.
+  use make_is_invertible_2cell.
+  - <span class="bp">exact</span> (inv_x^-<span class="mi">1</span> ▹ g).
+  - <span class="kp">abstract</span> (
+        etrans; [ <span class="nb">apply</span> rwhisker_vcomp |];
+        etrans; [ <span class="nb">apply</span> maponpaths; <span class="nb">apply</span> (vcomp_rinv inv_x) |];
+        <span class="nb">apply</span> id2_rwhisker).
+  - <span class="kp">abstract</span> (
+        etrans; [ <span class="nb">apply</span> rwhisker_vcomp |];
+        etrans; [ <span class="nb">apply</span> maponpaths; <span class="nb">apply</span> (vcomp_linv inv_x) |];
+        <span class="nb">apply</span> id2_rwhisker).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Two-cells that are isomorphisms **)</span>
+
+<span class="kn">Lemma</span> <span class="nf">pentagon</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">V</span> <span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+           (<span class="nv">k</span> : C⟦Y,Z⟧) (<span class="nv">h</span> : C⟦X,Y⟧) (<span class="nv">g</span> : C⟦W,X⟧) (<span class="nv">f</span> : C⟦V,W⟧)
+  : (lassociator (g ∘ f) h k o lassociator f g (k ∘ h))
+    =
+    (id₂ k ⋆⋆ lassociator f g h) o lassociator f (h ∘ g) k o
+                                 (lassociator g h k ⋆⋆ id₂ f).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> assoc.
+  <span class="nb">unfold</span> hcomp.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">rewrite</span> id2_rwhisker.
+  <span class="nb">rewrite</span> id2_left.
+  <span class="nb">rewrite</span> lwhisker_id2.
+  <span class="nb">rewrite</span> id2_right.
+  <span class="nb">rewrite</span> vassocr.
+  <span class="nb">apply</span> lassociator_lassociator.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_invertible_2cell_hcomp</span>
+       {<span class="nv">C</span> : bicat}
+       {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+       {<span class="nv">f₁</span> <span class="nv">g₁</span> : C⟦Y,Z⟧} {<span class="nv">f₂</span> <span class="nv">g₂</span> : C⟦X,Y⟧}
+       (<span class="nv">η₁</span> : f₁ ==&gt; g₁) (<span class="nv">η₂</span> : f₂ ==&gt; g₂)
+       (<span class="nv">inv_η₁</span> : is_invertible_2cell η₁)
+       (<span class="nv">inv_η₂</span> : is_invertible_2cell η₂)
+  : is_invertible_2cell (η₁ ⋆⋆ η₂).
+<span class="kn">Proof</span>.
+  use make_is_invertible_2cell.
+  - <span class="bp">exact</span> (inv_η₁^-<span class="mi">1</span> ⋆⋆ inv_η₂^-<span class="mi">1</span>).
+  - <span class="kp">abstract</span> (<span class="nb">rewrite</span> &lt;- hcomp_vcomp, !vcomp_rinv; <span class="nb">apply</span> hcomp_identity).
+  - <span class="kp">abstract</span> (<span class="nb">rewrite</span> &lt;- hcomp_vcomp, !vcomp_linv; <span class="nb">apply</span> hcomp_identity).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bc_whisker_l</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+           {<span class="nv">f₁</span> : C⟦X,Y⟧} {<span class="nv">f₂</span> : C⟦X,Y⟧}
+           (<span class="nv">g</span> : C⟦Y,Z⟧)
+           (<span class="nv">α</span> : f₁ ==&gt; f₂)
+  : (g ∘ f₁) ==&gt; (g ∘ f₂)
+  := id₂ g ⋆⋆ α.
+
+<span class="c">(* Notation "g '◅' α" := (bc_whisker_l g α) (at level 40) : bicategory_scope. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">bc_whisker_l_id₂</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+           (<span class="nv">f</span> : C⟦X,Y⟧)
+           (<span class="nv">g</span> : C⟦Y,Z⟧)
+  : g ◅ (id₂ f) = id₂ (g ∘ f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> id2_rwhisker.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">bc_whisker_r</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+           {<span class="nv">g₁</span> : C⟦Y,Z⟧} {<span class="nv">g₂</span> : C⟦Y,Z⟧}
+           (<span class="nv">β</span> : g₁ ==&gt; g₂)
+           (<span class="nv">f</span> : C⟦X,Y⟧)
+  : (g₁ ∘ f) ==&gt; (g₂ ∘ f)
+  := β ⋆⋆ id₂ f.
+
+<span class="c">(* Notation "β '▻' f" := (bc_whisker_r β f) (at level 40) : bicategory_scope. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">bc_whisker_r_id₂</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+           (<span class="nv">f</span> : C⟦X,Y⟧)
+           (<span class="nv">g</span> : C⟦Y,Z⟧)
+  : (id₂ g) ▻ f = id₂ (g ∘ f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> lwhisker_id2.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">inverse_of_assoc</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+           (<span class="nv">h</span> : C⟦Y,Z⟧) (<span class="nv">g</span> : C⟦X,Y⟧) (<span class="nv">f</span> : C⟦W,X⟧)
+  : (is_invertible_2cell_lassociator f g h)^-<span class="mi">1</span> = rassociator f g h.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**** Properties of isomorphisms ***)</span>
+
+<span class="kn">Lemma</span> <span class="nf">vcomp_move_L_Vp</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : C⟦X,Y⟧}
+           (<span class="nv">η₁</span> : f ==&gt; g) (<span class="nv">η₂</span> : f ==&gt; h) (<span class="nv">ε</span> : g ==&gt; h)
+           (<span class="nv">Hε</span> : is_invertible_2cell ε)
+  : ε o η₁ = η₂ -&gt; η₁ = Hε^-<span class="mi">1</span> o η₂.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>.
+  <span class="nb">rewrite</span> &lt;- (id2_right η₁).
+  <span class="nb">rewrite</span> &lt;- (vcomp_rinv Hε).
+  <span class="nb">rewrite</span> vassocr.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">vcomp_move_L_pV</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : C⟦X,Y⟧}
+           (<span class="nv">η₁</span> : g ==&gt; h) (<span class="nv">η₂</span> : f ==&gt; h) (<span class="nv">ε</span> : f ==&gt; g)
+           (<span class="nv">Hε</span> : is_invertible_2cell ε)
+  : η₁ o ε = η₂ -&gt; η₁ = η₂ o Hε^-<span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hη.
+  <span class="nb">rewrite</span> &lt;- (id2_left η₁).
+  <span class="nb">rewrite</span> &lt;- (vcomp_linv Hε).
+  <span class="nb">rewrite</span> &lt;- vassocr.
+  <span class="nb">apply</span> maponpaths.
+  <span class="bp">exact</span> Hη.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">vcomp_move_R_Mp</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : C⟦X,Y⟧}
+           (<span class="nv">η₁</span> : f ==&gt; g) (<span class="nv">η₂</span> : f ==&gt; h) (<span class="nv">ε</span> : g ==&gt; h)
+           (<span class="nv">Hε</span> : is_invertible_2cell ε)
+  : η₁ = Hε^-<span class="mi">1</span> o η₂ -&gt; ε o η₁ = η₂.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>.
+  <span class="nb">rewrite</span> &lt;- (id2_right η₂).
+  <span class="nb">rewrite</span> &lt;- (vcomp_linv Hε).
+  <span class="nb">rewrite</span> vassocr.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">vcomp_move_R_pM</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : C⟦X,Y⟧}
+           (<span class="nv">η₁</span> : g ==&gt; h) (<span class="nv">η₂</span> : f ==&gt; h) (<span class="nv">ε</span> : f ==&gt; g)
+           (<span class="nv">Hε</span> : is_invertible_2cell ε)
+  : η₁ = η₂ o Hε^-<span class="mi">1</span> -&gt; η₁ o ε = η₂.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hη.
+  <span class="nb">rewrite</span> &lt;- (id2_left η₂).
+  <span class="nb">rewrite</span> &lt;- (vcomp_rinv Hε).
+  <span class="nb">rewrite</span> &lt;- vassocr.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> Hη.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">vcomp_move_L_Mp</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : C⟦X,Y⟧}
+           (<span class="nv">η₁</span> : f ==&gt; h) (<span class="nv">η₂</span> : f ==&gt; g) (<span class="nv">ε</span> : g ==&gt; h)
+           (<span class="nv">Hε</span> : is_invertible_2cell ε)
+  : Hε^-<span class="mi">1</span> o η₁ = η₂ -&gt; η₁ = ε o η₂.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">rewrite</span> &lt;- (id2_right η₁).
+  <span class="nb">rewrite</span> &lt;- (vcomp_linv Hε).
+  <span class="nb">rewrite</span> vassocr.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">vcomp_move_L_pM</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : C⟦X,Y⟧}
+           (<span class="nv">η₁</span> : f ==&gt; h) (<span class="nv">η₂</span> : g ==&gt; h) (<span class="nv">ε</span> : f ==&gt; g)
+           (<span class="nv">Hε</span> : is_invertible_2cell ε)
+  : η₁ o Hε^-<span class="mi">1</span> = η₂ -&gt; η₁ = η₂ o ε.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hη.
+  <span class="nb">rewrite</span> &lt;- (id2_left η₁).
+  <span class="nb">rewrite</span> &lt;- (vcomp_rinv Hε).
+  <span class="nb">rewrite</span> &lt;- vassocr.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> Hη.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">path_inverse_2cell</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> : C⟦X,Y⟧}
+           (<span class="nv">η₁</span> <span class="nv">η₂</span> : f ==&gt; g)
+           {<span class="nv">inv_η₁</span> : is_invertible_2cell η₁}
+           {<span class="nv">inv_η₂</span> : is_invertible_2cell η₂}
+  : η₁ = η₂ -&gt; inv_η₁^-<span class="mi">1</span> = inv_η₂^-<span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> p.
+  <span class="nb">rewrite</span> &lt;- (id2_left inv_η₁^-<span class="mi">1</span>).
+  <span class="nb">rewrite</span> &lt;- (id2_right inv_η₂^-<span class="mi">1</span>).
+  <span class="nb">rewrite</span> &lt;- (vcomp_linv inv_η₂).
+  <span class="nb">rewrite</span> &lt;- vassocr.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> &lt;- p.
+  <span class="nb">apply</span> vcomp_rinv.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaset_invertible_2cell</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : C}
+           (<span class="nv">f</span> <span class="nv">g</span> : X --&gt; Y)
+  : isaset (invertible_2cell f g).
+<span class="kn">Proof</span>.
+  use isaset_total2.
+  - <span class="nb">apply</span> C.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isaprop_is_invertible_2cell.
+<span class="kn">Qed</span>.
+
+<span class="kn">Ltac</span> <span class="nf">is_iso</span> :=
+  <span class="k">match goal with</span>
+  | [ |- is_invertible_2cell (runitor _) ] =&gt; <span class="nb">apply</span> is_invertible_2cell_runitor
+  | [ |- is_invertible_2cell (rinvunitor _) ] =&gt; <span class="nb">apply</span> is_invertible_2cell_rinvunitor
+  | [ |- is_invertible_2cell (lunitor _) ] =&gt; <span class="nb">apply</span> is_invertible_2cell_lunitor
+  | [ |- is_invertible_2cell (linvunitor _) ] =&gt; <span class="nb">apply</span> is_invertible_2cell_linvunitor
+  | [ |- is_invertible_2cell (rassociator _ _ _)] =&gt; <span class="nb">apply</span> is_invertible_2cell_rassociator
+  | [ |- is_invertible_2cell (lassociator _ _ _)] =&gt; <span class="nb">apply</span> is_invertible_2cell_lassociator
+  | [ |- is_invertible_2cell (_ ^-<span class="mi">1</span>)] =&gt; <span class="nb">apply</span> is_invertible_2cell_inv ; is_iso
+  | [ |- is_invertible_2cell (_ • _)] =&gt; <span class="nb">apply</span> is_invertible_2cell_vcomp ; is_iso
+  | [ |- is_invertible_2cell (_ ◃ _)] =&gt; <span class="nb">apply</span> is_invertible_2cell_lwhisker ; is_iso
+  | [ |- is_invertible_2cell (_ ▹ _)] =&gt; <span class="nb">apply</span> is_invertible_2cell_rwhisker ; is_iso
+  | [ |- is_invertible_2cell (_ ⋆⋆ _)] =&gt; <span class="nb">apply</span> is_invertible_2cell_hcomp ; is_iso
+  | [ |- is_invertible_2cell (_ ⋆ _)] =&gt; <span class="nb">apply</span> is_invertible_2cell_hcomp ; is_iso
+  | [ |- is_invertible_2cell (id₂ _)] =&gt; <span class="nb">apply</span> is_invertible_2cell_id₂
+  | _ =&gt; <span class="kp">try</span> <span class="bp">assumption</span>
+  <span class="k">end</span>.
+
+<span class="kn">Definition</span> <span class="nf">inv_of_invertible_2cell</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> : X --&gt; Y}
+  : invertible_2cell f g → invertible_2cell g f.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> α.
+  use make_invertible_2cell.
+  - <span class="bp">exact</span> α^-<span class="mi">1</span>.
+  - is_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_of_invertible_2cell</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : X --&gt; Y}
+  : invertible_2cell f g → invertible_2cell g h → invertible_2cell f h.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> α β.
+  use make_invertible_2cell.
+  - <span class="bp">exact</span> (α • β).
+  - is_iso.
+    + <span class="nb">apply</span> α.
+    + <span class="nb">apply</span> β.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lwhisker_of_invertible_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B}
+           (<span class="nv">f</span> : x --&gt; y)
+           {<span class="nv">g₁</span> <span class="nv">g₂</span> : y --&gt; z}
+           (<span class="nv">α</span> : invertible_2cell g₁ g₂)
+  : invertible_2cell (f · g₁) (f · g₂).
+<span class="kn">Proof</span>.
+  use make_invertible_2cell.
+  - <span class="bp">exact</span> (f ◃ α).
+  - is_iso.
+    <span class="nb">apply</span> α.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">rwhisker_of_invertible_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : x --&gt; y}
+           (<span class="nv">g</span> : y --&gt; z)
+           (<span class="nv">α</span> : invertible_2cell f₁ f₂)
+  : invertible_2cell (f₁ · g) (f₂ · g).
+<span class="kn">Proof</span>.
+  use make_invertible_2cell.
+  - <span class="bp">exact</span> (α ▹ g).
+  - is_iso.
+    <span class="nb">apply</span> α.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lunitor_invertible_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : invertible_2cell (id₁ a · f) f.
+<span class="kn">Proof</span>.
+  use make_invertible_2cell.
+  - <span class="bp">exact</span> (lunitor f).
+  - is_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">linvunitor_invertible_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : invertible_2cell f (id₁ a · f).
+<span class="kn">Proof</span>.
+  use make_invertible_2cell.
+  - <span class="bp">exact</span> (linvunitor f).
+  - is_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">runitor_invertible_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : invertible_2cell (f · id₁ b) f.
+<span class="kn">Proof</span>.
+  use make_invertible_2cell.
+  - <span class="bp">exact</span> (runitor f).
+  - is_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">rinvunitor_invertible_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : invertible_2cell f (f · id₁ b).
+<span class="kn">Proof</span>.
+  use make_invertible_2cell.
+  - <span class="bp">exact</span> (rinvunitor f).
+  - is_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lassociator_invertible_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+           (<span class="nv">g</span> : b --&gt; c)
+           (<span class="nv">h</span> : c --&gt; d)
+  : invertible_2cell (f · (g · h)) (f · g · h).
+<span class="kn">Proof</span>.
+  use make_invertible_2cell.
+  - <span class="bp">exact</span> (lassociator f g h).
+  - is_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">rassociator_invertible_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+           (<span class="nv">g</span> : b --&gt; c)
+           (<span class="nv">h</span> : c --&gt; d)
+  : invertible_2cell (f · g · h) (f · (g · h)).
+<span class="kn">Proof</span>.
+  use make_invertible_2cell.
+  - <span class="bp">exact</span> (rassociator f g h).
+  - is_iso.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> Invertible 2-cells are the same as isos in the hom category</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">InvertibleIsIso</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}.
+
+  <span class="kn">Definition</span> <span class="nf">is_inv2cell_to_is_z_iso</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : B}
+             {<span class="nv">f</span> <span class="nv">g</span> : hom a b}
+             (<span class="nv">α</span> : f ==&gt; g)
+             (<span class="nv">Hα</span> : is_invertible_2cell α)
+    : is_z_isomorphism α.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">Hα</span>^-<span class="mi">1</span>.
+    <span class="kp">abstract</span> (<span class="nb">split</span> ; [ <span class="nb">apply</span> vcomp_rinv | <span class="nb">apply</span> vcomp_linv]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">inv2cell_to_z_iso</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : B}
+             {<span class="nv">f</span> <span class="nv">g</span> : hom a b}
+             (<span class="nv">α</span> : invertible_2cell f g)
+    : z_iso f g.
+  <span class="kn">Proof</span>.
+    use make_z_iso'.
+    - <span class="nb">apply</span> α.
+    - <span class="nb">apply</span> is_inv2cell_to_is_z_iso.
+      <span class="nb">apply</span> property_from_invertible_2cell.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_z_iso_to_is_inv2cell</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : B}
+             {<span class="nv">f</span> <span class="nv">g</span> : hom a b}
+             (<span class="nv">α</span> : f ==&gt; g)
+             (<span class="nv">Hα</span> : is_z_isomorphism α)
+    : is_invertible_2cell α.
+  <span class="kn">Proof</span>.
+    use make_is_invertible_2cell.
+    - <span class="bp">exact</span> (inv_from_z_iso (α ,, Hα)).
+    - <span class="bp">exact</span> (z_iso_inv_after_z_iso (α ,, Hα)).
+    - <span class="bp">exact</span> (z_iso_after_z_iso_inv (α ,, Hα)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">z_iso_to_inv2cell</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : B}
+             {<span class="nv">f</span> <span class="nv">g</span> : hom a b}
+             (<span class="nv">α</span> : z_iso f g)
+    : invertible_2cell f g.
+  <span class="kn">Proof</span>.
+    use make_invertible_2cell.
+    - <span class="bp">exact</span> (pr1 α).
+    - <span class="bp">exact</span> (is_z_iso_to_is_inv2cell _ (pr2 α)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">inv2cell_to_z_iso_isweq</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : B}
+             (<span class="nv">f</span> <span class="nv">g</span> : hom a b)
+    : isweq (@inv2cell_to_z_iso _ _ f g).
+  <span class="kn">Proof</span>.
+    use isweq_iso.
+    - <span class="bp">exact</span> z_iso_to_inv2cell.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> i ;
+         <span class="nb">apply</span> cell_from_invertible_2cell_eq ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> i ;
+         <span class="nb">apply</span> z_iso_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">inv2cell_to_z_iso_weq</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : B}
+             (<span class="nv">f</span> <span class="nv">g</span> : hom a b)
+    : invertible_2cell f g ≃ z_iso f g.
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">α</span>, inv2cell_to_z_iso α).
+    - <span class="bp">exact</span> (inv2cell_to_z_iso_isweq f g).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">InvertibleIsIso</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Core/Invertible_2cells.v</tt>, line 5)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** * More on invertible 2cells                                                        *)
+  &gt; (* *********************************************************************************** *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

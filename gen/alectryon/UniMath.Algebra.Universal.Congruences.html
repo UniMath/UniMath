@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Congruences.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Notations.
+
+<span class="kn">Require Import</span> UniMath.Algebra.Universal.Algebras.
+<span class="kn">Require Import</span> UniMath.Algebra.Universal.HVecRel.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> sorted.
+
+<span class="kn">Definition</span> <span class="nf">shrel</span> {<span class="nv">S</span> : UU} (<span class="nv">A</span> : sUU S) : UU
+  := ∏ (s:S), hrel (A s).
+
+<span class="kn">Definition</span> <span class="nf">extensionallift</span>
+  {<span class="nv">S</span> : UU} {<span class="nv">A</span> : sUU S} (<span class="nv">R</span> : shrel A)
+  (<span class="nv">P</span> : ∏ (s:S) (R:hrel (A s)), UU) : UU
+  := ∏ (s:S), P s (R s).
+
+<span class="kn">Definition</span> <span class="nf">siseqrel</span> {<span class="nv">S</span> : UU} {<span class="nv">A</span> : sUU S} (<span class="nv">R</span> : shrel A)
+  := extensionallift R (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">R</span>, iseqrel R).
+
+<span class="c">(*Generalization of [[iscomprelfun]]*)</span>
+<span class="kn">Definition</span> <span class="nf">iscomprelfunrel</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+  (<span class="nv">RX</span> : hrel X) (<span class="nv">RY</span> : hrel Y) (<span class="nv">f</span> : X -&gt; Y)
+  : UU
+  := ∏ x x' : X, RX x x' -&gt; RY (f x) (f x').
+
+<span class="kn">Definition</span> <span class="nf">shrelList</span>
+  {<span class="nv">σ</span> : signature} {<span class="nv">A</span> : algebra σ} (<span class="nv">R</span> : shrel A) (<span class="nv">l</span> : list (sorts σ))
+  : hrel (A⋆ l).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> star.
+  use hrelhvec.
+  <span class="nb">change</span> (hvec (((vec_map hrel) ∘ (vec_map (support A))) l)).
+  use (transportf hvec (vec_map_comp (support A) (hrel) l)).
+  use h01map.
+  <span class="bp">exact</span> R.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">iscompatible</span> {<span class="nv">σ</span> : signature}
+  (<span class="nv">A</span> : algebra σ) (<span class="nv">R</span> : shrel A)
+ := ∏ nm: names σ, iscomprelfunrel (shrelList R (arity nm)) (R (sort nm)) (ops A nm).
+
+<span class="kn">Definition</span> <span class="nf">iscong</span> {<span class="nv">σ</span> : signature}
+  (<span class="nv">A</span> : algebra σ) (<span class="nv">R</span> : shrel A)
+  := siseqrel R × iscompatible A R.
+
+<span class="kn">Definition</span> <span class="nf">congruence</span> {<span class="nv">σ</span> : signature} (<span class="nv">A</span> : algebra σ)
+  := ∑ (R : shrel A), iscong A R.
+
+<span class="kn">Definition</span> <span class="nf">eqrelofcong</span> {<span class="nv">σ</span> : signature} {<span class="nv">A</span> : algebra σ} (<span class="nv">R</span> : <span class="bp">congruence</span> A) (<span class="nv">s</span>: sorts σ)
+  : eqrel (support A s)
+  := (pr1 R) s ,, (pr12 R) s.
+
+<span class="kn">Coercion</span> <span class="nf">eqrelofcong</span> : <span class="bp">congruence</span> &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">quotalgebra</span> {<span class="nv">σ</span> : signature} (<span class="nv">A</span> : algebra σ) (<span class="nv">R</span> : <span class="bp">congruence</span> A)
+  : algebra σ.
+<span class="kn">Proof</span>.
+  use make_algebra.
+  - <span class="nb">intro</span> s.
+    <span class="bp">exact</span> (setquot (eqrelofcong R s)).
+  - <span class="nb">simpl</span>.
+    <span class="nb">intros</span> nm xs.
+    use (setquotuniv _ (setquot (eqrelofcong R (sort nm)),,_)).
+    + <span class="bp">exact</span> (A⋆ (arity nm)).
+    + use shrelList.
+      <span class="nb">apply</span> R.
+    + use isasetsetquot.
+    + <span class="nb">apply</span> (funcomp (ops A nm) (setquotpr ((eqrelofcong R) (sort nm)))).
+    + <span class="nb">simpl</span>.
+      <span class="nb">intros</span> a1s b1s rel_ab.
+      <span class="nb">simpl</span>.
+      use (iscompsetquotpr (eqrelofcong R (sort nm))).
+      use (pr2 (pr2 R) nm _ _ rel_ab). <span class="c">(*TODO: name pr2 and make opportune coercions*)</span>
+    + <span class="nb">simpl</span>.
+      use hvectosetquot.
+      <span class="nb">unfold</span> star <span class="k">in</span> xs.
+      <span class="nb">refine</span> (eqweqmap (maponpaths hvec _) xs).
+      <span class="nb">eapply</span> pathscomp0. { use h01maph1lower.  }
+      <span class="nb">eapply</span> pathscomp0. { use h1lower_vec_map_comp. <span class="bp">exact</span> (support A). }
+      use maponpaths.
+      use pathsinv0.
+      use h1h01map_transport_vec_map_comp.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/Universal/Congruences.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Notations.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

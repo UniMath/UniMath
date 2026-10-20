@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Pullbacks.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">The universal property of the Rezk completion states, 1-dimensionally, that every functor F into a univalent category factors (uniquely) through the Rezk completion.</span>
+<span class="sd">The unique functor out of the Rezk completion is referred to as ``the lift of F''.</span>
+<span class="sd">The contents in this file conclude that if F preserves pullbacks, then so does its lift.</span>
+
+<span class="sd">In [weak_equiv_lifts_preserves_pullbacks], we show the following:</span>
+<span class="sd">Assume F preserves all pullbacks in its domain.</span>
+<span class="sd">Then, all equalizers in the codomain (the Rezk completion) are preserved by the lift.</span>
+
+<span class="sd">In [weak_equiv_lifts_preserves_chosen_pullbacks_eq], we show the following:</span>
+<span class="sd">Assume the involved categories have chosen pullbacks.</span>
+<span class="sd">If F preserves the chosen pullbacks up to (propositional) equality, then so does it lift.</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Reflection.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Preservation.Pullbacks.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">LiftAlongWeakEquivalencePreservesPullbacks</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> : category}
+    {<span class="nv">F</span> : C1 ⟶ C3}
+    {<span class="nv">G</span> : C1 ⟶ C2}
+    {<span class="nv">H</span> : C2 ⟶ C3}
+    (<span class="nv">α</span> : nat_z_iso (G ∙ H) F)
+    (<span class="nv">Gw</span> : is_weak_equiv G)
+    (<span class="nv">Fpb</span> : preserves_pullback F).
+
+  <span class="c">(* In this section, we show: preserves_pullback H *)</span>
+
+  <span class="kn">Section</span> <span class="nf">LiftAlongWeakEquivalencePreservesEqualizers_subproofs</span>.
+
+    <span class="kn">Context</span> {<span class="nv">y1</span> <span class="nv">y2</span> <span class="nv">py'</span> <span class="nv">py</span> : C2}
+      {<span class="nv">fy</span> : C2⟦y1, py'⟧}
+      {<span class="nv">gy</span> : C2 ⟦y2, py'⟧}
+      {<span class="nv">π₁y</span> : C2 ⟦py, y1⟧}
+      {<span class="nv">π₂y</span> : C2⟦py, y2⟧}
+      {<span class="nv">q</span> : π₁y · fy = π₂y · gy}
+      {<span class="nv">Fq</span> : # H π₁y · # H fy = # H π₂y · # H gy}
+      (<span class="nv">ispby</span> : isPullback q)
+      {<span class="nv">x1</span> <span class="nv">x2</span> <span class="nv">px</span> <span class="nv">px'</span> : C1}
+      (<span class="nv">i1</span> : z_iso (G x1) y1)
+      (<span class="nv">i2</span> : z_iso (G x2) y2)
+      (<span class="nv">i</span> : z_iso (G px) py)
+      (<span class="nv">i'</span> : z_iso (G px') py').
+
+    <span class="kn">Let</span> <span class="nf">PB</span> := (make_Pullback q ispby : Pullback fy gy).
+    <span class="kn">Let</span> <span class="nf">π₁x</span> := ((fully_faithful_inv_hom (ff_from_weak_equiv _ Gw)) _ _ (i · π₁y · z_iso_inv i1)).
+    <span class="kn">Let</span> <span class="nf">π₂x</span> := ((fully_faithful_inv_hom (ff_from_weak_equiv _ Gw)) _ _ (i · π₂y · z_iso_inv i2)).
+    <span class="kn">Let</span> <span class="nf">fx</span> := ((fully_faithful_inv_hom (ff_from_weak_equiv _ Gw)) _ _ (i1 · fy · z_iso_inv i')).
+    <span class="kn">Let</span> <span class="nf">gx</span> := ((fully_faithful_inv_hom (ff_from_weak_equiv _ Gw)) _ _ (i2 · gy · z_iso_inv i')).
+
+    <span class="kn">Lemma</span> <span class="nf">fully_faithful_inv_hom_of_pullback_diagram_commutes</span>
+      : π₁x · fx = π₂x · gx.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> π₁x, fx, π₂x, gx.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- fully_faithful_inv_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (_ @ q @ _).
+      - <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (_ @ id_right _).
+        <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> z_iso_after_z_iso_inv.
+      - <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">refine</span> (! id_right _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0, z_iso_after_z_iso_inv.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">inv_of_pullback_leg_fy_commutes_with_image_modulo_isos</span>
+      : i1 · fy = # G fx · i'.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> fx.
+      <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (! id_right _ @ _).
+      <span class="nb">apply</span> maponpaths, pathsinv0.
+      <span class="nb">apply</span> (pr2 i').
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">inv_of_pullback_leg_gy_commutes_with_image_modulo_isos</span>
+      : i2 · gy = # G gx · i'.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> gx.
+      <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (! id_right _ @ _).
+      <span class="nb">apply</span> maponpaths, pathsinv0.
+      <span class="nb">apply</span> (pr2 i').
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">inv_of_pullback_first_projection_commutes_with_image_modulo_isos</span>
+      : i · π₁y = # G π₁x · i1.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> π₁x.
+      <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (! id_right _ @ _).
+      <span class="nb">apply</span> maponpaths, pathsinv0.
+      <span class="nb">apply</span> (pr2 i1).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">inv_of_pullback_second_projection_commutes_with_image_modulo_isos</span>
+      : # G π₂x · i2 = i · π₂y.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> π₂x.
+      <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (pr2 i2).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">fully_faithful_inv_hom_of_pullback_is_pullback</span>
+      : isPullback fully_faithful_inv_hom_of_pullback_diagram_commutes.
+    <span class="kn">Proof</span>.
+      use (weak_equiv_reflects_pullbacks Gw).
+      use (Pullback_iso_squares q ispby).
+      - <span class="bp">exact</span> i1.
+      - <span class="bp">exact</span> i2.
+      - <span class="bp">exact</span> i'.
+      - <span class="bp">exact</span> i.
+      - <span class="bp">exact</span> inv_of_pullback_leg_fy_commutes_with_image_modulo_isos.
+      - <span class="bp">exact</span> inv_of_pullback_leg_gy_commutes_with_image_modulo_isos.
+      - <span class="bp">exact</span> inv_of_pullback_first_projection_commutes_with_image_modulo_isos.
+      - <span class="bp">exact</span> inv_of_pullback_second_projection_commutes_with_image_modulo_isos.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">images_of_fully_faithful_inv_hom_of_leg_commute₀</span>
+      : # H (inv_from_z_iso i1) · pr1 α x1 · # F fx = # H fy · (# H (inv_from_z_iso i') · pr1 α px').
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> assoc'.
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (! pr21 α _ _ _).
+      }
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">rewrite</span> &lt;- ! functor_comp.
+      <span class="nb">apply</span> maponpaths_2, maponpaths.
+      use z_iso_inv_on_left.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> pathsinv0.
+      use z_iso_inv_on_right.
+      <span class="nb">unfold</span> fx.
+      <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+      <span class="nb">rewrite</span> assoc'.
+      etrans. { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths, (z_iso_after_z_iso_inv i'). }
+      <span class="nb">apply</span> id_right.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">images_of_fully_faithful_inv_hom_of_leg_commute₁</span>
+      : # H (inv_from_z_iso i2) · pr1 α x2 · # F gx = # H gy · (# H (inv_from_z_iso i') · pr1 α px').
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> assoc'.
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (! pr21 α _ _ _).
+      }
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">rewrite</span> &lt;- ! functor_comp.
+      <span class="nb">apply</span> maponpaths_2, maponpaths.
+      use z_iso_inv_on_left.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> pathsinv0.
+      use z_iso_inv_on_right.
+      <span class="nb">unfold</span> gx.
+      <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+      <span class="nb">rewrite</span> assoc'.
+      etrans. { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths, (z_iso_after_z_iso_inv i'). }
+      <span class="nb">apply</span> id_right.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">images_of_fully_faithful_inv_hom_of_first_projection_commute</span>
+      : # H (inv_from_z_iso i) · pr1 α px · # F π₁x = # H π₁y · (# H (inv_from_z_iso i1) · pr1 α x1).
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> assoc'.
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (! pr21 α _ _ _).
+      }
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">rewrite</span> &lt;- ! functor_comp.
+      <span class="nb">apply</span> maponpaths_2, maponpaths.
+      use z_iso_inv_on_left.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> pathsinv0.
+      use z_iso_inv_on_right.
+      <span class="nb">unfold</span> π₁x.
+      <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+      <span class="nb">rewrite</span> assoc'.
+      etrans. { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths, (z_iso_after_z_iso_inv i1). }
+      <span class="nb">apply</span> id_right.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">images_of_fully_faithful_inv_hom_of_second_projection_commute</span>
+      : # H π₂y · (# H (inv_from_z_iso i2) · pr1 α x2) = # H (inv_from_z_iso i) · pr1 α px · # F π₂x.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> z_iso_comp, functor_on_z_iso.
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> assoc'.
+      etrans. <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (pr21 α _ _ _).
+      }
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">rewrite</span> &lt;- ! functor_comp.
+      <span class="nb">apply</span> maponpaths_2, maponpaths.
+      <span class="nb">apply</span> pathsinv0.
+      use z_iso_inv_on_left.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> pathsinv0.
+      use z_iso_inv_on_right.
+      <span class="nb">unfold</span> π₂x.
+      <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+      <span class="nb">rewrite</span> assoc'.
+      etrans. { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths, (z_iso_after_z_iso_inv i2). }
+      <span class="nb">apply</span> id_right.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">pullback_is_preserved_after_lift</span>
+      : isPullback Fq.
+    <span class="kn">Proof</span>.
+      use (Pullback_iso_squares _
+             (Fpb _ _ _ _ _ _ _ _
+                fully_faithful_inv_hom_of_pullback_diagram_commutes
+                (Pullbacks.p_func fully_faithful_inv_hom_of_pullback_diagram_commutes)
+                fully_faithful_inv_hom_of_pullback_is_pullback
+          )).
+      - <span class="bp">exact</span> (z_iso_comp (functor_on_z_iso H (z_iso_inv i1)) (_ ,, pr2 α _)).
+      - <span class="bp">exact</span> (z_iso_comp (functor_on_z_iso H (z_iso_inv i2)) (_ ,, pr2 α _)).
+      - <span class="bp">exact</span> (z_iso_comp (functor_on_z_iso H (z_iso_inv i')) (_ ,, pr2 α _)).
+      - <span class="bp">exact</span> (z_iso_comp (functor_on_z_iso H (z_iso_inv i)) (_ ,, pr2 α _)).
+      - <span class="bp">exact</span> images_of_fully_faithful_inv_hom_of_leg_commute₀.
+      - <span class="bp">exact</span> images_of_fully_faithful_inv_hom_of_leg_commute₁.
+      - <span class="bp">exact</span> images_of_fully_faithful_inv_hom_of_first_projection_commute.
+      - <span class="bp">exact</span> images_of_fully_faithful_inv_hom_of_second_projection_commute.
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">LiftAlongWeakEquivalencePreservesEqualizers_subproofs</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_lifts_preserves_pullbacks</span>
+    : preserves_pullback H.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y1 y2 py' py fy gy π₁y π₂y q Fq ispby.
+    <span class="nb">set</span> (PB := make_Pullback _ ispby).
+
+    use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw y1)).
+    { <span class="nb">apply</span> isaprop_isPullback. }
+    <span class="nb">intros</span> [x1 i1].
+    use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw y2)).
+    { <span class="nb">apply</span> isaprop_isPullback. }
+    <span class="nb">intros</span> [x2 i2].
+    use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw py)).
+    { <span class="nb">apply</span> isaprop_isPullback. }
+    <span class="nb">intros</span> [px i].
+    use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw py')).
+    { <span class="nb">apply</span> isaprop_isPullback. }
+    <span class="nb">intros</span> [px' i'].
+
+    <span class="bp">exact</span> (pullback_is_preserved_after_lift ispby i1 i2 i i').
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">LiftAlongWeakEquivalencePreservesPullbacks</span>.
+
+<span class="kn">Section</span> <span class="nf">LiftAlongWeakEquivalencePreservesChosenPullbacksUptoEquality</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C1</span> : category}
+    (<span class="nv">C2</span> <span class="nv">C3</span> : univalent_category)
+    {<span class="nv">F</span> : C1 ⟶ C3}
+    {<span class="nv">G</span> : C1 ⟶ C2}
+    {<span class="nv">H</span> : C2 ⟶ C3}
+    (<span class="nv">α</span> : nat_z_iso (G ∙ H) F)
+    (<span class="nv">P₁</span> : Pullbacks C1)
+    (<span class="nv">P₂</span> : Pullbacks (pr1 C2))
+    (<span class="nv">P₃</span> : Pullbacks (pr1 C3))
+    (<span class="nv">Gw</span> : is_weak_equiv G)
+    (<span class="nv">Fpb</span> : preserves_chosen_pullbacks_eq F P₁ P₃).
+
+  <span class="kn">Section</span> <span class="nf">LiftAlongWeakEquivalencePreservesChosenPullbacksUptoEqualityAfterInduction</span>.
+
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C1}
+      (<span class="nv">f'</span> : C2⟦G x, G z⟧)
+      (<span class="nv">g'</span> : C2⟦G y, G z⟧).
+
+    <span class="kn">Lemma</span> <span class="nf">lift_preserves_chosen_pullbacks_uptoeq_after_isotoid_induction</span>
+      : ∥ H (P₂ (G z) (G x) (G y) f' g') = P₃ (H (G z)) (H (G x)) (H (G y)) (# H f') (# H g') ∥.
+    <span class="kn">Proof</span>.
+
+      <span class="nb">set</span> (f := (fully_faithful_inv_hom (ff_from_weak_equiv _ Gw) _ _ f')).
+      <span class="nb">set</span> (g := (fully_faithful_inv_hom (ff_from_weak_equiv _ Gw) _ _ g')).
+
+      use (factor_through_squash _ _ (Fpb x y z f g)).
+      { <span class="nb">apply</span> isapropishinh. }
+      <span class="nb">intro</span> v.
+      <span class="nb">set</span> (w := weak_equiv_preserves_pullbacks_eq Gw (pr2 C2) P₁ P₂ x y z f g).
+      use (factor_through_squash _ _ w).
+      { <span class="nb">apply</span> isapropishinh. }
+      <span class="nb">clear</span> w ; <span class="nb">intro</span> w.
+
+      <span class="nb">apply</span> hinhpr.
+
+      <span class="nb">assert</span> (pf_f : #G f = f'). {
+        <span class="nb">unfold</span> f ; <span class="bp">now</span> <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+      }
+      <span class="nb">assert</span> (pf_g : #G g = g'). {
+        <span class="nb">unfold</span> g ; <span class="bp">now</span> <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+      }
+
+      <span class="nb">rewrite</span> pf_f <span class="k">in</span> w.
+      <span class="nb">rewrite</span> pf_g <span class="k">in</span> w.
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (! w).
+      }
+      <span class="nb">clear</span> w.
+
+      <span class="nb">set</span> (ϕ₄ := nat_z_iso_pointwise_z_iso α (P₁ z x y f g)).
+      <span class="nb">set</span> (ψ := isotoid _ (pr2 C3) ϕ₄).
+      <span class="nb">refine</span> (ψ @ _).
+      <span class="nb">refine</span> (v @ _).
+
+      use (isotoid _ (pr2 C3)).
+
+      <span class="nb">pose</span> (ϕ₁ := nat_z_iso_pointwise_z_iso α x).
+      <span class="nb">pose</span> (ϕ₂ := nat_z_iso_pointwise_z_iso α y).
+      <span class="nb">pose</span> (ϕ₃ := z_iso_inv (nat_z_iso_pointwise_z_iso α z)).
+      <span class="nb">pose</span> (ψ₁ := isotoid _ (pr2 C3) ϕ₁).
+      <span class="nb">pose</span> (ψ₂ := isotoid _ (pr2 C3) ϕ₂).
+      <span class="nb">pose</span> (ψ₃ := isotoid _ (pr2 C3) ϕ₃).
+
+      use (Pullback_eq P₃ ψ₁ ψ₂ ψ₃).
+      - <span class="nb">rewrite</span> &lt;- pf_f.
+        <span class="nb">unfold</span> ψ₁, ψ₃.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> idtoiso_isotoid.
+        etrans. {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (! pr21 α _ _ _).
+        }
+        <span class="nb">apply</span> z_iso_inv_to_right.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> &lt;- pf_g.
+        <span class="nb">unfold</span> ψ₂, ψ₃.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> idtoiso_isotoid.
+        etrans. {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (! pr21 α _ _ _).
+        }
+        <span class="nb">apply</span> z_iso_inv_to_right.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">LiftAlongWeakEquivalencePreservesChosenPullbacksUptoEqualityAfterInduction</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_lifts_preserves_chosen_pullbacks_eq</span>
+    : preserves_chosen_pullbacks_eq H P₂ P₃.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x' y' z' f' g'.
+
+    use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw x')).
+    { <span class="nb">apply</span> isapropishinh. }
+    <span class="nb">intros</span> [x ix].
+    use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw y')).
+    { <span class="nb">apply</span> isapropishinh. }
+    <span class="nb">intros</span> [y iy].
+    use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw z')).
+    { <span class="nb">apply</span> isapropishinh. }
+    <span class="nb">intros</span> [z iz].
+
+    <span class="nb">induction</span> (isotoid _ (pr2 C2) ix).
+    <span class="nb">induction</span> (isotoid _ (pr2 C2) iy).
+    <span class="nb">induction</span> (isotoid _ (pr2 C2) iz).
+
+    <span class="bp">exact</span> (lift_preserves_chosen_pullbacks_uptoeq_after_isotoid_induction f' g').
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">LiftAlongWeakEquivalencePreservesChosenPullbacksUptoEquality</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/WeakEquivalences/LiftPreservation/Pullbacks.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; If F preserves the chosen pullbacks up to (propositional) equality, then so does it lift.
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

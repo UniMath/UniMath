@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>InvertiblesAndEquivalences.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> Equivalences and invertible 2-cells of double categories</span>
+
+<span class="sd"> In this file, we give constructors for adjoints equivalences and invertible</span>
+<span class="sd"> 2-cells in the bicategory of double categories.</span>
+
+<span class="sd"> If we have a double transformation, then to show it is an invertible 2-cells, it</span>
+<span class="sd"> suffices to prove that underlying vertical and horizontal transformations are</span>
+<span class="sd"> pointwise inertible.</span>
+
+<span class="sd"> To prove that a lax double functor `F` is an equivalence, it suffices to prove the</span>
+<span class="sd"> following:</span>
+<span class="sd"> - `F` is strong (it preserves the horizontal identity and composition up to</span>
+<span class="sd">   isomorphism).</span>
+<span class="sd"> - `F` is an adjoint equivalence on the level of 2-sided displayed categories. This</span>
+<span class="sd">   means that the underlying vertical and horizontal functors are equivalences.</span>
+<span class="sd"> This is proven in [left_adjoint_equivalence_lax_double_functor]. Note that we do</span>
+<span class="sd"> not have to show that the inverse is a double functor or that the involved natural</span>
+<span class="sd"> transformations are double transformations.</span>
+
+<span class="sd"> We also show that these conditions are necessary. For the invertible 2-cells, this</span>
+<span class="sd"> follows from the fact that the first projection of an invertible 2-cell in the</span>
+<span class="sd"> total bicategory is also invertible. For adjoint equivalence, we need the analogous</span>
+<span class="sd"> statement, but we also need to show that adjoint equivalences are strong double</span>
+<span class="sd"> functors. For that, we use induction on adjoint equivalences, and the fact that</span>
+<span class="sd"> the identity functor is a strong double functor.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Invertible 2-cells</span>
+<span class="sd"> 2. Adjoint equivalences</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedNatTrans.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOfDispCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOfTwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Prod.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.BicatOfDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> double_cat.
+
+<span class="sd">(** * 1. Invertible 2-cells *)</span>
+<span class="kn">Section</span> <span class="nf">Invertibles</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+          {<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C₁ C₂}
+          (<span class="nv">τ</span> : double_transformation F G)
+          (<span class="nv">Hτ</span> : is_invertible_2cell (pr111 τ)).
+
+  <span class="kn">Definition</span> <span class="nf">is_invertible_2cell_double_transformation_help</span>
+    : is_invertible_2cell (pr11 τ).
+  <span class="kn">Proof</span>.
+    use is_invertible_disp_to_total.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="c">(* 2-sided displayed categories *)</span>
+      <span class="bp">exact</span> Hτ.
+    - use (pair_is_disp_invertible_2cell _ _ (_ ,, _) (pr211 τ)).
+      <span class="nb">split</span>.
+      + <span class="c">(* horizontal identities *)</span>
+        <span class="nb">apply</span> is_disp_invertible_2cell_hor_id.
+      + <span class="c">(* horizontal compositions *)</span>
+        <span class="nb">apply</span> is_disp_invertible_2cell_hor_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_invertible_2cell_double_transformation</span>
+    : is_invertible_2cell τ.
+  <span class="kn">Proof</span>.
+    use bicat_is_invertible_2cell_to_fullsub_is_invertible_2cell.
+    use is_invertible_disp_to_total.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> is_invertible_2cell_double_transformation_help.
+    - use (pair_is_disp_invertible_2cell _ _ (_ ,, _) (pr21 τ)).
+      <span class="nb">split</span>.
+      + <span class="c">(* left unitors *)</span>
+        <span class="nb">apply</span> disp_cell_unit_bicat_is_disp_invertible_2cell.
+      + use (pair_is_disp_invertible_2cell _ _ (_ ,, _) (pr221 τ)).
+        <span class="nb">refine</span> (_ ,, _).
+        * <span class="c">(* right unitors *)</span>
+          <span class="nb">apply</span> disp_cell_unit_bicat_is_disp_invertible_2cell.
+        * <span class="c">(* associators *)</span>
+          <span class="nb">apply</span> disp_cell_unit_bicat_is_disp_invertible_2cell.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Invertibles</span>.
+
+<span class="kn">Definition</span> <span class="nf">invertible_double_nat_trans_weq</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           {<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C₁ C₂}
+           (<span class="nv">τ</span> : double_transformation F G)
+  : is_invertible_2cell τ ≃ is_invertible_2cell (pr111 τ).
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="nb">intros</span> Hτ.
+    <span class="bp">exact</span> (is_invertible_total_to_base
+             _ _
+             (is_invertible_total_to_base
+                _ _
+                (is_invertible_total_to_base _ _ Hτ))).
+  - <span class="nb">intros</span> Hτ.
+    use is_invertible_2cell_double_transformation.
+    <span class="bp">exact</span> Hτ.
+  - <span class="nb">apply</span> isaprop_is_invertible_2cell.
+  - <span class="nb">apply</span> isaprop_is_invertible_2cell.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">InvertiblesUnfolded</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+          {<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C₁ C₂}
+          (<span class="nv">τ</span> : double_transformation F G)
+          (<span class="nv">Hτ</span> : ∏ (x : C₁), is_z_isomorphism (τ x))
+          (<span class="nv">Hττ</span> : ∏ (x y : C₁)
+                   (f : x --&gt;h y),
+                 is_iso_twosided_disp
+                   (Hτ x) (Hτ y)
+                   (double_transformation_hor_mor τ f)).
+
+  <span class="kn">Definition</span> <span class="nf">is_invertible_2cell_double_transformation_unfolded</span>
+    : is_invertible_2cell τ.
+  <span class="kn">Proof</span>.
+    use is_invertible_2cell_double_transformation.
+    use is_invertible_2cell_bicat_twosided_disp_cat.
+    - <span class="bp">exact</span> Hτ.
+    - <span class="bp">exact</span> Hττ.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">InvertiblesUnfolded</span>.
+
+<span class="sd">(** * 2. Adjoint equivalences *)</span>
+<span class="kn">Section</span> <span class="nf">Equivalences</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+          (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+          (<span class="nv">HF</span> : is_strong_double_functor F)
+          (* `F` <span class="k">is</span> an adjoint equivalence of <span class="mi">2</span>-sided displayed categories *)
+          (<span class="nv">HF'</span> : left_adjoint_equivalence (pr111 F)).
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_equivalence_lax_double_functor_help</span>
+    : left_adjoint_equivalence (pr11 F).
+  <span class="kn">Proof</span>.
+    use (invmap (left_adjoint_equivalence_total_disp_weq _ _)).
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="c">(* 2-sided displayed categories *)</span>
+      <span class="bp">exact</span> HF'.
+    - use (pair_left_adjoint_equivalence _ _ (_ ,, _) (pr211 F)).
+      <span class="nb">split</span>.
+      + <span class="c">(* horizontal identities *)</span>
+        use disp_left_adjequiv_hor_id.
+        <span class="bp">exact</span> (is_iso_strong_double_functor_id_h HF).
+      + <span class="c">(* horizontal compositions *)</span>
+        use disp_left_adjequiv_hor_comp.
+        <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">h</span> <span class="nv">k</span>, is_iso_strong_double_functor_comp_h HF h k).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_equivalence_lax_double_functor</span>
+    : left_adjoint_equivalence F.
+  <span class="kn">Proof</span>.
+    use bicat_left_adjoint_equivalence_to_fullsub_left_adjoint_equivalence.
+    use (invmap (left_adjoint_equivalence_total_disp_weq _ _)).
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> left_adjoint_equivalence_lax_double_functor_help.
+    - use (pair_left_adjoint_equivalence _ _ (_ ,, _) (pr21 F)).
+      <span class="nb">split</span>.
+      + <span class="c">(* left unitors *)</span>
+        <span class="nb">apply</span> is_disp_left_adjoint_equivalence_disp_bicat_lunitor.
+      + use (pair_left_adjoint_equivalence _ _ (_ ,, _) (pr221 F)).
+        <span class="nb">split</span>.
+        * <span class="c">(* right unitors *)</span>
+          <span class="nb">apply</span> is_disp_left_adjoint_equivalence_disp_bicat_runitor.
+        * <span class="c">(* associators *)</span>
+          <span class="nb">apply</span> is_disp_left_adjoint_equivalence_disp_bicat_lassociator.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Equivalences</span>.
+
+<span class="kn">Section</span> <span class="nf">EquivalencesUnfolded</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+          (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+          (<span class="nv">HF</span> : is_strong_double_functor F)
+          (<span class="nv">R</span> : C₂ ⟶ C₁)
+          (<span class="nv">RR</span> : twosided_disp_functor R R (hor_mor C₂) (hor_mor C₁))
+          (<span class="nv">η</span> : functor_identity _ ⟹ F ∙ R)
+          (<span class="nv">Hη</span> : is_nat_z_iso η)
+          (<span class="nv">ηη</span> : twosided_disp_nat_trans
+                  η η
+                  (twosided_disp_functor_identity _)
+                  (comp_twosided_disp_functor_data
+                     (lax_double_functor_hor_mor F)
+                     RR))
+          (<span class="nv">Hηη</span> : ∏ (x y : C₁)
+                   (f : x --&gt;h y),
+                 is_iso_twosided_disp (Hη x) (Hη y) (ηη x y f))
+          (<span class="nv">ε</span> : R ∙ F ⟹ functor_identity _)
+          (<span class="nv">Hε</span> : is_nat_z_iso ε)
+          (<span class="nv">εε</span> : twosided_disp_nat_trans
+                  ε ε
+                  (comp_twosided_disp_functor_data
+                     RR
+                     (lax_double_functor_hor_mor F))
+                  (twosided_disp_functor_identity _))
+          (<span class="nv">Hεε</span> : ∏ (x y : C₂)
+                   (f : x --&gt;h y),
+                 is_iso_twosided_disp (Hε x) (Hε y) (εε x y f)).
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_equivalence_lax_double_functor_base</span>
+    : left_adjoint_equivalence (pr111 F).
+  <span class="kn">Proof</span>.
+    use equiv_to_adjequiv.
+    <span class="nb">simple refine</span> (((R ,, RR) ,, (η ,, ηη) ,, (ε ,, εε)) ,, _ ,, _).
+    - use is_invertible_2cell_bicat_twosided_disp_cat ; <span class="nb">cbn</span>.
+      + <span class="bp">exact</span> Hη.
+      + <span class="bp">exact</span> Hηη.
+    - use is_invertible_2cell_bicat_twosided_disp_cat ; <span class="nb">cbn</span>.
+      + <span class="bp">exact</span> Hε.
+      + <span class="bp">exact</span> Hεε.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_equivalence_lax_double_functor_unfolded</span>
+    : left_adjoint_equivalence F.
+  <span class="kn">Proof</span>.
+    use left_adjoint_equivalence_lax_double_functor.
+    - <span class="bp">exact</span> HF.
+    - <span class="bp">exact</span> left_adjoint_equivalence_lax_double_functor_base.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">EquivalencesUnfolded</span>.
+
+<span class="kn">Definition</span> <span class="nf">left_adjoint_equivalence_to_strong_help</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           (<span class="nv">F</span> : adjoint_equivalence C₁ C₂)
+  : is_strong_double_functor (pr1 F).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> C₁ C₂ F.
+  use J_2_0.
+  - <span class="nb">apply</span> is_univalent_2_bicat_of_double_cats.
+  - <span class="nb">intro</span> C.
+    <span class="nb">apply</span> is_strong_double_functor_id.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">FromEquivalence</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+          (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+          (<span class="nv">HF</span> : left_adjoint_equivalence F).
+
+  <span class="kn">Let</span> <span class="nf">HF₁</span> : left_adjoint_equivalence (pr1 F)
+    := pr1 (left_adjoint_equivalence_total_disp_weq _ _ HF).
+
+  <span class="kn">Let</span> <span class="nf">HF₂</span> : left_adjoint_equivalence (pr11 F)
+    := pr1 (left_adjoint_equivalence_total_disp_weq _ _ HF₁).
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_equivalence_to_strong</span>
+    : is_strong_double_functor F
+    := left_adjoint_equivalence_to_strong_help (F ,, HF).
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_equivalence_to_twosided_equiv</span>
+    : left_adjoint_equivalence (pr111 F).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (left_adjoint_equivalence_total_disp_weq _ _ HF₂)).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FromEquivalence</span>.
+
+<span class="kn">Definition</span> <span class="nf">left_adjoint_equivalence_lax_double_functor_weq</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+  : left_adjoint_equivalence F
+    ≃
+    (is_strong_double_functor F × left_adjoint_equivalence (pr111 F)).
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="nb">intros</span> HF.
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> (left_adjoint_equivalence_to_strong F HF).
+    + <span class="bp">exact</span> (left_adjoint_equivalence_to_twosided_equiv F HF).
+  - <span class="nb">intros</span> HF.
+    use left_adjoint_equivalence_lax_double_functor.
+    + <span class="bp">exact</span> (pr1 HF).
+    + <span class="bp">exact</span> (pr2 HF).
+  - <span class="nb">apply</span> isaprop_left_adjoint_equivalence.
+    <span class="nb">apply</span> is_univalent_2_bicat_of_double_cats.
+  - <span class="nb">apply</span> isapropdirprod.
+    + <span class="nb">apply</span> isaprop_is_strong_double_functor.
+    + <span class="nb">apply</span> isaprop_left_adjoint_equivalence.
+      <span class="bp">exact</span> is_univalent_2_1_bicat_twosided_disp_cat.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Core/InvertiblesAndEquivalences.v</tt>, line 34)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Adjoint equivalences
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

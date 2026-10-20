@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Terminal.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">In this file, we show that weak equivalences reflect and preserve terminal objects.</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Proposition</span> <span class="nf">weak_equiv_reflects_terminal</span>
+  {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : C ⟶ D)
+  : is_weak_equiv F
+    → ∏ c : C, isTerminal _ (F c) → isTerminal _ c.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Fw c Fc_term c'.
+  <span class="nb">apply</span> (iscontrweqb' (Fc_term (F c'))).
+  <span class="nb">apply</span> ((_ ,, ff_from_weak_equiv _ Fw _ _))%weq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">WeakEquivalencePreservationsTerminal</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">weak_equiv_preserves_chosen_terminal</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : C ⟶ D)
+    : is_weak_equiv F
+      → ∏ t : Terminal C, preserves_chosen_terminal t F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Fw [x x_is_t] y'.
+    use (factor_through_squash (isapropiscontr _) _ (eso_from_weak_equiv _ Fw y')).
+    <span class="nb">intros</span> [y yi].
+    <span class="nb">apply</span> (iscontrweqb' (x_is_t y)).
+    <span class="nb">refine</span> (invweq (_ ,, ff_from_weak_equiv _ Fw y x) ∘ _)%weq.
+    <span class="nb">apply</span> z_iso_comp_right_weq.
+    <span class="bp">exact</span> yi.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">weak_equiv_preserves_terminal</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : C ⟶ D)
+    : is_weak_equiv F → preserves_terminal F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Fw ? x_is_t.
+    <span class="nb">apply</span> (preserves_terminal_if_preserves_chosen (_,,x_is_t)).
+    - <span class="nb">apply</span> weak_equiv_preserves_chosen_terminal.
+      <span class="bp">exact</span> Fw.
+    - <span class="bp">exact</span> x_is_t.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">weak_equiv_creates_terminal</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : C ⟶ D} (<span class="nv">F_weq</span> : is_weak_equiv F) (<span class="nv">T</span> : Terminal C)
+    : Terminal D.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (make_Terminal _ (weak_equiv_preserves_terminal _ F_weq _ (pr2 T))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">weak_equiv_preserves_chosen_terminal_eq</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : C ⟶ D)
+    : is_weak_equiv F
+      → is_univalent D
+      → ∏ t1 t2, preserves_chosen_terminal_eq F t1 t2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Fw Duniv t1 t2.
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">apply</span> Duniv.
+    <span class="nb">set</span> (Ft1_t := weak_equiv_preserves_terminal _ Fw _ (pr2 t1)).
+    <span class="bp">exact</span> (z_iso_Terminals (_ ,, Ft1_t) t2).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">WeakEquivalencePreservationsTerminal</span>.
+
+<span class="kn">Section</span> <span class="nf">WeakEquivalenceLiftsPreservesTerminal</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_lifts_preserves_terminal</span>
+    {<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> : category}
+    {<span class="nv">F</span> : C1 ⟶ C3}
+    {<span class="nv">G</span> : C1 ⟶ C2}
+    {<span class="nv">H</span> : C2 ⟶ C3}
+    (<span class="nv">α</span> : nat_z_iso (G ∙ H) F)
+    (<span class="nv">Gw</span> : is_weak_equiv G)
+    (<span class="nv">Fpterm</span> : preserves_terminal F)
+    : preserves_terminal H.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x2 x2_is_term.
+    use (factor_through_squash _ _ (eso_from_weak_equiv _ Gw x2)).
+    { <span class="nb">apply</span> isaprop_isTerminal. }
+    <span class="nb">intros</span> [x1 i] y3.
+    use (iscontrweqb' (Y :=  (C3⟦y3, H(G x1)⟧))).
+    - use (iscontrweqb' (Y := (C3⟦y3, F x1⟧))).
+      + use (Fpterm _ _).
+        use (weak_equiv_reflects_terminal _ Gw).
+        <span class="bp">exact</span> (iso_to_Terminal (_,, x2_is_term) _ (z_iso_inv i)).
+      + <span class="nb">apply</span> z_iso_comp_left_weq.
+        <span class="bp">exact</span> (_ ,, pr2 α x1).
+    - <span class="nb">apply</span> z_iso_comp_left_weq.
+      <span class="nb">apply</span> functor_on_z_iso.
+      <span class="bp">exact</span> (z_iso_inv i).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">WeakEquivalenceLiftsPreservesTerminal</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/WeakEquivalences/Terminal.v</tt>, line 5)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; In this file, we show that weak equivalences reflect and preserve terminal objects.
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Representable.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ******************************************************************************* *)</span>
+<span class="sd">(** * Representable pseudofunctor, pseudotransformation, and modifications</span>
+<span class="sd">    Niccolò Veltri, Niels van der Weide</span>
+<span class="sd">    April 2019</span>
+<span class="sd"> ********************************************************************************* *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Base.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Map1Cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Map2Cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Identitor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Compositor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.OpMorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Modifications.Modification.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> bicategory_scope.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">RepresentableFunctor</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : bicat}.
+<span class="kn">Variable</span> (<span class="nv">C_is_univalent_2_1</span> : is_univalent_2_1 C).
+
+<span class="kn">Definition</span> <span class="nf">pspsh</span> := psfunctor (op1_bicat C) bicat_of_univ_cats.
+
+<span class="kn">Definition</span> <span class="nf">representable_data_cat</span> (<span class="nv">X</span> <span class="nv">Y</span> : C) : univalent_category
+  := univ_hom C_is_univalent_2_1 Y X.
+
+<span class="kn">Definition</span> <span class="nf">representable_data_fun</span> (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C) (<span class="nv">f</span> : op1_bicat C ⟦ Y, Z ⟧)
+  : bicat_of_univ_cats ⟦ representable_data_cat X Y, representable_data_cat X Z ⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">simpl</span> <span class="k">in</span> f.
+  use make_functor.
+  - use make_functor_data.
+    + <span class="nb">intro</span> g.
+      <span class="bp">exact</span> (f · g).
+    + <span class="nb">intros</span> g h.
+      <span class="bp">exact</span> (lwhisker f).
+  - <span class="nb">split</span>.
+    + <span class="bp">exact</span> (lwhisker_id2 f).
+    + <span class="nb">intros</span> g h k η φ.
+      <span class="bp">exact</span> (! (lwhisker_vcomp f η φ)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">representable_data_nat</span> (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C) (<span class="nv">f</span> <span class="nv">g</span> : op1_bicat C ⟦ Y, Z ⟧)
+  : f ==&gt; g → representable_data_fun X Y Z f ==&gt; representable_data_fun X Y Z g.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> η.
+  use make_nat_trans.
+  - <span class="nb">intro</span> h.
+    <span class="bp">exact</span> (rwhisker h η).
+  - <span class="nb">intros</span> h k φ.
+    <span class="bp">exact</span> (! (@vcomp_whisker C Z Y X f g h k η φ)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">representable_data</span> (<span class="nv">X</span> : C) : psfunctor_data (op1_bicat C) bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use make_psfunctor_data.
+  - <span class="bp">exact</span> (representable_data_cat X).
+  - <span class="bp">exact</span> (representable_data_fun X).
+  - <span class="bp">exact</span> (representable_data_nat X).
+  - <span class="nb">intro</span> Y.
+    use make_nat_trans.
+    + <span class="bp">exact</span> linvunitor.
+    + <span class="kp">abstract</span> (<span class="nb">intros</span> f g η ;
+                <span class="nb">simpl</span> <span class="k">in</span> * ;
+                <span class="nb">rewrite</span> lwhisker_hcomp ;
+                <span class="nb">apply</span> linvunitor_natural).
+  - <span class="nb">intros</span> Y Z W f g.
+    use make_nat_trans.
+    + <span class="nb">intro</span> h. <span class="nb">simpl</span>.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">apply</span> lassociator.
+    + <span class="nb">intros</span> h k η.
+      <span class="nb">simpl</span>.
+      <span class="nb">apply</span> lwhisker_lwhisker.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">representable_laws</span> (<span class="nv">X</span> : C) : psfunctor_laws (representable_data X).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">cbn</span>.
+  - <span class="nb">intros</span> Y Z f.
+    use nat_trans_eq.
+    + <span class="bp">exact</span> (pr2 C Z X).
+    + <span class="nb">intro</span> g. <span class="nb">cbn</span>.
+      <span class="nb">apply</span> id2_rwhisker.
+  - <span class="nb">intros</span> Y Z f g h η φ.
+    use nat_trans_eq.
+    + <span class="bp">exact</span> (pr2 C Z X).
+    + <span class="nb">intro</span> k. <span class="nb">cbn</span>.
+      <span class="nb">symmetry</span>.
+      <span class="nb">apply</span> rwhisker_vcomp.
+  - <span class="nb">intros</span> Y Z f.
+    use nat_trans_eq.
+    + <span class="bp">exact</span> (pr2 C Z X).
+    + <span class="nb">intro</span> g. <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- vassocr.
+      <span class="nb">rewrite</span> runitor_rwhisker.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="nb">rewrite</span> linvunitor_lunitor.
+      <span class="nb">symmetry</span>.
+      <span class="nb">apply</span> lwhisker_id2.
+  - <span class="nb">intros</span> Y Z f.
+    use nat_trans_eq.
+    + <span class="bp">exact</span> (pr2 C Z X).
+    + <span class="nb">intro</span> g. <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> linvunitor_assoc.
+      <span class="nb">refine</span> (!(_@ _)).
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> &lt;- vassocr.
+        <span class="nb">rewrite</span> rassociator_lassociator.
+        <span class="nb">apply</span> id2_right.
+      }
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      <span class="nb">rewrite</span> linvunitor_lunitor.
+      <span class="nb">apply</span> id2_rwhisker.
+  - <span class="nb">intros</span> Y Z W V f g h.
+    use nat_trans_eq.
+    + <span class="bp">exact</span> (pr2 C V X).
+    + <span class="nb">intro</span> k.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">pose</span> (pentagon_2 k f g h) <span class="k">as</span> p.
+      <span class="nb">rewrite</span> lwhisker_hcomp,rwhisker_hcomp.
+      <span class="nb">rewrite</span> &lt;- vassocr.
+      <span class="bp">exact</span> (! p).
+  - <span class="nb">intros</span> Y Z W f g h η.
+    use nat_trans_eq.
+    + <span class="bp">exact</span> (pr2 C W X).
+    + <span class="nb">intro</span> k.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">apply</span> rwhisker_rwhisker.
+  - <span class="nb">intros</span> Y Z W f g h η.
+    use nat_trans_eq.
+    + <span class="bp">exact</span> (pr2 C W X).
+    + <span class="nb">intro</span> k.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">symmetry</span>.
+      <span class="nb">apply</span> rwhisker_lwhisker.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">representable_invertible_cells</span> (<span class="nv">X</span> : C) : invertible_cells (representable_data X).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> Y.
+    use is_nat_z_iso_to_is_invertible_2cell.
+    <span class="nb">intro</span> f.
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> is_inv2cell_to_is_z_iso.
+    is_iso.
+  - <span class="nb">intros</span> Y Z W f g.
+    use is_nat_z_iso_to_is_invertible_2cell.
+    <span class="nb">intro</span> h.
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> is_inv2cell_to_is_z_iso.
+    is_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">representable</span> (<span class="nv">X</span> : C) : pspsh.
+<span class="kn">Proof</span>.
+  use make_psfunctor.
+  - <span class="bp">exact</span> (representable_data X).
+  - <span class="bp">exact</span> (representable_laws X).
+  - <span class="bp">exact</span> (representable_invertible_cells X).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">RepresentableFunctor</span>.
+
+<span class="kn">Section</span> <span class="nf">RepresentableTransformation</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : bicat}{<span class="nv">X</span> <span class="nv">Y</span> : C}.
+<span class="kn">Variable</span> (<span class="nv">C_is_univalent_2_1</span> : is_univalent_2_1 C) (<span class="nv">f</span> : X --&gt; Y).
+
+<span class="kn">Definition</span> <span class="nf">representable1_data</span> :
+  pstrans_data (representable C_is_univalent_2_1 X) (representable C_is_univalent_2_1 Y).
+<span class="kn">Proof</span>.
+  use make_pstrans_data.
+  - <span class="nb">intro</span> Z.
+    <span class="nb">cbn</span>.
+    use make_functor.
+    + use make_functor_data.
+      -- <span class="nb">intro</span> g.
+         <span class="bp">exact</span> (g · f).
+      -- <span class="nb">intros</span> g h η.
+         <span class="bp">exact</span> (rwhisker f η).
+    + <span class="nb">split</span>.
+      -- <span class="nb">intro</span> g.
+         <span class="nb">apply</span> id2_rwhisker.
+      -- <span class="nb">intros</span> g h k η φ.
+         <span class="nb">symmetry</span>.
+         <span class="nb">apply</span> rwhisker_vcomp.
+  - <span class="nb">intros</span> Z W h.
+    <span class="nb">cbn</span>.
+    use make_invertible_2cell.
+    + use make_nat_trans.
+      -- <span class="nb">intro</span> k.
+         <span class="nb">apply</span> lassociator.
+      -- <span class="nb">intros</span> k l η.
+         <span class="nb">cbn</span> <span class="k">in</span> *.
+         <span class="nb">apply</span> rwhisker_lwhisker.
+    + use is_nat_z_iso_to_is_invertible_2cell.
+      <span class="nb">intro</span> g.
+      <span class="nb">apply</span> is_inv2cell_to_is_z_iso.
+      <span class="nb">simpl</span>.
+      is_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">representable1_is_pstrans</span> : is_pstrans representable1_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (<span class="nb">apply</span> tpair).
+  - <span class="nb">intros</span> Z W g h η.
+    use nat_trans_eq.
+    { <span class="bp">exact</span> (pr2 C W Y). }
+    <span class="nb">intro</span> k.
+    <span class="nb">simpl</span>.
+    <span class="nb">symmetry</span>.
+    <span class="nb">apply</span> rwhisker_rwhisker.
+  - <span class="nb">intro</span> Z.
+    use nat_trans_eq.
+    { <span class="bp">exact</span> (pr2 C Z Y). }
+    <span class="nb">intro</span> h.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">rewrite</span> !id2_left.
+    <span class="nb">rewrite</span> linvunitor_assoc.
+    <span class="nb">rewrite</span> &lt;- vassocr.
+    <span class="nb">rewrite</span> rassociator_lassociator.
+    <span class="nb">apply</span> id2_right.
+  - <span class="nb">intros</span> Z W V g h.
+    use nat_trans_eq.
+    { <span class="bp">exact</span> (pr2 C V Y). }
+    <span class="nb">intro</span> k.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">rewrite</span> id2_left , ! id2_right.
+    <span class="nb">symmetry</span>.
+    <span class="nb">apply</span> lassociator_lassociator.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">representable1</span> :
+  pstrans (representable C_is_univalent_2_1 X) (representable C_is_univalent_2_1 Y).
+<span class="kn">Proof</span>.
+  use make_pstrans.
+  - <span class="bp">exact</span> representable1_data.
+  - <span class="bp">exact</span> representable1_is_pstrans.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">RepresentableTransformation</span>.
+
+<span class="kn">Section</span> <span class="nf">RepresentableModification</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : bicat}{<span class="nv">X</span> <span class="nv">Y</span> : C}{<span class="nv">f</span> <span class="nv">g</span> : X --&gt; Y}.
+<span class="kn">Variable</span> (<span class="nv">C_is_univalent_2_1</span> : is_univalent_2_1 C) (<span class="nv">η</span> : f ==&gt; g).
+
+<span class="kn">Definition</span> <span class="nf">representable2_data</span>
+  : modification_data (representable1 C_is_univalent_2_1 f)
+                      (representable1 C_is_univalent_2_1 g).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> Z.
+  use make_nat_trans.
+  - <span class="nb">intro</span> h.
+    <span class="nb">simpl</span>.
+    <span class="bp">exact</span> (h ◃ η).
+  - <span class="nb">intros</span> h k φ.
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> vcomp_whisker.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">representable2_is_modification</span>
+  : is_modification (σ := representable1 C_is_univalent_2_1 f) representable2_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Z W h.
+  use nat_trans_eq.
+  { <span class="bp">exact</span> (pr2 C W Y). }
+  <span class="nb">intro</span> k.
+  <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="nb">symmetry</span>.
+  <span class="nb">apply</span> lwhisker_lwhisker.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">representable2</span> :
+  modification (representable1 C_is_univalent_2_1 f) (representable1 C_is_univalent_2_1 g).
+<span class="kn">Proof</span>.
+  use make_modification.
+  - <span class="nb">apply</span> representable2_data.
+  - <span class="nb">apply</span> representable2_is_modification.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">RepresentableModification</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/PseudoFunctors/Representable.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     April 2019
+  &gt;  ********************************************************************************* *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,579 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EnrichedConicalColimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Enriched conical colimits</span>
+
+<span class="sd"> We define conical colimits for enriched categories. A conical</span>
+<span class="sd"> colimit is the colimit of a functor to the underlying category</span>
+<span class="sd"> of an enriched category. Note that in ordinary category theory,</span>
+<span class="sd"> these colimits are called colimits rather than conical colimits.</span>
+<span class="sd"> The reason for that, is that the 'right' notion of colimit in</span>
+<span class="sd"> enriched category is that of a weighted colimit. The copower is</span>
+<span class="sd"> an example of a colimit that is not conical.</span>
+
+<span class="sd"> In addition, we show that conical colimits can be constructed</span>
+<span class="sd"> from type-indexed coproducts and coequalizers. We use a similar</span>
+<span class="sd"> construction as the one used to construct colimits from</span>
+<span class="sd"> coproducts and coequalizers in ordinary category theory.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Cocones of enriched conical colimits</span>
+<span class="sd"> 2. Conical colimits in an enriched category</span>
+<span class="sd"> 3. Being a conical colimit is a proposition</span>
+<span class="sd"> 4. Accessors for conical colimits</span>
+<span class="sd"> 5. Conical colimits are isomorphic</span>
+<span class="sd"> 6. Construction of conical colimits</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedCoequalizers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Section</span> <span class="nf">EnrichedConicalColimit</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : monoidal_cat}
+          {<span class="nv">C</span> : category}
+          (<span class="nv">E</span> : enrichment C V)
+          {<span class="nv">I</span> : category}
+          (<span class="nv">D</span> : I ⟶ C).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Cocones of enriched conical colimits</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">enriched_conical_colim_cocone</span>
+    : UU
+    := ∑ (a : C),
+       ∑ (ps : ∏ (i : I), D i --&gt; a),
+       ∏ (i j : I) (f : i --&gt; j),
+       #D f · ps j = ps i.
+
+  <span class="kn">Coercion</span> <span class="nf">ob_enriched_conical_colim_cocone</span>
+           (a : enriched_conical_colim_cocone)
+    : C
+    := pr1 a.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_conical_colim_cocone_in</span>
+             (<span class="nv">a</span> : enriched_conical_colim_cocone)
+             (<span class="nv">i</span> : I)
+    : D i --&gt; a
+    := pr12 a i.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_enriched_conical_colim_cocone_commute</span>
+              (<span class="nv">a</span> : enriched_conical_colim_cocone)
+              {<span class="nv">i</span> <span class="nv">j</span> : I}
+              (<span class="nv">f</span> : i --&gt; j)
+    : #D f · enriched_conical_colim_cocone_in a j
+      =
+      enriched_conical_colim_cocone_in a i.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 a i j f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_enriched_conical_colim_cocone</span>
+             (<span class="nv">a</span> : C)
+             (<span class="nv">ps</span> : ∏ (i : I), D i --&gt; a)
+             (<span class="nv">eqs</span> : ∏ (i j : I)
+                      (f : i --&gt; j),
+                    #D f · ps j = ps i)
+    : enriched_conical_colim_cocone
+    := a ,, ps ,, eqs.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Conical colimits in an enriched category</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_conical_colim_enriched_diagram</span>
+             (<span class="nv">a</span> : enriched_conical_colim_cocone)
+             (<span class="nv">w</span> : C)
+    : diagram (I^opp) V.
+  <span class="kn">Proof</span>.
+    use make_diagram.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, E ⦃ D i , w ⦄).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span> <span class="nv">j</span> <span class="nv">f</span>, precomp_arr E w (#D f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_conical_colim_enriched_cone</span>
+             (<span class="nv">a</span> : enriched_conical_colim_cocone)
+             (<span class="nv">w</span> : C)
+    : cone (is_conical_colim_enriched_diagram a w) (E ⦃ a , w ⦄).
+  <span class="kn">Proof</span>.
+    use make_cone.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, precomp_arr E w (enriched_conical_colim_cocone_in a i)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> i j f ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> &lt;- precomp_arr_comp ;
+         <span class="nb">rewrite</span> enriched_enriched_conical_colim_cocone_commute ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_conical_colim_enriched</span>
+             (<span class="nv">a</span> : enriched_conical_colim_cocone)
+    : UU
+    := ∏ (w : C),
+       isLimCone
+         (is_conical_colim_enriched_diagram a w)
+         (E ⦃ a , w ⦄)
+         (is_conical_colim_enriched_cone a w).
+
+  <span class="kn">Definition</span> <span class="nf">is_conical_colim_enriched_to_Lim</span>
+             {<span class="nv">a</span> : enriched_conical_colim_cocone}
+             (<span class="nv">Ha</span> : is_conical_colim_enriched a)
+             (<span class="nv">w</span> : C)
+    : LimCone (is_conical_colim_enriched_diagram a w).
+  <span class="kn">Proof</span>.
+    use make_LimCone.
+    - <span class="bp">exact</span> (E ⦃ a , w ⦄).
+    - <span class="bp">exact</span> (is_conical_colim_enriched_cone a w).
+    - <span class="bp">exact</span> (Ha w).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">conical_colim_enriched</span>
+    : UU
+    := ∑ (a : enriched_conical_colim_cocone),
+       is_conical_colim_enriched a.
+
+  <span class="kn">Coercion</span> <span class="nf">cocone_of_enriched_conical_colim_cocone</span>
+           (a : conical_colim_enriched)
+    : enriched_conical_colim_cocone
+    := pr1 a.
+
+  <span class="kn">Coercion</span> <span class="nf">conical_colim_enriched_is_conical_colim</span>
+           (a : conical_colim_enriched)
+    : is_conical_colim_enriched a
+    := pr2 a.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Being a conical colimit is a proposition</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">isaprop_is_conical_colim_enriched</span>
+              (<span class="nv">a</span> : enriched_conical_colim_cocone)
+    : isaprop (is_conical_colim_enriched a).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isapropiscontr.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Accessors for conical colimits</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">ConicalColimAccessors</span>.
+    <span class="kn">Context</span> (<span class="nv">a</span> : conical_colim_enriched).
+
+    <span class="kn">Definition</span> <span class="nf">is_conical_colim_enriched_arrow</span>
+               (<span class="nv">w</span> : C)
+               (<span class="nv">gs</span> : ∏ (i : I), D i --&gt; w)
+               (<span class="nv">qs</span> : ∏ (i j : I)
+                       (f : i --&gt; j),
+                     # D f · gs j = gs i)
+      : a --&gt; w.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (enriched_to_arr E _).
+      use (limArrow (make_LimCone _ _ _ (pr2 a w))).
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, enriched_from_arr E (gs i)).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> i j f ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> enriched_from_arr_precomp ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="bp">exact</span> (qs j i f)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">is_conical_colim_enriched_map_in</span>
+                (<span class="nv">w</span> : C)
+                (<span class="nv">gs</span> : ∏ (i : I), D i --&gt; w)
+                (<span class="nv">qs</span> : ∏ (i j : I)
+                        (f : i --&gt; j),
+                      # D f · gs j = gs i)
+                (<span class="nv">i</span> : I)
+      : enriched_conical_colim_cocone_in a i · is_conical_colim_enriched_arrow w gs qs
+        =
+        gs i.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> is_conical_colim_enriched_arrow, enriched_conical_colim_cocone_in.
+      use (invmaponpathsweq (make_weq _ (isweq_enriched_from_arr E _ _))) ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> enriched_from_arr_comp.
+      <span class="nb">rewrite</span> !enriched_from_to_arr.
+      <span class="nb">rewrite</span> tensor_split'.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> mon_linvunitor_I_mon_rinvunitor_I.
+      <span class="nb">rewrite</span> &lt;- tensor_rinvunitor.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)).
+        <span class="nb">apply</span> (limArrowCommutes
+                 (make_LimCone _ _ _ (pr2 a w))).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">is_conical_colim_enriched_arrow_eq</span>
+                {<span class="nv">w</span> : C}
+                {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; w}
+                (<span class="nv">q</span> : ∏ (i : I),
+                     enriched_conical_colim_cocone_in a i · f
+                     =
+                     enriched_conical_colim_cocone_in a i · g)
+      : f = g.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (!(enriched_to_from_arr E _) @ _ @ enriched_to_from_arr E _).
+      <span class="nb">apply</span> maponpaths.
+      use (arr_to_LimCone_eq (is_conical_colim_enriched_to_Lim (pr2 a) w)).
+      <span class="nb">intro</span> i ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !enriched_from_arr_precomp.
+      <span class="nb">rewrite</span> q.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">ConicalColimAccessors</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. Conical colimits are isomorphic</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">map_between_conical_colim_enriched</span>
+             (<span class="nv">a</span> <span class="nv">b</span> : conical_colim_enriched)
+    : a --&gt; b.
+  <span class="kn">Proof</span>.
+    use (is_conical_colim_enriched_arrow a).
+    - <span class="bp">exact</span> (enriched_conical_colim_cocone_in b).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, enriched_enriched_conical_colim_cocone_commute b f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iso_between_conical_colim_enriched_inv</span>
+        (<span class="nv">a</span> <span class="nv">b</span> : conical_colim_enriched)
+    : map_between_conical_colim_enriched a b · map_between_conical_colim_enriched b a
+      =
+      identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> map_between_conical_colim_enriched.
+    use (is_conical_colim_enriched_arrow_eq a).
+    <span class="nb">intro</span> j.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> !is_conical_colim_enriched_map_in.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_between_conical_colim_enriched</span>
+             (<span class="nv">a</span> <span class="nv">b</span> : conical_colim_enriched)
+    : z_iso a b.
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    - <span class="bp">exact</span> (map_between_conical_colim_enriched a b).
+    - <span class="bp">exact</span> (map_between_conical_colim_enriched b a).
+    - <span class="nb">split</span>.
+      + <span class="nb">apply</span> iso_between_conical_colim_enriched_inv.
+      + <span class="nb">apply</span> iso_between_conical_colim_enriched_inv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_conical_colim_enriched</span>
+              (<span class="nv">HC</span> : is_univalent C)
+    : isaprop (conical_colim_enriched).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> φ₁ φ₂.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_conical_colim_enriched.
+    }
+    use total2_paths_f.
+    - use (isotoid _ HC).
+      <span class="nb">apply</span> iso_between_conical_colim_enriched.
+    - use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">rewrite</span> pr1_transportf.
+      <span class="nb">rewrite</span> transportf_sec_constant.
+      use funextsec.
+      <span class="nb">intro</span> j.
+      <span class="nb">rewrite</span> transportf_isotoid'.
+      <span class="nb">apply</span> is_conical_colim_enriched_map_in.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">EnrichedConicalColimit</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Construction of conical colimits</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">ConstructionOfConicalColimit</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : monoidal_cat}
+          {<span class="nv">C</span> : category}
+          (<span class="nv">E</span> : enrichment C V)
+          {<span class="nv">I'</span> : category}
+          (<span class="nv">D</span> : I' ⟶ C)
+          (<span class="nv">PE</span> : ∏ (J : UU), enrichment_coprod E J)
+          (<span class="nv">EE</span> : enrichment_coequalizers E).
+
+  <span class="kn">Let</span> <span class="nf">I</span> : category := I'^opp.
+
+  <span class="kn">Let</span> <span class="nf">coprod_src</span> : C
+    := pr1 (PE (∑ (x : I) (y : I), x --&gt; y) (<span class="k">λ</span> <span class="nv">z</span>, D (pr12 z))).
+  <span class="kn">Let</span> <span class="nf">is_coprod_src</span> : is_coprod_enriched E _ coprod_src
+    := pr2 (PE (∑ (x : I) (y : I), x --&gt; y) (<span class="k">λ</span> <span class="nv">z</span>, D (pr12 z))).
+
+  <span class="kn">Let</span> <span class="nf">coprod_tar</span> : C := pr1 (PE I D).
+  <span class="kn">Let</span> <span class="nf">is_coprod_tar</span> : is_coprod_enriched E D coprod_tar := pr2 (PE I D).
+
+  <span class="kn">Local Definition</span> <span class="nf">enriched_conical_colim_from_coprod_coequalizers_l</span>
+    : coprod_src --&gt; coprod_tar
+    := is_coprod_enriched_arrow
+         _
+         _
+         is_coprod_src
+         (<span class="k">λ</span> <span class="nv">j</span>, enriched_coprod_cocone_in _ _ _ (pr12 j)).
+
+  <span class="kn">Let</span> <span class="nf">f</span> : coprod_src --&gt; coprod_tar := enriched_conical_colim_from_coprod_coequalizers_l.
+
+  <span class="kn">Local Proposition</span> <span class="nf">enriched_conical_colim_from_coprod_coequalizers_l_in</span>
+                    {<span class="nv">i</span> <span class="nv">j</span> : I}
+                    (<span class="nv">k</span> : i --&gt; j)
+    : enriched_coprod_cocone_in _ _ _ (i ,, j ,, k) · f
+      =
+      enriched_coprod_cocone_in _ _ _ j.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (is_coprod_enriched_arrow_in
+             _ _
+             is_coprod_src
+             _
+             (i ,, j ,, k)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">enriched_conical_colim_from_coprod_coequalizers_r</span>
+    : coprod_src --&gt; coprod_tar
+    := is_coprod_enriched_arrow
+         _
+         _
+         is_coprod_src
+         (<span class="k">λ</span> <span class="nv">j</span>, #D (pr22 j) · enriched_coprod_cocone_in _ _ _ (pr1 j)).
+
+  <span class="kn">Let</span> <span class="nf">g</span> : coprod_src --&gt; coprod_tar := enriched_conical_colim_from_coprod_coequalizers_r.
+
+  <span class="kn">Local Proposition</span> <span class="nf">enriched_conical_colim_from_coprod_coequalizers_r_in</span>
+                    {<span class="nv">i</span> <span class="nv">j</span> : I}
+                    (<span class="nv">k</span> : i --&gt; j)
+    : enriched_coprod_cocone_in _ _ _ (i ,, j ,, k) · g
+      =
+      #D k · enriched_coprod_cocone_in _ _ _ i.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (is_coprod_enriched_arrow_in
+             _ _
+             is_coprod_src
+             _
+             (i ,, j ,, k)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_conical_colim_ob_from_coprod_coequalizers</span>
+    : C
+    := pr1 (EE _ _ f g).
+
+  <span class="kn">Let</span> <span class="nf">colim</span> : C := enriched_conical_colim_ob_from_coprod_coequalizers.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_conical_colim_ob_from_coprod_coequalizers_is_coequalizer</span>
+    : is_coequalizer_enriched E f g colim
+    := pr2 (EE _ _ f g).
+
+  <span class="kn">Definition</span> <span class="nf">enriched_conical_colim_in_from_coprod_coequalizers</span>
+             (<span class="nv">i</span> : I)
+    : D i --&gt; colim
+    := enriched_coprod_cocone_in _ _ _ i
+       · enriched_coequalizer_cocone_in _ _ _ (pr1 (EE _ _ f g)).
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_conical_colim_eq_from_coprod_coequalizers</span>
+              {<span class="nv">i</span> <span class="nv">j</span> : I}
+              (<span class="nv">k</span> : i --&gt; j)
+    : # D k · enriched_conical_colim_in_from_coprod_coequalizers i
+      =
+      enriched_conical_colim_in_from_coprod_coequalizers j.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> enriched_conical_colim_in_from_coprod_coequalizers.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- enriched_conical_colim_from_coprod_coequalizers_r_in.
+    <span class="nb">rewrite</span> &lt;- (enriched_conical_colim_from_coprod_coequalizers_l_in k).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_).
+    <span class="bp">exact</span> (enriched_coequalizer_cocone_eq _ _ _ (pr1 (EE _ _ f g))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_conical_colim_from_coprod_coequalizers_cocone</span>
+    : enriched_conical_colim_cocone D.
+  <span class="kn">Proof</span>.
+    use make_enriched_conical_colim_cocone.
+    - <span class="bp">exact</span> colim.
+    - <span class="bp">exact</span> enriched_conical_colim_in_from_coprod_coequalizers.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span> <span class="nv">j</span> <span class="nv">k</span>, enriched_conical_colim_eq_from_coprod_coequalizers k).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">EnrichedConicalColimUMP</span>.
+    <span class="kn">Context</span> (<span class="nv">w</span> : C)
+            (<span class="nv">v</span> : V)
+            (<span class="nv">fs</span> : ∏ (i : I), v --&gt; E ⦃ D i , w ⦄)
+            (<span class="nv">qs</span> : ∏ (i j : I) (k : i --&gt; j), fs i · precomp_arr E w (# D k) = fs j).
+
+    <span class="kn">Proposition</span> <span class="nf">enriched_conical_colim_from_coprod_coequalizers_unique</span>
+      : isaprop
+          (∑ (φ : v --&gt; E ⦃ colim , w ⦄),
+           ∏ (i : I),
+           φ · precomp_arr E w (enriched_conical_colim_in_from_coprod_coequalizers i)
+           =
+           fs i).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        use impred ; <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      use (EqualizerInsEq
+             (is_coequalizer_enriched_to_Equalizer
+                _ _ _
+                enriched_conical_colim_ob_from_coprod_coequalizers_is_coequalizer
+                w)).
+      use (ProductArrow_eq
+             _ _ _
+             (is_coprod_enriched_to_Product
+                _ _
+                is_coprod_tar
+                w)).
+      <span class="nb">intro</span> i ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- !precomp_arr_comp.
+      <span class="bp">exact</span> (pr2 φ₁ i @ !(pr2 φ₂ i)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_conical_colim_from_coprod_coequalizers_mor</span>
+      : v --&gt; E ⦃ colim , w ⦄.
+    <span class="kn">Proof</span>.
+      use (EqualizerIn
+             (is_coequalizer_enriched_to_Equalizer
+                _ _ _
+                enriched_conical_colim_ob_from_coprod_coequalizers_is_coequalizer
+                w)).
+      - <span class="bp">exact</span> (ProductArrow
+                 _ _
+                 (is_coprod_enriched_to_Product
+                    _ _
+                    is_coprod_tar
+                    w)
+                 fs).
+      - <span class="kp">abstract</span>
+          (use (ProductArrow_eq
+                  _ _ _
+                  (is_coprod_enriched_to_Product
+                     _ _
+                     is_coprod_src
+                     w)) ;
+           <span class="nb">intros</span> ijk ; <span class="nb">cbn</span> ;
+           <span class="nb">pose</span> (ProductPrCommutes
+                   I V _
+                   (is_coprod_enriched_to_Product E D is_coprod_tar w)
+                   _
+                   fs)
+             <span class="k">as</span> p ;
+           <span class="nb">cbn</span> <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> &lt;- !precomp_arr_comp ;
+           <span class="nb">rewrite</span> enriched_conical_colim_from_coprod_coequalizers_l_in ;
+           <span class="nb">rewrite</span> enriched_conical_colim_from_coprod_coequalizers_r_in ;
+           <span class="nb">rewrite</span> precomp_arr_comp ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">rewrite</span> !p ;
+           <span class="nb">refine</span> (!_) ;
+           <span class="nb">apply</span> qs).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">enriched_conical_colim_from_coprod_coequalizers_commute</span>
+                (<span class="nv">i</span> : I)
+      : enriched_conical_colim_from_coprod_coequalizers_mor
+        · precomp_arr E w (enriched_conical_colim_in_from_coprod_coequalizers i)
+        =
+        fs i.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> enriched_conical_colim_from_coprod_coequalizers_mor.
+      <span class="nb">unfold</span> enriched_conical_colim_in_from_coprod_coequalizers.
+      <span class="nb">rewrite</span> precomp_arr_comp.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> (EqualizerCommutes
+                 (is_coequalizer_enriched_to_Equalizer E f g
+                    enriched_conical_colim_ob_from_coprod_coequalizers_is_coequalizer w)).
+      <span class="nb">rewrite</span> (ProductPrCommutes
+                 _ _ _
+                 (is_coprod_enriched_to_Product E D is_coprod_tar w)).
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">EnrichedConicalColimUMP</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_conical_colim_from_coprod_coequalizers_is_colim</span>
+    : is_conical_colim_enriched
+        E D
+        enriched_conical_colim_from_coprod_coequalizers_cocone.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w v cc ; <span class="nb">cbn</span>.
+    use iscontraprop1.
+    - <span class="bp">exact</span> (enriched_conical_colim_from_coprod_coequalizers_unique w v (pr1 cc)).
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (enriched_conical_colim_from_coprod_coequalizers_mor _ _ (pr1 cc) (pr2 cc)).
+      + <span class="bp">exact</span> (enriched_conical_colim_from_coprod_coequalizers_commute _ _ (pr1 cc) (pr2 cc)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_conical_colim_from_coprod_coequalizers</span>
+    : conical_colim_enriched E D
+    := enriched_conical_colim_from_coprod_coequalizers_cocone
+       ,,
+       enriched_conical_colim_from_coprod_coequalizers_is_colim.
+<span class="kn">End</span> <span class="nf">ConstructionOfConicalColimit</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Colimits/EnrichedConicalColimits.v</tt>, line 27)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Construction of conical colimits
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

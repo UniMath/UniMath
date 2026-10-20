@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Identity.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Extensional identity types in comprehension categories</span>
+
+<span class="sd"> We defined when a comprehension category is equipped with a universe type, and we constructed</span>
+<span class="sd"> a biequivalence between the bicategory of univalent DFL full comprehension categories with a</span>
+<span class="sd"> universe type and the bicategory of univalent categories with finite limits and a universe</span>
+<span class="sd"> type. Our next goal is to extended this biequivalence to cover universes that are closed under</span>
+<span class="sd"> certain type formers as well. We consider various type formers, and these are given in various</span>
+<span class="sd"> files. In this file, we consider codes for extensional identity types. We use the same ideas</span>
+<span class="sd"> for each type former, and these are explained in the file `Constant.v`</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Codes for extensional identity types</span>
+<span class="sd"> 2. Accessors and builders</span>
+<span class="sd"> 3. Stability</span>
+
+<span class="sd">                                                                                           *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.HPropMono.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.ComprehensionPreservation.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUnivProps.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatExamples.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="kn">Section</span> <span class="nf">TypesInCompCatUniv</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : dfl_full_comp_cat_with_univ).
+
+  <span class="kn">Let</span> <span class="nf">el</span> : comp_cat_univ_type (dfl_full_comp_cat_ob C)
+    := dfl_full_comp_cat_el C.
+
+  <span class="sd">(** * 1. Codes for extensional identity types *)</span>
+  <span class="kn">Definition</span> <span class="nf">ext_id_in_comp_cat_univ</span>
+    : UU
+    := ∏ (Γ : dfl_full_comp_cat_with_univ_types C)
+         (a : tm Γ (dfl_full_comp_cat_univ Γ))
+         (t₁ t₂ : tm Γ (comp_cat_univ_el el a)),
+       ∑ (eq : tm Γ (dfl_full_comp_cat_univ Γ))
+         (f : z_iso
+                (Γ &amp; comp_cat_univ_el el eq)
+                (Γ &amp; dfl_ext_identity_type t₁ t₂)),
+       f · π _ = π _.
+
+  <span class="kn">Proposition</span> <span class="nf">isaset_ext_id_in_comp_cat_univ</span>
+      : isaset ext_id_in_comp_cat_univ.
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">4</span> (use impred_isaset ; <span class="nb">intro</span>).
+    use isaset_total2.
+    - <span class="nb">apply</span> isaset_comp_cat_tm.
+    - <span class="nb">intro</span>.
+      use isaset_total2.
+      + <span class="nb">apply</span> isaset_z_iso.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isasetaprop.
+        <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 2. Accessors and builders *)</span>
+  <span class="kn">Definition</span> <span class="nf">make_ext_id_in_comp_cat_univ</span>
+             (<span class="nv">eq</span> : ∏ (Γ : C)
+                     (a : tm Γ (dfl_full_comp_cat_univ Γ))
+                     (t₁ t₂ : tm Γ (comp_cat_univ_el el a)),
+                  tm Γ (dfl_full_comp_cat_univ Γ))
+             (<span class="nv">f</span> : ∏ (Γ : dfl_full_comp_cat_with_univ_types C)
+                    (a : tm Γ (dfl_full_comp_cat_univ Γ))
+                    (t₁ t₂ : tm Γ (comp_cat_univ_el el a)),
+                  z_iso
+                    (Γ &amp; comp_cat_univ_el el (eq Γ a t₁ t₂))
+                    (Γ &amp; dfl_ext_identity_type t₁ t₂))
+             (<span class="nv">p</span> : ∏ (Γ : C)
+                    (a : tm Γ (dfl_full_comp_cat_univ Γ))
+                    (t₁ t₂ : tm Γ (comp_cat_univ_el el a)),
+                  f Γ a t₁ t₂ · π _ = π _)
+    : ext_id_in_comp_cat_univ
+    := <span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">a</span> <span class="nv">t₁</span> <span class="nv">t₂</span>, eq Γ a t₁ t₂ ,, f Γ a t₁ t₂ ,, p Γ a t₁ t₂.
+
+  <span class="kn">Definition</span> <span class="nf">ext_id_in_comp_cat_univ_code</span>
+             (<span class="nv">eq</span> : ext_id_in_comp_cat_univ)
+             {<span class="nv">Γ</span> : C}
+             {<span class="nv">a</span> : tm Γ (dfl_full_comp_cat_univ Γ)}
+             (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ (comp_cat_univ_el el a))
+    : tm Γ (dfl_full_comp_cat_univ Γ)
+    := pr1 (eq Γ a t₁ t₂).
+
+  <span class="kn">Definition</span> <span class="nf">ext_id_in_comp_cat_univ_z_iso</span>
+             (<span class="nv">eq</span> : ext_id_in_comp_cat_univ)
+             {<span class="nv">Γ</span> : dfl_full_comp_cat_with_univ_types C}
+             {<span class="nv">a</span> : tm Γ (dfl_full_comp_cat_univ Γ)}
+             (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ (comp_cat_univ_el el a))
+    : z_iso
+        (Γ &amp; comp_cat_univ_el el (ext_id_in_comp_cat_univ_code eq t₁ t₂))
+        (Γ &amp; dfl_ext_identity_type t₁ t₂)
+    := pr12 (eq Γ a t₁ t₂).
+
+  <span class="kn">Proposition</span> <span class="nf">ext_id_in_comp_cat_univ_comm</span>
+              (<span class="nv">eq</span> : ext_id_in_comp_cat_univ)
+              {<span class="nv">Γ</span> : C}
+              {<span class="nv">a</span> : tm Γ (dfl_full_comp_cat_univ Γ)}
+              (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ (comp_cat_univ_el el a))
+    : ext_id_in_comp_cat_univ_z_iso eq t₁ t₂ · π _ = π _.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 (eq Γ a t₁ t₂)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ext_id_in_comp_cat_univ_z_iso_fiber</span>
+             (<span class="nv">eq</span> : ext_id_in_comp_cat_univ)
+             {<span class="nv">Γ</span> : dfl_full_comp_cat_with_univ_types C}
+             {<span class="nv">a</span> : tm Γ (dfl_full_comp_cat_univ Γ)}
+             (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ (comp_cat_univ_el el a))
+    : z_iso
+        (C := fiber_category _ _)
+        (comp_cat_univ_el el (ext_id_in_comp_cat_univ_code eq t₁ t₂))
+        (dfl_ext_identity_type t₁ t₂).
+  <span class="kn">Proof</span>.
+    use cod_iso_to_type_iso.
+    - <span class="bp">exact</span> (ext_id_in_comp_cat_univ_z_iso eq t₁ t₂).
+    - <span class="bp">exact</span> (ext_id_in_comp_cat_univ_comm eq t₁ t₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ext_id_in_comp_cat_univ_code_on_eq</span>
+              (<span class="nv">eq</span> : ext_id_in_comp_cat_univ)
+              {<span class="nv">Γ</span> : dfl_full_comp_cat_with_univ_types C}
+              {<span class="nv">a</span> <span class="nv">a'</span> : tm Γ (dfl_full_comp_cat_univ Γ)}
+              {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ (comp_cat_univ_el el a)}
+              {<span class="nv">t₁'</span> <span class="nv">t₂'</span> : tm Γ (comp_cat_univ_el el a')}
+              (<span class="nv">p</span> : a = a')
+              (<span class="nv">q</span> : t₁ ↑ comp_cat_el_map_on_eq el p = t₁')
+              (<span class="nv">r</span> : t₂ ↑ comp_cat_el_map_on_eq el p = t₂')
+    : ext_id_in_comp_cat_univ_code eq t₁ t₂
+      =
+      ext_id_in_comp_cat_univ_code eq t₁' t₂'.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> q, r.
+    <span class="nb">rewrite</span> id_coerce_comp_cat_tm <span class="k">in</span> q, r.
+    <span class="nb">induction</span> q, r.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ext_id_in_comp_cat_univ_code_on_eq'</span>
+              (<span class="nv">eq</span> : ext_id_in_comp_cat_univ)
+              {<span class="nv">Γ</span> : dfl_full_comp_cat_with_univ_types C}
+              {<span class="nv">a</span> <span class="nv">a'</span> : tm Γ (dfl_full_comp_cat_univ Γ)}
+              {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ (comp_cat_univ_el el a)}
+              {<span class="nv">t₁'</span> <span class="nv">t₂'</span> : tm Γ (comp_cat_univ_el el a')}
+              (<span class="nv">p</span> : a = a')
+              (<span class="nv">q</span> : t₁ ↑ comp_cat_el_map_on_eq el p = t₁')
+              (<span class="nv">r</span> : t₂ ↑ comp_cat_el_map_on_eq el p = t₂')
+    : (ext_id_in_comp_cat_univ_code eq t₁ t₂ : _ --&gt; _)
+      =
+      ext_id_in_comp_cat_univ_code eq t₁' t₂'.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (maponpaths pr1 (ext_id_in_comp_cat_univ_code_on_eq eq p q r)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ext_id_in_comp_cat_univ_eq</span>
+              {<span class="nv">eq₁</span> <span class="nv">eq₂</span> : ext_id_in_comp_cat_univ}
+              (<span class="nv">p</span> : ∏ (Γ : C)
+                     (a : tm Γ (dfl_full_comp_cat_univ Γ))
+                     (t₁ t₂ : tm Γ (comp_cat_univ_el el a)),
+                   ext_id_in_comp_cat_univ_code eq₁ t₁ t₂
+                   =
+                   ext_id_in_comp_cat_univ_code eq₂ t₁ t₂)
+    : eq₁ = eq₂.
+  <span class="kn">Proof</span>.
+    use funextsec ; <span class="nb">intro</span> Γ.
+    use funextsec ; <span class="nb">intro</span> a.
+    use funextsec ; <span class="nb">intro</span> t₁.
+    use funextsec ; <span class="nb">intro</span> t₂.
+    use total2_paths_f.
+    - <span class="bp">exact</span> (p Γ a t₁ t₂).
+    - use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">rewrite</span> pr1_transportf.
+      use z_iso_eq.
+      etrans.
+      {
+        <span class="nb">apply</span> (pr1_transportf
+                 (P := <span class="k">λ</span> (<span class="nv">x</span> : tm Γ (dfl_full_comp_cat_univ Γ))
+                         (<span class="nv">f</span> : Γ &amp; comp_cat_univ_el el x --&gt; _),
+                    is_z_isomorphism _)).
+      }
+      etrans.
+      {
+        <span class="bp">exact</span> (transportf_comp_cat_univ_el el (p Γ a t₁ t₂) _).
+      }
+      use (hprop_ty_to_mono_ty (is_hprop_ty_dfl_ext_identity_type t₁ t₂)).
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> ext_id_in_comp_cat_univ_comm.
+      }
+      <span class="nb">rewrite</span> comp_cat_comp_mor_comm.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> ext_id_in_comp_cat_univ_comm.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 3. Stability *)</span>
+  <span class="kn">Definition</span> <span class="nf">ext_id_in_comp_cat_univ_is_stable</span>
+             (<span class="nv">eq</span> : ext_id_in_comp_cat_univ)
+    : UU
+    := ∏ (Γ Δ : C)
+         (s : Γ --&gt; Δ)
+         (a : tm Δ (dfl_full_comp_cat_univ Δ))
+         (t₁ t₂ : tm Δ (comp_cat_univ_el el a)),
+       ext_id_in_comp_cat_univ_code eq t₁ t₂ [[ s ]]tm ↑ sub_dfl_comp_cat_univ s
+       =
+       ext_id_in_comp_cat_univ_code
+         eq
+         (t₁ [[ s ]]tm ↑ comp_cat_univ_el_stable_mor el s a)
+         (t₂ [[ s ]]tm ↑ comp_cat_univ_el_stable_mor el s a).
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_ext_id_in_comp_cat_univ_is_stable</span>
+              (<span class="nv">eq</span> : ext_id_in_comp_cat_univ)
+    : isaprop (ext_id_in_comp_cat_univ_is_stable eq).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">6</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isaset_comp_cat_tm.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">stable_ext_id_in_comp_cat_univ</span>
+    : UU
+    := ∑ (eq : ext_id_in_comp_cat_univ),
+       ext_id_in_comp_cat_univ_is_stable eq.
+
+  <span class="kn">Definition</span> <span class="nf">make_stable_ext_id_in_comp_cat_univ</span>
+             (<span class="nv">eq</span> : ext_id_in_comp_cat_univ)
+             (<span class="nv">H</span> : ext_id_in_comp_cat_univ_is_stable eq)
+    : stable_ext_id_in_comp_cat_univ
+    := eq ,, H.
+
+  <span class="kn">Proposition</span> <span class="nf">isaset_stable_ext_id_in_comp_cat_univ</span>
+    : isaset stable_ext_id_in_comp_cat_univ.
+  <span class="kn">Proof</span>.
+    use isaset_total2.
+    - <span class="bp">exact</span> isaset_ext_id_in_comp_cat_univ.
+    - <span class="nb">intro</span> x.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> isaprop_ext_id_in_comp_cat_univ_is_stable.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Coercion</span> <span class="nf">stable_ext_id_in_comp_cat_univ_to_codes</span>
+           (eq : stable_ext_id_in_comp_cat_univ)
+    : ext_id_in_comp_cat_univ
+    := pr1 eq.
+
+  <span class="kn">Proposition</span> <span class="nf">stable_ext_id_in_comp_cat_univ_code_stable</span>
+              (<span class="nv">eq</span> : stable_ext_id_in_comp_cat_univ)
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+              (<span class="nv">s</span> : Γ --&gt; Δ)
+              {<span class="nv">a</span> : tm Δ (dfl_full_comp_cat_univ Δ)}
+              (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Δ (comp_cat_univ_el el a))
+    : ext_id_in_comp_cat_univ_code eq t₁ t₂ [[ s ]]tm ↑ sub_dfl_comp_cat_univ s
+      =
+      ext_id_in_comp_cat_univ_code
+        eq
+        (t₁ [[ s ]]tm ↑ comp_cat_univ_el_stable_mor el s a)
+        (t₂ [[ s ]]tm ↑ comp_cat_univ_el_stable_mor el s a).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 eq Γ Δ s a t₁ t₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">stable_ext_id_in_comp_cat_univ_code_stable_mor</span>
+              (<span class="nv">eq</span> : stable_ext_id_in_comp_cat_univ)
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+              (<span class="nv">s</span> : Γ --&gt; Δ)
+              {<span class="nv">a</span> : tm Δ (dfl_full_comp_cat_univ Δ)}
+              (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Δ (comp_cat_univ_el el a))
+    : s
+      · ext_id_in_comp_cat_univ_code eq t₁ t₂
+      · comprehension_functor_mor
+          (comp_cat_comprehension C)
+          (cleaving_of_types _ _ _ _ _)
+      =
+      ext_id_in_comp_cat_univ_code
+        eq
+        (t₁ [[ s ]]tm ↑ comp_cat_univ_el_stable_mor el s a)
+        (t₂ [[ s ]]tm ↑ comp_cat_univ_el_stable_mor el s a)
+      · PullbackPr1 (comp_cat_pullback _ _).
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (stable_ext_id_in_comp_cat_univ_code_stable eq s t₁ t₂) <span class="k">as</span> p.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (maponpaths pr1 (!p)).
+    }
+    <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (comp_cat_comp_mor_sub_dfl_comp_cat_univ C s).
+    }
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> subst_comp_cat_tm_pr1.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">stable_ext_id_in_comp_cat_univ_eq</span>
+              {<span class="nv">eq₁</span> <span class="nv">eq₂</span> : stable_ext_id_in_comp_cat_univ}
+              (<span class="nv">p</span> : ∏ (Γ : C)
+                     (a : tm Γ (dfl_full_comp_cat_univ Γ))
+                     (t₁ t₂ : tm Γ (comp_cat_univ_el el a)),
+                   ext_id_in_comp_cat_univ_code eq₁ t₁ t₂
+                   =
+                   ext_id_in_comp_cat_univ_code eq₂ t₁ t₂)
+      : eq₁ = eq₂.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_ext_id_in_comp_cat_univ_is_stable.
+    }
+    use ext_id_in_comp_cat_univ_eq.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">TypesInCompCatUniv</span>.
+
+<span class="kn">Arguments</span> ext_id_in_comp_cat_univ_code {C} eq {Γ a} t₁ t₂.
+<span class="kn">Arguments</span> ext_id_in_comp_cat_univ_z_iso {C} eq {Γ a} t₁ t₂.
+<span class="kn">Arguments</span> ext_id_in_comp_cat_univ_comm {C} eq {Γ a} t₁ t₂.
+<span class="kn">Arguments</span> ext_id_in_comp_cat_univ_z_iso_fiber {C} eq {Γ a} t₁ t₂.
+<span class="kn">Arguments</span> stable_ext_id_in_comp_cat_univ_code_stable {C} eq {Γ Δ} s {a} t₁ t₂.
+<span class="kn">Arguments</span> stable_ext_id_in_comp_cat_univ_code_stable_mor {C} eq {Γ Δ} s {a} t₁ t₂.
+<span class="kn">Arguments</span> ext_id_in_comp_cat_univ_code_on_eq {C} eq {Γ a a'} {t₁ t₂ t₁' t₂'} p q r.
+<span class="kn">Arguments</span> ext_id_in_comp_cat_univ_code_on_eq' {C} eq {Γ a a'} {t₁ t₂ t₁' t₂'} p q r.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Universes/CompCatTypes/Identity.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Stability
+  &gt;
+  &gt;                                                                                            *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Limits.Terminal.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

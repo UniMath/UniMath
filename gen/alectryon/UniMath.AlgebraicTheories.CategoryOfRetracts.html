@@ -1,0 +1,1250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CategoryOfRetracts.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">  The category of retracts of a λ-theory</span>
+
+<span class="sd">  Given a λ-theory L, we can consider the Karoubi envelope of the monoid (L_1, •). This is</span>
+<span class="sd">  equivalent to a category R with R_0 the set of terms in L_0 that are idempotent under (function)</span>
+<span class="sd">  composition, and R(A, B) the set of f: L_0 that are invariant under precomposition with A and</span>
+<span class="sd">  postcomposition with B.</span>
+<span class="sd">  This category has terminal objects, binary products, and it is even cartesian closed. On the other</span>
+<span class="sd">  hand, it is also ill-behaved in some sense, because it has fixpoints for every endomorphism: for</span>
+<span class="sd">  every f: A -&gt; A, there exists a morphism g: I -&gt; A from the terminal object, such that g · f = f.</span>
+<span class="sd">  In this case, g looks very much like the Y-combinator.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The category of retracts [R]</span>
+<span class="sd">  2. The terminal object [R_terminal]</span>
+<span class="sd">  3. Fixpoints [fixpoint_is_fixpoint]</span>
+<span class="sd">  4. Binary products [R_binproducts]</span>
+<span class="sd">  4.1 Some properties of the power objects, defined via binary products</span>
+<span class="sd">  5. Exponential objects [R_exponentials]</span>
+<span class="sd">  6. Every object is a retract of λ x, x [retraction_is_retraction]</span>
+<span class="sd">  7. R is equivalent to the category given by the idempotents of L_1 [R_ob_weq_R']</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Coreflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Tuples.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Vectors.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.LambdaTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.Combinators.
+
+<span class="kn">Require Import</span> <span class="kn">Ltac2</span>.<span class="kn">Ltac2</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> algebraic_theories.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> lambda_calculus.
+
+<span class="sd">(** * 1. The category of retracts *)</span>
+
+<span class="kn">Section</span> <span class="nf">Category</span>.
+
+  <span class="kn">Context</span> (<span class="nv">L</span> : lambda_theory).
+  <span class="kn">Context</span> (<span class="nv">Lβ</span> : has_β L).
+
+  <span class="kn">Context</span> {<span class="nv">n</span> : nat}.
+
+  <span class="kn">Definition</span> <span class="nf">R_ob</span> : UU := ∑ (l : L n), l ∘ l = l.
+  <span class="kn">Coercion</span> <span class="nf">R_ob_to_L</span> (A : R_ob) : L n := pr1 A.
+  <span class="kn">Definition</span> <span class="nf">R_ob_idempotent</span> (<span class="nv">A</span> : R_ob) : A ∘ A = A := pr2 A.
+
+  <span class="kn">Definition</span> <span class="nf">make_R_ob</span>
+    (<span class="nv">l</span> : L n)
+    (<span class="nv">Hl</span> : l ∘ l = l)
+    : R_ob
+    := l ,, Hl.
+
+  <span class="kn">Lemma</span> <span class="nf">R_ob_eq</span>
+    {<span class="nv">A</span> <span class="nv">B</span> : R_ob}
+    (<span class="nv">H</span> : (A : L n) = B)
+    : A = B.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">R_mor</span> (<span class="nv">A</span> <span class="nv">B</span> : R_ob) : UU := ∑ (f : L n), f ∘ A = f × B ∘ f = f.
+  <span class="kn">Coercion</span> <span class="nf">R_mor_to_L</span> {A B : R_ob} (f : R_mor A B) : L n := pr1 f.
+
+  <span class="kn">Definition</span> <span class="nf">R_mor_is_mor_left</span>
+    {<span class="nv">A</span> <span class="nv">B</span> : R_ob}
+    (<span class="nv">f</span> : R_mor A B)
+    : B ∘ f = f
+    := pr22 f.
+
+  <span class="kn">Definition</span> <span class="nf">R_mor_is_mor_right</span>
+    {<span class="nv">A</span> <span class="nv">B</span> : R_ob}
+    (<span class="nv">f</span> : R_mor A B)
+    : f ∘ A = f
+    := pr12 f.
+
+  <span class="kn">Lemma</span> <span class="nf">R_mor_is_mor</span>
+    {<span class="nv">A</span> <span class="nv">B</span> : R_ob}
+    (<span class="nv">f</span> : R_mor A B)
+    : B ∘ f ∘ A = f.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (maponpaths_2 _ (R_mor_is_mor_left f) _ @ R_mor_is_mor_right _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">split_is_R_mor</span>
+    {<span class="nv">A</span> <span class="nv">B</span> : R_ob}
+    (<span class="nv">f</span> : L n)
+    (<span class="nv">Hf</span> : B ∘ f ∘ A = f)
+    : f ∘ A = f × B ∘ f = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">refine</span> '(!maponpaths_2 _ Hf _ @ _).
+      <span class="nb">refine</span> '(!compose_assoc _ Lβ _ _ _ @ _).
+      <span class="nb">refine</span> '(maponpaths _ (R_ob_idempotent _) @ _).
+      <span class="nb">apply</span> Hf.
+    - <span class="nb">refine</span> '(!maponpaths _ Hf @ _).
+      <span class="nb">refine</span> '(compose_assoc _ Lβ _ _ _ @ _).
+      <span class="nb">refine</span> '(maponpaths_2 _ (compose_assoc _ Lβ _ _ _) _ @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ∘ _ ∘ _) (R_ob_idempotent _) @ _).
+      <span class="nb">apply</span> Hf.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_R_mor</span>
+    {<span class="nv">A</span> <span class="nv">B</span> : R_ob}
+    (<span class="nv">f</span> : L n)
+    (<span class="nv">Hright</span> : f ∘ A = f)
+    (<span class="nv">Hleft</span> : B ∘ f = f)
+    : R_mor A B
+    := f ,, Hright ,, Hleft.
+
+  <span class="kn">Definition</span> <span class="nf">make_R_mor'</span>
+    {<span class="nv">A</span> <span class="nv">B</span> : R_ob}
+    (<span class="nv">f</span> : L n)
+    (<span class="nv">Hf</span> : B ∘ f ∘ A = f)
+    : R_mor A B
+    := f ,, split_is_R_mor f Hf.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_R_mor</span>
+    {<span class="nv">A</span> <span class="nv">B</span> : R_ob}
+    (<span class="nv">f</span> : L n)
+    : isaprop (f ∘ A = f × B ∘ f = f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropdirprod;
+      <span class="nb">apply</span> setproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">R_mor_eq</span>
+    {<span class="nv">A</span> <span class="nv">B</span> : R_ob}
+    (<span class="nv">f</span> <span class="nv">g</span> : R_mor A B)
+    (<span class="nv">H</span> : pr1 f = pr1 g)
+    : f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> subtypePath.
+    - <span class="bp">exact</span> isaprop_is_R_mor.
+    - <span class="nb">apply</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">R</span> : category.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> '(make_category _ _).
+    - <span class="nb">refine</span> '(make_precategory _ _).
+      + <span class="nb">refine</span> '(make_precategory_data _ _ _).
+        * <span class="nb">refine</span> '(make_precategory_ob_mor _ _).
+          -- <span class="bp">exact</span> R_ob.
+          -- <span class="bp">exact</span> R_mor.
+        * <span class="nb">refine</span> '(<span class="k">λ</span> (<span class="nv">A</span> : R_ob), _).
+          <span class="nb">apply</span> (make_R_mor' A).
+          <span class="kp">abstract</span> (<span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ∘ _) (R_ob_idempotent A) @ R_ob_idempotent A)).
+        * <span class="nb">refine</span> '(<span class="k">λ</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : R_ob) (<span class="nv">f</span> <span class="nv">g</span> : R_mor _ _), _).
+          <span class="nb">apply</span> (make_R_mor (g ∘ f)).
+          -- <span class="kp">abstract</span> (
+              <span class="nb">refine</span> '(!compose_assoc _ Lβ _ _ _ @ _);
+              <span class="bp">exact</span> (maponpaths _ (R_mor_is_mor_right _))
+            ).
+          -- <span class="kp">abstract</span> (
+              <span class="nb">refine</span> '(compose_assoc _ Lβ _ _ _ @ _);
+              <span class="bp">exact</span> (maponpaths_2 _ (R_mor_is_mor_left _) _)
+            ).
+      + <span class="kp">abstract</span> (
+          <span class="nb">apply</span> make_is_precategory_one_assoc &gt;
+          [ <span class="nb">intros</span> A B f;
+            <span class="nb">apply</span> R_mor_eq;
+            <span class="nb">apply</span> R_mor_is_mor_right
+          | <span class="nb">intros</span> A B f;
+            <span class="nb">apply</span> R_mor_eq;
+            <span class="nb">apply</span> R_mor_is_mor_left
+          | <span class="nb">intros</span> A B C D f g h;
+            <span class="nb">apply</span> R_mor_eq;
+            <span class="nb">symmetry</span>;
+            <span class="bp">exact</span> (compose_assoc _ Lβ _ _ _) ]
+        ).
+    - <span class="kp">abstract</span> (
+        <span class="nb">intros</span> A B;
+        <span class="nb">apply</span> isaset_total2 &gt;
+        [ <span class="nb">apply</span> setproperty
+        | <span class="nb">intro</span> t;
+          <span class="nb">apply</span> isasetaprop;
+          <span class="nb">apply</span> isaprop_is_R_mor ]
+      ).
+  <span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. The terminal object *)</span>
+
+  <span class="kn">Section</span> <span class="nf">Terminal</span>.
+
+    <span class="kn">Context</span> {<span class="nv">c</span> : L n}.
+
+    <span class="kn">Definition</span> <span class="nf">terminal_term</span>
+      : L n
+      := abs (inflate c).
+
+    <span class="kn">Definition</span> <span class="nf">terminal_compose</span>
+      (<span class="nv">t</span> : L n)
+      : terminal_term ∘ t = terminal_term.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app x _))) (inflate_abs _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (beta_equality _ Lβ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (subst_subst _ _ _ _) @ _).
+      <span class="nb">refine</span> '(_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, abs x) (subst_var _ _)).
+      <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, abs x) (subst_inflate _ _ _) @ !_)).
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, abs (c • x))).
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> i.
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inl _ _ _) @ _).
+      <span class="nb">refine</span> '(var_subst _ _ _ @ _).
+      <span class="nb">apply</span> extend_tuple_inl.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">terminal</span>
+      : R_ob
+      := terminal_term ,, terminal_compose _.
+
+    <span class="kn">Section</span> <span class="nf">Arrow</span>.
+
+      <span class="kn">Context</span> (<span class="nv">A</span> : R_ob).
+
+      <span class="kn">Definition</span> <span class="nf">terminal_arrow_term</span>
+        : L n
+        := terminal_term.
+
+      <span class="kn">Lemma</span> <span class="nf">terminal_arrow_is_mor</span>
+        : terminal ∘ terminal_arrow_term ∘ A = terminal_arrow_term.
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> '(!compose_assoc _ Lβ _ _ _ @ _).
+        <span class="nb">apply</span> terminal_compose.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">terminal_arrow</span>
+        : R_mor A terminal
+        := make_R_mor' terminal_arrow_term terminal_arrow_is_mor.
+
+      <span class="kn">Lemma</span> <span class="nf">terminal_arrow_unique</span>
+        (<span class="nv">t</span> : R_mor A terminal)
+        : t = terminal_arrow.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> R_mor_eq.
+        <span class="nb">refine</span> '(!R_mor_is_mor t @ _).
+        <span class="nb">refine</span> '(!compose_assoc _ Lβ _ _ _ @ _).
+        <span class="nb">apply</span> terminal_compose.
+      <span class="kn">Qed</span>.
+
+    <span class="kn">End</span> <span class="nf">Arrow</span>.
+
+    <span class="kn">Definition</span> <span class="nf">R_terminal</span>
+      : Terminal R.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> '(make_Terminal _ _).
+      - <span class="bp">exact</span> terminal.
+      - <span class="nb">refine</span> '(make_isTerminal _ _).
+        <span class="nb">intro</span> A.
+        <span class="nb">refine</span> '(make_iscontr _ _).
+        + <span class="bp">exact</span> (terminal_arrow A).
+        + <span class="nb">apply</span> terminal_arrow_unique.
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">Terminal</span>.
+
+  <span class="kn">Definition</span> <span class="nf">R_chosen_terminal</span>
+    := R_terminal (c := abs (var (stnweq (inr tt))))
+    : Terminal R.
+
+<span class="sd">(** * 3. Fixpoints *)</span>
+
+  <span class="kn">Section</span> <span class="nf">Fixpoints</span>.
+
+    <span class="kn">Context</span> (<span class="nv">B</span> : R_ob).
+    <span class="kn">Context</span> (<span class="nv">f</span> : R_mor B B).
+    <span class="kn">Context</span> {<span class="nv">c</span> : L n}.
+
+    <span class="kn">Definition</span> <span class="nf">fixpoint_term_component</span>
+      : L (S n)
+      := (abs (app
+            (inflate (inflate f))
+            (app
+              (var (stnweq (inr tt)))
+              (var (stnweq (inr tt)))))).
+
+    <span class="kn">Definition</span> <span class="nf">fixpoint_term</span>
+      : L n
+      := abs (app fixpoint_term_component fixpoint_term_component).
+
+    <span class="kn">Lemma</span> <span class="nf">fixpoint_is_fixpoint</span>
+      : f ∘ fixpoint_term = fixpoint_term.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app x _)))) (inflate_abs _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ x))) (beta_equality _ Lβ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ x))) (subst_subst _ _ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ x))) (subst_app _ _ _ _) @ _).
+      <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (beta_equality _ Lβ _ _)).
+      <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (subst_app _ _ _ _)).
+      <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app x _))) (subst_inflate _ _ _))).
+      <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ x))) (subst_app _ _ _ _)).
+      <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app x x)))) (var_subst _ _ _)).
+      <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app x x)))) (extend_tuple_inr _ _ _)).
+      <span class="nb">refine</span> '(
+        maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app x x)))) _ @
+        maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app (_ • x) _))) _
+      ).
+      - <span class="nb">refine</span> '(_ @ subst_var _ fixpoint_term_component).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> i.
+        <span class="nb">rewrite</span> &lt;- (homotweqinvweq stnweq i).
+        <span class="nb">induction</span> (invmap stnweq i) <span class="k">as</span> [i' | i'].
+        + <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inl _ _ _) @ _).
+          <span class="nb">refine</span> '(var_subst _ _ _ @ _).
+          <span class="nb">apply</span> extend_tuple_inl.
+        + <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inr _ _ _) @ _).
+          <span class="nb">refine</span> '(var_subst _ _ _ @ _).
+          <span class="nb">apply</span> extend_tuple_inr.
+      - <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> i.
+        <span class="bp">exact</span> (!extend_tuple_inl _ _ _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">fixpoint_is_mor</span>
+      : B ∘ fixpoint_term ∘ (TerminalObject (R_terminal (c := c)) : R_ob) = fixpoint_term.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ ∘ x ∘ _) (!fixpoint_is_fixpoint) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ∘ _) (compose_assoc _ Lβ _ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ∘ _ ∘ _) (R_mor_is_mor_left _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ∘ _) fixpoint_is_fixpoint @ _).
+      <span class="nb">refine</span> '(compose_abs _ Lβ _ _ @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app x _))) (inflate_abs _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (beta_equality _ Lβ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (subst_subst _ _ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (subst_app _ _ _ _) @ _).
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app x x)))).
+      <span class="nb">refine</span> '(subst_abs _ _ _ @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (subst_app _ _ _ _) @ _).
+      <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app x _))) (subst_inflate _ _ _) @ _)).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ x))) (subst_app _ _ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app x x)))) (var_subst _ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app x x)))) (extend_tuple_inr _ _ _) @ _).
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, abs (app x _))).
+      <span class="nb">refine</span> '(_ @ !subst_subst _ f _ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> i.
+      <span class="nb">refine</span> '(extend_tuple_inl _ _ _ @ _).
+      <span class="nb">refine</span> '(inflate_subst _ _ _ @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inl _ _ _) @ _).
+      <span class="nb">refine</span> '(var_subst _ _ _ @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (inflate x)) (extend_tuple_inl _ _ _) @ _).
+      <span class="nb">refine</span> '(inflate_var _ _ @ _).
+      <span class="nb">symmetry</span>.
+      <span class="nb">apply</span> inflate_var.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">R_fixpoint</span>
+      : R_mor (TerminalObject R_terminal) B
+      := make_R_mor' _ fixpoint_is_mor.
+
+  <span class="kn">End</span> <span class="nf">Fixpoints</span>.
+
+<span class="sd">(** * 4. Binary products *)</span>
+
+  <span class="kn">Section</span> <span class="nf">BinProducts</span>.
+
+    <span class="kn">Context</span> (<span class="nv">A</span> <span class="nv">B</span> : R_ob).
+
+    <span class="kn">Definition</span> <span class="nf">prod_term</span>
+      : L n
+      := pair_arrow
+        (A ∘ π1)
+        (B ∘ π2).
+
+    <span class="kn">Lemma</span> <span class="nf">prod_idempotent</span>
+      : prod_term ∘ prod_term = prod_term.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> '(pair_arrow_compose _ Lβ _ _ _ @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow x _) (!compose_assoc _ Lβ _ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow _ x) (!compose_assoc _ Lβ _ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (pair_arrow (_ ∘ x) _)) ( π1_pair_arrow_alt _ Lβ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (pair_arrow _ (_ ∘ x))) ( π2_pair_arrow_alt _ Lβ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow x _) (compose_assoc _ Lβ _ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow _ x) (compose_assoc _ Lβ _ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow (x ∘ _) _) (R_ob_idempotent A) @ _).
+      <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow _ (x ∘ _)) (R_ob_idempotent B)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">prod</span>
+      : R_ob
+      := prod_term ,, prod_idempotent.
+
+    <span class="kn">Definition</span> <span class="nf">p1_term</span>
+      : L n
+      := A ∘ π1.
+
+    <span class="kn">Lemma</span> <span class="nf">p1_is_mor</span>
+      : A ∘ p1_term ∘ prod = p1_term.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ∘ _) (compose_assoc _ Lβ _ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ∘ _ ∘ _) (R_ob_idempotent _) @ _).
+      <span class="nb">refine</span> '(!compose_assoc _ Lβ _ _ _ @ _).
+      <span class="nb">refine</span> '(maponpaths _ ( π1_pair_arrow_alt _ Lβ _ _ : _ = _ ∘ _) @ _).
+      <span class="nb">refine</span> '(compose_assoc _ Lβ _ _ _ @ _).
+      <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ∘ _) (R_ob_idempotent _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">p1</span>
+      : R_mor prod A
+      := make_R_mor' p1_term p1_is_mor.
+
+    <span class="kn">Definition</span> <span class="nf">p2_term</span>
+      : L n
+      := B ∘ π2.
+
+    <span class="kn">Lemma</span> <span class="nf">p2_is_mor</span>
+      : B ∘ p2_term ∘ prod = p2_term.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ∘ _) (compose_assoc _ Lβ _ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ∘ _ ∘ _) (R_ob_idempotent _) @ _).
+      <span class="nb">refine</span> '(!compose_assoc _ Lβ _ _ _ @ _).
+      <span class="nb">refine</span> '(maponpaths _ ( π2_pair_arrow_alt _ Lβ _ _ : _ = _ ∘ _) @ _).
+      <span class="nb">refine</span> '(compose_assoc _ Lβ _ _ _ @ _).
+      <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ∘ _) (R_ob_idempotent _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">p2</span>
+      : R_mor prod B
+      := make_R_mor' p2_term p2_is_mor.
+
+    <span class="kn">Section</span> <span class="nf">Arrow</span>.
+
+      <span class="kn">Context</span> (<span class="nv">C</span> : R_ob).
+      <span class="kn">Context</span> (<span class="nv">f</span> : R_mor C A).
+      <span class="kn">Context</span> (<span class="nv">g</span> : R_mor C B).
+
+      <span class="kn">Definition</span> <span class="nf">prod_arrow_term</span>
+        : L n
+        := pair_arrow f g.
+
+      <span class="kn">Lemma</span> <span class="nf">prod_arrow_is_mor</span>
+        : prod ∘ prod_arrow_term ∘ C = prod_arrow_term.
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ∘ _) (pair_arrow_compose _ Lβ _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow x _ ∘ _) (!compose_assoc _ Lβ _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow _ x ∘ _) (!compose_assoc _ Lβ _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow (_ ∘ (_ ∘ pair_arrow x _)) _ ∘ _) (!R_mor_is_mor_left _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow _ (_ ∘ (_ ∘ pair_arrow _ x)) ∘ _) (!R_mor_is_mor_left _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow (_ ∘ x) _ ∘ _) ( π1_pair_arrow_alt _ Lβ _ _ : _ = _ ∘ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow _ (_ ∘ x) ∘ _) ( π2_pair_arrow_alt _ Lβ _ _ : _ = _ ∘ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow (_ ∘ x) _ ∘ _) (R_mor_is_mor_left _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow x _ ∘ _) (R_mor_is_mor_left _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow _ (_ ∘ x) ∘ _) (R_mor_is_mor_left _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow _ x ∘ _) (R_mor_is_mor_left _) @ _).
+        <span class="nb">refine</span> '(pair_arrow_compose _ Lβ _ _ _ @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow x _) (R_mor_is_mor_right _) @ _).
+        <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow _ x) (R_mor_is_mor_right _)).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">prod_arrow</span>
+        : R_mor C prod
+        := make_R_mor' prod_arrow_term prod_arrow_is_mor.
+
+      <span class="kn">Definition</span> <span class="nf">p1_commutes</span>
+        : (prod_arrow : R⟦_, _⟧) · p1 = f.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> R_mor_eq.
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ ∘ pair_arrow x _) (!R_mor_is_mor_left _) @ _).
+        <span class="nb">refine</span> '(!compose_assoc _ Lβ _ _ _ @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ ∘ x) ( π1_pair_arrow_alt _ Lβ _ _ : _ = _ ∘ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ ∘ x) (R_mor_is_mor_left _) @ _).
+        <span class="bp">exact</span> (R_mor_is_mor_left _).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">p2_commutes</span>
+        : (prod_arrow : R⟦_, _⟧) · p2 = g.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> R_mor_eq.
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ ∘ pair_arrow _ x) (!R_mor_is_mor_left _) @ _).
+        <span class="nb">refine</span> '(!compose_assoc _ Lβ _ _ _ @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ ∘ x) ( π2_pair_arrow_alt _ Lβ _ _ : _ = _ ∘ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ ∘ x) (R_mor_is_mor_left _) @ _).
+        <span class="bp">exact</span> (R_mor_is_mor_left _).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Lemma</span> <span class="nf">prod_arrow_unique</span>
+        (<span class="nv">a'</span>: R ⟦ C, prod ⟧)
+        (<span class="nv">Ha'</span>: a' · p1 = f × a' · p2 = g)
+        : a' = prod_arrow.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> R_mor_eq.
+        <span class="nb">refine</span> '(!R_mor_is_mor_left a' @ _).
+        <span class="nb">refine</span> '(pair_arrow_compose _ Lβ _ _ _ @ _).
+        <span class="nb">refine</span> '(_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow (R_mor_to_L x) _) (pr1 Ha')).
+        <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow _ (R_mor_to_L x)) (pr2 Ha')).
+      <span class="kn">Qed</span>.
+
+    <span class="kn">End</span> <span class="nf">Arrow</span>.
+
+    <span class="kn">Definition</span> <span class="nf">R_binproduct</span>
+      : BinProduct R A B.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> '(make_BinProduct _ _ _ _ _ _ _).
+      - <span class="bp">exact</span> prod.
+      - <span class="bp">exact</span> p1.
+      - <span class="bp">exact</span> p2.
+      - <span class="nb">refine</span> '(make_isBinProduct _ _ _ _ _ _ _).
+        <span class="nb">intros</span> C f g.
+        <span class="nb">refine</span> '(unique_exists _ _ _ _).
+        + <span class="bp">exact</span> (prod_arrow C f g).
+        + <span class="nb">split</span>.
+          * <span class="nb">apply</span> p1_commutes.
+          * <span class="nb">apply</span> p2_commutes.
+        + <span class="nb">intro</span> a.
+          <span class="nb">apply</span> isapropdirprod;
+            <span class="nb">apply</span> homset_property.
+        + <span class="nb">apply</span> prod_arrow_unique.
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">BinProducts</span>.
+
+  <span class="kn">Definition</span> <span class="nf">R_binproducts</span>
+    : BinProducts R.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> A B.
+    <span class="nb">apply</span> R_binproduct.
+  <span class="kn">Defined</span>.
+
+<span class="sd">(** ** 4.1 Some properties of the power objects, defined via binary products *)</span>
+
+  <span class="kn">Section</span> <span class="nf">BinProductPowers</span>.
+
+    <span class="kn">Context</span> {<span class="nv">m</span> : nat}.
+    <span class="kn">Context</span> (<span class="nv">A</span> : R_ob).
+
+    <span class="kn">Let</span> <span class="nf">P</span> := bin_product_power R A R_chosen_terminal R_binproducts m.
+
+    <span class="kn">Lemma</span> <span class="nf">R_power_projection_is_n_π</span>
+      (<span class="nv">i</span> : stn m)
+      : R_mor_to_L (ProductPr _ _ P i)
+      = A ∘ n_π i.
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> m <span class="k">as</span> [| m' IHm].
+      - <span class="nb">apply</span> fromempty.
+        <span class="nb">apply</span> negstn0.
+        <span class="bp">exact</span> i.
+      - <span class="nb">cbn</span> -[stnweq].
+        <span class="nb">unfold</span> sn_power_projection.
+        <span class="nb">change</span> (invmap (stnweq (n := m'))) <span class="k">with</span> (invmap (stnweq (n := m'))).
+        <span class="nb">change</span> (invmap (weqdnicoprod m' lastelement)) <span class="k">with</span> (invmap (stnweq (n := m'))).
+        <span class="nb">induction</span> (invmap stnweq i) <span class="k">as</span> [i' | i'].
+        + <span class="nb">refine</span> '(compose_assoc _ Lβ _ _ _ @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ∘ _) (R_mor_is_mor_right _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ∘ _) (IHm _) @ _).
+          <span class="bp">exact</span> (!compose_assoc _ Lβ _ _ _).
+        + <span class="bp">reflexivity</span>.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">R_power_arrow_is_n_tuple_arrow</span>
+      (<span class="nv">B</span> : R_ob)
+      (<span class="nv">f</span> : stn m → R_mor B A)
+      : R_mor_to_L (ProductArrow _ _ P f)
+      = n_tuple_arrow f.
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> m <span class="k">as</span> [ | m' IHm].
+      - <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (inflate_abs _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs x))) (var_subst _ _ _) @ _).
+        <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs x))) (extend_tuple_inr _ _ _)).
+      - <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pair_arrow x _) (IHm _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (⟨(app x _), _⟩))) (inflate_abs _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (⟨x, _⟩))) (beta_equality _ Lβ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (⟨x, _⟩))) (subst_subst _ _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (⟨x, _⟩))) (subst_n_tuple _ _ _) @ _).
+        <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, abs ⟨n_tuple x, _ ⟩)).
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> i.
+        <span class="nb">refine</span> '(subst_app _ _ _ _ @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (app x _)) (subst_inflate _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (app _ x)) (var_subst _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (app _ (x • _))) (extend_tuple_inr _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (app _ x)) (var_subst _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (app _ x)) (extend_tuple_inr _ _ _) @ _).
+        <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, app (_ • x) _)).
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> j.
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inl _ _ _) @ _).
+        <span class="nb">refine</span> '(var_subst _ _ _ @ _).
+        <span class="nb">apply</span> extend_tuple_inl.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">R_power_object_is_n_tuple_arrow</span>
+      : R_ob_to_L (ProductObject _ _ P)
+      = n_tuple_arrow (<span class="k">λ</span> (<span class="nv">i</span> : stn m), (R_ob_to_L A) ∘ n_π i).
+    <span class="kn">Proof</span>.
+        <span class="nb">refine</span> '(maponpaths R_mor_to_L (ProductArrowEta _ _ _ P _ (identity _)) @ _).
+        <span class="nb">refine</span> '(R_power_arrow_is_n_tuple_arrow _ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> i.
+        <span class="nb">refine</span> '(maponpaths R_mor_to_L (id_left (C := R) _) @ _).
+        <span class="nb">apply</span> R_power_projection_is_n_π.
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">BinProductPowers</span>.
+
+<span class="sd">(** * 5. Exponential objects *)</span>
+
+  <span class="kn">Section</span> <span class="nf">Exponentials</span>.
+
+    <span class="kn">Section</span> <span class="nf">Object</span>.
+
+      <span class="kn">Definition</span> <span class="nf">exponential_term</span>
+        {<span class="nv">m</span> : nat}
+        (<span class="nv">B</span> <span class="nv">C</span> : L m)
+        : L m
+        := curry (ev C B).
+
+      <span class="kn">Lemma</span> <span class="nf">subst_exponential_term</span>
+        {<span class="nv">m</span> <span class="nv">m'</span> : nat}
+        (<span class="nv">B</span> <span class="nv">C</span> : L m)
+        (<span class="nv">f</span> : stn m → L m')
+        : exponential_term B C • f = exponential_term (B • f) (C • f).
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> '(subst_curry _ _ _ @ _).
+        <span class="bp">exact</span> (maponpaths curry (subst_ev _ _ _ _)).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Lemma</span> <span class="nf">exponential_term_is_compose</span>
+        (<span class="nv">B</span> <span class="nv">C</span> : L n)
+        : exponential_term B C = abs (inflate C ∘ var (stnweq (inr tt)) ∘ inflate B).
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app (inflate x) _)))) (inflate_ev _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app x _)))) (inflate_ev _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs x))) (app_ev_pair _ Lβ _ _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app x _)))) (subst_subst _ _ _ _) @ _).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app x _)))) (inflate_abs _ _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs x))) (beta_equality _ Lβ _ _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs x))) (subst_subst _ _ _ _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs x))) (subst_app _ _ _ _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app x _)))) (subst_inflate _ _ _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ x)))) (subst_app _ _ _ _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app x _)))) (subst_inflate _ _ _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app x _))))) (subst_inflate _ _ _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ x))))) (var_subst _ _ _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app x _))))) (var_subst _ _ _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (x • _)))))) (extend_tuple_inr _ _ _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app (x • _) _))))) (extend_tuple_inl _ _ _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ x))))) (var_subst _ _ _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app x _))))) (var_subst _ _ _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ x))))) (extend_tuple_inr _ _ _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app x _))))) (extend_tuple_inl _ _ _)).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app (_ • x) _)))) _).
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> i.
+        <span class="nb">refine</span> '(var_subst _ _ _ @ _).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inl _ _ _)).
+        <span class="nb">refine</span> '(_ @ !var_subst _ _ _).
+        <span class="bp">exact</span> (!extend_tuple_inl _ _ _).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Context</span> (<span class="nv">B</span> <span class="nv">C</span> : R_ob).
+
+      <span class="kn">Lemma</span> <span class="nf">exponential_idempotent</span>
+        : exponential_term B C ∘ exponential_term B C = exponential_term B C.
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ∘ x) (exponential_term_is_compose _ _) @ _).
+        <span class="nb">refine</span> '(_ @ !exponential_term_is_compose _ _).
+        <span class="nb">refine</span> '(compose_abs _ Lβ _ _ @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app x _))) (inflate_abs _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (beta_equality _ Lβ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (subst_subst _ _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (subst_compose _ _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (x ∘ _))) (subst_compose _ _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (_ ∘ x))) (subst_inflate _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((x ∘ _) ∘ _))) (subst_inflate _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ x) ∘ _))) (var_subst _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ (x • _)) ∘ _))) (extend_tuple_inr _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ x) ∘ _))) (var_subst _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ x) ∘ _))) (extend_tuple_inr _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (x ∘ _))) (compose_assoc _ Lβ _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((x ∘ _) ∘ _))) (compose_assoc _ Lβ _ _ _) @ _).
+        <span class="nb">refine</span> '(_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((inflate x ∘ _) ∘ _))) (R_ob_idempotent _)).
+        <span class="nb">refine</span> '(_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (_ ∘ inflate x))) (R_ob_idempotent _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((x ∘ _) ∘ _))) (inflate_compose _ _ _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (_ ∘ x))) (inflate_compose _ _ _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (compose_assoc _ Lβ _ _ _)).
+        <span class="nb">refine</span> '(
+          maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (_ • x ∘ _ ∘ _ ∘ _ ∘ _))) _ @
+          maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (_ ∘ _ • x))) _
+        );
+          <span class="nb">apply</span> funextfun;
+          <span class="nb">intro</span> i;
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x • _) (extend_tuple_inl _ _ _) @ _);
+          <span class="nb">refine</span> '(var_subst _ _ _ @ _);
+          <span class="nb">apply</span> extend_tuple_inl.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">exponential_ob</span>
+        : R_ob
+        := exponential_term B C ,, exponential_idempotent.
+
+      <span class="kn">Definition</span> <span class="nf">eval_term</span>
+        : L n
+        := ev C B.
+
+      <span class="kn">Lemma</span> <span class="nf">eval_is_mor</span>
+        : C ∘ eval_term ∘ prod exponential_ob B = eval_term.
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ ∘ pair_arrow (x ∘ _) _) (exponential_term_is_compose _ _) @ _).
+        <span class="nb">refine</span> '(!compose_assoc _ Lβ _ _ _ @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (_ ∘ x)) (ev_compose_pair_arrow _ Lβ _ _ _ _) @ _).
+        <span class="nb">refine</span> '(compose_abs _ Lβ _ _ @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app (app x _) _))))) (inflate_compose _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app _ (app _ (app x _))))))) (inflate_compose _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app (app (x ∘ _) _) _))))) (inflate_abs _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app (app (_ ∘ x) _) _))))) (inflate_π1 _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app (app x _) _))))) (abs_compose _ Lβ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app x _))))) (beta_equality _ Lβ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app _ (app _ (app (_ ∘ x) _))))))) (inflate_π2 _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app x _))))) (subst_subst _ _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app x _))))) (subst_subst _ _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app x _))))) (subst_compose _ _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app (x ∘ _) _))))) (subst_compose _ _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app (_ ∘ x) _))))) (subst_inflate _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app ((x ∘ _) ∘ _) _))))) (subst_inflate _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app ((_ ∘ x) ∘ _) _))))) (var_subst _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app ((_ ∘ (x • _)) ∘ _) _))))) (extend_tuple_inr _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app ((_ ∘ x) ∘ _) _))))) (var_subst _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app ((_ ∘ (x • _)) ∘ _) _))))) (extend_tuple_inr _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app ((_ ∘ x) ∘ _) _))))) (subst_app _ _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app ((_ ∘ (app x _)) ∘ _) _))))) (subst_inflate _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app ((_ ∘ (app _ x)) ∘ _) _))))) (var_subst _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app ((_ ∘ (app x _)) ∘ _) _))))) (subst_π1 _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app ((_ ∘ (app _ x)) ∘ _) _))))) (extend_tuple_inr _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ x)))) (app_compose _ Lβ _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ x)))) (app_compose _ Lβ _ _ _) @ _).
+        <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app _ (app _ (app _ (app _ x)))))))) (app_compose _ Lβ _ _ _) @ _).
+        <span class="nb">refine</span> '(_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app (inflate x) _))) (R_ob_idempotent _)).
+        <span class="nb">refine</span> '(_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app (inflate (x ∘ _)) _))) (R_ob_idempotent _)).
+        <span class="nb">refine</span> '(_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app (inflate x) _))))) (R_ob_idempotent _)).
+        <span class="nb">refine</span> '(_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app (inflate (x ∘ _)) _))))) (R_ob_idempotent _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app x _))) (inflate_compose _ _ _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app x _))))) (inflate_compose _ _ _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app (x ∘ _) _))) (inflate_compose _ _ _)).
+        <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app (x ∘ _) _))))) (inflate_compose _ _ _)).
+        <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (app_compose _ Lβ _ _ _))).
+        <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app _ (app _ x)))))) (app_compose _ Lβ _ _ _))).
+        <span class="nb">refine</span> '(
+          maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app (_ • x) _))))) _ @
+          maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app _ (app _ (app (_ • x) _))))))) _
+        );
+          <span class="nb">apply</span> funextfun;
+          <span class="nb">intro</span> i;
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x • _) (extend_tuple_inl _ _ _) @ _);
+          <span class="nb">refine</span> '(var_subst _ _ _ @ _);
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inl _ _ _) @ _);
+          <span class="nb">refine</span> '(var_subst _ _ _ @ _);
+          <span class="nb">apply</span> extend_tuple_inl.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">eval_mor</span>
+        : R_mor (prod exponential_ob B) C
+        := make_R_mor' eval_term eval_is_mor.
+
+      <span class="kn">Section</span> <span class="nf">Lambda</span>.
+
+        <span class="kn">Context</span> (<span class="nv">A</span> : R_ob).
+        <span class="kn">Context</span> (<span class="nv">h</span> : R_mor (prod A B) C).
+
+        <span class="kn">Definition</span> <span class="nf">lifted_term</span>
+          : L n
+          := curry h.
+
+        <span class="kn">Lemma</span> <span class="nf">lifted_is_mor</span>
+          : exponential_ob ∘ lifted_term ∘ A = lifted_term.
+        <span class="kn">Proof</span>.
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ∘ _ ∘ _) (exponential_term_is_compose _ _) @ _).
+          <span class="nb">refine</span> '(abs_compose _ Lβ _ _ @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (subst_app _ _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app x _))) (subst_inflate _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ x))) (subst_app _ _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app x _))) (subst_abs _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app x _)))) (subst_inflate _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ x)))) (var_subst _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (beta_equality _ Lβ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (subst_subst _ _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (subst_compose _ _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (x ∘ _))) (subst_compose _ _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (_ ∘ x))) (subst_inflate _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((x ∘ _) ∘ _))) (subst_inflate _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ x) ∘ _))) (var_subst _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ (x • _)) ∘ _))) (extend_tuple_inr _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ x) ∘ _))) (var_subst _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ x) ∘ _))) (extend_tuple_inr _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ (app x _)) ∘ _))) (subst_abs _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ (app _ x)) ∘ _))) (extend_tuple_inr _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ x) ∘ _))) (beta_equality _ Lβ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ x) ∘ _))) (subst_subst _ _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ x) ∘ _))) (subst_abs _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ (abs x)) ∘ _))) (subst_app _ _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ (abs (app x _))) ∘ _))) (subst_inflate _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ (abs (app _ x))) ∘ _))) (subst_pair _ _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ (abs (app x _))) ∘ _))) (subst_inflate _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ (abs (app _ (⟨x, _⟩)))) ∘ _))) (var_subst _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ (abs (app _ (⟨_, x⟩)))) ∘ _))) (var_subst _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ (abs (app _ (⟨x, _⟩)))) ∘ _))) (extend_tuple_inl _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ (abs (app _ (⟨_, x⟩)))) ∘ _))) (extend_tuple_inr _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ (abs (app _ (⟨(inflate (x • _)), _⟩)))) ∘ _))) (extend_tuple_inr _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ (abs (app _ (⟨x, _⟩)))) ∘ _))) (inflate_subst _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ (abs (app _ (⟨x, _⟩)))) ∘ _))) (var_subst _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ (abs (app _ (⟨(inflate x), _⟩)))) ∘ _))) (extend_tuple_inr _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ (abs (app _ (⟨x, _⟩)))) ∘ _))) (inflate_app _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs ((_ ∘ (abs (app _ (⟨(app _ x), _⟩)))) ∘ _))) (inflate_var _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (x ∘ _))) (compose_abs _ Lβ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (abs_compose _ Lβ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs x))) (subst_app _ _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app x _)))) (subst_inflate _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ x)))) (subst_app _ _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app x _)))) (subst_subst _ _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app x _))))) (subst_subst _ _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ x))))) (subst_pair _ _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (⟨x, _⟩)))))) (subst_app _ _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (⟨_, x⟩)))))) (var_subst _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (⟨(app x _), _⟩)))))) (subst_inflate _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (⟨(app _ x), _⟩)))))) (var_subst _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (⟨_, x⟩)))))) (extend_tuple_inr _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (⟨(app x _), _⟩)))))) (subst_inflate _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (⟨(app _ x), _⟩)))))) (extend_tuple_inl _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (⟨_, (app x _)⟩)))))) (inflate_subst _ _ _) @ _).
+          <span class="nb">refine</span> '(_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, abs (abs (app (inflate (inflate x)) _))) (R_mor_is_mor _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app (inflate x) _)))) (inflate_compose _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app x _)))) (inflate_compose _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app ((inflate x) ∘ _) _)))) (inflate_compose _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app (_ ∘ (inflate x)) _)))) (inflate_pair_arrow _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app (x ∘ _) _)))) (inflate_compose _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app (_ ∘ x) _)))) (inflate_pair_arrow _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app (_ ∘ (pair_arrow (inflate x) _)) _)))) (inflate_compose _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app (_ ∘ (pair_arrow _ (inflate x))) _)))) (inflate_compose _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app (_ ∘ (pair_arrow x _)) _)))) (inflate_compose _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app (_ ∘ (pair_arrow _ x)) _)))) (inflate_compose _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app (_ ∘ (pair_arrow (_ ∘ (inflate x)) _)) _)))) (inflate_π1 _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app (_ ∘ (pair_arrow _ (_ ∘ (inflate x)))) _)))) (inflate_π2 _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app (_ ∘ (pair_arrow (_ ∘ x) _)) _)))) (inflate_π1 _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app (_ ∘ (pair_arrow _ (_ ∘ x))) _)))) (inflate_π2 _)).
+          <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs x))) (app_compose _ Lβ _ _ _))).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ x))))) (app_pair_arrow _ Lβ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (⟨x, _⟩)))))) (app_compose _ Lβ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (⟨_, x⟩)))))) (app_compose _ Lβ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (⟨(app _ x), _⟩)))))) (π1_pair _ Lβ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (⟨_, (app _ x)⟩)))))) (π2_pair _ Lβ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app x _)))) (subst_subst _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app x _))))) (subst_subst _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (⟨(app x _), _⟩)))))) (subst_subst _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (⟨_, (app x _)⟩)))))) (subst_subst _ _ _ _)).
+          <span class="nb">refine</span> '(
+            maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app (_ • x) _)))) _ @
+            maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app (_ • x) _))))) _ @
+            maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (⟨(app (_ • x) _), _⟩)))))) _ @
+            maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (⟨_, (app (_ • x) _)⟩)))))) _
+          );
+            <span class="nb">apply</span> funextfun;
+            <span class="nb">intro</span> i.
+          - <span class="nb">refine</span> '(subst_subst _ (extend_tuple _ _ _) _ _ @ _).
+            <span class="nb">refine</span> '(_ @ !var_subst _ _ _).
+            <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inl _ _ _) @ _).
+            <span class="nb">refine</span> '(subst_inflate _ _ _ @ _).
+            <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inl _ _ _) @ _).
+            <span class="nb">refine</span> '(var_subst _ _ _ @ _).
+            <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inl _ _ _) @ _).
+            <span class="nb">refine</span> '(var_subst _ _ _ @ _).
+            <span class="bp">exact</span> (extend_tuple_inl _ _ _).
+          - <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inl _ _ _) @ _).
+            <span class="nb">refine</span> '(_ @ !var_subst _ _ _).
+            <span class="nb">refine</span> '(subst_inflate _ _ _ @ _).
+            <span class="nb">refine</span> '(subst_subst _ (extend_tuple _ _ _) _ _ @ _).
+            <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inl _ _ _) @ _).
+            <span class="nb">refine</span> '(subst_inflate _ _ _ @ _).
+            <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inl _ _ _) @ _).
+            <span class="nb">refine</span> '(var_subst _ _ _ @ _).
+            <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inl _ _ _) @ _).
+            <span class="nb">refine</span> '(var_subst _ _ _ @ _).
+            <span class="bp">exact</span> (extend_tuple_inl _ _ _).
+          - <span class="nb">refine</span> '(extend_tuple_inl _ _ _ @ _).
+            <span class="bp">exact</span> (!var_subst _ _ _).
+          - <span class="nb">refine</span> '(inflate_subst _ _ _ @ _).
+            <span class="nb">refine</span> '(_ @ !var_subst _ _ _).
+              <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inl _ _ _) @ _).
+            <span class="nb">refine</span> '(subst_inflate _ _ _ @ _).
+            <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inl _ _ _) @ _).
+            <span class="nb">refine</span> '(var_subst _ _ _ @ _).
+            <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (inflate x)) (extend_tuple_inl _ _ _) @ _).
+            <span class="nb">apply</span> inflate_var.
+        <span class="kn">Qed</span>.
+
+        <span class="kn">Definition</span> <span class="nf">lifted_mor</span>
+          : R_mor A exponential_ob
+          := make_R_mor' lifted_term lifted_is_mor.
+
+        <span class="kn">Lemma</span> <span class="nf">lifted_mor_commutes</span>
+          : h = # (constprod_functor2 R_binproducts B) lifted_mor · eval_mor.
+        <span class="kn">Proof</span>.
+          <span class="nb">apply</span> R_mor_eq.
+          <span class="nb">refine</span> '(!R_mor_is_mor h @ _).
+          <span class="nb">refine</span> '(compose_abs _ Lβ _ _ @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app x _))) (inflate_compose _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (⟨(app x _), _⟩)))) (inflate_compose _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (⟨_, (app x _)⟩)))) (inflate_compose _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (⟨(app (_ ∘ x) _), _⟩)))) (inflate_π1 _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (⟨_, (app (_ ∘ x) _)⟩)))) (inflate_π2 _) @ _).
+          <span class="nb">refine</span> '(!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (⟨(app (inflate x ∘ _) _), _⟩)))) (R_ob_idempotent _) @ _).
+          <span class="nb">refine</span> '(!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (⟨(app (inflate (x ∘ _) ∘ _) _), _⟩)))) (R_ob_idempotent _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (⟨(app (x ∘ _) _), _⟩)))) (inflate_compose _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (⟨(app ((x ∘ _) ∘ _) _), _⟩)))) (inflate_compose _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (app_compose _ Lβ _ _ _) @ _).
+          <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨x, _⟩))))) (app_compose _ Lβ _ _ _) @ _)).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨_, x⟩))))) (app_compose _ Lβ _ _ _) @ _).
+          <span class="nb">refine</span> '(_ @ !ev_compose_pair_arrow _ Lβ _ _ _ _).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app (app (inflate x) _) _)))) (curry_compose _ Lβ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app (app x _) _)))) (inflate_abs _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app _ (app x _)))))) (inflate_compose _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app x _)))) (beta_equality _ Lβ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app _ (app (_ ∘ x) _)))))) (inflate_compose _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app x _)))) (subst_subst _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (app _ (app (_ ∘ (_ ∘ x)) _)))))) (inflate_π2 _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app x _)))) (subst_abs _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ x))) (beta_equality _ Lβ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ x))) (subst_subst _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ x))) (subst_app _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app x _)))) (subst_inflate _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ x)))) (subst_pair _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app x _)))) (subst_inflate _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨x, _⟩))))) (subst_inflate _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨_, x⟩))))) (var_subst _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨x, _⟩))))) (subst_app _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨_, (x • _)⟩))))) (extend_tuple_inr _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨(app x _), _⟩))))) (subst_inflate _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨(app _ x), _⟩))))) (subst_app _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨_, x⟩))))) (var_subst _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨(app _ (app x _)), _⟩))))) (subst_inflate _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨(app _ (app _ x)), _⟩))))) (var_subst _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨_, x⟩))))) (extend_tuple_inr _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨(app _ (app x _)), _⟩))))) (subst_π1 _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨(app _ (app _ (x • _))), _⟩))))) (extend_tuple_inl _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨(app _ (app _ x)), _⟩))))) (subst_inflate _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨(app _ (app _ ((x • _) • _))), _⟩))))) (extend_tuple_inr _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨(app _ (app _ x)), _⟩))))) (subst_subst _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨(app _ (app _ x)), _⟩))))) (var_subst _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨(app _ (app _ (x • _))), _⟩))))) (extend_tuple_inr _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨(app _ (app _ x)), _⟩))))) (var_subst _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨(app _ (app _ x)), _⟩))))) (extend_tuple_inl _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨_, (app _ x)⟩))))) (app_compose _ Lβ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨_, (app _ (app _ x))⟩))))) (app_compose _ Lβ _ _ _)).
+          <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">refine</span> '(!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨x, _⟩))))) (app_compose _ Lβ _ _ _) @ _)).
+          <span class="nb">refine</span> '(!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨(app (x ∘ _) _), _⟩))))) (inflate_compose _ _ _) @ _).
+          <span class="nb">refine</span> '(!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨(app x _), _⟩))))) (inflate_compose _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨(app (inflate (x ∘ _)) _), _⟩))))) (R_ob_idempotent _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨(app (inflate x) _), _⟩))))) (R_ob_idempotent _) @ _).
+          <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">refine</span> '(_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨_, x⟩))))) (app_compose _ Lβ _ _ _))).
+          <span class="nb">refine</span> '(_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨_, (app (x ∘ _) _)⟩))))) (inflate_compose _ _ _)).
+          <span class="nb">refine</span> '(_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨_, (app x _)⟩))))) (inflate_compose _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨_, (app (inflate (x ∘ _)) _)⟩))))) (R_ob_idempotent _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨_, (app (inflate x) _)⟩))))) (R_ob_idempotent _)).
+          <span class="nb">refine</span> '(
+            maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app (_ • x) _)))) _ @
+            maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app _ (app _ (⟨(app (_ • x) _), _⟩))))) _
+          );
+            <span class="nb">apply</span> funextfun;
+            <span class="nb">intro</span> i;
+            <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inl _ _ _));
+            <span class="nb">refine</span> '(_ @ !subst_inflate _ _ _);
+            <span class="nb">refine</span> '(_ @ !subst_subst L (extend_tuple _ _ _) _ _);
+            <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inl _ _ _));
+            <span class="nb">refine</span> '(_ @ !var_subst _ _ _);
+            <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inl _ _ _));
+            <span class="nb">refine</span> '(_ @ !var_subst _ _ _);
+            <span class="bp">exact</span> (!extend_tuple_inl _ _ _).
+        <span class="kn">Qed</span>.
+
+        <span class="kn">Lemma</span> <span class="nf">lifted_mor_unique</span>
+          (<span class="nv">lifted_mor'</span> : R_mor A (exponential_ob))
+          (<span class="nv">H</span> : h = # (constprod_functor2 R_binproducts B) lifted_mor' · eval_mor)
+          : lifted_mor' = lifted_mor.
+        <span class="kn">Proof</span>.
+          <span class="nb">apply</span> R_mor_eq.
+          <span class="nb">refine</span> '(!R_mor_is_mor _ @ _).
+          <span class="nb">refine</span> '(!compose_assoc _ Lβ _ _ _ @ _).
+          <span class="nb">refine</span> '(curry_compose _ Lβ _ _ @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app (inflate x) _)))) (inflate_ev _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app x _)))) (inflate_ev _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (⟨x, _⟩))))) (inflate_app _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (⟨(app _ x), _⟩))))) (inflate_app _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (⟨(app _ (app _ x)), _⟩))))) (inflate_var _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs x))) (app_ev_pair _ Lβ _ _ _ _) @ _).
+          <span class="nb">refine</span> '(!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app (inflate (inflate x)) _)))))) (R_ob_idempotent _) @ _).
+          <span class="nb">refine</span> '(!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app (inflate (inflate (x ∘ _))) _)))))) (R_ob_idempotent _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app (inflate x) _)))))) (inflate_compose _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app x _)))))) (inflate_compose _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app ((inflate x) ∘ _) _)))))) (inflate_compose _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app (x ∘ _) _)))))) (inflate_compose _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ x))))) (app_compose _ Lβ _ _ _) @ _).
+          <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ x))))) (app_compose _ Lβ _ _ _) @ _).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, curry (R_mor_to_L x)) H).
+          <span class="nb">refine</span> '(_ @ !maponpaths curry (ev_compose_pair_arrow _ Lβ _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app (inflate x) _)))) (inflate_abs _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app x _)))) (inflate_abs _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs x))) (beta_equality _ Lβ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs x))) (subst_subst _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs x))) (subst_subst _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs x))) (subst_app _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app x _)))) (subst_inflate _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ x)))) (subst_app _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app x _))))) (subst_app _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ x))))) (subst_app _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app (app x _) _))))) (subst_inflate _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app (app _ x) _))))) (var_subst _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app x _)))))) (subst_inflate _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app _ x)))))) (subst_app _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app (app x _) _))))) (subst_compose _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app (app _ (x • _)) _))))) (extend_tuple_inr _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app _ (app x _))))))) (subst_inflate _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app _ (app _ x))))))) (var_subst _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app (app _ x) _))))) (var_subst _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app _ (app x _))))))) (subst_compose _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app _ (app _ (x • _)))))))) (extend_tuple_inr _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app (app _ (x • _)) _))))) (extend_tuple_inr _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app _ (app _ x))))))) (var_subst _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app (app _ x) _))))) (var_subst _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app _ (app _ (x • _)))))))) (extend_tuple_inr _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app (app _ x) _))))) (extend_tuple_inr _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app _ (app _ x))))))) (var_subst _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app _ (app _ x))))))) (extend_tuple_inr _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app (app (_ ∘ x) _) _))))) (subst_compose _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app _ (app (_ ∘ x) _))))))) (subst_compose _ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app (app (_ ∘ (_ ∘ x)) _) _))))) (subst_π1 _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app _ (app (_ ∘ (_ ∘ x)) _))))))) (subst_π2 _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app x _))))) (app_compose _ Lβ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app (app _ x) _))))) (app_compose _ Lβ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app _ x)))))) (app_compose _ Lβ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app _ (app _ x))))))) (app_compose _ Lβ _ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app (app _ (app _ x)) _))))) ( π1_pair _ Lβ _ _)).
+          <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app _ (app _ (app _ x)))))))) ( π2_pair _ Lβ _ _)).
+          <span class="nb">refine</span> '(
+            maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app x _)))) _ @
+            maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app (app x _) _))))) _ @
+            maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app (app _ (app x _)) _))))) _ @
+            maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app x _)))))) _ @
+            maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app _ (app x _))))))) _  @
+            maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (abs (app _ (app _ (app _ (app _ (app x _)))))))) _
+          );
+            <span class="nb">refine</span> '((subst_subst _ _ _ _ : inflate (inflate _) = _) @ _);
+            <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ • x) _);
+            <span class="nb">apply</span> funextfun;
+            <span class="nb">intro</span> i;
+            <span class="nb">refine</span> '(var_subst _ _ _ @ _);
+            <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x • _) (extend_tuple_inl _ _ _));
+            <span class="nb">refine</span> '(_ @ !var_subst _ _ _);
+            <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x • _) (extend_tuple_inl _ _ _));
+            <span class="nb">refine</span> '(_ @ !var_subst _ _ _);
+            <span class="bp">exact</span> (!extend_tuple_inl _ _ _).
+        <span class="kn">Qed</span>.
+
+      <span class="kn">End</span> <span class="nf">Lambda</span>.
+
+    <span class="kn">End</span> <span class="nf">Object</span>.
+
+    <span class="kn">Definition</span> <span class="nf">R_exponential_coreflection</span>
+      (<span class="nv">B</span> <span class="nv">C</span> : R)
+      : coreflection C (constprod_functor2 R_binproducts B).
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> '(make_coreflection' _ _ _).
+      - <span class="bp">exact</span> (exponential_ob B C).
+      - <span class="bp">exact</span> (eval_mor B C).
+      - <span class="nb">intro</span> h.
+        <span class="nb">refine</span> '(make_coreflection_arrow _ _ _).
+        + <span class="nb">apply</span> lifted_mor.
+          <span class="bp">exact</span> (h : _ --&gt; _).
+        + <span class="bp">exact</span> (lifted_mor_commutes _ _ _ _).
+        + <span class="nb">apply</span> lifted_mor_unique.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">R_exponentials</span>
+      : Exponentials R_binproducts.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> B.
+      <span class="nb">apply</span> is_exponentiable'_to_is_exponentiable.
+      <span class="nb">apply</span> coreflections_to_is_left_adjoint.
+      <span class="nb">apply</span> R_exponential_coreflection.
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">Exponentials</span>.
+
+<span class="sd">(** * 6. Every object is a retract of λ x, x *)</span>
+
+  <span class="kn">Section</span> <span class="nf">Retractions</span>.
+
+    <span class="kn">Definition</span> <span class="nf">U_term</span>
+      {<span class="nv">m</span> : nat}
+      : L m
+      := abs (var (stnweq (inr tt))).
+
+    <span class="kn">Lemma</span> <span class="nf">subst_U_term</span>
+      {<span class="nv">m</span> <span class="nv">m'</span> : nat}
+      (<span class="nv">f</span> : stn m → L m')
+      : U_term • f = U_term.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> '(subst_abs _ _ _ @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (var_subst _ _ _) @ _).
+      <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (extend_tuple_inr _ _ _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">inflate_U_term</span>
+      {<span class="nv">m</span> : nat}
+      : inflate (U_term (m := m)) = U_term
+      := subst_U_term _.
+
+    <span class="kn">Lemma</span> <span class="nf">app_U</span>
+      {<span class="nv">m</span> : nat}
+      (<span class="nv">f</span> : L m)
+      : app U_term f = f.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> '(beta_equality _ Lβ _ _ @ _).
+      <span class="nb">refine</span> '(var_subst _ _ _ @ _).
+      <span class="nb">apply</span> extend_tuple_inr.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">U_compose</span>
+      (<span class="nv">t</span> : L (S n))
+      : U_term ∘ (abs t) = abs t.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> '(compose_abs _ Lβ _ _ @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app x _))) (inflate_abs _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (beta_equality _ Lβ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (subst_subst _ _ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (var_subst _ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (x • _))) (extend_tuple_inr _ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (var_subst _ _ _) @ _).
+      <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (extend_tuple_inr _ _ _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">compose_U</span>
+      (<span class="nv">t</span> : L (S n))
+      : (abs t) ∘ U_term = abs t.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> '(compose_abs _ Lβ _ _ @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs (app x _))) (inflate_abs _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (beta_equality _ Lβ _ _) @ _).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (abs x)) (subst_subst _ _ _ _) @ _).
+      <span class="nb">refine</span> '(_ @ maponpaths abs (subst_var L t)).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, abs (_ • x)) _).
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> i.
+      <span class="nb">rewrite</span> &lt;- (homotweqinvweq stnweq i).
+      <span class="nb">induction</span> (invmap stnweq i) <span class="k">as</span> [i' | i'].
+      - <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inl _ _ _) @ _).
+        <span class="nb">refine</span> '(var_subst _ _ _ @ _).
+        <span class="bp">exact</span> (extend_tuple_inl _ _ _).
+      - <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x • _)) (extend_tuple_inr _ _ _) @ _).
+        <span class="nb">refine</span> '(var_subst _ _ _ @ _).
+        <span class="bp">exact</span> (extend_tuple_inr _ _ _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">U</span>
+      : R_ob
+      := U_term ,, U_compose _.
+
+    <span class="kn">Context</span> (<span class="nv">A</span> : R_ob).
+
+    <span class="kn">Lemma</span> <span class="nf">R_retraction_is_mor</span>
+      : A ∘ A ∘ U = A.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (compose_U _ @ R_ob_idempotent _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">R_retraction</span>
+      : R_mor U A
+      := make_R_mor' A R_retraction_is_mor.
+
+    <span class="kn">Lemma</span> <span class="nf">R_section_is_mor</span>
+      : U ∘ A ∘ A = A.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (!compose_assoc _ Lβ _ _ _ @ U_compose _ @ R_ob_idempotent _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">R_section</span>
+      : R_mor A U
+      := make_R_mor' A R_section_is_mor.
+
+    <span class="kn">Lemma</span> <span class="nf">R_retraction_is_retraction</span>
+      : is_retraction (C := R) R_section R_retraction.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> R_mor_eq.
+      <span class="nb">apply</span> R_ob_idempotent.
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">Retractions</span>.
+
+<span class="kn">End</span> <span class="nf">Category</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/CategoryOfRetracts.v</tt>, line 25)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   7. R is equivalent to the category given by the idempotents of L_1 [R_ob_weq_R']
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

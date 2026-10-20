@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>OpCellBicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** op2 bicategory.</span>
+
+<span class="sd">    Bicategory obtained by formally reversing 2-cells.</span>
+
+<span class="sd">    Benedikt Ahrens, Marco Maggesi</span>
+<span class="sd">    February 2018                                                                      *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">OpCell</span>.
+  <span class="kn">Context</span> (<span class="nv">B</span> : bicat).
+
+  <span class="kn">Definition</span> <span class="nf">op2_prebicat_data</span>
+    : prebicat_data.
+  <span class="kn">Proof</span>.
+    use build_prebicat_data.
+    - <span class="bp">exact</span> B.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, x --&gt; y).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span>, g ==&gt; f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, id₁ _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span>, f · g).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, id₂ _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">α</span> <span class="nv">β</span>, β • α).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">α</span>, f ◃ α).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">f</span> <span class="nv">α</span>, α ▹ f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, linvunitor f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, lunitor f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, rinvunitor f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, runitor f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>, rassociator f g h).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>, lassociator f g h).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">op2_prebicat_laws</span> : prebicat_laws op2_prebicat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>; <span class="nb">cbn</span>.
+    - <span class="nb">apply</span> id2_right.
+    - <span class="nb">apply</span> id2_left.
+    - <span class="nb">apply</span> (!vassocr _ _ _ ).
+    - <span class="nb">apply</span> lwhisker_id2.
+    - <span class="nb">apply</span> id2_rwhisker.
+    - <span class="nb">apply</span> lwhisker_vcomp.
+    - <span class="nb">apply</span> rwhisker_vcomp.
+    - use lhs_left_invert_cell; [ <span class="nb">apply</span> is_invertible_2cell_linvunitor |].
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. { <span class="nb">apply</span> vassocr. }
+      use lhs_right_invert_cell; [ <span class="nb">apply</span> is_invertible_2cell_linvunitor |].
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> vcomp_lunitor.
+    - use lhs_left_invert_cell; [ <span class="nb">apply</span> is_invertible_2cell_rinvunitor |].
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. { <span class="nb">apply</span> vassocr. }
+      use lhs_right_invert_cell; [ <span class="nb">apply</span> is_invertible_2cell_rinvunitor |].
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> vcomp_runitor.
+    - <span class="nb">apply</span> lassociator_to_rassociator_pre.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. { <span class="nb">apply</span> (vassocr _ _ _ ). }
+      <span class="nb">apply</span> lassociator_to_rassociator_post.
+      <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> lwhisker_lwhisker.
+    - <span class="nb">apply</span> lassociator_to_rassociator_pre.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. { <span class="nb">apply</span> (vassocr _ _ _ ). }
+      <span class="nb">apply</span> lassociator_to_rassociator_post.
+      <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> rwhisker_lwhisker.
+    - <span class="nb">apply</span> pathsinv0, lassociator_to_rassociator_pre.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. { <span class="nb">apply</span> (vassocr _ _ _ ). }
+      <span class="nb">apply</span> lassociator_to_rassociator_post.
+      <span class="nb">apply</span> rwhisker_rwhisker.
+    - <span class="nb">apply</span> (!vcomp_whisker _ _  ).
+    - <span class="nb">apply</span> lunitor_linvunitor.
+    - <span class="nb">apply</span> linvunitor_lunitor.
+    - <span class="nb">apply</span> runitor_rinvunitor.
+    - <span class="nb">apply</span> rinvunitor_runitor.
+    - <span class="nb">apply</span> lassociator_rassociator.
+    - <span class="nb">apply</span> rassociator_lassociator.
+    - use lhs_left_invert_cell.
+      { use is_invertible_2cell_rwhisker.
+        <span class="nb">apply</span> is_invertible_2cell_rinvunitor.
+      } <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pathsinv0.
+      use lhs_right_invert_cell.
+      { use is_invertible_2cell_lwhisker.
+        <span class="nb">apply</span> is_invertible_2cell_linvunitor.
+      } <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> lassociator_to_rassociator_pre.
+      <span class="nb">apply</span> pathsinv0, runitor_rwhisker.
+    - use lhs_left_invert_cell.
+      { use is_invertible_2cell_rwhisker.
+        <span class="nb">apply</span> is_invertible_2cell_rassociator.
+      } <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. { <span class="nb">apply</span> vassocr. }
+      use lhs_right_invert_cell.
+      { <span class="nb">apply</span> is_invertible_2cell_rassociator.
+      } <span class="nb">cbn</span>.
+      use lhs_right_invert_cell.
+      { <span class="nb">apply</span> is_invertible_2cell_rassociator.
+      } <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- vassocr.
+      use lhs_left_invert_cell.
+      { <span class="nb">apply</span> is_invertible_2cell_rassociator.
+      } <span class="nb">cbn</span>.
+      use lhs_left_invert_cell.
+      { <span class="nb">apply</span> is_invertible_2cell_lwhisker.
+        <span class="nb">apply</span> is_invertible_2cell_rassociator.
+      } <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">rewrite</span> vassocr.
+      <span class="nb">apply</span> lassociator_lassociator.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">op2_prebicat</span>
+    : prebicat
+    := op2_prebicat_data ,, op2_prebicat_laws.
+
+  <span class="kn">Definition</span> <span class="nf">op2_bicat</span>
+    : bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (op2_prebicat ,, _).
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> cellset_property.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">OpCell</span>.
+
+<span class="kn">Definition</span> <span class="nf">from_op2_is_invertible_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> : op2_bicat B}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           {<span class="nv">α</span> : f ==&gt; g}
+           (<span class="nv">Hα</span> : is_invertible_2cell α)
+  : @is_invertible_2cell B x y g f α.
+<span class="kn">Proof</span>.
+  use make_is_invertible_2cell.
+  - <span class="bp">exact</span> Hα^-<span class="mi">1</span>.
+  - <span class="bp">exact</span> (vcomp_linv Hα).
+  - <span class="bp">exact</span> (vcomp_rinv Hα).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">to_op2_is_invertible_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> : op2_bicat B}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           {<span class="nv">α</span> : f ==&gt; g}
+           (<span class="nv">Hα</span> : @is_invertible_2cell B x y g f α)
+  : is_invertible_2cell α.
+<span class="kn">Proof</span>.
+  use make_is_invertible_2cell.
+  - <span class="bp">exact</span> Hα^-<span class="mi">1</span>.
+  - <span class="bp">exact</span> (vcomp_linv Hα).
+  - <span class="bp">exact</span> (vcomp_rinv Hα).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weq_op2_is_invertible_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> : op2_bicat B}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           (<span class="nv">α</span> : f ==&gt; g)
+  : @is_invertible_2cell B x y g f α
+    ≃
+    is_invertible_2cell α.
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="bp">exact</span> to_op2_is_invertible_2cell.
+  - <span class="bp">exact</span> from_op2_is_invertible_2cell.
+  - <span class="nb">apply</span> isaprop_is_invertible_2cell.
+  - <span class="nb">apply</span> isaprop_is_invertible_2cell.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weq_op2_invertible_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> : op2_bicat B}
+           (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+  : @invertible_2cell B x y g f ≃ invertible_2cell f g.
+<span class="kn">Proof</span>.
+  use weqfibtototal.
+  <span class="nb">intro</span> α.
+  <span class="nb">apply</span> weq_op2_is_invertible_2cell.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">from_op2_left_adjequiv</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> : op2_bicat B}
+           (<span class="nv">f</span> : x --&gt; y)
+  : left_adjoint_equivalence f → @left_adjoint_equivalence B x y f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hf.
+  <span class="nb">simple refine</span> ((_ ,, (_ ,, _)) ,, ((_ ,, _) ,, (_ ,, _))).
+  - <span class="bp">exact</span> (left_adjoint_right_adjoint Hf).
+  - <span class="bp">exact</span> ((left_equivalence_unit_iso Hf)^-<span class="mi">1</span>).
+  - <span class="bp">exact</span> ((left_equivalence_counit_iso Hf)^-<span class="mi">1</span>).
+  - <span class="kp">abstract</span>
+      (use inv_cell_eq ; <span class="nb">cbn</span> ;
+       [ is_iso ;
+         [ <span class="nb">apply</span> from_op2_is_invertible_2cell ;
+           is_iso
+         | <span class="nb">apply</span> from_op2_is_invertible_2cell ;
+           is_iso
+         ]
+       | is_iso
+       | <span class="bp">exact</span> (internal_triangle1 Hf) ]).
+  - <span class="kp">abstract</span>
+      (use inv_cell_eq ; <span class="nb">cbn</span> ;
+       [ is_iso ;
+         [ <span class="nb">apply</span> from_op2_is_invertible_2cell ;
+           is_iso
+         | <span class="nb">apply</span> from_op2_is_invertible_2cell ;
+           is_iso ]
+       | is_iso
+       | <span class="bp">exact</span> (internal_triangle2 Hf) ]).
+  - <span class="nb">cbn</span>.
+    <span class="nb">apply</span> from_op2_is_invertible_2cell.
+    is_iso.
+  - <span class="nb">cbn</span>.
+    <span class="nb">apply</span> from_op2_is_invertible_2cell.
+    is_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">to_op2_left_adjequiv</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> : op2_bicat B}
+           (<span class="nv">f</span> : x --&gt; y)
+  : @left_adjoint_equivalence B x y f → left_adjoint_equivalence f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hf.
+  <span class="nb">simple refine</span> ((_ ,, (_ ,, _)) ,, ((_ ,, _) ,, (_ ,, _))).
+  - <span class="bp">exact</span> (left_adjoint_right_adjoint Hf).
+  - <span class="bp">exact</span> ((left_equivalence_unit_iso Hf)^-<span class="mi">1</span>).
+  - <span class="bp">exact</span> ((left_equivalence_counit_iso Hf)^-<span class="mi">1</span>).
+  - <span class="kp">abstract</span>
+      (use inv_cell_eq ; <span class="nb">cbn</span> ;
+       [ <span class="nb">apply</span> to_op2_is_invertible_2cell ;
+         is_iso
+       | <span class="nb">apply</span> to_op2_is_invertible_2cell ;
+         is_iso
+       | <span class="bp">exact</span> (internal_triangle1 Hf) ]).
+  - <span class="kp">abstract</span>
+      (use inv_cell_eq ; <span class="nb">cbn</span> ;
+       [ <span class="nb">apply</span> to_op2_is_invertible_2cell ;
+         is_iso
+       | <span class="nb">apply</span> to_op2_is_invertible_2cell ;
+         is_iso
+       | <span class="bp">exact</span> (internal_triangle2 Hf)]).
+  - <span class="nb">cbn</span>.
+    <span class="nb">apply</span> to_op2_is_invertible_2cell.
+    is_iso.
+  - <span class="nb">cbn</span>.
+    <span class="nb">apply</span> to_op2_is_invertible_2cell.
+    is_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weq_op2_left_adjequiv</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> : op2_bicat B}
+           (<span class="nv">f</span> : x --&gt; y)
+  : @left_adjoint_equivalence B x y f ≃ left_adjoint_equivalence f.
+<span class="kn">Proof</span>.
+  use make_weq.
+  - <span class="bp">exact</span> (to_op2_left_adjequiv f).
+  - use isweq_iso.
+    + <span class="bp">exact</span> (from_op2_left_adjequiv f).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> Hf ;
+         <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _) ;
+         <span class="nb">apply</span> isapropdirprod ;
+         [ <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property
+         | <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isaprop_is_invertible_2cell ]).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> Hf ;
+         <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _) ;
+         <span class="nb">apply</span> isapropdirprod ;
+         [ <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property
+         | <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isaprop_is_invertible_2cell ]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weq_op2_adjequiv</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">x</span> <span class="nv">y</span> : op2_bicat B)
+  : @adjoint_equivalence B x y ≃ adjoint_equivalence x y.
+<span class="kn">Proof</span>.
+  use weqfibtototal.
+  <span class="nb">intro</span> α.
+  <span class="nb">apply</span> weq_op2_left_adjequiv.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Core/Examples/OpCellBicat.v</tt>, line 10)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     February 2018                                                                      *)
+  &gt; (* ----------------------------------------------------------------------------------- *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

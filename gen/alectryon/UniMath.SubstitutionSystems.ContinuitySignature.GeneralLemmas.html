@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>GeneralLemmas.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+
+
+<span class="sd">(** only for the last constructions that should be moved to [CategoryTheory.Chains.Omegacontfunctors] *)</span>
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.All.
+
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Lemma</span> <span class="nf">CoproductOfArrowsIsos_aux</span> (<span class="nv">I</span> : UU) (<span class="nv">C</span> : category) (<span class="nv">a</span> : I -&gt; C) (<span class="nv">CC</span> : Coproduct I C a)
+           (<span class="nv">c</span> : I -&gt; C) (<span class="nv">CC'</span> : Coproduct I C c) (<span class="nv">f</span> : ∏ i : I, C⟦a i, c i⟧)
+           (<span class="nv">fi_iso</span> :∏ i : I, is_z_isomorphism (f i)) :
+  is_inverse_in_precat (CoproductOfArrows I C CC CC' f)
+    (CoproductOfArrows I C CC' CC (<span class="k">λ</span> <span class="nv">i</span> : I, pr1 (fi_iso i))).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  + etrans. { <span class="nb">apply</span> precompWithCoproductArrow. }
+    <span class="nb">apply</span> pathsinv0, CoproductArrowUnique.
+    <span class="nb">intro</span> i.
+    <span class="nb">refine</span> (id_right _ @ ! id_left _ @ _).
+    <span class="nb">refine</span> (_ @ assoc' _ _ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> pathsinv0, (pr2 (fi_iso i)).
+  + etrans. { <span class="nb">apply</span> precompWithCoproductArrow. }
+    <span class="nb">apply</span> pathsinv0, CoproductArrowUnique.
+    <span class="nb">intro</span> i.
+    <span class="nb">refine</span> (id_right _ @ ! id_left _ @ _).
+    <span class="nb">refine</span> (_ @ assoc' _ _ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> pathsinv0, (pr2 (fi_iso i)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">CoproductOfArrowsIsos</span>
+           (<span class="nv">I</span> : UU) (<span class="nv">C</span> : category) (<span class="nv">a</span> : I -&gt; C) (<span class="nv">CC</span> : Coproduct I C a)
+           (<span class="nv">c</span> : I -&gt; C) (<span class="nv">CC'</span> : Coproduct I C c) (<span class="nv">f</span> : ∏ i : I, C⟦a i, c i⟧)
+  : (∏ i : I, is_z_isomorphism (f i)) -&gt; is_z_isomorphism (CoproductOfArrows I C CC CC' f).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> fi_iso.
+  use make_is_z_isomorphism.
+  - use CoproductOfArrows.
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, pr1 (fi_iso i)).
+  - <span class="nb">apply</span> CoproductOfArrowsIsos_aux.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">constant_functor_composition_nat_trans</span>
+      (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category) (<span class="nv">b</span> : B) (<span class="nv">F</span> : functor B C)
+  : nat_trans (functor_composite (constant_functor A B b) F)
+              (constant_functor A C (F b)).
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  + <span class="nb">intro</span>; <span class="nb">apply</span> identity.
+  + <span class="kp">abstract</span> (<span class="nb">intro</span>; <span class="nb">intros</span>;
+              <span class="nb">apply</span> maponpaths_2;
+              <span class="bp">exact</span> (functor_id F b)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">constant_functor_composition_nat_z_iso</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category) (<span class="nv">b</span> : B) (<span class="nv">F</span> : functor B C)
+  : nat_z_iso (functor_composite (constant_functor A B b) F)
+              (constant_functor A C (F b)).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">constant_functor_composition_nat_trans</span> <span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">b</span> <span class="nv">F</span>).
+  <span class="nb">intro</span>; <span class="nb">apply</span> identity_is_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">coproduct_of_functors_nat_trans_aux</span> {<span class="nv">I</span> : UU} {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">CP</span> : Coproducts I D)
+  {<span class="nv">F</span> <span class="nv">G</span> : I → C ⟶ D} (<span class="nv">α</span> : ∏ i : I, nat_trans (F i) (G i))
+  : is_nat_trans (coproduct_of_functors I C D CP F) (coproduct_of_functors I C D CP G)
+      (<span class="k">λ</span> <span class="nv">c</span> : C, CoproductOfArrows I D (CP (<span class="k">λ</span> <span class="nv">i</span> : I, F i c)) (CP (<span class="k">λ</span> <span class="nv">i</span> : I, G i c)) (<span class="k">λ</span> <span class="nv">i</span> : I, α i c)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c1 c2 f.
+  etrans.
+  <span class="mi">1</span>: <span class="nb">apply</span> precompWithCoproductArrow.
+  etrans.
+  <span class="mi">2</span>: <span class="nb">apply</span> pathsinv0, precompWithCoproductArrow.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> i.
+  etrans.
+  <span class="mi">1</span>: <span class="nb">apply</span> assoc.
+  etrans.
+  <span class="mi">2</span>: <span class="nb">apply</span> assoc'.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="bp">exact</span> (pr2 (α i) _ _ f).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">coproduct_of_functors_nat_trans</span>
+      {<span class="nv">I</span> : UU} {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">CP</span> : Coproducts I D) {<span class="nv">F</span> <span class="nv">G</span> : I → C ⟶ D}
+      (<span class="nv">α</span> : ∏ i : I, nat_trans (F i) (G i))
+  : nat_trans (coproduct_of_functors I C D CP F) (coproduct_of_functors I C D CP G).
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="nb">intro</span> c.
+    use CoproductOfArrows.
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, α i c).
+  - <span class="nb">apply</span> coproduct_of_functors_nat_trans_aux.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">coproduct_of_functors_is_inverse</span> {<span class="nv">I</span> : UU} {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">CP</span> : Coproducts I D)
+  {<span class="nv">F</span> <span class="nv">G</span> : I → C ⟶ D} (<span class="nv">α</span> : ∏ i : I, nat_z_iso (F i) (G i)) (<span class="nv">c</span> : C) :
+  is_inverse_in_precat (coproduct_of_functors_nat_trans CP (<span class="k">λ</span> <span class="nv">i</span> : I, α i) c)
+    (CoproductOfArrows I D (CP (<span class="k">λ</span> <span class="nv">i</span> : I, G i c)) (CP (<span class="k">λ</span> <span class="nv">i</span> : I, F i c)) (<span class="k">λ</span> <span class="nv">i</span> : I, pr1 (pr2 (α i) c))).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  + etrans.
+    <span class="mi">1</span>: <span class="nb">apply</span> precompWithCoproductArrow.
+    <span class="nb">apply</span> pathsinv0, CoproductArrowUnique.
+    <span class="nb">intro</span> i.
+    etrans.
+    <span class="mi">2</span>: <span class="nb">apply</span> assoc'.
+    etrans.
+    <span class="mi">2</span>: <span class="nb">apply</span> maponpaths_2, pathsinv0, (pr2 (pr2 (α i) c)).
+    <span class="bp">exact</span> (id_right _ @ ! id_left _).
+  + etrans.
+    <span class="mi">1</span>: <span class="nb">apply</span> precompWithCoproductArrow.
+    <span class="nb">apply</span> pathsinv0, CoproductArrowUnique.
+    <span class="nb">intro</span> i.
+    etrans.
+    <span class="mi">2</span>: <span class="nb">apply</span> assoc'.
+    etrans.
+    <span class="mi">2</span>: <span class="nb">apply</span> maponpaths_2, pathsinv0, (pr2 (pr2 (α i) c)).
+    <span class="bp">exact</span> (id_right _ @ ! id_left _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">coproduct_of_functors_nat_z_iso</span>
+      {<span class="nv">I</span> : UU} {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">CP</span> : Coproducts I D) {<span class="nv">F</span> <span class="nv">G</span> : I → C ⟶ D}
+      (<span class="nv">α</span> : ∏ i : I, nat_z_iso (F i) (G i))
+  : nat_z_iso (coproduct_of_functors I C D CP F) (coproduct_of_functors I C D CP G).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">coproduct_of_functors_nat_trans</span> <span class="nv">CP</span> <span class="nv">α</span>).
+  <span class="nb">intro</span> c.
+  use tpair.
+  - use CoproductOfArrows.
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, pr1 (pr2 (α i) c)).
+  - <span class="nb">apply</span> coproduct_of_functors_is_inverse.
+<span class="kn">Defined</span>.
+
+<span class="c">(*</span>
+<span class="c">The following lemmas has to be moved accordingly,</span>
+<span class="c">e.g. in the file CategoryTheory.Chains.Omegacontfunctors</span>
+<span class="c"> *)</span>
+<span class="kn">Lemma</span> <span class="nf">nat_trans_preserve_cone</span>
+      {<span class="nv">A</span> <span class="nv">B</span> : category}
+      {<span class="nv">F</span> <span class="nv">G</span> : functor A B}
+      (<span class="nv">α</span> : nat_trans F G)
+      {<span class="nv">coch</span> : cochain A}
+      {<span class="nv">b</span> : B} (<span class="nv">b_con</span> : cone (mapdiagram F coch) b)
+  : cone (mapdiagram G coch) b.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">v</span>, <span class="nv">pr1</span> <span class="nv">b_con</span> <span class="nv">v</span> · α (dob coch v)).
+  <span class="nb">intros</span> u v p.
+  etrans.
+  <span class="mi">1</span>: <span class="nb">apply</span> assoc'.
+  <span class="nb">cbn</span>.
+  etrans.
+  <span class="mi">1</span>: <span class="nb">apply</span> maponpaths, pathsinv0, (pr2 α).
+  etrans.
+  <span class="mi">1</span>: <span class="nb">apply</span> assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="bp">exact</span> (pr2 b_con u v p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_z_iso_preserve_ωlimits</span> {<span class="nv">A</span> <span class="nv">B</span> : category}
+      (<span class="nv">F</span> <span class="nv">G</span> : functor A B)
+  : is_omega_cont F -&gt; nat_z_iso F G -&gt; is_omega_cont G.
+<span class="kn">Proof</span>.
+  <span class="c">(* This lemma should be split up in data and property and there is also a repeat of proof, need a more "general, but easy" lemma.</span>
+<span class="c"> *)</span>
+  <span class="nb">intros</span> Fc i.
+  <span class="nb">intros</span> coch a a_con a_lim.
+  <span class="nb">intros</span> b b_con.
+  <span class="nb">set</span> (b'_con := nat_trans_preserve_cone (nat_z_iso_inv i) b_con).
+  <span class="nb">set</span> (t := Fc coch a a_con a_lim b b'_con).
+  use tpair.
+  - <span class="k">exists</span> (<span class="nv">pr11</span> <span class="nv">t</span> · pr1 i a).
+    <span class="nb">intro</span> v.
+    etrans.
+    <span class="mi">1</span>: <span class="nb">apply</span> assoc'.
+    etrans.
+    <span class="mi">1</span>: <span class="nb">apply</span> maponpaths, pathsinv0, (pr21 i).
+    etrans.
+    <span class="mi">1</span>: <span class="nb">apply</span> assoc.
+    etrans.
+    <span class="mi">1</span>: <span class="nb">apply</span> maponpaths_2, (pr21 t v).
+    etrans.
+    <span class="mi">1</span>: <span class="nb">apply</span> assoc'.
+    etrans.
+    <span class="mi">1</span>: <span class="nb">apply</span> maponpaths, (pr2 i (dob coch v)).
+    <span class="nb">apply</span> id_right.
+  - <span class="nb">intro</span> f.
+    use total2_paths_f.
+    + use (cancel_z_iso _ _ (_ ,, pr2 (nat_z_iso_inv i) a)).
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> assoc.
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> maponpaths, pathsinv0, (pr2 (pr2 i a)).
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> pathsinv0, id_right.
+
+      transparent <span class="nb">assert</span> (c' : (∑ x : B ⟦ b, F a ⟧, Limits.is_cone_mor b'_con (Limits.mapcone F coch a_con) x)).
+      {
+        <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">f</span> · pr1 (pr2 i a)).
+        <span class="nb">intro</span> v.
+        <span class="nb">cbn</span>.
+        etrans.
+        <span class="mi">1</span>: <span class="nb">apply</span> assoc'.
+        etrans.
+        <span class="mi">1</span>: <span class="nb">apply</span> maponpaths, pathsinv0, (pr21 (nat_z_iso_inv i)).
+        etrans.
+        <span class="mi">1</span>: <span class="nb">apply</span> assoc.
+        <span class="nb">apply</span> maponpaths_2, (pr2 f v).
+      }
+
+      <span class="bp">exact</span> (base_paths _ _ (pr2 t c')).
+    + <span class="nb">apply</span> (impred_isaprop) ; <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/ContinuitySignature/GeneralLemmas.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

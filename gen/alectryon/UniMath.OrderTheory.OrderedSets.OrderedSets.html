@@ -1,0 +1,760 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>OrderedSets.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Combinatorics.FiniteSets.
+<span class="kn">Require Import</span> UniMath.Foundations.UnivalenceAxiom.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.DecidablePropositions.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.Examples.StandardFiniteSet.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> poset.
+
+<span class="sd">(** partially ordered sets and ordered sets *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isTotalOrder</span> {<span class="nv">X</span> : hSet} (<span class="nv">R</span> : hrel X) : hProp
+  := make_hProp (isPartialOrder R × istotal R)
+               (isapropdirprod _ _ (isaprop_isPartialOrder R) (isaprop_istotal R)).
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> logic.
+
+<span class="kn">Lemma</span> <span class="nf">tot_nge_to_le</span> {<span class="nv">X</span>:hSet} (<span class="nv">R</span>:hrel X) : istotal R -&gt; ∏ x y, ¬ (R x y) -&gt;  R y x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> tot ? ? nle.
+  <span class="bp">now</span> <span class="nb">apply</span> (hdisjtoimpl (tot x y)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">tot_nle_iff_gt</span> {<span class="nv">X</span>:hSet} (<span class="nv">R</span>:hrel X) :
+  isTotalOrder R -&gt; ∏ x y, ¬ (R x y)  &lt;-&gt;  R y x ∧ ¬ (y = x).
+<span class="sd">(** if [R x y] is [x ≤ y], then this shows the equivalence of two definitions for [y &lt; x] *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i.
+  <span class="nb">assert</span> (tot := pr2 i); <span class="nb">simpl</span> <span class="k">in</span> tot.
+  <span class="nb">assert</span> (refl := pr2 (pr1 (pr1 i))); <span class="nb">simpl</span> <span class="k">in</span> refl.
+  <span class="nb">assert</span> (anti := pr2 (pr1 i)); <span class="nb">simpl</span> <span class="k">in</span> anti.
+  <span class="nb">split</span>.
+  { <span class="nb">intros</span> nle. <span class="nb">split</span>.
+    - <span class="bp">now</span> <span class="nb">apply</span> tot_nge_to_le.
+    - <span class="nb">intros</span> ne. <span class="nb">induction</span> ne. <span class="bp">exact</span> (nle (refl y)). }
+  { <span class="nb">intros</span> yltx xley. <span class="nb">induction</span> yltx <span class="k">as</span> [ylex neq]. <span class="bp">exact</span> (neq (anti _ _ ylex xley)). }
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">isSmallest</span> {<span class="nv">X</span> : Poset} (<span class="nv">x</span> : X) : UU := ∏ y, x ≤ y.
+
+<span class="kn">Definition</span> <span class="nf">isBiggest</span> {<span class="nv">X</span> : Poset} (<span class="nv">x</span> : X) : UU := ∏ y, y ≤ x.
+
+<span class="kn">Definition</span> <span class="nf">isMinimal</span> {<span class="nv">X</span> : Poset} (<span class="nv">x</span> : X) : UU := ∏ y, y ≤ x -&gt; x = y.
+<span class="c">(* the definition in Sets.v is wrong *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isMaximal</span> {<span class="nv">X</span> : Poset} (<span class="nv">x</span> : X) : UU := ∏ y, x ≤ y -&gt; x = y.
+<span class="c">(* the definition in Sets.v is wrong *)</span>
+
+<span class="kn">Definition</span> <span class="nf">consecutive</span> {<span class="nv">X</span> : Poset} (<span class="nv">x</span> <span class="nv">y</span> : X) : UU := x &lt; y × ∏ z, ¬ (x &lt; z × z &lt; y).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_isSmallest</span> {<span class="nv">X</span> : Poset} (<span class="nv">x</span> : X) : isaprop (isSmallest x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> isSmallest. <span class="nb">apply</span> impred_prop.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_isBiggest</span> {<span class="nv">X</span> : Poset} (<span class="nv">x</span> : X) : isaprop (isBiggest x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> isBiggest. <span class="nb">apply</span> impred_prop.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Poset_univalence_map</span> {<span class="nv">X</span> <span class="nv">Y</span>:Poset} : X=Y -&gt; PosetEquivalence X Y.
+<span class="kn">Proof</span>. <span class="nb">intros</span> e. <span class="nb">induction</span> e. <span class="nb">apply</span> identityPosetEquivalence.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local</span> <span class="kn">Arguments</span> isPosetEquivalence : <span class="kn">clear implicits</span>.
+<span class="kn">Local</span> <span class="kn">Arguments</span> isaposetmorphism : <span class="kn">clear implicits</span>.
+
+<span class="kn">Lemma</span> <span class="nf">posetStructureIdentity</span> {<span class="nv">X</span>:hSet} (<span class="nv">R</span> <span class="nv">S</span>:PartialOrder X) :
+  @isPosetEquivalence (X,,R) (X,,S) (idweq X) &lt;-&gt; (R=S)%type.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">split</span>.
+  { <span class="nb">intros</span> e.
+    <span class="nb">apply</span> subtypePath. { <span class="nb">intros</span> T. <span class="nb">apply</span> isaprop_isPartialOrder. }
+    <span class="nb">induction</span> R <span class="k">as</span> [R r]; <span class="nb">induction</span> S <span class="k">as</span> [S s]; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> funextfun; <span class="nb">intro</span> x; <span class="nb">apply</span> funextfun; <span class="nb">intro</span> y.
+    <span class="nb">unfold</span> isPosetEquivalence <span class="k">in</span> e.
+    <span class="nb">unfold</span> isaposetmorphism <span class="k">in</span> e; <span class="nb">simpl</span> <span class="k">in</span> e.
+    <span class="nb">induction</span> e <span class="k">as</span> [e e'].
+    <span class="nb">unfold</span> posetRelation <span class="k">in</span> *. <span class="nb">unfold</span> invmap <span class="k">in</span> *; <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> hPropUnivalence. { <span class="nb">apply</span> e. } { <span class="nb">apply</span> e'. } }
+  { <span class="nb">intros</span> p. <span class="nb">induction</span> p. <span class="nb">apply</span> isPosetEquivalence_idweq. }
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">posetTransport_weq</span> (<span class="nv">X</span> <span class="nv">Y</span>:Poset) : X╝Y ≃ X≅Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">simple refine</span> (weqbandf _ _ _ _).
+  { <span class="nb">apply</span> hSet_univalence. }
+  <span class="nb">intros</span> e. <span class="nb">apply</span> invweq. <span class="nb">induction</span> X <span class="k">as</span> [X R], Y <span class="k">as</span> [Y S]; <span class="nb">simpl</span> <span class="k">in</span> e.
+  <span class="nb">induction</span> e; <span class="nb">simpl</span>. <span class="nb">apply</span> weqimplimpl.
+  { <span class="bp">exact</span> (pr1 (posetStructureIdentity R S)). }
+  { <span class="bp">exact</span> (pr2 (posetStructureIdentity R S)). }
+  { <span class="bp">exact</span> (isaprop_isPosetEquivalence _). }
+  { <span class="bp">exact</span> (isaset_PartialOrder _ _ _). }
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Theorem</span> <span class="nf">Poset_univalence_0</span> (<span class="nv">X</span> <span class="nv">Y</span>:Poset) : X=Y ≃ X≅Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. intermediate_weq (X╝Y).
+  - <span class="nb">apply</span> total2_paths_equiv.
+  - <span class="nb">apply</span> posetTransport_weq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Poset_univalence_compute</span> {<span class="nv">X</span> <span class="nv">Y</span>:Poset} (<span class="nv">e</span>:X=Y) :
+  Poset_univalence_0 X Y e = Poset_univalence_map e.
+<span class="kn">Proof</span>.
+  <span class="kp">try</span> <span class="bp">reflexivity</span>.              <span class="c">(* fails, so we use "remakeweq" below *)</span>
+<span class="kn">Abort</span>.
+
+<span class="kn">Theorem</span> <span class="nf">Poset_univalence</span> (<span class="nv">X</span> <span class="nv">Y</span>:Poset) : X=Y ≃ X≅Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> (k : pr1weq (Poset_univalence_0 X Y) ~ @Poset_univalence_map X Y).
+  { <span class="nb">intro</span> e. <span class="nb">apply</span> isinj_pr1_PosetEquivalence. <span class="nb">induction</span> e. <span class="bp">reflexivity</span>. }
+  <span class="bp">exact</span> (remakeweq k).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Poset_univalence_compute</span> {<span class="nv">X</span> <span class="nv">Y</span>:Poset} (<span class="nv">e</span>:X=Y) :
+  Poset_univalence X Y e = Poset_univalence_map e.
+<span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="c">(* now we try to mimic this construction:</span>
+
+<span class="c">    Inductive PosetEquivalence (X Y:Poset) : Type :=</span>
+<span class="c">                  pathToEq : (X=Y) -&gt; PosetEquivalence X Y.</span>
+
+<span class="c">    PosetEquivalence_rect</span>
+<span class="c">         : ∏ (X Y : Poset) (P : PosetEquivalence X Y -&gt; Type),</span>
+<span class="c">           (∏ e : X = Y, P (pathToEq X Y e)) -&gt;</span>
+<span class="c">           ∏ p : PosetEquivalence X Y, P p</span>
+
+<span class="c">*)</span>
+
+<span class="kn">Theorem</span> <span class="nf">PosetEquivalence_rect</span> (<span class="nv">X</span> <span class="nv">Y</span> : Poset) (<span class="nv">P</span> : X ≅ Y -&gt; UU) :
+  (∏ e : X = Y, P (Poset_univalence_map e)) -&gt; ∏ f, P f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ih ?.
+  <span class="nb">set</span> (p := ih (invmap (Poset_univalence _ _) f)).
+  <span class="nb">set</span> (h := homotweqinvweq (Poset_univalence _ _) f).
+  <span class="bp">exact</span> (transportf P h p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Ltac</span> <span class="nf">poset_induction</span> f e :=
+  <span class="nb">generalize</span> f; <span class="nb">apply</span> PosetEquivalence_rect; <span class="nb">intro</span> e; <span class="nb">clear</span> f.
+
+<span class="c">(* applications of poset equivalence induction: *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isMinimal_preserved</span> {<span class="nv">X</span> <span class="nv">Y</span>:Poset} {<span class="nv">x</span>:X} (<span class="nv">isc</span>:isMinimal x) (<span class="nv">f</span>:X ≅ Y) :
+  isMinimal (f x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="c">(* Anders says " induction f. " should look for PosetEquivalence_rect.</span>
+<span class="c">     Why doesn't it? *)</span>
+  poset_induction f e. <span class="nb">induction</span> e. <span class="nb">simpl</span>. <span class="bp">exact</span> isc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isMaximal_preserved</span> {<span class="nv">X</span> <span class="nv">Y</span>:Poset} {<span class="nv">x</span>:X} (<span class="nv">isc</span>:isMaximal x) (<span class="nv">f</span>:X ≅ Y) :
+  isMaximal (f x).
+<span class="kn">Proof</span>. <span class="nb">intros</span>. poset_induction f e. <span class="nb">induction</span> e. <span class="nb">simpl</span>. <span class="bp">exact</span> isc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">consecutive_preserved</span> {<span class="nv">X</span> <span class="nv">Y</span>:Poset} {<span class="nv">x</span> <span class="nv">y</span>:X} (<span class="nv">isc</span>:consecutive x y) (<span class="nv">f</span>:X ≅ Y) : consecutive (f x) (f y).
+<span class="kn">Proof</span>. <span class="nb">intros</span>. poset_induction f e. <span class="nb">induction</span> e. <span class="nb">simpl</span>. <span class="bp">exact</span> isc.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * Ordered sets *)</span>
+
+<span class="sd">(** see Bourbaki, Set Theory, III.1, where they are called totally ordered sets *)</span>
+
+<span class="kn">Definition</span> <span class="nf">OrderedSet</span> := ∑ X:Poset, istotal (posetRelation X).
+
+<span class="kn">Ltac</span> <span class="nf">unwrap_OrderedSet</span> X :=
+  <span class="nb">induction</span> X <span class="k">as</span> [X total];
+  <span class="nb">induction</span> X <span class="k">as</span> [X _po_];
+  <span class="nb">induction</span> _po_ <span class="k">as</span> [R _i_];
+  unwrap_isPartialOrder _i_;
+  <span class="nb">unfold</span> posetRelation <span class="k">in</span> total;
+  <span class="nb">simpl</span> <span class="k">in</span> total.
+
+<span class="kn">Local Definition</span> <span class="nf">underlyingPoset</span> (<span class="nv">X</span>:OrderedSet) : Poset := pr1 X.
+<span class="kn">Coercion</span> <span class="nf">underlyingPoset</span> : OrderedSet &gt;-&gt; Poset.
+
+<span class="kn">Declare Scope</span> oset.
+<span class="kn">Delimit Scope</span> oset <span class="k">with</span> oset.
+
+<span class="kn">Definition</span> <span class="nf">Poset_lessthan</span> {<span class="nv">X</span>:Poset} (<span class="nv">x</span> <span class="nv">y</span>:X) := ∥ x ≤ y  ×  x != y ∥.
+
+<span class="kn">Notation</span> <span class="s2">"X ≅ Y"</span> := (PosetEquivalence X Y) (<span class="kn">at level</span> <span class="mi">60</span>, <span class="kn">no associativity</span>) : oset.
+<span class="kn">Notation</span> <span class="s2">"m ≤ n"</span> := (posetRelation _ m n) (<span class="kn">no associativity</span>, <span class="kn">at level</span> <span class="mi">70</span>) : oset.
+<span class="kn">Notation</span> <span class="s2">"m &lt;= n"</span> := (posetRelation _ m n) (<span class="kn">no associativity</span>, <span class="kn">at level</span> <span class="mi">70</span>) : oset.
+<span class="kn">Notation</span> <span class="s2">"m &lt; n"</span> := (Poset_lessthan m n) :oset.
+<span class="kn">Notation</span> <span class="s2">"n ≥ m"</span> := (posetRelation _ m n) (<span class="kn">no associativity</span>, <span class="kn">at level</span> <span class="mi">70</span>) : oset.
+<span class="kn">Notation</span> <span class="s2">"n &gt;= m"</span> := (posetRelation _ m n) (<span class="kn">no associativity</span>, <span class="kn">at level</span> <span class="mi">70</span>) : oset.
+<span class="kn">Notation</span> <span class="s2">"n &gt; m"</span> := (Poset_lessthan m n) :oset.
+
+<span class="kn">Close Scope</span> poset.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> oset.
+
+<span class="kn">Definition</span> <span class="nf">OrderedSet_isrefl</span> {<span class="nv">X</span>:OrderedSet} (<span class="nv">x</span>:X) : x ≤ x.
+<span class="kn">Proof</span>. <span class="nb">intros</span>. unwrap_OrderedSet X; <span class="nb">simpl</span> <span class="k">in</span> x. <span class="nb">apply</span> refl. <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">OrderedSet_isantisymm</span> {<span class="nv">X</span>:OrderedSet} (<span class="nv">x</span> <span class="nv">y</span>:X) : x ≤ y -&gt; y ≤ x -&gt; x = y.
+<span class="kn">Proof</span>. <span class="nb">intros</span> r s. unwrap_OrderedSet X; <span class="nb">simpl</span> <span class="k">in</span> x, y. <span class="bp">now</span> <span class="nb">apply</span> antisymm. <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">OrderedSet_istotal</span> {<span class="nv">X</span>:OrderedSet} (<span class="nv">x</span> <span class="nv">y</span>:X): x ≤ y ∨ y ≤ x :=
+  pr2 X x y.
+
+<span class="kn">Lemma</span> <span class="nf">isdeceq_isdec_ordering</span> (<span class="nv">X</span>:OrderedSet) : isdeceq X -&gt; isdec_ordering X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> deceq ? ?.
+  <span class="nb">assert</span> (tot := OrderedSet_istotal x y).
+  <span class="nb">induction</span> (deceq x y) <span class="k">as</span> [j|j].
+  - <span class="nb">apply</span> ii1. <span class="nb">induction</span> j. unwrap_OrderedSet X. <span class="nb">apply</span> refl.
+  - <span class="nb">assert</span> (c : (y ≥ x) ⨿ (x ≥ y)).
+    { <span class="nb">assert</span> (d : isaprop ((y ≥ x) ⨿ (x ≥ y))).
+      { <span class="nb">apply</span> isapropcoprod.
+        * <span class="nb">apply</span> propproperty.
+        * <span class="nb">apply</span> propproperty.
+        * <span class="nb">intros</span> r s. <span class="nb">apply</span> j; <span class="nb">clear</span> j. unwrap_OrderedSet X. <span class="bp">now</span> <span class="nb">apply</span> antisymm. }
+      <span class="nb">apply</span> (squash_to_prop tot).
+      + <span class="bp">exact</span> d.
+      + <span class="nb">intro</span> e. <span class="bp">exact</span> e.
+      }
+    <span class="nb">induction</span> c <span class="k">as</span> [c|c'].
+    + <span class="bp">now</span> <span class="nb">apply</span> ii1.
+    + <span class="nb">apply</span> ii2. <span class="nb">intro</span> le. <span class="nb">apply</span> j. <span class="bp">now</span> <span class="nb">apply</span> OrderedSet_isantisymm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">isfinite_isdec_ordering</span> (<span class="nv">X</span>:OrderedSet) : isfinite X -&gt; isdec_ordering X.
+<span class="kn">Proof</span>. <span class="nb">intros</span> i ? ?. <span class="nb">apply</span> isdeceq_isdec_ordering. <span class="bp">now</span> <span class="nb">apply</span> isfinite_isdeceq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">isdeceq_isdec_lessthan</span> (<span class="nv">X</span>:OrderedSet) :
+  isdeceq X -&gt; ∏ (x y:X), decidable (x &lt; y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i ? ?. <span class="nb">unfold</span> Poset_lessthan. <span class="nb">apply</span> decidable_ishinh. <span class="nb">apply</span> decidable_dirprod.
+  - <span class="bp">now</span> <span class="nb">apply</span> isdeceq_isdec_ordering.
+  - <span class="nb">apply</span> neg_isdecprop.
+    <span class="nb">apply</span> isdecpropif.
+    * <span class="nb">apply</span> setproperty.
+    * <span class="nb">apply</span> i.
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">isfinite_isdec_lessthan</span> (<span class="nv">X</span>:OrderedSet) : isfinite X -&gt; ∏ (x y:X), decidable (x &lt; y).
+<span class="kn">Proof</span>. <span class="nb">intros</span> i ? ?. <span class="nb">apply</span> isdeceq_isdec_lessthan. <span class="bp">now</span> <span class="nb">apply</span> isfinite_isdeceq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isincl_underlyingPoset</span> : isincl underlyingPoset.
+<span class="kn">Proof</span>. <span class="nb">apply</span> isinclpr1. <span class="nb">intros</span> X. <span class="nb">apply</span> isaprop_istotal. <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">underlyingPoset_weq</span> (<span class="nv">X</span> <span class="nv">Y</span>:OrderedSet) :
+  X=Y ≃ (underlyingPoset X)=(underlyingPoset Y).
+<span class="kn">Proof</span>.
+  <span class="kn">Set Printing Coercions</span>.
+  <span class="nb">intros</span>. <span class="nb">simple refine</span> (make_weq _ _).
+  { <span class="nb">apply</span> maponpaths. }
+  <span class="nb">apply</span> isweqonpathsincl. <span class="nb">apply</span> isincl_underlyingPoset.
+  <span class="kn">Unset Printing Coercions</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">smallestUniqueness</span> (<span class="nv">X</span>:OrderedSet) (<span class="nv">x</span> <span class="nv">y</span>:X) : isSmallest x -&gt; isSmallest y -&gt; x = y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i j. <span class="nb">assert</span> (q := OrderedSet_istotal x y). <span class="nb">apply</span> (squash_to_prop q).
+  { <span class="nb">apply</span> setproperty. }
+  <span class="nb">intro</span> c. <span class="nb">induction</span> c <span class="k">as</span> [xley|ylex].
+  - <span class="nb">apply</span> OrderedSet_isantisymm.
+    + <span class="bp">assumption</span>.
+    + <span class="bp">now</span> <span class="nb">apply</span> j.
+  - <span class="nb">apply</span> OrderedSet_isantisymm.
+    + <span class="bp">now</span> <span class="nb">apply</span> i.
+    + <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">biggestUniqueness</span> (<span class="nv">X</span>:OrderedSet) (<span class="nv">x</span> <span class="nv">y</span>:X) : isBiggest x -&gt; isBiggest y -&gt; x = y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i j. <span class="nb">assert</span> (q := OrderedSet_istotal x y). <span class="nb">apply</span> (squash_to_prop q).
+  { <span class="nb">apply</span> setproperty. }
+  <span class="nb">intro</span> c. <span class="nb">induction</span> c <span class="k">as</span> [xley|ylex].
+  - <span class="nb">apply</span> OrderedSet_isantisymm.
+    + <span class="bp">assumption</span>.
+    + <span class="bp">now</span> <span class="nb">apply</span> i.
+  - <span class="nb">apply</span> OrderedSet_isantisymm.
+    + <span class="bp">now</span> <span class="nb">apply</span> j.
+    + <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">OrderedSet_univalence</span> (<span class="nv">X</span> <span class="nv">Y</span>:OrderedSet) : X=Y ≃ X≅Y.
+<span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="bp">exact</span> ((Poset_univalence _ _) ∘ (underlyingPoset_weq _ _))%weq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">OrderedSetEquivalence_rect</span> (<span class="nv">X</span> <span class="nv">Y</span> : OrderedSet) (<span class="nv">P</span> : X ≅ Y -&gt; UU) :
+  (∏ e : X = Y, P (OrderedSet_univalence _ _ e)) -&gt; ∏ f, P f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ih ?.
+  <span class="nb">set</span> (p := ih (invmap (OrderedSet_univalence _ _) f)).
+  <span class="nb">set</span> (h := homotweqinvweq (OrderedSet_univalence _ _) f).
+  <span class="bp">exact</span> (transportf P h p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Ltac</span> <span class="nf">oset_induction</span> f e := <span class="nb">generalize</span> f; <span class="nb">apply</span> OrderedSetEquivalence_rect; <span class="nb">intro</span> e; <span class="nb">clear</span> f.
+
+<span class="c">(* standard ordered sets *)</span>
+
+<span class="kn">Definition</span> <span class="nf">FiniteOrderedSet</span> := ∑ X:OrderedSet, isfinite X.
+<span class="kn">Definition</span> <span class="nf">underlyingOrderedSet</span> (<span class="nv">X</span>:FiniteOrderedSet) : OrderedSet := pr1 X.
+<span class="kn">Coercion</span> <span class="nf">underlyingOrderedSet</span> : FiniteOrderedSet &gt;-&gt; OrderedSet.
+<span class="kn">Definition</span> <span class="nf">finitenessProperty</span> (<span class="nv">X</span>:FiniteOrderedSet) : isfinite X := pr2 X.
+<span class="kn">Definition</span> <span class="nf">underlyingFiniteSet</span> : FiniteOrderedSet -&gt; FiniteSet.
+<span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="k">exists</span> <span class="nv">X</span>. <span class="nb">apply</span> finitenessProperty. <span class="kn">Defined</span>.
+<span class="kn">Coercion</span> <span class="nf">underlyingFiniteSet</span> : FiniteOrderedSet &gt;-&gt; FiniteSet.
+
+<span class="kn">Lemma</span> <span class="nf">istotal_FiniteOrderedSet</span> (<span class="nv">X</span>:FiniteOrderedSet) : istotal (posetRelation X).
+<span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="bp">exact</span> (pr2 (pr1 X)). <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">FiniteOrderedSet_isdeceq</span> {<span class="nv">X</span>:FiniteOrderedSet} : isdeceq X.
+<span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="nb">apply</span> isfinite_isdeceq. <span class="nb">apply</span> finitenessProperty. <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">FiniteOrderedSet_isdec_ordering</span> {<span class="nv">X</span>:FiniteOrderedSet} : isdec_ordering X.
+<span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="nb">apply</span> isfinite_isdec_ordering. <span class="nb">apply</span> finitenessProperty. <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">FiniteOrderedSetDecidableOrdering</span> (<span class="nv">X</span>:FiniteOrderedSet) : DecidableRelation X :=
+  <span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span>:X), decidable_to_DecidableProposition (FiniteOrderedSet_isdec_ordering x y).
+
+<span class="kn">Definition</span> <span class="nf">FiniteOrderedSetDecidableEquality</span> (<span class="nv">X</span>:FiniteOrderedSet) : DecidableRelation X :=
+  <span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span>:X), @decidable_to_DecidableProposition (x = y) (FiniteOrderedSet_isdeceq x y).
+
+<span class="kn">Definition</span> <span class="nf">FiniteOrderedSetDecidableInequality</span> (<span class="nv">X</span>:FiniteOrderedSet) : DecidableRelation X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> (@decidable_to_DecidableProposition (¬ (x = y)))%logic.
+  <span class="nb">unfold</span> decidable; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> neg_isdecprop.
+  <span class="nb">apply</span> decidable_to_isdecprop_2.
+  { <span class="nb">apply</span> setproperty. }
+  <span class="nb">apply</span> FiniteOrderedSet_isdeceq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">FiniteOrderedSetDecidableLessThan</span> (<span class="nv">X</span>:FiniteOrderedSet) : DecidableRelation X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y. <span class="nb">simple refine</span> (decidable_to_DecidableProposition _).
+  - <span class="bp">exact</span> (x &lt; y).
+  - <span class="nb">apply</span> isfinite_isdec_lessthan. <span class="nb">apply</span> finitenessProperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Declare Scope</span> foset.
+<span class="kn">Notation</span> <span class="s2">"x ≐ y"</span> := (FiniteOrderedSetDecidableEquality _ x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) : foset. <span class="c">(* in agda mode, \doteq *)</span>
+<span class="kn">Notation</span> <span class="s2">"x ≠ y"</span> := (FiniteOrderedSetDecidableInequality _ x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) : foset. <span class="c">(* in agda mode, \ne *)</span>
+<span class="kn">Notation</span> <span class="s2">" x ≤ y "</span> := ( FiniteOrderedSetDecidableOrdering _ x y ) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) : foset. <span class="c">(* in agda mode, \le *)</span>
+<span class="kn">Notation</span> <span class="s2">" x &lt;= y "</span> := ( FiniteOrderedSetDecidableOrdering _ x y ) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) : foset.
+<span class="kn">Notation</span> <span class="s2">" x ≥ y "</span> := ( FiniteOrderedSetDecidableOrdering _ y x ) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) : foset. <span class="c">(* in agda mode, \ge *)</span>
+<span class="kn">Notation</span> <span class="s2">" x &gt;= y "</span> := ( FiniteOrderedSetDecidableOrdering _ y x ) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) : foset.
+<span class="kn">Notation</span> <span class="s2">" x &lt; y "</span> := ( FiniteOrderedSetDecidableLessThan _ x y ) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) : foset.
+<span class="kn">Notation</span> <span class="s2">" x &gt; y "</span> := ( FiniteOrderedSetDecidableLessThan _ y x ) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) : foset.
+
+<span class="kn">Delimit Scope</span> foset <span class="k">with</span> foset.
+
+<span class="kn">Definition</span> <span class="nf">FiniteOrderedSet_segment</span> {<span class="nv">X</span>:FiniteOrderedSet} (<span class="nv">x</span>:X) : FiniteSet.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> (@subsetFiniteSet X); <span class="nb">intro</span> y. <span class="bp">exact</span> (y &lt; x)%foset.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">height</span> {<span class="nv">X</span>:FiniteOrderedSet} : X -&gt; nat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x. <span class="bp">exact</span> (cardinalityFiniteSet (FiniteOrderedSet_segment x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">height_stn</span> {<span class="nv">X</span>:FiniteOrderedSet} : X -&gt; stn (cardinalityFiniteSet X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="k">exists</span> (<span class="nv">height</span> <span class="nv">x</span>).
+
+
+
+<span class="c">(* Defined. *)</span>
+<span class="kn">Abort</span>.
+
+<span class="sd">(** making finite ordered sets in various ways *)</span>
+
+<span class="kn">Definition</span> <span class="nf">standardFiniteOrderedSet</span> (<span class="nv">n</span>:nat) : FiniteOrderedSet.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">simple refine</span> (_,,_).
+  - <span class="k">exists</span> (<span class="nv">stnposet</span> <span class="nv">n</span>). <span class="nb">intros</span> x y; <span class="nb">apply</span> istotalnatleh.
+  - <span class="nb">apply</span> isfinitestn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"⟦ n ⟧"</span> := (standardFiniteOrderedSet n) : foset.
+<span class="c">(* in agda-mode \[[ n \]] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">inducedPartialOrder</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">f</span>:X-&gt;Y) (<span class="nv">incl</span>:isInjective f) (<span class="nv">R</span>:hrel Y) (<span class="nv">po</span>:isPartialOrder R) :
+  isPartialOrder (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">x'</span> : X, R (f x) (f x')).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">split</span>.
+    * <span class="nb">intros</span> x y z a b. <span class="bp">exact</span> (pr1 (pr1 po) (f x) (f y) (f z) a b).
+    * <span class="nb">intros</span> x. <span class="bp">exact</span> (pr2 (pr1 po) (f x)).
+  - <span class="nb">intros</span> x y a b. <span class="nb">apply</span> incl. <span class="bp">exact</span> (pr2 po (f x) (f y) a b).
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">inducedPartialOrder_weq</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">f</span>:X≃Y) (<span class="nv">R</span>:hrel Y) (<span class="nv">po</span>:isPartialOrder R) :
+  isPartialOrder (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">x'</span> : X, R (f x) (f x')).
+<span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="bp">exact</span> (inducedPartialOrder f (incl_injectivity  f (weqproperty f)) R po). <span class="kn">Defined</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> foset.
+<span class="kn">Definition</span> <span class="nf">transportFiniteOrdering</span> {<span class="nv">n</span>} {<span class="nv">X</span>:UU} : X ≃ ⟦ n ⟧ -&gt; FiniteOrderedSet.
+<span class="c">(* The new finite ordered set has X as its underlying set. *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w.
+  <span class="nb">simple refine</span> (_,,_).
+  - <span class="nb">simple refine</span> (_,,_).
+    * <span class="nb">simple refine</span> (_,,_).
+    + <span class="k">exists</span> <span class="nv">X</span>. <span class="nb">apply</span> (isofhlevelweqb <span class="mi">2</span> w). <span class="nb">apply</span> setproperty.
+      + <span class="nb">unfold</span> PartialOrder; <span class="nb">simpl</span>. <span class="nb">simple refine</span> (_,,_).
+        { <span class="nb">intros</span> x y. <span class="bp">exact</span> (w x ≤ w y). }
+        <span class="nb">apply</span> inducedPartialOrder_weq.
+        <span class="bp">exact</span> (pr2 (pr2 (pr1 (pr1 (⟦ n ⟧))))).
+    * <span class="nb">intros</span> x y. <span class="nb">apply</span> (pr2 (pr1 (⟦ n ⟧))).
+  - <span class="nb">simpl</span>.
+    <span class="nb">apply</span> (isfiniteweqb w).
+    <span class="bp">exact</span> (pr2 (⟦ n ⟧)).
+<span class="kn">Defined</span>.
+<span class="kn">Close Scope</span> foset.
+
+<span class="sd">(** concatenating finite ordered families of finite ordered sets *)</span>
+
+<span class="kn">Definition</span> <span class="nf">lexicographicOrder</span>
+           (<span class="nv">X</span>:hSet) (<span class="nv">Y</span>:X-&gt;hSet)
+           (<span class="nv">R</span>:hrel X) (<span class="nv">S</span> : ∏ x, hrel (Y x)) : hrel (∑ x, Y x)%<span class="nb">set</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> u u'.
+  <span class="nb">set</span> (x := pr1 u). <span class="nb">set</span> (y := pr2 u). <span class="nb">set</span> (x' := pr1 u'). <span class="nb">set</span> (y' := pr2 u').
+  <span class="bp">exact</span> ((x != x' × R x x') ∨ (∑ e : x = x', S x' (transportf Y e y) y')).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lex_isrefl</span> (<span class="nv">X</span>:hSet) (<span class="nv">Y</span>:X-&gt;hSet) (<span class="nv">R</span>:hrel X) (<span class="nv">S</span> : ∏ x, hrel (Y x)) :
+  (∏ x, isrefl(S x)) -&gt; isrefl (lexicographicOrder X Y R S).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Srefl u. <span class="nb">induction</span> u <span class="k">as</span> [x y]. <span class="nb">apply</span> hdisj_in2; <span class="nb">simpl</span>.
+  <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">x</span>). <span class="nb">apply</span> Srefl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lex_istrans</span> (<span class="nv">X</span>:hSet) (<span class="nv">Y</span>:X-&gt;hSet) (<span class="nv">R</span>:hrel X) (<span class="nv">S</span> : ∏ x, hrel (Y x)) :
+  isantisymm R -&gt; istrans R -&gt; (∏ x, istrans(S x)) -&gt; istrans (lexicographicOrder X Y R S).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Ranti Rtrans Strans u u' u'' p q.
+  <span class="nb">induction</span> u <span class="k">as</span> [x y]. <span class="nb">induction</span> u' <span class="k">as</span> [x' y']. <span class="nb">induction</span> u'' <span class="k">as</span> [x'' y''].
+  <span class="nb">refine</span> (p _ _); <span class="nb">clear</span> p; <span class="nb">intro</span> p; <span class="nb">simpl</span> <span class="k">in</span> p.
+  <span class="nb">induction</span> p <span class="k">as</span> [p|p].
+  - <span class="nb">induction</span> p <span class="k">as</span> [pn pl].
+    <span class="nb">refine</span> (q _ _); <span class="nb">clear</span> q; <span class="nb">intro</span> q; <span class="nb">simpl</span> <span class="k">in</span> q.
+    <span class="nb">induction</span> q <span class="k">as</span> [q|q].
+    + <span class="nb">apply</span> hinhpr; <span class="nb">simpl</span>.
+      <span class="nb">induction</span> q <span class="k">as</span> [qn ql].
+      <span class="nb">apply</span> ii1. <span class="nb">split</span>. <span class="nb">intro</span> ne. <span class="nb">induction</span> ne.
+      <span class="nb">assert</span> (k := Ranti x x' pl ql).
+      contradicts pn k.
+      <span class="bp">exact</span> (Rtrans x x' x'' pl ql).
+    + <span class="nb">induction</span> q <span class="k">as</span> [e l].
+      <span class="nb">apply</span> hinhpr; <span class="nb">simpl</span>.
+      <span class="nb">apply</span> ii1.
+      <span class="nb">induction</span> e.
+      <span class="bp">exact</span> (pn,,pl).
+  - <span class="nb">induction</span> p <span class="k">as</span> [e s].
+    <span class="nb">induction</span> e; <span class="nb">unfold</span> transportf <span class="k">in</span> s; <span class="nb">simpl</span> <span class="k">in</span> s.
+    <span class="nb">refine</span> (q _ _); <span class="nb">clear</span> q; <span class="nb">intro</span> q; <span class="nb">simpl</span> <span class="k">in</span> q.
+    <span class="nb">induction</span> q <span class="k">as</span> [q|q].
+    + <span class="nb">induction</span> q <span class="k">as</span> [n r].
+      <span class="nb">apply</span> hdisj_in1; <span class="nb">simpl</span>.
+      <span class="bp">exact</span> (n,,r).
+    + <span class="nb">induction</span> q <span class="k">as</span> [e' s']. <span class="nb">induction</span> e'.
+      <span class="nb">unfold</span> transportf <span class="k">in</span> s'; <span class="nb">simpl</span> <span class="k">in</span> s'.
+      <span class="nb">apply</span> hdisj_in2; <span class="nb">simpl</span>.
+      <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">x</span>).
+      <span class="bp">exact</span> (Strans x y y' y'' s s').
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Ltac</span> <span class="nf">unwrap</span> a := <span class="nb">apply</span> (squash_to_prop a);
+    [ <span class="nb">apply</span> isaset_total2_hSet | <span class="nb">simpl</span>; <span class="nb">clear</span> a; <span class="nb">intro</span> a; <span class="nb">simpl</span> <span class="k">in</span> a ].
+
+<span class="kn">Lemma</span> <span class="nf">lex_isantisymm</span> (<span class="nv">X</span>:hSet) (<span class="nv">Y</span>:X-&gt;hSet) (<span class="nv">R</span>:hrel X) (<span class="nv">S</span> : ∏ x, hrel (Y x)) :
+  isantisymm R -&gt; (∏ x, isantisymm(S x)) -&gt; isantisymm (lexicographicOrder X Y R S).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Ranti Santi u u' a b.
+  <span class="nb">induction</span> u <span class="k">as</span> [x y]; <span class="nb">induction</span> u' <span class="k">as</span> [x' y'].
+  unwrap a. unwrap b. <span class="nb">induction</span> a <span class="k">as</span> [[m r]|a].
+  - <span class="nb">induction</span> b <span class="k">as</span> [[n s]|b].
+    + <span class="nb">assert</span> (eq := Ranti x x' r s). contradicts m eq.
+    + <span class="nb">induction</span> b <span class="k">as</span> [eq s]. contradicts (!eq) m.
+  - <span class="nb">induction</span> a <span class="k">as</span> [eq s]. <span class="nb">induction</span> b <span class="k">as</span> [[n r]|b].
+    { contradicts n (!eq). }
+    <span class="nb">induction</span> b <span class="k">as</span> [eq' s']. <span class="nb">assert</span> ( c : eq = !eq' ).
+    { <span class="nb">apply</span> setproperty. }
+    <span class="nb">induction</span> (!c); <span class="nb">clear</span> c. <span class="nb">induction</span> eq'. <span class="nb">assert</span> ( t : y = y' ).
+    { <span class="nb">apply</span> (Santi x' y y' s s'). }
+    <span class="nb">induction</span> t. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lex_istotal</span> (<span class="nv">X</span>:hSet) (<span class="nv">Y</span>:X-&gt;hSet) (<span class="nv">R</span>:hrel X) (<span class="nv">S</span> : ∏ x, hrel (Y x)) :
+  isdeceq X -&gt; istotal R -&gt; (∏ x, istotal(S x)) -&gt; istotal (lexicographicOrder X Y R S).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Xdec Rtot Stot u u'. <span class="nb">induction</span> u <span class="k">as</span> [x y]. <span class="nb">induction</span> u' <span class="k">as</span> [x' y'].
+  <span class="nb">induction</span> (Xdec x x') <span class="k">as</span> [eq|ne].
+  { <span class="nb">refine</span> (Stot x' (transportf Y eq y) y' _ _); <span class="nb">intro</span> P. <span class="nb">induction</span> P <span class="k">as</span> [P|P].
+    { <span class="nb">apply</span> hdisj_in1. <span class="nb">unfold</span> lexicographicOrder; <span class="nb">simpl</span>. <span class="nb">apply</span> hdisj_in2. <span class="bp">exact</span> (eq,,P). }
+    { <span class="nb">apply</span> hdisj_in2. <span class="nb">unfold</span> lexicographicOrder; <span class="nb">simpl</span>. <span class="nb">apply</span> hdisj_in2.
+      <span class="nb">induction</span> eq. <span class="bp">exact</span> (idpath _,,P). }}
+  { <span class="nb">refine</span> (Rtot x x' _ _); <span class="nb">intro</span> P. <span class="nb">induction</span> P <span class="k">as</span> [P|P].
+    { <span class="nb">apply</span> hdisj_in1. <span class="nb">apply</span> hdisj_in1. <span class="nb">simpl</span>. <span class="bp">exact</span> (ne,,P). }
+    { <span class="nb">apply</span> hdisj_in2. <span class="nb">apply</span> hdisj_in1. <span class="nb">simpl</span>. <span class="bp">exact</span> (ne ∘ pathsinv0,,P). }}
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">concatenateFiniteOrderedSets</span>
+           {<span class="nv">X</span>:FiniteOrderedSet} (<span class="nv">Y</span>:X-&gt;FiniteOrderedSet) : FiniteOrderedSet.
+<span class="kn">Proof</span>.
+  <span class="c">(* we use lexicographic order *)</span>
+  <span class="nb">intros</span>.
+  <span class="nb">simple refine</span> (_,,_).
+  {
+    <span class="nb">simple refine</span> (_,,_).
+    { <span class="nb">simple refine</span> (_,,_).
+      { <span class="bp">exact</span> (∑ x, Y x)%<span class="nb">set</span>. }
+      <span class="nb">simple refine</span> (_,,_).
+      { <span class="nb">apply</span> lexicographicOrder. <span class="nb">apply</span> posetRelation. <span class="nb">intro</span>. <span class="nb">apply</span> posetRelation. }
+      <span class="nb">split</span>.
+      { <span class="nb">split</span>.
+        { <span class="nb">apply</span> lex_istrans.
+          { <span class="nb">apply</span> isantisymm_posetRelation. }
+          { <span class="nb">apply</span> istrans_posetRelation. }
+          { <span class="nb">intro</span>. <span class="nb">apply</span> istrans_posetRelation. } }
+        <span class="nb">apply</span> lex_isrefl.
+        <span class="nb">intro</span>; <span class="nb">apply</span> isrefl_posetRelation. }
+      <span class="nb">apply</span> lex_isantisymm.
+      { <span class="nb">apply</span> isantisymm_posetRelation. }
+      <span class="nb">intro</span>. <span class="nb">apply</span> isantisymm_posetRelation. }
+    <span class="nb">apply</span> lex_istotal.
+    { <span class="nb">apply</span> FiniteOrderedSet_isdeceq. }
+    { <span class="nb">apply</span> istotal_FiniteOrderedSet. }
+    <span class="nb">intro</span>; <span class="nb">apply</span> istotal_FiniteOrderedSet. }
+  <span class="nb">apply</span> isfinitetotal2.
+  { <span class="nb">apply</span> finitenessProperty. }
+  <span class="nb">intro</span>; <span class="nb">apply</span> finitenessProperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"'∑'  x .. y , P"</span> := (concatenateFiniteOrderedSets (<span class="k">λ</span> <span class="nv">x</span>, .. (concatenateFiniteOrderedSets (<span class="k">λ</span> <span class="nv">y</span>, P)) ..))
+  (<span class="kn">at level</span> <span class="mi">200</span>, x <span class="kn">binder</span>, y <span class="kn">binder</span>, <span class="kn">right associativity</span>) : foset.
+  <span class="c">(* type this in emacs in agda-input method with \sum *)</span>
+
+<span class="sd">(** sorting finite ordered sets *)</span>
+
+<span class="kn">Definition</span> <span class="nf">FiniteStructure</span> (<span class="nv">X</span>:OrderedSet) := ∑ n, ⟦ n ⟧ %foset ≅ X.
+
+<span class="kn">Local Lemma</span> <span class="nf">std_auto</span> <span class="nv">n</span> : iscontr (⟦ n ⟧ ≅ ⟦ n ⟧) %foset.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">identityPosetEquivalence</span> <span class="nv">_</span>). <span class="nb">intros</span> f.
+  <span class="nb">apply</span> subtypePath.
+  { <span class="nb">intros</span> g. <span class="nb">apply</span> isaprop_isPosetEquivalence. }
+  <span class="nb">simpl</span>. <span class="nb">apply</span> isinjpr1weq. <span class="nb">simpl</span>. <span class="nb">apply</span> funextfun. <span class="nb">intros</span> i.
+
+  <span class="c">(* proof in progress... *)</span>
+
+<span class="kn">Abort</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isapropFiniteStructure</span> <span class="nv">X</span> : isaprop (FiniteStructure X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> invproofirrelevance; <span class="nb">intros</span> r s.
+  <span class="nb">destruct</span> r <span class="k">as</span> [m p].
+  <span class="nb">destruct</span> s <span class="k">as</span> [n q].
+  <span class="nb">apply</span> subtypePairEquality.
+  {
+    <span class="nb">intros</span> k.
+    <span class="nb">apply</span> invproofirrelevance; <span class="nb">intros</span> [[r b] i] [[s c] j]; <span class="nb">simpl</span> <span class="k">in</span> r,s,i,j.
+
+    <span class="c">(* proof in progress... *)</span>
+
+    <span class="nb">admit</span>.
+    }
+  {
+    <span class="nb">apply</span> weqtoeqstn.
+    <span class="bp">exact</span> (weqcomp (pr1 p) (invweq (pr1 q))).
+  }
+<span class="kn">Abort</span>.
+
+<span class="kn">Theorem</span> <span class="nf">enumeration_FiniteOrderedSet</span> (<span class="nv">X</span>:FiniteOrderedSet) : iscontr (FiniteStructure X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">simple refine</span> (_,,_).
+  { <span class="k">exists</span> (<span class="nv">fincard</span> (finitenessProperty X)).
+
+  <span class="c">(* proof in progress... *)</span>
+
+<span class="kn">Abort</span>.
+
+<span class="kn">Theorem</span> <span class="nf">isasetFiniteOrderedSet</span> : isaset FiniteOrderedSet.
+<span class="c">(* This theorem will be useful for formalizing simplicial objects, which are contravariant functors</span>
+<span class="c">  from the category [Ord] to another category.  There are two definitions of [Ord]: in the first,</span>
+<span class="c">  the set of objects in [nat].  In the second, the set of objects is the type of nonempty finite</span>
+<span class="c">  ordered sets.  This theorem is part of showing those definitions are equivalent.  The second</span>
+<span class="c">  definition is more convenient, for if A and B are objects, so is [coprod A B], where the elements</span>
+<span class="c">  of A come before the elements of B. *)</span>
+<span class="kn">Proof</span>.
+
+<span class="kn">Abort</span>.
+
+<span class="sd">(** * computably ordered sets *)</span>
+
+<span class="c">(* Here we abstract from Chapter 11 of the HoTT book just the order</span>
+<span class="c">   properties of the real numbers, as constructed there. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isLattice</span> {<span class="nv">X</span>:hSet} (<span class="nv">le</span>:hrel X) (<span class="nv">min</span> <span class="nv">max</span>:binop X) :=
+  ∑ po : isPartialOrder le,
+  ∑ lub : ∏ x y z, le x z ∧ le y z &lt;-&gt; le (max x y) z,
+  ∑ glb : ∏ x y t, le t x ∧ le t y &lt;-&gt; le t (min x y),
+  unit.
+
+<span class="kn">Definition</span> <span class="nf">istrans2</span> {<span class="nv">X</span>:hSet} (<span class="nv">le</span> <span class="nv">lt</span>:hrel X) :=
+  ∑ transltle: ∏ x y z, lt x y -&gt; le y z -&gt; lt x z,
+  ∑ translelt: ∏ x y z, le x y -&gt; lt y z -&gt; lt x z,
+  unit.
+
+<span class="kn">Definition</span> <span class="nf">iswklin</span> {<span class="nv">X</span>} (<span class="nv">lt</span>:hrel X) := ∏ x y z, lt x y -&gt; lt x z ∨ lt z y.
+
+<span class="kn">Definition</span> <span class="nf">isComputablyOrdered</span> {<span class="nv">X</span>:hSet}
+           (<span class="nv">lt</span>:hrel X) (<span class="nv">min</span> <span class="nv">max</span>:binop X) :=
+  <span class="k">let</span> <span class="nv">le</span> <span class="nv">x</span> <span class="nv">y</span> := ¬ lt y x <span class="k">in</span>
+  ∑ latt: isLattice le min max,
+  ∑ trans2: istrans2 le lt,
+  ∑ translt: istrans lt,
+  ∑ irrefl: isirrefl lt,
+  ∑ cotrans: iscotrans lt,
+  unit.
+
+<span class="kn">Local Ltac</span> <span class="nf">expand</span> ic :=
+  <span class="nb">induction</span> ic <span class="k">as</span>
+    [[[[transle reflle]antisymmle][lub[glb _]]]
+       [[transltle [translelt _]][translt[irrefl[cotrans _]]]]].
+
+<span class="kn">Section</span> <span class="nf">OtherProperties</span>.
+
+  <span class="kn">Variable</span> (<span class="nv">X</span>:hSet)
+            (<span class="nv">lt</span>:hrel X)
+            (<span class="nv">min</span> <span class="nv">max</span>:binop X)
+            (<span class="nv">ic</span>:isComputablyOrdered lt min max).
+
+  <span class="kn">Let</span> <span class="nf">le</span> <span class="nv">x</span> <span class="nv">y</span> := ¬ lt y x.
+  <span class="kn">Let</span> <span class="nf">apart</span> <span class="nv">x</span> <span class="nv">y</span> := lt y x ∨ lt x y.
+
+  <span class="kn">Local Lemma</span> <span class="nf">apart_isirrefl</span> : isirrefl apart.
+  <span class="kn">Proof</span>.
+    expand ic.
+    <span class="nb">intros</span> x a.
+    <span class="nb">unfold</span> apart <span class="k">in</span> a.
+    <span class="nb">apply</span> (a hfalse); <span class="nb">clear</span> a; <span class="nb">intros</span> b.
+    <span class="nb">induction</span> b <span class="k">as</span> [b|b]; <span class="bp">exact</span> (irrefl _ b).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">lt_implies_le</span> <span class="nv">x</span> <span class="nv">y</span> : lt x y -&gt; le x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> l.
+    <span class="nb">intro</span> m.
+    expand ic.
+    <span class="nb">assert</span> (n := translt _ _ _ l m).
+    <span class="bp">exact</span> (irrefl _ n).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">apart_implies_ne</span> <span class="nv">x</span> <span class="nv">y</span> : apart x y -&gt; x != y.
+  <span class="kn">Proof</span>.
+    expand ic.
+    <span class="nb">intros</span> a e.
+    <span class="nb">induction</span> e.
+    <span class="nb">apply</span> (apart_isirrefl _ a).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">tightness</span> <span class="nv">x</span> <span class="nv">y</span> : ¬ apart x y &lt;-&gt; x = y.
+  <span class="kn">Proof</span>.
+    expand ic.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> m. <span class="nb">assert</span> (p := fromnegcoprod_prop m); <span class="nb">clear</span> m.
+      <span class="nb">induction</span> p <span class="k">as</span> [p q]. <span class="bp">now</span> <span class="nb">apply</span> antisymmle.
+    - <span class="nb">intro</span> e. <span class="nb">induction</span> e. <span class="nb">apply</span> apart_isirrefl.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ne_implies_dnegapart</span> <span class="nv">x</span> <span class="nv">y</span> : x != y -&gt; ¬¬ apart x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> n m.
+    <span class="nb">refine</span> (n _); <span class="nb">clear</span> n.
+    <span class="bp">now</span> <span class="nb">apply</span> tightness.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">ClassicalProperties</span>.
+
+    <span class="kn">Variable</span> <span class="nv">lem</span>:LEM.
+
+    <span class="kn">Local Lemma</span> <span class="nf">ne_implies_apart</span> <span class="nv">x</span> <span class="nv">y</span> : x != y -&gt; apart x y.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> a.
+      <span class="nb">apply</span> (dneg_LEM _ lem).
+      <span class="bp">now</span> <span class="nb">apply</span> ne_implies_dnegapart.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">trichotomy</span> <span class="nv">x</span> <span class="nv">y</span> : lt x y ∨ x = y ∨ lt y x.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span>.
+      <span class="nb">induction</span> (lem (x = y)) <span class="k">as</span> [a|b].
+      - <span class="nb">apply</span> hdisj_in2; <span class="nb">apply</span> hdisj_in1; <span class="bp">exact</span> a.
+      - <span class="nb">assert</span> (l := ne_implies_apart _ _ b); <span class="nb">clear</span> b.
+        <span class="nb">unfold</span> apart <span class="k">in</span> l.
+        <span class="nb">refine</span> (l _ _); <span class="nb">intro</span> m; <span class="nb">clear</span> l.
+        <span class="nb">induction</span> m <span class="k">as</span> [n|o].
+        * <span class="nb">apply</span> hdisj_in2; <span class="nb">apply</span> hdisj_in2; <span class="bp">exact</span> n.
+        * <span class="nb">apply</span> hdisj_in1; <span class="bp">exact</span> o.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">le_istotal</span> : istotal le.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y.
+      <span class="nb">assert</span> (m := trichotomy x y).
+      <span class="nb">refine</span> (m _ _); <span class="nb">clear</span> m; <span class="nb">intro</span> m; <span class="nb">induction</span> m <span class="k">as</span> [m|m].
+      - <span class="nb">apply</span> hdisj_in1. <span class="nb">apply</span> lt_implies_le. <span class="bp">exact</span> m.
+      - <span class="nb">refine</span> (m _ _); <span class="nb">clear</span> m; <span class="nb">intro</span> m; <span class="nb">induction</span> m <span class="k">as</span> [m|m].
+        * <span class="nb">apply</span> hdisj_in1. <span class="nb">induction</span> m. <span class="nb">unfold</span> le. expand ic. <span class="nb">apply</span> irrefl.
+        * <span class="nb">apply</span> hdisj_in2. <span class="nb">apply</span> lt_implies_le. <span class="bp">exact</span> m.
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">ClassicalProperties</span>.
+
+<span class="kn">End</span> <span class="nf">OtherProperties</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/OrderedSets/OrderedSets.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Combinatorics/FiniteSets.vo has
+  &gt; bad version number 90299 (expected 81601). It is corrupted or was compiled
+  &gt; with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Combinatorics.FiniteSets.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.UnivalenceAxiom.
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

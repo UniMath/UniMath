@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>prebicategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Mitchell Riley</span>
+
+<span class="sd">June 2016</span>
+
+<span class="sd">I am very grateful to Peter LeFanu Lumsdaine, whose unreleased bicategories code strongly</span>
+<span class="sd">influenced the definitions in this file.</span>
+
+<span class="sd">************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories. <span class="c">(* unit *)</span>
+<span class="kn">Require Import</span> UniMath.CategoryTheory.HorizontalComposition.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+
+
+
+<span class="sd">(******************************************************************************)</span>
+<span class="c">(* Definition of a prebicategory *)</span>
+
+<span class="c">(* This is done in a few pieces. Instead of specifying all the data and the conditions</span>
+<span class="c">   afterwards, we interleave them, i.e., we have a precategory of morphisms immediately,</span>
+<span class="c">   instead of a type that is later said to be a precategory. This (possibly) makes the</span>
+<span class="c">   definition easier to work with. *)</span>
+
+<span class="c">(* The pieces are:</span>
+<span class="c">   prebicategory_ob_hom:   A type C, and for each a,b : C, a precategory (a -1-&gt; b)</span>
+<span class="c">   prebicategory_id_comp:  For each a : C, an object of (a -1-&gt; a),</span>
+<span class="c">                           For each a b c : C, a functor (a -1-&gt; b) × (b -1-&gt; c) to (a -1-&gt; c)</span>
+<span class="c">   prebicategory_data:     For each a b c d : C, an associator natural transformation</span>
+<span class="c">                           For each a b : C, left and right unitor natural transformations</span>
+<span class="c">   prebicategory:          Proofs that:</span>
+<span class="c">                           Every precategory (a -1-&gt; b)'s homs are sets</span>
+<span class="c">                           The natural transformations above are isos</span>
+<span class="c">                           The pentagon and triangle axioms hold</span>
+<span class="c"> *)</span>
+
+<span class="c">(* An alternative structure would be to define a prebicategory as a precategory such that</span>
+<span class="c">   each hom type itself has the structure of a precategory, together with appropriate</span>
+<span class="c">   axioms. *)</span>
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C  'c×'  D"</span> := (category_binproduct C D)
+ (<span class="kn">at level</span> <span class="mi">75</span>, <span class="kn">right associativity</span>).
+
+<span class="kn">Definition</span> <span class="nf">prebicategory_ob_hom</span> : UU := ∑ C : UU, ∏ a b : C, category.
+
+<span class="kn">Coercion</span> <span class="nf">bicat_ob</span> (C : prebicategory_ob_hom) : UU := pr1 C.
+
+<span class="kn">Definition</span> <span class="nf">homcat</span> {<span class="nv">C</span> : prebicategory_ob_hom} (<span class="nv">a</span> <span class="nv">b</span> : C) : category := pr2 C a b.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"a  '-1-&gt;'  b"</span> := (homcat a b) (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f  '-2-&gt;'  g"</span> := (@precategory_morphisms (_ -<span class="mi">1</span>-&gt;_) f g)
+  (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"alpha  ';v;'  beta"</span> := (@compose (_ -<span class="mi">1</span>-&gt; _) _ _ _ alpha beta)
+ (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).
+
+<span class="kn">Definition</span> <span class="nf">prebicategory_id_comp</span> :=
+  ∑ C : prebicategory_ob_hom,
+          (∏ a : C, a -<span class="mi">1</span>-&gt; a)
+        × (∏ a b c : C, ((a -<span class="mi">1</span>-&gt; b) c× (b -<span class="mi">1</span>-&gt; c)) ⟶ (a -<span class="mi">1</span>-&gt; c)).
+
+<span class="kn">Coercion</span> <span class="nf">prebicategory_ob_hom_from_prebicategory_id_comp</span> (C : prebicategory_id_comp) :
+  prebicategory_ob_hom := pr1 C.
+
+<span class="kn">Definition</span> <span class="nf">identity1</span> {<span class="nv">C</span> : prebicategory_id_comp} (<span class="nv">a</span> : C) : a -<span class="mi">1</span>-&gt; a := pr1 (pr2 C) a.
+
+<span class="kn">Definition</span> <span class="nf">compose_functor</span> {<span class="nv">C</span> : prebicategory_id_comp} (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C)
+  : ((a -<span class="mi">1</span>-&gt; b) c× (b -<span class="mi">1</span>-&gt; c)) ⟶ (a -<span class="mi">1</span>-&gt; c)
+  := pr2 (pr2 C) a b c.
+
+<span class="kn">Definition</span> <span class="nf">compose1</span> {<span class="nv">C</span> : prebicategory_id_comp} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b) (<span class="nv">g</span> : b -<span class="mi">1</span>-&gt; c)
+  := functor_on_objects (compose_functor a b c) (make_dirprod f g).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f  ';1;'  g"</span> := (compose1 f g)
+  (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).
+
+<span class="kn">Definition</span> <span class="nf">compose2h</span> {<span class="nv">C</span> : prebicategory_id_comp} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+           {<span class="nv">f</span> <span class="nv">f'</span> : a -<span class="mi">1</span>-&gt; b}
+           {<span class="nv">g</span> <span class="nv">g'</span> : b -<span class="mi">1</span>-&gt; c}
+           (<span class="nv">alpha</span> : f -<span class="mi">2</span>-&gt; f')
+           (<span class="nv">beta</span> : g -<span class="mi">2</span>-&gt; g')
+  : (f ;<span class="mi">1</span>; g) -<span class="mi">2</span>-&gt; (f' ;<span class="mi">1</span>; g').
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> functor_on_morphisms.
+  <span class="bp">exact</span> (catbinprodmor alpha beta).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"alpha  ';h;'  beta"</span> := (compose2h alpha beta) (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).
+
+<span class="kn">Definition</span> <span class="nf">compose2h_iso</span> {<span class="nv">C</span> : prebicategory_id_comp} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+           {<span class="nv">f</span> <span class="nv">f'</span> : a -<span class="mi">1</span>-&gt; b}
+           {<span class="nv">g</span> <span class="nv">g'</span> : b -<span class="mi">1</span>-&gt; c}
+           (<span class="nv">alpha</span> : z_iso f f')
+           (<span class="nv">beta</span> : z_iso g g')
+  : z_iso (f ;<span class="mi">1</span>; g) (f' ;<span class="mi">1</span>; g').
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> functor_on_z_iso.
+  <span class="nb">apply</span> precatbinprod_z_iso.
+  - <span class="bp">exact</span> alpha.
+  - <span class="bp">exact</span> beta.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"alpha  ';hi;'  beta"</span> := (compose2h_iso alpha beta) (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).
+
+<span class="kn">Definition</span> <span class="nf">associator_trans_type</span> {<span class="nv">C</span> : prebicategory_id_comp} (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C) : UU
+  := pair_functor (functor_identity (a -<span class="mi">1</span>-&gt; b)) (compose_functor b c d) ∙
+     compose_functor a b d
+     ⟹
+     precategory_binproduct_assoc (a -<span class="mi">1</span>-&gt; b) (b -<span class="mi">1</span>-&gt; c) (c -<span class="mi">1</span>-&gt; d) ∙
+     (pair_functor (compose_functor a b c) (functor_identity (c -<span class="mi">1</span>-&gt; d)) ∙
+      compose_functor a c d).
+
+<span class="kn">Definition</span> <span class="nf">left_unitor_trans_type</span> {<span class="nv">C</span> : prebicategory_id_comp} (<span class="nv">a</span> <span class="nv">b</span> : C) : UU
+  := bindelta_pair_functor
+       (constant_functor (a -<span class="mi">1</span>-&gt; b) (a -<span class="mi">1</span>-&gt; a) (identity1 a))
+       (functor_identity (a -<span class="mi">1</span>-&gt; b)) ∙ compose_functor a a b
+     ⟹
+     functor_identity (a -<span class="mi">1</span>-&gt; b).
+
+<span class="kn">Definition</span> <span class="nf">right_unitor_trans_type</span> {<span class="nv">C</span> : prebicategory_id_comp} (<span class="nv">a</span> <span class="nv">b</span> : C) : UU
+  := bindelta_pair_functor
+       (functor_identity (a -<span class="mi">1</span>-&gt; b))
+       (constant_functor (a -<span class="mi">1</span>-&gt; b) (b -<span class="mi">1</span>-&gt; b) (identity1 b)) ∙
+     compose_functor a b b
+     ⟹
+     functor_identity (a -<span class="mi">1</span>-&gt; b).
+
+<span class="kn">Definition</span> <span class="nf">prebicategory_data</span> : UU :=
+  ∑ C : prebicategory_id_comp,
+          (∏ a b c d : C, associator_trans_type a b c d)
+        × (∏ a b : C, left_unitor_trans_type a b)
+        × (∏ a b : C, right_unitor_trans_type a b).         <span class="c">(* Right *)</span>
+
+<span class="kn">Coercion</span> <span class="nf">prebicategory_id_comp_from_prebicategory_data</span> (C : prebicategory_data)
+  : prebicategory_id_comp
+  := pr1 C.
+
+<span class="kn">Definition</span> <span class="nf">associator_trans</span> {<span class="nv">C</span> : prebicategory_data} (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C)
+  : pair_functor (functor_identity (a -<span class="mi">1</span>-&gt; b))
+                 (compose_functor b c d) ∙ compose_functor a b d
+    ⟹
+    precategory_binproduct_assoc (a -<span class="mi">1</span>-&gt; b) (b -<span class="mi">1</span>-&gt; c) (c -<span class="mi">1</span>-&gt; d) ∙
+    (pair_functor (compose_functor a b c) (functor_identity (c -<span class="mi">1</span>-&gt; d)) ∙
+     compose_functor a c d)
+  := pr1 (pr2 C) a b c d.
+
+<span class="kn">Definition</span> <span class="nf">associator_2mor</span> {<span class="nv">C</span> : prebicategory_data} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+           (<span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b)
+           (<span class="nv">g</span> : b -<span class="mi">1</span>-&gt; c)
+           (<span class="nv">h</span> : c -<span class="mi">1</span>-&gt; d)
+  : (f ;<span class="mi">1</span>; (g ;<span class="mi">1</span>; h)) -<span class="mi">2</span>-&gt; ((f ;<span class="mi">1</span>; g) ;<span class="mi">1</span>; h)
+  := associator_trans a b c d (make_catbinprod f (make_catbinprod g h)).
+
+<span class="kn">Definition</span> <span class="nf">left_unitor_trans</span> {<span class="nv">C</span> : prebicategory_data} (<span class="nv">a</span> <span class="nv">b</span> : C)
+  : bindelta_pair_functor
+      (constant_functor (a -<span class="mi">1</span>-&gt; b) (a -<span class="mi">1</span>-&gt; a) (identity1 a))
+      (functor_identity (a -<span class="mi">1</span>-&gt; b)) ∙ compose_functor a a b
+    ⟹
+    functor_identity (a -<span class="mi">1</span>-&gt; b)
+  := pr1 (pr2 (pr2 C)) a b.
+
+<span class="kn">Definition</span> <span class="nf">left_unitor_2mor</span> {<span class="nv">C</span> : prebicategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C}
+           (<span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b)
+  : identity1 a ;<span class="mi">1</span>; f -<span class="mi">2</span>-&gt; f
+  := left_unitor_trans a b f.
+
+<span class="kn">Definition</span> <span class="nf">right_unitor_trans</span> {<span class="nv">C</span> : prebicategory_data} (<span class="nv">a</span> <span class="nv">b</span> : C)
+  : bindelta_pair_functor
+      (functor_identity (a -<span class="mi">1</span>-&gt; b))
+      (constant_functor (a -<span class="mi">1</span>-&gt; b) (b -<span class="mi">1</span>-&gt; b) (identity1 b)) ∙
+    compose_functor a b b
+    ⟹
+    functor_identity (a -<span class="mi">1</span>-&gt; b)
+  := pr2 (pr2 (pr2 C)) a b.
+
+<span class="kn">Definition</span> <span class="nf">right_unitor_2mor</span> {<span class="nv">C</span> : prebicategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b)
+  : f ;<span class="mi">1</span>; (identity1 b) -<span class="mi">2</span>-&gt; f
+  := right_unitor_trans a b f.
+
+<span class="kn">Definition</span> <span class="nf">associator_and_unitors_are_iso</span> (<span class="nv">C</span> : prebicategory_data) : UU
+  :=   (∏ (a b c d : C) (f : a -<span class="mi">1</span>-&gt; b) (g : b -<span class="mi">1</span>-&gt; c) (h : c -<span class="mi">1</span>-&gt; d),
+          is_z_isomorphism (associator_2mor f g h))
+     × (∏ (a b : C) (f : a -<span class="mi">1</span>-&gt; b), is_z_isomorphism (left_unitor_2mor f))
+     × (∏ (a b : C) (g : a -<span class="mi">1</span>-&gt; b), is_z_isomorphism (right_unitor_2mor g)).
+
+<span class="c">(* It suffices to check the pentagon/triangle axioms pointwise *)</span>
+
+<span class="kn">Definition</span> <span class="nf">pentagon_axiom_type</span> {<span class="nv">C</span> : prebicategory_data} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : C}
+     (<span class="nv">k</span> : a -<span class="mi">1</span>-&gt; b) (<span class="nv">h</span> : b -<span class="mi">1</span>-&gt; c) (<span class="nv">g</span> : c -<span class="mi">1</span>-&gt; d) (<span class="nv">f</span> : d -<span class="mi">1</span>-&gt; e)
+  : UU
+  :=
+    <span class="c">(* Anticlockwise *)</span>
+    associator_2mor k h (g ;<span class="mi">1</span>; f) ;v; associator_2mor (k ;<span class="mi">1</span>; h) g f
+    =
+    <span class="c">(* Clockwise *)</span>
+        (identity k ;h; associator_2mor h g f)
+    ;v; associator_2mor k (h ;<span class="mi">1</span>; g) f
+    ;v; (associator_2mor k h g ;h; identity f).
+
+<span class="kn">Definition</span> <span class="nf">triangle_axiom_type</span> {<span class="nv">C</span> : prebicategory_data} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+    (<span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b)
+    (<span class="nv">g</span> : b -<span class="mi">1</span>-&gt; c)
+  : UU
+  := identity f ;h; left_unitor_2mor g =
+     associator_2mor f (identity1 b) g ;v; (right_unitor_2mor f ;h; identity g).
+
+<span class="kn">Definition</span> <span class="nf">prebicategory_coherence</span> (<span class="nv">C</span> : prebicategory_data) : UU
+  :=   (∏ (a b c d e : C) (k : a -<span class="mi">1</span>-&gt; b) (h : b -<span class="mi">1</span>-&gt; c) (g : c -<span class="mi">1</span>-&gt; d) (f : d -<span class="mi">1</span>-&gt; e),
+          pentagon_axiom_type k h g f)
+     × (∏ (a b c : C) (f : a -<span class="mi">1</span>-&gt; b) (g : b -<span class="mi">1</span>-&gt; c), triangle_axiom_type f g).
+
+<span class="kn">Definition</span> <span class="nf">is_prebicategory</span> (<span class="nv">C</span> : prebicategory_data) : UU
+  :=   associator_and_unitors_are_iso C
+     × prebicategory_coherence C.
+
+<span class="c">(* *********************************************************************************** *)</span>
+<span class="sd">(** ** Final packing and projections. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">prebicategory</span> : UU := total2 is_prebicategory.
+
+<span class="kn">Coercion</span> <span class="nf">prebicategory_data_from_prebicategory</span> (C : prebicategory) : prebicategory_data
+  := pr1 C.
+
+<span class="kn">Definition</span> <span class="nf">has_homcats</span> (<span class="nv">C</span> : prebicategory) : UU
+  := ∏ a b : C, is_univalent (homcat a b).
+
+<span class="kn">Definition</span> <span class="nf">associator</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+    (<span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b) (<span class="nv">g</span> : b -<span class="mi">1</span>-&gt; c) (<span class="nv">h</span> : c -<span class="mi">1</span>-&gt; d)
+  : z_iso (f ;<span class="mi">1</span>; (g ;<span class="mi">1</span>; h)) ((f ;<span class="mi">1</span>; g) ;<span class="mi">1</span>; h).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (associator_2mor _ _ _).
+  - <span class="bp">exact</span> ((pr1 (pr1 (pr2 C))) a b c d f g h).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">left_unitor</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> : C}
+           (<span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b)
+  : z_iso ((identity1 a) ;<span class="mi">1</span>; f) f.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (left_unitor_2mor f).
+  - <span class="bp">exact</span> ((pr1 (pr2 (pr1 (pr2 C)))) a b f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">right_unitor</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b)
+  : z_iso (f ;<span class="mi">1</span>; (identity1 b)) f.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (right_unitor_2mor f).
+  - <span class="bp">exact</span> ((pr2 (pr2 (pr1 (pr2 C)))) a b f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pentagon_axiom</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span>: C}
+    (<span class="nv">k</span> : a -<span class="mi">1</span>-&gt; b) (<span class="nv">h</span> : b -<span class="mi">1</span>-&gt; c) (<span class="nv">g</span> : c -<span class="mi">1</span>-&gt; d) (<span class="nv">f</span> : d -<span class="mi">1</span>-&gt; e)
+  : pentagon_axiom_type k h g f
+  := pr1 (pr2 (pr2 C)) a b c d e k h g f.
+
+<span class="kn">Definition</span> <span class="nf">triangle_axiom</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+    (<span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b) (<span class="nv">g</span> : b -<span class="mi">1</span>-&gt; c)
+  : triangle_axiom_type f g
+  := pr2 (pr2 (pr2 C)) a b c f g.
+
+<span class="sd">(******************************************************************************)</span>
+<span class="sd">(** ** Basics on identities and inverses *)</span>
+<span class="kn">Lemma</span> <span class="nf">id_2mor_left</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">g</span> <span class="nv">g'</span> : b -<span class="mi">1</span>-&gt; c} (<span class="nv">β</span> : g -<span class="mi">2</span>-&gt; g')
+  : identity (identity1 b) ;h; β
+  = left_unitor g ;v; β ;v; inv_from_z_iso (left_unitor g').
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> z_iso_inv_on_left.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (nat_trans_ax (left_unitor_trans b c)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">id_2mor_right</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">f'</span> : a -<span class="mi">1</span>-&gt; b} (<span class="nv">alpha</span> : f -<span class="mi">2</span>-&gt; f')
+  : alpha ;h; identity (identity1 b) =
+    right_unitor f ;v; alpha ;v; inv_from_z_iso (right_unitor f').
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> z_iso_inv_on_left.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (nat_trans_ax (right_unitor_trans a b)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">horizontal_comp_id</span> {<span class="nv">C</span> : prebicategory_id_comp} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+    {<span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b} {<span class="nv">g</span> : b -<span class="mi">1</span>-&gt; c}
+  : identity f ;h; identity g = identity (f ;<span class="mi">1</span>; g).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> compose2h.
+  intermediate_path (functor_on_morphisms (compose_functor a b c)
+            (identity (make_catbinprod f g))).
+    <span class="bp">reflexivity</span>.
+  <span class="nb">apply</span> functor_id.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">inv_horizontal_comp</span> {<span class="nv">C</span> : prebicategory_id_comp} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+    {<span class="nv">f</span> <span class="nv">f'</span> : a -<span class="mi">1</span>-&gt; b} {<span class="nv">g</span> <span class="nv">g'</span> : b -<span class="mi">1</span>-&gt; c}
+    (<span class="nv">alpha</span> : z_iso f f') (<span class="nv">beta</span> : z_iso g g')
+  : (z_iso_inv_from_z_iso alpha) ;hi; (z_iso_inv_from_z_iso beta)
+  = z_iso_inv_from_z_iso (alpha ;hi; beta).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> compose2h_iso.
+  use subtypePath.
+  {
+    <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism.
+  }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(******************************************************************************)</span>
+<span class="c">(* Interchange Law *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">interchange</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+    {<span class="nv">f1</span> <span class="nv">f2</span> <span class="nv">f3</span> : a -<span class="mi">1</span>-&gt; b} {<span class="nv">g1</span> <span class="nv">g2</span> <span class="nv">g3</span> : b -<span class="mi">1</span>-&gt; c}
+    (<span class="nv">a1</span> : f1 -<span class="mi">2</span>-&gt; f2) (<span class="nv">a2</span> : f2 -<span class="mi">2</span>-&gt; f3)
+    (<span class="nv">b1</span> : g1 -<span class="mi">2</span>-&gt; g2) (<span class="nv">b2</span> : g2 -<span class="mi">2</span>-&gt; g3)
+  : (a1 ;v; a2) ;h; (b1 ;v; b2) = (a1 ;h; b1) ;v; (a2 ;h; b2).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> compose2h.
+  <span class="nb">assert</span> (X : catbinprodmor a1 b1 · catbinprodmor a2 b2
+            = catbinprodmor (a1 ;v; a2) (b1 ;v; b2)) <span class="bp">by</span> <span class="bp">reflexivity</span>.
+  <span class="nb">rewrite</span> &lt;- X.
+  <span class="nb">apply</span> functor_comp.
+<span class="kn">Qed</span>.
+
+<span class="sd">(******************************************************************************)</span>
+<span class="c">(* ** Further results. *)</span>
+
+<span class="sd">(** *** The othoter triangle identity. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">triangle_identity'</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b) (<span class="nv">g</span> : b -<span class="mi">1</span>-&gt; c)
+  : right_unitor_2mor f ;h; identity g =
+    inv_from_z_iso (associator f (identity1 b) g) ;v; (identity _ ;h; left_unitor_2mor _).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (!_).
+  use z_iso_inv_on_right.
+  <span class="nb">apply</span> triangle_axiom.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/WkCatEnrichment/prebicategory.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; ************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Isos.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

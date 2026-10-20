@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Tests.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Exact category prerequisite tests *)</span>
+
+<span class="kn">Require Export</span> UniMath.Foundations.All.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Limits.Zero.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Limits.Kernels.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Limits.Cokernels.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Limits.Pushouts.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Limits.BinDirectSums.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Limits.Opp.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.CategoriesWithBinOps.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.TransportMorphisms.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.PrecategoriesWithAbgrops.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.PreAdditive.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Morphisms.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Additive.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Subcategory.Full.
+<span class="kn">Require Export</span> UniMath.MoreFoundations.Notations.
+<span class="kn">Require Export</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Export</span> UniMath.MoreFoundations.Propositions.
+<span class="kn">Require Export</span> UniMath.Algebra.BinaryOperations.
+<span class="kn">Require Export</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Export</span> UniMath.Algebra.Groups.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> addmonoid.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> abgr.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> logic.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Arguments</span> isZero {_} _.
+<span class="kn">Local</span> <span class="kn">Arguments</span> BinDirectSumOb {_ _ _}.
+<span class="kn">Local</span> <span class="kn">Arguments</span> to_binop {_ _ _}.
+<span class="kn">Local</span> <span class="kn">Arguments</span> grinv {_}.
+<span class="kn">Local</span> <span class="kn">Arguments</span> BinDirectSum {_}.
+<span class="kn">Local</span> <span class="kn">Arguments</span> to_Pr1 {_ _ _} _.
+<span class="kn">Local</span> <span class="kn">Arguments</span> to_Pr2 {_ _ _} _.
+<span class="kn">Local</span> <span class="kn">Arguments</span> to_In1 {_ _ _} _.
+<span class="kn">Local</span> <span class="kn">Arguments</span> to_In2 {_ _ _} _.
+<span class="kn">Local</span> <span class="kn">Arguments</span> to_BinOpId {_ _ _ _ _ _ _ _}.
+<span class="kn">Local</span> <span class="kn">Arguments</span> to_IdIn1 {_ _ _ _ _ _ _ _}.
+<span class="kn">Local</span> <span class="kn">Arguments</span> to_IdIn2 {_ _ _ _ _ _ _ _}.
+<span class="kn">Local</span> <span class="kn">Arguments</span> to_Unel1 {_ _ _ _ _ _ _ _}.
+<span class="kn">Local</span> <span class="kn">Arguments</span> to_Unel2 {_ _ _ _ _ _ _ _}.
+<span class="kn">Local</span> <span class="kn">Arguments</span> MorphismPair : <span class="kn">clear implicits</span>.
+<span class="kn">Local</span> <span class="kn">Arguments</span> morphism_from_iso {_ _ _}.
+<span class="kn">Local</span> <span class="kn">Arguments</span> ToBinDirectSum {_ _ _} _ {_}.
+<span class="kn">Local</span> <span class="kn">Arguments</span> isBinDirectSum {_ _ _ _}.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ExactCategories.ExactCategories.
+
+<span class="kn">Goal</span> ∏ (C:category) (a b:C) (f: a --&gt; b), isMonic (C:=C) f = isEpi (C:=C^op) f.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (C:category) (a b:C) (f: a --&gt; b), isEpi (C:=C) f = isMonic (C:=C^op) f.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="sd">(** Here's why we prefer to use z_iso instead of iso : *)</span>
+<span class="kn">Goal</span> ∏ (C:precategory) (a b:C) (f:z_iso a b), z_iso_inv (z_iso_inv f) = f.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (C:precategory) (a b:C) (f:z_iso (C:=C) a b), opp_z_iso (opp_z_iso f) = f.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (C:category) (a b:C) (f:z_iso (C:=C^op) b a), opp_z_iso (opp_z_iso f) = f.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (M : category) {X:<span class="kt">Type</span>} (j : X -&gt; ob M),
+  induced_precategory M^op j = (induced_category M j)^op.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (M:precategory) (P:MorphismPair M), MorphismPair_opp (MorphismPair_opp P) = P.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Goal</span> ∏ {M : category} (A B C:M) (f : A --&gt; C) (g : B --&gt; C), Pullback f g = Pushout (C:=M^op) f g.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ {M : category} (A B C:M) (f : A --&gt; C) (g : A --&gt; C), Pushout f g = Pullback (C:=M^op) f g.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (M : precategoryWithBinOps), oppositePrecategoryWithBinOps (oppositePrecategoryWithBinOps M) = M.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Goal</span> ∏ {M:precategoryWithBinOps} {X:<span class="kt">Type</span>} (j : X -&gt; ob M),
+  oppositePrecategoryWithBinOps (induced_precategoryWithBinOps M j) =
+  induced_precategoryWithBinOps (oppositePrecategoryWithBinOps M) j.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.           <span class="c">(* 0.038 secs *)</span>
+<span class="kn">Qed</span>.
+
+<span class="kn">Goal</span> ∏ (M : categoryWithAbgrops), oppositeCategoryWithAbgrops (oppositeCategoryWithAbgrops M) = M.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Goal</span> ∏ {M:categoryWithAbgrops} {X:<span class="kt">Type</span>} (j : X -&gt; ob M),
+  oppositeCategoryWithAbgrops (induced_categoryWithAbgrops M j) =
+  induced_categoryWithAbgrops (oppositeCategoryWithAbgrops M) j.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.           <span class="c">(* 0.183 secs *)</span>
+<span class="kn">Qed</span>.
+
+<span class="kn">Goal</span> ∏ (M : PreAdditive), oppositePreAdditive (oppositePreAdditive M) = M.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (M:PreAdditive) (x y:M) (xy : BinDirectSum x y),
+  oppositeBinDirectSum (M:=oppositePreAdditive M) (oppositeBinDirectSum xy) = xy.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (M:PreAdditive) (A B:M) (AB : BinDirectSum A B), reverseBinDirectSum (oppositeBinDirectSum AB) = oppositeBinDirectSum (reverseBinDirectSum AB).
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (M:PreAdditive) (A B:M) (AB : BinDirectSum A B), reverseBinDirectSum (reverseBinDirectSum AB) = AB.
+<span class="kn">Proof</span>.
+  <span class="kn">Fail</span> <span class="bp">reflexivity</span>.
+<span class="kn">Abort</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">hom</span> (<span class="nv">C</span>:precategory_data) : ob C -&gt; ob C -&gt; UU := <span class="k">λ</span> <span class="nv">c</span> <span class="nv">c'</span>, precategory_morphisms c c'.
+<span class="kn">Local Definition</span> <span class="nf">Hom</span> (<span class="nv">C</span> : category) : ob C -&gt; ob C -&gt; hSet := <span class="k">λ</span> <span class="nv">c</span> <span class="nv">c'</span>, make_hSet _ (homset_property C c c').
+<span class="kn">Local Definition</span> <span class="nf">Hom_add</span> (<span class="nv">C</span> : PreAdditive) : ob C -&gt; ob C -&gt; abgr := <span class="k">λ</span> <span class="nv">c</span> <span class="nv">c'</span>, (@to_abgr C c c').
+
+<span class="kn">Section</span> <span class="nf">Sanity</span>.
+  <span class="kn">Context</span> (<span class="nv">M</span> : category) (<span class="nv">x</span> <span class="nv">y</span>:M) (<span class="nv">f</span> : hom M x y) (<span class="nv">g</span> : Hom M x y).
+  <span class="kn">Goal</span> Hom M x y. <span class="kn">Proof</span>. <span class="bp">exact</span> f. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> hom M x y. <span class="kn">Proof</span>. <span class="bp">exact</span> g. <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Sanity</span>.
+
+<span class="kn">Section</span> <span class="nf">Sanity2</span>.
+  <span class="kn">Context</span> (<span class="nv">M</span> : PreAdditive) (<span class="nv">x</span> <span class="nv">y</span>:M) (<span class="nv">f</span> : hom M x y) (<span class="nv">g</span> : Hom M x y) (<span class="nv">h</span> : Hom_add M x y).
+  <span class="kn">Goal</span> Hom_add M x y. <span class="kn">Proof</span>. <span class="bp">exact</span> f. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> Hom_add M x y. <span class="kn">Proof</span>. <span class="bp">exact</span> g. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> Hom M x y. <span class="kn">Proof</span>. <span class="bp">exact</span> f. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> Hom M x y. <span class="kn">Proof</span>. <span class="bp">exact</span> h. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> hom M x y. <span class="kn">Proof</span>. <span class="bp">exact</span> g. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> hom M x y. <span class="kn">Proof</span>. <span class="bp">exact</span> h. <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Sanity2</span>.
+
+<span class="kn">Goal</span> ∏ (M:precategory) (P:MorphismPair M), MorphismPair_opp (MorphismPair_opp P) = P.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Goal</span> ∏ (M:category) (p:MorphismPair M^op), MorphismPair M.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="bp">exact</span> (MorphismPair_opp p).
+<span class="kn">Qed</span>.
+<span class="kn">Goal</span> ∏ (M:category) (P Q : MorphismPair M^op) (f:MorphismPairIsomorphism P Q),
+  opp_MorphismPairIsomorphism (opp_MorphismPairIsomorphism f) = f.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Goal</span> ∏ (M:category) (P Q : MorphismPair M^op),
+ MorphismPairIsomorphism (C:=M^op) P Q -&gt;
+ MorphismPairIsomorphism (C:=M) (MorphismPair_opp Q) (MorphismPair_opp P).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> M P Q. <span class="bp">exact</span> (opp_MorphismPairIsomorphism (M:=M^op) ).
+<span class="kn">Qed</span>.
+<span class="kn">Goal</span> ∏ (M : AdditiveCategory), oppositeAdditiveCategory (oppositeAdditiveCategory M) = M.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ {M:AdditiveCategory} {X:<span class="kt">Type</span>} (j : X -&gt; ob M) (su : sums_lift M j),
+  opp_sums_lift (oppositeAdditiveCategory M) j (opp_sums_lift M j su) = su.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Goal</span> ∏ (M:ExactCategoryData), oppositeExactCategoryData (oppositeExactCategoryData M) = M.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Goal</span> ∏ (M:ExactCategory), ExactCategoryDataToAdditiveCategory (ExactCategoryToData (oppositeExactCategory M))
+                          = oppositeAdditiveCategory (ExactCategoryDataToAdditiveCategory (ExactCategoryToData M)).
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (M:ExactCategory), oppositeExactCategory (oppositeExactCategory M) = M.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (M:ExactCategory) (A B:M) (f : A --&gt; B),
+  isAdmissibleMonomorphism f = isAdmissibleEpimorphism (M:=oppositeExactCategory M) (opp_mor f).
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (M:ExactCategory) (A B:M) (f : A --&gt; B), isAdmissibleEpimorphism f = isAdmissibleMonomorphism (M:=oppositeExactCategory M) (opp_mor f).
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (M:ExactCategory) (A B:M),
+  AdmissibleMonomorphism A B = @AdmissibleEpimorphism (oppositeExactCategory M) B A.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (M:ExactCategory) (A B:M),
+  AdmissibleEpimorphism A B = @AdmissibleMonomorphism (oppositeExactCategory M) B A.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ {M : ExactCategory} {A:M} (Z:Zero M), Mor1 (TrivialExactSequence A Z) = identity A.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Goal</span> ∏ {M : ExactCategory} {A:M} (Z:Zero M), Ob3 (TrivialExactSequence A Z) = Z.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Goal</span> ∏ {M : ExactCategory} {A:M} (Z:Zero M), Mor2 (TrivialExactSequence' Z A) = identity A.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Goal</span> ∏ {M : ExactCategory} {A:M} (Z:Zero M), Ob1 (TrivialExactSequence' Z A) = Z.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Goal</span> ∏ {M:ExactCategory} {X:<span class="kt">Type</span>} (j : X -&gt; ob M) (ce : exts_lift M j),
+  opp_exts_lift (M:=oppositeExactCategory M) j (opp_exts_lift (M:=M) j ce) = ce.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Exact category tests *)</span>
+
+<span class="kn">Goal</span> ∏ (M:category) (A A' B:M) (g : A --&gt; B) (g' : A' --&gt; B) (i:IsoArrowTo g g'),
+  opposite_IsoArrowFrom (opposite_IsoArrowTo i) = i.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (M:category) (A B B':M) (g : A --&gt; B) (g' : A --&gt; B') (i:IsoArrowFrom g g'),
+  opposite_IsoArrowTo (opposite_IsoArrowFrom i) = i.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Goal</span> ∏ {M:category} {X:<span class="kt">Type</span>} (j : X -&gt; ob M) (hz : zero_lifts M j),
+  opp_zero_lifts (C:= M^op) j (opp_zero_lifts (C:=M) j hz) = hz.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Goal</span> ∏ (M:category), oppositeCategory (oppositeCategory M) = M.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Goal</span> ∏ {M:category} {a b c d : M} (f : b --&gt; a) (g : c --&gt; a)
+     (p1 : d --&gt; b) (p2 : d --&gt; c),
+  isPullback' f g p1 p2 = isPushout' (M := oppositeCategory M) f g p1 p2.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Goal</span> ∏ {M:category} {a b c d : M} (f : a --&gt; b) (g : a --&gt; c)
+     (in1 : b --&gt; d) (in2 : c --&gt; d),
+  isPushout' f g in1 in2 = isPullback' (M := oppositeCategory M) f g in1 in2.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (M:category) (A A' B:M) (g : A --&gt; B) (g' : A' --&gt; B) (i:IsoArrowTo g g'),
+  opposite_IsoArrowFrom (opposite_IsoArrowTo i) = i.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (M:category) (A B B':M) (g : A --&gt; B) (g' : A --&gt; B') (i:IsoArrowFrom g g'),
+  opposite_IsoArrowTo (opposite_IsoArrowFrom i) = i.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (M:PreAdditive) (x y z : M) (f : x --&gt; y) (g : y --&gt; z), isKernel' (M:=M) f g = isCokernel' (M:=oppositePreAdditive M) g f.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (M:PreAdditive) (x y z : M) (f : x --&gt; y) (g : y --&gt; z), isCokernel' (M:=M) f g = isKernel' (M:=oppositePreAdditive M) g f.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (M :PreAdditive) (A B C A':M) (i : A &lt;-- B) (p : B &lt;-- C)
+      (pr : isKernelCokernelPair p i)
+      (r : A &lt;-- A') (pb : Pullback i r),
+  PairPullbackMap pr r pb
+  =
+  PairPushoutMap (M:=oppositePreAdditive M) (opposite_isKernelCokernelPair pr) r pb.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Goal</span> ∏ (M :PreAdditive) (A B C A':M) (i : A --&gt; B) (p : B --&gt; C)
+      (pr : isKernelCokernelPair i p)
+      (r : A --&gt; A') (po : Pushout i r),
+  PairPushoutMap pr r po
+  =
+  PairPullbackMap (M:=oppositePreAdditive M) (opposite_isKernelCokernelPair pr) r po.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/ExactCategories/Tests.v</tt>, line 3)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** Exact category prerequisite tests *)
+  &gt; &gt;&gt;&gt;Require Export UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Export UniMath.CategoryTheory.Monics.
+  &gt; Require Export UniMath.CategoryTheory.Epis.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

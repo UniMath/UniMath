@@ -1,0 +1,571 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Sub1Cell.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***********************************************************************</span>
+
+<span class="sd"> Subbicategories</span>
+
+<span class="sd"> We consider two ways of constructing subbicategories. One by selecting</span>
+<span class="sd"> 1-cells and one by selecting both 0-cells and 1-cells.</span>
+
+<span class="sd"> In the second construction (subbicategories by selecting both 0-cells</span>
+<span class="sd"> and 1-cells) there are two type families: `P₀` on the objects and `P₁`</span>
+<span class="sd"> on the 1-cells. For a well-behaved constructions, both type families</span>
+<span class="sd"> should be pointwise propositions. We can use this to guarantee that the</span>
+<span class="sd"> resulting bicategory is univalent ([is_univalent_2_subbicat]), although</span>
+<span class="sd"> we also need that the original bicategory is univalent. In addition, to</span>
+<span class="sd"> guaranteee that the resulting bicategory is actually a subbicategory of</span>
+<span class="sd"> the original once, we do want both `P₀` and `P₁` to be propositions. If,</span>
+<span class="sd"> for example, we choose `P₀` to be the type of booleans for every object</span>
+<span class="sd"> and `P₁` the unit type, then the resulting bicategory has two copies of</span>
+<span class="sd"> every object, and this is not a subbicategory of the original one.</span>
+
+<span class="sd"> We also provide characterizations for the adjoint equivalences.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Subbicategory by selecting 1-cells</span>
+<span class="sd"> 2. Subbicategory by selecting both 0-cells and 1-cells</span>
+
+<span class="sd"> ***********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sigma.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Subbicategory by selecting 1-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">Sub1CellBicategory</span>.
+  <span class="kn">Context</span> (<span class="nv">B</span> : bicat)
+          (<span class="nv">P</span> : ∏ (x y : B), x --&gt; y -&gt; UU)
+          (<span class="nv">Pid</span> : ∏ (x : B), P _ _ (id₁ x))
+          (<span class="nv">Pcomp</span> : ∏ (x y z : B) (f : x --&gt; y) (g : y --&gt; z),
+                   P  _ _ f → P _ _ g → P _ _ (f · g)).
+
+  <span class="kn">Definition</span> <span class="nf">disp_sub1cell_disp_cat</span>
+    : disp_cat_ob_mor B.
+  <span class="kn">Proof</span>.
+    use make_disp_cat_ob_mor.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, unit).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, P _ _ f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_sub1cell_disp_cat_id_comp</span>
+    : disp_cat_id_comp _ disp_sub1cell_disp_cat.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, Pid _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">p</span> <span class="nv">q</span>, Pcomp _ _ _ _ _ p q).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_sub1cell_disp_cat_data</span>
+    : disp_cat_data B.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> disp_sub1cell_disp_cat.
+    - <span class="bp">exact</span> disp_sub1cell_disp_cat_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_sub1cell_prebicat</span> : disp_prebicat B
+    := disp_cell_unit_bicat disp_sub1cell_disp_cat_data.
+
+  <span class="kn">Definition</span> <span class="nf">disp_sub1cell_bicat</span> : disp_bicat B
+    := disp_cell_unit_bicat disp_sub1cell_disp_cat_data.
+
+  <span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop_sub1cell_bicat</span>
+    : disp_2cells_isaprop disp_sub1cell_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_2cells_isaprop_cell_unit_bicat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_locally_groupoid_sub1cell_bicat</span>
+    : disp_locally_groupoid disp_sub1cell_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_locally_groupoid_cell_unit_bicat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_2cells_iscontr_sub1cell_bicat</span>
+    : disp_2cells_iscontr disp_sub1cell_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_2cells_iscontr_disp_bicat_cells_unit.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_sub1cell_univalent_2_1</span>
+             (<span class="nv">HP</span> : ∏ (x y : B) (f : x --&gt; y), isaprop (P _ _ f))
+    : disp_univalent_2_1 disp_sub1cell_bicat.
+  <span class="kn">Proof</span>.
+    use disp_cell_unit_bicat_univalent_2_1.
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> HP.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_sub1cell_univalent_2_0</span>
+             (<span class="nv">HB</span> : is_univalent_2_1 B)
+             (<span class="nv">HP</span> : ∏ (x y : B) (f : x --&gt; y), isaprop (P _ _ f))
+    : disp_univalent_2_0 disp_sub1cell_bicat.
+  <span class="kn">Proof</span>.
+    use disp_cell_unit_bicat_univalent_2_0.
+    - <span class="bp">exact</span> HB.
+    - <span class="nb">intros</span> ; <span class="nb">apply</span> HP.
+    - <span class="nb">simpl</span> ; <span class="nb">intro</span>.
+      <span class="nb">apply</span> isasetunit.
+    - <span class="nb">simpl</span>.
+      <span class="nb">intros</span>.
+      <span class="nb">apply</span> isapropunit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_sub1cell_univalent_2</span>
+             (<span class="nv">HB</span> : is_univalent_2_1 B)
+             (<span class="nv">HP</span> : ∏ (x y : B) (f : x --&gt; y), isaprop (P _ _ f))
+    : disp_univalent_2 disp_sub1cell_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - use disp_sub1cell_univalent_2_0.
+      + <span class="bp">exact</span> HB.
+      + <span class="bp">exact</span> HP.
+    - use disp_sub1cell_univalent_2_1.
+      <span class="bp">exact</span> HP.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sub1cell_bicat</span>
+    : bicat
+    := total_bicat disp_sub1cell_bicat.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_2_1_sub1cell_bicat</span>
+             (<span class="nv">HB</span> : is_univalent_2_1 B)
+             (<span class="nv">HP</span> : ∏ (x y : B) (f : x --&gt; y), isaprop (P _ _ f))
+    : is_univalent_2_1 sub1cell_bicat.
+  <span class="kn">Proof</span>.
+    use total_is_univalent_2_1.
+    - <span class="bp">exact</span> HB.
+    - use disp_sub1cell_univalent_2_1.
+      <span class="bp">exact</span> HP.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_2_0_sub1cell_bicat</span>
+             (<span class="nv">HB</span> : is_univalent_2 B)
+             (<span class="nv">HP</span> : ∏ (x y : B) (f : x --&gt; y), isaprop (P _ _ f))
+    : is_univalent_2_0 sub1cell_bicat.
+  <span class="kn">Proof</span>.
+    use total_is_univalent_2_0.
+    - <span class="bp">exact</span> (pr1 HB).
+    - use disp_sub1cell_univalent_2_0.
+      + <span class="bp">exact</span> (pr2 HB).
+      + <span class="bp">exact</span> HP.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_2_sub1cell_bicat</span>
+             (<span class="nv">HB</span> : is_univalent_2 B)
+             (<span class="nv">HP</span> : ∏ (x y : B) (f : x --&gt; y), isaprop (P _ _ f))
+    : is_univalent_2 sub1cell_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - use is_univalent_2_0_sub1cell_bicat.
+      + <span class="bp">exact</span> HB.
+      + <span class="bp">exact</span> HP.
+    - use is_univalent_2_1_sub1cell_bicat.
+      + <span class="bp">exact</span> (pr2 HB).
+      + <span class="bp">exact</span> HP.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Sub1CellBicategory</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Subbicategory by selecting both 0-cells and 1-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">SubBicategory</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">P₀</span> : B → UU)
+          (<span class="nv">P₁</span> : ∏ (x y : B), P₀ x → P₀ y → x --&gt; y -&gt; UU)
+          (<span class="nv">P₁id</span> : ∏ (x : B) (Px : P₀ x), P₁ _ _ Px Px (id₁ x))
+          (<span class="nv">P₁comp</span> : ∏ (x y z : B)
+                      (Px : P₀ x)
+                      (Py : P₀ y)
+                      (Pz : P₀ z)
+                      (f : x --&gt; y) (g : y --&gt; z),
+              P₁  _ _ Px Py f
+              → P₁ _ _ Py Pz g
+              → P₁ _ _ Px Pz (f · g)).
+
+  <span class="kn">Definition</span> <span class="nf">disp_subbicat</span> : disp_bicat B
+    := sigma_bicat
+         _
+         _
+         (disp_sub1cell_bicat
+            (total_bicat (disp_fullsubbicat B P₀))
+            (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, P₁ (pr1 x) (pr1 y) (pr2 x) (pr2 y) (pr1 f))
+            (<span class="k">λ</span> <span class="nv">x</span>, P₁id (pr1 x) (pr2 x))
+            (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">Pf</span> <span class="nv">Pg</span>, P₁comp _ _ _ _ _ _ _ _ Pf Pg)).
+
+  <span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop_subbicat</span>
+    : disp_2cells_isaprop disp_subbicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_2cells_isaprop_sigma.
+    - <span class="nb">apply</span> disp_2cells_isaprop_fullsubbicat.
+    - <span class="nb">apply</span> disp_2cells_isaprop_sub1cell_bicat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_locally_groupoid_subbicat</span>
+             (<span class="nv">HB</span> : is_univalent_2 B)
+    : disp_locally_groupoid disp_subbicat.
+  <span class="kn">Proof</span>.
+    use disp_locally_groupoid_sigma.
+    - <span class="bp">exact</span> HB.
+    - <span class="nb">apply</span> disp_2cells_isaprop_fullsubbicat.
+    - <span class="nb">apply</span> disp_2cells_isaprop_sub1cell_bicat.
+    - <span class="nb">apply</span> disp_locally_groupoid_fullsubbicat.
+    - <span class="nb">apply</span> disp_locally_groupoid_sub1cell_bicat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_2cells_iscontr_subbicat</span>
+    : disp_2cells_iscontr disp_subbicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f g τ xx yy ff gg.
+    use iscontraprop1.
+    - <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+    - <span class="bp">exact</span> (tt ,, tt).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_subbicat_univalent_2_1</span>
+             (<span class="nv">HP₁</span> : ∏ (x y : B)
+                      (Px : P₀ x)
+                      (Py : P₀ y)
+                      (f : x --&gt; y),
+                    isaprop (P₁ x y Px Py f))
+    : disp_univalent_2_1 disp_subbicat.
+  <span class="kn">Proof</span>.
+    use sigma_disp_univalent_2_1_with_props.
+    - <span class="nb">apply</span> disp_2cells_isaprop_fullsubbicat.
+    - <span class="nb">apply</span> disp_2cells_isaprop_sub1cell_bicat.
+    - <span class="nb">apply</span> disp_fullsubbicat_univalent_2_1.
+    - <span class="nb">apply</span> disp_sub1cell_univalent_2_1.
+      <span class="nb">intros</span>.
+      <span class="nb">apply</span> HP₁.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_subbicat_univalent_2_0</span>
+             (<span class="nv">HB</span> : is_univalent_2 B)
+             (<span class="nv">HP₀</span> : ∏ (x : B), isaprop (P₀ x))
+             (<span class="nv">HP₁</span> : ∏ (x y : B)
+                      (Px : P₀ x)
+                      (Py : P₀ y)
+                      (f : x --&gt; y),
+                    isaprop (P₁ x y Px Py f))
+    : disp_univalent_2_0 disp_subbicat.
+  <span class="kn">Proof</span>.
+    use sigma_disp_univalent_2_0_with_props.
+    - <span class="bp">exact</span> HB.
+    - <span class="nb">apply</span> disp_2cells_isaprop_fullsubbicat.
+    - <span class="nb">apply</span> disp_2cells_isaprop_sub1cell_bicat.
+    - <span class="nb">apply</span> disp_fullsubbicat_univalent_2_1.
+    - <span class="nb">apply</span> disp_sub1cell_univalent_2_1.
+      <span class="nb">intros</span>.
+      <span class="nb">apply</span> HP₁.
+    - <span class="nb">apply</span> disp_locally_groupoid_fullsubbicat.
+    - <span class="nb">apply</span> disp_locally_groupoid_sub1cell_bicat.
+    - use disp_univalent_2_0_fullsubbicat.
+      + <span class="bp">exact</span> HB.
+      + <span class="bp">exact</span> HP₀.
+    - <span class="nb">apply</span> disp_sub1cell_univalent_2_0.
+      + use total_is_univalent_2_1.
+        * <span class="nb">apply</span> HB.
+        * <span class="nb">apply</span> disp_fullsubbicat_univalent_2_1.
+      + <span class="nb">intros</span>.
+        <span class="nb">apply</span> HP₁.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">subbicat</span>
+    : bicat
+    := total_bicat disp_subbicat.
+
+  <span class="kn">Definition</span> <span class="nf">eq_2cell_subbicat</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : subbicat}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             {<span class="nv">α</span> <span class="nv">β</span> : f ==&gt; g}
+             (<span class="nv">p</span> : pr1 α = pr1 β)
+    : α = β.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">simpl</span>.
+      <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isapropunit.
+    }
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_invertible_2cell_subbicat</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : subbicat}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             (<span class="nv">α</span> : f ==&gt; g)
+             (<span class="nv">Hα</span> : is_invertible_2cell (pr1 α))
+    : is_invertible_2cell α.
+  <span class="kn">Proof</span>.
+    use make_is_invertible_2cell.
+    - <span class="bp">exact</span> (Hα^-<span class="mi">1</span> ,, tt ,, tt).
+    - <span class="kp">abstract</span>
+        (use eq_2cell_subbicat ;
+         <span class="nb">apply</span> vcomp_rinv).
+    - <span class="kp">abstract</span>
+        (use eq_2cell_subbicat ;
+         <span class="nb">apply</span> vcomp_linv).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">invertible_2cell_subbicat</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : subbicat}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             (<span class="nv">Hα</span> : invertible_2cell (pr1 f) (pr1 g))
+    : invertible_2cell f g.
+  <span class="kn">Proof</span>.
+    use make_invertible_2cell.
+    - <span class="bp">exact</span> (pr1 Hα ,, tt ,, tt).
+    - use is_invertible_2cell_subbicat.
+      <span class="bp">exact</span> Hα.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_is_invertible_2cell_subbicat</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : subbicat}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             (<span class="nv">α</span> : f ==&gt; g)
+             (<span class="nv">Hα</span> : is_invertible_2cell α)
+    : is_invertible_2cell (pr1 α).
+  <span class="kn">Proof</span>.
+    use make_is_invertible_2cell.
+    - <span class="bp">exact</span> (pr1 Hα^-<span class="mi">1</span>).
+    - <span class="kp">abstract</span>
+        (<span class="bp">exact</span> (maponpaths pr1 (vcomp_rinv Hα))).
+    - <span class="kp">abstract</span>
+        (<span class="bp">exact</span> (maponpaths pr1 (vcomp_linv Hα))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_invertible_2cell_subbicat</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : subbicat}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             (<span class="nv">Hα</span> : invertible_2cell f g)
+    : invertible_2cell (pr1 f) (pr1 g).
+  <span class="kn">Proof</span>.
+    use make_invertible_2cell.
+    - <span class="bp">exact</span> (pr11 Hα).
+    - use from_is_invertible_2cell_subbicat.
+      <span class="bp">exact</span> Hα.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_2_1_subbicat</span>
+             (<span class="nv">HB</span> : is_univalent_2_1 B)
+             (<span class="nv">HP₁</span> : ∏ (x y : B)
+                      (Px : P₀ x)
+                      (Py : P₀ y)
+                      (f : x --&gt; y),
+                    isaprop (P₁ x y Px Py f))
+    : is_univalent_2_1 subbicat.
+  <span class="kn">Proof</span>.
+    use total_is_univalent_2_1.
+    - <span class="bp">exact</span> HB.
+    - use disp_subbicat_univalent_2_1.
+      <span class="bp">exact</span> HP₁.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_2_0_subbicat</span>
+             (<span class="nv">HB</span> : is_univalent_2 B)
+             (<span class="nv">HP₀</span> : ∏ (x : B), isaprop (P₀ x))
+             (<span class="nv">HP₁</span> : ∏ (x y : B)
+                      (Px : P₀ x)
+                      (Py : P₀ y)
+                      (f : x --&gt; y),
+                    isaprop (P₁ x y Px Py f))
+    : is_univalent_2_0 subbicat.
+  <span class="kn">Proof</span>.
+    use total_is_univalent_2_0.
+    - <span class="bp">exact</span> (pr1 HB).
+    - use disp_subbicat_univalent_2_0.
+      + <span class="bp">exact</span> HB.
+      + <span class="bp">exact</span> HP₀.
+      + <span class="bp">exact</span> HP₁.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_2_subbicat</span>
+             (<span class="nv">HB</span> : is_univalent_2 B)
+             (<span class="nv">HP₀</span> : ∏ (x : B), isaprop (P₀ x))
+             (<span class="nv">HP₁</span> : ∏ (x y : B)
+                      (Px : P₀ x)
+                      (Py : P₀ y)
+                      (f : x --&gt; y),
+                    isaprop (P₁ x y Px Py f))
+    : is_univalent_2 subbicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - use is_univalent_2_0_subbicat.
+      + <span class="bp">exact</span> HB.
+      + <span class="bp">exact</span> HP₀.
+      + <span class="bp">exact</span> HP₁.
+    - use is_univalent_2_1_subbicat.
+      + <span class="bp">exact</span> (pr2 HB).
+      + <span class="bp">exact</span> HP₁.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_equivalence_subbicat</span>
+             (<span class="nv">H</span> : ∏ (a b : B)
+                    (Ha : P₀ a)
+                    (Hb : P₀ b)
+                    (f : a --&gt; b)
+                    (Hf : left_adjoint_equivalence f),
+                  P₁ _ _ Ha Hb f)
+             {<span class="nv">x</span> <span class="nv">y</span> : subbicat}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">Hf</span> : left_adjoint_equivalence (B := B) (pr1 f))
+    : left_adjoint_equivalence f.
+  <span class="kn">Proof</span>.
+    use equiv_to_adjequiv.
+    <span class="nb">simple refine</span> ((_ ,, (_ ,, _)) ,, _ ,, _).
+    - <span class="nb">refine</span> (left_adjoint_right_adjoint Hf ,, tt ,, _).
+      <span class="nb">apply</span> H.
+      <span class="nb">apply</span> inv_left_adjoint_equivalence.
+    - <span class="bp">exact</span> (left_adjoint_unit Hf ,, tt ,, tt).
+    - <span class="bp">exact</span> (left_adjoint_counit Hf ,, tt ,, tt).
+    - use is_invertible_2cell_subbicat.
+      <span class="bp">exact</span> (property_from_invertible_2cell (left_equivalence_unit_iso Hf)).
+    - use is_invertible_2cell_subbicat.
+      <span class="bp">exact</span> (property_from_invertible_2cell (left_equivalence_counit_iso Hf)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_left_adjoint_equivalence_subbicat</span>
+             (<span class="nv">H</span> : ∏ (a b : B)
+                    (Ha : P₀ a)
+                    (Hb : P₀ b)
+                    (f : a --&gt; b)
+                    (Hf : left_adjoint_equivalence f),
+                  P₁ _ _ Ha Hb f)
+             (<span class="nv">HB</span> : is_univalent_2 B)
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             {<span class="nv">f</span> : x --&gt; y}
+             (<span class="nv">Hf</span> : left_adjoint_equivalence f)
+             {<span class="nv">Hx</span> : disp_subbicat x}
+             {<span class="nv">Hy</span> : disp_subbicat y}
+             (<span class="nv">ff</span> : Hx --&gt;[ f ] Hy)
+    : disp_left_adjoint_equivalence Hf ff.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> ((_ ,, (_ ,, _)) ,, ((_ ,, _) ,, (_ ,, _))).
+    - <span class="nb">refine</span> (tt ,, _).
+      <span class="nb">apply</span> H.
+      <span class="nb">apply</span> inv_left_adjoint_equivalence.
+    - <span class="bp">exact</span> (tt ,, tt).
+    - <span class="bp">exact</span> (tt ,, tt).
+    - <span class="kp">abstract</span>
+        (<span class="nb">apply</span> disp_2cells_isaprop_subbicat).
+    - <span class="kp">abstract</span>
+        (<span class="nb">apply</span> disp_2cells_isaprop_subbicat).
+    - <span class="kp">abstract</span>
+        (<span class="nb">apply</span> disp_locally_groupoid_subbicat ;
+         <span class="bp">exact</span> HB).
+    - <span class="kp">abstract</span>
+        (<span class="nb">apply</span> disp_locally_groupoid_subbicat ;
+         <span class="bp">exact</span> HB).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">SubBicategory</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_left_adjoint_equivalence_subbicat_help</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB</span> : is_univalent_2 B)
+           (<span class="nv">P₀</span> : B → UU)
+           (<span class="nv">P₁</span> : ∏ (x y : B), x --&gt; y -&gt; UU)
+           (<span class="nv">P₁id</span> : ∏ (x : B) (Px : P₀ x), P₁ x x (id₁ x))
+           (<span class="nv">P₁comp</span> : ∏ (x y z : B)
+                       (Px : P₀ x)
+                       (Py : P₀ y)
+                       (Pz : P₀ z)
+                       (f : x --&gt; y) (g : y --&gt; z),
+                     P₁ _ _ f
+                     → P₁ _ _ g
+                     → P₁ _ _ (f · g))
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           (<span class="nv">Px</span> : P₀ x)
+           (<span class="nv">f</span> : adjoint_equivalence x y)
+  : P₁ x y f.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> x y f Px.
+  use J_2_0.
+  - <span class="bp">exact</span> (pr1 HB).
+  - <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> P₁id.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_left_adjoint_equivalence_subbicat_alt</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB</span> : is_univalent_2 B)
+           (<span class="nv">P₀</span> : B → UU)
+           (<span class="nv">P₁</span> : ∏ (x y : B), x --&gt; y -&gt; UU)
+           (<span class="nv">P₁id</span> : ∏ (x : B) (Px : P₀ x), P₁ x x (id₁ x))
+           (<span class="nv">P₁comp</span> : ∏ (x y z : B)
+                       (Px : P₀ x)
+                       (Py : P₀ y)
+                       (Pz : P₀ z)
+                       (f : x --&gt; y) (g : y --&gt; z),
+                     P₁ _ _ f
+                     → P₁ _ _ g
+                     → P₁ _ _ (f · g))
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> : x --&gt; y}
+           (<span class="nv">Hf</span> : left_adjoint_equivalence f)
+           {<span class="nv">Hx</span> : disp_subbicat P₀ (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, P₁ x y f) P₁id P₁comp x}
+           {<span class="nv">Hy</span> : disp_subbicat P₀ (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, P₁ x y f) P₁id P₁comp y}
+           (<span class="nv">ff</span> : Hx --&gt;[ f ] Hy)
+  : disp_left_adjoint_equivalence Hf ff.
+<span class="kn">Proof</span>.
+  use disp_left_adjoint_equivalence_subbicat.
+  - <span class="nb">clear</span> x y f Hf Hx Hy ff ; <span class="nb">cbn</span>.
+    <span class="nb">intros</span> x y Px Py f Hf.
+    <span class="bp">exact</span> (disp_left_adjoint_equivalence_subbicat_help HB P₀ P₁ P₁id P₁comp Px (f ,, Hf)).
+  - <span class="bp">exact</span> HB.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/Examples/Sub1Cell.v</tt>, line 27)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Subbicategory by selecting both 0-cells and 1-cells
+  &gt;
+  &gt;  ***********************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

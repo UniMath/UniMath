@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PartD.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Export</span> UniMath.Foundations.All.
+
+<span class="kn">Lemma</span> <span class="nf">eqweqmap_transportb</span> {<span class="nv">T</span> <span class="nv">U</span>: <span class="kt">Type</span>} (<span class="nv">p</span>: T = U) :
+ (<span class="k">λ</span> <span class="nv">u</span>:U, eqweqmap (! p) u) = transportb (<span class="k">λ</span> <span class="nv">X</span>:<span class="kt">Type</span>, X) p.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">eqweqmap_weqtopaths</span> {<span class="nv">T</span> <span class="nv">U</span>} (<span class="nv">w</span> : T≃U) : eqweqmap (weqtopaths w) = w.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (homotweqinvweq (univalence T U) w).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">sum_of_fibers</span> {<span class="nv">A</span> <span class="nv">B</span>:<span class="kt">Type</span>} (<span class="nv">f</span>: A -&gt; B) :
+  (∑ b:B, hfiber f b) ≃ A.
+<span class="kn">Proof</span>.
+  use make_weq.
+  - <span class="nb">intro</span> bap. <span class="bp">exact</span> (pr1 (pr2 bap)).
+  - <span class="nb">intro</span> a. use make_iscontr.
+    + use make_hfiber.
+      * <span class="k">exists</span> (<span class="nv">f</span> <span class="nv">a</span>).
+        use make_hfiber.
+        { <span class="bp">exact</span> a. }
+        { <span class="bp">reflexivity</span>. }
+      * <span class="nb">cbn</span>. <span class="bp">reflexivity</span>.
+    + <span class="nb">intro</span> b1a1p1p. <span class="nb">induction</span> b1a1p1p <span class="k">as</span> [b1a1p1 p]. <span class="nb">induction</span> p.
+      <span class="nb">induction</span> b1a1p1 <span class="k">as</span> [b1 [a1 p1]]. <span class="nb">induction</span> p1. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">display</span> {<span class="nv">A</span>: <span class="kt">Type</span>} :
+  (∑ B, B -&gt; A) -&gt; (A -&gt; <span class="kt">Type</span>).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> Bf. <span class="bp">exact</span> (hfiber (pr2 Bf)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">totalfst</span> {<span class="nv">A</span>: <span class="kt">Type</span>} :
+  (A -&gt; <span class="kt">Type</span>) -&gt; (∑ B, B -&gt; A).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> P. <span class="k">exists</span> (∑ a:A, P a). <span class="bp">exact</span> pr1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">totalfst_display</span> {<span class="nv">A</span>: <span class="kt">Type</span>} (<span class="nv">Bf</span>: ∑ B, B -&gt; A) : totalfst (display Bf) = Bf.
+<span class="kn">Proof</span>.
+  use total2_paths_f.
+  - <span class="nb">apply</span> weqtopaths. <span class="nb">apply</span> sum_of_fibers.
+  - <span class="nb">rewrite</span> transportf_fun.
+    <span class="nb">rewrite</span> &lt;- eqweqmap_transportb.
+    <span class="nb">rewrite</span> eqweqmap_pathsinv0.
+    <span class="nb">rewrite</span> eqweqmap_weqtopaths.
+    <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">display_totalfst</span> {<span class="nv">A</span>: <span class="kt">Type</span>} (<span class="nv">P</span>: A -&gt; <span class="kt">Type</span>) : display(totalfst(P)) = P.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextsec; <span class="nb">intro</span> a.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> weqtopaths.
+  <span class="nb">apply</span> ezweqpr1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">display_weq</span> (<span class="nv">A</span>:<span class="kt">Type</span>) :
+  (∑ B, B -&gt; A) ≃ (A -&gt; <span class="kt">Type</span>).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">display</span>.
+  <span class="nb">apply</span> (isweq_iso display totalfst).
+  - <span class="bp">exact</span> totalfst_display.
+  - <span class="bp">exact</span> display_totalfst.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/MoreFoundations/PartD.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Export UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt;
+  &gt; Lemma eqweqmap_transportb {T U: Type} (p: T = U) :
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

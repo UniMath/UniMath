@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FiberwiseCartesianClosed.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***************************************************************************************</span>
+
+<span class="sd"> Fiberwise exponentials</span>
+
+<span class="sd"> In this file, we define when a fibration is fiberwise Cartesian closed. Concretely, this</span>
+<span class="sd"> means that every fiber category is Cartesian closed and that the substitution functor</span>
+<span class="sd"> preserves exponentials. We also give a specialized builder for the case that the</span>
+<span class="sd"> fibration lands in partial orders. Finally, we prove that binary products distribute over</span>
+<span class="sd"> binary coproducts for fiberwise Cartesian closed fibrations.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Fiberwise exponentials</span>
+<span class="sd"> 2, Accessors</span>
+<span class="sd"> 3. Specialized builder for fibrations that land in posets</span>
+<span class="sd"> 4. Distributivity of products and coproducts</span>
+
+<span class="sd"> ***************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Coreflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Fiberwise exponentials *)</span>
+<span class="kn">Definition</span> <span class="nf">fiberwise_exponentials</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : disp_cat C}
+           {<span class="nv">HD</span> : cleaving D}
+           (<span class="nv">PC</span> : fiberwise_binproducts HD)
+  : UU
+  := ∑ (E : ∏ (x : C), Exponentials (pr1 PC x)),
+     ∏ (x y : C)
+       (f : x --&gt; y),
+     preserves_exponentials (E y) (E x) (preserves_binproduct_in_fib PC f).
+
+<span class="sd">(** * 2, Accessors *)</span>
+<span class="kn">Definition</span> <span class="nf">exp_in_fib</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : disp_cat C}
+           {<span class="nv">HD</span> : cleaving D}
+           {<span class="nv">P</span> : fiberwise_binproducts HD}
+           (<span class="nv">E</span> : fiberwise_exponentials P)
+           {<span class="nv">x</span> : C}
+           (<span class="nv">xx</span> <span class="nv">yy</span> : D x)
+  : D x
+  := exp (pr1 E x xx) yy.
+
+<span class="kn">Definition</span> <span class="nf">eval_in_fib</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : disp_cat C}
+           {<span class="nv">HD</span> : cleaving D}
+           {<span class="nv">P</span> : fiberwise_binproducts HD}
+           (<span class="nv">E</span> : fiberwise_exponentials P)
+           {<span class="nv">x</span> : C}
+           (<span class="nv">xx</span> <span class="nv">yy</span> : D[{x}])
+  : binprod_in_fib P xx (exp_in_fib E xx yy) --&gt; yy
+  := exp_eval (pr1 E x xx) yy.
+
+<span class="kn">Definition</span> <span class="nf">lam_in_fib</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : disp_cat C}
+           {<span class="nv">HD</span> : cleaving D}
+           {<span class="nv">P</span> : fiberwise_binproducts HD}
+           (<span class="nv">E</span> : fiberwise_exponentials P)
+           {<span class="nv">x</span> : C}
+           {<span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">zz</span> : D[{x}]}
+           (<span class="nv">ff</span> : binprod_in_fib P yy xx --&gt; zz)
+  : xx --&gt; exp_in_fib E yy zz
+  := exp_lam (pr1 E x _) ff.
+
+<span class="kn">Definition</span> <span class="nf">preserves_exponentials_in_fib</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : disp_cat C}
+           {<span class="nv">HD</span> : cleaving D}
+           {<span class="nv">P</span> : fiberwise_binproducts HD}
+           (<span class="nv">E</span> : fiberwise_exponentials P)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+  : preserves_exponentials (pr1 E y) (pr1 E x) (preserves_binproduct_in_fib P f)
+  := pr2 E x y f.
+
+<span class="sd">(** * 3. Specialized builder for fibrations that land in posets *)</span>
+<span class="kn">Section</span> <span class="nf">FiberwiseExponentialsPoset</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">D</span> : disp_cat C}
+          {<span class="nv">HD</span> : cleaving D}
+          (<span class="nv">HD'</span> : locally_propositional D)
+          (<span class="nv">P</span> : fiberwise_binproducts HD)
+          (<span class="nv">imp</span> : ∏ (Γ : C), D[{Γ}] → D[{Γ}] → D[{Γ}])
+          (<span class="nv">imp_e</span> : ∏ (Γ : C) (φ ψ : D[{Γ}]),
+                   binprod_in_fib P φ (imp _ φ ψ) --&gt; ψ)
+          (<span class="nv">imp_i</span> : ∏ (Γ : C)
+                     (φ ψ χ : D[{Γ}])
+                     (p : binprod_in_fib P φ χ --&gt; ψ),
+                   χ --&gt; imp Γ φ ψ)
+          (<span class="nv">imp_sub</span> : ∏ (Γ₁ Γ₂ : C)
+                       (s : Γ₁ --&gt; Γ₂)
+                       (φ ψ : D[{Γ₂}]),
+                     imp _ (pr1 (HD Γ₂ Γ₁ s φ)) (pr1 (HD Γ₂ Γ₁ s ψ))
+                     --&gt;
+                     pr1 (HD Γ₂ Γ₁ s (imp _ φ ψ))).
+
+  <span class="kn">Definition</span> <span class="nf">exp_in_fiber_locally_propositional</span>
+             (<span class="nv">Γ</span> : C)
+    : Exponentials (pr1 P Γ).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> φ.
+    <span class="nb">apply</span> coreflections_to_is_left_adjoint.
+    <span class="nb">intro</span> ψ.
+    use make_coreflection'.
+    - <span class="bp">exact</span> (imp _ φ ψ).
+    - <span class="bp">exact</span> (imp_e _ φ ψ).
+    - <span class="nb">intro</span> p.
+      use make_coreflection_arrow.
+      + <span class="nb">apply</span> imp_i.
+        <span class="bp">exact</span> p.
+      + <span class="kp">abstract</span> <span class="nb">apply</span> HD'.
+      + <span class="kp">abstract</span> (
+          <span class="nb">intros</span> g' Hg';
+          <span class="nb">apply</span> HD'
+        ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_fiberwise_exponentials_locally_propositional</span>
+    : fiberwise_exponentials P.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> exp_in_fiber_locally_propositional.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> Γ₁ Γ₂ s φ ψ ;
+         use make_is_z_isomorphism ; [ <span class="nb">apply</span> imp_sub | ] ;
+         <span class="nb">split</span> ; <span class="nb">apply</span> HD').
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FiberwiseExponentialsPoset</span>.
+
+<span class="sd">(** * 4. Distributivity of products and coproducts *)</span>
+<span class="kn">Definition</span> <span class="nf">preserves_bincoproduct_constprod_fib</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : disp_cat C}
+           {<span class="nv">HD</span> : cleaving D}
+           {<span class="nv">P</span> : fiberwise_binproducts HD}
+           (<span class="nv">E</span> : fiberwise_exponentials P)
+           {<span class="nv">x</span> : C}
+           (<span class="nv">xx</span> : D[{x}])
+  : preserves_bincoproduct (constprod_functor1 (pr1 P x) xx)
+  := left_adjoint_preserves_bincoproduct _ (pr1 E x xx).
+
+<span class="kn">Definition</span> <span class="nf">distributivity_fiberwise_exponentials</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : disp_cat C}
+           {<span class="nv">HD</span> : cleaving D}
+           {<span class="nv">P</span> : fiberwise_binproducts HD}
+           (<span class="nv">CP</span> : fiberwise_bincoproducts HD)
+           (<span class="nv">E</span> : fiberwise_exponentials P)
+           {<span class="nv">x</span> : C}
+           (<span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">zz</span> : D[{x}])
+  : z_iso
+      (preserves_bincoproduct_to_bincoproduct
+         (constprod_functor1 (pr1 P x) xx)
+         (preserves_bincoproduct_constprod_fib E xx)
+         (bincoprod_in_fib CP yy zz))
+      (bincoprod_in_fib
+         CP
+         (BinProductObject _ (binprod_in_fib P xx yy))
+         (BinProductObject _ (binprod_in_fib P xx zz))).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (preserves_bincoproduct_to_z_iso
+           _
+           (preserves_bincoproduct_constprod_fib E xx)
+           (bincoprod_in_fib CP yy zz)
+           (bincoprod_in_fib
+              CP
+              (BinProductObject _ (binprod_in_fib P xx yy))
+              (BinProductObject _ (binprod_in_fib P xx zz)))).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Fiberwise/FiberwiseCartesianClosed.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Distributivity of products and coproducts
+  &gt;
+  &gt;  ***************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

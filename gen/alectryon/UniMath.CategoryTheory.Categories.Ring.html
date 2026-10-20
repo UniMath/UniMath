@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Ring.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Rings category *)</span>
+<span class="sd">(** ** Contents</span>
+<span class="sd">- Precategory of rings</span>
+<span class="sd">- Category of rings</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.Foundations.UnivalenceAxiom.
+
+<span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Import</span> UniMath.Algebra.RigsAndRings.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+
+<span class="sd">(** * Precategory of rings *)</span>
+<span class="kn">Section</span> <span class="nf">def_ring_precategory</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ring_fun_space</span> (<span class="nv">A</span> <span class="nv">B</span> : <span class="bp">ring</span>) : hSet := make_hSet (ringfun A B) (isasetrigfun A B).
+
+  <span class="kn">Definition</span> <span class="nf">ring_precategory_ob_mor</span> : precategory_ob_mor :=
+    tpair (<span class="k">λ</span> <span class="nv">ob</span> : UU, ob -&gt; ob -&gt; UU) <span class="bp">ring</span> (<span class="k">λ</span> <span class="nv">A</span> <span class="nv">B</span> : <span class="bp">ring</span>, ring_fun_space A B).
+
+  <span class="kn">Definition</span> <span class="nf">ring_precategory_data</span> : precategory_data :=
+    make_precategory_data
+      ring_precategory_ob_mor (<span class="k">λ</span> (<span class="nv">X</span> : <span class="bp">ring</span>), (rigisotorigfun (idrigiso X)))
+      (<span class="k">fun</span> (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : <span class="bp">ring</span>) (<span class="nv">f</span> : ringfun X Y) (<span class="nv">g</span> : ringfun Y Z) =&gt; rigfuncomp f g).
+
+  <span class="kn">Local Lemma</span> <span class="nf">ring_id_left</span> (<span class="nv">X</span> <span class="nv">Y</span> : <span class="bp">ring</span>) (<span class="nv">f</span> : ringfun X Y) :
+    rigfuncomp (rigisotorigfun (idrigiso X)) f = f.
+  <span class="kn">Proof</span>.
+    use rigfun_paths. <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+  <span class="kn">Opaque</span> ring_id_left.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ring_id_right</span> (<span class="nv">X</span> <span class="nv">Y</span> : <span class="bp">ring</span>) (<span class="nv">f</span> : ringfun X Y) :
+    rigfuncomp f (rigisotorigfun (idrigiso Y)) = f.
+  <span class="kn">Proof</span>.
+    use rigfun_paths. <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+  <span class="kn">Opaque</span> ring_id_right.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ring_assoc</span> (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> <span class="nv">W</span> : <span class="bp">ring</span>) (<span class="nv">f</span> : ringfun X Y) (<span class="nv">g</span> : ringfun Y Z) (<span class="nv">h</span> : ringfun Z W) :
+    rigfuncomp f (rigfuncomp g h) = rigfuncomp (rigfuncomp f g) h.
+  <span class="kn">Proof</span>.
+    use rigfun_paths. <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+  <span class="kn">Opaque</span> ring_assoc.
+
+  <span class="kn">Lemma</span> <span class="nf">is_precategory_ring_precategory_data</span> : is_precategory ring_precategory_data.
+  <span class="kn">Proof</span>.
+    use make_is_precategory_one_assoc.
+    - <span class="nb">intros</span> a b f. use ring_id_left.
+    - <span class="nb">intros</span> a b f. use ring_id_right.
+    - <span class="nb">intros</span> a b c d f g h. use ring_assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ring_precategory</span> : precategory :=
+    make_precategory ring_precategory_data is_precategory_ring_precategory_data.
+
+  <span class="kn">Lemma</span> <span class="nf">has_homsets_ring_precategory</span> : has_homsets ring_precategory.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y. use isasetrigfun.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">def_ring_precategory</span>.
+
+
+<span class="sd">(** * Category of rings *)</span>
+<span class="kn">Section</span> <span class="nf">def_ring_category</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ring_category</span> : category := make_category _ has_homsets_ring_precategory.
+
+  <span class="sd">(** ** (ringiso X Y) ≃ (z_iso X Y) *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">ring_iso_is_equiv</span> (<span class="nv">A</span> <span class="nv">B</span> : ob ring_category) (<span class="nv">f</span> : z_iso A B) : isweq (pr1 (pr1 f)).
+  <span class="kn">Proof</span>.
+    use isweq_iso.
+    - <span class="bp">exact</span> (pr1rigfun _ _ (inv_from_z_iso f)).
+    - <span class="nb">intros</span> x.
+      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (z_iso_inv_after_z_iso f)) x).
+      <span class="nb">intros</span> x0. use isapropisrigfun.
+    - <span class="nb">intros</span> x.
+      use (toforallpaths _ _ _ (subtypeInjectivity _ _ _ _ (z_iso_after_z_iso_inv f)) x).
+      <span class="nb">intros</span> x0. use isapropisrigfun.
+  <span class="kn">Defined</span>.
+  <span class="kn">Opaque</span> ring_iso_is_equiv.
+
+  <span class="kn">Lemma</span> <span class="nf">ring_iso_equiv</span> (<span class="nv">X</span> <span class="nv">Y</span> : ob ring_category) : z_iso X Y -&gt; ringiso (X : <span class="bp">ring</span>) (Y : <span class="bp">ring</span>).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> f.
+    use make_ringiso.
+    - <span class="bp">exact</span> (make_weq (pr1 (pr1 f)) (ring_iso_is_equiv X Y f)).
+    - <span class="bp">exact</span> (pr2 (pr1 f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ring_equiv_is_z_iso</span> (<span class="nv">X</span> <span class="nv">Y</span> : ob ring_category) (<span class="nv">f</span> : ringiso (X : <span class="bp">ring</span>) (Y : <span class="bp">ring</span>)) :
+    @is_z_isomorphism ring_category X Y (ringfunconstr (pr2 f)).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">ringfunconstr</span> (pr2 (invrigiso f))).
+    use make_is_inverse_in_precat.
+    - use rigfun_paths. use funextfun. <span class="nb">intros</span> x. use homotinvweqweq.
+    - use rigfun_paths. use funextfun. <span class="nb">intros</span> y. use homotweqinvweq.
+  <span class="kn">Defined</span>.
+  <span class="kn">Opaque</span> ring_equiv_is_z_iso.
+
+  <span class="kn">Lemma</span> <span class="nf">ring_equiv_iso</span> (<span class="nv">X</span> <span class="nv">Y</span> : ob ring_category) : ringiso (X : <span class="bp">ring</span>) (Y : <span class="bp">ring</span>) -&gt; z_iso X Y.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> f. <span class="bp">exact</span> (_,,ring_equiv_is_z_iso X Y f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ring_iso_equiv_is_equiv</span> (<span class="nv">X</span> <span class="nv">Y</span> : ring_category) : isweq (ring_iso_equiv X Y).
+  <span class="kn">Proof</span>.
+    use isweq_iso.
+    - <span class="bp">exact</span> (ring_equiv_iso X Y).
+    - <span class="nb">intros</span> x. use z_iso_eq. use rigfun_paths. <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> y. use rigiso_paths. use subtypePath.
+      + <span class="nb">intros</span> x0. use isapropisweq.
+      + <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+  <span class="kn">Opaque</span> ring_iso_equiv_is_equiv.
+
+  <span class="kn">Definition</span> <span class="nf">ring_iso_equiv_weq</span> (<span class="nv">X</span> <span class="nv">Y</span> : ob ring_category) :
+    weq (z_iso X Y) (ringiso (X : <span class="bp">ring</span>) (Y : <span class="bp">ring</span>)).
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="bp">exact</span> (ring_iso_equiv X Y).
+    - <span class="bp">exact</span> (ring_iso_equiv_is_equiv X Y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ring_equiv_iso_is_equiv</span> (<span class="nv">X</span> <span class="nv">Y</span> : ob ring_category) : isweq (ring_equiv_iso X Y).
+  <span class="kn">Proof</span>.
+    use isweq_iso.
+    - <span class="bp">exact</span> (ring_iso_equiv X Y).
+    - <span class="nb">intros</span> y. use rigiso_paths. use subtypePath.
+      + <span class="nb">intros</span> x0. use isapropisweq.
+      + <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x. use z_iso_eq. use rigfun_paths. <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+  <span class="kn">Opaque</span> ring_equiv_iso_is_equiv.
+
+  <span class="kn">Definition</span> <span class="nf">ring_equiv_weq_iso</span> (<span class="nv">X</span> <span class="nv">Y</span> : ob ring_category) :
+    (ringiso (X : <span class="bp">ring</span>) (Y : <span class="bp">ring</span>)) ≃ (z_iso X Y).
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="bp">exact</span> (ring_equiv_iso X Y).
+    - <span class="bp">exact</span> (ring_equiv_iso_is_equiv X Y).
+  <span class="kn">Defined</span>.
+
+
+  <span class="sd">(** ** Category of rings *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">ring_category_isweq</span> (<span class="nv">X</span> <span class="nv">Y</span> : ob ring_category) : isweq (<span class="k">λ</span> <span class="nv">p</span> : X = Y, idtoiso p).
+  <span class="kn">Proof</span>.
+    use (@isweqhomot
+           (X = Y) (z_iso X Y)
+           (pr1weq (weqcomp (ring_univalence X Y) (ring_equiv_weq_iso X Y)))
+           _ _ (weqproperty (weqcomp (ring_univalence X Y) (ring_equiv_weq_iso X Y)))).
+    <span class="nb">intros</span> e. <span class="nb">induction</span> e.
+    use (pathscomp0 weqcomp_to_funcomp_app).
+    use total2_paths_f.
+    - <span class="nb">apply</span> idpath.
+    - use proofirrelevance. use isaprop_is_z_isomorphism.
+  <span class="kn">Defined</span>.
+  <span class="kn">Opaque</span> ring_category_isweq.
+
+  <span class="kn">Definition</span> <span class="nf">ring_category_is_univalent</span> : is_univalent ring_category.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y. <span class="bp">exact</span> (ring_category_isweq X Y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ring_univalent_category</span> : univalent_category :=
+    make_univalent_category ring_category ring_category_is_univalent.
+
+<span class="kn">End</span> <span class="nf">def_ring_category</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/Ring.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - Category of rings
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FirstOrderHyperdoctrineChosen.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> First-order hyperdoctrines with chosen pullbacks for stability</span>
+
+<span class="sd"> The existential and universal quantifiers in a first-order hyperdoctrine satisfy a</span>
+<span class="sd"> stability condition that expresses that these quantifiers are preserved under</span>
+<span class="sd"> substitution. They are phrased by talking about all pullback squares in the base</span>
+<span class="sd"> category. However, we can simplify these conditions for first-order hyperdoctrines.</span>
+<span class="sd"> This is because the pullback squares used to express the Beck-Chevalley condition,</span>
+<span class="sd"> are all isomorphic to a particular one, which we construct using binary products.</span>
+<span class="sd"> In this file, we show that the usual stability condition for the universal and the</span>
+<span class="sd"> existential quantifiers follow from the version where we talk about a particular</span>
+<span class="sd"> pullback square in the base.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The pullback square in the category of types</span>
+<span class="sd"> 2. Existential quantifiers with chosen pullbacks</span>
+<span class="sd"> 3. Universal quantifiers with chosen pullbacks</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Reflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Coreflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Projection.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.BeckChevalleyChosenProd.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.BeckChevalleyChosenSum.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.MoreFibrations.FiberEquivalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hd.
+
+<span class="sd">(** * 1. The pullback square in the category of types *)</span>
+<span class="kn">Definition</span> <span class="nf">prod_pullback_eq</span>
+           {<span class="nv">H</span> : preorder_hyperdoctrine}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : hyperdoctrine_type_category H}
+           (<span class="nv">A</span> : hyperdoctrine_type_category H)
+           (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+  : BinProductOfArrows _ _ _ s (identity _) · π₁ (tm_var (Γ₂ ×h A))
+    =
+    π₁ (tm_var (Γ₁ ×h A)) · s.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> <span class="s2">"π₁"</span>, tm_var.
+  <span class="nb">rewrite</span> !id_left.
+  <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">prod_pullback</span>
+           {<span class="nv">H</span> : preorder_hyperdoctrine}
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : hyperdoctrine_type_category H}
+           (<span class="nv">A</span> : hyperdoctrine_type_category H)
+           (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+  : isPullback (prod_pullback_eq A s).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Z f g p.
+  use make_iscontr.
+  - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + use BinProductArrow.
+      * <span class="bp">exact</span> g.
+      * <span class="bp">exact</span> (f · BinProductPr2 _ _).
+    + <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         use BinProductArrowsEq ;
+         [ <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> BinProductOfArrowsPr1 ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">rewrite</span> BinProductPr1Commutes ;
+           <span class="nb">rewrite</span> &lt;- p ;
+           <span class="nb">unfold</span> <span class="s2">"π₁"</span>, tm_var ;
+           <span class="nb">rewrite</span> !id_left ;
+           <span class="nb">apply</span> idpath
+         | <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> BinProductOfArrowsPr2 ;
+           <span class="nb">rewrite</span> id_right ;
+           <span class="nb">rewrite</span> BinProductPr2Commutes ;
+           <span class="nb">apply</span> idpath ]).
+    + <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">unfold</span> <span class="s2">"π₁"</span>, tm_var ;
+         <span class="nb">rewrite</span> !id_left ;
+         <span class="nb">apply</span> BinProductPr1Commutes).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> φ ;
+       use subtypePath ;
+       [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+       <span class="nb">cbn</span> ;
+       use (BinProductArrowUnique _ _ _ _ _ _ _ _ _) ;
+       [ <span class="nb">refine</span> (_ @ pr22 φ) ;
+         <span class="nb">unfold</span> <span class="s2">"π₁"</span>, tm_var ;
+         <span class="nb">rewrite</span> !id_left ;
+         <span class="nb">apply</span> idpath
+       | <span class="nb">rewrite</span> &lt;- (pr12 φ) ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">rewrite</span> BinProductOfArrowsPr2 ;
+         <span class="nb">rewrite</span> id_right ;
+         <span class="nb">apply</span> idpath ]).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Existential quantifiers with chosen pullbacks *)</span>
+<span class="kn">Definition</span> <span class="nf">existential_quantifiers_chosen</span>
+           (<span class="nv">H</span> : preorder_hyperdoctrine)
+  : UU
+  := ∑ (sig : ∏ (Γ A : ty H), dependent_sum (hyperdoctrine_cleaving H) (π₁ (tm_var _))),
+     ∏ (Γ₁ Γ₂ A : ty H)
+       (s : Γ₁ --&gt; Γ₂),
+     left_beck_chevalley
+       _
+       _ s _ (BinProductOfArrows _ _ _ s (identity A))
+       (prod_pullback_eq A s)
+       (sig Γ₂ A)
+       (sig Γ₁ A).
+
+<span class="kn">Definition</span> <span class="nf">existential_quantifiers_from_chosen</span>
+           {<span class="nv">H</span> : preorder_hyperdoctrine}
+           (<span class="nv">E</span> : existential_quantifiers_chosen H)
+  : existential_quantifiers H.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (pr1 E ,, _).
+  <span class="nb">intros</span> Γ₁ Γ₂ A₁ A₂ s₁ s₂ p Hp φ.
+  <span class="nb">pose</span> (PB := make_Pullback _ Hp).
+  <span class="nb">pose</span> (PB' := make_Pullback _ (prod_pullback A₂ s₁)).
+  <span class="nb">simple refine</span> (left_beck_chevalley_adj_equiv'
+                   _
+                   _
+                   _
+                   _
+                   _
+                   _
+                   _
+                   _
+                   _
+                   _
+                   (pr2 E _ _ _ _ φ)).
+  - use fiber_functor_from_cleaving.
+    + <span class="nb">apply</span> hyperdoctrine_cleaving.
+    + <span class="bp">exact</span> (z_iso_inv (z_iso_from_Pullback_to_Pullback PB PB')).
+  - <span class="nb">apply</span> fiber_functor_cleaving_of_z_iso_adj_equiv.
+  - <span class="nb">refine</span> (nat_z_iso_comp
+              (fiber_functor_from_cleaving_comp_nat_z_iso _ _ _)
+              (fiber_functor_on_eq_nat_z_iso _ _)).
+    <span class="nb">apply</span> (PullbackArrow_PullbackPr2 PB).
+  - <span class="nb">refine</span> (nat_z_iso_comp
+              (fiber_functor_from_cleaving_comp_nat_z_iso _ _ _)
+              (fiber_functor_on_eq_nat_z_iso _ _)).
+    <span class="nb">apply</span> (PullbackArrow_PullbackPr1 PB).
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> locally_propositional_preorder_hyperdoctrine.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">MakeExistentialQuantifiersChosen</span>.
+  <span class="kn">Context</span> {<span class="nv">H</span> : preorder_hyperdoctrine}
+          (<span class="nv">ex</span> : ∏ (Γ A : ty H), form (Γ ×h A) → form Γ)
+          (<span class="nv">ex_i</span> : ∏ (Γ A : ty H)
+                    (φ : form (Γ ×h A)),
+                  φ ⊢ (ex _ _ φ) [ π₁ (tm_var _) ])
+          (<span class="nv">ex_e</span> : ∏ (Γ A : ty H)
+                    (ψ : form (Γ ×h A))
+                    (χ : form Γ)
+                    (p : ψ ⊢ χ [ π₁ (tm_var _) ]),
+                  ex Γ A ψ ⊢ χ)
+          (<span class="nv">ex_sub</span> : ∏ (Γ₁ Γ₂ A : ty H)
+                      (s : Γ₁ --&gt; Γ₂)
+                      (φ : form (Γ₂ ×h A)),
+                    (ex _ _ φ) [ s ]
+                    ⊢
+                    ex _ _ (φ [ BinProductOfArrows _ _ _ s (identity _) ])).
+
+  <span class="kn">Definition</span> <span class="nf">make_existential_quantifiers_sum_chosen</span>
+             (<span class="nv">Γ</span> <span class="nv">A</span> : ty H)
+    : dependent_sum (hyperdoctrine_cleaving H) (π₁ (tm_var (Γ ×h A))).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> reflections_to_is_right_adjoint.
+    <span class="nb">intro</span> x.
+    use make_reflection'.
+    - <span class="bp">exact</span> (ex _ _ x).
+    - <span class="bp">exact</span> (ex_i _ _ x).
+    - <span class="nb">intros</span> p.
+      use make_reflection_arrow.
+      + <span class="nb">apply</span> ex_e.
+        <span class="bp">exact</span> (p : _ --&gt; _).
+      + <span class="kp">abstract</span> <span class="nb">apply</span> locally_propositional_preorder_hyperdoctrine.
+      + <span class="nb">intros</span>.
+        <span class="kp">abstract</span> <span class="nb">apply</span> locally_propositional_preorder_hyperdoctrine.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_existential_quantifiers_chosen</span>
+    : existential_quantifiers_chosen H.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> make_existential_quantifiers_sum_chosen.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> Γ₁ Γ₂ A s φ ;
+         <span class="nb">simple refine</span> (_ ,, _ ,, _) ;
+         [
+         | <span class="nb">apply</span> locally_propositional_preorder_hyperdoctrine
+         | <span class="nb">apply</span> locally_propositional_preorder_hyperdoctrine ] ;
+         <span class="nb">apply</span> ex_sub).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">MakeExistentialQuantifiersChosen</span>.
+
+<span class="sd">(** * 3. Universal quantifiers with chosen pullbacks *)</span>
+<span class="kn">Definition</span> <span class="nf">universal_quantifiers_chosen</span>
+           (<span class="nv">H</span> : preorder_hyperdoctrine)
+  : UU
+  := ∑ (<span class="kp">all</span> : ∏ (Γ A : ty H), dependent_product (hyperdoctrine_cleaving H) (π₁ (tm_var _))),
+     ∏ (Γ₁ Γ₂ A : ty H)
+       (s : Γ₁ --&gt; Γ₂),
+    right_beck_chevalley
+       _
+       _ s _ (BinProductOfArrows _ _ _ s (identity A))
+       (prod_pullback_eq A s)
+       (<span class="kp">all</span> Γ₂ A)
+       (<span class="kp">all</span> Γ₁ A).
+
+<span class="kn">Definition</span> <span class="nf">universal_quantifiers_from_chosen</span>
+           {<span class="nv">H</span> : preorder_hyperdoctrine}
+           (<span class="nv">E</span> : universal_quantifiers_chosen H)
+  : universal_quantifiers H.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (pr1 E ,, _).
+  <span class="nb">intros</span> Γ₁ Γ₂ A₁ A₂ s₁ s₂ p Hp φ.
+  <span class="nb">pose</span> (PB := make_Pullback _ Hp).
+  <span class="nb">pose</span> (PB' := make_Pullback _ (prod_pullback A₂ s₁)).
+  <span class="nb">simple refine</span> (right_beck_chevalley_adj_equiv'
+                   _
+                   _
+                   _
+                   _
+                   _
+                   _
+                   _
+                   _
+                   _
+                   _
+                   (pr2 E _ _ _ _ φ)).
+  - use fiber_functor_from_cleaving.
+    + <span class="nb">apply</span> hyperdoctrine_cleaving.
+    + <span class="bp">exact</span> (z_iso_inv (z_iso_from_Pullback_to_Pullback PB PB')).
+  - <span class="nb">apply</span> fiber_functor_cleaving_of_z_iso_adj_equiv.
+  - <span class="nb">refine</span> (nat_z_iso_comp
+              (fiber_functor_from_cleaving_comp_nat_z_iso _ _ _)
+              (fiber_functor_on_eq_nat_z_iso _ _)).
+    <span class="nb">apply</span> (PullbackArrow_PullbackPr2 PB).
+  - <span class="nb">refine</span> (nat_z_iso_comp
+              (fiber_functor_from_cleaving_comp_nat_z_iso _ _ _)
+              (fiber_functor_on_eq_nat_z_iso _ _)).
+    <span class="nb">apply</span> (PullbackArrow_PullbackPr1 PB).
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> locally_propositional_preorder_hyperdoctrine.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">MakeUniversalQuantifiersChosen</span>.
+  <span class="kn">Context</span> {<span class="nv">H</span> : preorder_hyperdoctrine}
+          (<span class="nv">all</span> : ∏ (Γ A : ty H), form (Γ ×h A) → form Γ)
+          (<span class="nv">all_e</span> : ∏ (Γ A : ty H)
+                     (φ : form (Γ ×h A)),
+                   (<span class="kp">all</span> _ _ φ) [ π₁ (tm_var _) ] ⊢ φ)
+          (<span class="nv">all_i</span> : ∏ (Γ A : ty H)
+                     (ψ : form (Γ ×h A))
+                     (χ : form Γ)
+                     (p : χ [ π₁ (tm_var _) ] ⊢ ψ),
+                   χ ⊢ <span class="kp">all</span> Γ A ψ)
+          (<span class="nv">all_sub</span> : ∏ (Γ₁ Γ₂ A : ty H)
+                       (s : Γ₁ --&gt; Γ₂)
+                       (φ : form (Γ₂ ×h A)),
+                     <span class="kp">all</span> _ _ (φ [ BinProductOfArrows _ _ _ s (identity _) ])
+                     ⊢
+                     (<span class="kp">all</span> _ _ φ) [ s ]).
+
+  <span class="kn">Definition</span> <span class="nf">make_universal_quantifiers_prod_chosen</span>
+             (<span class="nv">Γ</span> <span class="nv">A</span> : ty H)
+    : dependent_product (hyperdoctrine_cleaving H) (π₁ (tm_var (Γ ×h A))).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> coreflections_to_is_left_adjoint.
+    <span class="nb">intro</span> ψ.
+    use make_coreflection'.
+    - <span class="bp">exact</span> (<span class="kp">all</span> _ _ ψ).
+    - <span class="bp">exact</span> (all_e _ _ ψ).
+    - <span class="nb">intro</span> p.
+      use make_coreflection_arrow.
+      + <span class="nb">apply</span> all_i.
+        <span class="bp">exact</span> (p : _ --&gt; _).
+      + <span class="kp">abstract</span> <span class="nb">apply</span> locally_propositional_preorder_hyperdoctrine.
+      + <span class="kp">abstract</span> (
+          <span class="nb">intros</span>;
+          <span class="nb">apply</span> locally_propositional_preorder_hyperdoctrine).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_universal_quantifiers_chosen</span>
+    : universal_quantifiers_chosen H.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> make_universal_quantifiers_prod_chosen.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> Γ₁ Γ₂ A s φ ;
+        <span class="nb">simple refine</span> (_ ,, _ ,, _) ;
+        [
+        | <span class="nb">apply</span> locally_propositional_preorder_hyperdoctrine
+        | <span class="nb">apply</span> locally_propositional_preorder_hyperdoctrine ] ;
+         <span class="nb">apply</span> all_sub).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">MakeUniversalQuantifiersChosen</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/FirstOrderHyperdoctrineChosen.v</tt>, line 21)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Universal quantifiers with chosen pullbacks
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,621 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DispBicatOfDisplayMapCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Bicategory of Display Map Categories</span>
+<span class="sd">    Contents:</span>
+<span class="sd">    - Displayed Bicategory of Display Map Categories [disp_bicat_display_map_cat]</span>
+<span class="sd">      - Useful coercions</span>
+<span class="sd">      - Univalence</span>
+<span class="sd">    - Displayed Bicategory of Display Map Categories with Terminal Object [disp_bicat_terminal_display_map_cat]</span>
+<span class="sd">      - Useful coercions</span>
+<span class="sd">      - Univalence</span>
+<span class="sd">    - Pseudofunctor into the Bicategory of Full Comprehension Categories [psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat]</span>
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.DisplayMapCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecompEquivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Prod.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sigma.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+
+<span class="c">(* Notations: *)</span>
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** ** Displayed Bicategory of Display Map Categories *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_1_id_comp_cells_display_map_cat</span>
+  : disp_prebicat_1_id_comp_cells bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use tpair.
+  - use tpair.
+    + use tpair.
+      * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span>, display_map_class (pr1 C)).
+      * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">D₁</span> <span class="nv">D₂</span> <span class="nv">F</span>, is_display_map_class_functor D₁ D₂ F).
+    + use tpair.
+      * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, is_display_map_class_functor_identity _).
+      * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">HF</span> <span class="nv">HG</span>, is_display_map_class_functor_composite HF HG).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, unit).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_ops_display_map_cat</span>
+  : disp_prebicat_ops disp_prebicat_1_id_comp_cells_display_map_cat.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">apply</span> tt.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_data_display_map_cat</span>
+  : disp_prebicat_data bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> disp_prebicat_1_id_comp_cells_display_map_cat.
+  - <span class="bp">exact</span> disp_prebicat_ops_display_map_cat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_laws_display_map_cat</span>
+  : disp_prebicat_laws disp_prebicat_data_display_map_cat.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intro</span>; <span class="nb">intros</span>; <span class="nb">apply</span> isProofIrrelevantUnit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_display_map_cat</span>
+  : disp_prebicat bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> disp_prebicat_data_display_map_cat.
+  - <span class="bp">exact</span> disp_prebicat_laws_display_map_cat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_disp_cellset_display_map_cat</span>
+  : has_disp_cellset disp_prebicat_display_map_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>; <span class="nb">intros</span>; <span class="nb">cbn</span>.
+  <span class="bp">exact</span> isasetunit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_bicat_display_map_cat</span>
+  : disp_bicat bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> disp_prebicat_display_map_cat.
+  - <span class="bp">exact</span> has_disp_cellset_display_map_cat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_display_map_cat</span> := total_bicat disp_bicat_display_map_cat.
+
+<span class="sd">(** *** Coercions *)</span>
+<span class="kn">Definition</span> <span class="nf">display_map_cat</span> := bicat_display_map_cat.
+<span class="kn">Coercion</span> <span class="nf">bicat_display_map_cat_ob_to_display_map_cat</span> (D : bicat_display_map_cat) : display_map_cat := D.
+<span class="kn">Coercion</span> <span class="nf">display_map_cat_to_base_cat</span> (D : display_map_cat) : univalent_category := pr1 D.
+
+<span class="sd">(** *** Univalence *)</span>
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_1_disp_bicat_display_map_cat</span>
+  : disp_univalent_2_1 disp_bicat_display_map_cat.
+<span class="kn">Proof</span>.
+  use fiberwise_local_univalent_is_univalent_2_1.
+  <span class="nb">intros</span> C₁ C₂ F D₁ D₂ HF HF'.
+  use isweqcontrcontr.
+  - <span class="nb">apply</span> isPredicate_is_display_map_class_functor.
+  - <span class="nb">unfold</span> disp_invertible_2cell, id2_invertible_2cell, is_invertible_2cell_id₂, make_invertible_2cell, make_is_invertible_2cell, is_disp_invertible_2cell, id2_left, nat_trans_id; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> iscontr_prod; [<span class="bp">exact</span> iscontrunit | <span class="nb">apply</span> iscontr_prod; [<span class="bp">exact</span> iscontrunit | <span class="nb">apply</span> iscontr_prod]].
+    <span class="kp">all</span>: <span class="nb">apply</span> isapropunit.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">display_map_class_adj_to_disp_adjoint_equiv</span>
+  {<span class="nv">C</span> : bicat_of_univ_cats} (<span class="nv">D</span> <span class="nv">D'</span> : disp_bicat_display_map_cat C)
+  : is_display_map_class_functor D D' (functor_identity (univalent_category_to_category C))
+    × is_display_map_class_functor D' D (functor_identity (univalent_category_to_category C))
+  -&gt; disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) D D'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> [HF HG].
+  <span class="k">exists</span> <span class="nv">HF</span>. use tpair.
+  - <span class="k">exists</span> <span class="nv">HG</span>. <span class="bp">exact</span> (tt ,, tt).
+  - <span class="kp">abstract</span> (<span class="nb">split</span>; use tpair;
+      [ <span class="nb">apply</span> isapropunit
+      | <span class="nb">apply</span> isapropunit
+      | <span class="k">exists</span> <span class="nv">tt</span>; <span class="nb">split</span>; <span class="nb">apply</span> isapropunit
+      | <span class="k">exists</span> <span class="nv">tt</span>; <span class="nb">split</span>; <span class="nb">apply</span> isapropunit
+    ]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_adjoint_equiv_to_display_map_class_adj</span>
+  {<span class="nv">C</span> : bicat_of_univ_cats} (<span class="nv">D</span> <span class="nv">D'</span> : disp_bicat_display_map_cat C)
+  : disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) D D'
+  -&gt; is_display_map_class_functor D D' (functor_identity (univalent_category_to_category C))
+    × is_display_map_class_functor D' D (functor_identity (univalent_category_to_category C)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> [HF [[HG ?] ?]]. <span class="bp">exact</span> (HF ,, HG).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">display_map_class_adj_to_disp_adj_to_adj</span>
+  {<span class="nv">C</span> : bicat_of_univ_cats} (<span class="nv">D</span> <span class="nv">D'</span> : disp_bicat_display_map_cat C)
+  : ∏ adj : is_display_map_class_functor D D' (functor_identity (univalent_category_to_category C)) × is_display_map_class_functor D' D (functor_identity (univalent_category_to_category C)),
+    disp_adjoint_equiv_to_display_map_class_adj D D'
+      (display_map_class_adj_to_disp_adjoint_equiv D D' adj) = adj.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> [HF HG]. <span class="nb">apply</span> dirprod_paths; <span class="nb">apply</span> isPredicate_is_display_map_class_functor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">disp_adjoint_equivalence_to_adj_to_disp_adj</span>
+  {<span class="nv">C</span> : bicat_of_univ_cats} (<span class="nv">D</span> <span class="nv">D'</span> : disp_bicat_display_map_cat C)
+  : ∏ adj : disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) D D',
+    display_map_class_adj_to_disp_adjoint_equiv D D'
+      (disp_adjoint_equiv_to_display_map_class_adj D D' adj) = adj.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> adj. <span class="nb">apply</span> subtypePath.
+  {
+    <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence.
+    - <span class="nb">apply</span> univalent_cat_is_univalent_2_1.
+    - <span class="nb">apply</span> disp_univalent_2_1_disp_bicat_display_map_cat.
+  }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">display_map_class_adjoint_weq_disp_adjoint_equivalence</span>
+  {<span class="nv">C</span> : bicat_of_univ_cats} (<span class="nv">D</span> <span class="nv">D'</span> : disp_bicat_display_map_cat C)
+  : is_display_map_class_functor D D' (functor_identity (univalent_category_to_category C))
+    × is_display_map_class_functor D' D (functor_identity (univalent_category_to_category C))
+  ≃ disp_adjoint_equivalence (idtoiso_2_0 C C (idpath C)) D D'.
+<span class="kn">Proof</span>.
+  use make_weq.
+  - <span class="nb">apply</span> display_map_class_adj_to_disp_adjoint_equiv.
+  - use isweq_iso.
+    + <span class="nb">apply</span> disp_adjoint_equiv_to_display_map_class_adj.
+    + <span class="nb">apply</span> display_map_class_adj_to_disp_adj_to_adj.
+    + <span class="nb">apply</span> disp_adjoint_equivalence_to_adj_to_disp_adj.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_0_disp_bicat_display_map_cat</span>
+  : disp_univalent_2_0 disp_bicat_display_map_cat.
+<span class="kn">Proof</span>.
+  use fiberwise_univalent_2_0_to_disp_univalent_2_0.
+  <span class="nb">intros</span> C D D'.
+  use weqhomot.
+  - <span class="nb">refine</span> (display_map_class_adjoint_weq_disp_adjoint_equivalence D D'
+           ∘ display_map_class_data_equiv_weq_display_map_class_adjoint D D' 
+           ∘ display_map_class_equiv_weq_data_equiv D D')%weq.
+  - <span class="nb">intros</span> p; <span class="nb">cbn</span> <span class="k">in</span> p. <span class="nb">induction</span> p.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence.
+      - <span class="nb">apply</span> univalent_cat_is_univalent_2_1.
+      - <span class="nb">apply</span> disp_univalent_2_1_disp_bicat_display_map_cat.
+    }
+    <span class="nb">apply</span> isPredicate_is_display_map_class_functor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_disp_bicat_display_map_cat</span>
+  : disp_univalent_2 disp_bicat_display_map_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_display_map_cat.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_display_map_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_2_bicat_display_map_cat</span>
+  : is_univalent_2 bicat_display_map_cat.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_display_map_cat.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Displayed Bicategory of Display Map Categories with Terminal object in base *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bicat_terminal_display_map_cat</span> :
+  disp_bicat bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use disp_dirprod_bicat.
+  - <span class="bp">exact</span> disp_bicat_terminal_obj.
+  - <span class="bp">exact</span> disp_bicat_display_map_cat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_terminal_display_map_cat</span> := total_bicat disp_bicat_terminal_display_map_cat.
+
+<span class="sd">(** *** Coercions *)</span>
+<span class="kn">Definition</span> <span class="nf">terminal_display_map_cat</span> : UU := bicat_terminal_display_map_cat.
+
+<span class="kn">Coercion</span> <span class="nf">terminal_display_map_cat_to_univ_base</span> (D : terminal_display_map_cat) : univalent_category := pr1 D.
+
+<span class="kn">Coercion</span> <span class="nf">terminal_display_map_cat_to_terminal</span> (D : terminal_display_map_cat) : Terminal D := pr112 D.
+
+<span class="kn">Coercion</span> <span class="nf">terminal_display_map_cat_to_display_map_class</span> (D : terminal_display_map_cat) : display_map_class D := pr22 D.
+
+<span class="kn">Definition</span> <span class="nf">terminal_display_map_functor</span> (<span class="nv">D₁</span> <span class="nv">D₂</span> : bicat_terminal_display_map_cat) : UU := bicat_terminal_display_map_cat ⟦ D₁, D₂ ⟧.
+
+<span class="kn">Coercion</span> <span class="nf">bicat_terminal_display_map_cat_1cell_to_terminal_display_map_functor</span> {D₁ D₂ : bicat_terminal_display_map_cat} (F : bicat_terminal_display_map_cat ⟦ D₁, D₂ ⟧) : terminal_display_map_functor _ _ := F.
+
+<span class="kn">Coercion</span> <span class="nf">terminal_display_map_functor_to_display_map_class_functor</span> {D₁ D₂ : terminal_display_map_cat} (F : terminal_display_map_functor D₁ D₂) : display_map_class_functor D₁ D₂ := (pr1 F ,, pr22 F).
+<span class="kn">Coercion</span> <span class="nf">terminal_display_map_functor_preserves_terminal</span> {D₁ D₂ : terminal_display_map_cat} (F : terminal_display_map_functor D₁ D₂) : preserves_terminal F := pr212 F.
+
+<span class="kn">Definition</span> <span class="nf">terminal_display_map_nat_trans</span> {<span class="nv">D₁</span> <span class="nv">D₂</span> : bicat_terminal_display_map_cat} (<span class="nv">F</span> <span class="nv">G</span> : bicat_terminal_display_map_cat ⟦ D₁, D₂ ⟧) : UU := prebicat_cells bicat_terminal_display_map_cat F G.
+<span class="kn">Coercion</span> <span class="nf">bicat_terminal_display_map_cat_2cell_to_nat_trans</span> {D₁ D₂ : bicat_terminal_display_map_cat} {F G : bicat_terminal_display_map_cat ⟦ D₁, D₂ ⟧} (θ : prebicat_cells bicat_terminal_display_map_cat F G) : terminal_display_map_nat_trans F G := θ.
+<span class="kn">Coercion</span> <span class="nf">terminal_display_map_nat_trans_to_base_nat_trans</span> {D₁ D₂ : bicat_terminal_display_map_cat} {F G : bicat_terminal_display_map_cat ⟦ D₁, D₂ ⟧} (θ : terminal_display_map_nat_trans F G) : nat_trans _ _ := pr1 θ.
+
+<span class="sd">(** *** Univalence of [disp_bicat_terminal_display_map_cat]. *)</span>
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_1_disp_bicat_terminal_display_map_cat</span>
+  : disp_univalent_2_1 disp_bicat_terminal_display_map_cat.
+<span class="kn">Proof</span>.
+  use is_univalent_2_1_dirprod_bicat.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_terminal_obj.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_display_map_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_0_disp_bicat_terminal_display_map_cat</span>
+  : disp_univalent_2_0 disp_bicat_terminal_display_map_cat.
+<span class="kn">Proof</span>.
+  use is_univalent_2_0_dirprod_bicat.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_terminal_obj.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_display_map_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_disp_bicat_terminal_display_map_cat</span>
+  : disp_univalent_2 disp_bicat_terminal_display_map_cat.
+<span class="kn">Proof</span>.
+  use is_univalent_2_dirprod_bicat.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_terminal_obj.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_display_map_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_1_bicat_terminal_display_map_cat</span>
+  : is_univalent_2_1 bicat_terminal_display_map_cat.
+<span class="kn">Proof</span>.
+  use is_univalent_2_1_total_dirprod.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_terminal_obj.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_display_map_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_0_bicat_terminal_display_map_cat</span>
+  : is_univalent_2_0 bicat_terminal_display_map_cat.
+<span class="kn">Proof</span>.
+  use is_univalent_2_0_total_dirprod.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_terminal_obj.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_display_map_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_bicat_terminal_display_map_cat</span>
+  : is_univalent_2 bicat_terminal_display_map_cat.
+<span class="kn">Proof</span>.
+  use is_univalent_2_total_dirprod.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_terminal_obj.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_display_map_cat.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Pseudofunctor from the bicategory of display map categories with terminal objects into the bicategory of full comprehension categories. *)</span>
+
+<span class="sd">(** *** Pseudofunctor Data *)</span>
+<span class="kn">Definition</span> <span class="nf">bicat_terminal_display_map_cat_to_bicat_full_comp_cat</span>
+  : bicat_terminal_display_map_cat → bicat_full_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="c">(* intros D. use make_full_comp_cat. *)</span>
+  <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">D</span> : terminal_display_map_cat, _).
+  use make_full_comp_cat.
+  - use make_comp_cat.
+    + use make_cat_with_terminal_cleaving.
+      * use make_cat_with_terminal_disp_cat.
+        -- <span class="bp">exact</span> D. <span class="c">(* NOTE: I do not know why the coercion [terminal_display_map_cat_to_base_cat] does not work here. *)</span>
+        -- <span class="bp">exact</span> D.
+        -- <span class="bp">exact</span> (univalent_display_map_cat D).
+      * <span class="bp">exact</span> display_map_cleaving.
+    + <span class="bp">exact</span> (cartesian_ι _).
+  - <span class="bp">exact</span> (ι_ff _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">terminal_display_map_functor_to_full_comp_cat_functor</span>
+  : ∏ D₁ D₂ : bicat_terminal_display_map_cat,
+      bicat_terminal_display_map_cat ⟦ D₁, D₂ ⟧
+      → bicat_full_comp_cat ⟦ bicat_terminal_display_map_cat_to_bicat_full_comp_cat D₁, bicat_terminal_display_map_cat_to_bicat_full_comp_cat D₂ ⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D₁ D₂ F; use make_full_comp_cat_functor.
+  - use make_comp_cat_functor.
+    + use make_functor_with_terminal_cleaving.
+      * use make_functor_with_terminal_disp_cat.
+        -- <span class="bp">exact</span> F.
+        -- <span class="bp">exact</span> F.
+        -- <span class="bp">exact</span> (display_map_functor F).
+      * <span class="bp">exact</span> (is_cartesian_display_map_functor (_ ,, _)).
+    + <span class="bp">exact</span> (pr1 (map_ι_is_ι_map F)).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> x dx; <span class="k">exists</span> (<span class="nv">pr1</span> ((pr11 (map_ι_is_ι_map F)) x dx)); <span class="k">exists</span> (<span class="nv">id_left</span> <span class="nv">_</span>); <span class="nb">apply</span> id_right).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">terminal_display_map_transformation_to_full_comp_cat_transformation</span>
+  : ∏ (D₁ D₂ : bicat_terminal_display_map_cat) (F G : bicat_terminal_display_map_cat ⟦ D₁, D₂ ⟧),
+    prebicat_cells bicat_terminal_display_map_cat F G
+    → prebicat_cells bicat_full_comp_cat (terminal_display_map_functor_to_full_comp_cat_functor D₁ D₂ F)
+        (terminal_display_map_functor_to_full_comp_cat_functor D₁ D₂ G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D₁ D₂ F G θ.
+  use make_full_comp_cat_nat_trans; use make_comp_cat_nat_trans.
+  - use make_nat_trans_with_terminal_cleaving. use make_nat_trans_with_terminal_disp_cat.
+    + <span class="bp">exact</span> θ.
+    + use (display_map_nat_trans _).
+  - <span class="kp">abstract</span> (
+        <span class="nb">intros</span> x dx; <span class="nb">simpl</span> <span class="k">in</span> x,dx; <span class="nb">cbn</span>;
+        <span class="nb">rewrite</span> id_left, id_right;
+        <span class="bp">exact</span> (idpath _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_terminal_display_map_to_bicat_full_comp_cat_id_1cell</span>
+  : ∏ D : bicat_terminal_display_map_cat,
+      prebicat_cells bicat_full_comp_cat (identity (bicat_terminal_display_map_cat_to_bicat_full_comp_cat D))
+        (terminal_display_map_functor_to_full_comp_cat_functor D D (identity D)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D. use make_full_comp_cat_nat_trans. use make_comp_cat_nat_trans.
+  - use make_nat_trans_with_terminal_cleaving. use make_nat_trans_with_terminal_disp_cat.
+    + <span class="bp">exact</span> (nat_trans_id _).
+    + <span class="nb">cbn</span>. use (_ ,, _).
+      * <span class="nb">intros</span> x dx; <span class="nb">simpl</span> <span class="k">in</span> *. <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>). <span class="kp">abstract</span> (<span class="bp">exact</span> (id_left _ @ !id_right _)).
+      * <span class="kp">abstract</span> (<span class="nb">intros</span> x₁ x₂ f dx₁ dx₂ df;
+        use eq_display_map_cat_mor; <span class="nb">rewrite</span> (transportb_display_map _ (identity (pr1 dx₁) · pr1 df ,, _));
+        <span class="bp">exact</span> (id_right _ @ !id_left _)).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> x dx; <span class="bp">exact</span> (id_right _ @ !id_left _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_terminal_display_map_to_bicat_full_comp_cat_comp_1cell</span>
+  : ∏ (D₁ D₂ D₃ : bicat_terminal_display_map_cat) (F : bicat_terminal_display_map_cat ⟦ D₁, D₂ ⟧) (G : bicat_terminal_display_map_cat ⟦ D₂, D₃ ⟧),
+    prebicat_cells bicat_full_comp_cat
+      (terminal_display_map_functor_to_full_comp_cat_functor D₁ D₂ F · terminal_display_map_functor_to_full_comp_cat_functor D₂ D₃ G)
+      (terminal_display_map_functor_to_full_comp_cat_functor D₁ D₃ (F · G)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D₁ D₂ D₃ F G. use make_full_comp_cat_nat_trans. use make_comp_cat_nat_trans.
+  - use make_nat_trans_with_terminal_cleaving. use make_nat_trans_with_terminal_disp_cat.
+    + <span class="bp">exact</span> (nat_trans_id _).
+    + <span class="bp">exact</span> display_map_functor_composite_to_composite_display_map_functor.
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> x dx; <span class="nb">cbn</span>; <span class="nb">rewrite</span> ? (pr121 G); <span class="bp">exact</span> (!assoc _ _ _ @ id_left _ @ id_left _ @ !id_right _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat</span>
+  : psfunctor_data bicat_terminal_display_map_cat bicat_full_comp_cat.
+<span class="kn">Proof</span>.
+  use make_psfunctor_data.
+  - <span class="bp">exact</span> bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+  - <span class="bp">exact</span> terminal_display_map_functor_to_full_comp_cat_functor.
+  - <span class="bp">exact</span> terminal_display_map_transformation_to_full_comp_cat_transformation.
+  - <span class="bp">exact</span> bicat_terminal_display_map_to_bicat_full_comp_cat_id_1cell.
+  - <span class="bp">exact</span> bicat_terminal_display_map_to_bicat_full_comp_cat_comp_1cell.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Pseudofunctor Laws *)</span>
+<span class="kn">Lemma</span> <span class="nf">psfunctor_id2_law_bicat_terminal_display_map_cat_to_bicat_full_comp_cat</span>
+  : psfunctor_id2_law psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D₁ D₂ F.
+  use full_comp_nat_trans_eq.
+  - <span class="nb">intros</span> x. <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x dx. use eq_display_map_cat_mor. etrans.
+    + <span class="nb">apply</span> transportf_display_map_mor.
+    + <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">psfunctor_vcomp2_law_bicat_terminal_display_map_cat_to_bicat_full_comp_cat</span>
+  : psfunctor_vcomp2_law psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D₁ D₂ F G H η ϕ.
+  use full_comp_nat_trans_eq.
+  - <span class="nb">intros</span> x. <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x dx. use eq_display_map_cat_mor. etrans.
+    + <span class="nb">apply</span> transportf_display_map_mor.
+    + <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">psfunctor_lunitor_law_bicat_terminal_display_map_cat_to_bicat_full_comp_cat</span>
+  : psfunctor_lunitor_law psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D₁ D₂ F.
+  use full_comp_nat_trans_eq.
+  - <span class="nb">intros</span> x. <span class="nb">simpl</span>. <span class="nb">rewrite</span> (pr121 F), id_left, id_left. <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x dx. use eq_display_map_cat_mor. etrans.
+    + <span class="nb">apply</span> transportf_display_map_mor.
+    + <span class="nb">simpl</span>. <span class="nb">rewrite</span> (pr121 F), id_left, id_left. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">psfunctor_runitor_law_bicat_terminal_display_map_cat_to_bicat_full_comp_cat</span>
+  : psfunctor_runitor_law psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D₁ D₂ F.
+  use full_comp_nat_trans_eq.
+  - <span class="nb">intros</span> x. <span class="nb">simpl</span>. <span class="nb">rewrite</span> id_left, id_left. <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x dx. use eq_display_map_cat_mor. etrans.
+    + <span class="nb">apply</span> transportf_display_map_mor.
+    + <span class="nb">simpl</span>. <span class="nb">rewrite</span> id_left, id_left. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">psfunctor_lassociator_law_bicat_terminal_display_map_cat_to_bicat_full_comp_cat</span>
+  : psfunctor_lassociator_law psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D₁ D₂ D₃ D₄ F G H.
+  use full_comp_nat_trans_eq.
+  - <span class="nb">intros</span> x. <span class="nb">simpl</span>. <span class="nb">rewrite</span> (pr121 H), id_left, id_left, id_left. <span class="nb">apply</span> (!id_left _).
+  - <span class="nb">intros</span> x dx. use eq_display_map_cat_mor. etrans.
+    + <span class="nb">apply</span> transportf_display_map_mor.
+    + <span class="nb">simpl</span>. <span class="nb">rewrite</span> (pr121 H), id_left, id_left, id_left. <span class="nb">apply</span> (!id_left _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">psfunctor_lwhisker_law_bicat_terminal_display_map_cat_to_bicat_full_comp_cat</span>
+  : psfunctor_lwhisker_law psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D₁ D₂ D₃ F G H η.
+  use full_comp_nat_trans_eq.
+  - <span class="nb">intros</span> x. <span class="nb">simpl</span>. <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> (id_left _).
+  - <span class="nb">intros</span> x dx. use eq_display_map_cat_mor. etrans.
+    + <span class="nb">apply</span> transportf_display_map_mor.
+    + <span class="nb">simpl</span>. <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> (id_left _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">psfunctor_rwhisker_law_bicat_terminal_display_map_cat_to_bicat_full_comp_cat</span>
+  : psfunctor_rwhisker_law psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D₁ D₂ D₃ F G H η.
+  use full_comp_nat_trans_eq.
+  - <span class="nb">intros</span> x. <span class="nb">simpl</span>. <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> (id_left _).
+  - <span class="nb">intros</span> x dx. use eq_display_map_cat_mor. etrans.
+    + <span class="nb">apply</span> transportf_display_map_mor.
+    + <span class="nb">simpl</span>. <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> (id_left _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">psfunctor_laws_bicat_terminal_display_map_cat_to_bicat_full_comp_cat</span>
+  : psfunctor_laws psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+<span class="kn">Proof</span>.
+  split7.
+  - <span class="bp">exact</span> psfunctor_id2_law_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+  - <span class="bp">exact</span> psfunctor_vcomp2_law_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+  - <span class="bp">exact</span> psfunctor_lunitor_law_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+  - <span class="bp">exact</span> psfunctor_runitor_law_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+  - <span class="bp">exact</span> psfunctor_lassociator_law_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+  - <span class="bp">exact</span> psfunctor_lwhisker_law_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+  - <span class="bp">exact</span> psfunctor_rwhisker_law_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">helper_id2_cell_bicat_terminal_display_map_cat_to_bicat_full_comp_cat</span>
+  (<span class="nv">D</span> : bicat_terminal_display_map_cat)
+  : disp_nat_trans
+      (nat_trans_id
+        (functor_data_from_functor
+            (full_comp_cat_to_comp_cat (psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat D))
+            (full_comp_cat_to_comp_cat (psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat D))
+            (full_comp_cat_functor_to_comp_cat_functor (# psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat (id₁ D)))))
+      (comp_cat_type_functor (full_comp_cat_functor_to_comp_cat_functor (# psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat (id₁ D))))
+      (comp_cat_type_functor (full_comp_cat_functor_to_comp_cat_functor (id₁ (psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat D)))). 
+<span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intros</span> x dx; <span class="nb">cbn</span> <span class="k">in</span> *. <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>). <span class="kp">abstract</span> (<span class="bp">exact</span> (id_left _ @ !id_right _)).
+    - <span class="kp">abstract</span> (<span class="nb">intros</span> x₁ x₂ f dx₁ dx₂ [df Hsq];
+      <span class="c">(* symmetry; etrans; use eq_display_map_cat_mor. *)</span>
+      use eq_display_map_cat_mor; <span class="nb">symmetry</span>; etrans;
+      <span class="c">(* the following did not work: *)</span>
+      <span class="c">(* + apply transportb_display_map_mor. *)</span>
+      <span class="c">(* we'll unfold it instead: *)</span>
+      [ <span class="nb">refine</span> (pr1_transportf (A := (pr11 D)⟦_, _⟧) _ _ @ _); <span class="nb">rewrite</span> transportf_const; <span class="nb">simpl</span>; <span class="nb">apply</span> id_left | <span class="nb">simpl</span>; <span class="bp">exact</span> (!id_right _)]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">psfunctor_id_is_invertible_bicat_terminal_display_map_cat_to_bicat_full_comp_cat</span>
+  : ∏ D : bicat_terminal_display_map_cat,
+      is_invertible_2cell (psfunctor_id psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat D).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D. use tpair.
+  - use make_full_comp_cat_nat_trans. use make_comp_cat_nat_trans.
+    + use make_nat_trans_with_terminal_cleaving. use make_nat_trans_with_terminal_disp_cat.
+      * <span class="bp">exact</span> (nat_trans_id _).
+      * <span class="bp">exact</span> (helper_id2_cell_bicat_terminal_display_map_cat_to_bicat_full_comp_cat _).
+    + <span class="nb">intros</span> x dx; <span class="nb">cbn</span> <span class="k">in</span> *. <span class="bp">exact</span> (idpath _).
+  - <span class="kp">abstract</span> (use tpair; use full_comp_nat_trans_eq;
+    [ <span class="nb">intros</span> x; <span class="bp">exact</span> (id_left _)
+    | <span class="nb">intros</span> x dx; use eq_display_map_cat_mor; etrans;
+      [ <span class="nb">apply</span> transportf_display_map_mor | <span class="bp">exact</span> (id_left _)]
+    | <span class="nb">intros</span> x; <span class="bp">exact</span> (id_left _)
+    | <span class="nb">intros</span> x dx; use eq_display_map_cat_mor; etrans;
+      [ <span class="nb">apply</span> transportf_display_map_mor | <span class="bp">exact</span> (id_left _)]]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">helper_comp2_cell_bicat_terminal_display_map_cat_to_bicat_full_comp_cat</span>
+  (<span class="nv">D₁</span> <span class="nv">D₂</span> <span class="nv">D₃</span> : bicat_terminal_display_map_cat) (<span class="nv">F</span> : bicat_terminal_display_map_cat ⟦ D₁, D₂ ⟧) (<span class="nv">G</span> : bicat_terminal_display_map_cat ⟦ D₂, D₃ ⟧)
+  : disp_nat_trans
+  (nat_trans_id
+     (functor_data_from_functor
+        (full_comp_cat_to_comp_cat (psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat D₁))
+        (full_comp_cat_to_comp_cat (psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat D₃))
+        (full_comp_cat_functor_to_comp_cat_functor (# psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat (F · G)))))
+  (comp_cat_type_functor (full_comp_cat_functor_to_comp_cat_functor (# psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat (F · G))))
+  (comp_cat_type_functor (full_comp_cat_functor_to_comp_cat_functor (# psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat F · # psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat G))).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intros</span> x dx. <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>). <span class="kp">abstract</span> (<span class="bp">exact</span> (id_left _ @ !id_right _)).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> x₁ x₂ f dx₁ dx₂ [df Hsq];
+    use eq_display_map_cat_mor; <span class="nb">symmetry</span>; etrans;
+    [ <span class="nb">refine</span> (pr1_transportf (A := _⟦_, _⟧) _ _ @ _); <span class="nb">rewrite</span> transportf_const; <span class="nb">simpl</span>; <span class="nb">apply</span> id_left | <span class="nb">simpl</span>; <span class="bp">exact</span> (!id_right _)]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">psfunctor_comp_is_invertible_bicat_terminal_display_map_cat_to_bicat_full_comp_cat</span>
+  : ∏ (D₁ D₂ D₃ : bicat_terminal_display_map_cat) (F : bicat_terminal_display_map_cat ⟦ D₁, D₂ ⟧) (G : bicat_terminal_display_map_cat ⟦ D₂, D₃ ⟧),
+    is_invertible_2cell (psfunctor_comp psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat F G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D₁ D₂ D₃ F G.
+  use tpair.
+  - use make_full_comp_cat_nat_trans. use make_comp_cat_nat_trans.
+    + use make_nat_trans_with_terminal_cleaving. use make_nat_trans_with_terminal_disp_cat.
+      * <span class="nb">apply</span> nat_trans_id.
+      * <span class="nb">apply</span> helper_comp2_cell_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+    + <span class="kp">abstract</span> (<span class="nb">intros</span> x dx; <span class="nb">cbn</span>; <span class="nb">rewrite</span> functor_id; <span class="nb">rewrite</span> ? id_left; <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span> (<span class="nb">split</span>; use full_comp_nat_trans_eq;
+      [ <span class="nb">intros</span> x; <span class="bp">exact</span> (id_left _)
+      | <span class="nb">intros</span> x dx; use subtypePath; <span class="kp">try</span> (<span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, homset_property _ _ _ _ _)); etrans;
+        [ <span class="nb">refine</span> (pr1_transportf (A := _⟦_, _⟧) _ _ @ _); <span class="nb">rewrite</span> transportf_const;
+          <span class="nb">apply</span> id_left | <span class="bp">exact</span> (idpath _) ]
+      | <span class="nb">intros</span> x; <span class="bp">exact</span> (id_left _)
+      | <span class="nb">intros</span> x dx; use subtypePath; <span class="kp">try</span> (<span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, homset_property _ _ _ _ _)); etrans;
+        [ <span class="nb">refine</span> (pr1_transportf (A := _⟦_, _⟧) _ _ @ _); <span class="nb">rewrite</span> transportf_const;
+          <span class="nb">apply</span> id_left | <span class="bp">exact</span> (idpath _) ]]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">invertible_cells_psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat</span>
+  : invertible_cells psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> psfunctor_id_is_invertible_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+  - <span class="bp">exact</span> psfunctor_comp_is_invertible_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">psfunctor_bicat_terminal_display_map_cat_to_bicat_full_comp_cat</span>
+  : psfunctor bicat_terminal_display_map_cat bicat_full_comp_cat.
+<span class="kn">Proof</span>.
+  use make_psfunctor.
+  - <span class="bp">exact</span> psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+  - <span class="bp">exact</span> psfunctor_laws_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+  - <span class="bp">exact</span> invertible_cells_psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayMapCat/DispBicatOfDisplayMapCat.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;       - Univalence
+  &gt;     - Pseudofunctor into the Bicategory of Full Comprehension Categories [psfunctor_data_bicat_terminal_display_map_cat_to_bicat_full_comp_cat]
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

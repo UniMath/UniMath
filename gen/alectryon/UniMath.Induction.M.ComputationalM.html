@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ComputationalM.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** ** Refinement of M-types</span>
+
+<span class="sd">    M-types can be refined to satisfy the right definitional equalities.</span>
+<span class="sd">    This idea is from Felix Rech's Bachelor's thesis, and Felix</span>
+<span class="sd">    Rech also developed together with Luis Scoccola a first formalization</span>
+<span class="sd">    in UniMath as project work of the UniMath 2017 school. The present</span>
+<span class="sd">    formalization was obtained as project work of the UniMath 2019 school</span>
+<span class="sd">    and is heavily inspired by that former formalization.</span>
+
+<span class="sd">    Author: Dominik Kirst (@dominik-kirst) and Ralph Matthes (@rmatthes)</span>
+
+<span class="sd">    massive overhaul by Ralph Matthes (May to July 2025), the crucial element</span>
+<span class="sd">    being the total rewrite of the proof of Lemma P_isaprop that now tries to</span>
+<span class="sd">    generate the new goals as much as possible, while the previous version</span>
+<span class="sd">    announced the intermediate goals through intermediate_weq with formulas</span>
+<span class="sd">    conceived in the UniMath 2017 school formalization</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.Induction.FunctorCoalgebras_legacy.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.<span class="kt">Type</span>.Core.
+
+<span class="kn">Require Import</span> UniMath.Induction.PolynomialFunctors.
+<span class="kn">Require Import</span> UniMath.Induction.M.Core.
+<span class="kn">Require Import</span> UniMath.Induction.M.Uniqueness.
+
+<span class="sd">(**</span>
+<span class="sd">    The construction is called a refinement: as input we take any final coalgebra</span>
+<span class="sd">    for the respective polynomial functor describing an M-type  (hence, with the</span>
+<span class="sd">    provable coiteration rule), the output is the refined final coalgebra with the</span>
+<span class="sd">    equational rule of coiteration holding definitionally: Lemma [corec_computation]</span>
+<span class="sd">    is proved merely by [idpath]. Of course, both coalgebras are equal - provably</span>
+<span class="sd">    (Lemma [coalgebras_eq]).</span>
+<span class="sd"> *)</span>
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Refinement</span>.
+
+  <span class="kn">Context</span> (<span class="nv">A</span> : UU).
+  <span class="kn">Context</span> (<span class="nv">B</span> : A → UU).
+
+  <span class="kn">Local Definition</span> <span class="nf">F</span> : type_precat ⟶ type_precat
+    := polynomial_functor A B.
+
+  <span class="kn">Variable</span> <span class="nv">M0</span> : coalgebra F.
+  <span class="kn">Local Definition</span> <span class="nf">carrierM0</span> : type_precat := coalgebra_ob F M0.
+  <span class="kn">Local Definition</span> <span class="nf">destrM0</span> : type_precat ⟦ carrierM0, F carrierM0 ⟧
+    := coalgebra_mor F M0.
+
+  <span class="kn">Variable</span> <span class="nv">finalM0</span> : is_final M0.
+  <span class="kn">Local Definition</span> <span class="nf">corecM0</span> (<span class="nv">C</span> : coalgebra F) : type_precat ⟦ coalgebra_ob F C, carrierM0 ⟧
+    := pr1 (iscontrpr1 (finalM0 C)).
+
+  <span class="kn">Lemma</span> <span class="nf">corec_equational_aux</span> (<span class="nv">C</span> : coalgebra F) (<span class="nv">c</span> : coalgebra_ob F C) : is_coalgebra_homo F (corecM0 C).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 (iscontrpr1 (finalM0 C))).
+  <span class="kn">Defined</span>. <span class="c">(* defined because the target of the morphisms is a precategory only *)</span>
+
+  <span class="sd">(** recall the provable equation governing corec *)</span>
+  <span class="kn">Lemma</span> <span class="nf">corec_equational</span> (<span class="nv">C</span> : coalgebra F) (<span class="nv">c</span> : coalgebra_ob F C) :
+    destrM0 (corecM0 C c) = # F (corecM0 C) (coalgebra_mor F C c).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (aux := toforallpaths _ _ _ (corec_equational_aux C c)).
+    <span class="nb">apply</span> pathsinv0, aux.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> functions.
+
+  <span class="sd">(** refinement of the final coalgebra to purely coiterative elements *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_purelycoiterativeM0</span> (<span class="nv">m0</span> : carrierM0) : UU := <span class="k">∃</span> (<span class="nv">C</span> : coalgebra F) (<span class="nv">c</span> : coalgebra_ob F C), corecM0 C c = m0.
+
+  <span class="kn">Definition</span> <span class="nf">carrierM</span> : UU := total2 is_purelycoiterativeM0.
+
+  <span class="c">(* Check (carrierM = ∑ m0 : carrierM0, ∃ (C : coalgebra F) (c : coalgebra_ob F C), corecM0 C c = m0). *)</span>
+
+  <span class="sd">(** definition of the corecursor *)</span>
+  <span class="kn">Definition</span> <span class="nf">corecM</span> (<span class="nv">C</span> : coalgebra F) (<span class="nv">c</span> : coalgebra_ob F C) : carrierM.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">corecM0</span> <span class="nv">C</span> <span class="nv">c</span>). <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">C</span>, c. <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** a form of functoriality of [F] w.r.t. convertibility *)</span>
+  <span class="kn">Lemma</span> <span class="nf">corecM_corecM0</span> (<span class="nv">C</span> : coalgebra F) (<span class="nv">cf</span>: F (coalgebra_ob F C)) :
+    #F pr1 (#F (corecM C) cf) = #F (corecM0 C) cf.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** definition of a proposition we factor the computation through *)</span>
+  <span class="kn">Local Definition</span> <span class="nf">P</span> (<span class="nv">m0</span> : carrierM0) : UU
+    := ∑ af : F carrierM, destrM0 m0 = # F pr1 af.
+
+  <span class="sd">(** in order to show [P] to be a proposition, a not obviously equivalent</span>
+<span class="sd">    formulation is given for which it is easy to show [isaprop] *)</span>
+  <span class="kn">Local Definition</span> <span class="nf">P'</span> (<span class="nv">m0</span> : carrierM0) : UU :=
+    ∑ ap : (∑ a : A, pr1 (destrM0 m0) = a),
+                 ∏ b : B (pr1 ap),
+                 ∑ mp : (∑ m0' : carrierM0,
+                                transportf (<span class="k">λ</span> <span class="nv">a</span> : A, B a  -&gt; carrierM0)
+                                           (pr2 ap)
+                                           (pr2 (destrM0 m0)) b =
+                                m0'),
+                                is_purelycoiterativeM0 (pr1 mp).
+
+  <span class="sd">(** the easy auxiliary lemma *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">P'_isaprop</span> (<span class="nv">m0</span> : carrierM0) : isaprop (P' m0).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isofhleveltotal2.
+    - <span class="nb">apply</span> isofhlevelcontr.
+      <span class="nb">apply</span> iscontrcoconusfromt.
+    - <span class="nb">intro</span> ap; <span class="nb">induction</span> ap <span class="k">as</span> [a p].
+      <span class="nb">apply</span> impred; <span class="nb">intros</span> b.
+      <span class="nb">apply</span> isofhleveltotal2.
+      + <span class="nb">apply</span> isofhlevelcontr.
+        <span class="nb">apply</span> iscontrcoconusfromt.
+      + <span class="nb">intro</span> mp; <span class="nb">induction</span> mp <span class="k">as</span> [m0' q].
+        <span class="nb">apply</span> isapropishinh.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** the crucial lemma *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">P_isaprop</span> (<span class="nv">m0</span> : carrierM0) : isaprop (P m0).
+  <span class="kn">Proof</span>.
+    use (@isofhlevelweqb _ _ (P' m0) _ (P'_isaprop m0)).
+    <span class="nb">eapply</span> weqcomp.
+    { <span class="nb">apply</span> weqtotal2asstor. }
+    <span class="c">(* working on the right end: *)</span>
+    <span class="nb">eapply</span> weqcomp.
+    <span class="mi">2</span>: { <span class="nb">apply</span> invweq.
+         <span class="nb">apply</span> weqtotal2asstor. }
+    <span class="c">(* reducing the problem: *)</span>
+    <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> a.
+    <span class="nb">eapply</span> weqcomp.
+    { <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> f.
+      <span class="nb">apply</span> total2_paths_equiv.
+    }
+    <span class="nb">unfold</span> PathPair. <span class="nb">simpl</span>.
+    <span class="nb">eapply</span> weqcomp.
+    { <span class="nb">apply</span> weqtotal2comm. }
+    <span class="c">(* reducing the problem: *)</span>
+    <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> p.
+    <span class="c">(* the next line serves to illustrate the the right-hand side will not be touched during the next five transformations *)</span>
+    <span class="k">match goal with</span> |[ |- _ ≃ <span class="nl">?rhs</span>] =&gt; <span class="nb">set</span> (therhs := rhs) <span class="k">end</span>.
+    <span class="nb">eapply</span> weqcomp.
+    { <span class="nb">set</span> (H1 := weqfuntototaltototal (B a) is_purelycoiterativeM0).
+      <span class="nb">apply</span> (weqbandf H1 _ (<span class="k">fun</span> <span class="nv">fg</span> =&gt; transportf (<span class="k">λ</span> <span class="nv">a</span> : A, B a -&gt; carrierM0) p (pr2 (destrM0 m0)) = pr1 fg)). <span class="c">(* the second argument to [weqbandf] is [fun f =&gt; transportf (λ x : A, B x → carrierM0) p (pr2 (destrM0 m0)) = pr1 ∘ f] *)</span>
+      <span class="c">(* solving a trivial subproblem: *)</span>
+      <span class="nb">cbn</span>.
+      <span class="nb">intro</span> f.
+      <span class="nb">apply</span> idweq.
+    }
+    <span class="nb">simpl</span>.
+    <span class="nb">eapply</span> weqcomp.
+    { <span class="nb">apply</span> weqtotal2asstor. }
+    <span class="nb">simpl</span>.
+    <span class="nb">eapply</span> weqcomp.
+    { <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> f.
+      <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> Hyp.
+      <span class="nb">apply</span> weqtoforallpaths.
+    }
+    <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> homot.
+    <span class="nb">eapply</span> weqcomp.
+    { <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> f.
+      <span class="nb">apply</span> invweq.
+      <span class="nb">apply</span> (weqforalltototal _ (<span class="k">fun</span> <span class="nv">x</span> <span class="nv">_</span> =&gt; transportf (<span class="k">λ</span> <span class="nv">a0</span> : A, B a0 → carrierM0) p (pr2 (destrM0 m0)) x = f x)). <span class="c">(* the first argument to [weqforalltototal] is [fun x =&gt; is_computableM0 (f x)] *)</span>
+    }
+    <span class="nb">simpl</span>.
+    <span class="nb">eapply</span> weqcomp.
+    { <span class="nb">apply</span> invweq.
+      <span class="nb">apply</span> (weqforalltototal _ (<span class="k">fun</span> <span class="nv">b</span> <span class="nv">y</span> =&gt; ∑ _ : is_purelycoiterativeM0 y, transportf (<span class="k">λ</span> <span class="nv">a0</span> : A, B a0 → carrierM0) p (pr2 (destrM0 m0)) b = y)). <span class="c">(* the first argument to [weqforalltototal] is [fun _ =&gt; carrierM0] *)</span>
+    }
+    <span class="c">(* reducing the problem: *)</span>
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> b.
+    <span class="c">(* no longer need to illustrate the fixed right-hand side: *)</span>
+    <span class="nb">clear</span> therhs.
+    <span class="nb">eapply</span> weqcomp.
+    { <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> m0'.
+      <span class="nb">apply</span> weqdirprodcomm.
+    }
+    <span class="nb">simpl</span>.
+    <span class="c">(* the final step is on the current right-hand side: *)</span>
+    <span class="nb">apply</span> invweq.
+    <span class="nb">apply</span> weqtotal2asstor. <span class="c">(* the first argument to [weqtotal2asstor] is [fun x =&gt; transportf (λ a0 : A, B a0 → carrierM0) p (pr2 (destrM0 m0)) b = x], the second is [fun y =&gt; is_computableM0 (pr1 y)] *)</span>
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* Now the destructor of M can be defined *)</span>
+
+  <span class="kn">Local Lemma</span> <span class="nf">destrM'_aux</span> (<span class="nv">m0</span> : carrierM0) (<span class="nv">C</span> : coalgebra F) (<span class="nv">c</span> : coalgebra_ob F C) (<span class="nv">H1</span> : corecM0 C c = m0) :
+    destrM0 m0 = # F pr1 ((# F (corecM C) ∘ coalgebra_mor F C) c).
+  <span class="kn">Proof</span>.
+    etrans.
+    { <span class="nb">rewrite</span> &lt;- H1. <span class="nb">apply</span> corec_equational. }
+    <span class="nb">apply</span> pathsinv0, corecM_corecM0.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">destrM'</span> (<span class="nv">m</span> : carrierM) : P (pr1 m).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> m <span class="k">as</span> [m0 H]. <span class="nb">apply</span> (squash_to_prop H); [<span class="nb">apply</span> P_isaprop|].
+    <span class="nb">intros</span> [C [c H1]].
+    <span class="k">exists</span> ((# F (corecM C) ∘ (coalgebra_mor F C)) c).
+    <span class="nb">cbn</span> [pr1].
+    <span class="nb">apply</span> destrM'_aux.
+    <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">destrM</span> (<span class="nv">m</span> : carrierM) : F carrierM :=
+    pr1 (destrM' m).
+
+  <span class="kn">Definition</span> <span class="nf">M</span> : coalgebra F :=
+    (carrierM,, destrM).
+
+  <span class="sd">(** the destructor satisfies the corecursion equation definitionally *)</span>
+  <span class="kn">Lemma</span> <span class="nf">corec_computation</span> (<span class="nv">C</span> : coalgebra F) (<span class="nv">c</span> : coalgebra_ob F C) :
+    destrM (corecM C c) = # F (corecM C) (coalgebra_mor F C c).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** for the moment only an experiment *)</span>
+  <span class="kn">Goal</span> ∏ (m0 : carrierM0), P m0 -&gt; is_purelycoiterativeM0 m0.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> m0 [[a f] Hyp].
+    <span class="nb">simpl</span> <span class="k">in</span> Hyp.
+    <span class="nb">unfold</span> polynomial_functor_arr <span class="k">in</span> Hyp.
+    <span class="nb">simpl</span> <span class="k">in</span> Hyp.
+  <span class="kn">Abort</span>. <span class="c">(* there should be a notion of computable element that is wider than purely coiterative *)</span>
+
+  <span class="sd">(** the two carriers are equal *)</span>
+  <span class="kn">Lemma</span> <span class="nf">eq_corecM0</span> (<span class="nv">m0</span> : carrierM0) :
+    corecM0 M0 m0 = m0.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">assert</span> (aux := path_to_ctr _ _ (finalM0 M0) (pr1 (coalgebra_homo_id F M0)) (pr2 (coalgebra_homo_id F M0))).
+    <span class="nb">apply</span> toforallpaths <span class="k">in</span> aux.
+    <span class="nb">apply</span> aux.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">injectM0</span> (<span class="nv">m0</span> : carrierM0) :
+    <span class="k">∃</span> <span class="nv">C</span> <span class="nv">c</span>, corecM0 C c = m0.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">M0</span>, m0. <span class="nb">apply</span> eq_corecM0.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">carriers_weq</span> :
+    carrierM ≃ carrierM0.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (weq_iso pr1 (<span class="k">λ</span> <span class="nv">m0</span>, m0,, injectM0 m0)).
+    - <span class="nb">intros</span> [m H]. <span class="nb">cbn</span>. <span class="nb">apply</span> maponpaths, ishinh_irrel.
+    - <span class="nb">intros</span> x. <span class="nb">cbn</span>. <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">carriers_eq</span> :
+    carrierM = carrierM0.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqtopaths, carriers_weq.
+  <span class="kn">Defined</span>. <span class="sd">(** needs to be transparent *)</span>
+
+  <span class="c">(* The two coalgebras are equal *)</span>
+
+  <span class="kn">Local Lemma</span> <span class="nf">eq1</span> (<span class="nv">m0</span> : carrierM0) :
+    transportf (<span class="k">λ</span> <span class="nv">X</span>, X → F X) carriers_eq destrM m0
+    = transportf (<span class="k">λ</span> <span class="nv">X</span>, F X) carriers_eq (destrM (transportf (<span class="k">λ</span> <span class="nv">X</span>, X) (!carriers_eq) m0)).
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> carriers_eq. <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">eq2</span> (<span class="nv">m0</span> : carrierM0) :
+    transportf (<span class="k">λ</span> <span class="nv">X</span>, X) (!carriers_eq) m0 = m0,, injectM0 m0.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (transportf_pathsinv0' (idfun UU) carriers_eq).
+    <span class="nb">unfold</span> carriers_eq. <span class="nb">rewrite</span> weqpath_transport. <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">eq3</span> (<span class="nv">m0</span> : carrierM0) :
+    destrM (m0,, injectM0 m0) = pr1 (destrM0 m0),, corecM M0 ∘ pr2 (destrM0 m0).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">coalgebras_eq</span> :
+    M = M0.
+  <span class="kn">Proof</span>.
+    use total2_paths_f; [<span class="nb">apply</span> carriers_eq|].
+    <span class="nb">apply</span> funextfun. <span class="nb">intro</span> m0.
+    <span class="nb">rewrite</span> eq1. <span class="nb">rewrite</span> eq2. <span class="nb">rewrite</span> eq3.
+    <span class="nb">cbn</span>. <span class="nb">unfold</span> polynomial_functor_obj.
+    <span class="nb">rewrite</span> transportf_total2_const.
+    use total2_paths_f; [<span class="nb">apply</span> idpath|].
+    <span class="nb">cbn</span>. <span class="nb">apply</span> funextsec. <span class="nb">intros</span> b. <span class="nb">rewrite</span> &lt;- UniMath.MoreFoundations.PartA.helper_A.
+    <span class="nb">unfold</span> carriers_eq. <span class="nb">rewrite</span> weqpath_transport.
+    <span class="nb">cbn</span>. <span class="nb">rewrite</span> eq_corecM0. <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* Thus M is final *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">finalM</span> : is_final M.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> coalgebras_eq. <span class="nb">apply</span> finalM0.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Refinement</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Induction/M/ComputationalM.v</tt>, line 20)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

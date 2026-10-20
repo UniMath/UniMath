@@ -1,0 +1,899 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>BicatOfActionsInBicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** introduces monoidal actions in a bicategorical setting</span>
+
+<span class="sd">    This lifts to bicategories the view on actions as put forward in G. Janelidze and G.M. Kelly: A Note on Actions of a Monoidal Category, Theory and Applications of Categories, Vol. 9, 2001, No. 4, pp 61-91.</span>
+<span class="sd">    The strength notion for the morphisms between actions is taken from</span>
+<span class="sd">    B. Ahrens, R. Matthes and A. Mörtberg: Implementing a category-theoretic framework for typed abstract syntax, Proceedings CPP'22.</span>
+
+<span class="sd">Authors: Ralph Matthes and Kobe Wullaert 2022</span>
+<span class="sd"> *)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.EndofunctorsWhiskeredMonoidal.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.ActionBasedStrongFunctorsWhiskeredMonoidal.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Import</span> DisplayedBifunctorNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Section</span> <span class="nf">FixMoncatAndBicat</span>.
+
+  <span class="kn">Context</span> {<span class="nv">V</span> : category}.
+  <span class="kn">Context</span> (<span class="nv">Mon_V</span> : monoidal V).
+
+  <span class="kn">Notation</span> <span class="s2">"X ⊗ Y"</span> := (X ⊗_{ Mon_V } Y).
+
+  <span class="kn">Context</span> (<span class="nv">B</span> : bicat).
+
+  <span class="kn">Definition</span> <span class="nf">disp_actionbicat_disp_mor</span> {<span class="nv">a0</span> <span class="nv">a0'</span> : B}
+  {<span class="nv">FA</span> : V ⟶ category_from_bicat_and_ob a0}
+  (<span class="nv">FAm</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a0) FA)
+  {<span class="nv">FA'</span> : V ⟶ category_from_bicat_and_ob a0'}
+  (<span class="nv">FA'm</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a0') FA')
+  (<span class="nv">G</span> : B ⟦ a0, a0' ⟧): UU :=
+    ∑ δ : parameterized_distributivity_bicat_nat G,
+                param_distr_bicat_triangle_eq Mon_V FAm FA'm G δ ×
+                  param_distr_bicat_pentagon_eq Mon_V FAm FA'm G δ.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_actionbicat_disp_mor_eq</span> {<span class="nv">a0</span> <span class="nv">a0'</span> : B}
+  {<span class="nv">FA</span> : V ⟶ category_from_bicat_and_ob a0}
+  {<span class="nv">FAm</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a0) FA}
+  {<span class="nv">FA'</span> : V ⟶ category_from_bicat_and_ob a0'}
+  {<span class="nv">FA'm</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a0') FA'}
+  {<span class="nv">G</span> : B ⟦ a0, a0' ⟧}
+  (<span class="nv">pm1</span> <span class="nv">pm2</span>: disp_actionbicat_disp_mor FAm FA'm G):
+    pr1 pm1 = pr1 pm2 -&gt; pm1 = pm2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> Hyp.
+    <span class="nb">apply</span> subtypePath.
+    - <span class="nb">intro</span> δ. <span class="nb">apply</span> isapropdirprod.
+      + <span class="nb">apply</span> isaprop_param_distr_bicat_triangle_eq.
+      + <span class="nb">apply</span> isaprop_param_distr_bicat_pentagon_eq.
+    - <span class="bp">exact</span> Hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_actionbicat_disp_ob_mor</span> : disp_cat_ob_mor B.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intro</span> a0.
+      <span class="bp">exact</span> (∑ FA: functor V (category_from_bicat_and_ob a0),
+                fmonoidal Mon_V (monoidal_from_bicat_and_ob a0) FA).
+    - <span class="nb">intros</span> a0 a0' [FA FAm] [FA' FA'm] G.
+      <span class="bp">exact</span> (disp_actionbicat_disp_mor FAm FA'm G).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_actionbicat_disp_id_nat_trans</span>
+  {<span class="nv">a</span> : B}
+  {<span class="nv">FA</span> : V ⟶ category_from_bicat_and_ob a}
+  (<span class="nv">FAm</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a) FA):
+    H(V:=V)(FA':=FA) (id₁ a) ⟹ H'(FA:=FA) (id₁ a).
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    * <span class="nb">intro</span> v. <span class="nb">cbn</span>. <span class="bp">exact</span> (lunitor _ • rinvunitor _).
+    * <span class="kp">abstract</span> ( <span class="nb">intros</span> v w f;
+                 <span class="nb">cbn</span>;
+                 <span class="nb">rewrite</span> vassocr;
+                 <span class="nb">rewrite</span> vcomp_lunitor;
+                 <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> vassocl;
+                 <span class="nb">apply</span> maponpaths;
+                 <span class="nb">apply</span> pathsinv0, (rhs_right_inv_cell _ _ _ (is_invertible_2cell_runitor _));
+                 <span class="nb">rewrite</span> vassocl;
+                 <span class="nb">rewrite</span> vcomp_runitor;
+                 <span class="nb">rewrite</span> vassocr;
+                 <span class="nb">rewrite</span> rinvunitor_runitor;
+                 <span class="nb">apply</span> id2_left ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_actionbicat_disp_id_triangle</span> {<span class="nv">a</span> : B}
+  {<span class="nv">FA</span> : V ⟶ category_from_bicat_and_ob a}
+  (<span class="nv">FAm</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a) FA):
+    param_distr_bicat_triangle_eq Mon_V FAm FAm (id₁ a) (disp_actionbicat_disp_id_nat_trans FAm).
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> vassocr.
+    <span class="nb">rewrite</span> vcomp_lunitor.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> vassocl.
+    <span class="nb">rewrite</span> lunitor_id_is_left_unit_id.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> pathsinv0, (rhs_right_inv_cell _ _ _ (is_invertible_2cell_runitor _)).
+    <span class="nb">rewrite</span> vassocl.
+    <span class="nb">apply</span> pathsinv0, (rhs_left_inv_cell _ _ _ (is_invertible_2cell_lunitor _)).
+    <span class="nb">rewrite</span> vcomp_runitor.
+    <span class="nb">rewrite</span> lunitor_id_is_left_unit_id.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_actionbicat_disp_id_pentagon</span> {<span class="nv">a</span> : B}
+    {<span class="nv">FA</span> : V ⟶ category_from_bicat_and_ob a}
+    (<span class="nv">FAm</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a) FA):
+    param_distr_bicat_pentagon_eq Mon_V FAm FAm (id₁ a) (disp_actionbicat_disp_id_nat_trans FAm).
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">cbn</span>.
+    <span class="nb">intros</span> v w.
+    <span class="nb">unfold</span> param_distr_bicat_pentagon_eq_body, param_distr_bicat_pentagon_eq_body_RHS.
+    <span class="nb">cbn</span>.
+    etrans.
+    { <span class="nb">rewrite</span> vassocl. <span class="nb">apply</span> maponpaths. <span class="nb">rewrite</span> vassocr. <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> vcomp_lunitor. }
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr. <span class="nb">apply</span> idpath. }
+    <span class="nb">apply</span> pathsinv0, (rhs_right_inv_cell _ _ _ (is_invertible_2cell_runitor _)).
+    etrans.
+    { <span class="nb">rewrite</span> !vassocl. <span class="c">(* instead of repeat rewrite vassocl - hint by Niels van der Weide *)</span> <span class="nb">apply</span> idpath. }
+    <span class="nb">rewrite</span> vcomp_runitor.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr. <span class="nb">apply</span> maponpaths_2.
+    <span class="c">(* now pure bicategorical reasoning *)</span>
+    <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+    <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+    <span class="nb">rewrite</span> &lt;- runitor_triangle.
+    <span class="nb">rewrite</span> &lt;- lunitor_triangle.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">rewrite</span> vassocr.
+         <span class="nb">rewrite</span> rassociator_lassociator.
+         <span class="nb">apply</span> pathsinv0, id2_left. }
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr. <span class="nb">apply</span> maponpaths_2.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl. <span class="nb">rewrite</span> lassociator_rassociator.
+      <span class="nb">rewrite</span> id2_right. <span class="nb">apply</span> idpath. }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl.
+    etrans.
+    { <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="nb">rewrite</span> rinvunitor_runitor.
+      <span class="nb">apply</span> lwhisker_id2. }
+    <span class="nb">rewrite</span> id2_right.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> id2_right. }
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> lunitor_lwhisker.
+    <span class="nb">rewrite</span> rwhisker_vcomp.
+    <span class="nb">rewrite</span> rinvunitor_runitor.
+    <span class="nb">apply</span> id2_rwhisker.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_actionbicat_disp_comp_nat_trans_data</span> {<span class="nv">a0</span> <span class="nv">a1</span> <span class="nv">a2</span> : B}
+      {<span class="nv">g1</span> : B ⟦ a0, a1 ⟧}
+      {<span class="nv">g2</span> : B ⟦ a1, a2 ⟧}
+      {<span class="nv">FA</span> : V ⟶ category_from_bicat_and_ob a0}
+      {<span class="nv">FAm</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a0) FA}
+      {<span class="nv">FA'</span> : V ⟶ category_from_bicat_and_ob a1}
+      {<span class="nv">FA'm</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a1) FA'}
+      {<span class="nv">FA''</span> : V ⟶ category_from_bicat_and_ob a2}
+      {<span class="nv">FA''m</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a2) FA''}
+      (<span class="nv">Hyp1</span> : disp_actionbicat_disp_mor FAm FA'm g1)
+      (<span class="nv">Hyp2</span> : disp_actionbicat_disp_mor FA'm FA''m g2):
+    nat_trans_data (H(V:=V)(FA':=FA'') (g1 · g2)) (H'(FA:=FA) (g1 · g2)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> v. <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (rassociator g1 g2 (FA'' v)
+             • ((g1 ◃ (pr1 Hyp2 v))
+             • ((lassociator g1 (FA' v) g2
+             • ((pr1 Hyp1 v) ▹ g2) : g1 · H' g2 v ==&gt; FA v · g1 · g2)
+             • rassociator (FA v) g1 g2))).
+    <span class="c">(* refine (vcomp2 _ _).</span>
+<span class="c">       { apply rassociator. }</span>
+<span class="c">       refine (vcomp2 _ _).</span>
+<span class="c">       { apply lwhisker.</span>
+<span class="c">       apply Hyp2. }</span>
+<span class="c">       refine (vcomp2 _ _).</span>
+<span class="c">       2: { apply rassociator. }</span>
+<span class="c">       cbn.</span>
+<span class="c">       refine (vcomp2 _ _).</span>
+<span class="c">       { apply lassociator. }</span>
+<span class="c">       apply rwhisker.</span>
+<span class="c">       apply Hyp1. *)</span>
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_actionbicat_disp_comp_is_nat_trans</span> {<span class="nv">a0</span> <span class="nv">a1</span> <span class="nv">a2</span> : B}
+    {<span class="nv">g1</span> : B ⟦ a0, a1 ⟧}
+    {<span class="nv">g2</span> : B ⟦ a1, a2 ⟧}
+    {<span class="nv">FA</span> : V ⟶ category_from_bicat_and_ob a0}
+    {<span class="nv">FAm</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a0) FA}
+    {<span class="nv">FA'</span> : V ⟶ category_from_bicat_and_ob a1}
+    {<span class="nv">FA'm</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a1) FA'}
+    {<span class="nv">FA''</span> : V ⟶ category_from_bicat_and_ob a2}
+    {<span class="nv">FA''m</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a2) FA''}
+    (<span class="nv">Hyp1</span> : disp_actionbicat_disp_mor FAm FA'm g1)
+    (<span class="nv">Hyp2</span> : disp_actionbicat_disp_mor FA'm FA''m g2):
+    is_nat_trans _ _ (disp_actionbicat_disp_comp_nat_trans_data Hyp1 Hyp2).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v w f. <span class="nb">unfold</span> disp_actionbicat_disp_comp_nat_trans_data.
+    <span class="nb">cbn</span>; <span class="nb">rewrite</span> vassocr.
+
+    <span class="nb">rewrite</span> (! lwhisker_lwhisker_rassociator _ _ _ _ _ _ _ _ _).
+    <span class="nb">rewrite</span> vassocr.
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (lwhisker_vcomp g1  (g2 ◃ # FA'' f) (pr1 Hyp2 w)).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> rwhisker_rwhisker_alt.
+    }
+
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">apply</span> maponpaths_2.
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (pr21 Hyp2 v w f).
+    }
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (pr21 Hyp1 v w f).
+    }
+
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> (! lwhisker_vcomp _ _ _).
+
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> vassocl.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> vassocr.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> (! rwhisker_vcomp _ _ _).
+      <span class="nb">rewrite</span> vassocr.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> rwhisker_lwhisker.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_actionbicat_disp_comp_nat_trans</span> {<span class="nv">a0</span> <span class="nv">a1</span> <span class="nv">a2</span> : B}
+    {<span class="nv">g1</span> : B ⟦ a0, a1 ⟧}
+    {<span class="nv">g2</span> : B ⟦ a1, a2 ⟧}
+    {<span class="nv">FA</span> : V ⟶ category_from_bicat_and_ob a0}
+    {<span class="nv">FAm</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a0) FA}
+    {<span class="nv">FA'</span> : V ⟶ category_from_bicat_and_ob a1}
+    {<span class="nv">FA'm</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a1) FA'}
+    {<span class="nv">FA''</span> : V ⟶ category_from_bicat_and_ob a2}
+    {<span class="nv">FA''m</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a2) FA''}
+    (<span class="nv">Hyp1</span> : disp_actionbicat_disp_mor FAm FA'm g1)
+    (<span class="nv">Hyp2</span> : disp_actionbicat_disp_mor FA'm FA''m g2):
+    parameterized_distributivity_bicat_nat(V:=V)(FA:=FA)(FA':=FA'') (g1 · g2) :=
+    _,, disp_actionbicat_disp_comp_is_nat_trans Hyp1 Hyp2.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_actionbicat_disp_comp_triangle</span> {<span class="nv">a0</span> <span class="nv">a1</span> <span class="nv">a2</span> : B}
+    {<span class="nv">g1</span> : B ⟦ a0, a1 ⟧}
+    {<span class="nv">g2</span> : B ⟦ a1, a2 ⟧}
+    {<span class="nv">FA</span> : V ⟶ category_from_bicat_and_ob a0}
+    {<span class="nv">FAm</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a0) FA}
+    {<span class="nv">FA'</span> : V ⟶ category_from_bicat_and_ob a1}
+    {<span class="nv">FA'm</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a1) FA'}
+    {<span class="nv">FA''</span> : V ⟶ category_from_bicat_and_ob a2}
+    {<span class="nv">FA''m</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a2) FA''}
+    (<span class="nv">Hyp1</span> : disp_actionbicat_disp_mor FAm FA'm g1)
+    (<span class="nv">Hyp2</span> : disp_actionbicat_disp_mor FA'm FA''m g2):
+    param_distr_bicat_triangle_eq Mon_V FAm FA''m (g1 · g2) (disp_actionbicat_disp_comp_nat_trans Hyp1 Hyp2).
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> disp_actionbicat_disp_comp_nat_trans_data.
+    <span class="nb">assert</span> (aux1 := pr12 Hyp1).
+    <span class="nb">assert</span> (aux2 := pr12 Hyp2).
+    <span class="nb">apply</span> param_distr_bicat_triangle_eq_variant0_follows <span class="k">in</span> aux1.
+    <span class="nb">apply</span> param_distr_bicat_triangle_eq_variant0_follows <span class="k">in</span> aux2.
+    <span class="nb">red</span> <span class="k">in</span> aux1, aux2; <span class="nb">cbn</span> <span class="k">in</span> aux1, aux2.
+    <span class="nb">rewrite</span> aux1, aux2.
+    <span class="nb">clear</span> Hyp1 Hyp2 aux1 aux2.
+    <span class="nb">unfold</span> param_distr_bicat_triangle_eq_variant0_RHS.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> lassocr.
+      <span class="nb">apply</span> maponpaths.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+      <span class="nb">rewrite</span> lwhisker_lwhisker_rassociator.
+      <span class="nb">apply</span> idpath. }
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+      <span class="kp">do</span> <span class="mi">10</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (z_iso_inv_after_z_iso (_,,fmonoidal_preservesunitstrongly FA''m)). }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> lwhisker_id2.
+    <span class="nb">rewrite</span> id2_left.
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+      <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> rwhisker_lwhisker. }
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl.
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (z_iso_inv_after_z_iso (_,,fmonoidal_preservesunitstrongly FA'm)). }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> lwhisker_id2.
+    <span class="nb">rewrite</span> id2_rwhisker.
+    <span class="nb">rewrite</span> id2_right.
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl.
+      <span class="nb">rewrite</span> rwhisker_rwhisker_alt.
+      <span class="nb">apply</span> idpath. }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="c">(* now pure bicategorical reasoning *)</span>
+    <span class="nb">rewrite</span> &lt;- runitor_triangle.
+    <span class="nb">apply</span> (rhs_right_inv_cell _ _ _ (is_invertible_2cell_lunitor _)).
+    <span class="nb">rewrite</span> &lt;- lunitor_triangle.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+    etrans.
+    { <span class="nb">apply</span> maponpaths_2.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl.
+      <span class="nb">rewrite</span> rassociator_lassociator.
+      <span class="nb">rewrite</span> id2_right.
+      <span class="nb">apply</span> idpath. }
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl.
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      <span class="nb">rewrite</span> linvunitor_lunitor.
+      <span class="nb">rewrite</span> id2_rwhisker.
+      <span class="nb">rewrite</span> id2_right.
+      <span class="nb">apply</span> idpath. }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> id2_right. }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> runitor_rwhisker.
+    <span class="nb">rewrite</span> lwhisker_vcomp.
+    <span class="nb">rewrite</span> linvunitor_lunitor.
+    <span class="nb">apply</span> lwhisker_id2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_actionbicat_disp_comp_pentagon</span> {<span class="nv">a0</span> <span class="nv">a1</span> <span class="nv">a2</span> : B}
+    {<span class="nv">g1</span> : B ⟦ a0, a1 ⟧}
+    {<span class="nv">g2</span> : B ⟦ a1, a2 ⟧}
+    {<span class="nv">FA</span> : V ⟶ category_from_bicat_and_ob a0}
+    {<span class="nv">FAm</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a0) FA}
+    {<span class="nv">FA'</span> : V ⟶ category_from_bicat_and_ob a1}
+    {<span class="nv">FA'm</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a1) FA'}
+    {<span class="nv">FA''</span> : V ⟶ category_from_bicat_and_ob a2}
+    {<span class="nv">FA''m</span> : fmonoidal Mon_V (monoidal_from_bicat_and_ob a2) FA''}
+    (<span class="nv">Hyp1</span> : disp_actionbicat_disp_mor FAm FA'm g1)
+    (<span class="nv">Hyp2</span> : disp_actionbicat_disp_mor FA'm FA''m g2):
+    param_distr_bicat_pentagon_eq Mon_V FAm FA''m (g1 · g2) (disp_actionbicat_disp_comp_nat_trans Hyp1 Hyp2).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v w.
+    <span class="nb">red</span>; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> param_distr_bicat_pentagon_eq_body_RHS,
+      disp_actionbicat_disp_comp_nat_trans, disp_actionbicat_disp_comp_nat_trans_data.
+    <span class="nb">set</span> (aux1 := pr22 Hyp1 v w).
+    <span class="nb">set</span> (aux2 := pr22 Hyp2 v w).
+    <span class="nb">apply</span> param_distr_bicat_pentagon_eq_body_variant_follows <span class="k">in</span> aux1.
+    <span class="nb">apply</span> param_distr_bicat_pentagon_eq_body_variant_follows <span class="k">in</span> aux2.
+    <span class="nb">red</span> <span class="k">in</span> aux1, aux2; <span class="nb">cbn</span> <span class="k">in</span> aux1, aux2.
+    <span class="nb">rewrite</span> aux1, aux2.
+    <span class="nb">clear</span> aux1 aux2.
+    <span class="nb">unfold</span> param_distr_bicat_pentagon_eq_body_variant_RHS, param_distr_bicat_pentagon_eq_body_RHS.
+    <span class="nb">induction</span> Hyp1 <span class="k">as</span> [δ1 [trieq1 pentaeq1]].
+    <span class="nb">induction</span> Hyp2 <span class="k">as</span> [δ2 [trieq2 pentaeq2]].
+    <span class="nb">cbn</span>.
+    <span class="nb">clear</span> trieq1 trieq2 pentaeq1 pentaeq2.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> rwhisker_vcomp.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+      <span class="kp">do</span> <span class="mi">10</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, lwhisker_lwhisker_rassociator. }
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+      <span class="kp">do</span> <span class="mi">9</span> <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      { <span class="nb">rewrite</span> lwhisker_vcomp.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> lwhisker_vcomp.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (pr2 (fmonoidal_preservestensorstrongly FA''m v w)). }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> lwhisker_id2.
+      <span class="nb">apply</span> lwhisker_id2.
+    }
+    <span class="nb">rewrite</span> id2_left.
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+      <span class="nb">apply</span> idpath. }
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (vcomp_move_L_Vp _ _ _ (is_invertible_2cell_lassociator _ _ _)).
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl.
+      <span class="kp">do</span> <span class="mi">8</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, rwhisker_rwhisker. }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+    <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    <span class="mi">2</span>: { <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths_2.
+         <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl.
+         <span class="kp">do</span> <span class="mi">7</span> <span class="nb">apply</span> maponpaths.
+         etrans.
+         <span class="mi">2</span>: { <span class="nb">rewrite</span> vassocr.
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">apply</span> pathsinv0, rwhisker_lwhisker. }
+         <span class="nb">rewrite</span> vassocl.
+         <span class="nb">apply</span> maponpaths.
+         <span class="nb">rewrite</span> rwhisker_vcomp.
+         <span class="nb">apply</span> maponpaths.
+         <span class="nb">rewrite</span> lwhisker_vcomp.
+         <span class="nb">apply</span> maponpaths.
+         <span class="nb">apply</span> pathsinv0, (pr2 (fmonoidal_preservestensorstrongly FA'm v w)). }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> lwhisker_id2.
+    <span class="nb">rewrite</span> id2_rwhisker.
+    <span class="nb">rewrite</span> id2_right.
+    <span class="c">(* the equation is now free from the preservation of the tensor by the given strong monoidal functors;</span>
+<span class="c">       both sides of the equation are chains of 13 two-cells *)</span>
+    etrans.
+    <span class="mi">2</span>: { <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl.
+         <span class="kp">do</span> <span class="mi">6</span> <span class="nb">apply</span> maponpaths.
+         <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+         <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths_2.
+         <span class="nb">apply</span> pathsinv0, lassociator_lassociator. }
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl.
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+      <span class="kp">do</span> <span class="mi">6</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> rassociator_rassociator. }
+    <span class="c">(* both sides of the equation are chains of 12 two-cells *)</span>
+    etrans.
+    <span class="mi">2</span>: { <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+         <span class="kp">do</span> <span class="mi">10</span> <span class="nb">apply</span> maponpaths_2.
+         <span class="nb">apply</span> rassociator_rassociator. }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl.
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    <span class="mi">2</span>: { <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+         <span class="kp">do</span> <span class="mi">8</span> <span class="nb">apply</span> maponpaths_2.
+         etrans.
+         <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">rewrite</span> vassocl.
+              etrans.
+              <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths.
+                   <span class="nb">rewrite</span> lwhisker_vcomp.
+                   <span class="nb">apply</span> maponpaths.
+                   <span class="nb">apply</span> pathsinv0, rassociator_lassociator. }
+              <span class="nb">rewrite</span> lwhisker_id2.
+              <span class="nb">apply</span> pathsinv0, id2_right. }
+         <span class="nb">apply</span> pathsinv0, rwhisker_lwhisker_rassociator.
+    }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl.
+    <span class="nb">apply</span> maponpaths.
+    <span class="c">(* two occurrences of [δ2] vanished *)</span>
+    etrans.
+    { <span class="nb">apply</span> maponpaths.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+      <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> rwhisker_rwhisker_alt.
+        <span class="nb">rewrite</span> vassocl.
+        <span class="nb">rewrite</span> lwhisker_lwhisker_rassociator.
+        <span class="nb">rewrite</span> vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> vassocr.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> vcomp_whisker. }
+    etrans.
+    <span class="mi">2</span>: { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+         <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+         <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+         <span class="nb">rewrite</span> lwhisker_lwhisker.
+         <span class="nb">rewrite</span> vassocl.
+         <span class="nb">rewrite</span> rwhisker_rwhisker.
+         <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">assert</span> (Haux: (lassociator g1 (FA' v) g2 ▹ FA'' w) • rassociator (g1 · FA' v) g2 (FA'' w) =
+                    rassociator g1 (FA' v · g2) (FA'' w) • (g1 ◃ rassociator (FA' v) g2 (FA'' w)) • lassociator g1 (FA' v) (g2 · FA'' w)).
+    { etrans.
+      <span class="mi">2</span>: { <span class="nb">rewrite</span> vassocl.
+           <span class="nb">apply</span> inverse_pentagon_2. }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, hcomp_identity_right. }
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+      <span class="kp">do</span> <span class="mi">8</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> Haux. }
+    <span class="nb">clear</span> Haux.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl.
+    <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths.
+    <span class="c">(* two occurrences of [δ1] and [δ2] vanished</span>
+<span class="c">       ten two-cells remain, one occurrence of [δ1] on both sides *)</span>
+    <span class="nb">assert</span> (Haux2: rassociator (FA v) g1 (FA' w · g2) • (FA v ◃ lassociator g1 (FA' w) g2) =
+                     lassociator (FA v · g1) (FA' w) g2 • ((rassociator (FA v) g1 (FA' w) ▹ g2) • rassociator (FA v) (g1 · FA' w) g2)).
+    { <span class="nb">rewrite</span> &lt;- hcomp_identity_right.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> inverse_pentagon_4. }
+      <span class="nb">rewrite</span> hcomp_identity_left.
+      <span class="nb">apply</span> idpath.
+    }
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> Haux2. }
+    <span class="nb">clear</span> Haux2.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> rwhisker_lwhisker_rassociator. }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl.
+    <span class="nb">apply</span> maponpaths.
+    <span class="c">(* no more [δ1] nor [δ2] *)</span>
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> vassocl.
+      <span class="nb">apply</span> pathsinv0, inverse_pentagon_2. }
+    <span class="nb">rewrite</span> vassocl.
+    <span class="nb">rewrite</span> rassociator_lassociator.
+    <span class="nb">rewrite</span> hcomp_identity_right.
+    <span class="nb">apply</span> id2_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_actionbicat_disp_id_comp</span> : disp_cat_id_comp B disp_actionbicat_disp_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> a [FA FAm].
+      use tpair.
+      + <span class="bp">exact</span> (disp_actionbicat_disp_id_nat_trans FAm).
+      + <span class="nb">split</span>; [<span class="nb">apply</span> disp_actionbicat_disp_id_triangle | <span class="nb">apply</span> disp_actionbicat_disp_id_pentagon]; <span class="bp">assumption</span>.
+    - <span class="nb">intros</span> a0 a1 a2 g1 g2 [FA FAm] [FA' FA'm] [FA'' FA''m] Hyp1 Hyp2. <span class="nb">cbn</span> <span class="k">in</span> Hyp1, Hyp2.
+      <span class="k">exists</span> (<span class="nv">disp_actionbicat_disp_comp_nat_trans</span> <span class="nv">Hyp1</span> <span class="nv">Hyp2</span>).
+      + <span class="nb">split</span>; [<span class="nb">apply</span> disp_actionbicat_disp_comp_triangle | <span class="nb">apply</span> disp_actionbicat_disp_comp_pentagon]; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_actionbicat_disp_catdata</span> : disp_cat_data B
+    := (disp_actionbicat_disp_ob_mor,,disp_actionbicat_disp_id_comp).
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_actionbicat_disp_2cell_eq_body</span>
+    {<span class="nv">a</span> <span class="nv">a'</span> : B}
+    {<span class="nv">f1</span> <span class="nv">f2</span> : B ⟦ a, a' ⟧}
+    (<span class="nv">η</span> : f1 ==&gt; f2)
+    (<span class="nv">FA</span> : V ⟶ category_from_bicat_and_ob a)
+    (<span class="nv">FA'</span> : V ⟶ category_from_bicat_and_ob a')
+    (<span class="nv">δ1</span> : parameterized_distributivity_bicat_nat f1)
+    (<span class="nv">δ2</span> : parameterized_distributivity_bicat_nat f2)
+    (<span class="nv">v</span> : V): UU
+    := δ1 v • (FA v ◃ η) = (η ▹ FA' v) • δ2 v.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_bidisp_actionbicat_disp_2cell_eq_body</span>
+    {<span class="nv">a</span> <span class="nv">a'</span> : B}
+    {<span class="nv">f1</span> <span class="nv">f2</span> : B ⟦ a, a' ⟧}
+    (<span class="nv">η</span> : f1 ==&gt; f2)
+    (<span class="nv">FA</span> : V ⟶ category_from_bicat_and_ob a)
+    (<span class="nv">FA'</span> : V ⟶ category_from_bicat_and_ob a')
+    (<span class="nv">δ1</span> : parameterized_distributivity_bicat_nat f1)
+    (<span class="nv">δ2</span> : parameterized_distributivity_bicat_nat f2)
+    (<span class="nv">v</span> : V): isaprop (bidisp_actionbicat_disp_2cell_eq_body η FA FA' δ1 δ2 v).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> B.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_actionbicat_disp_2cell_struct</span> : disp_2cell_struct disp_actionbicat_disp_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a a' f1 f2 η [FA FAm] [FA' FA'm] [δ1 [tria1 penta1]] [δ2 [tria2 penta2]].
+    <span class="bp">exact</span> (∏ v: V, bidisp_actionbicat_disp_2cell_eq_body η FA FA' δ1 δ2 v).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_bidisp_actionbicat_disp_2cell_struct</span>
+    {<span class="nv">a</span> <span class="nv">a'</span> : B}
+    {<span class="nv">f1</span> <span class="nv">f2</span> : B ⟦ a, a' ⟧}
+    (<span class="nv">η</span> : f1 ==&gt; f2)
+    {<span class="nv">M</span> : disp_actionbicat_disp_catdata a}
+    {<span class="nv">M'</span> : disp_actionbicat_disp_catdata a'}
+    (<span class="nv">FM1</span> : M --&gt;[ f1] M')
+    (<span class="nv">FM2</span> : M --&gt;[ f2] M'):
+    isaprop (bidisp_actionbicat_disp_2cell_struct a a' f1 f2 η M M' FM1 FM2).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> impred.
+    <span class="nb">intro</span> v.
+    <span class="nb">apply</span> isaprop_bidisp_actionbicat_disp_2cell_eq_body.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_actionbicat_disp_prebicat_1_id_comp_cells</span>
+    :  disp_prebicat_1_id_comp_cells B
+    := (disp_actionbicat_disp_catdata,, bidisp_actionbicat_disp_2cell_struct).
+
+  <span class="kn">Ltac</span> <span class="nf">aux_bidisp_actionbicat_disp_prebicat_ops</span> :=
+      <span class="nb">intros</span>; <span class="nb">red</span>; <span class="nb">cbn</span>;
+      <span class="nb">unfold</span> bidisp_actionbicat_disp_2cell_struct, bidisp_actionbicat_disp_2cell_eq_body;
+      <span class="nb">intro</span> v;
+      <span class="nb">unfold</span> disp_actionbicat_disp_comp_nat_trans, disp_actionbicat_disp_comp_nat_trans_data;
+      <span class="nb">cbn</span>; show_id_type.
+
+  <span class="kn">Definition</span> <span class="nf">actionbicat_ax2</span> : UU :=
+  (∏ (a b c d : B) (f : B ⟦ a, b ⟧) (g : B ⟦ b, c ⟧) (h : B ⟦ c, d ⟧)
+  (w : bidisp_actionbicat_disp_prebicat_1_id_comp_cells a)
+  (x : bidisp_actionbicat_disp_prebicat_1_id_comp_cells b)
+  (y : bidisp_actionbicat_disp_prebicat_1_id_comp_cells c)
+  (z : bidisp_actionbicat_disp_prebicat_1_id_comp_cells d) (ff : w --&gt;[ f] x)
+  (gg : x --&gt;[ g] y) (hh : y --&gt;[ h] z),
+  disp_2cells (rassociator f g h) (ff ;; gg ;; hh) (ff ;; (gg ;; hh)))
+ × (∏ (a b c d : B) (f : B ⟦ a, b ⟧) (g : B ⟦ b, c ⟧) (h : B ⟦ c, d ⟧)
+    (w : bidisp_actionbicat_disp_prebicat_1_id_comp_cells a)
+    (x : bidisp_actionbicat_disp_prebicat_1_id_comp_cells b)
+    (y : bidisp_actionbicat_disp_prebicat_1_id_comp_cells c)
+    (z : bidisp_actionbicat_disp_prebicat_1_id_comp_cells d) (ff : w --&gt;[ f] x)
+    (gg : x --&gt;[ g] y) (hh : y --&gt;[ h] z),
+    disp_2cells (lassociator f g h) (ff ;; (gg ;; hh)) (ff ;; gg ;; hh))
+   × (∏ (a b : B) (f g h : B ⟦ a, b ⟧) (r : f ==&gt; g) (s : g ==&gt; h)
+      (x : bidisp_actionbicat_disp_prebicat_1_id_comp_cells a)
+      (y : bidisp_actionbicat_disp_prebicat_1_id_comp_cells b) (ff : x --&gt;[ f] y)
+      (gg : x --&gt;[ g] y) (hh : x --&gt;[ h] y),
+      disp_2cells r ff gg → disp_2cells s gg hh → disp_2cells (r • s) ff hh)
+     × (∏ (a b c : B) (f : B ⟦ a, b ⟧) (g1 g2 : B ⟦ b, c ⟧) (r : g1 ==&gt; g2)
+        (x : bidisp_actionbicat_disp_prebicat_1_id_comp_cells a)
+        (y : bidisp_actionbicat_disp_prebicat_1_id_comp_cells b)
+        (z : bidisp_actionbicat_disp_prebicat_1_id_comp_cells c) (ff : x --&gt;[ f] y)
+        (gg1 : y --&gt;[ g1] z) (gg2 : y --&gt;[ g2] z),
+        disp_2cells r gg1 gg2 → disp_2cells (f ◃ r) (ff ;; gg1) (ff ;; gg2))
+       × (∏ (a b c : B) (f1 f2 : B ⟦ a, b ⟧) (g : B ⟦ b, c ⟧) (r : f1 ==&gt; f2)
+          (x : bidisp_actionbicat_disp_prebicat_1_id_comp_cells a)
+          (y : bidisp_actionbicat_disp_prebicat_1_id_comp_cells b)
+          (z : bidisp_actionbicat_disp_prebicat_1_id_comp_cells c) (ff1 : x --&gt;[ f1] y)
+          (ff2 : x --&gt;[ f2] y) (gg : y --&gt;[ g] z),
+         disp_2cells r ff1 ff2 → disp_2cells (r ▹ g) (ff1 ;; gg) (ff2 ;; gg)).
+
+  <span class="kn">Context</span> (<span class="nv">ax2</span> : actionbicat_ax2).
+
+  <span class="kn">Lemma</span> <span class="nf">bidisp_actionbicat_disp_prebicat_ops</span> :
+    disp_prebicat_ops bidisp_actionbicat_disp_prebicat_1_id_comp_cells.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; [| <span class="nb">split</span>; [| <span class="nb">split</span> ; [| <span class="nb">split</span> ; [| <span class="nb">split</span>]]]].
+    <span class="c">(*repeat split; intros; red ; cbn;</span>
+<span class="c">      unfold bidisp_actionbicat_disp_2cell_struct, bidisp_actionbicat_disp_2cell_eq_body;</span>
+<span class="c">      intro v;</span>
+<span class="c">      unfold disp_actionbicat_disp_comp_nat_trans, disp_actionbicat_disp_comp_nat_trans_data;</span>
+<span class="c">      cbn; show_id_type. *)</span>
+    - aux_bidisp_actionbicat_disp_prebicat_ops. <span class="nb">rewrite</span> lwhisker_id2. <span class="nb">rewrite</span> id2_right.
+      <span class="nb">rewrite</span> id2_rwhisker. <span class="nb">apply</span> pathsinv0, id2_left.
+    - aux_bidisp_actionbicat_disp_prebicat_ops. <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+      etrans.
+      { <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl. <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> lunitor_lwhisker. }
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      <span class="nb">rewrite</span> rinvunitor_runitor.
+      <span class="nb">rewrite</span> id2_rwhisker.
+      <span class="nb">rewrite</span> id2_right.
+      <span class="nb">rewrite</span> lunitor_triangle.
+      <span class="nb">rewrite</span> vcomp_lunitor.
+      <span class="nb">rewrite</span> vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (lhs_left_invert_cell _ _ _ (is_invertible_2cell_rassociator _ _ _)).
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pathsinv0, lunitor_triangle.
+    - aux_bidisp_actionbicat_disp_prebicat_ops. <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+      etrans.
+      {
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocl.
+        <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> runitor_triangle.
+      }
+
+      etrans. {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> vassocr.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> rinvunitor_triangle.
+      }
+      <span class="nb">rewrite</span> vcomp_runitor.
+      etrans. {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> vassocr.
+        <span class="nb">rewrite</span> rinvunitor_runitor.
+        <span class="nb">apply</span> id2_left.
+      }
+      <span class="nb">rewrite</span> vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> lunitor_lwhisker.
+    - aux_bidisp_actionbicat_disp_prebicat_ops. etrans.
+      <span class="mi">2</span>: {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+        <span class="nb">rewrite</span> vassocr.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (! lunitor_triangle _ _ _ _ _ _).
+      }
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> vassocr.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> vassocr.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (! vcomp_lunitor _ _ _).
+      }
+
+      <span class="nb">rewrite</span> vassocr.
+      <span class="nb">rewrite</span> &lt;- linvunitor_assoc.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> linvunitor_lunitor.
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">rewrite</span> vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> (! hcomp_identity_right _ _ _ _).
+      <span class="nb">rewrite</span> (! hcomp_identity_left _ _ _ _).
+      <span class="nb">apply</span> triangle_r_inv.
+    - aux_bidisp_actionbicat_disp_prebicat_ops. <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> vassocr.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> vassocr.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (! lunitor_lwhisker _ _).
+      }
+      <span class="c">(* Search (lassociator _ _ (id₁ _)). *)</span>
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> vassocr.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> vassocr.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (! rinvunitor_triangle  _ _ _ _ _ _).
+      }
+      <span class="nb">rewrite</span> vassocr.
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      <span class="nb">rewrite</span> rinvunitor_runitor.
+      <span class="nb">rewrite</span> id2_rwhisker.
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">rewrite</span> left_unit_inv_assoc.
+      <span class="nb">rewrite</span> vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> rinvunitor_natural.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> hcomp_identity_right.
+    - <span class="bp">exact</span> ax2.
+
+  <span class="c">(* probably not useful for 10th goal after splitting:</span>
+<span class="c">      induction x as [FA FAm].</span>
+<span class="c">      induction y as [FA' FA'm].</span>
+<span class="c">      induction f' as [δ [tria penta]].</span>
+<span class="c">      cbn.</span>
+<span class="c">      red in tria, penta. unfold param_distr_bicat_pentagon_eq_body in penta.</span>
+<span class="c">      (* assert (δnat := pr2 δ). red in δnat.</span>
+<span class="c">      unfold H, H' in δnat. cbn in δnat.</span>
+<span class="c">      rewrite hcomp_identity_left in δnat; rewrite hcomp_identity_right in δnat. *)</span>
+<span class="c">       *)</span>
+
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_actionbicat_disp_prebicat_data</span> : disp_prebicat_data B
+    := (bidisp_actionbicat_disp_prebicat_1_id_comp_cells,, bidisp_actionbicat_disp_prebicat_ops).
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_actionbicat_disp_prebicat_laws</span> : disp_prebicat_laws bidisp_actionbicat_disp_prebicat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intro</span>; <span class="nb">intros</span>; <span class="nb">apply</span> isaprop_bidisp_actionbicat_disp_2cell_struct.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_actionbicat_disp_prebicat</span> : disp_prebicat B
+    := (bidisp_actionbicat_disp_prebicat_data,,bidisp_actionbicat_disp_prebicat_laws).
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_actionbicat_disp_bicat</span> : disp_bicat B.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (bidisp_actionbicat_disp_prebicat,, _).
+    <span class="nb">intros</span> a a' f1 f2 η M M' FM1 FM2.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isaprop_bidisp_actionbicat_disp_2cell_struct.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">actionbicat_disp_2cells_isaprop</span> : disp_2cells_isaprop bidisp_actionbicat_disp_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_bidisp_actionbicat_disp_2cell_struct.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bicatactionbicat</span> : bicat := total_bicat bidisp_actionbicat_disp_bicat.
+
+  <span class="kn">Lemma</span> <span class="nf">actionbicat_disp_locally_groupoid</span> : disp_locally_groupoid bidisp_actionbicat_disp_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>. <span class="nb">intros</span> a a' f1 f2 ηinvertible [FA FAm] [FA' FA'm] [δ1 [tria1 penta1]] [δ2 [tria2 penta2]] is2cell.
+    use tpair.
+    - <span class="nb">red</span>. <span class="nb">cbn</span>. <span class="nb">red</span>. <span class="nb">intro</span> v. <span class="nb">red</span>.
+      transparent <span class="nb">assert</span> (invertible1 : (invertible_2cell (FA v · f2) (FA v · f1))).
+      { use make_invertible_2cell.
+        - <span class="bp">exact</span> (FA v ◃ ηinvertible ^-<span class="mi">1</span>).
+        - is_iso. }
+      transparent <span class="nb">assert</span> (invertible2 : (invertible_2cell (f2 · FA' v) (f1 · FA' v))).
+      { use make_invertible_2cell.
+        - <span class="bp">exact</span> (ηinvertible ^-<span class="mi">1</span> ▹ FA' v).
+        - is_iso. }
+      <span class="nb">apply</span> (lhs_right_invert_cell _ _ _ invertible1).
+      <span class="nb">rewrite</span> vassocl.
+      <span class="nb">apply</span> pathsinv0, (lhs_left_invert_cell _ _ _ invertible2).
+      <span class="bp">exact</span> (is2cell v).
+    - <span class="nb">split</span>; <span class="nb">apply</span> isaprop_bidisp_actionbicat_disp_2cell_struct.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">FixMoncatAndBicat</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/MonoidalCategories/BicatOfActionsInBicat.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  *)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

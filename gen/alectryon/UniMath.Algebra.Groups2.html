@@ -1,0 +1,810 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Groups2.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">  Groups</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. Basic definitions</span>
+<span class="sd">  2. Computation lemmas for groups</span>
+<span class="sd">  3. Relations on groups</span>
+<span class="sd">  4. Subobjects</span>
+<span class="sd">  5. Quotient objects</span>
+<span class="sd">  6. Cosets</span>
+<span class="sd">  7. Normal Subgroups</span>
+<span class="sd">  8. Direct products</span>
+<span class="sd">  9. Group of invertible elements in a monoid</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Subtypes.
+<span class="kn">Require Export</span> UniMath.Algebra.Monoids2.
+<span class="kn">Require Export</span> UniMath.Algebra.BinaryOperations.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Magma.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+
+<span class="kn">Declare Scope</span> gr.
+<span class="kn">Delimit Scope</span> gr <span class="k">with</span> gr.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> multmonoid.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> gr.
+
+<span class="sd">(** * 1. Basic definitions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">gr</span> : UU := group_category.
+
+<span class="kn">Definition</span> <span class="nf">make_gr</span> (<span class="nv">t</span> : setwithbinop) (<span class="nv">H</span> : isgrop (@op t))
+  : gr
+  := t ,, H.
+
+<span class="kn">Definition</span> <span class="nf">grtomonoid</span> : gr → monoid := <span class="k">λ</span> <span class="nv">X</span>, make_monoid (pr1 X) (pr1 (pr2 X)).
+<span class="kn">Coercion</span> <span class="nf">grtomonoid</span> : gr &gt;-&gt; monoid.
+
+<span class="kn">Definition</span> <span class="nf">grinv</span> (<span class="nv">X</span> : gr) : X → X := pr1 (pr2 (pr2 X)).
+
+<span class="kn">Definition</span> <span class="nf">grlinvax</span> (<span class="nv">X</span> : gr) : islinv (@op X) <span class="mi">1</span> (grinv X) := pr1 (pr2 (pr2 (pr2 X))).
+
+<span class="kn">Definition</span> <span class="nf">grrinvax</span> (<span class="nv">X</span> : gr) : isrinv (@op X) <span class="mi">1</span> (grinv X) := pr2 (pr2 (pr2 (pr2 X))).
+
+<span class="kn">Definition</span> <span class="nf">gr_of_monoid</span> (<span class="nv">X</span> : monoid) (<span class="nv">H</span> : invstruct (@op X) (pr2 X)) : gr :=
+  make_gr X (make_isgrop (pr2 X) H).
+
+<span class="kn">Notation</span> <span class="s2">"x / y"</span> := (op x (grinv _ y)) : gr.
+<span class="kn">Notation</span>   <span class="s2">"y ^-1"</span> := (grinv _ y) : gr.
+
+<span class="kn">Lemma</span> <span class="nf">grinv_path_from_op_path</span> {<span class="nv">X</span> : gr} {<span class="nv">x</span> <span class="nv">y</span> : X} (<span class="nv">p</span> : x * y = <span class="mi">1</span>) :
+  x^-<span class="mi">1</span> = y.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (lunax X y), &lt;- (grlinvax X x), assocax, p, runax.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">group_morphism</span>
+  (<span class="nv">X</span> <span class="nv">Y</span> : gr)
+  : UU
+  := group_category⟦X, Y⟧%cat.
+
+<span class="kn">Definition</span> <span class="nf">group_morphism_to_monoidfun</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : gr}
+  (<span class="nv">f</span> : group_morphism X Y)
+  : monoidfun X Y.
+<span class="kn">Proof</span>.
+  use make_monoidfun.
+  - <span class="bp">exact</span> (pr1 f : binopfun _ _).
+  - <span class="nb">apply</span> make_ismonoidfun.
+    + <span class="nb">apply</span> binopfunisbinopfun.
+    + <span class="bp">exact</span> (pr212 f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Coercion</span> <span class="nf">group_morphism_to_monoidfun</span> : group_morphism &gt;-&gt; monoidfun.
+
+<span class="kn">Definition</span> <span class="nf">group_morphism_inv</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : gr}
+  (<span class="nv">f</span> : group_morphism X Y)
+  (<span class="nv">x</span> : X)
+  : f (x^-<span class="mi">1</span>) = (f x)^-<span class="mi">1</span>
+  := pr22 f x.
+
+<span class="kn">Lemma</span> <span class="nf">binopfun_preserves_unit</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : gr}
+  (<span class="nv">f</span> : X → Y)
+  (<span class="nv">H</span> : isbinopfun f)
+  : f <span class="mi">1</span> = <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (lcanfromlinv (@op Y) _ _ _ _ ((f <span class="mi">1</span>)^-<span class="mi">1</span> ,, grlinvax Y _)).
+  <span class="nb">rewrite</span> runax.
+  <span class="nb">rewrite</span> &lt;- H.
+  <span class="nb">rewrite</span> runax.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">binopfun_preserves_inv</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : gr}
+  (<span class="nv">f</span> : X → Y)
+  (<span class="nv">H</span> : isbinopfun f)
+  (<span class="nv">x</span> : X)
+  : f (x^-<span class="mi">1</span>) = (f x)^-<span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (lcanfromlinv (@op Y) _ _ _ _ ((f x)^-<span class="mi">1</span> ,, grlinvax Y _)).
+  <span class="nb">rewrite</span> &lt;- (H x (x^-<span class="mi">1</span>)).
+  <span class="nb">rewrite</span>! grrinvax.
+  <span class="bp">exact</span> (binopfun_preserves_unit _ H).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_group_morphism</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : gr}
+  (<span class="nv">f</span> : X → Y)
+  (<span class="nv">H</span> : isbinopfun f)
+  : group_morphism X Y
+  := (f ,, H) ,, ((tt ,, binopfun_preserves_unit f H) ,, binopfun_preserves_inv f H).
+
+<span class="kn">Definition</span> <span class="nf">binopfun_to_group_morphism</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : gr}
+  (<span class="nv">f</span> : binopfun X Y)
+  : group_morphism X Y
+  := make_group_morphism f (binopfunisbinopfun f).
+
+<span class="kn">Lemma</span> <span class="nf">group_morphism_paths</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : gr}
+  (<span class="nv">f</span> <span class="nv">g</span> : group_morphism X Y)
+  (<span class="nv">H</span> : (f : X → Y) = g)
+  : f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath.
+  {
+    <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">h</span> : magma_morphism _ _), _).
+    <span class="nb">apply</span> (isapropdirprod _ (∏ x, (h (grinv X x) = grinv Y (h x)))).
+    - <span class="nb">apply</span> (isapropdirprod _ _ isapropunit).
+      <span class="nb">apply</span> setproperty.
+    - <span class="nb">apply</span> impred_isaprop.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> setproperty.
+  }
+  <span class="nb">apply</span> binopfun_paths.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">group_morphism_eq</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> : gr}
+  {<span class="nv">f</span> <span class="nv">g</span> : group_morphism X Y}
+  : (f = g) ≃ (∏ x, f x = g x).
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="nb">intros</span> e x.
+    <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> (<span class="nv">f</span> : group_morphism _ _), f x) e).
+  - <span class="nb">intro</span> e.
+    <span class="nb">apply</span> group_morphism_paths, funextfun.
+    <span class="bp">exact</span> e.
+  - <span class="kp">abstract</span> <span class="nb">apply</span> homset_property.
+  - <span class="kp">abstract</span> (
+      <span class="nb">apply</span> impred_isaprop;
+      <span class="nb">intro</span>;
+      <span class="nb">apply</span> setproperty
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">identity_group_morphism</span>
+  (<span class="nv">X</span> : gr)
+  : group_morphism X X
+  := identity X.
+
+<span class="kn">Definition</span> <span class="nf">composite_group_morphism</span>
+  {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : gr}
+  (<span class="nv">f</span> : group_morphism X Y)
+  (<span class="nv">g</span> : group_morphism Y Z)
+  : group_morphism X Z
+  := (f · g)%cat.
+
+<span class="sd">(** *** Construction of the trivial group consisting of one element given by unit. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">unitgr_isgrop</span> : isgrop (@op unitmonoid).
+<span class="kn">Proof</span>.
+  use make_isgrop.
+  - <span class="bp">exact</span> unitmonoid_ismonoid.
+  - use make_invstruct.
+    + <span class="nb">intros</span> i. <span class="bp">exact</span> i.
+    + <span class="kp">abstract</span> (
+      <span class="nb">apply</span> make_isinv;
+      [ <span class="nb">intros</span> x; use isProofIrrelevantUnit
+      | <span class="nb">intros</span> x; use isProofIrrelevantUnit ]
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">unitgr</span> : gr := make_gr unitmonoid unitgr_isgrop.
+
+<span class="kn">Definition</span> <span class="nf">unelgrfun</span> (<span class="nv">X</span> <span class="nv">Y</span> : gr) : group_morphism X Y :=
+  binopfun_to_group_morphism (unelmonoidfun X Y).
+
+
+<span class="sd">(** * 2. Computation lemmas for groups *)</span>
+
+<span class="kn">Definition</span> <span class="nf">weqlmultingr</span> (<span class="nv">X</span> : gr) (<span class="nv">x0</span> : X) : X ≃ X :=
+  make_weq _ (isweqlmultingr_is (pr2 X) x0).
+
+<span class="kn">Definition</span> <span class="nf">weqrmultingr</span> (<span class="nv">X</span> : gr) (<span class="nv">x0</span> : X) : X ≃ X :=
+  make_weq _ (isweqrmultingr_is (pr2 X) x0).
+
+<span class="kn">Lemma</span> <span class="nf">grlcan</span> (<span class="nv">X</span> : gr) {<span class="nv">a</span> <span class="nv">b</span> : X} (<span class="nv">c</span> : X) (<span class="nv">e</span> : c * a = c * b) : a = b.
+<span class="kn">Proof</span>. <span class="nb">apply</span> (invmaponpathsweq (weqlmultingr X c) _ _ e). <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">grrcan</span> (<span class="nv">X</span> : gr) {<span class="nv">a</span> <span class="nv">b</span> : X} (<span class="nv">c</span> : X) (<span class="nv">e</span> : a * c = b * c) : a = b.
+<span class="kn">Proof</span>. <span class="nb">apply</span> (invmaponpathsweq (weqrmultingr X c) _ _ e). <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">grinvunel</span> (<span class="nv">X</span> : gr) : (<span class="mi">1</span> : X)^-<span class="mi">1</span> = <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (grrcan X <span class="mi">1</span>).
+  <span class="nb">rewrite</span> (grlinvax X). <span class="nb">rewrite</span> (runax X).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">grinvinv</span> (<span class="nv">X</span> : gr) (<span class="nv">a</span> : X) : (a^-<span class="mi">1</span>)^-<span class="mi">1</span> = a.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (grlcan X a^-<span class="mi">1</span>).
+  <span class="nb">rewrite</span> (grlinvax X a). <span class="nb">rewrite</span> (grrinvax X _).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">grinvmaponpathsinv</span> (<span class="nv">X</span> : gr) {<span class="nv">a</span> <span class="nv">b</span> : X} (<span class="nv">e</span> : a^-<span class="mi">1</span> = b^-<span class="mi">1</span>) : a = b.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (e' := maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x^-<span class="mi">1</span>) e).
+  <span class="nb">simpl</span> <span class="k">in</span> e'. <span class="nb">rewrite</span> (grinvinv X _) <span class="k">in</span> e'.
+  <span class="nb">rewrite</span> (grinvinv X _) <span class="k">in</span> e'. <span class="nb">apply</span> e'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">group_morphisminvtoinv</span> {<span class="nv">X</span> <span class="nv">Y</span> : gr} (<span class="nv">f</span> : group_morphism X Y) (<span class="nv">x</span> : X) :
+  f x^-<span class="mi">1</span> = (f x)^-<span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (group_morphism_inv f x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">grinvop</span> (<span class="nv">Y</span> : gr) :
+  ∏ y1 y2 : Y, (y1 * y2)^-<span class="mi">1</span> = y2^-<span class="mi">1</span> * y1^-<span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> y1 y2.
+  <span class="nb">apply</span> (grrcan Y y1).
+  <span class="nb">rewrite</span> (assocax Y). <span class="nb">rewrite</span> (grlinvax Y). <span class="nb">rewrite</span> (runax Y).
+  <span class="nb">apply</span> (grrcan Y y2).
+  <span class="nb">rewrite</span> (grlinvax Y). <span class="nb">rewrite</span> (assocax Y). <span class="nb">rewrite</span> (grlinvax Y).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="sd">(** * 3. Relations on groups *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isinvbinophrelgr</span> (<span class="nv">X</span> : gr) {<span class="nv">R</span> : hrel X} (<span class="nv">isc</span> : isbinophrel R) : isinvbinophrel R.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (is1 := pr1 isc). <span class="nb">set</span> (is2 := pr2 isc). <span class="nb">split</span>.
+  - <span class="nb">intros</span> a b c r. <span class="nb">set</span> (r' := is1 _ _ c^-<span class="mi">1</span> r).
+    <span class="nb">clearbody</span> r'. <span class="nb">rewrite</span> &lt;- (assocax X _ _ a) <span class="k">in</span> r'.
+    <span class="nb">rewrite</span> &lt;- (assocax X _ _ b) <span class="k">in</span> r'.
+    <span class="nb">rewrite</span> (grlinvax X c) <span class="k">in</span> r'.
+    <span class="nb">rewrite</span> (lunax X a) <span class="k">in</span> r'.
+    <span class="nb">rewrite</span> (lunax X b) <span class="k">in</span> r'.
+    <span class="nb">apply</span> r'.
+  - <span class="nb">intros</span> a b c r. <span class="nb">set</span> (r' := is2 _ _ c^-<span class="mi">1</span> r).
+    <span class="nb">clearbody</span> r'. <span class="nb">rewrite</span> ((assocax X a _ _)) <span class="k">in</span> r'.
+    <span class="nb">rewrite</span> ((assocax X b _ _)) <span class="k">in</span> r'.
+    <span class="nb">rewrite</span> (grrinvax X c) <span class="k">in</span> r'.
+    <span class="nb">rewrite</span> (runax X a) <span class="k">in</span> r'.
+    <span class="nb">rewrite</span> (runax X b) <span class="k">in</span> r'.
+    <span class="nb">apply</span> r'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isbinophrelgr</span> (<span class="nv">X</span> : gr) {<span class="nv">R</span> : hrel X} (<span class="nv">isc</span> : isinvbinophrel R) : isbinophrel R.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (is1 := pr1 isc). <span class="nb">set</span> (is2 := pr2 isc). <span class="nb">split</span>.
+  - <span class="nb">intros</span> a b c r. <span class="nb">rewrite</span> &lt;- (lunax X a) <span class="k">in</span> r.
+    <span class="nb">rewrite</span> &lt;- (lunax X b) <span class="k">in</span> r.
+    <span class="nb">rewrite</span> &lt;- (grlinvax X c) <span class="k">in</span> r.
+    <span class="nb">rewrite</span> (assocax X _ _ a) <span class="k">in</span> r.
+    <span class="nb">rewrite</span> (assocax X _ _ b) <span class="k">in</span> r.
+    <span class="nb">apply</span> (is1 _ _ c^-<span class="mi">1</span> r).
+  - <span class="nb">intros</span> a b c r. <span class="nb">rewrite</span> &lt;- (runax X a) <span class="k">in</span> r.
+    <span class="nb">rewrite</span> &lt;- (runax X b) <span class="k">in</span> r.
+    <span class="nb">rewrite</span> &lt;- (grrinvax X c) <span class="k">in</span> r.
+    <span class="nb">rewrite</span> &lt;- (assocax X a _ _) <span class="k">in</span> r.
+    <span class="nb">rewrite</span> &lt;- (assocax X b _ _) <span class="k">in</span> r.
+    <span class="nb">apply</span> (is2 _ _ c^-<span class="mi">1</span> r).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">grfromgtunel</span> (<span class="nv">X</span> : gr) {<span class="nv">R</span> : hrel X} (<span class="nv">isc</span> : isbinophrel R) {<span class="nv">x</span> : X} (<span class="nv">isg</span> : R x <span class="mi">1</span>) :
+  R <span class="mi">1</span> x^-<span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (r := (pr2 isc) _ _ x^-<span class="mi">1</span> isg).
+  <span class="nb">rewrite</span> (grrinvax X x) <span class="k">in</span> r.
+  <span class="nb">rewrite</span> (lunax X _) <span class="k">in</span> r.
+  <span class="nb">apply</span> r.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">grtogtunel</span> (<span class="nv">X</span> : gr) {<span class="nv">R</span> : hrel X} (<span class="nv">isc</span> : isbinophrel R) {<span class="nv">x</span> : X} (<span class="nv">isg</span> : R <span class="mi">1</span> x^-<span class="mi">1</span>) :
+  R x <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (r := (pr2 isc) _ _ x isg).
+  <span class="nb">rewrite</span> (grlinvax X x) <span class="k">in</span> r.
+  <span class="nb">rewrite</span> (lunax X _) <span class="k">in</span> r.
+  <span class="nb">apply</span> r.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">grfromltunel</span> (<span class="nv">X</span> : gr) {<span class="nv">R</span> : hrel X} (<span class="nv">isc</span> : isbinophrel R) {<span class="nv">x</span> : X} (<span class="nv">isg</span> : R <span class="mi">1</span> x) :
+  R x^-<span class="mi">1</span> <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (r := (pr1 isc) _ _ x^-<span class="mi">1</span> isg).
+  <span class="nb">rewrite</span> (grlinvax X x) <span class="k">in</span> r.
+  <span class="nb">rewrite</span> (runax X _) <span class="k">in</span> r.
+  <span class="nb">apply</span> r.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">grtoltunel</span> (<span class="nv">X</span> : gr) {<span class="nv">R</span> : hrel X} (<span class="nv">isc</span> : isbinophrel R) {<span class="nv">x</span> : X} (<span class="nv">isg</span> : R x^-<span class="mi">1</span> <span class="mi">1</span>) :
+  R <span class="mi">1</span> x.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (r := (pr1 isc) _ _ x isg).
+  <span class="nb">rewrite</span> (grrinvax X x) <span class="k">in</span> r. <span class="nb">rewrite</span> (runax X _) <span class="k">in</span> r.
+  <span class="nb">apply</span> r.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** * 4. Subobjects *)</span>
+
+<span class="kn">Definition</span> <span class="nf">issubgr</span> {<span class="nv">X</span> : gr} (<span class="nv">A</span> : hsubtype X) : UU :=
+  (issubmonoid A) × (∏ x : X, A x → A x^-<span class="mi">1</span>).
+
+<span class="kn">Definition</span> <span class="nf">make_issubgr</span> {<span class="nv">X</span> : gr} {<span class="nv">A</span> : hsubtype X} (<span class="nv">H1</span> : issubmonoid A)
+           (<span class="nv">H2</span> : ∏ x : X, A x → A x^-<span class="mi">1</span>) : issubgr A := H1 ,, H2.
+
+<span class="kn">Lemma</span> <span class="nf">isapropissubgr</span> {<span class="nv">X</span> : gr} (<span class="nv">A</span> : hsubtype X) : isaprop (issubgr A).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isofhleveldirprod <span class="mi">1</span>).
+  - <span class="nb">apply</span> isapropissubmonoid.
+  - <span class="nb">apply</span> impred. <span class="nb">intro</span> x.
+    <span class="nb">apply</span> impred. <span class="nb">intro</span> a.
+    <span class="nb">apply</span> (pr2 (A x^-<span class="mi">1</span>)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">subgr</span> (<span class="nv">X</span> : gr) : UU := ∑ (A : hsubtype X), issubgr A.
+
+<span class="kn">Definition</span> <span class="nf">make_subgr</span> {<span class="nv">X</span> : gr} (<span class="nv">t</span> : hsubtype X) (<span class="nv">H</span> : issubgr t)
+    : subgr X
+    := t ,, H.
+
+<span class="kn">Definition</span> <span class="nf">subgrconstr</span> {<span class="nv">X</span> : gr} :
+  ∏ (t : hsubtype X), (<span class="k">λ</span> <span class="nv">A</span> : hsubtype X, issubgr A) t → ∑ A : hsubtype X, issubgr A :=
+  @make_subgr X.
+
+<span class="kn">Definition</span> <span class="nf">subgrtosubmonoid</span> (<span class="nv">X</span> : gr) : subgr X → submonoid X :=
+  <span class="k">λ</span> <span class="nv">A</span>, make_submonoid (pr1 A) (pr1 (pr2 A)).
+<span class="kn">Coercion</span> <span class="nf">subgrtosubmonoid</span> : subgr &gt;-&gt; submonoid.
+
+<span class="kn">Definition</span> <span class="nf">totalsubgr</span> (<span class="nv">X</span> : gr) : subgr X.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (@totalsubtype X).
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (pr2 (totalsubmonoid X)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, tt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">trivialsubgr</span> (<span class="nv">X</span> : gr) : subgr X.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">x</span>, <span class="nv">x</span> = <span class="mi">1</span>)%logic.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (pr2 (@trivialsubmonoid X)).
+  - <span class="nb">intro</span>.
+    <span class="nb">intro</span> eq_1.
+    <span class="nb">induction</span> (!eq_1).
+    <span class="nb">apply</span> grinvunel.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isinvoncarrier</span> {<span class="nv">X</span> : gr} (<span class="nv">A</span> : subgr X) :
+  isinv (@op A) (unel A) (<span class="k">λ</span> <span class="nv">a</span> : A, make_carrier _ ((pr1 a)^-<span class="mi">1</span>) (pr2 (pr2 A) (pr1 a) (pr2 a))).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> a. <span class="nb">apply</span> (invmaponpathsincl _ (isinclpr1carrier A)).
+    <span class="nb">simpl</span>. <span class="nb">apply</span> (grlinvax X (pr1 a)).
+  - <span class="nb">intro</span> a. <span class="nb">apply</span> (invmaponpathsincl _ (isinclpr1carrier A)).
+    <span class="nb">simpl</span>. <span class="nb">apply</span> (grrinvax X (pr1 a)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isgrcarrier</span> {<span class="nv">X</span> : gr} (<span class="nv">A</span> : subgr X) : isgrop (@op A) :=
+  ismonoidcarrier A ,,
+  (<span class="k">λ</span> <span class="nv">a</span> : A, make_carrier _ ((pr1 a)^-<span class="mi">1</span>) (pr2 (pr2 A) (pr1 a) (pr2 a))) ,,
+  isinvoncarrier A.
+
+<span class="kn">Definition</span> <span class="nf">carrierofasubgr</span> {<span class="nv">X</span> : gr} (<span class="nv">A</span> : subgr X) : gr.
+<span class="kn">Proof</span>.
+  use make_gr.
+  - <span class="bp">exact</span> A.
+  - <span class="nb">apply</span> (isgrcarrier A).
+<span class="kn">Defined</span>.
+<span class="kn">Coercion</span> <span class="nf">carrierofasubgr</span> : subgr &gt;-&gt; gr.
+
+<span class="kn">Lemma</span> <span class="nf">intersection_subgr</span> : <span class="k">forall</span> {<span class="nv">X</span> : gr} {<span class="nv">I</span> : UU} (<span class="nv">S</span> : I → hsubtype X)
+                                  (<span class="nv">each_is_subgr</span> : ∏ i : I, issubgr (S i)),
+    issubgr (subtype_intersection S).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  use make_issubgr.
+  - <span class="bp">exact</span> (intersection_submonoid S (<span class="k">λ</span> <span class="nv">i</span>, (pr1 (each_is_subgr i)))).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">x_in_S</span> <span class="nv">i</span>, pr2 (each_is_subgr i) x (x_in_S i)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">subgr_incl</span> {<span class="nv">X</span> : gr} (<span class="nv">A</span> : subgr X) : group_morphism A X :=
+  binopfun_to_group_morphism (X := A) (submonoid_incl A).
+
+<span class="sd">(** * 5. Quotient objects *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">grquotinvcomp</span> {<span class="nv">X</span> : gr} (<span class="nv">R</span> : binopeqrel X) : iscomprelrelfun R R (<span class="k">λ</span> <span class="nv">x</span>, x^-<span class="mi">1</span>).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> R <span class="k">as</span> [ R isb ].
+  <span class="nb">set</span> (isc := iscompbinoptransrel _ (eqreltrans _) isb).
+  <span class="nb">unfold</span> iscomprelrelfun. <span class="nb">intros</span> x x' r.
+  <span class="nb">induction</span> R <span class="k">as</span> [ R iseq ]. <span class="nb">induction</span> iseq <span class="k">as</span> [ ispo0 symm0 ].
+  <span class="nb">induction</span> ispo0 <span class="k">as</span> [ trans0 refl0 ]. <span class="nb">unfold</span> isbinophrel <span class="k">in</span> isb.
+  <span class="nb">set</span> (r0 := isc _ _ _ _ (isc _ _ _ _ (refl0 x'^-<span class="mi">1</span>) r) (refl0 x^-<span class="mi">1</span>)).
+  <span class="nb">rewrite</span> (grlinvax X x') <span class="k">in</span> r0.
+  <span class="nb">rewrite</span> (assocax X x'^-<span class="mi">1</span> x x^-<span class="mi">1</span>) <span class="k">in</span> r0.
+  <span class="nb">rewrite</span> (grrinvax X x) <span class="k">in</span> r0. <span class="nb">rewrite</span> (lunax X _) <span class="k">in</span> r0.
+  <span class="nb">rewrite</span> (runax X _) <span class="k">in</span> r0.
+  <span class="nb">apply</span> (symm0 _ _ r0).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">invongrquot</span> {<span class="nv">X</span> : gr} (<span class="nv">R</span> : binopeqrel X) : setquot R → setquot R :=
+  setquotfun R R (<span class="k">λ</span> <span class="nv">x</span>, x^-<span class="mi">1</span>) (grquotinvcomp R).
+
+<span class="kn">Lemma</span> <span class="nf">isinvongrquot</span> {<span class="nv">X</span> : gr} (<span class="nv">R</span> : binopeqrel X) :
+  isinv (@op (setwithbinopquot R)) (setquotpr R <span class="mi">1</span>) (invongrquot R).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">unfold</span> islinv.
+    <span class="nb">apply</span> (setquotunivprop R (<span class="k">λ</span> <span class="nv">x</span>, _ = _)%logic).
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> (@maponpaths _ _ (setquotpr R) (x^-<span class="mi">1</span> * x) <span class="mi">1</span>).
+    <span class="nb">apply</span> (grlinvax X).
+  - <span class="nb">unfold</span> isrinv.
+    <span class="nb">apply</span> (setquotunivprop R (<span class="k">λ</span> <span class="nv">x</span>, _ = _)%logic).
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> (@maponpaths _ _ (setquotpr R) (x / x) <span class="mi">1</span>).
+    <span class="nb">apply</span> (grrinvax X).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isgrquot</span> {<span class="nv">X</span> : gr} (<span class="nv">R</span> : binopeqrel X) : isgrop (@op (setwithbinopquot R)) :=
+  ismonoidquot R ,, invongrquot R ,, isinvongrquot R.
+
+<span class="kn">Definition</span> <span class="nf">grquot</span> {<span class="nv">X</span> : gr} (<span class="nv">R</span> : binopeqrel X) : gr.
+<span class="kn">Proof</span>. <span class="k">exists</span> (<span class="nv">setwithbinopquot</span> <span class="nv">R</span>). <span class="nb">apply</span> isgrquot. <span class="kn">Defined</span>.
+
+<span class="sd">(** * 6. Cosets *)</span>
+
+<span class="kn">Section</span> <span class="nf">GrCosets</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : gr}.
+
+  <span class="kn">Local Lemma</span> <span class="nf">isaprop_mult_eq_r</span> (<span class="nv">x</span> <span class="nv">y</span> : X) : isaprop (∑ z : X, x * z = y).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> invproofirrelevance; <span class="nb">intros</span> z1 z2.
+    <span class="nb">apply</span> subtypePath.
+    { <span class="nb">intros</span> x'. <span class="nb">apply</span> setproperty. }
+    <span class="nb">refine</span> (!lunax _ _ @ _ @ lunax _ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z * _) (!grlinvax X x) @ _ @
+            maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z * _) (grlinvax X x)).
+    <span class="nb">refine</span> (assocax _ _ _ _ @ _ @ !assocax _ _ _ _).
+    <span class="nb">refine</span> (maponpaths _ (pr2 z1) @ _ @ !maponpaths _ (pr2 z2)).
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">isaprop_mult_eq_l</span> (<span class="nv">x</span> <span class="nv">y</span> : X) : isaprop (∑ z : X, z * x = y).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> invproofirrelevance; <span class="nb">intros</span> z1 z2.
+    <span class="nb">apply</span> subtypePath.
+    { <span class="nb">intros</span> x'. <span class="nb">apply</span> setproperty. }
+    <span class="nb">refine</span> (!runax _ _ @ _ @ runax _ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ * z) (!grrinvax X x) @ _ @
+            maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ * z) (grrinvax X x)).
+    <span class="nb">refine</span> (!assocax _ _ _ _ @ _ @ assocax _ _ _ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z * _) (pr2 z1) @ _ @ !maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z * _) (pr2 z2)).
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Context</span> (<span class="nv">Y</span> : subgr X).
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_in_same_left_coset</span> (<span class="nv">x1</span> <span class="nv">x2</span> : X) :
+    isaprop (in_same_left_coset Y x1 x2).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> in_same_left_coset.
+    <span class="nb">apply</span> invproofirrelevance; <span class="nb">intros</span> p q.
+    <span class="nb">apply</span> subtypePath.
+    { <span class="nb">intros</span> x'. <span class="nb">apply</span> setproperty. }
+    <span class="nb">apply</span> subtypePath.
+    { <span class="nb">intros</span> x'. <span class="nb">apply</span> propproperty. }
+    <span class="nb">pose</span> (p' := (pr11 p,, pr2 p) : ∑ y : X, x1 * y = x2).
+    <span class="nb">pose</span> (q' := (pr11 q,, pr2 q) : ∑ y : X, x1 * y = x2).
+    <span class="nb">apply</span> (maponpaths pr1 (iscontrpr1 (isaprop_mult_eq_r _ _ p' q'))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_in_same_right_coset</span> (<span class="nv">x1</span> <span class="nv">x2</span> : X) :
+    isaprop (in_same_right_coset Y x1 x2).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> invproofirrelevance.
+    <span class="nb">intros</span> p q.
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intros</span> x; <span class="nb">apply</span> setproperty|].
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intros</span> x; <span class="nb">apply</span> propproperty|].
+    <span class="nb">pose</span> (p' := (pr11 p,, pr2 p) : ∑ y : X, y * x1 = x2).
+    <span class="nb">pose</span> (q' := (pr11 q,, pr2 q) : ∑ y : X, y * x1 = x2).
+    <span class="nb">apply</span> (maponpaths pr1 (iscontrpr1 (isaprop_mult_eq_l _ _ p' q'))).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** The property of being in the same coset defines an equivalence relation. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">in_same_left_coset_prop</span> : X → X → hProp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x1 x2.
+    use make_hProp.
+    + <span class="bp">exact</span> (in_same_left_coset Y x1 x2).
+    + <span class="nb">apply</span> isaprop_in_same_left_coset.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">in_same_right_coset_prop</span> : X → X → hProp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x1 x2.
+    use make_hProp.
+    + <span class="bp">exact</span> (in_same_right_coset Y x1 x2).
+    + <span class="nb">apply</span> isaprop_in_same_right_coset.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">in_same_left_coset_eqrel</span> : eqrel X.
+  <span class="kn">Proof</span>.
+    use make_eqrel.
+    - <span class="bp">exact</span> in_same_left_coset_prop.
+    - use iseqrelconstr.
+      + <span class="sd">(** Transitivity *)</span>
+        <span class="nb">intros</span> ? ? ?; <span class="nb">cbn</span>; <span class="nb">intros</span> inxy inyz.
+        <span class="nb">unfold</span> in_same_left_coset <span class="k">in</span> *.
+        use tpair.
+        * <span class="k">exists</span> (<span class="nv">pr11</span> <span class="nv">inxy</span> * pr11 inyz).
+          <span class="nb">apply</span> (pr2 Y).
+        * <span class="nb">cbn</span>.
+          <span class="nb">refine</span> (_ @ pr2 inyz).
+          <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z * _) (pr2 inxy)).
+          <span class="bp">exact</span> (!assocax _ _ _ _).
+      + <span class="sd">(** Reflexivity *)</span>
+        <span class="nb">intro</span>; <span class="nb">cbn</span>.
+        use tpair.
+        * <span class="k">exists</span> <span class="mi">1</span>; <span class="nb">apply</span> (pr2 Y).
+        * <span class="nb">apply</span> runax.
+      + <span class="sd">(** Symmetry *)</span>
+        <span class="nb">intros</span> x y inxy.
+        use tpair.
+        * <span class="k">exists</span> ((pr1 (pr1 inxy))^-<span class="mi">1</span>).
+          <span class="nb">apply</span> (pr2 Y).
+          <span class="bp">exact</span> (pr2 (pr1 inxy)).
+        * <span class="nb">cbn</span> <span class="k">in</span> *.
+          <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z * _) (pr2 inxy) @ _).
+          <span class="nb">refine</span> (assocax _ _ _ _ @ _).
+          <span class="nb">refine</span> (maponpaths _ (grrinvax _ _) @ _).
+          <span class="nb">apply</span> runax.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** x₁ and x₂ are in the same Y-coset if and only if x₁⁻¹ * x₂ is in Y.</span>
+<span class="sd">      (Proposition 4 in Dummit and Foote) *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">in_same_coset_test</span> (<span class="nv">x1</span> <span class="nv">x2</span> : X) :
+             (Y (x1^-<span class="mi">1</span> * x2)) ≃ in_same_left_coset Y x1 x2.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqimplimpl; <span class="nb">unfold</span> in_same_left_coset <span class="k">in</span> *.
+    - <span class="nb">intros</span> yx1x2.
+      <span class="k">exists</span> (<span class="nv">x1</span>^-<span class="mi">1</span> * x2,, yx1x2); <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!assocax X _ _ _ @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z * _) (grrinvax X _) @ _).
+      <span class="nb">apply</span> lunax.
+    - <span class="nb">intros</span> y.
+      use (transportf (pr1 Y)).
+      + <span class="bp">exact</span> (pr11 y).
+      + <span class="nb">refine</span> (_ @ maponpaths _ (pr2 y)).
+        <span class="nb">refine</span> (_ @ assocax _ _ _ _).
+        <span class="nb">refine</span> (_ @ !maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z * _) (grlinvax X _)).
+        <span class="bp">exact</span> (!lunax _ _).
+      + <span class="bp">exact</span> (pr2 (pr1 y)).
+    - <span class="nb">apply</span> propproperty.
+    - <span class="nb">apply</span> isaprop_in_same_left_coset.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">GrCosets</span>.
+
+
+<span class="sd">(** * 7. Normal Subgroups *)</span>
+
+<span class="kn">Section</span> <span class="nf">NormalSubGroups</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isnormalsubgr</span> {<span class="nv">X</span> : gr} (<span class="nv">N</span> : subgr X) : hProp :=
+    <span class="k">∀</span> <span class="nv">g</span> : X, <span class="k">∀</span> <span class="nv">n1</span> : N, N ((g * (pr1 n1)) / g).
+
+  <span class="kn">Definition</span> <span class="nf">normalsubgr</span> (<span class="nv">X</span> : gr) : UU := ∑ N : subgr X, isnormalsubgr N.
+
+  <span class="kn">Definition</span> <span class="nf">normalsubgrtosubgr</span> (<span class="nv">X</span> : gr) : normalsubgr X → subgr X := pr1.
+  <span class="kn">Coercion</span> <span class="nf">normalsubgrtosubgr</span> : normalsubgr &gt;-&gt; subgr.
+
+  <span class="kn">Definition</span> <span class="nf">normalsubgrprop</span> {<span class="nv">X</span> : gr} (<span class="nv">N</span> : normalsubgr X) : isnormalsubgr N := pr2 N.
+
+  <span class="kn">Definition</span> <span class="nf">lcoset_in_rcoset</span> {<span class="nv">X</span> : gr} (<span class="nv">N</span> : subgr X) : UU :=
+    ∏ g : X, ∏ n1 : N, ∑ n2 : N, g * (pr1 n1) = (pr1 n2) * g.
+  <span class="kn">Definition</span> <span class="nf">lcoset_in_rcoset_witness</span> {<span class="nv">X</span> : gr} {<span class="nv">N</span> : subgr X} :
+    lcoset_in_rcoset N → (X → N → N) := <span class="k">λ</span> <span class="nv">H</span> <span class="nv">g</span> <span class="nv">n1</span>, pr1 (H g n1).
+  <span class="kn">Definition</span> <span class="nf">lcoset_in_rcoset_property</span> {<span class="nv">X</span> : gr} {<span class="nv">N</span> : subgr X}
+      (<span class="nv">H</span> : lcoset_in_rcoset N) (<span class="nv">g</span> : X) (<span class="nv">n1</span> : N) :
+    N (pr1 (lcoset_in_rcoset_witness H g n1)) := pr2 (lcoset_in_rcoset_witness H g n1).
+  <span class="kn">Definition</span> <span class="nf">lcoset_in_rcoset_equation</span> {<span class="nv">X</span> : gr} {<span class="nv">N</span> : subgr X}
+      (<span class="nv">H</span> : lcoset_in_rcoset N) (<span class="nv">g</span> : X) (<span class="nv">n1</span> : N) :
+    g * (pr1 n1) = (pr1 (lcoset_in_rcoset_witness H g n1)) * g := pr2 (H g n1).
+
+  <span class="kn">Definition</span> <span class="nf">rcoset_in_lcoset</span> {<span class="nv">X</span> : gr} (<span class="nv">N</span> : subgr X) : UU :=
+    ∏ g : X, ∏ n1 : N, ∑ n2 : N, (pr1 n1) * g = g * (pr1 n2).
+  <span class="kn">Definition</span> <span class="nf">rcoset_in_lcoset_witness</span> {<span class="nv">X</span> : gr} {<span class="nv">N</span> : subgr X} :
+    rcoset_in_lcoset N → (X → N → N) := <span class="k">λ</span> <span class="nv">H</span> <span class="nv">g</span> <span class="nv">n1</span>, pr1 (H g n1).
+  <span class="kn">Definition</span> <span class="nf">rcoset_in_lcoset_property</span> {<span class="nv">X</span> : gr} {<span class="nv">N</span> : subgr X}
+      (<span class="nv">H</span> : rcoset_in_lcoset N) (<span class="nv">g</span> : X) (<span class="nv">n1</span> : N) :
+    N (pr1 (rcoset_in_lcoset_witness H g n1)) := pr2 (rcoset_in_lcoset_witness H g n1).
+  <span class="kn">Definition</span> <span class="nf">rcoset_in_lcoset_equation</span> {<span class="nv">X</span> : gr} {<span class="nv">N</span> : subgr X}
+      (<span class="nv">H</span> : rcoset_in_lcoset N) (<span class="nv">g</span> : X) (<span class="nv">n1</span> : N) :
+    (pr1 n1) * g = g * (pr1 (rcoset_in_lcoset_witness H g n1)) := pr2 (H g n1).
+
+  <span class="kn">Definition</span> <span class="nf">lcoset_equal_rcoset</span> {<span class="nv">X</span> : gr} (<span class="nv">N</span> : subgr X) : UU :=
+    lcoset_in_rcoset N × rcoset_in_lcoset N.
+
+  <span class="kn">Lemma</span> <span class="nf">lcoset_in_rcoset_impl_normal</span> {<span class="nv">X</span> : gr} (<span class="nv">N</span> : subgr X) :
+    lcoset_in_rcoset N → isnormalsubgr N.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> lcinrc.
+    <span class="nb">unfold</span> isnormalsubgr.
+    <span class="nb">intros</span> g n1.
+    <span class="nb">refine</span> (@transportb _ (<span class="k">λ</span> <span class="nv">x</span>, N x) _ _ _ _).
+    { etrans. { <span class="nb">apply</span> maponpaths_2, (lcoset_in_rcoset_equation lcinrc). }
+      etrans. { <span class="nb">apply</span> assocax. }
+      etrans. { <span class="nb">apply</span> maponpaths, grrinvax. }
+      <span class="nb">apply</span> runax.
+    }
+    <span class="nb">apply</span> lcoset_in_rcoset_property.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lcoset_equal_rcoset_impl_normal</span> {<span class="nv">X</span> : gr} (<span class="nv">N</span> : subgr X) :
+    lcoset_equal_rcoset N → isnormalsubgr N.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H. <span class="nb">apply</span> lcoset_in_rcoset_impl_normal. <span class="bp">exact</span> (pr1 H).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">normal_lcoset_in_rcoset</span> {<span class="nv">X</span> : gr} (<span class="nv">N</span> : normalsubgr X) : lcoset_in_rcoset N.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> normalsubgr <span class="k">in</span> N.
+    <span class="nb">induction</span> N <span class="k">as</span> [N normalprop].
+    <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> lcoset_in_rcoset.
+    <span class="nb">intros</span> g n1.
+    use tpair.
+    - <span class="bp">exact</span> (g * pr1 n1 / g ,, normalprop g n1).
+    - <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> (assocax _ _ _ g).
+      <span class="nb">rewrite</span> (grlinvax X _).
+      <span class="nb">rewrite</span> (runax X).
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">normal_rcoset_in_lcoset</span> {<span class="nv">X</span> : gr} (<span class="nv">N</span> : normalsubgr X) : rcoset_in_lcoset N.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> N <span class="k">as</span> [N normalprop].
+    <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> rcoset_in_lcoset.
+    <span class="nb">intros</span> g n1.
+    use tpair.
+    - <span class="k">exists</span> (<span class="nv">g</span>^-<span class="mi">1</span> * (pr1 n1) / g^-<span class="mi">1</span>). use normalprop.
+    - <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> (assocax _ g^-<span class="mi">1</span> _ _).
+      <span class="nb">rewrite</span> &lt;- (assocax _ g _ _).
+      <span class="nb">rewrite</span> (grrinvax X).
+      <span class="nb">rewrite</span> (lunax X).
+      <span class="nb">rewrite</span> (grinvinv X).
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">normal_lcoset_equal_rcoset</span> {<span class="nv">X</span> : gr} (<span class="nv">N</span> : normalsubgr X) : lcoset_equal_rcoset N :=
+    (normal_lcoset_in_rcoset N,,normal_rcoset_in_lcoset N).
+
+  <span class="kn">Lemma</span> <span class="nf">in_same_coset_isbinophrel</span> {<span class="nv">X</span> : gr} (<span class="nv">N</span> : normalsubgr X) :
+    isbinophrel (in_same_left_coset_eqrel N).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> isbinophrel.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> a b c.
+      <span class="nb">unfold</span> in_same_left_coset_eqrel.
+      <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> in_same_left_coset.
+      <span class="nb">intros</span> ab_same_lcoset.
+      use tpair.
+      + <span class="bp">exact</span> (pr1 ab_same_lcoset).
+      + <span class="nb">simpl</span>.
+        <span class="nb">rewrite</span> (assocax _ c _ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (pr2 ab_same_lcoset).
+    - <span class="nb">intros</span> a b c.
+      <span class="nb">unfold</span> in_same_left_coset_eqrel.
+      <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> in_same_left_coset.
+      <span class="nb">intros</span> ab_same_lcoset.
+      use tpair.
+      + <span class="nb">refine</span> (rcoset_in_lcoset_witness _ c (pr1 ab_same_lcoset));
+          <span class="nb">apply</span> normal_rcoset_in_lcoset.
+      + <span class="nb">simpl</span>.
+        <span class="nb">rewrite</span> (grinvinv _).
+        <span class="nb">rewrite</span> (assocax _ a _ _).
+        <span class="nb">rewrite</span> (assocax _ c^-<span class="mi">1</span> _ _).
+        <span class="nb">rewrite</span> &lt;- (assocax _ c _ _).
+        <span class="nb">rewrite</span> (grrinvax _).
+        <span class="nb">rewrite</span> (lunax _).
+        <span class="nb">rewrite</span> &lt;- (assocax _ a _ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (pr2 ab_same_lcoset).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">in_same_coset_binopeqrel</span> {<span class="nv">X</span> : gr} (<span class="nv">N</span> : normalsubgr X) : binopeqrel X :=
+    in_same_left_coset_eqrel N ,, in_same_coset_isbinophrel N.
+
+  <span class="kn">Definition</span> <span class="nf">grquot_by_normal_subgr</span> (<span class="nv">X</span> : gr) (<span class="nv">N</span> : normalsubgr X) : gr :=
+    grquot (in_same_coset_binopeqrel N).
+
+<span class="kn">End</span> <span class="nf">NormalSubGroups</span>.
+
+<span class="sd">(** * 8. Direct products *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isgrdirprod</span> (<span class="nv">X</span> <span class="nv">Y</span> : gr) : isgrop (@op (setwithbinopdirprod X Y)).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">ismonoiddirprod</span> <span class="nv">X</span> <span class="nv">Y</span>).
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">xy</span>, (pr1 xy)^-<span class="mi">1</span> ,, (pr2 xy)^-<span class="mi">1</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> xy. <span class="nb">induction</span> xy <span class="k">as</span> [ x y ].
+    <span class="nb">unfold</span> unel_is. <span class="nb">simpl</span>. <span class="nb">apply</span> pathsdirprod.
+    <span class="nb">apply</span> (grlinvax X x). <span class="nb">apply</span> (grlinvax Y y).
+  - <span class="nb">intro</span> xy. <span class="nb">induction</span> xy <span class="k">as</span> [ x y ].
+    <span class="nb">unfold</span> unel_is. <span class="nb">simpl</span>. <span class="nb">apply</span> pathsdirprod.
+    <span class="nb">apply</span> (grrinvax X x). <span class="nb">apply</span> (grrinvax Y y).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">grdirprod</span> (<span class="nv">X</span> <span class="nv">Y</span> : gr) : gr.
+<span class="kn">Proof</span>. <span class="k">exists</span> (<span class="nv">setwithbinopdirprod</span> <span class="nv">X</span> <span class="nv">Y</span>). <span class="nb">apply</span> isgrdirprod. <span class="kn">Defined</span>.
+
+<span class="sd">(** * 9. Group of invertible elements in a monoid *)</span>
+
+<span class="kn">Definition</span> <span class="nf">invertible_submonoid_grop</span> <span class="nv">X</span> : isgrop (@op (invertible_submonoid X)).
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (submon := invertible_submonoid X).
+  <span class="nb">pose</span> (submon_carrier := ismonoidcarrier submon).
+
+  <span class="sd">(** We know that if each element has an inverse, it's a grop *)</span>
+  <span class="nb">apply</span> (isgropif submon_carrier).
+
+  <span class="nb">intros</span> xpair.
+  <span class="nb">pose</span> (x := pr1 xpair).
+  <span class="nb">pose</span> (unel := unel_is submon_carrier).
+
+  <span class="sd">(** We can use other hProps when proving an hProp (assume it has an inverse) *)</span>
+  <span class="nb">apply</span> (squash_to_prop (pr2 xpair) (propproperty _)).
+
+  <span class="nb">intros</span> xinv.
+  <span class="nb">unfold</span> haslinv.
+  <span class="nb">apply</span> hinhpr.
+  <span class="nb">refine</span> ((pr1 xinv,, inverse_in_submonoid _ x (pr1 xinv) (pr2 xpair) (pr2 xinv)),, _).
+  <span class="nb">apply</span> subtypePath_prop.
+  <span class="bp">exact</span> (pr2 (pr2 xinv)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">gr_merely_invertible_elements</span> : monoid → gr :=
+  <span class="k">λ</span> <span class="nv">X</span>, carrierofasubsetwithbinop (submonoidtosubsetswithbinop _ (invertible_submonoid X)) ,,
+       invertible_submonoid_grop X.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/Groups2.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/Subtypes.vo has
+  &gt; bad version number 90299 (expected 81601). It is corrupted or was compiled
+  &gt; with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   9. Group of invertible elements in a monoid
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.Subtypes.&lt;&lt;&lt;
+  &gt; Require Export UniMath.Algebra.Monoids2.
+  &gt; Require Export UniMath.Algebra.BinaryOperations.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

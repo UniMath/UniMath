@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CategoriesOfMonoids.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Categories of monoids for monoidal categories</span>
+
+<span class="sd">Note: after refactoring on March 10, 2023, the prior Git history of this development is found via</span>
+<span class="sd">git log --follow -- UniMath/CategoryTheory/Monoidal/AlternativeDefinitions/CategoriesOfMonoids.v</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Category_of_Monoids</span>.
+
+<span class="kn">Context</span> (<span class="nv">Mon</span> : monoidal_cat).
+
+<span class="kn">Local Definition</span> <span class="nf">tensor</span> := monoidal_cat_tensor Mon.
+<span class="kn">Notation</span> <span class="s2">"X ⊗ Y"</span> := (tensor (X , Y)).
+<span class="kn">Notation</span> <span class="s2">"f #⊗ g"</span> := (# tensor (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+<span class="kn">Local Definition</span> <span class="nf">I</span> := monoidal_cat_unit Mon.
+<span class="kn">Local Definition</span> <span class="nf">α'</span> := monoidal_cat_associator Mon.
+<span class="kn">Local Definition</span> <span class="nf">λ'</span> := monoidal_cat_left_unitor Mon.
+<span class="kn">Local Definition</span> <span class="nf">ρ'</span> := monoidal_cat_right_unitor Mon.
+
+<span class="kn">Definition</span> <span class="nf">monoid_ob_data</span> : UU :=
+  ∑ X : Mon, (X ⊗ X --&gt; X) × (I --&gt; X).
+
+<span class="kn">Definition</span> <span class="nf">is_monoid_ob</span> (<span class="nv">X</span> : Mon) (<span class="nv">μ</span> : X ⊗ X --&gt; X) (<span class="nv">η</span> : I --&gt; X) : UU :=
+	(μ #⊗ id X · μ = pr1 α' ((X, X), X) · id X #⊗ μ · μ) × <span class="c">(* Pentagon diagram *)</span>
+	(pr1 <span class="k">λ</span><span class="nv">' X</span> = η #⊗ id X · μ) × (pr1 ρ' X = id X #⊗ η · μ). <span class="c">(* Unitor diagrams *)</span>
+<span class="c">(* This definition deviates from that by Mac Lane (CWM 2nd ed., p.170) since the associator goes in the opposite direction. However, it conforms to the def. on Wikipedia for monoid objects. *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">monoid_ob</span> : UU :=
+	∑ X : monoid_ob_data, is_monoid_ob (pr1 X) (pr1 (pr2 X)) (pr2 (pr2 X)).
+
+<span class="kn">Definition</span> <span class="nf">monoid_carrier</span> (<span class="nv">X</span> : monoid_ob) : Mon := pr1 (pr1 X).
+<span class="kn">Local Coercion</span> <span class="nf">monoid_carrier</span> : monoid_ob &gt;-&gt; ob.
+
+<span class="kn">Definition</span> <span class="nf">monoid_mult</span> (<span class="nv">X</span> : monoid_ob) := pr1 (pr2 (pr1 X)).
+
+<span class="kn">Definition</span> <span class="nf">monoid_unit</span> (<span class="nv">X</span> : monoid_ob) := pr2 (pr2 (pr1 X)).
+
+<span class="kn">Definition</span> <span class="nf">is_monoid_mor</span> (<span class="nv">X</span> <span class="nv">Y</span> : monoid_ob) (<span class="nv">f</span> : monoid_carrier X --&gt; monoid_carrier Y) : UU :=
+  ((@monoid_mult X) · f = f #⊗ f · (@monoid_mult Y)) ×
+   (@monoid_unit X) · f = (@monoid_unit Y).
+
+<span class="kn">Definition</span> <span class="nf">monoid_mor</span> (<span class="nv">X</span> <span class="nv">Y</span> : monoid_ob) : UU :=
+  ∑ f : X --&gt; Y, is_monoid_mor X Y f.
+<span class="kn">Coercion</span> <span class="nf">mor_from_monoid_mor</span> (X Y : monoid_ob) (f : monoid_mor X Y) : X --&gt; Y := pr1 f.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_is_monoid_mor</span> (<span class="nv">X</span> <span class="nv">Y</span> : monoid_ob) (<span class="nv">f</span> : monoid_carrier X --&gt; monoid_carrier Y):
+  isaprop (is_monoid_mor X Y f).
+<span class="kn">Proof</span>.
+  use isapropdirprod; <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaset_monoid_mor</span> (<span class="nv">X</span> <span class="nv">Y</span> : monoid_ob) : isaset (monoid_mor X Y).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isofhleveltotal2 <span class="mi">2</span>).
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isaprop_is_monoid_mor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoid_mor_eq</span> {<span class="nv">X</span> <span class="nv">Y</span> : monoid_ob} {<span class="nv">f</span> <span class="nv">g</span> : monoid_mor X Y} :
+  (f : X --&gt; Y) = g ≃ f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> invweq.
+  <span class="nb">apply</span> subtypeInjectivity.
+  <span class="nb">intro</span>.
+  <span class="nb">apply</span> isaprop_is_monoid_mor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoid_mor_id</span> (<span class="nv">X</span> : monoid_ob) : monoid_mor X X.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">id</span> <span class="nv">_</span>).
+  <span class="nb">red</span>.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">rewrite</span> tensor_id.
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">split</span>; <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoid_mor_comp</span> (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : monoid_ob) (<span class="nv">f</span> : monoid_mor X Y) (<span class="nv">g</span> : monoid_mor Y Z) : monoid_mor X Z.
+<span class="kn">Proof</span>.
+  use tpair; [| <span class="nb">split</span>].
+  - <span class="bp">exact</span> (f · g).
+  - <span class="nb">rewrite</span> assoc.
+    <span class="nb">change</span> (monoid_mult X · pr1 f · g = # tensor (f · g #, f · g) · monoid_mult Z).
+    <span class="nb">rewrite</span> (pr1 (pr2 f)).
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">change</span> ((# tensor (f #, f) · (monoid_mult Y · g) =
+             # tensor (catbinprodmor (f · g) (f · g)) · monoid_mult Z)).
+    <span class="nb">rewrite</span> binprod_comp.
+    <span class="nb">change</span> ((# tensor (pr1 f #, pr1 f) · (monoid_mult Y · pr1 g) =
+             # tensor ((f #, f) · (g #, g)) · monoid_mult Z)).
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> (pr1 (pr2 g)).
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- (pr2 (pr2 g)).
+    <span class="nb">rewrite</span> &lt;- (pr2 (pr2 f)).
+    <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_monoid_ob_mor</span> : precategory_ob_mor.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">monoid_ob</span>.
+  <span class="bp">exact</span> monoid_mor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_monoid_data</span> : precategory_data.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">precategory_monoid_ob_mor</span>.
+  <span class="k">exists</span> <span class="nv">monoid_mor_id</span>.
+  <span class="bp">exact</span> monoid_mor_comp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_precategory_precategory_monoid_data</span>
+  : is_precategory precategory_monoid_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>; <span class="nb">simpl</span>; <span class="nb">apply</span> monoid_mor_eq.
+  - <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> id_right.
+  - <span class="nb">apply</span> assoc.
+  - <span class="nb">apply</span> assoc'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_monoid</span>
+  : precategory := tpair _ _ is_precategory_precategory_monoid_data.
+
+<span class="kn">Local Notation</span> <span class="nf">monoid</span> := precategory_monoid.
+
+<span class="kn">Lemma</span> <span class="nf">precategory_monoid_has_homsets</span>: has_homsets precategory_monoid.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span> X Y.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span> f g.
+  <span class="nb">apply</span> (isofhlevelweqf <span class="mi">1</span> (monoid_mor_eq(f := f)(g := g))).
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">category_monoid</span>: category := precategory_monoid ,, precategory_monoid_has_homsets.
+
+<span class="kn">End</span> <span class="nf">Category_of_Monoids</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/AlternativeDefinitions/CategoriesOfMonoids.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

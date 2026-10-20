@@ -1,0 +1,904 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonoidalDialgebras.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Ralph Matthes</span>
+
+<span class="sd">August 2022</span>
+<span class="sd">*)</span>
+
+<span class="sd">(** **********************************************************</span>
+
+<span class="sd">Contents :</span>
+
+<span class="sd">- constructs a displayed monoidal category that is displayed over the dialgebras, its total</span>
+<span class="sd">  category is called the monoidal dialgebras</span>
+
+<span class="sd"> ************************************************************)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Dialgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.MonoidalSections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.MonoidalFunctorLifting.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="kn">Section</span> <span class="nf">FixTwoMonoidalFunctors</span>.
+
+  <span class="kn">Import</span> BifunctorNotations.
+  <span class="kn">Import</span> MonoidalNotations.
+  <span class="kn">Import</span> DisplayedBifunctorNotations.
+  <span class="kn">Import</span> DisplayedMonoidalNotations.
+
+  <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> : category}
+          {<span class="nv">V</span> : monoidal A} {<span class="nv">W</span> : monoidal B}
+          {<span class="nv">F</span> <span class="nv">G</span> : A ⟶ B}
+          (<span class="nv">Fm</span> : fmonoidal V W F) (<span class="nv">Gm</span> : fmonoidal_lax V W G).
+  <span class="sd">(** it is expected that [Fm] could just be an oplax monoidal functor *)</span>
+
+  <span class="kn">Local Definition</span> <span class="nf">base_disp</span> : disp_cat A := dialgebra_disp_cat F G.
+
+  <span class="kn">Local Lemma</span> <span class="nf">base_disp_cells_isaprop</span> (<span class="nv">x</span> <span class="nv">y</span> : A) (<span class="nv">f</span> : A⟦x, y⟧)
+        (<span class="nv">xx</span> : base_disp x) (<span class="nv">yy</span> : base_disp y): isaprop (xx --&gt;[f] yy).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Hyp Hyp'.
+    <span class="nb">apply</span> B.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_disp_tensor_op</span> {<span class="nv">a</span> <span class="nv">a'</span> : A} (<span class="nv">f</span> : base_disp a) (<span class="nv">f'</span> : base_disp a') : base_disp (a ⊗_{V} a').
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ · fmonoidal_preservestensordata Gm a a').
+    <span class="nb">refine</span> (pr1 (fmonoidal_preservestensorstrongly Fm a a') · _).
+    <span class="bp">exact</span> (f ⊗^{W} f').
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dialgebra_disp_tensor_comp_aux1</span> {<span class="nv">a</span> <span class="nv">a2</span> <span class="nv">a2'</span> : A} {<span class="nv">h'</span>: a2 --&gt; a2'}
+    (<span class="nv">f</span> : base_disp a) (<span class="nv">f'</span> : base_disp a2) (<span class="nv">g'</span> : base_disp a2')
+    : f'--&gt;[h'] g' -&gt; dialgebra_disp_tensor_op f f' --&gt;[a ⊗^{V}_{l} h'] dialgebra_disp_tensor_op f g'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> Hyp'.
+    <span class="nb">cbn</span> <span class="k">in</span> Hyp'.
+    <span class="nb">cbn</span>. <span class="nb">unfold</span> dialgebra_disp_tensor_op.
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> pathsinv0, fmonoidal_preservestensornatleft. }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    etrans.
+    { <span class="nb">rewrite</span> (bifunctor_equalwhiskers W). <span class="nb">unfold</span> functoronmorphisms2.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (bifunctor_equalwhiskers W). }
+    <span class="nb">rewrite</span> (bifunctor_equalwhiskers W).
+    <span class="nb">unfold</span> functoronmorphisms2.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">assert</span> (aux := fmonoidal_preservestensornatleft Fm a a2 a2' h').
+    <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (_,,fmonoidal_preservestensorstrongly Fm a a2)) <span class="k">in</span> aux.
+    <span class="nb">rewrite</span> assoc <span class="k">in</span> aux.
+    <span class="nb">apply</span> pathsinv0 <span class="k">in</span> aux.
+    <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ (_,,fmonoidal_preservestensorstrongly Fm a a2')) <span class="k">in</span> aux.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+         <span class="nb">apply</span> aux. }
+    <span class="nb">clear</span> aux.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- (bifunctor_leftcomp W).
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> Hyp'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dialgebra_disp_tensor_comp_aux2</span> {<span class="nv">a1</span> <span class="nv">a1'</span> <span class="nv">a</span> : A} {<span class="nv">h</span>: a1 --&gt; a1'}
+    (<span class="nv">f</span> : base_disp a1) (<span class="nv">f'</span> : base_disp a) (<span class="nv">g</span> : base_disp a1')
+    : f --&gt;[h] g -&gt; dialgebra_disp_tensor_op f f' --&gt;[h ⊗^{V}_{r} a] dialgebra_disp_tensor_op g f'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> Hyp.
+    <span class="nb">cbn</span> <span class="k">in</span> Hyp.
+    <span class="nb">cbn</span>. <span class="nb">unfold</span> dialgebra_disp_tensor_op.
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> pathsinv0, fmonoidal_preservestensornatright. }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    etrans.
+    { <span class="nb">unfold</span> functoronmorphisms1.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, (bifunctor_equalwhiskers W). }
+    <span class="nb">unfold</span> functoronmorphisms1.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">assert</span> (aux := fmonoidal_preservestensornatright Fm _ _ a h).
+    <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (_,,fmonoidal_preservestensorstrongly Fm a1 a)) <span class="k">in</span> aux.
+    <span class="nb">rewrite</span> assoc <span class="k">in</span> aux.
+    <span class="nb">apply</span> pathsinv0 <span class="k">in</span> aux.
+    <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ (_,,fmonoidal_preservestensorstrongly Fm a1' a)) <span class="k">in</span> aux.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+         <span class="nb">apply</span> aux. }
+    <span class="nb">clear</span> aux.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- (bifunctor_rightcomp W).
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> Hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** the following "morally right" formulation does not follow the division into the two whiskerings</span>
+<span class="sd">  Lemma dialgebra_disp_tensor_comp_aux {a1 a2 a1' a2' : A} {h: a1 --&gt; a1'} {h': a2 --&gt; a2'}</span>
+<span class="sd">    (f : base_disp a1) (f' : base_disp a2) (g : base_disp a1') (g' : base_disp a2')</span>
+<span class="sd">    : f --&gt;[h] g -&gt; f'--&gt;[h'] g' -&gt; dialgebra_disp_tensor_op f f' --&gt;[h ⊗^{V} h'] dialgebra_disp_tensor_op g g'.</span>
+<span class="sd">  Proof.</span>
+<span class="sd">    intros Hyp Hyp'.</span>
+<span class="sd">    hnf in Hyp, Hyp' |- *.</span>
+<span class="sd">    unfold dialgebra_disp_tensor_op.</span>
+<span class="sd">    *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_disp_tensor</span> : disp_tensor base_disp V.
+  <span class="kn">Proof</span>.
+    use make_disp_bifunctor_locally_prop.
+    - <span class="nb">apply</span> is_locally_propositional_dialgebra_disp_cat.
+    - use make_disp_bifunctor_data.
+      + <span class="nb">intros</span> a a' f f'. <span class="bp">exact</span> (dialgebra_disp_tensor_op f f').
+      + <span class="nb">intros</span>; <span class="nb">apply</span> dialgebra_disp_tensor_comp_aux1; <span class="bp">assumption</span>.
+      + <span class="nb">intros</span>; <span class="nb">apply</span> dialgebra_disp_tensor_comp_aux2; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_disp_unit</span>: base_disp I_{ V}
+    := pr1 (fmonoidal_preservesunitstrongly Fm) · fmonoidal_preservesunit Gm.
+
+  <span class="kn">Lemma</span> <span class="nf">dialgebra_disp_leftunitor_data</span> : disp_leftunitor_data dialgebra_disp_tensor dialgebra_disp_unit.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a f.
+    <span class="nb">cbn</span>. <span class="nb">unfold</span> dialgebra_disp_unit, dialgebra_disp_tensor_op.
+    <span class="nb">rewrite</span> (bifunctor_equalwhiskers W). <span class="nb">unfold</span> functoronmorphisms2.
+    <span class="nb">rewrite</span> bifunctor_rightcomp.
+    <span class="nb">set</span> (aux1 := fmonoidal_preservesleftunitality Gm a).
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'. <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="bp">exact</span> aux1. }
+    <span class="nb">clear</span> aux1.
+    <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (_,,fmonoidal_preservestensorstrongly Fm I_{V} a)).
+    <span class="nb">cbn</span>.
+    <span class="nb">set</span> (aux2 := fmonoidal_preservesleftunitality Fm a).
+    etrans.
+    { <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> pathsinv0, (bifunctor_equalwhiskers W). }
+    <span class="nb">unfold</span> functoronmorphisms1.
+    <span class="nb">rewrite</span> assoc'.
+    etrans.
+    { <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> monoidal_leftunitornat. }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">rewrite</span> &lt;- aux2. <span class="nb">clear</span> aux2.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">rewrite</span> &lt;- (bifunctor_rightcomp W).
+    etrans.
+    { <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span>  (z_iso_after_z_iso_inv (_,,fmonoidal_preservesunitstrongly Fm)). }
+    <span class="nb">rewrite</span> bifunctor_rightid.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dialgebra_disp_rightunitor_data</span> : disp_rightunitor_data dialgebra_disp_tensor dialgebra_disp_unit.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a f.
+    <span class="nb">cbn</span>. <span class="nb">unfold</span> dialgebra_disp_unit, dialgebra_disp_tensor_op.
+    <span class="nb">unfold</span> functoronmorphisms1.
+    <span class="nb">rewrite</span> (bifunctor_leftcomp W).
+    <span class="nb">set</span> (aux1 := fmonoidal_preservesrightunitality Gm a).
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'. <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="bp">exact</span> aux1. }
+    <span class="nb">clear</span> aux1.
+    <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (_,,fmonoidal_preservestensorstrongly Fm a I_{V})).
+    <span class="nb">cbn</span>.
+    <span class="nb">set</span> (aux2 := fmonoidal_preservesrightunitality Fm a).
+    etrans.
+    { <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> (bifunctor_equalwhiskers W). }
+    <span class="nb">unfold</span> functoronmorphisms2.
+    <span class="nb">rewrite</span> assoc'.
+    etrans.
+    { <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> monoidal_rightunitornat. }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">rewrite</span> &lt;- aux2. <span class="nb">clear</span> aux2.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">rewrite</span> &lt;- (bifunctor_leftcomp W).
+    etrans.
+    { <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span>  (z_iso_after_z_iso_inv (_,,fmonoidal_preservesunitstrongly Fm)). }
+    <span class="nb">rewrite</span> bifunctor_leftid.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dialgebra_disp_associator_data</span> : disp_associator_data dialgebra_disp_tensor.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a1 a2 a3 f1 f2 f3.
+    <span class="nb">cbn</span>. <span class="nb">unfold</span> dialgebra_disp_tensor_op.
+    etrans.
+    { <span class="nb">rewrite</span> (bifunctor_equalwhiskers W).
+      <span class="nb">unfold</span> functoronmorphisms2.
+      <span class="nb">rewrite</span> bifunctor_rightcomp.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> fmonoidal_preservesassociativity. }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">unfold</span> functoronmorphisms1 <span class="nb">at</span> <span class="mi">1</span>.
+         <span class="nb">rewrite</span> (bifunctor_leftcomp W).
+         <span class="nb">apply</span> idpath. }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">rewrite</span> bifunctor_leftcomp.
+    <span class="nb">rewrite</span> bifunctor_rightcomp.
+    etrans.
+    { <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, bifunctor_equalwhiskers. }
+    <span class="nb">unfold</span> functoronmorphisms1 <span class="nb">at</span> <span class="mi">1</span>.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (_,,fmonoidal_preservestensorstrongly Fm _ _)).
+    <span class="nb">cbn</span>.
+    transparent <span class="nb">assert</span> (aux1 : (z_iso (F (a1 ⊗_{V} a2) ⊗_{W} F a3) ((F a1 ⊗_{W} F a2) ⊗_{W} F a3))).
+    { <span class="k">exists</span> (<span class="nv">pr1</span> (fmonoidal_preservestensorstrongly Fm a1 a2) ⊗^{W}_{r} F a3).
+      <span class="k">exists</span> (<span class="nv">fmonoidal_preservestensordata</span> <span class="nv">Fm</span> <span class="nv">a1</span> <span class="nv">a2</span> ⊗^{W}_{r} F a3).
+      <span class="nb">split</span>.
+      - <span class="nb">rewrite</span> &lt;- (bifunctor_rightcomp W).
+        etrans.
+        { <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (z_iso_after_z_iso_inv (_,,fmonoidal_preservestensorstrongly Fm a1 a2)). }
+        <span class="nb">apply</span> (bifunctor_rightid W).
+      - <span class="nb">rewrite</span> &lt;- (bifunctor_rightcomp W).
+        etrans.
+        { <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (z_iso_inv_after_z_iso (_,,fmonoidal_preservestensorstrongly Fm a1 a2)). }
+        <span class="nb">apply</span> (bifunctor_rightid W).
+    }
+    <span class="nb">apply</span> pathsinv0, (z_iso_inv_to_left _ _ _ aux1).
+    <span class="nb">cbn</span>.
+    <span class="nb">clear</span> aux1.
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> fmonoidal_preservesassociativity. }
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> cancel_postcomposition.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (z_iso_inv_after_z_iso (_,,fmonoidal_preservestensorstrongly Fm a1 _)). }
+    <span class="nb">rewrite</span> id_right.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition. <span class="nb">apply</span> (bifunctor_equalwhiskers W). }
+    etrans; [| <span class="nb">apply</span> (associator_nat2 W)].
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> functoronmorphisms1 <span class="nb">at</span> <span class="mi">2</span>.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    transparent <span class="nb">assert</span> (aux2 : (z_iso (G a1 ⊗_{W} F (a2 ⊗_{V} a3)) (G a1 ⊗_{W} (F a2 ⊗_{W} F a3)))).
+    { <span class="k">exists</span> (<span class="nv">G</span> <span class="nv">a1</span> ⊗^{W}_{l} pr1 (fmonoidal_preservestensorstrongly Fm a2 a3)).
+      <span class="k">exists</span> (<span class="nv">G</span> <span class="nv">a1</span> ⊗^{W}_{l} fmonoidal_preservestensordata Fm a2 a3).
+      <span class="nb">split</span>.
+      - <span class="nb">rewrite</span> &lt;- (bifunctor_leftcomp W).
+        etrans.
+        { <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (z_iso_after_z_iso_inv (_,,fmonoidal_preservestensorstrongly Fm a2 a3)). }
+        <span class="nb">apply</span> (bifunctor_leftid W).
+      - <span class="nb">rewrite</span> &lt;- (bifunctor_leftcomp W).
+        etrans.
+        { <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (z_iso_inv_after_z_iso (_,,fmonoidal_preservestensorstrongly Fm a2 a3)). }
+        <span class="nb">apply</span> (bifunctor_leftid W).
+    }
+    <span class="nb">apply</span> (z_iso_inv_to_right _ _ _ _ aux2).
+    <span class="nb">cbn</span>.
+    <span class="nb">clear</span> aux2.
+    <span class="nb">apply</span> pathsinv0, (bifunctor_equalwhiskers W).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_disp_monoidal_data</span> : disp_monoidal_data base_disp V.
+  <span class="kn">Proof</span>.
+    use make_disp_monoidal_data_groupoidal.
+    - <span class="nb">apply</span> groupoidal_dialgebra_disp_cat.
+    - <span class="bp">exact</span> dialgebra_disp_tensor.
+    - <span class="bp">exact</span> dialgebra_disp_unit.
+    - <span class="bp">exact</span> dialgebra_disp_leftunitor_data.
+    - <span class="bp">exact</span> dialgebra_disp_rightunitor_data.
+    - <span class="bp">exact</span> dialgebra_disp_associator_data.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_disp_monoidal</span> : disp_monoidal base_disp V.
+  <span class="kn">Proof</span>.
+    use make_disp_monoidal_locally_prop.
+    - <span class="nb">apply</span> is_locally_propositional_dialgebra_disp_cat.
+    - <span class="bp">exact</span> dialgebra_disp_monoidal_data.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_monoidal</span> : monoidal (dialgebra F G) := total_monoidal dialgebra_disp_monoidal.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_monoidal_pr1</span> : fmonoidal dialgebra_monoidal V (dialgebra_pr1 F G)
+    := projection_fmonoidal dialgebra_disp_monoidal.
+
+  <span class="kn">Section</span> <span class="nf">IntoMonoidalSection</span>.
+
+    <span class="kn">Context</span> (<span class="nv">α</span> : F ⟹ G) (<span class="nv">ismnt</span> : is_mon_nat_trans Fm Gm α).
+
+    <span class="kn">Let</span> <span class="nf">ismnt_tensor</span> : is_mon_nat_trans_tensorlaw Fm Gm α := pr1 ismnt.
+    <span class="kn">Let</span> <span class="nf">ismnt_unit</span> : is_mon_nat_trans_unitlaw Fm Gm α := pr2 ismnt.
+
+    <span class="kn">Lemma</span> <span class="nf">monnattrans_to_monoidal_section_data</span> :
+      smonoidal_data V dialgebra_disp_monoidal (nat_trans_to_section F G α).
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intros</span> a a'. <span class="nb">cbn</span>. <span class="nb">unfold</span> dialgebra_disp_tensor_op.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_id. <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">rewrite</span> assoc'. <span class="nb">rewrite</span> &lt;- ismnt_tensor.
+        <span class="nb">rewrite</span> assoc.
+        etrans.
+        { <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span>  (z_iso_after_z_iso_inv (_,,fmonoidal_preservestensorstrongly Fm a a')).
+        }
+        <span class="nb">apply</span> id_left.
+      - <span class="nb">cbn</span>. <span class="nb">unfold</span> dialgebra_disp_unit.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_id. <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">cbn</span> <span class="k">in</span> ismnt_unit.
+        <span class="nb">rewrite</span> &lt;- ismnt_unit.
+        <span class="nb">rewrite</span> assoc.
+        etrans.
+        { <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span>  (z_iso_after_z_iso_inv (_,,fmonoidal_preservesunitstrongly Fm)). }
+        <span class="nb">apply</span> id_left.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">monnattrans_to_monoidal_section_laws</span> :
+      smonoidal_laxlaws V dialgebra_disp_monoidal monnattrans_to_monoidal_section_data.
+    <span class="kn">Proof</span>.
+      <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">apply</span> base_disp_cells_isaprop.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">monnattrans_to_monoidal_section_strongtensor</span> :
+      smonoidal_strongtensor V dialgebra_disp_monoidal
+      (smonoidal_preserves_tensor V dialgebra_disp_monoidal monnattrans_to_monoidal_section_data).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> a a'.
+      use tpair.
+      - <span class="nb">cbn</span>. <span class="nb">unfold</span> dialgebra_disp_tensor_op. <span class="nb">apply</span> pathsinv0.
+        <span class="c">(* now as for [monnattrans_to_monoidal_section_data] *)</span>
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_id. <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">rewrite</span> assoc'. <span class="nb">rewrite</span> &lt;- ismnt_tensor.
+        <span class="nb">rewrite</span> assoc.
+        etrans.
+        { <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (z_iso_after_z_iso_inv (_,,fmonoidal_preservestensorstrongly Fm a a')).
+        }
+        <span class="nb">apply</span> id_left.
+      - <span class="nb">split</span>; <span class="nb">apply</span> base_disp_cells_isaprop.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">monnattrans_to_monoidal_section_strongunit</span> :
+      smonoidal_strongunit V dialgebra_disp_monoidal
+      (smonoidal_preserves_unit V dialgebra_disp_monoidal monnattrans_to_monoidal_section_data).
+    <span class="kn">Proof</span>.
+      use tpair.
+      - <span class="nb">cbn</span>. <span class="nb">unfold</span> dialgebra_disp_unit.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_id. <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">cbn</span> <span class="k">in</span> ismnt_unit.
+        <span class="nb">rewrite</span> &lt;- ismnt_unit.
+        <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> pathsinv0.
+        etrans.
+        { <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span>  (z_iso_after_z_iso_inv (_,,fmonoidal_preservesunitstrongly Fm)). }
+        <span class="nb">apply</span> id_left.
+      - <span class="nb">split</span>; <span class="nb">apply</span> base_disp_cells_isaprop.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">monnattrans_to_monoidal_section</span> :
+      smonoidal V dialgebra_disp_monoidal (nat_trans_to_section F G α).
+    <span class="kn">Proof</span>.
+      use tpair.
+      - <span class="bp">exact</span> (monnattrans_to_monoidal_section_data,,monnattrans_to_monoidal_section_laws).
+      - <span class="nb">split</span>.
+        + <span class="bp">exact</span> monnattrans_to_monoidal_section_strongtensor.
+        + <span class="bp">exact</span> monnattrans_to_monoidal_section_strongunit.
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">IntoMonoidalSection</span>.
+
+  <span class="kn">Section</span> <span class="nf">FromMonoidalSection</span>.
+
+    <span class="kn">Context</span> (<span class="nv">sd</span>: section_disp (dialgebra_disp_cat F G)).
+    <span class="kn">Context</span> (<span class="nv">ms</span>: smonoidal_data V dialgebra_disp_monoidal sd).
+
+    <span class="kn">Definition</span> <span class="nf">nattrans_from_ms</span> : F ⟹ G := section_to_nat_trans F G sd.
+
+    <span class="kn">Lemma</span> <span class="nf">nattrans_from_ms_is_mon_nat_trans</span> : is_mon_nat_trans Fm Gm nattrans_from_ms.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intros</span> a a'.
+        <span class="nb">assert</span> (aux := smonoidal_preserves_tensor _ _ ms a a').
+        <span class="nb">cbn</span> <span class="k">in</span> aux.
+        <span class="nb">unfold</span> dialgebra_disp_tensor_op <span class="k">in</span> aux.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_id <span class="k">in</span> aux.
+        <span class="nb">rewrite</span> id_left, id_right <span class="k">in</span> aux.
+        <span class="nb">unfold</span> nattrans_from_ms.
+        <span class="nb">cbn</span>.
+        etrans.
+        { <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> pathsinv0, aux. }
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> cancel_postcomposition.
+        etrans.
+        { <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (z_iso_inv_after_z_iso (_,,fmonoidal_preservestensorstrongly Fm a a')). }
+        <span class="nb">apply</span> id_left.
+      - <span class="nb">cbn</span>.
+        <span class="nb">assert</span> (aux := smonoidal_preserves_unit _ _ ms).
+        <span class="nb">cbn</span> <span class="k">in</span> aux.
+        <span class="nb">unfold</span> dialgebra_disp_unit <span class="k">in</span> aux.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_id <span class="k">in</span> aux.
+        <span class="nb">rewrite</span> id_left, id_right <span class="k">in</span> aux.
+        etrans.
+        { <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> pathsinv0, aux. }
+        <span class="nb">rewrite</span> assoc.
+        etrans.
+        { <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (z_iso_inv_after_z_iso (_,,fmonoidal_preservesunitstrongly Fm)). }
+        <span class="nb">apply</span> id_left.
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">FromMonoidalSection</span>.
+
+  <span class="sd">(** the following lemma should be instance of a construction with lifting *)</span>
+  <span class="kn">Lemma</span> <span class="nf">dialgebra_nat_trans_is_mon_nat_trans</span> :
+    is_mon_nat_trans (comp_fmonoidal_lax dialgebra_monoidal_pr1 Fm)
+                     (comp_fmonoidal_lax dialgebra_monoidal_pr1 Gm)
+                     (dialgebra_nat_trans F G).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    + <span class="nb">intros</span> a a'.
+      <span class="nb">unfold</span> fmonoidal_preservestensordata. <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> fmonoidal_preservestensordata.
+      <span class="nb">unfold</span> projection_preserves_tensordata.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> dialgebra_nat_trans_data.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_id.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right.
+      <span class="nb">unfold</span> dialgebra_disp_tensor_op.
+      etrans.
+      { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">apply</span> (pr12 (fmonoidal_preservestensorstrongly Fm (pr1 a) (pr1 a'))). }
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">unfold</span> is_mon_nat_trans_unitlaw.
+      <span class="nb">unfold</span> fmonoidal_preservesunit. <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> fmonoidal_preservesunit.
+      <span class="nb">unfold</span> projection_preserves_unit.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> dialgebra_disp_unit.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_id.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right.
+      etrans.
+      { <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">apply</span> (pr12 (fmonoidal_preservesunitstrongly Fm)). }
+      <span class="nb">unfold</span> fmonoidal_preservesunit.
+      <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Section</span> <span class="nf">RoundtripForSDData</span>.
+
+      <span class="kn">Local Definition</span> <span class="nf">source_type</span>: UU := ∑ α : F ⟹ G, is_mon_nat_trans Fm Gm α.
+      <span class="kn">Local Definition</span> <span class="nf">target_type</span>: UU := ∑ sd: section_disp (dialgebra_disp_cat F G),
+            smonoidal_data V dialgebra_disp_monoidal sd.
+
+      <span class="kn">Local Definition</span> <span class="nf">source_to_target</span> : source_type -&gt; target_type.
+      <span class="kn">Proof</span>.
+        <span class="nb">intro</span> ass. <span class="nb">destruct</span> ass <span class="k">as</span> [α ismnt].
+        <span class="k">exists</span> (<span class="nv">nat_trans_to_section</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">α</span>).
+        <span class="bp">exact</span> (monnattrans_to_monoidal_section_data α ismnt).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Local Definition</span> <span class="nf">target_to_source</span> : target_type -&gt; source_type.
+      <span class="kn">Proof</span>.
+        <span class="nb">intro</span> ass. <span class="nb">destruct</span> ass <span class="k">as</span> [sd ms].
+        <span class="k">exists</span> (<span class="nv">nattrans_from_ms</span> <span class="nv">sd</span>).
+        <span class="bp">exact</span> (nattrans_from_ms_is_mon_nat_trans sd ms).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Local Lemma</span> <span class="nf">roundtrip1</span> (<span class="nv">ass</span>: source_type): target_to_source (source_to_target ass) = ass.
+      <span class="kn">Proof</span>.
+        <span class="nb">destruct</span> ass <span class="k">as</span> [α [ismnt_tensor ismnt_unit]].
+        use total2_paths_f.
+        - <span class="nb">cbn</span>.
+          <span class="nb">unfold</span> nattrans_from_ms.
+          <span class="nb">apply</span> UniMath.CategoryTheory.Categories.Dialgebras.roundtrip1_with_sections.
+        - <span class="nb">cbn</span>.
+          <span class="k">match goal with</span> |- @paths <span class="nl">?ID</span> _ _ =&gt; <span class="nb">set</span> (goaltype := ID); <span class="nb">simpl</span> <span class="k">in</span> goaltype <span class="k">end</span>.
+          <span class="nb">assert</span> (Hprop: isaprop goaltype).
+          <span class="mi">2</span>: { <span class="nb">apply</span> Hprop. }
+          <span class="nb">apply</span> isapropdirprod.
+          + <span class="nb">apply</span> impred. <span class="nb">intro</span> a.
+            <span class="nb">apply</span> impred. <span class="nb">intro</span> a'.
+            <span class="nb">apply</span> B.
+          + <span class="nb">apply</span> B.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Local Lemma</span> <span class="nf">roundtrip2</span> (<span class="nv">ass</span>: target_type): source_to_target (target_to_source ass) = ass.
+      <span class="kn">Proof</span>.
+        <span class="nb">destruct</span> ass <span class="k">as</span> [sd ms].
+        use total2_paths_f.
+        - <span class="nb">cbn</span>.
+          <span class="nb">unfold</span> nattrans_from_ms.
+          <span class="nb">apply</span> UniMath.CategoryTheory.Categories.Dialgebras.roundtrip2_with_sections.
+        - <span class="nb">cbn</span>.
+          <span class="k">match goal with</span> |- @paths <span class="nl">?ID</span> _ _ =&gt; <span class="nb">set</span> (goaltype := ID); <span class="nb">simpl</span> <span class="k">in</span> goaltype <span class="k">end</span>.
+          <span class="nb">assert</span> (Hprop: isaprop goaltype).
+          <span class="mi">2</span>: { <span class="nb">apply</span> Hprop. }
+          <span class="nb">apply</span> isapropdirprod.
+          + <span class="nb">unfold</span> section_preserves_tensor_data.
+            <span class="nb">apply</span> impred. <span class="nb">intro</span> a.
+            <span class="nb">apply</span> impred. <span class="nb">intro</span> a'.
+            <span class="nb">apply</span> base_disp_cells_isaprop.
+          + <span class="nb">unfold</span> section_preserves_unit.
+            <span class="nb">apply</span> base_disp_cells_isaprop.
+      <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">RoundtripForSDData</span>.
+
+<span class="kn">End</span> <span class="nf">FixTwoMonoidalFunctors</span>.
+
+<span class="kn">Section</span> <span class="nf">MonoidalNatTransToDialgebraLifting</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> : category}
+          {<span class="nv">M1</span> : monoidal C1}
+          {<span class="nv">M2</span> : monoidal C2}
+          {<span class="nv">M3</span> : monoidal C3}
+          {<span class="nv">F</span> <span class="nv">G</span> : C2 ⟶ C3}
+          {<span class="nv">Fm</span> : fmonoidal M2 M3 F}
+          {<span class="nv">Gm</span> : fmonoidal M2 M3 G}
+          {<span class="nv">K</span> : C1 ⟶ C2}
+          {<span class="nv">Km</span> : fmonoidal M1 M2 K}
+          {<span class="nv">α</span> : K ∙ F ⟹ K ∙ G}
+          (<span class="nv">αm</span> : is_mon_nat_trans (comp_fmonoidal Km Fm) (comp_fmonoidal Km Gm) α).
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_nat_trans_to_dialgebra_lifting_data</span>
+    : flmonoidal_data Km (dialgebra_disp_monoidal Fm Gm) (nat_trans_to_dialgebra_lifting K α).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intros</span> x y.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> dialgebra_disp_tensor_op.
+      <span class="nb">rewrite</span> ! assoc'.
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (! pr1 αm x y).
+      }
+      <span class="nb">cbn</span>.
+
+      etrans. {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (pr2 (fmonoidal_preservestensorstrongly Fm (K x) (K y))).
+      }
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> id_left.
+    - <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> dialgebra_disp_unit.
+      etrans. {
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (! pr2 αm).
+      }
+
+      <span class="nb">cbn</span>.
+
+      etrans. {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (pr2 (fmonoidal_preservesunitstrongly Fm)).
+      }
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">monoidal_nat_trans_to_dialgebra_lifting_laxlaws</span>
+    : flmonoidal_laxlaws Km (dialgebra_disp_monoidal Fm Gm) (nat_trans_to_dialgebra_lifting K α)
+                          monoidal_nat_trans_to_dialgebra_lifting_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_nat_trans_to_dialgebra_lifting</span>
+    : flmonoidal_lax Km (dialgebra_disp_monoidal Fm Gm) (nat_trans_to_dialgebra_lifting K α).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">monoidal_nat_trans_to_dialgebra_lifting_data</span>.
+    <span class="bp">exact</span> monoidal_nat_trans_to_dialgebra_lifting_laxlaws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">monoidal_nat_trans_to_dialgebra_lifting_stronglaws</span>
+    : fl_stronglaws Km (dialgebra_disp_monoidal Fm Gm) (nat_trans_to_dialgebra_lifting K α) monoidal_nat_trans_to_dialgebra_lifting (pr2 Km).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y.
+      use tpair.
+      + <span class="nb">cbn</span>.
+
+        transparent <span class="nb">assert</span> (pfG_is_z_iso : (is_z_isomorphism ( (# G)%cat (inv_from_z_iso (fmonoidal_preservestensordata Km x y,, fmonoidal_preservestensorstrongly (_,, pr2 Km) x y))))).
+        {
+          use functor_on_is_z_isomorphism.
+          <span class="nb">apply</span> is_z_iso_inv_from_z_iso.
+        }
+        use (z_iso_inv_to_right _ _ _ _ (_ ,, pfG_is_z_iso)).
+
+        transparent <span class="nb">assert</span> (pfF_is_z_iso : (is_z_isomorphism ((# F)%cat
+    (inv_from_z_iso
+       (fmonoidal_preservestensordata Km x y,, fmonoidal_preservestensorstrongly (_,, pr2 Km) x y))))).
+        {
+          use functor_on_is_z_isomorphism.
+          <span class="nb">apply</span> is_z_iso_inv_from_z_iso.
+        }
+
+        <span class="nb">rewrite</span> assoc'.
+        use (z_iso_inv_to_left _ _ _ (_ ,, pfF_is_z_iso)).
+        <span class="bp">exact</span> (! pr1 monoidal_nat_trans_to_dialgebra_lifting_data x y).
+      + <span class="kp">repeat</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>).
+        <span class="nb">split</span> ; <span class="nb">apply</span> base_disp_cells_isaprop.
+    - use tpair.
+      + <span class="nb">cbn</span>.
+
+        transparent <span class="nb">assert</span> (pfL_is_z_iso :
+                             (is_z_isomorphism ( (# F)%cat (inv_from_z_iso (fmonoidal_preservesunit Km,, fmonoidal_preservesunitstrongly (_ ,, pr2 Km)))))
+                           ).
+        {
+          use functor_on_is_z_isomorphism.
+          <span class="nb">apply</span> is_z_iso_inv_from_z_iso.
+        }
+
+        use (z_iso_inv_to_left _ _ _ (_ ,, pfL_is_z_iso)).
+
+        transparent <span class="nb">assert</span> (pfR_is_z_iso
+                             : (is_z_isomorphism
+                                  ((# G)%cat (inv_from_z_iso (fmonoidal_preservesunit Km,, fmonoidal_preservesunitstrongly (_,, pr2 Km)))))).
+        {
+          use functor_on_is_z_isomorphism.
+          <span class="nb">apply</span> is_z_iso_inv_from_z_iso.
+        }
+
+        <span class="nb">rewrite</span> assoc.
+        use (z_iso_inv_to_right _ _ _ _ (_ ,, pfR_is_z_iso)).
+        <span class="bp">exact</span> (! pr2 monoidal_nat_trans_to_dialgebra_lifting_data).
+      + <span class="nb">split</span> ; <span class="nb">apply</span> base_disp_cells_isaprop.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_nat_trans_to_dialgebra_lifting_strong</span>
+    : flmonoidal Km (dialgebra_disp_monoidal Fm Gm) (nat_trans_to_dialgebra_lifting K α) (pr2 Km).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">monoidal_nat_trans_to_dialgebra_lifting</span>.
+    <span class="bp">exact</span> monoidal_nat_trans_to_dialgebra_lifting_stronglaws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_nat_trans_to_dialgebra</span>
+    : fmonoidal_lax _ _ (nat_trans_to_dialgebra K α)
+    := functorlifting_fmonoidal_lax _ _ _ monoidal_nat_trans_to_dialgebra_lifting.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_nat_trans_to_dialgebra_strong</span>
+    : fmonoidal _ _ (nat_trans_to_dialgebra K α)
+    := functorlifting_fmonoidal _ _ _ monoidal_nat_trans_to_dialgebra_lifting_strong.
+
+<span class="kn">End</span> <span class="nf">MonoidalNatTransToDialgebraLifting</span>.
+
+<span class="kn">Section</span> <span class="nf">MonoidalDialgebraLiftingToNatTrans</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> : category}
+          {<span class="nv">M1</span> : monoidal C1}
+          {<span class="nv">M2</span> : monoidal C2}
+          {<span class="nv">M3</span> : monoidal C3}
+          {<span class="nv">F</span> <span class="nv">G</span> : C2 ⟶ C3}
+          {<span class="nv">Fm</span> : fmonoidal M2 M3 F}
+          {<span class="nv">Gm</span> : fmonoidal M2 M3 G}
+          {<span class="nv">K</span> : C1 ⟶ C2}
+          {<span class="nv">Km</span> : fmonoidal M1 M2 K}
+          {<span class="nv">fl</span> : functor_lifting (dialgebra_disp_cat F G) K}
+          (<span class="nv">Fl</span> : flmonoidal_lax Km
+                               (dialgebra_disp_monoidal Fm Gm)
+                               fl).
+
+  <span class="kn">Let</span> <span class="nf">α</span> : K ∙ F ⟹ K ∙ G := dialgebra_lifting_to_nat_trans _ fl.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_dialgebra_lifting_to_monoidal_nat_trans</span>
+    : is_mon_nat_trans (comp_fmonoidal Km Fm) (comp_fmonoidal Km Gm) α.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y.
+      <span class="nb">cbn</span>.
+
+      etrans. {
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (! pr11 Fl x y).
+      }
+
+      <span class="nb">cbn</span>.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">unfold</span> dialgebra_disp_tensor_op.
+      <span class="nb">cbn</span>.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+      etrans. {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (fmonoidal_preservestensorstrongly Fm (K x) (K y)).
+      }
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> id_left.
+    - <span class="nb">red</span>. <span class="nb">cbn</span>.
+      etrans. {
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (! pr21 Fl).
+      }
+
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> dialgebra_disp_unit.
+      <span class="nb">rewrite</span> assoc.
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span>  (fmonoidal_preservesunitstrongly Fm).
+      }
+      <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* Definition monoidal_dialgebra_lifting_to_invertible_monoidal_nat_trans *)</span>
+
+<span class="kn">End</span> <span class="nf">MonoidalDialgebraLiftingToNatTrans</span>.
+
+<span class="kn">Section</span> <span class="nf">RoundtripForLiftingData</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> : category}
+          {<span class="nv">M1</span> : monoidal C1}
+          {<span class="nv">M2</span> : monoidal C2}
+          {<span class="nv">M3</span> : monoidal C3}
+          {<span class="nv">F</span> <span class="nv">G</span> : C2 ⟶ C3}
+          {<span class="nv">Fm</span> : fmonoidal M2 M3 F}
+          {<span class="nv">Gm</span> : fmonoidal M2 M3 G}
+          {<span class="nv">K</span> : C1 ⟶ C2}
+          {<span class="nv">Km</span> : fmonoidal M1 M2 K}.
+
+  <span class="kn">Local Definition</span> <span class="nf">source_type'</span>: UU
+    := ∑ α : K ∙ F ⟹ K ∙ G,
+        is_mon_nat_trans (comp_fmonoidal Km Fm) (comp_fmonoidal Km Gm) α.
+
+  <span class="kn">Local Definition</span> <span class="nf">target_type'</span>: UU
+    := ∑ fl : functor_lifting (dialgebra_disp_cat F G) K,
+        flmonoidal_lax Km (dialgebra_disp_monoidal Fm Gm) fl.
+
+  <span class="kn">Local Definition</span> <span class="nf">target_type_s'</span>: UU
+    := ∑ fl : functor_lifting (dialgebra_disp_cat F G) K,
+        flmonoidal Km (dialgebra_disp_monoidal Fm Gm) fl (pr2 Km).
+
+  <span class="kn">Local Definition</span> <span class="nf">source_to_target'</span>
+    : source_type' -&gt; target_type'
+    := <span class="k">λ</span> <span class="nv">α</span>, _ ,, monoidal_nat_trans_to_dialgebra_lifting (pr2 α).
+
+  <span class="kn">Local Definition</span> <span class="nf">target_to_source'</span>
+    : target_type' -&gt; source_type'
+    := <span class="k">λ</span> <span class="nv">fl</span>, _ ,, monoidal_dialgebra_lifting_to_monoidal_nat_trans (pr2 fl).
+
+  <span class="kn">Local Definition</span> <span class="nf">source_to_target_s'</span>
+    : source_type' -&gt; target_type_s'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> α.
+    use tpair.
+    <span class="mi">2</span>: <span class="nb">apply</span> (monoidal_nat_trans_to_dialgebra_lifting_strong (pr2 α)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">target_to_source_s'</span>
+    : target_type_s' -&gt; source_type'
+    := <span class="k">λ</span> <span class="nv">fl</span>, _ ,, monoidal_dialgebra_lifting_to_monoidal_nat_trans (pr2 fl).
+
+  <span class="kn">Local Lemma</span> <span class="nf">roundtrip1'</span> (<span class="nv">ass</span>: source_type')
+    : target_to_source' (source_to_target' ass) = ass.
+  <span class="kn">Proof</span>.
+    use total2_paths_f.
+    - <span class="nb">apply</span> UniMath.CategoryTheory.Categories.Dialgebras.roundtrip1_with_liftings.
+    - <span class="nb">apply</span> isaprop_is_mon_nat_trans.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">roundtrip1_s'</span> (<span class="nv">ass</span>: source_type')
+    : target_to_source_s' (source_to_target_s' ass) = ass.
+  <span class="kn">Proof</span>.
+    use total2_paths_f.
+    - <span class="nb">apply</span> UniMath.CategoryTheory.Categories.Dialgebras.roundtrip1_with_liftings.
+    - <span class="nb">apply</span> isaprop_is_mon_nat_trans.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">roundtrip2'</span> (<span class="nv">ass</span>: target_type')
+    : source_to_target' (target_to_source' ass) = ass.
+  <span class="kn">Proof</span>.
+    use total2_paths_f.
+    - <span class="nb">apply</span> UniMath.CategoryTheory.Categories.Dialgebras.roundtrip2_with_liftings.
+    - use flmonoidal_equality ; <span class="nb">intros</span> ; <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">roundtrip2_s'</span> (<span class="nv">ass</span>: target_type_s')
+    : source_to_target_s' (target_to_source_s' ass) = ass.
+  <span class="kn">Proof</span>.
+    use total2_paths_f.
+    - <span class="nb">apply</span> UniMath.CategoryTheory.Categories.Dialgebras.roundtrip2_with_liftings.
+    - use flmonoidal_strong_equality ; <span class="nb">intros</span> ; <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">RoundtripForLiftingData</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Examples/MonoidalDialgebras.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  ************************************************************)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

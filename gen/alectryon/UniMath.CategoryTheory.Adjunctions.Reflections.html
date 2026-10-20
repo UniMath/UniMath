@@ -1,0 +1,726 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Reflections.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Reflections</span>
+
+<span class="sd">  A reflection of an object d : D along a functor F : C → D, or equivalently a 'universal arrow'</span>
+<span class="sd">  from d to F, consists of an object c : C, together with a morphism f : d → F c, such that every</span>
+<span class="sd">  f': d → F c' factors uniquely as f' = f · # F g.</span>
+<span class="sd">  Reflections are very useful for formalizing, because one can use them to construct a left adjoint</span>
+<span class="sd">  to a functor (Theorem 2 (ii) of Chapter IV.1 of MacLane).</span>
+
+<span class="sd">  This file is the dual of Coreflections.v</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. Reflections with their constructors and accessors [reflection]</span>
+<span class="sd">  2. Some simple constructions</span>
+<span class="sd">    [reflection_data_precompose] [reflection_data_postcompose]</span>
+<span class="sd">    [identity_reflection_data] [reflection_arrow_eq]</span>
+<span class="sd">  3. Reflections are unique</span>
+<span class="sd">  3.1. The isomorphism between two reflections [reflection_uniqueness_iso]</span>
+<span class="sd">  3.2. The type of reflections becomes a proposition in a univalent category</span>
+<span class="sd">    [isaprop_reflection]</span>
+<span class="sd">  4. Having a left adjoint to a functor F is equivalent to having reflections of every d along F</span>
+<span class="sd">  4.1. The construction of reflections from a left adjoint [left_adjoint_to_reflection]</span>
+<span class="sd">  4.2. The construction of a left adjoint from reflections [reflections_to_is_right_adjoint]</span>
+<span class="sd">  4.3. The equivalence [left_adjoint_weq_reflections]</span>
+<span class="sd">  4.4. The interaction between [left_adjoint_weq_reflections] and [φ_adj_inv]</span>
+<span class="sd">    [reflections_to_are_adjoints_φ_adj_inv]</span>
+<span class="sd">  5. Reflections are preserved under isomorphisms [reflection_transport_along_iso_ob_functor]</span>
+<span class="sd">  6. An object isomorphic to a reflection is a reflection [is_reflection_along_iso]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** *  1. Reflections with their constructors and accessors *)</span>
+
+<span class="kn">Section</span> <span class="nf">Reflections</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}.
+
+  <span class="kn">Definition</span> <span class="nf">reflection_data</span>
+    (<span class="nv">d</span> : D)
+    (<span class="nv">F</span> : C ⟶ D)
+    : UU
+    := ∑ (c : C), d --&gt; F c.
+
+  <span class="kn">Definition</span> <span class="nf">make_reflection_data</span>
+    {<span class="nv">d</span> : D}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">c</span> : C)
+    (<span class="nv">f</span> : d --&gt; F c)
+    : reflection_data d F
+    := c ,, f.
+
+  <span class="kn">Definition</span> <span class="nf">reflection_data_object</span>
+    {<span class="nv">d</span> : D}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">f</span> : reflection_data d F)
+    : C
+    := pr1 f.
+
+  <span class="kn">Coercion</span> <span class="nf">reflection_data_arrow</span>
+    {d : D}
+    {F : C ⟶ D}
+    (f : reflection_data d F)
+    : d --&gt; F (reflection_data_object f)
+    := pr2 f.
+
+  <span class="kn">Definition</span> <span class="nf">is_reflection</span>
+    {<span class="nv">d</span> : D}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">f</span> : reflection_data d F)
+    : UU
+    := ∏ (f' : reflection_data d F),
+        <span class="k">∃</span>! g, (f' : _ --&gt; _) = f · # F g.
+
+  <span class="kn">Definition</span> <span class="nf">make_reflection_arrow</span>
+    {<span class="nv">d</span> : D}
+    {<span class="nv">F</span> : C ⟶ D}
+    {<span class="nv">f</span> <span class="nv">f'</span> : reflection_data d F}
+    (<span class="nv">g</span> : reflection_data_object f --&gt; reflection_data_object f')
+    (<span class="nv">Hg</span> : (f' : _ --&gt; _) = f · # F g)
+    (<span class="nv">H</span> : ∏ g' (H : (f' : _ --&gt; _) = f · # F g'), g' = g)
+    : <span class="k">∃</span>! g', (f' : _ --&gt; _) = f · # F g'.
+  <span class="kn">Proof</span>.
+    use unique_exists.
+    - <span class="bp">exact</span> g.
+    - <span class="bp">exact</span> Hg.
+    - <span class="kp">abstract</span> (
+        <span class="nb">intro</span> g';
+        <span class="nb">apply</span> homset_property
+      ).
+    - <span class="bp">exact</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_reflection</span>
+    {<span class="nv">d</span> : D}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">f</span> : reflection_data d F)
+    : isaprop (is_reflection f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> impred_isaprop.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropiscontr.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reflection</span>
+    (<span class="nv">d</span> : D)
+    (<span class="nv">F</span> : C ⟶ D)
+    : UU
+    := ∑ (f : reflection_data d F), is_reflection f.
+
+  <span class="kn">Definition</span> <span class="nf">make_reflection</span>
+    {<span class="nv">d</span> : D}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">f</span> : reflection_data d F)
+    (<span class="nv">H</span> : is_reflection f)
+    : reflection d F
+    := f ,, H.
+
+  <span class="kn">Definition</span> <span class="nf">make_reflection'</span>
+    {<span class="nv">d</span> : D}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">c</span> : C)
+    (<span class="nv">f</span> : d --&gt; F c)
+    (<span class="nv">H</span> : is_reflection (make_reflection_data c f))
+    : reflection d F
+    := _ ,, H.
+
+  <span class="kn">Coercion</span> <span class="nf">reflection_to_reflection_data</span>
+    {d : D}
+    {F : C ⟶ D}
+    (f : reflection d F)
+    : reflection_data d F
+    := pr1 f.
+
+  <span class="kn">Definition</span> <span class="nf">reflection_is_reflection</span>
+    {<span class="nv">d</span> : D}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">f</span> : reflection d F)
+    : is_reflection f
+    := pr2 f.
+
+  <span class="kn">Definition</span> <span class="nf">reflection_arrow</span>
+    {<span class="nv">d</span> : D}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">f</span> : reflection d F)
+    (<span class="nv">f'</span> : reflection_data d F)
+    : reflection_data_object f --&gt; reflection_data_object f'
+    := pr1 (iscontrpr1 (pr2 f f')).
+
+  <span class="kn">Definition</span> <span class="nf">reflection_arrow_commutes</span>
+    {<span class="nv">d</span> : D}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">f</span> : reflection d F)
+    (<span class="nv">f'</span> : reflection_data d F)
+    : (f' : _ --&gt; _) = f · # F (reflection_arrow f f')
+    := pr2 (iscontrpr1 (pr2 f f')).
+
+  <span class="kn">Definition</span> <span class="nf">reflection_arrow_unique</span>
+    {<span class="nv">d</span> : D}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">f</span> : reflection d F)
+    (<span class="nv">f'</span> : reflection_data d F)
+    (<span class="nv">g</span> : reflection_data_object f --&gt; reflection_data_object f')
+    (<span class="nv">Hg</span> : (f' : _ --&gt; _) = f · # F g)
+    : g = reflection_arrow f f'
+    := path_to_ctr _ _ (pr2 f f') g Hg.
+
+<span class="sd">(** *  2. Some simple constructions *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">reflection_data_precompose</span>
+    {<span class="nv">c</span> <span class="nv">d</span> : D}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">f</span> : c --&gt; d)
+    (<span class="nv">g</span> : reflection_data d F)
+    : reflection_data c F.
+  <span class="kn">Proof</span>.
+    use make_reflection_data.
+    - <span class="bp">exact</span> (reflection_data_object g).
+    - <span class="bp">exact</span> (f · g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reflection_data_postcompose</span>
+    {<span class="nv">c</span> : C}
+    {<span class="nv">d</span> : D}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">f</span> : reflection_data d F)
+    (<span class="nv">g</span> : reflection_data_object f --&gt; c)
+    : reflection_data d F.
+  <span class="kn">Proof</span>.
+    use make_reflection_data.
+    - <span class="bp">exact</span> c.
+    - <span class="bp">exact</span> (f · # F g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">identity_reflection_data</span>
+    (<span class="nv">c</span> : C)
+    (<span class="nv">F</span> : C ⟶ D)
+    : reflection_data (F c) F
+    := make_reflection_data
+      c
+      (identity (F c)).
+
+  <span class="kn">Lemma</span> <span class="nf">reflection_arrow_eq</span>
+    {<span class="nv">d</span> : D}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">f</span> : reflection d F)
+    (<span class="nv">f'</span> : reflection_data d F)
+    (<span class="nv">g</span> <span class="nv">g'</span> : reflection_data_object f --&gt; reflection_data_object f')
+    (<span class="nv">H</span> : f · # F g = f · # F g')
+    : g = g'.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (reflection_arrow_unique f (reflection_data_postcompose f g') _ (!H) @ !_).
+    <span class="nb">refine</span> (reflection_arrow_unique f (reflection_data_postcompose f g) _ H @ !_).
+    <span class="nb">unfold</span> reflection_data_postcompose.
+    <span class="bp">now</span> <span class="nb">induction</span> H.
+  <span class="kn">Qed</span>.
+
+<span class="sd">(** *  3. Reflections are unique *)</span>
+<span class="sd">(** **  3.1. The isomorphism between two reflections *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">reflection_arrow_id</span>
+    {<span class="nv">d</span> : D}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">f</span> <span class="nv">f'</span> : reflection d F)
+    : reflection_arrow f f' · reflection_arrow f' f = identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> reflection_arrow_eq.
+    <span class="nb">refine</span> (maponpaths _ (functor_comp _ _ _) @ _).
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (!reflection_arrow_commutes _ _) @ _).
+    <span class="nb">refine</span> (!reflection_arrow_commutes _ _ @ !_).
+    <span class="nb">refine</span> (maponpaths _ (functor_id _ _) @ _).
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reflection_uniqueness_iso</span>
+    {<span class="nv">d</span> : D}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">f</span> <span class="nv">f'</span> : reflection d F)
+    : z_iso (reflection_data_object f) (reflection_data_object f').
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    - <span class="nb">apply</span> reflection_arrow.
+    - <span class="nb">apply</span> reflection_arrow.
+    - <span class="kp">abstract</span> (
+        <span class="nb">apply</span> make_is_inverse_in_precat;
+        <span class="nb">apply</span> reflection_arrow_id
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">reflection_uniqueness_iso_commutes</span>
+    {<span class="nv">d</span> : D}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">f</span> <span class="nv">f'</span> : reflection d F)
+    : f · # F (reflection_uniqueness_iso f f') = f'.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (!reflection_arrow_commutes f f').
+  <span class="kn">Qed</span>.
+
+<span class="sd">(** **  3.2. The type of reflections becomes a proposition in a univalent category *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">reflection_isotoid</span>
+    {<span class="nv">d</span> : D}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">HC</span> : is_univalent C)
+    (<span class="nv">f</span> <span class="nv">f'</span> : reflection d F)
+    (<span class="nv">g</span> : z_iso (reflection_data_object f) (reflection_data_object f'))
+    (<span class="nv">H</span> : f · # F g = f')
+    : f = f'.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_reflection.
+    }
+    use total2_paths_f.
+    - use (isotoid _ HC).
+      <span class="nb">apply</span> g.
+    - <span class="nb">refine</span> (transportf_functor_isotoid' _ _ _ _ @ _).
+      <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_reflection'</span>
+    {<span class="nv">d</span> : D}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">HC</span> : is_univalent C)
+    (<span class="nv">f</span> <span class="nv">f'</span> : reflection d F)
+    : f = f'.
+  <span class="kn">Proof</span>.
+    use (reflection_isotoid HC).
+    - <span class="nb">apply</span> reflection_uniqueness_iso.
+    - <span class="nb">apply</span> reflection_uniqueness_iso_commutes.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_reflection</span>
+    {<span class="nv">d</span> : D}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">HC</span> : is_univalent C)
+    : isaprop (reflection d F).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> ϕ ψ.
+    use isaprop_reflection'.
+    <span class="bp">exact</span> HC.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Reflections</span>.
+
+<span class="sd">(** *  4. Having a left adjoint to a functor F is equivalent to having reflections of every d along F *)</span>
+<span class="sd">(** **  4.1. The construction of reflections from a left adjoint *)</span>
+
+<span class="kn">Definition</span> <span class="nf">left_adjoint_to_reflection</span>
+  {<span class="nv">X</span> <span class="nv">A</span> : category}
+  {<span class="nv">G</span> : X ⟶ A}
+  (<span class="nv">F</span> : is_right_adjoint G)
+  (<span class="nv">a</span> : A)
+  : reflection a G.
+<span class="kn">Proof</span>.
+  use make_reflection'.
+  - <span class="bp">exact</span> (left_adjoint F a).
+  - <span class="bp">exact</span> (unit_from_right_adjoint F a).
+  - <span class="nb">intro</span> f.
+    use make_reflection_arrow.
+    + <span class="bp">exact</span> (invmap (adjunction_hom_weq (pr2 F) _ _) f).
+    + <span class="kp">abstract</span> (
+        <span class="nb">refine</span> (_ @ !maponpaths _ (functor_comp _ _ _));
+        <span class="nb">refine</span> (_ @ assoc' _ _ _);
+        <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (nat_trans_ax (unit_from_right_adjoint F) _ _ _));
+        <span class="nb">refine</span> (_ @ assoc _ _ _);
+        <span class="nb">refine</span> (_ @ !maponpaths _ (triangle_id_right_ad (pr2 F) _));
+        <span class="bp">exact</span> (!id_right _)
+      ).
+    + <span class="kp">abstract</span> (
+        <span class="nb">intros</span> g Hg;
+        <span class="nb">apply</span> pathsweq1;
+        <span class="bp">exact</span> (!Hg)
+      ).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** **  4.2. The construction of a left adjoint from reflections *)</span>
+
+<span class="kn">Section</span> <span class="nf">ReflectionsToLeftAdjoint</span>.
+
+  <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">A</span> : category}.
+  <span class="kn">Context</span> {<span class="nv">G</span> : A ⟶ X}.
+  <span class="kn">Context</span> (<span class="nv">F0</span> : ∏ x, reflection x G).
+
+  <span class="kn">Definition</span> <span class="nf">reflections_to_functor_data</span> : functor_data X A.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">intro</span> x.
+      <span class="bp">exact</span> (reflection_data_object (F0 x)).
+    - <span class="nb">intros</span> a b f.
+      <span class="bp">exact</span> (reflection_arrow (F0 a) (reflection_data_precompose f (F0 b))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reflections_to_is_functor</span> : is_functor reflections_to_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> x.
+      <span class="nb">refine</span> (!reflection_arrow_unique _ (reflection_data_precompose _ _) _ _).
+      <span class="nb">refine</span> (id_left _ @ !_).
+      <span class="nb">refine</span> (maponpaths _ (functor_id _ _) @ _).
+      <span class="nb">apply</span> id_right.
+    - <span class="nb">intros</span> a b c f g.
+      <span class="nb">refine</span> (!reflection_arrow_unique _ (reflection_data_precompose _ _) _ _).
+      <span class="nb">refine</span> (_ @ !maponpaths _ (functor_comp _ _ _)).
+      <span class="nb">refine</span> (_ @ assoc' _ _ _).
+      <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (reflection_arrow_commutes (F0 a) (reflection_data_precompose _ _))).
+      <span class="nb">refine</span> (_ @ assoc _ _ _).
+      <span class="nb">refine</span> (_ @ maponpaths _ (reflection_arrow_commutes (F0 b) (reflection_data_precompose _ _))).
+      <span class="nb">apply</span> assoc'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reflections_to_functor</span>
+    : functor X A
+    := make_functor reflections_to_functor_data reflections_to_is_functor.
+
+  <span class="kn">Local Notation</span> <span class="nf">F</span>
+    := reflections_to_functor.
+
+  <span class="kn">Definition</span> <span class="nf">reflections_to_unit</span>
+    : functor_identity X ⟹ F ∙ G.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="nb">intro</span> x.
+      <span class="bp">exact</span> (F0 x).
+    - <span class="kp">abstract</span> (
+        <span class="nb">intros</span> a b f;
+        <span class="bp">exact</span> (reflection_arrow_commutes (F0 a) (reflection_data_precompose f (F0 b)))
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reflections_to_counit_data</span>
+    : nat_trans_data (G ∙ F) (functor_identity A)
+    := <span class="k">λ</span> <span class="nv">a</span>, reflection_arrow (F0 _) (identity_reflection_data _ _).
+
+  <span class="kn">Lemma</span> <span class="nf">reflections_to_is_counit</span>
+    : is_nat_trans _ _ reflections_to_counit_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b f.
+    <span class="nb">apply</span> (reflection_arrow_eq _ (reflection_data_precompose (# G f) (identity_reflection_data _ _))).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (maponpaths _ (functor_comp _ _ _) @ !_).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc _ _ _ @ !_).
+    <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (reflection_arrow_commutes _ (reflection_data_precompose _ _)) @ _).
+    <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    <span class="nb">refine</span> (!maponpaths _ (reflection_arrow_commutes _ (identity_reflection_data _ _)) @ _).
+    <span class="nb">refine</span> (id_right _ @ !_).
+    <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (reflection_arrow_commutes _ (identity_reflection_data a G)) @ _).
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reflections_to_counit</span>
+    : G ∙ F ⟹ functor_identity A
+    := make_nat_trans _ _
+      reflections_to_counit_data
+      reflections_to_is_counit.
+
+  <span class="kn">Lemma</span> <span class="nf">reflections_to_form_adjunction</span>
+    : form_adjunction F G reflections_to_unit reflections_to_counit.
+  <span class="kn">Proof</span>.
+    use make_form_adjunction.
+    - <span class="nb">intro</span> x.
+      <span class="nb">apply</span> (reflection_arrow_eq (F0 x) (F0 x)).
+      <span class="nb">refine</span> (maponpaths _ (functor_comp _ _ _) @ _).
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (reflection_arrow_commutes _ (reflection_data_precompose _ _)) @ _).
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x) (reflection_arrow_commutes _ (identity_reflection_data _ _)) @ _).
+      <span class="nb">refine</span> (_ @ !maponpaths _ (functor_id _ _)).
+      <span class="nb">refine</span> (_ @ !id_right _).
+      <span class="nb">apply</span> id_right.
+    - <span class="nb">intro</span> a.
+      <span class="bp">exact</span> (!reflection_arrow_commutes (F0 _) (identity_reflection_data _ _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reflections_to_are_adjoints</span>
+    : are_adjoints F G
+    := make_are_adjoints _ _ _ _ reflections_to_form_adjunction.
+
+  <span class="kn">Definition</span> <span class="nf">reflections_to_is_right_adjoint</span>
+    : is_right_adjoint G
+    := reflections_to_are_adjoints.
+
+  <span class="kn">Definition</span> <span class="nf">reflections_to_is_left_adjoint</span>
+    : is_left_adjoint F
+    := reflections_to_are_adjoints.
+
+<span class="kn">End</span> <span class="nf">ReflectionsToLeftAdjoint</span>.
+
+<span class="sd">(** **  4.3. The equivalence *)</span>
+
+<span class="kn">Definition</span> <span class="nf">left_adjoint_to_reflections_to_left_adjoint</span>
+  {<span class="nv">X</span> <span class="nv">A</span> : category}
+  {<span class="nv">G</span> : functor A X}
+  (<span class="nv">F</span> : is_right_adjoint G)
+  : reflections_to_is_right_adjoint (left_adjoint_to_reflection F) = F.
+<span class="kn">Proof</span>.
+  use total2_paths_f.
+  - <span class="nb">apply</span> (functor_eq _ _ (homset_property _)).
+    <span class="nb">apply</span> (maponpaths (make_functor_data _)).
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span> a.
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span> b.
+    <span class="nb">apply</span> funextfun.
+    <span class="nb">intro</span> f.
+    <span class="nb">refine</span> (φ_adj_inv_natural_precomp (pr2 F) _ _ _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x) (triangle_id_left_ad (pr2 F) _) @ _).
+    <span class="nb">apply</span> id_right.
+  - use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_form_adjunction.
+    }
+    <span class="nb">refine</span> (pr1_transportf (B := <span class="k">λ</span> <span class="nv">_</span>, _ × _) (P := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, form_adjunction x _ (pr1 y) (pr2 y)) _ _ @ _).
+    <span class="nb">refine</span> (transportf_dirprod (X ⟶ A) _ _ (_ ,, _) (pr1 F ,, pr12 F) _ @ _).
+    use pathsdirprod;
+      <span class="nb">apply</span> nat_trans_eq_alt;
+      <span class="nb">intro</span> x;
+    [ <span class="nb">refine</span> (eqtohomot (pr1_transportf (B := <span class="k">λ</span> <span class="nv">y</span>, nat_trans_data _ (y ∙ G)) _ _) x @ _);
+      <span class="nb">refine</span> (eqtohomot (functtransportf (<span class="k">λ</span> (<span class="nv">F'</span> : X ⟶ A), (F' : _ → _)) (<span class="k">λ</span> <span class="nv">F'</span>, ∏ y, y --&gt; G (F' y)) _ _) _ @ _);
+      <span class="nb">refine</span> (!helper_A (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">F'</span>, y --&gt; G (F' y)) _ _ x @ _);
+      <span class="nb">refine</span> (transportf (<span class="k">λ</span> <span class="nv">e</span>, transportf (<span class="k">λ</span> <span class="nv">y</span>, x --&gt; G (y x)) e _ = unit_from_right_adjoint F x) (_ : idpath _ = _) (idpath _))
+    | <span class="nb">refine</span> (eqtohomot (pr1_transportf (B := <span class="k">λ</span> <span class="nv">y</span>, nat_trans_data (G ∙ y) _) _ _) x @ _);
+      <span class="nb">refine</span> (eqtohomot (functtransportf (<span class="k">λ</span> (<span class="nv">F'</span> : X ⟶ A), (F' : _ → _)) (<span class="k">λ</span> <span class="nv">F'</span>, ∏ y, F' (G y) --&gt; y) _ _) _ @ _);
+      <span class="nb">refine</span> (!helper_A (<span class="k">λ</span> <span class="nv">x1</span> <span class="nv">x0</span>, x0 (G x1) --&gt; x1) _ _ x @ _);
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ (x · _)) (functor_id _ _) @ _);
+      <span class="nb">refine</span> (maponpaths _ (id_left _) @ _);
+      <span class="nb">refine</span> (transportf (<span class="k">λ</span> <span class="nv">e</span>, transportf (<span class="k">λ</span> <span class="nv">y</span>, y (G x) --&gt; x) e _ = counit_from_right_adjoint F x) (_ : idpath _ = _) (idpath _)) ];
+      <span class="nb">refine</span> (!_ @ maponpathscomp (functor_data_from_functor X A) _ (functor_eq _ _ _ (pr1 (reflections_to_is_right_adjoint (left_adjoint_to_reflection F))) _ _));
+      <span class="nb">refine</span> (maponpaths _ (total2_paths2_comp1 _ _) @ _);
+      <span class="nb">refine</span> (maponpathscomp (<span class="k">λ</span> <span class="nv">x</span>, make_functor_data _ x) _ _ @ _);
+      <span class="nb">apply</span> maponpaths_for_constant_function.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">reflections_to_left_adjoint_to_reflections</span>
+  {<span class="nv">X</span> <span class="nv">A</span> : category}
+  {<span class="nv">G</span> : functor A X}
+  (<span class="nv">F0</span> : ∏ x, reflection x G)
+  : left_adjoint_to_reflection (reflections_to_is_right_adjoint F0) = F0.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextsec.
+  <span class="nb">intro</span> x.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_reflection.
+  }
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">left_adjoint_weq_reflections</span>
+  {<span class="nv">X</span> <span class="nv">A</span> : category}
+  (<span class="nv">G</span> : functor A X)
+  : is_right_adjoint G ≃ ∏ x, reflection x G.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> left_adjoint_to_reflection.
+  - <span class="bp">exact</span> reflections_to_is_right_adjoint.
+  - <span class="nb">apply</span> left_adjoint_to_reflections_to_left_adjoint.
+  - <span class="nb">apply</span> reflections_to_left_adjoint_to_reflections.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** 4.4. The interaction between [left_adjoint_weq_reflections] and [φ_adj_inv] *)</span>
+
+<span class="c">(* Note that for f : A⟦F x, a⟧, we have φ_adj Adj f = F0 x · #G f definitionally *)</span>
+<span class="kn">Lemma</span> <span class="nf">reflections_to_are_adjoints_φ_adj_inv</span>
+  {<span class="nv">X</span> <span class="nv">A</span> : category}
+  {<span class="nv">G</span> : functor A X}
+  (<span class="nv">F0</span> : ∏ x, reflection x G)
+  {<span class="nv">x</span> : X}
+  {<span class="nv">a</span> : A}
+  (<span class="nv">f</span> : X⟦x, G a⟧)
+  : φ_adj_inv (reflections_to_are_adjoints F0) f
+    = reflection_arrow (F0 x) (make_reflection_data a f).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (reflection_arrow_unique _ (make_reflection_data a f) _ (!_)).
+  <span class="nb">refine</span> (maponpaths _ (functor_comp _ _ _) @ _).
+  <span class="nb">refine</span> (assoc _ _ _ @ _).
+  <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)
+    (reflection_arrow_commutes _ (reflection_data_precompose _ _)) @ _).
+  <span class="nb">refine</span> (assoc' _ _ _ @ _).
+  <span class="nb">refine</span> (!maponpaths _ (reflection_arrow_commutes _ (identity_reflection_data _ _)) @ _).
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 5. Reflections are preserved under isomorphisms *)</span>
+
+<span class="kn">Section</span> <span class="nf">ReflectionsArePreservedUnderIsos</span>.
+
+  <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">A</span> : category}.
+
+  <span class="kn">Definition</span> <span class="nf">reflection_data_transport_along_iso_ob</span>
+    {<span class="nv">x</span> <span class="nv">x'</span> : X}
+    (<span class="nv">i</span> : z_iso x x')
+    {<span class="nv">F</span> : functor A X}
+    (<span class="nv">r</span> : reflection_data x F)
+    : reflection_data x' F
+    := reflection_data_precompose (inv_from_z_iso i) r.
+
+  <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">x'</span> : X} (<span class="nv">i</span> : z_iso x x').
+
+  <span class="kn">Definition</span> <span class="nf">reflection_transport_along_iso_ob</span>
+    {<span class="nv">F</span> : functor A X} (<span class="nv">r</span> : reflection x F)
+    : reflection x' F.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (make_reflection (reflection_data_transport_along_iso_ob i r)).
+    <span class="nb">intro</span> f.
+    <span class="nb">pose</span> (f' := reflection_data_precompose i f).
+    use make_reflection_arrow.
+    - <span class="bp">exact</span> (reflection_arrow r f').
+    - <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> (z_iso_inv_to_left _ _ _ (z_iso_inv i)).
+      <span class="bp">exact</span> (reflection_arrow_commutes r f').
+    - <span class="nb">intros</span> g Hg.
+      <span class="nb">apply</span> (reflection_arrow_unique r f').
+      <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (z_iso_inv i)).
+      <span class="nb">rewrite</span> assoc.
+      <span class="bp">exact</span> Hg.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reflection_data_transport_along_iso_functor</span>
+    {<span class="nv">F</span> <span class="nv">G</span> : functor A X} (<span class="nv">α</span> : nat_z_iso F G) (<span class="nv">r</span> : reflection_data x F)
+    : reflection_data x G.
+  <span class="kn">Proof</span>.
+    use make_reflection_data.
+    - <span class="bp">exact</span> (reflection_data_object r).
+    - <span class="bp">exact</span> (reflection_data_arrow r · α _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Context</span> {<span class="nv">F</span> <span class="nv">G</span> : functor A X} (<span class="nv">α</span> : nat_z_iso F G).
+
+  <span class="kn">Lemma</span> <span class="nf">reflection_transport_along_iso_ob_functor_uvp_equiv</span>
+    {<span class="nv">r</span> : reflection x F}
+    {<span class="nv">f</span> : reflection_data x G}
+    (<span class="nv">g</span> : A⟦reflection_data_object r, reflection_data_object f⟧)
+    : (reflection_data_arrow f
+        = r · α (reflection_data_object r) · #G g)
+          ≃ (f · nat_z_iso_to_trans_inv α (reflection_data_object f) = r · # F g).
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intro</span> p.
+      <span class="nb">rewrite</span> p.
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">rewrite</span> (nat_trans_ax (nat_z_iso_inv α)).
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso α _)).
+    - <span class="nb">intro</span> p.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">rewrite</span> &lt;- (nat_trans_ax α).
+      <span class="nb">rewrite</span> assoc.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths_2, p. }
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">refine</span> (! id_right _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (nat_z_iso_inv α) _)).
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reflection_transport_along_iso_ob_functor</span>
+    (<span class="nv">r</span> : reflection x F)
+    : reflection x' G.
+  <span class="kn">Proof</span>.
+    use reflection_transport_along_iso_ob.
+    use (make_reflection (reflection_data_transport_along_iso_functor α r)).
+    <span class="nb">intro</span> f.
+    <span class="nb">set</span> (t := pr2 r (reflection_data_transport_along_iso_functor (nat_z_iso_inv α) f)).
+    use (iscontrweqb' t).
+    <span class="nb">clear</span> t.
+    use weqfibtototal.
+    <span class="nb">intro</span> g.
+    <span class="nb">apply</span> reflection_transport_along_iso_ob_functor_uvp_equiv.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">ReflectionsArePreservedUnderIsos</span>.
+
+<span class="sd">(** * 6. An object isomorphic to a reflection is a reflection *)</span>
+<span class="kn">Section</span> <span class="nf">IsReflectionAlongIso</span>.
+
+  <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">A</span> : category} {<span class="nv">F</span> : functor X A}
+    {<span class="nv">a</span> : A} (<span class="nv">r</span> : reflection a F)
+    {<span class="nv">s</span> : X} (<span class="nv">i</span> : z_iso s (reflection_data_object r)).
+
+  <span class="kn">Definition</span> <span class="nf">is_reflection_along_iso</span>
+    : is_reflection (F := F) (reflection_data_postcompose r (z_iso_inv i)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> f.
+    use make_reflection_arrow.
+    - <span class="bp">exact</span> (i · reflection_arrow r f).
+    - <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+      <span class="nb">rewrite</span> id_left.
+      <span class="bp">exact</span> (reflection_arrow_commutes r f).
+    - <span class="nb">intros</span> g Hg.
+      <span class="nb">apply</span> z_iso_inv_to_left.
+      <span class="nb">apply</span> (reflection_arrow_unique r f).
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> assoc.
+      <span class="bp">exact</span> Hg.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">IsReflectionAlongIso</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_universal_arrow_from_after_path_induction</span>
+  {<span class="nv">D</span> <span class="nv">C</span> : category} (<span class="nv">S</span> : D ⟶ C) (<span class="nv">c</span> : C) (<span class="nv">r</span> : D) (<span class="nv">f₁</span> <span class="nv">f₂</span> : C⟦c, S r⟧) (<span class="nv">p</span> : f₁ = f₂)
+  : is_reflection (make_reflection_data r f₁) → is_reflection (make_reflection_data r f₂).
+<span class="kn">Proof</span>.
+  use (transportf (<span class="k">λ</span> <span class="nv">g</span>, is_reflection (r ,, g))).
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Adjunctions/Reflections.v</tt>, line 32)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   6. An object isomorphic to a reflection is a reflection [is_reflection_along_iso]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>NNOCartesianClosed.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Parameterized NNOs from ordinary NNOs</span>
+
+<span class="sd"> We show that in a Cartesian closed category, every NNO is a parameterized NNO. The</span>
+<span class="sd"> object and maps stay the same, and the only work lies in deriving the parameterized</span>
+<span class="sd"> recursion principle. The idea here is to define a map from the NNO by iteration to an</span>
+<span class="sd"> exponential instead.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Parameterized recursion</span>
+<span class="sd"> 2. Parameterized NNOs from NNOs</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.NNO.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">ParameterizedNNOFromNNO</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">T</span> : Terminal C)
+          (<span class="nv">BP</span> : BinProducts C)
+          (<span class="nv">N</span> : NNO T)
+          (<span class="nv">E</span> : Exponentials BP).
+
+  <span class="sd">(** * 1. Parameterized recursion *)</span>
+  <span class="kn">Section</span> <span class="nf">Recursion</span>.
+    <span class="kn">Context</span> {<span class="nv">b</span> <span class="nv">y</span> : C}
+            (<span class="nv">zy</span> : b --&gt; y)
+            (<span class="nv">sy</span> : y --&gt; y).
+
+    <span class="kn">Definition</span> <span class="nf">parameterized_NNO_from_NNO_rec_exp</span>
+      : N --&gt; exp (E b) y.
+    <span class="kn">Proof</span>.
+      use NNO_mor.
+      - use exp_lam.
+        <span class="bp">exact</span> (BinProductPr1 _ _ · zy).
+      - use exp_lam.
+        <span class="bp">exact</span> (exp_eval (E b) y · sy).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">parameterized_NNO_from_NNO_rec</span>
+      : BP b N --&gt; y
+      := BinProductOfArrows _ _ _ (identity _) parameterized_NNO_from_NNO_rec_exp
+         · exp_eval (E b) y.
+
+    <span class="kn">Proposition</span> <span class="nf">parameterized_NNO_from_NNO_rec_Z</span>
+      : is_parameterized_NNO_Z_eq (zeroNNO T N) zy parameterized_NNO_from_NNO_rec.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> is_parameterized_NNO_Z_eq, parameterized_NNO_from_NNO_rec.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> postcompWithBinProductArrow.
+      <span class="nb">unfold</span> parameterized_NNO_from_NNO_rec_exp.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> NNO_mor_Z.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (postcompWithBinProductArrow _ (BP _ _) (BP _ _)).
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> exp_beta.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> BinProductPr1Commutes.
+      <span class="nb">apply</span> id_left.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">parameterized_NNO_from_NNO_rec_S</span>
+      : is_parameterized_NNO_S_eq (sucNNO T N) sy parameterized_NNO_from_NNO_rec.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> is_parameterized_NNO_S_eq, parameterized_NNO_from_NNO_rec.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> BinProductOfArrows_comp.
+      <span class="nb">unfold</span> parameterized_NNO_from_NNO_rec_exp.
+      <span class="nb">rewrite</span> NNO_mor_S.
+      <span class="nb">rewrite</span> &lt;- BinProductOfArrows_comp.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> exp_beta.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">parameterized_NNO_from_NNO_rec_unique</span>
+                {<span class="nv">f</span> : BP b N --&gt; y}
+                (<span class="nv">qz</span> : is_parameterized_NNO_Z_eq (zeroNNO T N) zy f)
+                (<span class="nv">qs</span> : is_parameterized_NNO_S_eq (sucNNO T N) sy f)
+      : f = parameterized_NNO_from_NNO_rec.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> parameterized_NNO_from_NNO_rec.
+      <span class="nb">unfold</span> is_parameterized_NNO_Z_eq <span class="k">in</span> qz.
+      <span class="nb">unfold</span> is_parameterized_NNO_S_eq <span class="k">in</span> qs.
+      <span class="nb">refine</span> (!(exp_beta (E b) _) @ _ @ exp_beta (E b) _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      use NNO_mor_unique.
+      - use exp_lam.
+        <span class="bp">exact</span> (BinProductPr1 _ _ · zy).
+      - use exp_lam.
+        <span class="bp">exact</span> (exp_eval (E b) y · sy).
+      - use exp_funext.
+        <span class="nb">intros</span> a h.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (!(id_right _)).
+        }
+        <span class="nb">rewrite</span> &lt;- BinProductOfArrows_comp.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> exp_beta.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (!(id_right _)).
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!(id_left _)).
+        }
+        <span class="nb">rewrite</span> &lt;- BinProductOfArrows_comp.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> exp_beta.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+        <span class="nb">rewrite</span> &lt;- qz.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        use BinProductArrowsEq.
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> BinProductPr1Commutes.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> BinProductPr2Commutes.
+          <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> TerminalArrowEq.
+      - use exp_funext.
+        <span class="nb">intros</span> a h.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (!(id_right _)).
+        }
+        <span class="nb">rewrite</span> &lt;- BinProductOfArrows_comp.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> exp_beta.
+        <span class="nb">unfold</span> parameterized_NNO_from_NNO_rec_exp.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> BinProductOfArrows_comp.
+        <span class="nb">rewrite</span> NNO_mor_Z.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!(id_left _)).
+        }
+        <span class="nb">rewrite</span> &lt;- BinProductOfArrows_comp.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> exp_beta.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (!(id_right _)).
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!(id_left _)).
+        }
+        <span class="nb">rewrite</span> &lt;- BinProductOfArrows_comp.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> exp_beta.
+        <span class="nb">apply</span> idpath.
+      - use exp_funext.
+        <span class="nb">intros</span> a h.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (!(id_right _)).
+        }
+        <span class="nb">rewrite</span> &lt;- BinProductOfArrows_comp.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> exp_beta.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (!(id_right _)).
+        }
+        <span class="nb">rewrite</span> &lt;- BinProductOfArrows_comp.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> exp_beta.
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (!(id_right _)).
+        }
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!(id_left _)).
+        }
+        <span class="nb">rewrite</span> &lt;- BinProductOfArrows_comp.
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> exp_beta.
+          <span class="bp">exact</span> (!qs).
+        }
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> BinProductOfArrows_comp.
+        <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">apply</span> idpath.
+      - use exp_funext.
+        <span class="nb">intros</span> a h.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (!(id_right _)).
+        }
+        <span class="nb">rewrite</span> &lt;- BinProductOfArrows_comp.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> exp_beta.
+        <span class="nb">unfold</span> parameterized_NNO_from_NNO_rec_exp.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> BinProductOfArrows_comp.
+        <span class="nb">rewrite</span> NNO_mor_S.
+        <span class="nb">rewrite</span> &lt;- BinProductOfArrows_comp.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> exp_beta.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (!(id_right _)).
+        }
+        <span class="nb">rewrite</span> &lt;- BinProductOfArrows_comp.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> exp_beta.
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (!(id_right _)).
+        }
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!(id_left _)).
+        }
+        <span class="nb">rewrite</span> &lt;- BinProductOfArrows_comp.
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> exp_beta.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> BinProductOfArrows_comp.
+        <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Recursion</span>.
+
+  <span class="sd">(** * 2. Parameterized NNOs from NNOs *)</span>
+  <span class="kn">Definition</span> <span class="nf">parameterized_NNO_from_NNO</span>
+    : parameterized_NNO T BP.
+  <span class="kn">Proof</span>.
+    use make_parameterized_NNO.
+    - <span class="bp">exact</span> N.
+    - <span class="bp">exact</span> (zeroNNO _ N).
+    - <span class="bp">exact</span> (sucNNO _ N).
+    - <span class="nb">intros</span> b y zy sy.
+      use make_iscontr.
+      + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        * <span class="bp">exact</span> (parameterized_NNO_from_NNO_rec zy sy).
+        * <span class="nb">apply</span> parameterized_NNO_from_NNO_rec_Z.
+        * <span class="nb">apply</span> parameterized_NNO_from_NNO_rec_S.
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> [ f [ qz qs ]] ;
+           use subtypePath ;
+           [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="bp">exact</span> (parameterized_NNO_from_NNO_rec_unique zy sy qz qs)).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ParameterizedNNOFromNNO</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Arithmetic/NNOCartesianClosed.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Parameterized NNOs from NNOs
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Limits.Terminal.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

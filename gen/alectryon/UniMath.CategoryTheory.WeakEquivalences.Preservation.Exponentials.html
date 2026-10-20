@@ -1,0 +1,479 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Exponentials.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">   Preservation Of Exponentials Along Weak Equivalences</span>
+
+<span class="sd">   In this file, we show that an arbitrary weak equivalence F : C -&gt; D preserves exponential objects.</span>
+
+<span class="sd">   Contents</span>
+<span class="sd">   1. The image of an exponent is again an exponent [weak_equiv_preserves_exponential_objects]</span>
+<span class="sd">   2. The codomain has exponentials [weak_equiv_into_univ_creates_exponentials]</span>
+<span class="sd">   3. A weak equivalence preserves all exponentials [weak_equiv_preserves_exponentials']</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Preservation.Binproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Creation.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.LiftPreservation.BinProducts.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Coreflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1.  Weak equivalences preserve exponential objects [weak_equiv_preserves_exponential_objects] *)</span>
+<span class="kn">Section</span> <span class="nf">WeakEquivalencesPreserveExponentialObjects</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C₀</span> <span class="nv">C₁</span> : category}
+    {<span class="nv">F</span> : functor C₀ C₁} (<span class="nv">F_weq</span> : is_weak_equiv F)
+    (<span class="nv">C₁_univ</span> : is_univalent C₁)
+    {<span class="nv">P₀</span> : BinProducts C₀}
+    (<span class="nv">E₀</span> : Exponentials P₀).
+
+  <span class="kn">Context</span> (<span class="nv">P₁</span> : BinProducts C₁).
+
+  <span class="kn">Context</span> {<span class="nv">x₀</span> <span class="nv">y₀</span> : C₀}
+    {<span class="nv">a₁</span> : C₁}
+    (<span class="nv">f₁</span> : C₁⟦P₁ (F x₀) a₁, F y₀⟧)
+    {<span class="nv">a₀</span> : C₀}
+    (<span class="nv">i₀</span> : z_iso (F a₀) a₁).
+
+  <span class="kn">Let</span> <span class="nf">e₀</span> := exp (E₀ x₀) y₀.
+  <span class="kn">Let</span> <span class="nf">ev₀</span> := exp_eval (E₀ x₀) y₀.
+
+  <span class="kn">Let</span> <span class="nf">i_p</span> : z_iso (F (P₀ x₀ a₀)) (P₁ (F x₀) a₁).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (z_iso_comp _ (binproduct_of_z_iso (P₁ _ _) (P₁ _ _) (identity_z_iso (F x₀)) i₀)).
+    use preserves_binproduct_to_z_iso.
+    <span class="bp">exact</span> (weak_equiv_preserves_binproducts F_weq).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">f₀</span> : C₀⟦P₀ x₀ a₀, y₀⟧ := fully_faithful_inv_hom (pr2 F_weq) _ _ (i_p · f₁).
+  <span class="kn">Local Lemma</span> <span class="nf">Ff₀</span> : #F f₀ = i_p · f₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> functor_on_fully_faithful_inv_hom.
+  <span class="kn">Qed</span>.
+  <span class="kn">Local Lemma</span> <span class="nf">Ff₀'</span> : z_iso_inv i_p · #F f₀ = f₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> Ff₀.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weak_equiv_preserves_exponentiable_objects_map</span>
+    : C₁ ⟦a₁, F e₀⟧ := z_iso_inv i₀ · #F (exp_lam _ f₀).
+
+  <span class="kn">Local Lemma</span> <span class="nf">commutation_of_binproductarrows</span>
+    : z_iso_inv i_p · # F (BinProductOfArrows C₀ (P₀ _ _) (P₀ x₀ a₀) (identity x₀) (exp_lam (E₀ x₀) f₀))
+      = BinProductArrow C₁
+          (preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P₀ x₀ e₀))
+          (BinProductPr1 C₁ (P₁ (F x₀) a₁) · identity (F x₀))
+          (BinProductPr2 C₁ (P₁ (F x₀) a₁) · weak_equiv_preserves_exponentiable_objects_map).
+  <span class="kn">Proof</span>.
+    etrans. {
+      <span class="nb">unfold</span> i_p.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (preserves_binproduct_of_arrows (weak_equiv_preserves_binproducts F_weq)).
+    }
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> BinProductOfArrows_comp.
+    etrans. {
+      <span class="nb">apply</span> (precompWithBinProductArrow _  (preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P₀ x₀ (exp (E₀ x₀) y₀)))).
+    }
+    <span class="nb">apply</span> maponpaths_12.
+    - etrans. { <span class="nb">apply</span> BinProductOfArrowsPr1. }
+      <span class="nb">rewrite</span> functor_id.
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+    - <span class="nb">apply</span> BinProductOfArrowsPr2.
+   <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_preserves_exponentiable_objects_eq</span>
+    : f₁ =
+        BinProductOfArrows C₁ (P₁ (F x₀) (F e₀)) (P₁ (F x₀) a₁)
+          (identity (F x₀))
+          weak_equiv_preserves_exponentiable_objects_map
+          · (BinProductArrow C₁
+               (preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P₀ x₀ e₀))
+               (BinProductPr1 C₁ (P₁ (F x₀) (F e₀)))
+               (BinProductPr2 C₁ (P₁ (F x₀) (F e₀)))
+               · # F ev₀).
+  <span class="kn">Proof</span>.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> precompWithBinProductArrow.
+    }
+
+    <span class="nb">rewrite</span> BinProductOfArrowsPr1, BinProductOfArrowsPr2.
+
+    <span class="nb">set</span> (t := exp_beta (E₀ x₀) f₀).
+    <span class="nb">unfold</span> weak_equiv_preserves_exponentiable_objects_map.
+    <span class="nb">rewrite</span> assoc.
+
+    <span class="nb">refine</span> (! Ff₀' @ _).
+
+    etrans. {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (! exp_beta (E₀ x₀) f₀).
+    }
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> commutation_of_binproductarrows.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_preserves_exponentiable_objects_uniqueness</span>
+    : isaprop
+    (∑ f' : C₁ ⟦ a₁, F e₀ ⟧,
+     f₁ =
+     BinProductOfArrows C₁ (P₁ (F x₀) (F e₀)) (P₁ (F x₀) a₁) (identity (F x₀)) f'
+     · (BinProductArrow C₁
+          (preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P₀ x₀ e₀))
+          (BinProductPr1 C₁ (P₁ (F x₀) (F e₀))) (BinProductPr2 C₁ (P₁ (F x₀) (F e₀))) ·
+          # F (ev₀))).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> ϕ₁ ϕ₂.
+
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property. }
+    use (cancel_z_iso' i₀).
+
+    <span class="c">(* F a₀ → F e₀ *)</span>
+    <span class="nb">refine</span> (! homotweqinvweq (weq_from_fully_faithful (ff_from_weak_equiv _ F_weq) _ _) _ @ _).
+    <span class="nb">refine</span> (_ @ homotweqinvweq (weq_from_fully_faithful (ff_from_weak_equiv _ F_weq) _ _) _).
+
+    <span class="c">(* a₀ → e₀ *)</span>
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">set</span> (ψ₁ :=  invmap (weq_from_fully_faithful (ff_from_weak_equiv F F_weq) a₀ e₀) (i₀ · pr1 ϕ₁)).
+    <span class="nb">set</span> (ψ₂ :=  invmap (weq_from_fully_faithful (ff_from_weak_equiv F F_weq) a₀ e₀) (i₀ · pr1 ϕ₂)).
+
+    <span class="nb">set</span> (t := is_exponentiable_to_uvp P₀ (E₀ x₀) y₀ (a₀ ,, (exp_app (E₀ _) ψ₁))).
+    use (base_paths _ _ (proofirrelevancecontr t (ψ₁ ,, _) (ψ₂ ,, _))).
+    {
+      <span class="nb">refine</span> (pr21 t @ _).
+      <span class="nb">apply</span> maponpaths_2, maponpaths.
+      <span class="nb">apply</span> exp_lam_app.
+    }
+
+    <span class="c">(* P₀ x₀ a₀ → y₀ *)</span>
+    <span class="nb">apply</span> (faithful_reflects_morphism_equality _ (pr2 F_weq)).
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">cbn</span> ; <span class="nb">unfold</span> BinProduct_of_functors_mor ; <span class="nb">cbn</span>.
+    <span class="c">(* F (P₀ x₀ a₀) → F y₀ *)</span>
+
+    use cancel_z_iso'. <span class="c">(* P₁ (F x₀) a₁ ≅ F (P₀ x₀ a₀) *)</span>
+    { <span class="bp">exact</span> (P₁ (F x₀) a₁). }
+    {
+      <span class="nb">refine</span> (z_iso_comp (binproduct_of_z_iso (P₁ _ _) (P₁ _ _) (identity_z_iso _) (z_iso_inv i₀)) _).
+      use z_iso_inv.
+      <span class="nb">apply</span> (preserves_binproduct_to_z_iso _ (weak_equiv_preserves_binproducts F_weq) (P₀ x₀ a₀) (P₁ _ _)).
+    }
+    <span class="nb">set</span> (p := ! pr2 ϕ₁ @ pr2 ϕ₂).
+    <span class="nb">rewrite</span> ! assoc <span class="k">in</span> p.
+    <span class="nb">refine</span> (_ @ p @ _) ; <span class="nb">cbn</span>.
+    - etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (precompWithBinProductArrow _   (preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P₀ _ _))).
+      }
+      <span class="nb">rewrite</span> BinProductOfArrowsPr1, BinProductOfArrowsPr2.
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> (precompWithBinProductArrow _   (preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P₀ x₀ e₀))).
+      }
+      <span class="nb">rewrite</span> BinProductOfArrowsPr1, BinProductOfArrowsPr2.
+      <span class="nb">cbn</span>.
+
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (maponpaths #F (pr21 t)).
+      }
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">assert</span> (pf : pr11 t = ψ₁).
+      {
+        <span class="nb">apply</span> pathsinv0.
+        use (base_paths _ _ (proofirrelevancecontr t (ψ₁ ,, _) _)).
+        <span class="nb">simpl</span>.
+        <span class="nb">refine</span> (pr21 t @ _).
+        <span class="nb">apply</span> maponpaths_2, maponpaths.
+        <span class="nb">apply</span> exp_lam_app.
+      }
+
+      <span class="nb">rewrite</span> pf.
+
+      <span class="nb">set</span> (t' := preserves_binproduct_of_arrows (weak_equiv_preserves_binproducts F_weq)
+                   (BC₁ := P₀) (BC₂ := P₁) (identity x₀) ψ₁).
+      <span class="nb">set</span> (t'' := z_iso_inv_to_left _ _ _ _ _ _ t').
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> t''.
+      }
+      <span class="nb">cbn</span>.
+
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">rewrite</span> (precompWithBinProductArrow _   (preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P₀ x₀ e₀))).
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">rewrite</span> BinProductOfArrowsPr1, BinProductOfArrowsPr2.
+      <span class="nb">rewrite</span> ! assoc.
+
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> BinProductPr2Commutes.
+      }
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (BinProductOfArrowsPr2 _  (preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P₀ x₀ a₀))).
+      }
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> BinProductPr1Commutes.
+      }
+      <span class="nb">unfold</span> BinProductOfArrows ; <span class="nb">apply</span> maponpaths_12.
+      + <span class="nb">rewrite</span> functor_id.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans. {
+          <span class="nb">apply</span> (BinProductPr1Commutes _ _ _ (preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P₀ _ _))).
+        }
+        <span class="nb">apply</span> id_right.
+      + <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        etrans. {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> functor_on_fully_faithful_inv_hom.
+        }
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+        <span class="nb">apply</span> id_left.
+    - <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">set</span> (t' := preserves_binproduct_of_arrows (weak_equiv_preserves_binproducts F_weq)
+                   (BC₁ := P₀) (BC₂ := P₁) (identity x₀) ψ₂).
+      <span class="nb">set</span> (t'' := z_iso_inv_to_left _ _ _ _ _ _ t').
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (! t'').
+      }
+      <span class="nb">cbn</span>.
+      etrans. {
+        <span class="nb">apply</span> (precompWithBinProductArrow _   (preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P₀ x₀ e₀))).
+      }
+      <span class="nb">rewrite</span> BinProductOfArrowsPr1, BinProductOfArrowsPr2.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">rewrite</span> ! assoc.
+      etrans. {
+        <span class="nb">apply</span> (precompWithBinProductArrow _   (preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P₀ x₀ e₀))).
+      }
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">rewrite</span> BinProductOfArrowsPr1, BinProductOfArrowsPr2.
+      <span class="nb">apply</span> maponpaths_12.
+      + <span class="nb">rewrite</span> functor_id.
+        <span class="nb">rewrite</span> ! assoc.
+        etrans. {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (precompWithBinProductArrow _   (preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P₀ _ _))).
+        }
+        <span class="nb">rewrite</span> BinProductOfArrowsPr1, BinProductOfArrowsPr2.
+        <span class="nb">rewrite</span> precompWithBinProductArrow.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans. { <span class="nb">apply</span> BinProductPr1Commutes. }
+
+        etrans. {
+          <span class="nb">apply</span> (BinProductPr1Commutes _ _ _   (preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P₀ x₀ a₀))).
+        }
+        <span class="nb">apply</span> id_right.
+      + <span class="nb">rewrite</span> ! assoc.
+        etrans. {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (precompWithBinProductArrow _   (preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P₀ _ _))).
+        }
+        <span class="nb">rewrite</span> BinProductOfArrowsPr1, BinProductOfArrowsPr2.
+        <span class="nb">rewrite</span> precompWithBinProductArrow.
+        etrans. {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> functor_on_fully_faithful_inv_hom.
+        }
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans. {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> BinProductPr2Commutes.
+        }
+
+        etrans. {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (BinProductPr2Commutes _ _ _   (preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P₀ x₀ a₀))).
+        }
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+        <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_preserves_exponentiable_objects_uvp</span>
+    : <span class="k">∃</span>! f' : C₁ ⟦ a₁, F e₀ ⟧,
+        f₁ =
+          BinProductOfArrows C₁ (P₁ (F x₀) (F e₀)) (P₁ (F x₀) a₁)
+            (identity (F x₀)) f'
+            · (BinProductArrow C₁
+       (preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P₀ x₀ e₀))
+       (BinProductPr1 C₁ (P₁ (F x₀) (F e₀)))
+       (BinProductPr2 C₁ (P₁ (F x₀) (F e₀)))
+       · # F ev₀).
+  <span class="kn">Proof</span>.
+    use iscontraprop1.
+    { <span class="bp">exact</span> weak_equiv_preserves_exponentiable_objects_uniqueness. }
+    <span class="k">exists</span> <span class="nv">weak_equiv_preserves_exponentiable_objects_map</span>.
+    <span class="bp">exact</span> weak_equiv_preserves_exponentiable_objects_eq.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">WeakEquivalencesPreserveExponentialObjects</span>.
+
+<span class="kn">Proposition</span> <span class="nf">weak_equiv_preserves_exponential_objects</span>
+  {<span class="nv">C₀</span> <span class="nv">C₁</span> : category}
+  {<span class="nv">F</span> : functor C₀ C₁} (<span class="nv">F_weq</span> : is_weak_equiv F)
+  (<span class="nv">C₁_univ</span> : is_univalent C₁)
+  {<span class="nv">P₀</span> : BinProducts C₀}
+  (<span class="nv">E₀</span> : Exponentials P₀)
+  (<span class="nv">P₁</span> : BinProducts C₁)
+  : preserves_exponential_objects'
+      P₀ P₁
+      (weak_equiv_preserves_binproducts F_weq) E₀.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x₀ y₀.
+  <span class="nb">intro</span> f₁.
+  use (factor_through_squash _ _ (pr1 F_weq _)).
+  { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropiscontr. }
+  <span class="nb">intros</span> [a₀ i₀].
+  <span class="bp">exact</span> (weak_equiv_preserves_exponentiable_objects_uvp _ _ _ _ i₀).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Weak Equivalences Create Exponentials *)</span>
+<span class="kn">Section</span> <span class="nf">WeakEquivalencesIntoUnivalentCatsCreatesExponentials</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C₀</span> <span class="nv">C₁</span> : category}
+    {<span class="nv">F</span> : functor C₀ C₁} (<span class="nv">F_weq</span> : is_weak_equiv F)
+    (<span class="nv">C₁_univ</span> : is_univalent C₁)
+    {<span class="nv">P₀</span> : BinProducts C₀}
+    (<span class="nv">E₀</span> : Exponentials P₀)
+    (<span class="nv">P₁</span> : BinProducts C₁).
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_into_univ_creates_exponentials</span>
+    : Exponentials P₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x₁.
+    use is_exponentiable_alt_to_is_exponentiable.
+    use (factor_through_squash _ _ (pr1 F_weq x₁)).
+    {
+      <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_Exponent.
+      <span class="bp">exact</span> C₁_univ.
+    }
+    <span class="nb">intros</span> [x₀ ix].
+    <span class="nb">intro</span> y₁.
+    use (Exponent_transport_along_iso' P₁ ix (identity_z_iso y₁)).
+    use (factor_through_squash _ _ (pr1 F_weq y₁)).
+    {
+      <span class="nb">apply</span> isaprop_Exponent.
+      <span class="bp">exact</span> C₁_univ.
+    }
+    <span class="nb">intros</span> [y₀ iy].
+    <span class="nb">apply</span> (Exponent_transport_along_iso' P₁ (identity_z_iso _) iy).
+    <span class="nb">apply</span> (preserves_exponential_objects_to_exponent' P₀ P₁ (weak_equiv_preserves_binproducts F_weq) (E₀ := E₀)).
+    <span class="nb">apply</span> (weak_equiv_preserves_exponential_objects F_weq C₁_univ).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">WeakEquivalencesIntoUnivalentCatsCreatesExponentials</span>.
+
+<span class="sd">(** * 3. Weak Equivalences Preserve Exponentials *)</span>
+<span class="kn">Section</span> <span class="nf">WeakEquivalencesIntoUnivalentCatsPreservesExponentials</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C₀</span> <span class="nv">C₁</span> : category}
+    {<span class="nv">F</span> : functor C₀ C₁} (<span class="nv">F_weq</span> : is_weak_equiv F)
+    (<span class="nv">C₁_univ</span> : is_univalent C₁)
+    {<span class="nv">P₀</span> : BinProducts C₀}
+    (<span class="nv">E₀</span> : Exponentials P₀).
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_preserves_exponentials</span>
+    : preserves_exponentials E₀
+        (weak_equiv_into_univ_creates_exponentials F_weq C₁_univ E₀
+        (weak_equiv_into_univ_creates_binproducts C₁_univ F_weq P₀))
+        (weak_equiv_preserves_binproducts F_weq).
+  <span class="kn">Proof</span>.
+    use preserves_exponential_objects_to_preserves_exponentials.
+    <span class="nb">apply</span> weak_equiv_preserves_exponential_objects.
+    <span class="bp">exact</span> C₁_univ.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">weak_equiv_preserves_exponentials'</span>
+    {<span class="nv">P₁</span> : BinProducts C₁} (<span class="nv">E₁</span> : Exponentials P₁)
+    : preserves_exponentials E₀ E₁ (weak_equiv_preserves_binproducts F_weq).
+  <span class="kn">Proof</span>.
+    use preserves_exponential_objects_to_preserves_exponentials.
+    <span class="nb">apply</span> weak_equiv_preserves_exponential_objects.
+    <span class="bp">exact</span> C₁_univ.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">WeakEquivalencesIntoUnivalentCatsPreservesExponentials</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/WeakEquivalences/Preservation/Exponentials.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;    3. A weak equivalence preserves all exponentials [weak_equiv_preserves_exponentials']
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

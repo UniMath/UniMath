@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LambdaCalculus.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">This file contains a direct formalization of the lambda calculus ([LambdaCalculus]) as the initial</span>
+<span class="sd">algebra of the lambda calculus functor. A better formalization where the lambda calculus and a</span>
+<span class="sd">substitution monad is obtained from a binding signature can be found in</span>
+<span class="sd">SubstitutionSystems/LamFromBindingSig.v.</span>
+
+<span class="sd">Written by: Anders Mörtberg, 2016</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.Foundations.NaturalNumbers.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Structures.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Examples.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'chain'"</span> := (diagram nat_graph).
+
+<span class="kn">Section</span> <span class="nf">lambdacalculus</span>.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'HSET2'"</span>:= [HSET, HSET].
+
+<span class="c">(*</span>
+<span class="c">Local Definition has_homsets_HSET2 : has_homsets HSET2.</span>
+<span class="c">Proof.</span>
+<span class="c">apply functor_category_has_homsets.</span>
+<span class="c">Defined.</span>
+<span class="c"> *)</span>
+
+<span class="kn">Local Definition</span> <span class="nf">BinProductsHSET2</span> : BinProducts HSET2.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (BinProducts_functor_precat _ _ BinProductsHSET).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">BinCoproductsHSET2</span> : BinCoproducts HSET2.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (BinCoproducts_functor_precat _ _ BinCoproductsHSET).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">Exponentials_HSET2</span> : Exponentials BinProductsHSET2.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> Exponentials_functor_HSET.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">InitialHSET2</span> : Initial HSET2.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (Initial_functor_precat _ _ InitialHSET).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">CCHSET</span> : Colims_of_shape nat_graph HSET :=
+  ColimsHSET_of_shape nat_graph.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"' x"</span> := (omega_cocont_constant_functor x)
+                          (<span class="kn">at level</span> <span class="mi">10</span>).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'Id'"</span> := (omega_cocont_functor_identity _).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"F * G"</span> :=
+  (omega_cocont_BinProduct_of_functors_alt BinProductsHSET2 _
+     (is_omega_cocont_constprod_functor1 _ Exponentials_HSET2) F G).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"F + G"</span> :=
+  (omega_cocont_BinCoproduct_of_functors BinCoproductsHSET2 F G).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'_' 'o' 'option'"</span> :=
+  (omega_cocont_pre_composition_functor
+      (option_functor BinCoproductsHSET TerminalHSET)
+      CCHSET) (<span class="kn">at level</span> <span class="mi">10</span>).
+
+<span class="sd">(** The lambda calculus functor with one component for variables, one for application and one for</span>
+<span class="sd">    abstraction/lambda *)</span>
+<span class="kn">Definition</span> <span class="nf">lambdaOmegaFunctor</span> : omega_cocont_functor HSET2 HSET2 :=
+  omega_cocont_constant_functor (C:= [_,_]) (D:=[_,_])(functor_identity HSET) +
+                                        (Id * Id + _ o option).
+
+
+<span class="c">(*</span>
+<span class="c">Definition lambdaOmegaFunctor : omega_cocont_functor HSET2 HSET2 :=</span>
+<span class="c">  '(functor_identity HSET) + (Id * Id + _ o option).</span>
+<span class="c"> *)</span>
+
+<span class="kn">Let</span> <span class="nf">lambdaFunctor</span> : functor HSET2 HSET2 := pr1 lambdaOmegaFunctor.
+<span class="kn">Let</span> <span class="nf">is_omega_cocont_lambdaFunctor</span> : is_omega_cocont lambdaFunctor :=
+  pr2 lambdaOmegaFunctor.
+
+<span class="kn">Lemma</span> <span class="nf">lambdaFunctor_Initial</span> :
+  Initial (category_FunctorAlg lambdaFunctor).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (colimAlgInitial InitialHSET2 is_omega_cocont_lambdaFunctor).
+<span class="nb">apply</span> ColimsFunctorCategory_of_shape; <span class="nb">apply</span> ColimsHSET_of_shape.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The lambda calculus *)</span>
+<span class="kn">Definition</span> <span class="nf">LambdaCalculus</span> : HSET2 :=
+  alg_carrier _ (InitialObject lambdaFunctor_Initial).
+
+<span class="kn">Let</span> <span class="nf">LambdaCalculus_mor</span> : HSET2⟦lambdaFunctor LambdaCalculus,LambdaCalculus⟧ :=
+  alg_map _ (InitialObject lambdaFunctor_Initial).
+
+<span class="kn">Let</span> <span class="nf">LambdaCalculus_alg</span> : algebra_ob lambdaFunctor :=
+  InitialObject lambdaFunctor_Initial.
+
+<span class="kn">Definition</span> <span class="nf">var_map</span> : HSET2⟦functor_identity HSET,LambdaCalculus⟧ :=
+  BinCoproductIn1 (BinCoproductsHSET2 _ _) · LambdaCalculus_mor.
+
+<span class="c">(* How to do this nicer? *)</span>
+<span class="kn">Definition</span> <span class="nf">prod2</span> (<span class="nv">x</span> <span class="nv">y</span> : HSET2) : HSET2.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> BinProductsHSET2; [<span class="nb">apply</span> x | <span class="nb">apply</span> y].
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">app_map</span> : HSET2⟦prod2 LambdaCalculus LambdaCalculus,LambdaCalculus⟧ :=
+  BinCoproductIn1 (BinCoproductsHSET2 _ _) · BinCoproductIn2 (BinCoproductsHSET2 _ _) · LambdaCalculus_mor.
+
+<span class="kn">Definition</span> <span class="nf">app_map'</span> (<span class="nv">x</span> : HSET) : HSET⟦(pr1 LambdaCalculus x × pr1 LambdaCalculus x)%<span class="nb">set</span>,pr1 LambdaCalculus x⟧.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> app_map.
+<span class="kn">Defined</span>.
+
+<span class="kn">Let</span> <span class="nf">precomp_option</span> <span class="nv">X</span> := (pre_composition_functor _ _ HSET
+                          (option_functor BinCoproductsHSET TerminalHSET) X).
+
+<span class="kn">Definition</span> <span class="nf">lam_map</span> : HSET2⟦precomp_option LambdaCalculus,LambdaCalculus⟧ :=
+  BinCoproductIn2 (BinCoproductsHSET2 _ _) · BinCoproductIn2 (BinCoproductsHSET2 _ _) · LambdaCalculus_mor.
+
+<span class="kn">Definition</span> <span class="nf">make_lambdaAlgebra</span> (<span class="nv">X</span> : HSET2) (<span class="nv">fvar</span> : HSET2⟦functor_identity HSET,X⟧)
+  (<span class="nv">fapp</span> : HSET2⟦prod2 X X,X⟧) (<span class="nv">flam</span> : HSET2⟦precomp_option X,X⟧) : algebra_ob lambdaFunctor.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (tpair _ X).
+use (BinCoproductArrow _ fvar (BinCoproductArrow _ fapp flam)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">foldr_map</span> (<span class="nv">X</span> : HSET2) (<span class="nv">fvar</span> : HSET2⟦functor_identity HSET,X⟧)
+  (<span class="nv">fapp</span> : HSET2⟦prod2 X X,X⟧) (<span class="nv">flam</span> : HSET2⟦precomp_option X,X⟧) :
+  algebra_mor lambdaFunctor LambdaCalculus_alg (make_lambdaAlgebra X fvar fapp flam).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (InitialArrow lambdaFunctor_Initial (make_lambdaAlgebra X fvar fapp flam)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">foldr_map'</span> (<span class="nv">X</span> : HSET2) (<span class="nv">fvar</span> : HSET2⟦functor_identity HSET,X⟧)
+  (<span class="nv">fapp</span> : HSET2⟦prod2 X X,X⟧) (<span class="nv">flam</span> : HSET2⟦precomp_option X,X⟧) :
+   HSET2 ⟦ pr1 LambdaCalculus_alg, pr1 (make_lambdaAlgebra X fvar fapp flam) ⟧.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (foldr_map X fvar fapp flam).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">foldr_var</span> (<span class="nv">X</span> : HSET2) (<span class="nv">fvar</span> : HSET2⟦functor_identity HSET,X⟧)
+  (<span class="nv">fapp</span> : HSET2⟦prod2 X X,X⟧) (<span class="nv">flam</span> : HSET2⟦precomp_option X,X⟧) :
+  var_map · foldr_map X fvar fapp flam = fvar.
+<span class="kn">Proof</span>.
+<span class="nb">assert</span> (F := maponpaths (<span class="k">λ</span> <span class="nv">x</span>, BinCoproductIn1 (BinCoproductsHSET2 _ _) · x)
+                        (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
+<span class="nb">rewrite</span> assoc <span class="k">in</span> F.
+<span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> F|].
+<span class="nb">rewrite</span> assoc.
+<span class="nb">eapply</span> pathscomp0; [<span class="nb">eapply</span> cancel_postcomposition, BinCoproductOfArrowsIn1|].
+<span class="nb">rewrite</span> &lt;- assoc.
+<span class="nb">eapply</span> pathscomp0; [<span class="nb">eapply</span> maponpaths, BinCoproductIn1Commutes|].
+<span class="nb">apply</span> id_left.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">foldr_app</span> (<span class="nv">X</span> : HSET2) (<span class="nv">fvar</span> : HSET2⟦functor_identity HSET,X⟧)
+  (<span class="nv">fapp</span> : HSET2⟦prod2 X X,X⟧) (<span class="nv">flam</span> : HSET2⟦precomp_option X,X⟧) :
+  app_map · foldr_map X fvar fapp flam =
+  # (pr1 (Id * Id)) (foldr_map X fvar fapp flam) · fapp.
+<span class="kn">Proof</span>.
+<span class="nb">assert</span> (F := maponpaths (<span class="k">λ</span> <span class="nv">x</span>, BinCoproductIn1 (BinCoproductsHSET2 _ _) · BinCoproductIn2 (BinCoproductsHSET2 _ _) · x)
+                        (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
+<span class="nb">rewrite</span> assoc <span class="k">in</span> F.
+<span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> F|].
+<span class="nb">rewrite</span> assoc.
+<span class="nb">eapply</span> pathscomp0.
+  <span class="nb">eapply</span> cancel_postcomposition.
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">eapply</span> maponpaths, BinCoproductOfArrowsIn2.
+<span class="nb">rewrite</span> assoc.
+<span class="nb">eapply</span> pathscomp0.
+  <span class="nb">eapply</span> cancel_postcomposition, cancel_postcomposition, BinCoproductOfArrowsIn1.
+<span class="nb">rewrite</span> &lt;- assoc.
+<span class="nb">eapply</span> pathscomp0; [<span class="nb">eapply</span> maponpaths, BinCoproductIn2Commutes|].
+<span class="nb">rewrite</span> &lt;- assoc.
+<span class="bp">now</span> <span class="nb">eapply</span> pathscomp0; [<span class="nb">eapply</span> maponpaths, BinCoproductIn1Commutes|].
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">foldr_lam</span> (<span class="nv">X</span> : HSET2) (<span class="nv">fvar</span> : HSET2⟦functor_identity HSET,X⟧)
+  (<span class="nv">fapp</span> : HSET2⟦prod2 X X,X⟧) (<span class="nv">flam</span> : HSET2⟦precomp_option X,X⟧) :
+  lam_map · foldr_map X fvar fapp flam =
+  # (pr1 (_ o option)) (foldr_map X fvar fapp flam) · flam.
+<span class="kn">Proof</span>.
+<span class="nb">assert</span> (F := maponpaths (<span class="k">λ</span> <span class="nv">x</span>, BinCoproductIn2 (BinCoproductsHSET2 _ _) · BinCoproductIn2 (BinCoproductsHSET2 _ _) · x)
+                        (algebra_mor_commutes _ _ _ (foldr_map X fvar fapp flam))).
+<span class="nb">rewrite</span> assoc <span class="k">in</span> F.
+<span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> F|].
+<span class="nb">rewrite</span> assoc.
+<span class="nb">eapply</span> pathscomp0.
+  <span class="nb">eapply</span> cancel_postcomposition.
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">eapply</span> maponpaths, BinCoproductOfArrowsIn2.
+<span class="nb">rewrite</span> assoc.
+<span class="nb">eapply</span> pathscomp0.
+  <span class="nb">eapply</span> cancel_postcomposition, cancel_postcomposition, BinCoproductOfArrowsIn2.
+<span class="nb">rewrite</span> &lt;- assoc.
+<span class="nb">eapply</span> pathscomp0.
+  <span class="nb">eapply</span> maponpaths, BinCoproductIn2Commutes.
+<span class="nb">rewrite</span> &lt;- assoc.
+<span class="bp">now</span> <span class="nb">eapply</span> pathscomp0; [<span class="nb">eapply</span> maponpaths, BinCoproductIn2Commutes|].
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">lambdacalculus</span>.
+
+
+<span class="c">(* Old version *)</span>
+<span class="c">(* Definition Lambda : functor HSET2 HSET2. *)</span>
+<span class="c">(* Proof. *)</span>
+<span class="c">(* eapply coproduct_of_functors. *)</span>
+<span class="c">(*   apply CoproductsHSET2. *)</span>
+<span class="c">(*   apply (constant_functor HSET2 HSET2 (functor_identity HSET)). *)</span>
+<span class="c">(* eapply coproduct_of_functors. *)</span>
+<span class="c">(*   apply CoproductsHSET2. *)</span>
+<span class="c">(*   (* app *) *)</span>
+<span class="c">(*   eapply functor_composite. *)</span>
+<span class="c">(*     apply delta_functor. *)</span>
+<span class="c">(*     apply binproduct_functor. *)</span>
+<span class="c">(*     apply ProductsHSET2. *)</span>
+<span class="c">(* (* lam *) *)</span>
+<span class="c">(* apply (pre_composition_functor _ _ _ has_homsets_HSET _ *)</span>
+<span class="c">(*          (option_functor _ CoproductsHSET TerminalHSET)). *)</span>
+<span class="c">(* Defined. *)</span>
+
+<span class="c">(* Lemma omega_cocont_LambdaFunctor : is_omega_cocont LambdaFunctor. *)</span>
+<span class="c">(* Proof. *)</span>
+<span class="c">(* apply is_omega_cocont_coproduct_of_functors. *)</span>
+<span class="c">(*   apply (Products_functor_precat _ _ ProductsHSET). *)</span>
+<span class="c">(*   apply functor_category_has_homsets. *)</span>
+<span class="c">(*   apply functor_category_has_homsets. *)</span>
+<span class="c">(* simpl. *)</span>
+<span class="c">(* apply is_omega_cocont_functor_identity. *)</span>
+<span class="c">(*   apply has_homsets_HSET2. *)</span>
+<span class="c">(* apply is_omega_cocont_coproduct_of_functors. *)</span>
+<span class="c">(*   apply (Products_functor_precat _ _ ProductsHSET). *)</span>
+<span class="c">(*   apply functor_category_has_homsets. *)</span>
+<span class="c">(*   apply functor_category_has_homsets. *)</span>
+<span class="c">(*   apply is_omega_cocont_functor_composite. *)</span>
+<span class="c">(*   apply functor_category_has_homsets. *)</span>
+<span class="c">(*   apply is_omega_cocont_delta_functor. *)</span>
+<span class="c">(*   apply (Products_functor_precat _ _ ProductsHSET). *)</span>
+<span class="c">(*   apply functor_category_has_homsets. *)</span>
+<span class="c">(*   apply is_omega_cocont_binproduct_functor. *)</span>
+<span class="c">(*   apply functor_category_has_homsets. *)</span>
+<span class="c">(*   apply Exponentials_functor_HSET. *)</span>
+<span class="c">(*   apply has_homsets_HSET. *)</span>
+<span class="c">(* apply is_omega_cocont_pre_composition_functor. *)</span>
+<span class="c">(* apply LimsHSET. *)</span>
+<span class="c">(* Defined. *)</span></span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Inductives/LambdaCalculus.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,2440 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>GenericFreeMonoidSequence.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* Can be found on nlab:</span>
+<span class="c">    https://ncatlab.org/nlab/show/transfinite+construction+of+free+algebras</span>
+<span class="c">Or in G. M. Kelly. A unified treatment of transfinite constructions for free algebras, free</span>
+<span class="c">monoids, colimits, associated sheaves</span>
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
+
+<span class="kn">Require Import</span> UniMath.ModelCategories.Generated.GenericFreeMonoid.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Generated.MonoidalHelpers.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Helpers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">free_monoid_colim</span>.
+
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="c">(* We will end up requiring that C is cocomplete anyway *)</span>
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+<span class="kn">Context</span> (<span class="nv">V</span> : monoidal C).
+<span class="kn">Local Definition</span> <span class="nf">CMon</span> : monoidal_cat := (_,, V).
+<span class="kn">Context</span> (<span class="nv">T</span> : pointed V).
+
+<span class="kn">Context</span> (<span class="nv">CL</span> : Chains C).
+<span class="kn">Context</span> (<span class="nv">CE</span> : Coequalizers C).
+
+<span class="c">(* the horizontal map can be constructed from the vertical map:</span>
+<span class="c">              TXβ</span>
+<span class="c">                |</span>
+<span class="c">                | xβ</span>
+<span class="c">                v</span>
+<span class="c">  Xβ --------&gt; Xβ1</span>
+<span class="c">     τXβ · xβ</span>
+<span class="c">  where τ is the unit of our pointed endofunctor (T, τ).</span>
+<span class="c">*)</span>
+<span class="kn">Local Definition</span> <span class="nf">pair_diagram</span> : UU :=
+    ∑ (x0 x1 : C), (T ⊗_{V} x0 --&gt; x1).
+
+<span class="kn">Local Definition</span> <span class="nf">pair_diagram_lob</span> (<span class="nv">X</span> : pair_diagram) : C :=
+    pr1 X.
+<span class="kn">Local Definition</span> <span class="nf">pair_diagram_rob</span> (<span class="nv">X</span> : pair_diagram) : C :=
+    pr12 X.
+<span class="kn">Coercion</span> <span class="nf">pair_diagram_arr</span> (X : pair_diagram) :=
+    pr22 X.
+
+<span class="kn">Local Definition</span> <span class="nf">pair_diagram_horizontal_arrow</span> (<span class="nv">X</span> : pair_diagram) : (pair_diagram_lob X) --&gt; (pair_diagram_rob X).
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> X <span class="k">as</span> [Xβ [Xβ1 xβ]].
+  <span class="c">(* cbn. *)</span>
+  <span class="nb">set</span> (τX := (luinv_{V} Xβ) · (pointed_pt _ T) ⊗^{V}_{r} Xβ : Xβ --&gt; T ⊗_{V} Xβ).
+  <span class="bp">exact</span> (τX · xβ).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">next_pair_diagram_coeq_arr0</span> (<span class="nv">xβ</span> : pair_diagram) :
+    T ⊗_{V} (pair_diagram_lob xβ) --&gt;
+        T ⊗_{V} (pair_diagram_rob xβ).
+<span class="kn">Proof</span>.
+  <span class="c">(* destruct xβ as [Xβ [Xβ1 xβ]]. *)</span>
+  <span class="nb">apply</span> (compose (pair_diagram_arr xβ)).
+  <span class="bp">exact</span> ((luinv_{V} _) · (pointed_pt _ T) ⊗^{V}_{r} _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">next_pair_diagram_coeq_arr1</span> (<span class="nv">xβ</span> : pair_diagram) :
+    T ⊗_{V} (pair_diagram_lob xβ) --&gt;
+        T ⊗_{V} (pair_diagram_rob xβ).
+<span class="kn">Proof</span>.
+  <span class="c">(* destruct xβ as [Xβ [Xβ1 xβ]]. *)</span>
+  <span class="bp">exact</span> (T ⊗^{V}_{l} (pair_diagram_horizontal_arrow xβ)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">next_pair_diagram_coeq</span> (<span class="nv">xβ</span> : pair_diagram) :=
+    CE _ _ (next_pair_diagram_coeq_arr0 xβ) (next_pair_diagram_coeq_arr1 xβ).
+
+<span class="kn">Definition</span> <span class="nf">next_pair_diagram</span> (<span class="nv">xβ</span> : pair_diagram) : pair_diagram.
+<span class="kn">Proof</span>.
+  <span class="c">(* Part of the sequence that we are considering:</span>
+<span class="c">    TXβ-1 --&gt; TXβ ----&gt; TXβ1</span>
+<span class="c">      |        |         |</span>
+<span class="c">      |     xβ |         | xβ1</span>
+<span class="c">      v        v         v</span>
+<span class="c">      Xβ ----&gt; Xβ1 ----&gt; Xβ2</span>
+<span class="c">          fβ</span>
+<span class="c">  *)</span>
+  <span class="c">(* the next "left object" is Xβ1 *)</span>
+  <span class="k">exists</span> (<span class="nv">pair_diagram_rob</span> <span class="nv">xβ</span>).
+
+  <span class="nb">set</span> (coeq := next_pair_diagram_coeq xβ).
+  <span class="nb">set</span> (Xβ2 := CoequalizerObject _ coeq).
+  <span class="k">exists</span> <span class="nv">Xβ2</span>.
+
+  <span class="nb">set</span> (xβ1 := CoequalizerArrow _ coeq).
+  <span class="bp">exact</span> xβ1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_monoid_coeq_sequence_on</span> (<span class="nv">A</span> : C) :
+    nat -&gt; pair_diagram.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> n.
+  <span class="nb">induction</span> n <span class="k">as</span> [|β xβ].
+  - <span class="k">exists</span> <span class="nv">A</span>, (T ⊗_{V} A).
+    <span class="bp">exact</span> (identity _).
+    <span class="c">(* initial arrow is I ⟹ T *)</span>
+  - <span class="bp">exact</span> (next_pair_diagram xβ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_monoid_coeq_sequence_diagram_on</span> (<span class="nv">A</span> : C) :
+    chain C.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (seq := free_monoid_coeq_sequence_on A).
+  use tpair.
+  - <span class="nb">intro</span> n.
+    <span class="bp">exact</span> (pair_diagram_lob (seq n)).
+  - <span class="nb">intros</span> m n H.
+    <span class="nb">induction</span> H.
+    <span class="bp">exact</span> ((pair_diagram_horizontal_arrow (seq m))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">rightwhisker_chain_with</span> (<span class="nv">P</span> : CMon) (<span class="nv">d</span> : chain C) :
+    chain C := mapchain (monoidal_right_tensor P) d.
+<span class="kn">Definition</span> <span class="nf">leftwhisker_chain_with</span> (<span class="nv">P</span> : CMon) (<span class="nv">d</span> : chain C) :
+    chain C := mapchain (monoidal_left_tensor P) d.
+
+<span class="kn">Definition</span> <span class="nf">free_monoid_coeq_sequence_colim_on</span> (<span class="nv">A</span> : C) :
+  ColimCocone (free_monoid_coeq_sequence_diagram_on A) :=
+    CL _.
+
+<span class="kn">Local Definition</span> <span class="nf">free_monoid_coeq_sequence_colim_unit</span> :=
+    free_monoid_coeq_sequence_colim_on I_{V}.
+<span class="kn">Local Definition</span> <span class="nf">Tinf</span> : pointed V.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">colim</span> <span class="nv">free_monoid_coeq_sequence_colim_unit</span>).
+  <span class="bp">exact</span> (colimIn free_monoid_coeq_sequence_colim_unit <span class="mi">0</span>).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_monoid_coeq_sequence_leftwhisker_colim_on</span> (<span class="nv">P</span> <span class="nv">A</span> : C) :
+    ColimCocone (leftwhisker_chain_with P (free_monoid_coeq_sequence_diagram_on A)) :=
+        CL _.
+<span class="kn">Definition</span> <span class="nf">free_monoid_coeq_sequence_rightwhisker_colim_on</span> (<span class="nv">P</span> <span class="nv">A</span> : C) :
+    ColimCocone (rightwhisker_chain_with P (free_monoid_coeq_sequence_diagram_on A)) :=
+        CL _.
+
+<span class="kn">Definition</span> <span class="nf">chain_shift_left</span> (<span class="nv">c</span> : chain C) : chain C.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> n. <span class="bp">exact</span> (dob c (S n)).
+  - <span class="nb">intros</span> m n e.
+    use (dmor c).
+    <span class="c">(* do NOT abstract this, otherwise the recursion will not</span>
+<span class="c">       resolve. *)</span>
+    <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- e.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">chain_shift_left_base_cocone</span> (<span class="nv">c</span> : chain C)
+    (<span class="nv">clmsh</span> := colim (CL (chain_shift_left c))) :
+  cocone c clmsh.
+<span class="kn">Proof</span>.
+  use make_cocone.
+  - <span class="nb">intro</span> v.
+    <span class="c">(* induction v.</span>
+<span class="c">    * exact ((dmor c (idpath _)) · (colimIn (CL (chain_shift_left c)) 0)).</span>
+<span class="c">    * exact (colimIn (CL (chain_shift_left c)) v). *)</span>
+    <span class="bp">exact</span> ((dmor c (idpath _)) · (colimIn (CL (chain_shift_left c)) v)).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> u v e;
+      etrans; [|
+        <span class="nb">apply</span> cancel_precomposition;
+        <span class="bp">exact</span> (colimInCommutes (CL (chain_shift_left c)) _ _ e)
+      ];
+      etrans; [<span class="nb">apply</span> assoc|];
+      <span class="nb">apply</span> pathsinv0;
+      etrans; [<span class="nb">apply</span> assoc|];
+      <span class="nb">apply</span> cancel_postcomposition;
+      <span class="nb">rewrite</span> &lt;- e;
+      <span class="nb">apply</span> cancel_precomposition;
+      <span class="nb">apply</span> (maponpaths (dmor c));
+      <span class="nb">apply</span> isasetnat
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">chain_shift_left_shl_cocone</span> (<span class="nv">c</span> : chain C)
+    (<span class="nv">clm</span> := colim (CL c)) :
+  cocone (chain_shift_left c) clm.
+<span class="kn">Proof</span>.
+  use make_cocone.
+  - <span class="nb">intro</span> v.
+    <span class="nb">apply</span> (colimIn (CL c)).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> u v e;
+      <span class="nb">apply</span> (colimInCommutes _ (S u : vertex nat_graph) (S v))
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">chain_shift_left_fwd_cocone</span> (<span class="nv">c</span> : chain C)
+    {<span class="nv">k</span> : C} (<span class="nv">cc</span> : cocone c k) :
+  cocone (chain_shift_left c) k.
+<span class="kn">Proof</span>.
+  use make_cocone.
+  - <span class="nb">intro</span> v.
+    <span class="bp">exact</span> (coconeIn cc (S v)).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> u v e;
+      <span class="nb">apply</span> (coconeInCommutes cc _ _ _)
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">chain_shift_left_inv_cocone</span> (<span class="nv">c</span> : chain C)
+    {<span class="nv">k</span> : C} (<span class="nv">cc</span> : cocone (chain_shift_left c) k) :
+  cocone c k.
+<span class="kn">Proof</span>.
+  use make_cocone.
+  - <span class="nb">intro</span> v.
+    <span class="nb">induction</span> v.
+    * <span class="nb">apply</span> (postcompose (coconeIn cc <span class="mi">0</span>)).
+      use (dmor c).
+      <span class="bp">reflexivity</span>.
+    * <span class="bp">exact</span> (coconeIn cc v).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> u v e;
+      <span class="nb">induction</span> u; [<span class="bp">now</span> <span class="nb">rewrite</span> &lt;- e|];
+      <span class="nb">rewrite</span> &lt;- e;
+      <span class="c">(* cbn. *)</span>
+      <span class="nb">apply</span> pathsinv0;
+      etrans; [<span class="nb">apply</span> (pathsinv0 (coconeInCommutes cc _ _ (idpath (S u))))|];
+      <span class="nb">apply</span> cancel_postcomposition;
+      <span class="nb">apply</span> (maponpaths (dmor c));
+      <span class="nb">apply</span> isasetnat
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">chain_shift_left_base_isColimCocone</span> (<span class="nv">c</span> : chain C) :
+    isColimCocone _ _ (chain_shift_left_base_cocone c).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (clmsh := CL (chain_shift_left c)).
+  <span class="nb">intros</span> cl cc.
+  <span class="nb">set</span> (fwd_cocone := chain_shift_left_fwd_cocone _ cc).
+  <span class="nb">set</span> (fwd_univProp := colimUnivProp clmsh cl fwd_cocone).
+  <span class="nb">destruct</span> fwd_univProp <span class="k">as</span> [mor uniqueness].
+  use unique_exists.
+  - <span class="bp">exact</span> (pr1 mor).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intro</span> v;
+      etrans; [<span class="nb">apply</span> assoc'|];
+      etrans; [<span class="nb">apply</span> cancel_precomposition;
+              <span class="bp">exact</span> (pr2 mor v)|];
+      <span class="nb">apply</span> (coconeInCommutes cc)
+    ).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intro</span>; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> homset_property
+    ).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> y ccy;
+      <span class="c">(* cbn. *)</span>
+      <span class="nb">apply</span> pathsinv0;
+      etrans; [use (<span class="k">λ</span> <span class="nv">t</span>, pathsinv0 (base_paths _ _ (uniqueness t)))|]; [
+        <span class="k">exists</span> <span class="nv">y</span>;
+        <span class="nb">intro</span> v;
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [<span class="bp">exact</span> (pathsinv0 (ccy (S v)))|];
+        <span class="nb">apply</span> cancel_postcomposition;
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [<span class="bp">exact</span> (pathsinv0 (colimInCommutes clmsh _ _ (idpath _)))|];
+        <span class="nb">apply</span> cancel_postcomposition;
+        <span class="nb">apply</span> (maponpaths (dmor c));
+        <span class="nb">apply</span> isasetnat
+      | <span class="bp">reflexivity</span>
+      ]
+    ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">chain_shift_left_shl_colim_cocone</span> (<span class="nv">c</span> : chain C)
+    (<span class="nv">clmsh</span> := colim (CL (chain_shift_left c))) :
+  ColimCocone c.
+<span class="kn">Proof</span>.
+  use (make_ColimCocone _ clmsh); [<span class="nb">apply</span> chain_shift_left_base_cocone|].
+  <span class="bp">exact</span> (chain_shift_left_base_isColimCocone c).
+<span class="kn">Defined</span>.
+
+<span class="c">(* Definition chain_shift_left_colim_map (c : chain C)</span>
+<span class="c">    (clm := colim (CL c))</span>
+<span class="c">    (clmls := colim (CL (chain_shift_left c))) :</span>
+<span class="c">  clm --&gt; clmls.</span>
+<span class="c">Proof.</span>
+<span class="c">  (* unfold clm, clmls.</span>
+<span class="c">  cbn. *)</span>
+<span class="c">  use colimOfArrows.</span>
+<span class="c">  * intro n.</span>
+<span class="c">    use (dmor c).</span>
+<span class="c">    reflexivity.</span>
+<span class="c">  * intros m n e.</span>
+<span class="c">    (* cbn. *)</span>
+<span class="c">    rewrite &lt;- e.</span>
+<span class="c">    apply cancel_precomposition.</span>
+<span class="c">    cbn.</span>
+<span class="c">    apply maponpaths.</span>
+<span class="c">    apply isasetnat.</span>
+<span class="c">Defined. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">chain_shift_left_colim_iso</span> (<span class="nv">c</span> : chain C)
+    (<span class="nv">clm</span> := colim (CL c))
+    (<span class="nv">clmls</span> := colim (CL (chain_shift_left c))) :
+  z_iso clm clmls.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (z_iso_from_colim_to_colim (CL c) (chain_shift_left_shl_colim_cocone c)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">colimσ_on_welldefined</span>
+    (<span class="nv">A</span> : C)
+    (<span class="nv">m</span> : vertex nat_graph) :
+  T ⊗^{ V}_{l} pair_diagram_horizontal_arrow (free_monoid_coeq_sequence_on A m)
+  · next_pair_diagram (free_monoid_coeq_sequence_on A m) =
+  free_monoid_coeq_sequence_on A m
+  · pair_diagram_horizontal_arrow (next_pair_diagram (free_monoid_coeq_sequence_on A m)).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (coeq := next_pair_diagram_coeq (free_monoid_coeq_sequence_on A m)).
+  <span class="nb">set</span> (coeq_comm := CoequalizerArrowEq _ coeq).
+  etrans. <span class="bp">exact</span> (pathsinv0 coeq_comm).
+
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">colimσ_on</span> (<span class="nv">A</span> : C) :
+    colim (free_monoid_coeq_sequence_leftwhisker_colim_on T A) --&gt;
+      colim (CL (chain_shift_left (free_monoid_coeq_sequence_diagram_on A))).
+<span class="kn">Proof</span>.
+  use colimOfArrows.
+  - <span class="nb">intro</span> α.
+    <span class="c">(* cbn. *)</span>
+    <span class="nb">set</span> (σα := free_monoid_coeq_sequence_on A α).
+    <span class="bp">exact</span> σα.
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> m n e;
+      etrans; [<span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition;
+              <span class="nb">apply</span> (bifunctor_rightid V)|];
+      etrans; [<span class="nb">apply</span> cancel_postcomposition, id_left|];
+      <span class="nb">induction</span> e;
+      <span class="bp">exact</span> (colimσ_on_welldefined A m)
+    ).
+<span class="kn">Defined</span>.
+
+<span class="c">(* canonical map</span>
+<span class="c">(colim (free_monoid_coeq_sequence_leftwhisker_colim_on T A) --&gt; T ⊗_{V} colim (free_monoid_coeq_sequence_colim_on A))</span>
+<span class="c">is well defined</span>
+<span class="c">i.e., map colim (T ⊗ X_α) --&gt; T ⊗ colim X_α *)</span>
+<span class="kn">Lemma</span> <span class="nf">can_colimArrow_forms_cocone</span> (<span class="nv">A</span> : C) :
+    forms_cocone
+      (leftwhisker_chain_with T (free_monoid_coeq_sequence_diagram_on A))
+      (<span class="k">λ</span> <span class="nv">n</span> : nat, T ⊗^{ V}_{l} colimIn (free_monoid_coeq_sequence_colim_on A) n).
+<span class="kn">Proof</span>.
+  <span class="c">(* cbn. *)</span>
+  <span class="nb">intros</span> m n e.
+  <span class="c">(* cbn.</span>
+<span class="c">  unfold monoidal_cat_tensor_mor.</span>
+<span class="c">  cbn.</span>
+<span class="c">  unfold functoronmorphisms1. *)</span>
+  etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (bifunctor_rightid V).
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> id_left.
+  etrans. <span class="nb">apply</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _)).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">set</span> (colimA := free_monoid_coeq_sequence_colim_on A).
+
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="bp">exact</span> (pathsinv0 (colimInCommutes colimA _ _ e)).
+  <span class="c">(* cbn. *)</span>
+  <span class="nb">induction</span> e.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">can</span> (<span class="nv">A</span> : C) :
+    colim (free_monoid_coeq_sequence_leftwhisker_colim_on T A) --&gt; T ⊗_{V} colim (free_monoid_coeq_sequence_colim_on A).
+<span class="kn">Proof</span>.
+  use colimArrow.
+  use tpair.
+  - <span class="nb">intro</span> n.
+    <span class="c">(* cbn. *)</span>
+    <span class="nb">set</span> (arr := colimIn (free_monoid_coeq_sequence_colim_on A) n).
+    <span class="bp">exact</span> (T ⊗^{V}_{l} arr).
+  - <span class="bp">exact</span> (can_colimArrow_forms_cocone A).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">top</span> (<span class="nv">A</span> : C) :
+    colim (free_monoid_coeq_sequence_leftwhisker_colim_on T A) --&gt; T ⊗_{V} colim (free_monoid_coeq_sequence_colim_on A).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (compose (colimσ_on A)).
+  <span class="nb">apply</span> (compose (z_iso_inv (chain_shift_left_colim_iso _))).
+  <span class="nb">apply</span> (compose (luinv_{V} _)).
+  <span class="bp">exact</span> ((pointed_pt _ T) ⊗^{V}_{r} _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">free_monoid_coeq_sequence_limit_step_coeq</span> (<span class="nv">A</span> : C) :=
+    CE _ _ (can A) (top A).
+
+<span class="kn">Definition</span> <span class="nf">free_monoid_coeq_sequence_limit_ordinal_step_on</span> (<span class="nv">A</span> : C) :
+    pair_diagram.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">colim</span> (free_monoid_coeq_sequence_colim_on A)).
+
+  <span class="nb">set</span> (coeq := free_monoid_coeq_sequence_limit_step_coeq A).
+  <span class="k">exists</span> (<span class="nv">CoequalizerObject</span> <span class="nv">_</span> <span class="nv">coeq</span>).
+  <span class="bp">exact</span> (CoequalizerArrow _ coeq).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_monoid_coeq_sequence_converges_on</span> (<span class="nv">A</span> : C) :=
+    is_z_isomorphism (
+      pair_diagram_horizontal_arrow
+        (free_monoid_coeq_sequence_limit_ordinal_step_on A)
+    ).
+
+<span class="kn">Section</span> <span class="nf">Convergence</span>.
+
+<span class="kn">Definition</span> <span class="nf">T_preserves_diagram_on</span> (<span class="nv">A</span> : C) : UU :=
+  preserves_colimit
+    (monoidal_left_tensor (T : CMon))
+    (free_monoid_coeq_sequence_diagram_on A)
+    _ (colimCocone (free_monoid_coeq_sequence_colim_on A)).
+
+<span class="kn">Definition</span> <span class="nf">T_preserves_chains_impl_T_preserves_diagram_on</span> (<span class="nv">A</span> : C) :
+  preserves_colimits_of_shape
+    (monoidal_left_tensor (T : CMon)) nat_graph
+      -&gt; T_preserves_diagram_on A.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">intros</span> CC cl cc.
+  <span class="nb">apply</span> (
+    H (free_monoid_coeq_sequence_diagram_on A)
+      _ _ (isColimCocone_from_ColimCocone (free_monoid_coeq_sequence_colim_on A))
+  ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Context</span> (<span class="nv">A</span> : C).
+<span class="kn">Context</span> (<span class="nv">HT</span> : ∏ B, T_preserves_diagram_on B).
+
+<span class="kn">Local Definition</span> <span class="nf">HCC</span> := HT _ (pr2 (free_monoid_coeq_sequence_colim_on A)).
+<span class="kn">Local Definition</span> <span class="nf">iso</span> :=
+    isColim_is_z_iso _
+        (free_monoid_coeq_sequence_leftwhisker_colim_on T A)
+        _ _ HCC.
+
+<span class="kn">Definition</span> <span class="nf">T_preserves_diagram_coeqout_arrow_on</span> :
+  T ⊗_{ V} colim (free_monoid_coeq_sequence_colim_on A) --&gt;
+    pair_diagram_lob (free_monoid_coeq_sequence_limit_ordinal_step_on A) :=
+    (pr1 iso) · ((colimσ_on A) · (z_iso_inv (chain_shift_left_colim_iso _))).
+
+<span class="kn">Local Lemma</span> <span class="nf">chain_shift_left_colimIn_commutes</span>
+  (<span class="nv">u</span> : vertex nat_graph) :
+  colimIn (CL (chain_shift_left (free_monoid_coeq_sequence_diagram_on A))) u
+  · colimArrow
+      (chain_shift_left_shl_colim_cocone (free_monoid_coeq_sequence_diagram_on A))
+      _ (colimCocone (free_monoid_coeq_sequence_colim_on A))
+  = coconeIn (colimCocone (free_monoid_coeq_sequence_colim_on A)) (S u).
+<span class="kn">Proof</span>.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="bp">exact</span> (pathsinv0 (colimInCommutes (CL (chain_shift_left (free_monoid_coeq_sequence_diagram_on A))) _ _ (idpath (S u)))).
+  <span class="nb">apply</span> (colimArrowCommutes (chain_shift_left_shl_colim_cocone (free_monoid_coeq_sequence_diagram_on A)) _ _ (S u)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">leftwhisker_colimIn_equals_on</span>
+    (<span class="nv">u</span> : vertex nat_graph)
+    (<span class="nv">ltCC</span> := (make_ColimCocone _ _ _ HCC)) :
+  T ⊗^{ V}_{l} colimIn (free_monoid_coeq_sequence_colim_on A) u
+  = colimIn (ltCC) u.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (bifunctor_rightid V).
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">TcolimIn_T_preserves_diagram_coeqout_arrow_on</span>
+    (<span class="nv">u</span> : vertex nat_graph) :
+  T ⊗^{ V}_{l} colimIn (free_monoid_coeq_sequence_colim_on A) u
+  · T_preserves_diagram_coeqout_arrow_on
+  = free_monoid_coeq_sequence_on A u
+  · coconeIn (colimCocone (free_monoid_coeq_sequence_colim_on A)) (S u).
+<span class="kn">Proof</span>.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+  {
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (leftwhisker_colimIn_equals_on u).
+    <span class="nb">apply</span> (colimArrowCommutes (make_ColimCocone _ _ _ HCC)).
+  }
+
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (colimOfArrowsIn _ _ (free_monoid_coeq_sequence_leftwhisker_colim_on T A)).
+
+  etrans. <span class="nb">apply</span> assoc'.
+  <span class="nb">apply</span> cancel_precomposition.
+  <span class="nb">apply</span> (chain_shift_left_colimIn_commutes).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">T_preserves_diagram_coeqout_arrow_on_is_coeqout</span> :
+    can A · T_preserves_diagram_coeqout_arrow_on =
+    top A · T_preserves_diagram_coeqout_arrow_on.
+<span class="kn">Proof</span>.
+  use colimArrowUnique'.
+  <span class="nb">intro</span> u.
+
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          use (colimArrowCommutes ((free_monoid_coeq_sequence_leftwhisker_colim_on T A))).
+  etrans. <span class="bp">exact</span> (TcolimIn_T_preserves_diagram_coeqout_arrow_on u).
+
+  <span class="nb">apply</span> pathsinv0.
+
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+  {
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> colimOfArrowsIn.
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (chain_shift_left_colimIn_commutes u).
+
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (pathsinv0 (monoidal_leftunitorinvnat V _ _ _)).
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="bp">exact</span> (pathsinv0 (whiskerscommutes V (bifunctor_equalwhiskers V) _ _)).
+  }
+
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="bp">exact</span> (TcolimIn_T_preserves_diagram_coeqout_arrow_on (S u)).
+
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> assoc'.
+  <span class="nb">apply</span> cancel_precomposition.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="bp">exact</span> ( colimInCommutes (free_monoid_coeq_sequence_colim_on A) _ _ (idpath (S (S u)))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">T_preserves_diagram_convergence_inv</span> :
+    pair_diagram_rob (free_monoid_coeq_sequence_limit_ordinal_step_on A)
+    --&gt; pair_diagram_lob (free_monoid_coeq_sequence_limit_ordinal_step_on A).
+<span class="kn">Proof</span>.
+  use CoequalizerOut.
+  - <span class="bp">exact</span> T_preserves_diagram_coeqout_arrow_on.
+  - <span class="bp">exact</span> T_preserves_diagram_coeqout_arrow_on_is_coeqout.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">T_preserves_diagram_convergence_inverse_in_precat</span> :
+  is_inverse_in_precat
+    (pair_diagram_horizontal_arrow (free_monoid_coeq_sequence_limit_ordinal_step_on A))
+  T_preserves_diagram_convergence_inv.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> pathsinv0.
+    use colim_endo_is_identity.
+    <span class="nb">intro</span> u.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> CoequalizerArrowComm.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+    {
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="bp">exact</span> (pathsinv0 (monoidal_leftunitorinvnat V _ _ _)).
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="bp">exact</span> (pathsinv0 (whiskerscommutes V (bifunctor_equalwhiskers V) _ _)).
+    }
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="bp">exact</span> (TcolimIn_T_preserves_diagram_coeqout_arrow_on u).
+
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="bp">exact</span> (colimInCommutes (free_monoid_coeq_sequence_colim_on A) _ _ (idpath (S u))).
+  - <span class="nb">apply</span> pathsinv0.
+    use CoequalizerEndo_is_identity.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> CoequalizerArrowComm.
+
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+    {
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> assoc'.
+      <span class="bp">exact</span> (pathsinv0 (CoequalizerArrowEq _ (free_monoid_coeq_sequence_limit_step_coeq A))).
+    }
+    <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj iso).
+    use colimArrowUnique'.
+    <span class="nb">intro</span> u.
+    <span class="c">(* revert iso *)</span>
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+    {
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="bp">exact</span> (pr12 iso).
+      <span class="nb">apply</span> id_left.
+    }
+
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> colimArrowCommutes.
+    <span class="c">(* cbn. *)</span>
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (colimArrowCommutes (free_monoid_coeq_sequence_leftwhisker_colim_on T A)).
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (bifunctor_rightid V).
+    <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">T_preserves_diagram_impl_convergence_on</span> :
+    free_monoid_coeq_sequence_converges_on A.
+<span class="kn">Proof</span>.
+  use make_is_z_isomorphism.
+  - <span class="bp">exact</span> T_preserves_diagram_convergence_inv.
+  - <span class="bp">exact</span> T_preserves_diagram_convergence_inverse_in_precat.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Convergence</span>.
+
+<span class="kn">Section</span> <span class="nf">Monoid</span>.
+
+<span class="kn">Context</span> (<span class="nv">Hconv</span>: free_monoid_coeq_sequence_converges_on I_{V}).
+
+<span class="kn">Lemma</span> <span class="nf">free_monoid_coeq_sequence_converges_gives_adjoint_mon_alg</span>  :
+  Mon_alg _ T.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">Tinf</span>.
+  use tpair.
+  - <span class="nb">set</span> (limit_step := free_monoid_coeq_sequence_limit_ordinal_step_on I_{V}).
+    <span class="nb">set</span> (σinfty := pair_diagram_arr limit_step).
+    <span class="bp">exact</span> (σinfty · z_iso_inv_from_is_z_iso _ Hconv).
+  - <span class="kp">abstract</span> (
+      <span class="nb">apply</span> pathsinv0;
+      use colim_endo_is_identity;
+      <span class="nb">intro</span> n;
+      <span class="c">(* cbn. *)</span>
+
+      <span class="nb">apply</span> pathsinv0;
+      etrans; [<span class="bp">exact</span> (pathsinv0 (id_right _))|];
+      <span class="nb">apply</span> cancel_precomposition;
+      <span class="nb">apply</span> pathsinv0;
+      <span class="c">(* cbn. *)</span>
+
+      etrans; [<span class="nb">apply</span> assoc|];
+      <span class="bp">exact</span> (pr12 Hconv)
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">TinfM</span> := free_monoid_coeq_sequence_converges_gives_adjoint_mon_alg.
+
+<span class="kn">Definition</span> <span class="nf">Tinf_pd_Tinf_map</span>
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">p</span> := free_monoid_coeq_sequence_on I_{V} n) :=
+  ∑ (τn : pair_diagram_lob p ⊗_{V} Tinf --&gt; Tinf)
+    (τn1 : pair_diagram_rob p ⊗_{V} Tinf --&gt; Tinf),
+      (pair_diagram_arr p ⊗^{V}_{r} Tinf) · τn1
+      = α_{V} _ _ _ · (T ⊗^{V}_{l} τn) · (Mon_alg_map _ (pr2 TinfM)).
+
+
+<span class="kn">Lemma</span> <span class="nf">free_monoid_coeq_sequence_on_Tinf_pd_Tinf_map_coeqout_rel</span>
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">Hn</span> : Tinf_pd_Tinf_map n)
+    (<span class="nv">Xn</span> := free_monoid_coeq_sequence_on I_{V} n) :
+  next_pair_diagram_coeq_arr0 (free_monoid_coeq_sequence_on I_{ V} n) ⊗^{ V}_{r} Tinf
+  · (α_{ V } _ _ _
+     · T ⊗^{ V}_{l} pr12 Hn · Mon_alg_map _ (pr2 TinfM)) =
+  next_pair_diagram_coeq_arr1 (free_monoid_coeq_sequence_on I_{ V} n) ⊗^{ V}_{r} Tinf
+  · (α_{ V } _ _ _
+      · T ⊗^{ V}_{l} pr12 Hn · Mon_alg_map _ (pr2 TinfM)).
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> Hn <span class="k">as</span> [τn [τn1 τcomm]].
+  <span class="nb">apply</span> pathsinv0.
+
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (bifunctor_leftcomp V).
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (bifunctor_rightcomp V).
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="c">(* etrans. apply cancel_postcomposition, assoc. *)</span>
+  <span class="c">(* etrans. apply assoc'. *)</span>
+  etrans. <span class="nb">apply</span> assoc4.
+  etrans. <span class="nb">apply</span> cancel_postcomposition, cancel_precomposition.
+  {
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (pathsinv0 (monoidal_associatornatleftright V _ _ _ _ _)).
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    etrans. <span class="bp">exact</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _)).
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> τcomm.
+  }
+
+  etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+  {
+    etrans. <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (bifunctor_leftcomp V).
+    <span class="nb">apply</span> (bifunctor_rightcomp V).
+  }
+  etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> assoc4.
+  etrans. <span class="nb">apply</span> cancel_postcomposition, cancel_precomposition.
+          <span class="nb">apply</span> (pathsinv0 (monoidal_associatornatleftright V _ _ _ _ _)).
+  etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+  {
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    etrans. <span class="bp">exact</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _)).
+    etrans. <span class="nb">apply</span> maponpaths.
+    {
+      etrans. <span class="nb">apply</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="bp">exact</span> (pathsinv0 (monoidal_associatornatright V _ _ _ _ _)).
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> (whiskerscommutes V (bifunctor_equalwhiskers V)).
+    }
+    etrans. <span class="nb">apply</span> maponpaths.
+    {
+      etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+      {
+        etrans. <span class="bp">exact</span> (pathsinv0 (id_left _)).
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="bp">exact</span> (pathsinv0 (pr1 (monoidal_leftunitorisolaw V _))).
+        etrans. <span class="nb">apply</span> assoc'.
+        etrans. <span class="nb">apply</span> cancel_precomposition.
+                <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_precomposition.
+                <span class="bp">exact</span> (pr22 TinfM).
+        <span class="nb">apply</span> id_right.
+      }
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> (monoidal_leftunitornat V).
+    }
+    <span class="bp">reflexivity</span>.
+  }
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="bp">exact</span> (pathsinv0 (monoidal_associatornatleftright V _ _ _ _ _)).
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+  {
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    etrans. <span class="bp">exact</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _)).
+    <span class="nb">apply</span> maponpaths.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (pathsinv0 (monoidal_triangle_identity'_inv V _ _)).
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> assoc4.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            etrans. <span class="nb">apply</span> cancel_precomposition.
+                    <span class="nb">apply</span> (monoidal_associatorisolaw V).
+            <span class="nb">apply</span> id_right.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (monoidal_leftunitorisolaw V).
+    <span class="nb">apply</span> id_left.
+  }
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="bp">exact</span> (pathsinv0 τcomm).
+
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+  {
+    etrans. <span class="nb">apply</span> (bifunctor_rightcomp V).
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> (bifunctor_rightcomp V).
+  }
+  etrans. <span class="nb">apply</span> assoc'.
+  <span class="nb">apply</span> cancel_precomposition.
+
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> assoc4.
+  etrans. <span class="nb">apply</span> cancel_postcomposition, cancel_precomposition.
+  {
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (pathsinv0 (monoidal_associatornatright V _ _ _ _ _)).
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> (whiskerscommutes V (bifunctor_equalwhiskers V)).
+  }
+
+  etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+  {
+    etrans. <span class="bp">exact</span> (pathsinv0 (id_left _)).
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (pathsinv0 (pr1 (monoidal_leftunitorisolaw V _))).
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+    {
+      etrans. <span class="nb">apply</span> assoc.
+      <span class="bp">exact</span> (pr22 TinfM).
+    }
+    <span class="nb">apply</span> id_right.
+  }
+  etrans. <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> cancel_postcomposition.
+          <span class="bp">exact</span> (pathsinv0 (monoidal_triangle_identity'_inv V _ _)).
+  etrans. <span class="nb">apply</span> cancel_postcomposition, assoc4.
+  etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+          etrans. <span class="nb">apply</span> cancel_precomposition.
+                  <span class="nb">apply</span> (monoidal_associatorisolaw V).
+          <span class="nb">apply</span> id_right.
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="nb">apply</span> (monoidal_leftunitornat V).
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (monoidal_leftunitorisolaw V).
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">rt_coeq_coequalizer</span>
+    {<span class="nv">A</span> : C}
+    (<span class="nv">rt_coeq</span> : preserves_colimits_of_shape
+          (monoidal_right_tensor (A : CMon)) Coequalizer_graph)
+    {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b}
+    (<span class="nv">coeq</span> : Coequalizer _ f g) :
+  Coequalizer _ (f ⊗^{V}_{r} A) (g ⊗^{V}_{r} A).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (mapped_colimcocone := rt_coeq _ _ _ (isColimCocone_from_ColimCocone coeq)).
+
+  use make_Coequalizer.
+  - <span class="bp">exact</span> (CoequalizerObject _ coeq ⊗_{V} A).
+  - <span class="bp">exact</span> (CoequalizerArrow _ coeq ⊗^{V}_{r} A).
+  - <span class="kp">abstract</span> (
+      etrans; [<span class="bp">exact</span> (pathsinv0 (bifunctor_rightcomp V _ _ _ _ _ _))|];
+      <span class="nb">apply</span> pathsinv0;
+      etrans; [<span class="bp">exact</span> (pathsinv0 (bifunctor_rightcomp V _ _ _ _ _ _))|];
+      <span class="nb">apply</span> maponpaths;
+      <span class="bp">exact</span> (pathsinv0 (CoequalizerArrowEq _ coeq))
+    ).
+  - use make_isCoequalizer.
+    <span class="nb">intros</span> e h' H.
+    transparent <span class="nb">assert</span> (cc : (cocone
+            (mapdiagram (monoidal_right_tensor (A : CMon))
+              (Coequalizer_diagram C f g)) e)).
+    {
+      use make_cocone.
+      - use two_rec_dep.
+        * <span class="bp">exact</span> ((f ⊗^{V}_{r} A) · h').
+        * <span class="bp">exact</span> h'.
+      - use two_rec_dep; use two_rec_dep.
+        * <span class="bp">exact</span> (empty_rect _).
+        * <span class="nb">intro</span> e'. <span class="nb">induction</span> e'.
+          + etrans. <span class="nb">apply</span> assoc'.
+            etrans. <span class="nb">apply</span> cancel_precomposition, cancel_postcomposition.
+                    <span class="nb">apply</span> (bifunctor_leftid V).
+            <span class="nb">apply</span> cancel_precomposition, id_left.
+          + etrans. <span class="nb">apply</span> assoc'.
+            etrans. <span class="nb">apply</span> cancel_precomposition, cancel_postcomposition.
+                    <span class="nb">apply</span> (bifunctor_leftid V).
+            etrans. <span class="nb">apply</span> cancel_precomposition, id_left.
+            <span class="nb">apply</span> (! H).
+        * <span class="bp">exact</span> (empty_rect _).
+        * <span class="bp">exact</span> (empty_rect _).
+    }
+
+    <span class="nb">destruct</span> (mapped_colimcocone e cc) <span class="k">as</span> [x uniqueness].
+    use unique_exists.
+    * <span class="bp">exact</span> (pr1 x).
+    * <span class="kp">abstract</span> (
+        etrans; [|<span class="bp">exact</span> (pr2 x (● <span class="mi">1</span>)%stn)];
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [<span class="nb">apply</span> assoc'|];
+        <span class="nb">apply</span> cancel_precomposition;
+        etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                <span class="nb">apply</span> (bifunctor_leftid V)|];
+        <span class="nb">apply</span> id_left
+      ).
+    * <span class="kp">abstract</span> (
+        <span class="nb">intro</span> y; <span class="nb">apply</span> homset_property
+      ).
+    * <span class="kp">abstract</span> (
+        <span class="nb">intros</span> y ccy;
+        etrans; [use (<span class="k">λ</span> <span class="nv">t</span>, base_paths _ _ (uniqueness (y,, t)))|]; [|<span class="bp">reflexivity</span>];
+        use two_rec_dep; (
+          etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                  etrans; [<span class="nb">apply</span> cancel_precomposition, (bifunctor_leftid V)|];
+                  <span class="nb">apply</span> id_right|]
+        ); [|<span class="bp">exact</span> ccy];
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [<span class="nb">apply</span> cancel_precomposition;
+                <span class="bp">exact</span> (pathsinv0 ccy)|];
+        etrans; [<span class="nb">apply</span> assoc|];
+        <span class="nb">apply</span> cancel_postcomposition;
+        etrans; [<span class="bp">exact</span> (pathsinv0 (bifunctor_rightcomp V _ _ _ _ _ _))|];
+        <span class="nb">apply</span> maponpaths;
+        <span class="bp">exact</span> (coconeInCommutes (pr21 coeq) (stnpr <span class="mi">0</span>) (stnpr <span class="mi">1</span>) (inl tt))
+      ).
+<span class="kn">Defined</span>.
+
+<span class="c">(* Definition lt_coeq_coequalizer</span>
+<span class="c">    {A : C}</span>
+<span class="c">    (lt_coeq : preserves_colimits_of_shape</span>
+<span class="c">          (monoidal_left_tensor (A : CMon)) Coequalizer_graph)</span>
+<span class="c">    {a b : C} {f g : a --&gt; b}</span>
+<span class="c">    (coeq : Coequalizer _ f g) :</span>
+<span class="c">  Coequalizer _ (A ⊗^{V}_{l} f) (A ⊗^{V}_{l} g).</span>
+<span class="c">Proof.</span>
+<span class="c">  set (mapped_colimcocone := lt_coeq _ _ _ (isColimCocone_from_ColimCocone coeq)).</span>
+
+<span class="c">  use make_Coequalizer.</span>
+<span class="c">  - exact (A ⊗_{V} CoequalizerObject _ coeq ).</span>
+<span class="c">  - exact (A ⊗^{V}_{l} CoequalizerArrow _ coeq).</span>
+<span class="c">  - abstract (</span>
+<span class="c">      etrans; [exact (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _))|];</span>
+<span class="c">      apply pathsinv0;</span>
+<span class="c">      etrans; [exact (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _))|];</span>
+<span class="c">      apply maponpaths;</span>
+<span class="c">      exact (pathsinv0 (CoequalizerArrowEq _ coeq))</span>
+<span class="c">    ).</span>
+<span class="c">  - use make_isCoequalizer.</span>
+<span class="c">    intros e h' H.</span>
+<span class="c">    transparent assert (cc : (cocone</span>
+<span class="c">            (mapdiagram (monoidal_left_tensor (A : CMon))</span>
+<span class="c">              (Coequalizer_diagram C f g)) e)).</span>
+<span class="c">    {</span>
+<span class="c">      use make_cocone.</span>
+<span class="c">      - use two_rec_dep.</span>
+<span class="c">        * exact ((A  ⊗^{V}_{l} f) · h').</span>
+<span class="c">        * exact h'.</span>
+<span class="c">      - use two_rec_dep; use two_rec_dep.</span>
+<span class="c">        * exact (empty_rect _).</span>
+<span class="c">        * intro e'. induction e'.</span>
+<span class="c">          + etrans. apply assoc'.</span>
+<span class="c">            etrans. apply cancel_postcomposition.</span>
+<span class="c">                    apply (bifunctor_rightid V).</span>
+<span class="c">            apply id_left.</span>
+<span class="c">          + etrans. apply assoc'.</span>
+<span class="c">            etrans. apply cancel_postcomposition.</span>
+<span class="c">                    apply (bifunctor_rightid V).</span>
+<span class="c">            etrans. apply id_left.</span>
+<span class="c">            apply (! H).</span>
+<span class="c">        * exact (empty_rect _).</span>
+<span class="c">        * exact (empty_rect _).</span>
+<span class="c">    }</span>
+
+<span class="c">    destruct (mapped_colimcocone e cc) as [x uniqueness].</span>
+<span class="c">    use unique_exists.</span>
+<span class="c">    * exact (pr1 x).</span>
+<span class="c">    * abstract (</span>
+<span class="c">        etrans; [|exact (pr2 x (● 1)%stn)];</span>
+<span class="c">        apply pathsinv0;</span>
+<span class="c">        etrans; [apply assoc'|];</span>
+<span class="c">        etrans; [apply cancel_postcomposition, (bifunctor_rightid V)|];</span>
+<span class="c">        apply id_left</span>
+<span class="c">      ).</span>
+<span class="c">    * abstract (</span>
+<span class="c">        intro y; apply homset_property</span>
+<span class="c">      ).</span>
+<span class="c">    * abstract (</span>
+<span class="c">        intros y ccy;</span>
+<span class="c">        etrans; [use (λ t, base_paths _ _ (uniqueness (y,, t)))|]; [|reflexivity];</span>
+<span class="c">        use two_rec_dep; (</span>
+<span class="c">          etrans; [apply cancel_postcomposition;</span>
+<span class="c">                  etrans; [apply cancel_postcomposition, (bifunctor_rightid V)|];</span>
+<span class="c">                  apply id_left|]</span>
+<span class="c">        ); [|exact ccy];</span>
+<span class="c">        apply pathsinv0;</span>
+<span class="c">        etrans; [apply cancel_precomposition;</span>
+<span class="c">                exact (pathsinv0 ccy)|];</span>
+<span class="c">        etrans; [apply assoc|];</span>
+<span class="c">        apply cancel_postcomposition;</span>
+<span class="c">        etrans; [exact (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _))|];</span>
+<span class="c">        apply maponpaths;</span>
+<span class="c">        exact (coconeInCommutes (pr21 coeq) (stnpr 0) (stnpr 1) (inl tt))</span>
+<span class="c">      ).</span>
+<span class="c">Defined. *)</span>
+
+<span class="kn">Context</span> (<span class="nv">rt_coeq</span> : rt_preserves_coequalizers V).
+
+<span class="kn">Definition</span> <span class="nf">free_monoid_coeq_sequence_on_Tinf_pd_Tinf_map_coeqout</span>
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">Hn</span> : Tinf_pd_Tinf_map n)
+    (<span class="nv">Xn1</span> := free_monoid_coeq_sequence_on I_{V} (S n)) :
+  pair_diagram_rob Xn1 ⊗_{V} Tinf --&gt; Tinf.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (τn1 := pr12 Hn).
+  <span class="nb">set</span> (coeq := next_pair_diagram_coeq (free_monoid_coeq_sequence_on I_{V} n)).
+  <span class="nb">set</span> (rt_coequalizer := rt_coeq_coequalizer (rt_coeq Tinf) coeq).
+  use (CoequalizerOut _ rt_coequalizer).
+  - <span class="bp">exact</span> (α_{V} _ _ _ · (T ⊗^{V}_{l} τn1) · Mon_alg_map _ (pr2 TinfM)).
+  - <span class="bp">exact</span> (free_monoid_coeq_sequence_on_Tinf_pd_Tinf_map_coeqout_rel n Hn).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_monoid_coeq_sequence_on_Tinf_pd_Tinf_map</span>
+    (<span class="nv">n</span> : nat) :
+  Tinf_pd_Tinf_map n.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n Hn].
+  - <span class="k">exists</span> (<span class="nv">lu_</span>{V} _).
+    <span class="k">exists</span> (<span class="nv">ru_</span>{V} T ⊗^{V}_{r} Tinf · Mon_alg_map _ (pr2 TinfM)).
+    <span class="kp">abstract</span> (
+      etrans; [<span class="nb">apply</span> cancel_postcomposition;
+              <span class="nb">apply</span> (bifunctor_rightid V)|];
+      etrans; [<span class="nb">apply</span> id_left|];
+      <span class="nb">apply</span> pathsinv0;
+      <span class="nb">apply</span> cancel_postcomposition;
+      <span class="nb">apply</span> (monoidal_triangleidentity V)
+    ).
+  - <span class="nb">set</span> (τn1 := pr12 Hn).
+    <span class="k">exists</span> <span class="nv">τn1</span>.
+    <span class="k">exists</span> (<span class="nv">free_monoid_coeq_sequence_on_Tinf_pd_Tinf_map_coeqout</span> <span class="nv">n</span> <span class="nv">Hn</span>).
+    <span class="kp">abstract</span> (
+      <span class="nb">set</span> (coeq := next_pair_diagram_coeq (free_monoid_coeq_sequence_on I_{V} n));
+      <span class="nb">set</span> (rt_coequalizer := rt_coeq_coequalizer (rt_coeq Tinf) coeq);
+      <span class="nb">apply</span> (CoequalizerArrowComm _ rt_coequalizer)
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_monoid_coeq_sequence_diagram_on_Tinf_Tinf_map</span>
+    (<span class="nv">n</span> : vertex nat_graph) :
+  dob (free_monoid_coeq_sequence_diagram_on I_{V}) n ⊗_{V} Tinf --&gt; Tinf.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (free_monoid_coeq_sequence_on_Tinf_pd_Tinf_map n)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_monoid_coeq_sequence_colim_on_Tinf_Tinf_map_formscocone</span>
+    (<span class="nv">m</span> : vertex nat_graph) :
+  pair_diagram_horizontal_arrow (free_monoid_coeq_sequence_on I_{V} m) ⊗^{V}_{r} Tinf
+  · free_monoid_coeq_sequence_diagram_on_Tinf_Tinf_map (S m)
+  = free_monoid_coeq_sequence_diagram_on_Tinf_Tinf_map m.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (pdTinfmap_rel := pr22 (free_monoid_coeq_sequence_on_Tinf_pd_Tinf_map m)).
+  <span class="c">(* simpl in pdTinfmap_rel. *)</span>
+  <span class="c">(* simpl. *)</span>
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (bifunctor_rightcomp V).
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="bp">exact</span> pdTinfmap_rel.
+
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (bifunctor_rightcomp V).
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> assoc4.
+  etrans. <span class="nb">apply</span> cancel_postcomposition, cancel_precomposition.
+          <span class="bp">exact</span> (pathsinv0 (monoidal_associatornatright V _ _ _ _ _)).
+  etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> assoc4.
+  etrans. <span class="nb">apply</span> cancel_postcomposition, cancel_precomposition.
+          <span class="nb">apply</span> (whiskerscommutes V (bifunctor_equalwhiskers V)).
+  etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+  {
+    etrans. <span class="bp">exact</span> (pathsinv0 (id_left _)).
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (pathsinv0 (pr1 (monoidal_leftunitorisolaw V _))).
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            etrans. <span class="nb">apply</span> assoc.
+            <span class="bp">exact</span> (pr22 TinfM).
+    <span class="nb">apply</span> id_right.
+  }
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="nb">apply</span> (monoidal_leftunitornat V).
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+  {
+    etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (pathsinv0 (monoidal_triangle_identity'_inv V _ _)).
+    etrans. <span class="nb">apply</span> assoc4.
+    etrans. <span class="nb">apply</span> cancel_postcomposition, cancel_precomposition.
+            <span class="nb">apply</span> (monoidal_associatorisolaw V).
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> (monoidal_leftunitorisolaw V).
+  }
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="c">(* We define the map from free_monoid_coeq_sequence_rightwhisker_colim_on,</span>
+<span class="c">   i.e. from the chain on I_{V} rightwhiskered with T∞.</span>
+<span class="c">   It is possible, and in fact cleaner, to define a map</span>
+<span class="c">   colim (chain_on T∞) --&gt; T∞,</span>
+<span class="c">   however, for this we need a morphism</span>
+<span class="c">   T∞ ⊗ T∞ --&gt; colim (chain_on T∞),</span>
+<span class="c">   which is harder to define than</span>
+<span class="c">   T∞ ⊗ T∞ --&gt; colim ((chain_on I_{V}) ⊗ T∞),</span>
+<span class="c">   using the preservation of colimits of the right-</span>
+<span class="c">   whiskering functor. The two chains are in fact the same though,</span>
+<span class="c">   as they start with</span>
+<span class="c">   I ⊗ T∞ --&gt; T ⊗ T∞ --&gt; ...</span>
+<span class="c">   and</span>
+<span class="c">   T∞ --&gt; T ⊗ T∞ --&gt; ...</span>
+<span class="c">   respectively.</span>
+<span class="c">   *)</span>
+<span class="kn">Definition</span> <span class="nf">free_monoid_coeq_sequence_colim_on_Tinf_Tinf_map</span> :
+    colim (free_monoid_coeq_sequence_rightwhisker_colim_on Tinf I_{V}) --&gt; Tinf.
+<span class="kn">Proof</span>.
+  use colimArrow.
+  use tpair.
+  - <span class="nb">intro</span> n.
+    <span class="bp">exact</span> (free_monoid_coeq_sequence_diagram_on_Tinf_Tinf_map n).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> m n e;
+      <span class="nb">induction</span> e;
+      etrans; [<span class="nb">apply</span> cancel_postcomposition, cancel_precomposition;
+              <span class="nb">apply</span> (bifunctor_leftid V)|];
+      etrans; [<span class="nb">apply</span> cancel_postcomposition, id_right|];
+      <span class="bp">exact</span> (free_monoid_coeq_sequence_colim_on_Tinf_Tinf_map_formscocone m)
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Context</span> (<span class="nv">rt_chain</span> : rt_preserves_chains V).
+
+<span class="kn">Definition</span> <span class="nf">Tinf_monoid_mul_iso</span>
+    (<span class="nv">rt_colim</span> := free_monoid_coeq_sequence_rightwhisker_colim_on Tinf I_{V}) :
+  z_iso (colim (rt_colim)) (Tinf ⊗_{V} Tinf).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (ccTinf := free_monoid_coeq_sequence_colim_on I_{V}).
+  <span class="nb">set</span> (rt_ccTinf := rt_chain Tinf _ _ _ (isColimCocone_from_ColimCocone ccTinf)).
+  <span class="nb">set</span> (iso := (_,, isColim_is_z_iso _ rt_colim _ _ rt_ccTinf) : z_iso _ _).
+  <span class="bp">exact</span> iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Tinf_monoid_mul</span>  :
+  (Tinf ⊗_{V} Tinf) --&gt; Tinf.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> ((z_iso_inv Tinf_monoid_mul_iso) · free_monoid_coeq_sequence_colim_on_Tinf_Tinf_map).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Tinf_monoid_data</span> :
+    monoid_data V Tinf :=
+  (Tinf_monoid_mul,, colimIn free_monoid_coeq_sequence_colim_unit <span class="mi">0</span>).
+
+<span class="kn">Lemma</span> <span class="nf">Tinf_monoid_mul_iso_precomp_with_colimIn</span>
+    (<span class="nv">v</span> : vertex nat_graph) :
+  colimIn free_monoid_coeq_sequence_colim_unit v ⊗^{V}_{r} Tinf
+  · z_iso_inv Tinf_monoid_mul_iso
+  = coconeIn (colimCocone (free_monoid_coeq_sequence_rightwhisker_colim_on Tinf I_{V})) v.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="k">match goal with</span>
+  |- _ · colimArrow <span class="nl">?CC_</span> _ _ = _ =&gt; <span class="nb">set</span> (CC := CC_)
+  <span class="k">end</span>.
+  etrans; [|<span class="bp">exact</span> (colimArrowCommutes CC _ _ v)].
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="nb">apply</span> (bifunctor_leftid V).
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Tinf_monoid_unit_left</span> :
+    monoid_laws_unit_left V Tinf_monoid_data.
+<span class="kn">Proof</span>.
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj (is_inverse_in_precat_inv (monoidal_leftunitorisolaw V _))).
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="bp">exact</span> (pr2 (monoidal_leftunitorisolaw V _)).
+  use colim_endo_is_identity.
+  <span class="nb">intro</span> v.
+  etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_precomposition.
+          <span class="nb">apply</span> cancel_postcomposition.
+          <span class="bp">exact</span> (Tinf_monoid_mul_iso_precomp_with_colimIn <span class="mi">0</span>).
+
+  etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_precomposition.
+  {
+    <span class="nb">set</span> (CC := free_monoid_coeq_sequence_rightwhisker_colim_on Tinf I_{ V}).
+    <span class="nb">apply</span> (colimArrowCommutes CC Tinf _ <span class="mi">0</span>).
+  }
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="nb">apply</span> (pr2 (monoidal_leftunitorisolaw V _)).
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Tinf_rightwhisker_inclusion</span>
+    (<span class="nv">v</span> : vertex nat_graph) :
+  dob (free_monoid_coeq_sequence_diagram_on I_{V}) v
+  --&gt; dob (rightwhisker_chain_with Tinf (free_monoid_coeq_sequence_diagram_on I_{V})) v.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (ruinv_{V} _ · _ ⊗^{V}_{l} colimIn free_monoid_coeq_sequence_colim_unit <span class="mi">0</span>).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Tinf_rightwhisker_inclusion_commutes</span>
+    (<span class="nv">v</span> : vertex nat_graph) :
+  Tinf_rightwhisker_inclusion v
+  · dmor (free_monoid_coeq_sequence_diagram_on I_{ V}) (idpath (S v)) ⊗^{V}_{r} Tinf =
+  dmor (free_monoid_coeq_sequence_diagram_on I_{V}) (idpath (S v))
+  · Tinf_rightwhisker_inclusion (S v).
+<span class="kn">Proof</span>.
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="bp">exact</span> (pathsinv0 (whiskerscommutes V (bifunctor_equalwhiskers V) _ _)).
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (monoidal_rightunitorinvnat V).
+  <span class="nb">apply</span> assoc'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Context</span> (<span class="nv">HT</span> : ∏ B, T_preserves_diagram_on B).
+
+<span class="kn">Lemma</span> <span class="nf">Tinf_limit_step_colimIn_commutes</span>
+    (<span class="nv">v</span> : vertex nat_graph) :
+  T ⊗^{ V}_{l} colimIn free_monoid_coeq_sequence_colim_unit (S v)
+  · CoequalizerArrow C (free_monoid_coeq_sequence_limit_step_coeq I_{ V})
+  = CoequalizerArrow C (next_pair_diagram_coeq (free_monoid_coeq_sequence_on I_{V} v))
+  · colimIn free_monoid_coeq_sequence_colim_unit (S (S v))
+  · pair_diagram_horizontal_arrow (free_monoid_coeq_sequence_limit_ordinal_step_on I_{V}).
+<span class="kn">Proof</span>.
+  show_id_type.
+  <span class="nb">set</span> (coeq := free_monoid_coeq_sequence_limit_step_coeq I_{V}).
+  <span class="nb">set</span> (limstepcomm := CoequalizerArrowEq _ coeq).
+  <span class="nb">set</span> (TTinfin := colimIn (free_monoid_coeq_sequence_leftwhisker_colim_on T I_{ V}) (S v)).
+  <span class="nb">set</span> (TTinfin_limstepcomm := cancel_precomposition _ _ _ _ _ _ TTinfin limstepcomm).
+  use (pathscomp1 TTinfin_limstepcomm).
+  - etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (colimArrowCommutes).
+    <span class="bp">reflexivity</span>.
+  - etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">unfold</span> top.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+    {
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> (colimArrowCommutes).
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> cancel_precomposition.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> (chain_shift_left_colimIn_commutes).
+      <span class="bp">reflexivity</span>.
+    }
+    <span class="nb">cbn</span>.
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Tinf_colimIn_alg_map_commutes</span>
+    (<span class="nv">v</span> : vertex nat_graph) :
+  T ⊗^{ V}_{l} colimIn free_monoid_coeq_sequence_colim_unit v
+  · (Mon_alg_map _ (pr2 TinfM))
+  = free_monoid_coeq_sequence_on I_{ V} (v)
+  · colimIn free_monoid_coeq_sequence_colim_unit (S v).
+<span class="kn">Proof</span>.
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="nb">apply</span> (post_comp_with_z_iso_is_inj (pr2 Hconv)).
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="bp">exact</span> (pr22 Hconv).
+  etrans. <span class="nb">apply</span> id_right.
+
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="c">(* apply cancel_postcomposition. *)</span>
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+  {
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            etrans. <span class="nb">apply</span> assoc.
+            etrans. <span class="nb">apply</span> cancel_postcomposition.
+                    <span class="bp">exact</span> (pathsinv0 (monoidal_leftunitorinvnat V _ _ _)).
+            etrans. <span class="nb">apply</span> assoc'.
+            <span class="nb">apply</span> cancel_precomposition.
+            <span class="bp">exact</span> (pathsinv0 (whiskerscommutes V (bifunctor_equalwhiskers V) _ _)).
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> assoc.
+  }
+
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+  {
+    <span class="nb">set</span> (isHCC := HT _ (pr2 (free_monoid_coeq_sequence_colim_on I_{V}))).
+    <span class="nb">set</span> (HCC := make_ColimCocone _ _ _ isHCC).
+    etrans.
+    {
+      etrans. <span class="bp">exact</span> (pathsinv0 (id_left _)).
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="bp">exact</span> (pathsinv0 (bifunctor_rightid V _ _)).
+      <span class="bp">exact</span> (pathsinv0 (colimInCommutes HCC _ _ (idpath (S v)))).
+    }
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+    {
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> (bifunctor_rightid V).
+      <span class="nb">apply</span> id_left.
+    }
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+    {
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> (bifunctor_rightid V).
+      <span class="nb">apply</span> id_left.
+    }
+    <span class="bp">reflexivity</span>.
+  }
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="bp">exact</span> (Tinf_limit_step_colimIn_commutes v).
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> assoc.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="bp">exact</span> (Tinf_limit_step_colimIn_commutes v).
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> assoc.
+
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">apply</span> cancel_postcomposition.
+
+  <span class="nb">set</span> (coeq := (next_pair_diagram_coeq (free_monoid_coeq_sequence_on I_{ V} v))).
+
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="bp">exact</span> (CoequalizerArrowEq _ coeq).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">CoequalizerOutUnique'</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧}
+    (<span class="nv">E</span> : Coequalizer C f g) {<span class="nv">e</span> : C} {<span class="nv">w</span> <span class="nv">w'</span> : C⟦colim E, e⟧}
+    (<span class="nv">H</span> : CoequalizerArrow _ E · w = CoequalizerArrow _ E · w') :
+  w = w'.
+<span class="kn">Proof</span>.
+  use (colimArrowUnique' E).
+  use two_rec_dep.
+  - <span class="nb">set</span> (X := colimInCommutes E One Two (ii1 tt)).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">h</span> : _, h · w)) <span class="k">in</span> X.
+    use (pathscomp0 (!X)); <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">set</span> (Y := colimInCommutes E One Two (ii1 tt)).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">h</span> : _, h · w')) <span class="k">in</span> Y.
+    use (pathscomp0 (!Y)); <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="bp">exact</span> (!H).
+  - <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">Tinf_monoid_unit_right_pointwise</span> (<span class="nv">v</span> : vertex nat_graph) :
+  ruinv^{ V }_{ pair_diagram_lob (free_monoid_coeq_sequence_on I_{ V} v)}
+  · (pair_diagram_lob (free_monoid_coeq_sequence_on I_{ V} v)
+    ⊗^{ V}_{l} colimIn free_monoid_coeq_sequence_colim_unit <span class="mi">0</span>
+    · free_monoid_coeq_sequence_diagram_on_Tinf_Tinf_map v) =
+  colimIn free_monoid_coeq_sequence_colim_unit v.
+<span class="kn">Proof</span>.
+  <span class="c">(* Need to show that</span>
+<span class="c">                                   mon_map</span>
+<span class="c">    Xα+ --&gt; Xα+ ⊗ I --&gt; Xα+ ⊗ T∞ -------&gt; T∞</span>
+<span class="c">                      =</span>
+<span class="c">    Xα+ ----------------------------------&gt; T∞</span>
+<span class="c">                   colimIn</span>
+<span class="c">  *)</span>
+  <span class="nb">induction</span> v <span class="k">as</span> [|v IHv].
+  {
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> (monoidal_leftunitornat V).
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (pathsinv0 (unitorsinv_coincide_on_unit V)).
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (monoidal_leftunitorisolaw V).
+    <span class="nb">apply</span> id_left.
+  }
+  <span class="nb">induction</span> v <span class="k">as</span> [|v _].
+  - etrans. <span class="nb">apply</span> cancel_precomposition.
+    {
+      etrans. <span class="nb">apply</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="bp">exact</span> (pathsinv0 (whiskerscommutes V (bifunctor_equalwhiskers V) _ _)).
+    }
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            etrans. <span class="nb">apply</span> assoc.
+            etrans. <span class="nb">apply</span> cancel_postcomposition.
+                    etrans. <span class="nb">apply</span> (monoidal_rightunitorinvnat V).
+                    <span class="bp">exact</span> (pr1 (monoidal_rightunitorisolaw V _)).
+            <span class="nb">apply</span> id_left.
+    etrans. <span class="bp">exact</span> (Tinf_colimIn_alg_map_commutes <span class="mi">0</span>).
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">set</span> (Hn := free_monoid_coeq_sequence_on_Tinf_pd_Tinf_map v).
+    <span class="nb">set</span> (τn1 := pr12 Hn).
+    <span class="nb">set</span> (coeq := next_pair_diagram_coeq (free_monoid_coeq_sequence_on I_{V} v)).
+    use CoequalizerOutUnique'.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (pathsinv0 (monoidal_rightunitorinvnat V _ _ _)).
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            etrans. <span class="nb">apply</span> assoc.
+            etrans. <span class="nb">apply</span> cancel_postcomposition.
+                    <span class="nb">apply</span> (whiskerscommutes V (bifunctor_equalwhiskers V)).
+            etrans. <span class="nb">apply</span> assoc'.
+            <span class="nb">apply</span> cancel_precomposition.
+            <span class="bp">exact</span> (pr22 (free_monoid_coeq_sequence_on_Tinf_pd_Tinf_map (S v))).
+
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            etrans. <span class="nb">apply</span> assoc.
+            <span class="nb">apply</span> cancel_postcomposition.
+            etrans. <span class="nb">apply</span> assoc.
+            <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (pathsinv0 (monoidal_associatornatleft V _ _ _ _ _)).
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (pathsinv0 (monoidal_triangle_identity''_inv V _ _)).
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            etrans. <span class="nb">apply</span> assoc.
+            <span class="nb">apply</span> cancel_postcomposition.
+            etrans. <span class="nb">apply</span> assoc.
+            <span class="nb">apply</span> cancel_postcomposition.
+            etrans. <span class="nb">apply</span> assoc.
+            etrans. <span class="nb">apply</span> cancel_postcomposition.
+                    <span class="nb">apply</span> (monoidal_associatorisolaw V).
+            <span class="nb">apply</span> id_left.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            etrans. <span class="nb">apply</span> cancel_precomposition.
+                    <span class="bp">exact</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _)).
+            etrans. <span class="bp">exact</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _)).
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> IHv.
+    <span class="bp">exact</span> (Tinf_colimIn_alg_map_commutes (S v)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Tinf_monoid_unit_right</span> :
+    monoid_laws_unit_right V Tinf_monoid_data.
+<span class="kn">Proof</span>.
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj (is_inverse_in_precat_inv (monoidal_rightunitorisolaw V _))).
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="bp">exact</span> (pr2 (monoidal_rightunitorisolaw V _)).
+  use colim_endo_is_identity.
+  <span class="nb">intro</span> v.
+
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="bp">exact</span> (pathsinv0 (monoidal_rightunitorinvnat V _ _ _)).
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+  {
+    etrans. <span class="nb">apply</span> assoc.
+            <span class="nb">apply</span> cancel_postcomposition.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (whiskerscommutes V (bifunctor_equalwhiskers V)).
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="bp">exact</span> (Tinf_monoid_mul_iso_precomp_with_colimIn v).
+  }
+
+  <span class="c">(* cbn. *)</span>
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          etrans. <span class="nb">apply</span> assoc'.
+          <span class="nb">apply</span> cancel_precomposition.
+  {
+    <span class="nb">set</span> (CC := free_monoid_coeq_sequence_rightwhisker_colim_on Tinf I_{ V}).
+    <span class="nb">apply</span> (colimArrowCommutes CC Tinf _ v).
+  }
+  <span class="bp">exact</span> (Tinf_monoid_unit_right_pointwise v).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">rt_chain_iso_v</span> (<span class="nv">A</span> : C) (<span class="nv">v</span> : vertex nat_graph) :=
+  z_iso
+    (dob (rightwhisker_chain_with A (free_monoid_coeq_sequence_diagram_on I_{V})) v)
+    (dob (free_monoid_coeq_sequence_diagram_on A) v).
+
+<span class="kn">Definition</span> <span class="nf">z_iso_from_rt_chain_iso_v</span> {<span class="nv">A</span> : C} {<span class="nv">v</span> : vertex nat_graph}
+    (<span class="nv">Cisv</span> : rt_chain_iso_v A v) : z_iso _ _ := Cisv.
+<span class="kn">Coercion</span> <span class="nf">z_iso_from_rt_chain_iso_v</span> : rt_chain_iso_v &gt;-&gt; z_iso.
+
+<span class="kn">Definition</span> <span class="nf">rt_chain_iso_pair_total_rel</span> {<span class="nv">A</span> : C} {<span class="nv">v</span> : vertex nat_graph}
+    (<span class="nv">iv</span> : rt_chain_iso_v A v) (<span class="nv">iSv</span> : rt_chain_iso_v A (S v)) :=
+  (z_iso_mor iv) · (dmor (free_monoid_coeq_sequence_diagram_on A) (idpath (S v)))
+  = (dmor (rightwhisker_chain_with A (free_monoid_coeq_sequence_diagram_on I_{V})) (idpath (S v)))
+  · (z_iso_mor iSv).
+
+<span class="kn">Definition</span> <span class="nf">rt_chain_iso_pair_rel</span> {<span class="nv">A</span> : C} {<span class="nv">v</span> : vertex nat_graph}
+    (<span class="nv">iv</span> : rt_chain_iso_v A v) (<span class="nv">iSv</span> : rt_chain_iso_v A (S v)) :=
+  free_monoid_coeq_sequence_on I_{ V} v ⊗^{ V}_{r} A
+  · (z_iso_mor iSv)
+  = α^{ V }_{_, _, _}
+  · T ⊗^{ V}_{l} (z_iso_mor iv)
+  · free_monoid_coeq_sequence_on A v.
+
+<span class="kn">Lemma</span> <span class="nf">rt_chain_iso_pair_rel_impl_total_rel</span>
+    {<span class="nv">A</span> : C} {<span class="nv">v</span> : vertex nat_graph}
+    {<span class="nv">iv</span> : rt_chain_iso_v A v} {<span class="nv">iSv</span> : rt_chain_iso_v A (S v)}
+    (<span class="nv">H</span> : rt_chain_iso_pair_rel iv iSv) :
+  rt_chain_iso_pair_total_rel iv iSv.
+<span class="kn">Proof</span>.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+  {
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="bp">exact</span> (pathsinv0 (monoidal_leftunitorinvnat V _ _ _)).
+  }
+  etrans. <span class="nb">apply</span> assoc4.
+  etrans. <span class="nb">apply</span> cancel_postcomposition, cancel_precomposition.
+          <span class="bp">exact</span> (pathsinv0 (whiskerscommutes V (bifunctor_equalwhiskers V) _ _)).
+  etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+  {
+    etrans. <span class="bp">exact</span> (pathsinv0 (id_left _)).
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (pathsinv0 (pr2 (monoidal_associatorisolaw V _ _ _))).
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="bp">exact</span> (pathsinv0 H).
+  }
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="nb">apply</span> (bifunctor_leftid V).
+  etrans. <span class="nb">apply</span> id_right.
+  etrans. <span class="nb">apply</span> (bifunctor_rightcomp V).
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (bifunctor_rightcomp V).
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">cbn</span>.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+  <span class="bp">exact</span> (pathsinv0 (monoidal_triangle_identity'_inv V _ _)).
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="bp">exact</span> (pathsinv0 (monoidal_associatorinvnatright V _ _ _ _ _)).
+  <span class="nb">apply</span> assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">rt_chain_iso_pair</span>
+    (<span class="nv">A</span> : C)
+    (<span class="nv">v</span> : vertex nat_graph) :=
+  ∑ (iv : rt_chain_iso_v A v) (iSv : rt_chain_iso_v A (S v)),
+      rt_chain_iso_pair_rel iv iSv.
+<span class="kn">Definition</span> <span class="nf">rtisp_liso</span>
+    {<span class="nv">A</span> : C} {<span class="nv">v</span> : vertex nat_graph}
+    (<span class="nv">Cisv</span> : rt_chain_iso_pair A v) :=
+  pr1 Cisv.
+<span class="kn">Definition</span> <span class="nf">rtisp_riso</span>
+    {<span class="nv">A</span> : C} {<span class="nv">v</span> : vertex nat_graph}
+    (<span class="nv">Cisv</span> : rt_chain_iso_pair A v) :=
+  pr12 Cisv.
+<span class="kn">Definition</span> <span class="nf">rtisp_rel</span>
+    {<span class="nv">A</span> : C} {<span class="nv">v</span> : vertex nat_graph}
+    (<span class="nv">Cisv</span> : rt_chain_iso_pair A v) :=
+  pr22 Cisv.
+
+<span class="kn">Definition</span> <span class="nf">make_rt_chain_iso_pair</span>
+    {<span class="nv">A</span> : C} {<span class="nv">v</span> : vertex nat_graph}
+    {<span class="nv">iv</span> : rt_chain_iso_v A v} {<span class="nv">iSv</span> : rt_chain_iso_v A (S v)}
+    (<span class="nv">rel</span> : rt_chain_iso_pair_rel iv iSv) :
+      rt_chain_iso_pair A v :=
+  (_,, _,, rel).
+
+<span class="kn">Lemma</span> <span class="nf">rt_chain_iso_pair_ind_iscoeqout</span>
+    (<span class="nv">A</span> : C) (<span class="nv">v</span> : vertex nat_graph)
+    (<span class="nv">Cisp</span> : rt_chain_iso_pair A v) :
+    next_pair_diagram_coeq_arr0 (free_monoid_coeq_sequence_on I_{ V} v) ⊗^{ V}_{r} A
+    · (α^{ V }_{_, _, _}
+       · (T ⊗^{ V}_{l} z_iso_mor (rtisp_riso Cisp)
+          · CoequalizerArrow C (next_pair_diagram_coeq (free_monoid_coeq_sequence_on A v)))) =
+    next_pair_diagram_coeq_arr1 (free_monoid_coeq_sequence_on I_{ V} v) ⊗^{ V}_{r} A
+    · (α^{ V }_{_, _, _}
+       · (T ⊗^{ V}_{l} z_iso_mor (rtisp_riso Cisp)
+          · CoequalizerArrow C
+              (next_pair_diagram_coeq (free_monoid_coeq_sequence_on A v)))).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (totrel := rt_chain_iso_pair_rel_impl_total_rel (rtisp_rel Cisp)).
+
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="bp">exact</span> (pathsinv0 (monoidal_associatornatleftright V _ _ _ _ _)).
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+  {
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    etrans. <span class="bp">exact</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _)).
+    <span class="nb">apply</span> maponpaths.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+    {
+      etrans. <span class="bp">exact</span> (pathsinv0 (id_right _)).
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="bp">exact</span> (pathsinv0 (bifunctor_leftid V _ _)).
+    }
+    <span class="bp">exact</span> (pathsinv0 totrel).
+  }
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+  {
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (bifunctor_leftcomp V).
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="bp">exact</span> (pathsinv0 (CoequalizerArrowEq _ _)).
+  }
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">unfold</span> next_pair_diagram_coeq_arr0.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+  {
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+    {
+      etrans. <span class="nb">apply</span> (bifunctor_rightcomp V).
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> (bifunctor_rightcomp V).
+    }
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="bp">exact</span> (pathsinv0 (monoidal_associatornatright V _ _ _ _ _)).
+  }
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          etrans. <span class="nb">apply</span> cancel_postcomposition.
+                  <span class="nb">apply</span> assoc.
+          etrans. <span class="nb">apply</span> assoc'.
+          <span class="nb">apply</span> cancel_precomposition.
+          <span class="nb">apply</span> (whiskerscommutes V (bifunctor_equalwhiskers V)).
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> cancel_postcomposition, cancel_precomposition.
+  {
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (pathsinv0 (monoidal_triangle_identity'_inv V _ _)).
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> (monoidal_associatorisolaw V).
+    <span class="nb">apply</span> id_right.
+  }
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="nb">apply</span> (monoidal_leftunitorinvnat V).
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="bp">exact</span> (rtisp_rel Cisp).
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">rt_chain_iso_pair_ind_inv_iscoeqout</span>
+  (<span class="nv">A</span> : C) (<span class="nv">v</span> : vertex nat_graph)
+  (<span class="nv">Cisp</span> : rt_chain_iso_pair A v) :
+    next_pair_diagram_coeq_arr0 (free_monoid_coeq_sequence_on A v)
+    · (T ⊗^{ V}_{l} z_iso_inv (rtisp_riso Cisp)
+      · (αinv^{ V }_{_, _, _}
+        · CoequalizerArrow C (next_pair_diagram_coeq (free_monoid_coeq_sequence_on I_{ V} v)) ⊗^{V}_{r} A
+        )
+      )
+    = next_pair_diagram_coeq_arr1 (free_monoid_coeq_sequence_on A v)
+    · (T ⊗^{ V}_{l} z_iso_inv (rtisp_riso Cisp)
+      · (αinv^{ V }_{_, _, _}
+        · CoequalizerArrow C (next_pair_diagram_coeq (free_monoid_coeq_sequence_on I_{ V} v)) ⊗^{V}_{r} A
+        )
+      ).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (totrel := rt_chain_iso_pair_rel_impl_total_rel (rtisp_rel Cisp)).
+
+  <span class="c">(* inverse of total relation *)</span>
+  <span class="nb">assert</span> (totrel' :
+      pair_diagram_horizontal_arrow (free_monoid_coeq_sequence_on A v)
+      · inv_from_z_iso (rtisp_riso Cisp)
+      = inv_from_z_iso (rtisp_liso Cisp)
+      · (pair_diagram_horizontal_arrow (free_monoid_coeq_sequence_on I_{ V} v)) ⊗^{V}_{r} A
+  ).
+  {
+    <span class="nb">apply</span> (post_comp_with_z_iso_is_inj (rtisp_riso Cisp)).
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="bp">exact</span> (pr222 (rtisp_riso Cisp)).
+    etrans. <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj (rtisp_liso Cisp)).
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            etrans. <span class="nb">apply</span> assoc.
+            <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (pr122 (rtisp_liso Cisp)).
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="bp">exact</span> totrel.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            etrans. <span class="nb">apply</span> cancel_precomposition.
+                    <span class="nb">apply</span> (bifunctor_leftid V).
+            <span class="nb">apply</span> id_right.
+    <span class="bp">reflexivity</span>.
+  }
+
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+  {
+    etrans. <span class="bp">exact</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _)).
+    etrans. <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> totrel'.
+    <span class="nb">apply</span> (bifunctor_leftcomp V).
+  }
+
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> assoc4.
+  etrans. <span class="nb">apply</span> cancel_postcomposition, cancel_precomposition.
+          <span class="nb">apply</span> (monoidal_associatorinvnatleftright V).
+  etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+  {
+    etrans. <span class="bp">exact</span> (pathsinv0 (bifunctor_rightcomp V _ _ _ _ _ _)).
+    etrans. <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (pathsinv0 (CoequalizerArrowEq _ _)).
+    <span class="nb">apply</span> (bifunctor_rightcomp V).
+  }
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+
+  <span class="nb">assert</span> (rel' :
+      T ⊗^{V}_{l} inv_from_z_iso (rtisp_liso Cisp)
+      · αinv^{V}_{_, _, _}
+      · free_monoid_coeq_sequence_on I_{V} v ⊗^{V}_{r} A
+      = free_monoid_coeq_sequence_on A v
+      · inv_from_z_iso (rtisp_riso Cisp)
+  ).
+  {
+    <span class="nb">set</span> (rel := rtisp_rel Cisp).
+
+    <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj (is_z_iso_leftwhiskering_z_iso V T _ (pr2 (rtisp_liso Cisp)))).
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+    {
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              etrans. <span class="bp">exact</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _)).
+              etrans. <span class="nb">apply</span> maponpaths.
+                      <span class="bp">exact</span> (pr122 (rtisp_liso Cisp)).
+              <span class="nb">apply</span> (bifunctor_leftid V).
+      <span class="nb">apply</span> id_left.
+    }
+
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (post_comp_with_z_iso_is_inj (rtisp_riso Cisp)).
+    etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="bp">exact</span> (pr222 (rtisp_riso Cisp)).
+    etrans. <span class="nb">apply</span> id_right.
+
+    <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj (monoidal_associatorisolaw V _ _ _)).
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+    {
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> (monoidal_associatorisolaw V).
+      <span class="nb">apply</span> id_left.
+    }
+    <span class="bp">exact</span> rel.
+  }
+
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          etrans. <span class="nb">apply</span> (bifunctor_rightcomp V).
+          <span class="nb">apply</span> cancel_precomposition.
+          <span class="nb">apply</span> (bifunctor_rightcomp V).
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="bp">exact</span> rel'.
+  etrans. <span class="nb">apply</span> assoc'.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> assoc'.
+  <span class="nb">apply</span> cancel_precomposition.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> assoc4.
+  etrans. <span class="nb">apply</span> cancel_postcomposition, cancel_precomposition.
+          <span class="nb">apply</span> (whiskerscommutes V (bifunctor_equalwhiskers V)).
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          etrans. <span class="nb">apply</span> assoc.
+          <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (monoidal_leftunitorinvnat V).
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="nb">apply</span> (monoidal_associatorinvnatright V).
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> assoc4.
+  etrans. <span class="nb">apply</span> cancel_postcomposition, cancel_precomposition.
+          <span class="nb">apply</span> (monoidal_triangle_identity'_inv V).
+  etrans. <span class="nb">apply</span> assoc'.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">rt_chain_iso_pairs</span> (<span class="nv">A</span> : C) (<span class="nv">v</span> : vertex nat_graph) :
+    rt_chain_iso_pair A v.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> v <span class="k">as</span> [|v Cisv].
+  - use make_rt_chain_iso_pair.
+    * <span class="bp">exact</span> (_,, _,, monoidal_leftunitorisolaw V A).
+    * <span class="bp">exact</span> (_,, is_z_iso_rightwhiskering_z_iso V A _ (_,, monoidal_rightunitorisolaw V T)).
+    * <span class="kp">abstract</span> (
+        etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                <span class="nb">apply</span> (bifunctor_rightid V)|];
+        etrans; [<span class="nb">apply</span> id_left|];
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [<span class="nb">apply</span> id_right|];
+        <span class="nb">apply</span> (monoidal_triangleidentity V)
+      ).
+  - <span class="nb">set</span> (coeq := next_pair_diagram_coeq (free_monoid_coeq_sequence_on I_{V} v)).
+    <span class="nb">set</span> (rt_coequalizer := rt_coeq_coequalizer (rt_coeq A) coeq).
+    use make_rt_chain_iso_pair.
+    * <span class="bp">exact</span> (rtisp_riso Cisv).
+    * use make_z_iso.
+      + use (CoequalizerOut _ rt_coequalizer).
+        -- <span class="nb">apply</span> (compose (α^{V}_{_, _, _})).
+           <span class="nb">apply</span> (compose (T ⊗^{V}_{l} (z_iso_mor (rtisp_riso Cisv)))).
+           <span class="bp">exact</span> (CoequalizerArrow _ (next_pair_diagram_coeq (free_monoid_coeq_sequence_on A v))).
+        -- <span class="bp">exact</span> (rt_chain_iso_pair_ind_iscoeqout A v Cisv).
+      + use CoequalizerOut.
+        -- <span class="nb">apply</span> (compose (T ⊗^{V}_{l} (z_iso_inv (rtisp_riso Cisv)))).
+           <span class="nb">apply</span> (compose (αinv^{V}_{_, _, _})).
+           <span class="bp">exact</span> ((CoequalizerArrow _ (next_pair_diagram_coeq (free_monoid_coeq_sequence_on I_{V} v))) ⊗^{V}_{r} A).
+        -- <span class="bp">exact</span> (rt_chain_iso_pair_ind_inv_iscoeqout A v Cisv).
+      + <span class="nb">split</span>.
+        -- <span class="kp">abstract</span> (
+              <span class="nb">apply</span> pathsinv0;
+              use (CoequalizerEndo_is_identity _ rt_coequalizer);
+              etrans; [<span class="nb">apply</span> assoc|];
+              etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                      <span class="nb">apply</span> (CoequalizerArrowComm _ rt_coequalizer)|];
+              etrans; [<span class="nb">apply</span> cancel_postcomposition, assoc|];
+              etrans; [<span class="nb">apply</span> assoc'|];
+              etrans; [<span class="nb">apply</span> cancel_precomposition;
+                      <span class="nb">apply</span> (CoequalizerArrowComm)|];
+              etrans; [<span class="nb">apply</span> assoc|];
+              etrans; [<span class="nb">apply</span> assoc|];
+              etrans; [<span class="nb">apply</span> cancel_postcomposition|];
+              [
+              etrans; [<span class="nb">apply</span> assoc4|];
+              etrans; [<span class="nb">apply</span> cancel_postcomposition, cancel_precomposition;
+                      etrans; [<span class="bp">exact</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _))|];
+                      etrans; [<span class="nb">apply</span> maponpaths;
+                                <span class="bp">exact</span> (pr122 (pr12 Cisv))|];
+                      <span class="nb">apply</span> (bifunctor_leftid V)|];
+              etrans; [<span class="nb">apply</span> cancel_postcomposition, id_right|];
+              <span class="nb">apply</span> (monoidal_associatorisolaw V)
+              |];
+              <span class="nb">apply</span> id_left
+           ).
+        -- <span class="kp">abstract</span> (
+              <span class="nb">apply</span> pathsinv0;
+              use (CoequalizerEndo_is_identity);
+              etrans; [<span class="nb">apply</span> assoc|];
+              etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                      <span class="nb">apply</span> (CoequalizerArrowComm)|];
+              etrans; [<span class="nb">apply</span> cancel_postcomposition, assoc|];
+              etrans; [<span class="nb">apply</span> assoc'|];
+              etrans; [<span class="nb">apply</span> cancel_precomposition;
+                      <span class="nb">apply</span> (CoequalizerArrowComm _ rt_coequalizer)|];
+              etrans; [<span class="nb">apply</span> assoc|];
+              etrans; [<span class="nb">apply</span> assoc|];
+              etrans; [<span class="nb">apply</span> cancel_postcomposition|];
+              [
+                etrans; [<span class="nb">apply</span> assoc4|];
+                etrans; [<span class="nb">apply</span> cancel_postcomposition, cancel_precomposition;
+                        <span class="nb">apply</span> (monoidal_associatorisolaw V)|];
+                etrans; [<span class="nb">apply</span> cancel_postcomposition, id_right|];
+
+                etrans; [<span class="bp">exact</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _))|];
+                etrans; [<span class="nb">apply</span> maponpaths;
+                        <span class="bp">exact</span> (pr222 (rtisp_riso Cisv))|];
+                <span class="nb">apply</span> (bifunctor_leftid V)
+              |];
+              <span class="nb">apply</span> id_left
+           ).
+    * <span class="kp">abstract</span> (
+        etrans; [<span class="nb">apply</span> (CoequalizerArrowComm _ rt_coequalizer)|];
+        <span class="nb">apply</span> assoc
+      ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">rt_chain_isos</span> (<span class="nv">A</span> : C) (<span class="nv">v</span> : vertex nat_graph) :
+    rt_chain_iso_v A v.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (rtisp_liso (rt_chain_iso_pairs A v)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">rt_chain_isos_commute</span> (<span class="nv">A</span> : C) (<span class="nv">v</span> : vertex nat_graph) :
+    dmor (rightwhisker_chain_with A (free_monoid_coeq_sequence_diagram_on I_{ V})) (idpath (S v))
+    · z_iso_mor (rt_chain_isos A (S v)) =
+    z_iso_mor (rt_chain_isos A v)
+    · dmor (free_monoid_coeq_sequence_diagram_on A) (idpath (S v)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+
+  <span class="nb">apply</span> (rt_chain_iso_pair_rel_impl_total_rel).
+  <span class="bp">exact</span> (rtisp_rel (rt_chain_iso_pairs A v)).
+<span class="kn">Qed</span>.
+
+<span class="c">(* no longer need exact definition of chain iso pairs *)</span>
+<span class="kn">Opaque</span> rt_chain_iso_pairs.
+
+<span class="kn">Lemma</span> <span class="nf">rt_chain_colim_iso</span> (<span class="nv">A</span> : C) :
+    z_iso
+      (colim (free_monoid_coeq_sequence_rightwhisker_colim_on A I_{V}))
+      (colim (free_monoid_coeq_sequence_colim_on A)).
+<span class="kn">Proof</span>.
+  use make_z_iso.
+  - use colimOfArrows.
+    * <span class="nb">intro</span> v.
+      <span class="bp">exact</span> (z_iso_mor (rt_chain_isos A v)).
+    * <span class="kp">abstract</span> (
+        <span class="nb">intros</span> u v e;
+        <span class="nb">induction</span> e;
+        <span class="bp">exact</span> (rt_chain_isos_commute A u)
+      ).
+  - use colimOfArrows.
+    * <span class="nb">intro</span> v.
+      <span class="bp">exact</span> (z_iso_inv (rt_chain_isos A v)).
+    * <span class="kp">abstract</span> (
+        <span class="nb">intros</span> u v e;
+        <span class="nb">induction</span> e;
+        <span class="nb">apply</span> (post_comp_with_z_iso_is_inj (pr22 (rt_chain_isos A (S u))));
+        etrans; [<span class="nb">apply</span> assoc'|];
+        etrans; [<span class="nb">apply</span> cancel_precomposition; <span class="bp">exact</span> (pr222 (rt_chain_isos A (S u)))|];
+        etrans; [<span class="nb">apply</span> id_right|];
+        <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj (pr22 (rt_chain_isos A u)));
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [<span class="nb">apply</span> assoc|];
+        etrans; [<span class="nb">apply</span> cancel_postcomposition, assoc|];
+        etrans; [<span class="nb">apply</span> assoc'|];
+        etrans; [<span class="nb">apply</span> cancel_postcomposition; <span class="bp">exact</span> (pr122 (rt_chain_isos A u))|];
+        etrans; [<span class="nb">apply</span> id_left|];
+        <span class="bp">exact</span> (rt_chain_isos_commute A u)
+      ).
+  - <span class="kp">abstract</span> (
+      <span class="nb">split</span>;
+        <span class="nb">apply</span> pathsinv0;
+        <span class="nb">apply</span> colim_endo_is_identity;
+        <span class="nb">intro</span> v; (
+          etrans; [<span class="nb">apply</span> assoc|];
+          etrans; [<span class="nb">apply</span> cancel_postcomposition, colimOfArrowsIn|];
+          etrans; [<span class="nb">apply</span> assoc'|];
+          etrans; [<span class="nb">apply</span> cancel_precomposition, colimOfArrowsIn|];
+          etrans; [<span class="nb">apply</span> assoc|]
+        ); [
+        etrans; [<span class="nb">apply</span> cancel_postcomposition; <span class="bp">exact</span> (pr122 (rt_chain_isos A v))|];
+        <span class="nb">apply</span> id_left
+        | etrans; [<span class="nb">apply</span> cancel_postcomposition; <span class="bp">exact</span> (pr222 (rt_chain_isos A v))|];
+        <span class="nb">apply</span> id_left
+      ]
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Tinf_mul_alg_map_commutes</span> :
+    (Mon_alg_map _ (pr2 TinfM))  ⊗^{ V}_{r} Tinf · Tinf_monoid_mul
+    = α^{V}_{_, _, _}
+    · T ⊗^{ V}_{l} Tinf_monoid_mul · (Mon_alg_map _ (pr2 TinfM)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj (is_inverse_in_precat_inv (monoidal_associatorisolaw V _ _ _))).
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          etrans. <span class="nb">apply</span> cancel_postcomposition.
+                  <span class="nb">apply</span> (monoidal_associatorisolaw V).
+          <span class="nb">apply</span> id_left.
+
+  <span class="c">(* reduced back down to first step *)</span>
+  <span class="nb">set</span> (ccTinf := free_monoid_coeq_sequence_colim_on I_{V}).
+  <span class="nb">set</span> (rt_ccTinf := rt_chain Tinf _ _ _ (isColimCocone_from_ColimCocone ccTinf)).
+  <span class="nb">set</span> (rt_colim := free_monoid_coeq_sequence_rightwhisker_colim_on Tinf I_{V}).
+  <span class="nb">set</span> (iso := (_,, isColim_is_z_iso _ rt_colim _ _ rt_ccTinf) : z_iso _ _).
+  <span class="nb">set</span> (Tiso := (_,, is_z_iso_leftwhiskering_z_iso V T _ (pr2 iso)) : z_iso _ _).
+  <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj Tiso).
+
+  <span class="nb">set</span> (rtiso := rt_chain_colim_iso Tinf).
+  <span class="nb">set</span> (Trtiso := (_,, is_z_iso_leftwhiskering_z_iso V T _ (pr2 rtiso)) : z_iso _ _).
+  <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj (z_iso_inv Trtiso)).
+
+  <span class="nb">set</span> (Vmon := (_,, V) : monoidal_cat).
+  <span class="nb">set</span> (isHCC := HT _ (pr2 (free_monoid_coeq_sequence_colim_on Tinf))).
+  <span class="nb">set</span> (ltisiso := isColim_is_z_iso _ (CL (mapdiagram (monoidal_left_tensor (pr1 T : Vmon)) (free_monoid_coeq_sequence_diagram_on Tinf))) _ _ isHCC).
+  <span class="nb">set</span> (ltiso := (_,, ltisiso) : z_iso _ _).
+  use (pre_comp_with_z_iso_is_inj ltiso).
+
+  use colimArrowUnique'.
+  <span class="nb">intro</span> v.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (colimArrowCommutes).
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+  {
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (bifunctor_rightid V).
+    etrans. <span class="nb">apply</span> id_left.
+    etrans. <span class="bp">exact</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _)).
+    etrans. <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (colimOfArrowsIn).
+    <span class="nb">apply</span> (bifunctor_leftcomp V).
+  }
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+  {
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            etrans. <span class="bp">exact</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _)).
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (colimArrowCommutes).
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            etrans. <span class="bp">exact</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _)).
+            <span class="nb">apply</span> maponpaths.
+            etrans. <span class="nb">apply</span> cancel_postcomposition.
+                    etrans. <span class="nb">apply</span> cancel_precomposition.
+                    <span class="nb">apply</span> (bifunctor_leftid V).
+                    <span class="nb">apply</span> id_right.
+            etrans. <span class="nb">apply</span> assoc.
+            <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (Tinf_monoid_mul_iso_precomp_with_colimIn v).
+      <span class="bp">reflexivity</span>.
+  }
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (colimArrowCommutes).
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+  {
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (bifunctor_rightid V).
+    etrans. <span class="nb">apply</span> id_left.
+    etrans. <span class="bp">exact</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _)).
+    etrans. <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (colimOfArrowsIn).
+    <span class="nb">apply</span> (bifunctor_leftcomp V).
+  }
+  etrans. <span class="nb">apply</span> assoc'.
+  <span class="nb">apply</span> cancel_precomposition.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (colimArrowCommutes (free_monoid_coeq_sequence_rightwhisker_colim_on Tinf I_{ V})).
+  <span class="c">(* rewrite τα++ law *)</span>
+  etrans.
+  {
+    etrans. <span class="bp">exact</span> (pathsinv0 (id_left _)).
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (pathsinv0 (pr2 (monoidal_associatorisolaw V _ _ _))).
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="bp">exact</span> (pathsinv0 (pr22 (free_monoid_coeq_sequence_on_Tinf_pd_Tinf_map v))).
+  }
+  etrans. <span class="nb">apply</span> assoc.
+
+  <span class="nb">apply</span> pathsinv0.
+  etrans.
+  {
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            etrans. <span class="bp">exact</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _)).
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (colimArrowCommutes).
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition, cancel_postcomposition.
+    {
+      <span class="nb">apply</span> maponpaths.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> (bifunctor_leftid V).
+      <span class="nb">apply</span> id_right.
+    }
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> (monoidal_associatorinvnatleftright V).
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+    {
+      etrans. <span class="bp">exact</span> (pathsinv0 (bifunctor_rightcomp V _ _ _ _ _ _)).
+      etrans. <span class="nb">apply</span> maponpaths.
+              <span class="bp">exact</span> (Tinf_colimIn_alg_map_commutes v).
+      <span class="nb">apply</span> (bifunctor_rightcomp V).
+    }
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (Tinf_monoid_mul_iso_precomp_with_colimIn (S v)).
+    <span class="nb">apply</span> (colimArrowCommutes (free_monoid_coeq_sequence_rightwhisker_colim_on Tinf I_{ V}) _ _ (S v)).
+  }
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc'.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">Tinf_mul_assoc_pointwise_associator_mess</span>
+    (<span class="nv">t</span> <span class="nv">s</span> <span class="nv">l</span> : C) (<span class="nv">f</span> : (l ⊗_{V} s) --&gt; s) :
+  αinv^{V}_{t ⊗_{V} l, s, s}
+  · (α^{V}_{t, l, s}
+     · t ⊗^{V}_{l} f) ⊗^{V}_{r} s
+  · α^{V}_{t, s, s}
+  = α^{V}_{t, l, s ⊗_{V} s}
+  · t ⊗^{V}_{l} (
+    αinv^{V}_{l, s, s}
+    · f ⊗^{V}_{r} s
+  ).
+<span class="kn">Proof</span>.
+  etrans. <span class="nb">apply</span> cancel_postcomposition, cancel_precomposition.
+          <span class="nb">apply</span> (bifunctor_rightcomp V).
+  etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="nb">apply</span> (bifunctor_leftcomp V).
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="bp">exact</span> (pathsinv0 (monoidal_associatornatleftright V _ _ _ _ _)).
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj (monoidal_associatorisolaw V _ _ _)).
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          etrans. <span class="nb">apply</span> assoc.
+          etrans. <span class="nb">apply</span> cancel_postcomposition.
+                  <span class="bp">exact</span> (pr1 (monoidal_associatorisolaw V _ _ _)).
+          <span class="nb">apply</span> id_left.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="nb">set</span> (tassoc := is_z_iso_leftwhiskering_z_iso V t _ (_,, monoidal_associatorisolaw V l s s)).
+  <span class="nb">apply</span> (post_comp_with_z_iso_is_inj tassoc).
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+  {
+    etrans. <span class="bp">exact</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _)).
+    etrans. <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (monoidal_associatorisolaw V).
+    <span class="nb">apply</span> (bifunctor_leftid V).
+  }
+  etrans. <span class="nb">apply</span> id_right.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (monoidal_pentagonidentity V).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Tinf_monoid_assoc_pointwise</span>
+    (<span class="nv">v</span> : vertex nat_graph) :
+  αinv^{V}_{_, _, _}
+  · free_monoid_coeq_sequence_diagram_on_Tinf_Tinf_map v ⊗^{V}_{r} Tinf
+  · Tinf_monoid_mul
+  = pair_diagram_lob (free_monoid_coeq_sequence_on I_{V} v) ⊗^{V}_{l} Tinf_monoid_mul
+  · free_monoid_coeq_sequence_diagram_on_Tinf_Tinf_map v.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> v <span class="k">as</span> [|v Hv].
+  - <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> (monoidal_leftunitornat V).
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="bp">exact</span> (pathsinv0 (right_whisker_with_lunitor V _ _)).
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (pr2 (monoidal_associatorisolaw V _ _ _)).
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">induction</span> v <span class="k">as</span> [|v _].
+    * etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+      {
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> (bifunctor_rightcomp V).
+        etrans. <span class="nb">apply</span> assoc'.
+        <span class="nb">apply</span> cancel_precomposition.
+        <span class="bp">exact</span> (Tinf_mul_alg_map_commutes).
+      }
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> assoc.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      etrans. <span class="bp">exact</span> (pathsinv0 (whiskerscommutes V (bifunctor_equalwhiskers V) _ _)).
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="bp">exact</span> (pathsinv0 (monoidal_associatornatright V _ _ _ _ _)).
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> (monoidal_associatorisolaw V).
+      <span class="nb">apply</span> id_left.
+    * <span class="nb">set</span> (coeq := next_pair_diagram_coeq (free_monoid_coeq_sequence_on I_{V} v)).
+      <span class="nb">set</span> (rt_coequalizer := rt_coeq_coequalizer (rt_coeq (Tinf ⊗_{V} Tinf)) coeq).
+      <span class="nb">apply</span> pathsinv0.
+      use (CoequalizerOutUnique' rt_coequalizer).
+      etrans.
+      {
+        etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> (whiskerscommutes V (bifunctor_equalwhiskers V)).
+        etrans. <span class="nb">apply</span> assoc'.
+        etrans. <span class="nb">apply</span> cancel_precomposition.
+                <span class="bp">exact</span> (pr22 (free_monoid_coeq_sequence_on_Tinf_pd_Tinf_map (S v))).
+        etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+        {
+          etrans. <span class="nb">apply</span> assoc.
+          etrans. <span class="nb">apply</span> cancel_postcomposition.
+                  <span class="bp">exact</span> (pathsinv0 (monoidal_associatornatleft V _ _ _ _ _)).
+          etrans. <span class="nb">apply</span> assoc'.
+          <span class="nb">apply</span> cancel_precomposition.
+          etrans. <span class="bp">exact</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _)).
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!Hv).
+        }
+        <span class="bp">reflexivity</span>.
+      }
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              etrans. <span class="nb">apply</span> cancel_precomposition.
+                      <span class="nb">apply</span> (bifunctor_leftcomp V).
+              <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> assoc'.
+
+      <span class="nb">apply</span> pathsinv0.
+      etrans.
+      {
+        etrans. <span class="nb">apply</span> assoc.
+        <span class="nb">apply</span> cancel_postcomposition.
+        etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> (monoidal_associatorinvnatright V).
+        etrans. <span class="nb">apply</span> assoc'.
+        <span class="nb">apply</span> cancel_precomposition.
+        etrans. <span class="bp">exact</span> (pathsinv0 (bifunctor_rightcomp V _ _ _ _ _ _)).
+        etrans. <span class="nb">apply</span> maponpaths.
+                <span class="bp">exact</span> (pr22 (free_monoid_coeq_sequence_on_Tinf_pd_Tinf_map (S v))).
+        <span class="nb">apply</span> (bifunctor_rightcomp V).
+      }
+      etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="bp">exact</span> Tinf_mul_alg_map_commutes.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> Tinf_mul_assoc_pointwise_associator_mess.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Tinf_monoid_assoc</span> :
+    monoid_laws_assoc V Tinf_monoid_data.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (ccTinf := free_monoid_coeq_sequence_colim_on I_{V}).
+  <span class="nb">set</span> (rt_ccTinf := rt_chain (Tinf ⊗_{V} Tinf) _ _ _ (isColimCocone_from_ColimCocone ccTinf)).
+  <span class="nb">set</span> (rt_colim := free_monoid_coeq_sequence_rightwhisker_colim_on (Tinf ⊗_{V} Tinf) I_{V}).
+  <span class="nb">set</span> (iso := (_,, isColim_is_z_iso _ rt_colim _ _ rt_ccTinf) : z_iso _ _).
+
+  <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj (is_inverse_in_precat_inv (monoidal_associatorisolaw V _ _ _))).
+  <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj iso).
+
+  use colimArrowUnique'.
+  <span class="nb">intro</span> v.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> colimArrowCommutes.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+  {
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (monoidal_associatorisolaw V).
+    <span class="nb">apply</span> id_left.
+  }
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          etrans. <span class="nb">apply</span> cancel_precomposition.
+                  <span class="nb">apply</span> (bifunctor_leftid V).
+          <span class="nb">apply</span> id_right.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (whiskerscommutes V (bifunctor_equalwhiskers V)).
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          etrans. <span class="nb">apply</span> assoc.
+          etrans. <span class="nb">apply</span> cancel_postcomposition.
+                  <span class="bp">exact</span> (Tinf_monoid_mul_iso_precomp_with_colimIn v).
+          <span class="nb">apply</span> (colimArrowCommutes ((free_monoid_coeq_sequence_rightwhisker_colim_on Tinf I_{ V}))).
+
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> colimArrowCommutes.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="nb">apply</span> (bifunctor_leftid V).
+  <span class="nb">apply</span> id_right.
+
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (monoidal_associatorinvnatright V).
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+  {
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+    {
+      etrans. <span class="bp">exact</span> (pathsinv0 (bifunctor_rightcomp V _ _ _ _ _ _)).
+      <span class="nb">apply</span> maponpaths.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="bp">exact</span> (Tinf_monoid_mul_iso_precomp_with_colimIn v).
+
+      <span class="nb">apply</span> (colimArrowCommutes ((free_monoid_coeq_sequence_rightwhisker_colim_on Tinf I_{ V}))).
+    }
+    <span class="bp">reflexivity</span>.
+  }
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="bp">exact</span> (Tinf_monoid_assoc_pointwise v).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Tinf_monoid_axioms</span> :
+    monoid_laws V Tinf_monoid_data :=
+  (Tinf_monoid_unit_left,, Tinf_monoid_unit_right,, Tinf_monoid_assoc).
+
+<span class="kn">Definition</span> <span class="nf">Tinf_monoid</span> : monoid V Tinf :=
+    (_,, Tinf_monoid_axioms).
+
+<span class="kn">End</span> <span class="nf">Monoid</span>.
+
+<span class="kn">End</span> <span class="nf">free_monoid_colim</span>.
+
+<span class="c">(* Check Tinf_monoid. *)</span></span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/ModelCategories/Generated/GenericFreeMonoidSequence.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; monoids, colimits, associated sheaves
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

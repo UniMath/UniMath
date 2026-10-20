@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Product.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Direct products of displayed categories</span>
+
+<span class="sd">  Given displayed categories D1 and D2 over the same base C, we construct the displayed category</span>
+<span class="sd">  D1 × D2 over C with (D1 × D2) c = (D1 c) × (D2 c).</span>
+<span class="sd">  The isomorphisms in this category are equivalent to pairs of isomorphisms in D1 and D2. We can</span>
+<span class="sd">  use this to show that the category is displayed univalent if both D1 and D2 are.</span>
+<span class="sd">  And lastly, we can construct the projection displayed functors, lying over the identity functor on</span>
+<span class="sd">  C, which project on the data of D1 or D2 respectively.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The product displayed category [dirprod_disp_cat D1 D2] [D1 × D2]</span>
+<span class="sd">  2. A characterization of displayed isomorphism [z_iso_disp_prod_weq]</span>
+<span class="sd">  3. Univalence [dirprod_disp_cat_is_univalent]</span>
+<span class="sd">  4. The projecton displayed functors [dirprodpr1_disp_functor] [dirprodpr2_disp_functor]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="sd">(** * 1. The product displayed category *)</span>
+
+<span class="sd">(** * Products of displayed (pre)categories</span>
+
+<span class="sd">We directly define direct products of displayed categories over a base.</span>
+
+<span class="sd">An alternative would be to define the direct product as the [sigma_disp_cat] of the pullback to either factor.  *)</span>
+
+<span class="kn">Definition</span> <span class="nf">dirprod_disp_cat_ob_mor</span>
+           {<span class="nv">C</span> : precategory_ob_mor} (<span class="nv">D1</span> <span class="nv">D2</span> : disp_cat_ob_mor C)
+  : disp_cat_ob_mor C.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, <span class="nv">D1</span> <span class="nv">c</span> × D2 c).
+  <span class="nb">intros</span> x y xx yy f.
+  <span class="bp">exact</span> (pr1 xx --&gt;[f] pr1 yy × pr2 xx --&gt;[f] pr2 yy).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dirprod_disp_cat_id_comp</span>
+           {<span class="nv">C</span> : precategory_data}
+           (<span class="nv">D1</span> <span class="nv">D2</span> : disp_cat_data C)
+  : disp_cat_id_comp _ (dirprod_disp_cat_ob_mor D1 D2).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> tpair.
+  - <span class="nb">intros</span> x (x1, x2).
+    <span class="bp">exact</span> (id_disp x1,, id_disp x2).
+  - <span class="nb">intros</span> x y z f g xx yy zz ff gg.
+    <span class="bp">exact</span> ((pr1 ff ;; pr1 gg),, (pr2 ff ;; pr2 gg)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dirprod_disp_cat_data</span>
+           {<span class="nv">C</span> : precategory_data}
+           (<span class="nv">D1</span> <span class="nv">D2</span> : disp_cat_data C)
+  : disp_cat_data C
+  := (_ ,, dirprod_disp_cat_id_comp D1 D2).
+
+<span class="kn">Section</span> <span class="nf">Dirprod</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">D1</span> <span class="nv">D2</span> : disp_cat C).
+
+<span class="kn">Definition</span> <span class="nf">dirprod_disp_cat_axioms</span>
+  : disp_cat_axioms _ (dirprod_disp_cat_data D1 D2).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">apply</span> make_dirprod.
+  - <span class="nb">intros</span>. <span class="nb">apply</span> dirprod_paths; use (id_left_disp _ @ !_).
+    + use pr1_transportf.
+    + <span class="nb">apply</span> pr2_transportf.
+  - <span class="nb">intros</span>. <span class="nb">apply</span> dirprod_paths; use (id_right_disp _ @ !_).
+    + use pr1_transportf.
+    + <span class="nb">apply</span> pr2_transportf.
+  - <span class="nb">intros</span>. <span class="nb">apply</span> dirprod_paths; use (assoc_disp _ _ _ @ !_).
+    + use pr1_transportf.
+    + <span class="nb">apply</span> pr2_transportf.
+  - <span class="nb">intros</span>. <span class="nb">apply</span> isaset_dirprod; <span class="nb">apply</span> homsets_disp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dirprod_disp_cat</span> : disp_cat C
+  := (_ ,, dirprod_disp_cat_axioms).
+
+<span class="sd">(** * 2. A characterization of displayed isomorphism *)</span>
+<span class="sd">(** TODO: generalize over an aritrary base isomorphism *)</span>
+<span class="kn">Definition</span> <span class="nf">z_iso_disp_prod1</span>
+      {<span class="nv">x</span> : C}
+      (<span class="nv">xx1</span> <span class="nv">xx1'</span> : D1 x)
+      (<span class="nv">xx2</span> <span class="nv">xx2'</span> : D2 x) :
+  @z_iso_disp _ dirprod_disp_cat _ _ (identity_z_iso x) (xx1,, xx2) (xx1',, xx2') →
+  (z_iso_disp (identity_z_iso x) xx1 xx1') × (z_iso_disp (identity_z_iso x) xx2 xx2').
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> z_iso_disp. <span class="nb">cbn</span>.
+  <span class="nb">intros</span> [[f1 f2] Hff].
+  <span class="nb">destruct</span> Hff <span class="k">as</span> [[g1 g2] Hfg].
+  <span class="nb">cbn</span> <span class="k">in</span> Hfg. <span class="nb">destruct</span> Hfg <span class="k">as</span> [Hgf Hfg].
+  use tpair.
+  - <span class="k">exists</span> <span class="nv">f1</span>, g1.
+    <span class="nb">split</span>.
+    + etrans. <span class="nb">apply</span> (maponpaths dirprod_pr1 Hgf).
+      <span class="nb">apply</span> pr1_transportf.
+    + etrans. <span class="nb">apply</span> (maponpaths dirprod_pr1 Hfg).
+      <span class="nb">apply</span> pr1_transportf.
+  - <span class="k">exists</span> <span class="nv">f2</span>, g2.
+    <span class="nb">split</span>.
+    + etrans. <span class="nb">apply</span> (maponpaths dirprod_pr2 Hgf).
+      <span class="nb">apply</span> pr2_transportf.
+    + etrans. <span class="nb">apply</span> (maponpaths dirprod_pr2 Hfg).
+      <span class="nb">apply</span> pr2_transportf.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">z_iso_disp_prod2</span>
+      {<span class="nv">x</span> : C}
+      (<span class="nv">xx1</span> <span class="nv">xx1'</span> : D1 x)
+      (<span class="nv">xx2</span> <span class="nv">xx2'</span> : D2 x) :
+  (z_iso_disp (identity_z_iso x) xx1 xx1') × (z_iso_disp (identity_z_iso x) xx2 xx2') →
+  @z_iso_disp _ dirprod_disp_cat _ _ (identity_z_iso x) (xx1,, xx2) (xx1',, xx2').
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> z_iso_disp. <span class="nb">cbn</span>.
+  <span class="nb">intros</span> [[f1 Hf1] [f2 Hf2]].
+  <span class="nb">destruct</span> Hf1 <span class="k">as</span> [g1 [Hgf1 Hfg1]].
+  <span class="nb">destruct</span> Hf2 <span class="k">as</span> [g2 [Hgf2 Hfg2]].
+  <span class="k">exists</span> (<span class="nv">f1</span>,,<span class="nv">f2</span>), (g1,,g2).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> dirprod_paths.
+    + etrans. <span class="nb">apply</span> Hgf1.
+      <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> pr1_transportf.
+    + etrans. <span class="nb">apply</span> Hgf2.
+      <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> pr2_transportf.
+  - <span class="nb">apply</span> dirprod_paths.
+    + etrans. <span class="nb">apply</span> Hfg1.
+      <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> pr1_transportf.
+    + etrans. <span class="nb">apply</span> Hfg2.
+      <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> pr2_transportf.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">z_iso_disp_prod21</span>
+      {<span class="nv">x</span> : C}
+      (<span class="nv">xx1</span> <span class="nv">xx1'</span> : D1 x)
+      (<span class="nv">xx2</span> <span class="nv">xx2'</span> : D2 x)
+      <span class="nv">i</span>
+:
+  z_iso_disp_prod2 xx1 xx1' xx2 xx2' (z_iso_disp_prod1 xx1 xx1' xx2 xx2' i) = i.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> eq_z_iso_disp. <span class="nb">cbn</span>. <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">z_iso_disp_prod12</span>
+      {<span class="nv">x</span> : C}
+      (<span class="nv">xx1</span> <span class="nv">xx1'</span> : D1 x)
+      (<span class="nv">xx2</span> <span class="nv">xx2'</span> : D2 x)
+      (<span class="nv">t</span> : z_iso_disp (identity_z_iso x) xx1 xx1' × z_iso_disp (identity_z_iso x) xx2 xx2')
+:
+  z_iso_disp_prod1 xx1 xx1' xx2 xx2' (z_iso_disp_prod2 xx1 xx1' xx2 xx2' t) = t.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> dirprod_paths.
+  - <span class="nb">apply</span> eq_z_iso_disp. <span class="nb">cbn</span>. <span class="bp">reflexivity</span>.
+  - <span class="nb">apply</span> eq_z_iso_disp. <span class="nb">cbn</span>. <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">z_iso_disp_prod_weq</span>
+      (<span class="nv">x</span> : C)
+      (<span class="nv">xx1</span> <span class="nv">xx1'</span> : D1 x)
+      (<span class="nv">xx2</span> <span class="nv">xx2'</span> : D2 x) :
+  @z_iso_disp _ dirprod_disp_cat _ _ (identity_z_iso x) (xx1,, xx2) (xx1',, xx2') ≃
+  (z_iso_disp (identity_z_iso x) xx1 xx1') × (z_iso_disp (identity_z_iso x) xx2 xx2').
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">z_iso_disp_prod1</span> <span class="nv">xx1</span> <span class="nv">xx1'</span> <span class="nv">xx2</span> <span class="nv">xx2'</span>).
+  use isweq_iso.
+  - <span class="nb">apply</span> z_iso_disp_prod2.
+  - <span class="nb">apply</span> z_iso_disp_prod21.
+  - <span class="nb">apply</span> z_iso_disp_prod12.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. Univalence *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">z_iso_disp_aux_weq</span>
+      (<span class="nv">U1</span> : is_univalent_in_fibers D1)
+      (<span class="nv">U2</span> : is_univalent_in_fibers D2)
+      (<span class="nv">x</span> : C)
+      (<span class="nv">xx</span> <span class="nv">xx'</span> : D1 x × D2 x)
+
+:
+  xx = xx'
+    ≃ @z_iso_disp _ dirprod_disp_cat _ _ (identity_z_iso x) xx xx'.
+<span class="kn">Proof</span>.
+  <span class="nb">eapply</span> weqcomp. <span class="nb">apply</span> pathsdirprodweq.
+  <span class="nb">apply</span> invweq. <span class="nb">eapply</span> weqcomp. <span class="nb">apply</span> z_iso_disp_prod_weq.
+  <span class="nb">apply</span> invweq.
+  <span class="nb">apply</span> weqdirprodf.
+  - <span class="k">exists</span> <span class="nv">idtoiso_fiber_disp</span>. <span class="nb">apply</span> U1.
+  - <span class="k">exists</span> <span class="nv">idtoiso_fiber_disp</span>. <span class="nb">apply</span> U2.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">dirprod_disp_cat_is_univalent</span> :
+  is_univalent_disp D1 →
+  is_univalent_disp D2 →
+  is_univalent_disp dirprod_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> HD1 HD2.
+  <span class="nb">apply</span> is_univalent_disp_from_fibers.
+  <span class="nb">intros</span> x xx xx'.
+  use isweqhomot.
+  - <span class="nb">apply</span> z_iso_disp_aux_weq.
+    + <span class="nb">apply</span> is_univalent_in_fibers_from_univalent_disp.
+      <span class="nb">apply</span> HD1.
+    + <span class="nb">apply</span> is_univalent_in_fibers_from_univalent_disp.
+      <span class="nb">apply</span> HD2.
+  - <span class="nb">intros</span> p. <span class="nb">induction</span> p. <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (@eq_z_iso_disp _ dirprod_disp_cat).
+    <span class="bp">reflexivity</span>.
+  - <span class="nb">apply</span> z_iso_disp_aux_weq.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. The projecton displayed functors *)</span>
+
+<span class="kn">Definition</span> <span class="nf">dirprodpr1_disp_functor_data</span>
+  : disp_functor_data (functor_identity C) dirprod_disp_cat (D1).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intros</span> x xx; <span class="bp">exact</span> (pr1 xx).
+  - <span class="nb">intros</span> x y xx yy f ff; <span class="bp">exact</span> (pr1 ff).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dirprodpr1_disp_functor_axioms</span>
+  : disp_functor_axioms dirprodpr1_disp_functor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span>; <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span>; <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dirprodpr1_disp_functor</span>
+  : disp_functor (functor_identity C) dirprod_disp_cat (D1)
+:= (dirprodpr1_disp_functor_data,, dirprodpr1_disp_functor_axioms).
+
+
+<span class="kn">Definition</span> <span class="nf">dirprodpr2_disp_functor_data</span>
+  : disp_functor_data (functor_identity C) dirprod_disp_cat (D2).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intros</span> x xx; <span class="bp">exact</span> (pr2 xx).
+  - <span class="nb">intros</span> x y xx yy f ff; <span class="bp">exact</span> (pr2 ff).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dirprodpr2_disp_functor_axioms</span>
+  : disp_functor_axioms dirprodpr2_disp_functor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span>; <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span>; <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dirprodpr2_disp_functor</span>
+  : disp_functor (functor_identity C) dirprod_disp_cat (D2)
+:= (dirprodpr2_disp_functor_data,, dirprodpr2_disp_functor_axioms).
+
+<span class="kn">End</span> <span class="nf">Dirprod</span>.
+
+<span class="kn">Declare Scope</span> disp_cat_scope.
+<span class="kn">Notation</span> <span class="s2">"D1 × D2"</span> := (dirprod_disp_cat D1 D2) : disp_cat_scope.
+<span class="kn">Delimit Scope</span> disp_cat_scope <span class="k">with</span> disp_cat.
+<span class="kn">Bind Scope</span> disp_cat_scope <span class="k">with</span> disp_cat.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Constructions/Product.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Sets.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   4. The projecton displayed functors [dirprodpr1_disp_functor] [dirprodpr2_disp_functor]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.Sets.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

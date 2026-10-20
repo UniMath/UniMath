@@ -1,0 +1,614 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SliceCleaving.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> The domain displayed bicategory has a cleaving</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Lax slices</span>
+<span class="sd"> 1.1. Characterization of opcartesian 2-cells</span>
+<span class="sd"> 1.2. Local opcleaving and isocleaving</span>
+<span class="sd"> 1.3. Characterizations of cartesian 1-cells</span>
+<span class="sd"> 1.4. Global cleaving</span>
+<span class="sd"> 2. Oplax slices</span>
+<span class="sd"> 2.1. Characterization of cartesian 2-cells</span>
+<span class="sd"> 2.2. Local cleaving and isocleaving</span>
+<span class="sd"> 2.3. Characterizations of cartesian 1-cells</span>
+<span class="sd"> 2.4. Global cleaving</span>
+<span class="sd"> 3. Slice bicatgories</span>
+<span class="sd"> 3.1. Local isocleaving</span>
+<span class="sd"> 3.2. Characterizations of cartesian 1-cells</span>
+<span class="sd"> 3.3. Global cleaving</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.LaxSlice.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Slice.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Lax slices</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">LaxSliceCleaving</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">a</span> : B).
+
+  <span class="sd">(**</span>
+<span class="sd">   1.1. Characterization of opcartesian 2-cells</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">lax_slice_is_opcartesian_2cell</span>
+             {<span class="nv">c₁</span> <span class="nv">c₂</span> : B}
+             {<span class="nv">s₁</span> <span class="nv">s₂</span> : c₁ --&gt; c₂}
+             {<span class="nv">α</span> : s₁ ==&gt; s₂}
+             {<span class="nv">t₁</span> : lax_slice_disp_bicat B a c₁}
+             {<span class="nv">t₂</span> : lax_slice_disp_bicat B a c₂}
+             {<span class="nv">ss₁</span> : t₁ --&gt;[ s₁ ] t₂}
+             {<span class="nv">ss₂</span> : t₁ --&gt;[ s₂ ] t₂}
+             (<span class="nv">αα</span> : ss₁ ==&gt;[ α ] ss₂)
+    : is_opcartesian_2cell (lax_slice_disp_bicat B a) αα.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> s₃ ss₃ γ γα.
+    use iscontraprop1.
+    - use isaproptotal2.
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> (lax_slice_disp_bicat B a).
+      + <span class="nb">intros</span>.
+        <span class="nb">apply</span> cellset_property.
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="nb">rewrite</span> &lt;- γα, &lt;- αα.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> rwhisker_vcomp.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   1.2. Local opcleaving and isocleaving</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">lax_slice_local_opcleaving</span>
+    : local_opcleaving (lax_slice_disp_bicat B a).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> c₁ c₂ t₁ t₂ s₁ s₂ α β ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">simple refine</span> (_ ,, _) ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (α • (β ▹ t₂)).
+    - <span class="nb">simple refine</span> (idpath _ ,, _).
+      <span class="nb">apply</span> lax_slice_is_opcartesian_2cell.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lax_slice_local_iso_cleaving</span>
+    : local_iso_cleaving (lax_slice_disp_bicat B a).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> c₁ c₂ t₁ t₂ s₁ s₂ α β ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">simple refine</span> (α • (β^-<span class="mi">1</span> ▹ s₂) ,, _ ,, _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> rwhisker_vcomp ;
+         <span class="nb">rewrite</span> vcomp_linv ;
+         <span class="nb">rewrite</span> id2_rwhisker ;
+         <span class="nb">apply</span> id2_right).
+    - <span class="nb">apply</span> lax_slice_disp_locally_groupoid.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   1.3. Characterizations of cartesian 1-cells</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">lax_slice_invertible_2cell_is_cartesian_1cell</span>
+             {<span class="nv">c₁</span> <span class="nv">c₂</span> : B}
+             {<span class="nv">s</span> : c₁ --&gt; c₂}
+             {<span class="nv">t₁</span> : lax_slice_disp_bicat B a c₁}
+             {<span class="nv">t₂</span> : lax_slice_disp_bicat B a c₂}
+             (<span class="nv">ss</span> : t₁ --&gt;[ s ] t₂)
+             (<span class="nv">Hss</span> : is_invertible_2cell ss)
+    : cartesian_1cell (lax_slice_disp_bicat B a) ss.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> c₃ t₃ s' ss'.
+      <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (ss' • rassociator _ _ _ • (s' ◃ Hss^-<span class="mi">1</span>)).
+      + <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> id2_rwhisker ;
+             <span class="nb">rewrite</span> id2_right ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">refine</span> (_ @ id2_right _) ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">rewrite</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+             <span class="nb">rewrite</span> lwhisker_vcomp ;
+             <span class="nb">rewrite</span> vcomp_linv ;
+             <span class="nb">rewrite</span> lwhisker_id2 ;
+             <span class="nb">rewrite</span> id2_left ;
+             <span class="nb">apply</span> rassociator_lassociator).
+        * <span class="nb">apply</span> lax_slice_disp_locally_groupoid.
+    - <span class="nb">cbn</span>.
+      <span class="nb">intros</span> c₃ t₃ s₁ s₂ α αα β ββ Lh Lh' ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      use iscontraprop1.
+      + <span class="kp">abstract</span>
+          (use invproofirrelevance ;
+           <span class="nb">intros</span> φ₁ φ₂ ;
+           use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> (lax_slice_disp_bicat B a) | ] ;
+           <span class="nb">apply</span> cellset_property).
+      + <span class="nb">cbn</span>.
+        simple  <span class="nb">refine</span> (_ ,, _).
+        * <span class="kp">abstract</span>
+            (<span class="nb">pose</span> (pr12 Lh') <span class="k">as</span> p ;
+             <span class="nb">cbn</span> <span class="k">in</span> p ;
+             <span class="nb">rewrite</span> id2_rwhisker <span class="k">in</span> p ;
+             <span class="nb">rewrite</span> id2_right <span class="k">in</span> p ;
+             use (vcomp_rcancel (s₂ ◃ ss)) ; [ is_iso ; <span class="nb">apply</span> Hss | ] ;
+             use (vcomp_rcancel (lassociator _ _ _)) ; [ is_iso | ] ;
+             <span class="nb">refine</span> (_ @ !p) ; <span class="nb">clear</span> p ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">pose</span> (pr12 Lh) <span class="k">as</span> p ;
+             <span class="nb">refine</span> (_ @ ββ) ;
+             <span class="nb">cbn</span> <span class="k">in</span> p ;
+             <span class="nb">rewrite</span> id2_rwhisker <span class="k">in</span> p ;
+             <span class="nb">rewrite</span> id2_right <span class="k">in</span> p ;
+             <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z • _) p) ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="nb">rewrite</span> vcomp_whisker ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">rewrite</span> rwhisker_rwhisker ;
+             <span class="nb">apply</span> idpath).
+        * <span class="nb">apply</span> cellset_property.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lax_slice_cartesian_1cell_is_invertible_2cell</span>
+             {<span class="nv">c₁</span> <span class="nv">c₂</span> : B}
+             {<span class="nv">s</span> : c₁ --&gt; c₂}
+             {<span class="nv">t₁</span> : lax_slice_disp_bicat B a c₁}
+             {<span class="nv">t₂</span> : lax_slice_disp_bicat B a c₂}
+             (<span class="nv">ss</span> : t₁ --&gt;[ s ] t₂)
+             (<span class="nv">Hss</span> : cartesian_1cell (lax_slice_disp_bicat B a) ss)
+    : is_invertible_2cell ss.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">pose</span> (pr1 Hss c₁ (s · t₂) (id₁ _) (linvunitor _ • lassociator _ _ _)) <span class="k">as</span> p.
+    <span class="nb">unfold</span> lift_1cell_factor <span class="k">in</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">pose</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z • rassociator _ _ _) (pr12 p)) <span class="k">as</span> d.
+    <span class="nb">cbn</span> <span class="k">in</span> d.
+    <span class="nb">rewrite</span> id2_rwhisker <span class="k">in</span> d.
+    <span class="nb">rewrite</span> id2_right <span class="k">in</span> d.
+    <span class="nb">rewrite</span> !vassocl <span class="k">in</span> d.
+    <span class="nb">rewrite</span> !lassociator_rassociator <span class="k">in</span> d.
+    <span class="nb">rewrite</span> !id2_right <span class="k">in</span> d.
+    use make_is_invertible_2cell.
+    - <span class="bp">exact</span> (pr1 p • lunitor _).
+    - <span class="nb">pose</span> (@cartesian_1cell_lift_2cell
+              _ _ _ _ _ _ _ _ Hss
+              c₁
+              t₁
+              (id₁ _) (id₁ _)
+              (ss • linvunitor _ • lassociator _ _ _)
+              (ss • linvunitor _ • lassociator _ _ _)
+              (id2 _)) <span class="k">as</span> lift2.
+      <span class="nb">cbn</span> <span class="k">in</span> lift2.
+      <span class="nb">rewrite</span> !id2_rwhisker, !id2_right <span class="k">in</span> lift2.
+      <span class="nb">pose</span> (lift2 (idpath _)) <span class="k">as</span> l'.
+      <span class="nb">rewrite</span> !vassocr.
+      use vcomp_move_R_Mp ; [ is_iso | ] ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">refine</span> (!(id2_right _) @ _).
+      use (l' (ss • pr1 p ,, _) (linvunitor _ ,, _)) ; <span class="nb">cbn</span>.
+      + <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> id2_rwhisker, id2_right.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> d.
+          <span class="nb">apply</span> idpath.
+        * <span class="nb">apply</span> lax_slice_disp_locally_groupoid.
+      + <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> id2_rwhisker, id2_right.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> linvunitor_natural.
+          <span class="nb">rewrite</span> &lt;- lwhisker_hcomp.
+          <span class="nb">apply</span> idpath.
+        * <span class="nb">apply</span> lax_slice_disp_locally_groupoid.
+    - <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> &lt;- vcomp_lunitor.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> d.
+      <span class="nb">apply</span> linvunitor_lunitor.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   1.4. Global cleaving</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">lax_slice_global_cleaving</span>
+    : global_cleaving (lax_slice_disp_bicat B a).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> c₁ c₂ t₁ s.
+    <span class="nb">simple refine</span> (s · t₁ ,, id₂ _ ,, _) ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> lax_slice_invertible_2cell_is_cartesian_1cell.
+    is_iso.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">LaxSliceCleaving</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Oplax slices</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">OplaxSliceCleaving</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">a</span> : B).
+
+  <span class="sd">(**</span>
+<span class="sd">   2.1. Characterization of cartesian 2-cells</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">oplax_slice_is_cartesian_2cell</span>
+             {<span class="nv">c₁</span> <span class="nv">c₂</span> : B}
+             {<span class="nv">s₁</span> <span class="nv">s₂</span> : c₁ --&gt; c₂}
+             {<span class="nv">α</span> : s₁ ==&gt; s₂}
+             {<span class="nv">t₁</span> : oplax_slice_disp_bicat B a c₁}
+             {<span class="nv">t₂</span> : oplax_slice_disp_bicat B a c₂}
+             {<span class="nv">ss₁</span> : t₁ --&gt;[ s₁ ] t₂}
+             {<span class="nv">ss₂</span> : t₁ --&gt;[ s₂ ] t₂}
+             (<span class="nv">αα</span> : ss₁ ==&gt;[ α ] ss₂)
+    : is_cartesian_2cell (oplax_slice_disp_bicat B a) αα.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> s₃ ss₃ γ γα.
+    use iscontraprop1.
+    - use isaproptotal2.
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> (oplax_slice_disp_bicat B a).
+      + <span class="nb">intros</span>.
+        <span class="nb">apply</span> cellset_property.
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="nb">rewrite</span> &lt;- αα, &lt;- γα.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> rwhisker_vcomp.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2.2. Local cleaving and isocleaving</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">oplax_slice_local_cleaving</span>
+    : local_cleaving (oplax_slice_disp_bicat B a).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> c₁ c₂ t₁ t₂ s₁ s₂ α β ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">simple refine</span> (_ ,, _) ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> ((β ▹ t₂) • α).
+    - <span class="nb">simple refine</span> (idpath _ ,, _).
+      <span class="nb">apply</span> oplax_slice_is_cartesian_2cell.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">oplax_slice_local_iso_cleaving</span>
+    : local_iso_cleaving (oplax_slice_disp_bicat B a).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> c₁ c₂ t₁ t₂ s₁ s₂ α β ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> ((β ▹ s₂) • α).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+    - <span class="nb">apply</span> oplax_slice_disp_locally_groupoid.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2.3. Characterizations of cartesian 1-cells</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">oplax_slice_invertible_2cell_is_cartesian_1cell</span>
+             {<span class="nv">c₁</span> <span class="nv">c₂</span> : B}
+             {<span class="nv">s</span> : c₁ --&gt; c₂}
+             {<span class="nv">t₁</span> : oplax_slice_disp_bicat B a c₁}
+             {<span class="nv">t₂</span> : oplax_slice_disp_bicat B a c₂}
+             (<span class="nv">ss</span> : t₁ --&gt;[ s ] t₂)
+             (<span class="nv">Hss</span> : is_invertible_2cell ss)
+    : cartesian_1cell (oplax_slice_disp_bicat B a) ss.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> c₃ t₃ s' ss'.
+      <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> ((s' ◃ Hss^-<span class="mi">1</span>) • lassociator _ _ _ • ss').
+      + <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> id2_rwhisker, id2_left ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+             <span class="nb">rewrite</span> lwhisker_vcomp ;
+             <span class="nb">rewrite</span> vcomp_rinv ;
+             <span class="nb">rewrite</span> lwhisker_id2 ;
+             <span class="nb">rewrite</span> id2_left ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="nb">rewrite</span> rassociator_lassociator ;
+             <span class="nb">rewrite</span> id2_left ;
+             <span class="nb">apply</span> idpath).
+        * <span class="nb">apply</span> oplax_slice_disp_locally_groupoid.
+    - <span class="nb">cbn</span>.
+      <span class="nb">intros</span> c₃ t₃ s₁ s₂ α αα β ββ Lh Lh' ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      use iscontraprop1.
+      + <span class="kp">abstract</span>
+          (use invproofirrelevance ;
+           <span class="nb">intros</span> φ₁ φ₂ ;
+           use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> (oplax_slice_disp_bicat B a) | ] ;
+           <span class="nb">apply</span> cellset_property).
+      + <span class="nb">cbn</span>.
+        simple  <span class="nb">refine</span> (_ ,, _).
+        * <span class="kp">abstract</span>
+            (<span class="nb">pose</span> (pr12 Lh) <span class="k">as</span> p ;
+             <span class="nb">cbn</span> <span class="k">in</span> p ;
+             <span class="nb">rewrite</span> id2_rwhisker <span class="k">in</span> p ;
+             <span class="nb">rewrite</span> id2_left <span class="k">in</span> p ;
+             <span class="nb">pose</span> (pr12 Lh') <span class="k">as</span> p' ;
+             <span class="nb">cbn</span> <span class="k">in</span> p' ;
+             <span class="nb">rewrite</span> id2_rwhisker <span class="k">in</span> p' ;
+             <span class="nb">rewrite</span> id2_left <span class="k">in</span> p' ;
+             <span class="nb">cbn</span> ;
+             use (vcomp_lcancel (s₁ ◃ ss)) ; [ is_iso ; <span class="nb">apply</span> Hss | ] ;
+             use (vcomp_lcancel (rassociator _ _ _)) ; [ is_iso | ] ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="nb">refine</span> (_ @ p) ;
+             <span class="nb">refine</span> (_ @ ββ) ;
+             <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (!p')) ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="nb">apply</span> maponpaths_2 ;
+             <span class="nb">rewrite</span> rwhisker_rwhisker_alt ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">rewrite</span> vcomp_whisker ;
+             <span class="nb">apply</span> idpath).
+        * <span class="nb">apply</span> cellset_property.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">oplax_slice_cartesian_1cell_is_invertible_2cell</span>
+             {<span class="nv">c₁</span> <span class="nv">c₂</span> : B}
+             {<span class="nv">s</span> : c₁ --&gt; c₂}
+             {<span class="nv">t₁</span> : oplax_slice_disp_bicat B a c₁}
+             {<span class="nv">t₂</span> : oplax_slice_disp_bicat B a c₂}
+             (<span class="nv">ss</span> : t₁ --&gt;[ s ] t₂)
+             (<span class="nv">Hss</span> : cartesian_1cell (oplax_slice_disp_bicat B a) ss)
+    : is_invertible_2cell ss.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">pose</span> (pr1 Hss c₁ (s · t₂) (id₁ _) (rassociator _ _ _ • lunitor _)) <span class="k">as</span> p.
+    <span class="nb">unfold</span> lift_1cell_factor <span class="k">in</span> p.
+    <span class="nb">pose</span> (pr12 p) <span class="k">as</span> d.
+    <span class="nb">cbn</span> <span class="k">in</span> d.
+    <span class="nb">rewrite</span> id2_rwhisker <span class="k">in</span> d.
+    <span class="nb">rewrite</span> id2_left <span class="k">in</span> d.
+    use make_is_invertible_2cell.
+    - <span class="bp">exact</span> (linvunitor _ • pr1 p).
+    - <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> linvunitor_natural.
+      <span class="nb">rewrite</span> &lt;- lwhisker_hcomp.
+      <span class="nb">rewrite</span> linvunitor_assoc.
+      <span class="nb">rewrite</span> !vassocl.
+      use vcomp_move_R_pM ; [ is_iso | ].
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> &lt;- d.
+      <span class="nb">rewrite</span> id2_right.
+
+      <span class="nb">rewrite</span> &lt;- lunitor_triangle.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> rassociator_lassociator.
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">pose</span> (@cartesian_1cell_lift_2cell
+              _ _ _ _ _ _ _ _ Hss
+              c₁
+              t₁
+              (id₁ _) (id₁ _)
+              (rassociator _ _ _ • lunitor _ • ss)
+              (rassociator _ _ _ • lunitor _ • ss)
+              (id2 _)) <span class="k">as</span> lift2.
+      <span class="nb">cbn</span> <span class="k">in</span> lift2.
+      <span class="nb">rewrite</span> !id2_rwhisker, !id2_left <span class="k">in</span> lift2.
+      <span class="nb">pose</span> (lift2 (idpath _)) <span class="k">as</span> l'.
+      <span class="nb">rewrite</span> !vassocl.
+      use vcomp_move_R_pM ; [ is_iso | ] ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_right.
+      <span class="nb">refine</span> (!(id2_left _) @ _).
+      use (l' (lunitor _ ,, _) (pr1 p • ss ,, _)) ; <span class="nb">cbn</span>.
+      + <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> id2_rwhisker, id2_left.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> vcomp_lunitor.
+          <span class="nb">apply</span> idpath.
+        * <span class="nb">apply</span> oplax_slice_disp_locally_groupoid.
+      + <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> id2_rwhisker, id2_left.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">rewrite</span> d.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">apply</span> idpath.
+        * <span class="nb">apply</span> oplax_slice_disp_locally_groupoid.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2.4. Global cleaving</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">oplax_slice_global_cleaving</span>
+    : global_cleaving (oplax_slice_disp_bicat B a).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> c₁ c₂ t₁ s.
+    <span class="nb">simple refine</span> (s · t₁ ,, id₂ _ ,, _) ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> oplax_slice_invertible_2cell_is_cartesian_1cell.
+    is_iso.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">OplaxSliceCleaving</span>.
+
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Slice bicatgories</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">SliceCleaving</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">a</span> : B).
+
+  <span class="sd">(**</span>
+<span class="sd">   3.1. Local isocleaving</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">slice_local_iso_cleaving</span>
+    : local_iso_cleaving (slice_disp_bicat a).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> c₁ c₂ t₁ t₂ s₁ s₂ α β ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (comp_of_invertible_2cell
+               α
+               (rwhisker_of_invertible_2cell
+                  _
+                  (inv_of_invertible_2cell β))).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> rwhisker_vcomp ;
+         <span class="nb">rewrite</span> vcomp_linv ;
+         <span class="nb">rewrite</span> id2_rwhisker ;
+         <span class="nb">apply</span> id2_right).
+    - <span class="nb">apply</span> disp_locally_groupoid_slice_disp_bicat.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3.2. Characterizations of cartesian 1-cells</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">slice_is_cartesian_1cell</span>
+             {<span class="nv">c₁</span> <span class="nv">c₂</span> : B}
+             {<span class="nv">s</span> : c₁ --&gt; c₂}
+             {<span class="nv">t₁</span> : slice_disp_bicat a c₁}
+             {<span class="nv">t₂</span> : slice_disp_bicat a c₂}
+             (<span class="nv">ss</span> : t₁ --&gt;[ s ] t₂)
+    : cartesian_1cell (slice_disp_bicat a) ss.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> c₃ t₃ s' ss'.
+      <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (comp_of_invertible_2cell
+                 ss'
+                 (comp_of_invertible_2cell
+                    (rassociator_invertible_2cell _ _ _)
+                    (lwhisker_of_invertible_2cell
+                       _
+                       (inv_of_invertible_2cell ss)))).
+      + <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> id2_rwhisker ;
+             <span class="nb">rewrite</span> id2_right ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">refine</span> (_ @ id2_right _) ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">rewrite</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+             <span class="nb">rewrite</span> lwhisker_vcomp ;
+             <span class="nb">rewrite</span> vcomp_linv ;
+             <span class="nb">rewrite</span> lwhisker_id2 ;
+             <span class="nb">rewrite</span> id2_left ;
+             <span class="nb">apply</span> rassociator_lassociator).
+        * <span class="nb">apply</span> disp_locally_groupoid_slice_disp_bicat.
+    - <span class="nb">cbn</span>.
+      <span class="nb">intros</span> c₃ t₃ s₁ s₂ α αα β ββ Lh Lh' ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      use iscontraprop1.
+      + <span class="kp">abstract</span>
+          (use invproofirrelevance ;
+           <span class="nb">intros</span> φ₁ φ₂ ;
+           use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> (slice_disp_bicat a) | ] ;
+           <span class="nb">apply</span> cellset_property).
+      + <span class="nb">cbn</span>.
+        simple  <span class="nb">refine</span> (_ ,, _).
+        * <span class="kp">abstract</span>
+            (<span class="nb">pose</span> (pr12 Lh') <span class="k">as</span> p ;
+             <span class="nb">cbn</span> <span class="k">in</span> p ;
+             <span class="nb">rewrite</span> id2_rwhisker <span class="k">in</span> p ;
+             <span class="nb">rewrite</span> id2_right <span class="k">in</span> p ;
+             use (vcomp_rcancel (s₂ ◃ ss)) ; [ is_iso ; <span class="nb">apply</span> ss | ] ;
+             use (vcomp_rcancel (lassociator _ _ _)) ; [ is_iso | ] ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">refine</span> (_ @ !p) ; <span class="nb">clear</span> p ;
+             <span class="nb">pose</span> (pr12 Lh) <span class="k">as</span> p ;
+             <span class="nb">refine</span> (_ @ ββ) ;
+             <span class="nb">cbn</span> <span class="k">in</span> p ;
+             <span class="nb">rewrite</span> id2_rwhisker <span class="k">in</span> p ;
+             <span class="nb">rewrite</span> id2_right <span class="k">in</span> p ;
+             <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z • _) p) ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="nb">rewrite</span> vcomp_whisker ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">rewrite</span> rwhisker_rwhisker ;
+             <span class="nb">apply</span> idpath).
+        * <span class="nb">apply</span> cellset_property.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3.3. Global cleaving</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">slice_global_cleaving</span>
+    : global_cleaving (slice_disp_bicat a).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> c₁ c₂ t₁ s.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">simple refine</span> (s · t₁ ,, id2_invertible_2cell _ ,, _) ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> slice_is_cartesian_1cell.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">SliceCleaving</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/ExamplesOfCleavings/SliceCleaving.v</tt>, line 22)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3.3. Global cleaving
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

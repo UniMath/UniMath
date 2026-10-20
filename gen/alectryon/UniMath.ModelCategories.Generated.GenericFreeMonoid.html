@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>GenericFreeMonoid.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
+
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+
+<span class="kn">Section</span> <span class="nf">Mon_alg</span>.
+
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">V</span> : monoidal C).
+
+<span class="kn">Definition</span> <span class="nf">pointed</span> : UU :=
+    ∑ T, I_{V} --&gt; T.
+
+<span class="kn">Coercion</span> <span class="nf">pointed_obj</span> (T : pointed) : C := pr1 T.
+<span class="kn">Definition</span> <span class="nf">pointed_pt</span> (<span class="nv">T</span> : pointed) : I_{V} --&gt; T := pr2 T.
+
+<span class="kn">Definition</span> <span class="nf">Mon_alg_data</span> (<span class="nv">T</span> : pointed) (<span class="nv">A</span> : C) : UU :=
+    ∑ (a : T ⊗_{V} A --&gt; A),
+      (luinv_{V} _) · ((pointed_pt T) ⊗^{V}_{r} A) · a  = identity _.
+
+<span class="kn">Coercion</span> <span class="nf">Mon_alg_map</span> {T : pointed} {X : C} (XX : Mon_alg_data T X) := pr1 XX.
+<span class="kn">Definition</span> <span class="nf">Mon_alg_map_comm</span> {<span class="nv">T</span> : pointed} {<span class="nv">X</span> : C} (<span class="nv">XX</span> : Mon_alg_data T X) := pr2 XX.
+
+<span class="kn">Definition</span> <span class="nf">Mon_alg_mor_axioms</span>
+    {<span class="nv">T</span> : pointed}
+    {<span class="nv">X</span> <span class="nv">Y</span> : C}
+    (<span class="nv">XX</span> : Mon_alg_data T X)
+    (<span class="nv">YY</span> : Mon_alg_data T Y)
+    (<span class="nv">f</span> : X --&gt; Y) : UU :=
+  XX · f = (T ⊗^{V}_{l} f) · YY.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_Mon_alg_mor_axioms</span>
+    {<span class="nv">T</span> : pointed}
+    {<span class="nv">X</span> <span class="nv">Y</span> : C}
+    (<span class="nv">XX</span> : Mon_alg_data T X)
+    (<span class="nv">YY</span> : Mon_alg_data T Y)
+    (<span class="nv">f</span> : X --&gt; Y) :
+  isaprop (Mon_alg_mor_axioms XX YY f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Mon_alg_disp_ob_mor</span> (<span class="nv">T</span> : pointed) : disp_cat_ob_mor C.
+<span class="kn">Proof</span>.
+  use make_disp_cat_ob_mor.
+  - <span class="nb">intro</span> X.
+    <span class="bp">exact</span> (Mon_alg_data T X).
+  - <span class="nb">intros</span> X Y XX YY f.
+    <span class="bp">exact</span> (Mon_alg_mor_axioms XX YY f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Mon_alg_disp_id_comp</span> (<span class="nv">T</span> : pointed) :
+    disp_cat_id_comp _ (Mon_alg_disp_ob_mor T).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> X XX.
+    <span class="c">(* simpl.</span>
+<span class="c">    unfold Mon_alg_mor_axioms. *)</span>
+    etrans. <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> maponpaths_2.
+            use (bifunctor_leftid V).
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">intros</span> X Y Z f g XX YY ZZ ff gg.
+    <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> Mon_alg_mor_axioms.
+
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> ff.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="bp">exact</span> gg.
+
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> maponpaths_2.
+            use (bifunctor_leftcomp V).
+    <span class="nb">apply</span> assoc'.
+<span class="c">(* Qed because morphisms are propositional anyway *)</span>
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Mon_alg_disp_data</span> (<span class="nv">T</span> : pointed) :
+    disp_cat_data C := (_,, Mon_alg_disp_id_comp T).
+
+<span class="kn">Definition</span> <span class="nf">Mon_alg_axioms</span> (<span class="nv">T</span> : pointed) :
+    disp_cat_axioms _ (Mon_alg_disp_data T).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>; <span class="kp">try</span> <span class="nb">apply</span> homset_property.
+  <span class="nb">apply</span> isasetaprop.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Mon_alg_disp</span> (<span class="nv">T</span> : pointed) :
+    disp_cat C := (_,, Mon_alg_axioms T).
+
+<span class="kn">Definition</span> <span class="nf">Mon_alg</span> (<span class="nv">T</span> : pointed) :
+    category := total_category (Mon_alg_disp T).
+
+<span class="kn">Lemma</span> <span class="nf">Mon_alg_action_alg_map_rel</span> {<span class="nv">T</span> : pointed}
+    (<span class="nv">X</span> : Mon_alg T) (<span class="nv">A</span> : C) :
+  luinv^{ V }_{ pr1 X ⊗_{ V} A} · pointed_pt T ⊗^{ V}_{r} (pr1 X ⊗_{ V} A)
+  · (αinv^{ V }_{ T, pr1 X, A} · pr12 X ⊗^{ V}_{r} A) =
+  identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> X <span class="k">as</span> [X [x xrel]].
+  <span class="c">(* cbn. *)</span>
+
+  <span class="nb">set</span> (trinv := monoidal_triangle_identity'_inv V X A).
+  <span class="nb">set</span> (associnvnat := monoidal_associatorinvnatright V _ _ X A (pointed_pt T)).
+  <span class="nb">set</span> (whiskerrightcomp := bifunctor_rightcomp V).
+
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> assoc4.
+  etrans. <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> associnvnat.
+
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> assoc.
+  etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+          <span class="bp">exact</span> trinv.
+
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="bp">exact</span> (pathsinv0 (whiskerrightcomp A _ _ _ _ _)).
+  etrans. <span class="bp">exact</span> (pathsinv0 (whiskerrightcomp A _ _ _ _ _)).
+
+  etrans. <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> xrel.
+  <span class="nb">apply</span> (bifunctor_rightid V).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Mon_alg_action_mor_rel</span> {<span class="nv">T</span> : pointed} (<span class="nv">X</span> : Mon_alg T)
+    {<span class="nv">A</span> <span class="nv">B</span> : C} (<span class="nv">f</span> : A --&gt; B) :
+    Mon_alg_mor_axioms
+      (_,, Mon_alg_action_alg_map_rel X A)
+      (_,, Mon_alg_action_alg_map_rel X B) (pr1 X ⊗^{ V}_{l} f).
+<span class="kn">Proof</span>.
+  <span class="c">(* unfold Mon_alg_mor_axioms. *)</span>
+  <span class="nb">destruct</span> X <span class="k">as</span> [X [x xrel]].
+  <span class="c">(* cbn. *)</span>
+
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          use (whiskerscommutes _ (bifunctor_equalwhiskers V)).
+
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+
+  <span class="nb">apply</span> (monoidal_associatorinvnatleft V).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Mon_alg_right_action_data</span> {<span class="nv">T</span> : pointed} (<span class="nv">X</span> : Mon_alg T) :
+  functor_data C (Mon_alg T).
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="nb">intro</span> A.
+    <span class="k">exists</span> ((pr1 X) ⊗_{V} A).
+    <span class="nb">cbn</span>.
+    <span class="c">(* unfold Mon_alg_data. *)</span>
+    <span class="k">exists</span> ((αinv_{V} T (pr1 X) A) · ((pr12 X) ⊗^{V}_{r} A)).
+    <span class="nb">apply</span> Mon_alg_action_alg_map_rel.
+  - <span class="nb">intros</span> A B f.
+    <span class="nb">simpl</span>.
+    <span class="k">exists</span> ((pr1 X) ⊗^{V}_{l} f).
+    <span class="bp">exact</span> (Mon_alg_action_mor_rel X f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Mon_alg_right_action_axioms</span> {<span class="nv">T</span> : pointed} (<span class="nv">X</span> : Mon_alg T) :
+    is_functor (Mon_alg_right_action_data X).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> x.
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isaprop_Mon_alg_mor_axioms|].
+    use (bifunctor_leftid V).
+  - <span class="nb">intros</span> A B D f g.
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isaprop_Mon_alg_mor_axioms|].
+    use (bifunctor_leftcomp V).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Mon_alg_right_action</span> {<span class="nv">T</span> : pointed} (<span class="nv">X</span> : Mon_alg T) :
+    functor C (Mon_alg T) :=
+  (_,, Mon_alg_right_action_axioms X).
+
+<span class="c">(* basically want to formalize Garner / Kelly (generalized) stuff about</span>
+<span class="c">   T-Alg (/ T-Mod in Garner)</span>
+<span class="c">   and how one obtains a monoid from the free T-algebra</span>
+<span class="c">   Mon should be a monoidal category (Ff_C) is at least</span>
+<span class="c">*)</span>
+<span class="kn">Definition</span> <span class="nf">Mon_alg_forgetful_functor</span> (<span class="nv">T</span> : pointed) :
+    functor (Mon_alg T) C :=
+  pr1_category _.
+
+<span class="c">(* todo: show that this holds whenever sequence on I --&gt; X</span>
+<span class="c">   converges *)</span>
+<span class="kn">Definition</span> <span class="nf">alg_forgetful_functor_right_action_is_adjoint</span> {<span class="nv">T</span> : pointed} (<span class="nv">X</span> : Mon_alg T) : UU :=
+    are_adjoints (Mon_alg_right_action X) (Mon_alg_forgetful_functor T).
+
+<span class="c">(* not every object can be pointed in a general monoidal category *)</span>
+<span class="kn">Definition</span> <span class="nf">alg_forgetful_functor_right_action_is_adjoint_induced_mul</span> {<span class="nv">T</span> : pointed} (<span class="nv">X</span> : Mon_alg T)
+    (<span class="nv">Adj</span> : alg_forgetful_functor_right_action_is_adjoint X) :
+  (pr1 X) ⊗_{V} (pr1 X) --&gt; (pr1 X).
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> X <span class="k">as</span> [X [x rel]].
+  <span class="nb">set</span> (m := Monad_from_adjunction Adj).
+  <span class="nb">set</span> (μ := μ m (I_{V})).
+
+  <span class="c">(* simpl in μ.</span>
+<span class="c">  cbn. *)</span>
+  <span class="bp">exact</span> (X ⊗^{V}_{l} (ruinv_{V} X) ·
+         μ ·
+         ru_{V} X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">alg_forgetful_functor_right_action_is_adjoint_monoid_data</span>
+    {<span class="nv">T</span> : pointed} {<span class="nv">X</span> : Mon_alg T}
+    (<span class="nv">Adj</span> : alg_forgetful_functor_right_action_is_adjoint X) :
+  monoid_data V (pr1 X).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">alg_forgetful_functor_right_action_is_adjoint_induced_mul</span> <span class="nv">X</span> <span class="nv">Adj</span>).
+  <span class="nb">set</span> (η := unit_from_are_adjoints Adj I_{V} · ru_{V} (pr1 X)).
+  <span class="bp">exact</span> η.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">alg_forgetful_functor_right_action_adjoint_monad_unit_preserves_right_tensor</span>
+    {<span class="nv">T</span> : pointed} {<span class="nv">X</span> : Mon_alg T}
+    (<span class="nv">Adj</span> : alg_forgetful_functor_right_action_is_adjoint X) :=
+  <span class="k">let</span> <span class="nv">m</span> := Monad_from_adjunction Adj <span class="k">in</span>
+  ∏ (Y : C),
+    η m Y =
+      luinv_{V} Y ·
+      η m I_{V} ⊗^{V}_{r} Y ·
+      (ru_{V} (pr1 X)) ⊗^{V}_{r} Y.
+
+
+<span class="c">(* need:</span>
+<span class="c">pr1 X ⊗^{ V}_{l} (pr1 X ⊗^{ V}_{l} ruinv^{ V }_{ pr1 X}) · μ m (m I_{ V})</span>
+<span class="c">    =</span>
+<span class="c">    αinv^{ V }_{ pr1 X, pr1 X, pr1 X}</span>
+<span class="c">    · (pr1 X ⊗^{ V}_{l} ruinv^{ V }_{ pr1 X}</span>
+<span class="c">        · μ (Monad_from_adjunction Adj) I_{ V} · ru^{ V }_{ pr1 X})</span>
+<span class="c">      ⊗^{ V}_{r} pr1 X · pr1 X ⊗^{ V}_{l} ruinv^{ V }_{ pr1 X} *)</span>
+<span class="kn">Definition</span> <span class="nf">alg_forgetful_functor_right_action_adjoint_monad_mul_preserves_right_tensor</span>
+      {<span class="nv">T</span> : pointed} {<span class="nv">X</span> : Mon_alg T}
+      (<span class="nv">Adj</span> : alg_forgetful_functor_right_action_is_adjoint X) :=
+    <span class="k">let</span> <span class="nv">m</span> := Monad_from_adjunction Adj <span class="k">in</span>
+    ∏ (Y : C),
+        μ m Y =
+          αinv_{V} _ _ _ ·
+          (_ ⊗^{V}_{l} ruinv_{V} _) ⊗^{V}_{r} _ ·
+          μ m I_{V} ⊗^{V}_{r} Y ·
+          ru_{V} _ ⊗^{V}_{r} _.
+
+<span class="c">(* Definition alg_forgetful_functor_right_action_adjoint_monad_mul_preserves_right_tensor</span>
+<span class="c">      {T : pointed} {X : Mon_alg T}</span>
+<span class="c">      (Adj : alg_forgetful_functor_right_action_is_adjoint X) :=</span>
+<span class="c">    let m := Monad_from_adjunction Adj in</span>
+<span class="c">    ∏ (Y : C),</span>
+<span class="c">        μ m Y =</span>
+<span class="c">          (pr1 X) ⊗^{V}_{l} ((pr1 X) ⊗^{V}_{l} luinv_{V} Y) ·</span>
+<span class="c">          (pr1 X) ⊗^{V}_{l} αinv_{V} _ _ _ ·</span>
+<span class="c">          αinv_{V} _ _ _ ·</span>
+<span class="c">          μ m I_{V} ⊗^{V}_{r} Y ·</span>
+<span class="c">          (α_{V} _ _ _) ·</span>
+<span class="c">          (pr1 X) ⊗^{V}_{l} lu_{V} Y. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">alg_forgetful_functor_right_action_is_adjoint_monoid_laws</span>
+    {<span class="nv">T</span> : pointed} {<span class="nv">X</span> : Mon_alg T}
+    {<span class="nv">Adj</span> : alg_forgetful_functor_right_action_is_adjoint X}
+    (<span class="nv">ηr</span> : alg_forgetful_functor_right_action_adjoint_monad_unit_preserves_right_tensor Adj)
+    (<span class="nv">μr</span> : alg_forgetful_functor_right_action_adjoint_monad_mul_preserves_right_tensor Adj) :
+  monoid_laws V (alg_forgetful_functor_right_action_is_adjoint_monoid_data Adj).
+<span class="kn">Proof</span>.
+  <span class="c">(* these should just follow from the monad laws of Monad_from_adjunction Adj *)</span>
+  <span class="nb">set</span> (m := Monad_from_adjunction Adj).
+  <span class="nb">set</span> (u := unit_from_are_adjoints Adj).
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  -
+    <span class="c">(* unfold monoid_laws_unit_left.</span>
+<span class="c">    cbn.</span>
+<span class="c">    unfold alg_forgetful_functor_right_action_is_adjoint_induced_mul. *)</span>
+    <span class="c">(* cbn. *)</span>
+
+    etrans. <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> (bifunctor_rightcomp V).
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition, assoc4.
+    etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (whiskerscommutes _ (bifunctor_equalwhiskers V)).
+
+    etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+    {
+      etrans. <span class="nb">apply</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> (whiskerscommutes _ (bifunctor_equalwhiskers V)).
+    }
+
+    <span class="c">(* transform rhs to identity (m I_{V}) (== identity (pr1 X))</span>
+<span class="c">       then plug in monad law 1 *)</span>
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj
+            (is_inverse_in_precat_inv (monoidal_leftunitorisolaw V _))).
+    <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj
+             (monoidal_rightunitorisolaw V _)).
+    <span class="nb">apply</span> (post_comp_with_z_iso_is_inj
+             (is_inverse_in_precat_inv (monoidal_rightunitorisolaw V (pr1 X)))).
+    etrans.
+    {
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> (monoidal_leftunitorisolaw V _).
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> id_right.
+      etrans. <span class="nb">apply</span> (monoidal_rightunitorisolaw V _).
+      <span class="bp">exact</span> (pathsinv0 (Monad_law1 (T := m) I_{V})).
+    }
+
+    <span class="c">(* cbn. *)</span>
+
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> (monoidal_rightunitorisolaw V _).
+    etrans. <span class="nb">apply</span> id_right.
+
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> ηr.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> (monoidal_leftunitorinvnat V).
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (monoidal_rightunitorisolaw V _).
+    <span class="nb">apply</span> id_left.
+  -
+    <span class="c">(* unfold monoid_laws_unit_right.</span>
+<span class="c">    cbn.</span>
+<span class="c">    unfold alg_forgetful_functor_right_action_is_adjoint_induced_mul.</span>
+<span class="c">     *)</span>
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (bifunctor_leftcomp V).
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> assoc.
+    etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+    etrans. <span class="nb">apply</span> assoc'.
+            <span class="nb">apply</span> cancel_precomposition.
+    {
+        etrans. <span class="nb">apply</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _)).
+        etrans. <span class="nb">apply</span> maponpaths.
+                <span class="bp">exact</span> (pr1 (monoidal_rightunitorisolaw V (pr1 X))).
+        <span class="nb">apply</span> (bifunctor_leftid V).
+    }
+    etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> id_right.
+
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> (pathsinv0 (id_left _)).
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="bp">exact</span> (Monad_law2 (T := m) I_{V}).
+  -
+    <span class="c">(* unfold monoid_laws_assoc. *)</span>
+    <span class="c">(* cbn. *)</span>
+    <span class="c">(* unfold alg_forgetful_functor_right_action_is_adjoint_induced_mul. *)</span>
+    <span class="c">(* cbn. *)</span>
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (bifunctor_leftcomp V).
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> (bifunctor_leftcomp V).
+
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> assoc.
+    etrans. <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> assoc.
+    etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> assoc'.
+    etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> maponpaths.
+    {
+      <span class="bp">exact</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _)).
+    }
+    etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    {
+      <span class="bp">exact</span> (pr1 (monoidal_rightunitorisolaw V (pr1 X))).
+    }
+    etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (bifunctor_leftid V).
+    etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> id_right.
+
+    etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> cancel_precomposition.
+    <span class="c">(* #m (μ m I_{V}) = X ⊗^{V}_{l} μ m I_{V} *)</span>
+            <span class="bp">exact</span> (Monad_law3 (T := m) I_{V}).
+
+    <span class="c">(* cbn. *)</span>
+    etrans. <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> pathsinv0.
+
+    <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj
+            (is_inverse_in_precat_inv (monoidal_associatorisolaw V _ _ _))).
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+    etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (monoidal_associatorisolaw V).
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> id_left.
+
+    etrans. <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> μr.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> cancel_precomposition.
+    {
+      etrans. <span class="nb">apply</span> (bifunctor_rightcomp V).
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> (bifunctor_rightcomp V).
+    }
+
+    etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> (whiskerscommutes _ (bifunctor_equalwhiskers V)).
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+    {
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> (whiskerscommutes _ (bifunctor_equalwhiskers V)).
+    }
+    <span class="kp">do</span> <span class="mi">2</span> (etrans; [<span class="nb">apply</span> assoc|]).
+    <span class="nb">apply</span> cancel_postcomposition.
+
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (pathsinv0 (monoidal_associatorinvnatleftright V _ _ _ _ _)).
+
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> (pathsinv0 (monoidal_associatorinvnatleftright V _ _ _ _ _)).
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+    {
+      etrans. <span class="nb">apply</span> (pathsinv0 (bifunctor_leftcomp V _ _ _ _ _ _)).
+      etrans. <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (pathsinv0 (whiskerscommutes _ (bifunctor_equalwhiskers V) _ _)).
+      <span class="nb">apply</span> (bifunctor_leftcomp V).
+    }
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (monoidal_associatorinvnatleft V).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">alg_forgetful_functor_right_action_is_adjoint_monoid</span>
+    {<span class="nv">T</span> : pointed} {<span class="nv">X</span> : Mon_alg T}
+    {<span class="nv">Adj</span> : alg_forgetful_functor_right_action_is_adjoint X}
+    (<span class="nv">ηr</span> : alg_forgetful_functor_right_action_adjoint_monad_unit_preserves_right_tensor Adj)
+    (<span class="nv">μr</span> : alg_forgetful_functor_right_action_adjoint_monad_mul_preserves_right_tensor Adj) :
+  monoid _ _ := (_,, alg_forgetful_functor_right_action_is_adjoint_monoid_laws ηr μr).
+
+<span class="c">(* todo: define free monoid *)</span>
+<span class="c">(* Lemma alg_free_monad_exists_if_alg_forgetful_functor_right_action_is_adjoint {T : pointed} (X : Mon_alg T) :</span>
+<span class="c">    alg_forgetful_functor_right_action_is_adjoint X -&gt; (total_category (NWFS C)).</span>
+<span class="c">Proof.</span>
+<span class="c">  intro Adj.</span>
+
+<span class="c">  exists (pr11 X).</span>
+<span class="c">  split; [exact (pr21 X)|].</span>
+
+<span class="c">  exists (alg_forgetful_functor_right_action_is_adjoint_induced_mul Adj).</span>
+<span class="c">  exact (alg_forgetful_functor_right_action_is_adjoint_monad_laws Adj).</span>
+<span class="c">Defined. *)</span>
+
+<span class="kn">End</span> <span class="nf">Mon_alg</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/ModelCategories/Generated/GenericFreeMonoid.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

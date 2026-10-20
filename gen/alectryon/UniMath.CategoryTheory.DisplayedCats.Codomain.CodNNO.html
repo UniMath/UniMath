@@ -1,0 +1,981 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CodNNO.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************</span>
+
+<span class="sd"> Parameterized natural numbers object in the slice category</span>
+
+<span class="sd"> If some category with finite limits has a parameterized natural numbers object, then</span>
+<span class="sd"> each slice also has a natural numbers object. We also show that the parameterized</span>
+<span class="sd"> natural is stable under substitution and that the functor arising from the</span>
+<span class="sd"> pseudofunctoriality of the arrow category preserves parameterized natural numbers</span>
+<span class="sd"> objects. The main work lies in verifying that the necessary functors preserves</span>
+<span class="sd"> parameterized natural number objects. Here the idea is to calculate the preservation</span>
+<span class="sd"> morphism and prove that it is equal to some morphism of which one can directly see</span>
+<span class="sd"> that it is an isomorphism.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Basic definitions</span>
+<span class="sd"> 2. The universal mapping property</span>
+<span class="sd"> 3. Parameterized natural numbers object in the slice category</span>
+<span class="sd"> 4. Stability under substitution</span>
+<span class="sd"> 5. Preservation by the pseudofunctoriality of the arrow category</span>
+
+<span class="sd"> **************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">CodNNO</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">T</span> : Terminal C}
+          {<span class="nv">BC</span> : BinProducts C}
+          (<span class="nv">N</span> : parameterized_NNO T BC)
+          (<span class="nv">PC</span> : Pullbacks C)
+          (<span class="nv">x</span> : C).
+
+  <span class="sd">(** * 1. Basic definitions *)</span>
+  <span class="kn">Definition</span> <span class="nf">slice_parameterized_NNO_ob</span>
+    : C/x
+    := pr_cod_fib BC x N.
+
+  <span class="kn">Definition</span> <span class="nf">slice_parameterized_NNO_Z</span>
+    : codomain_fib_terminal x --&gt; slice_parameterized_NNO_ob.
+  <span class="kn">Proof</span>.
+    use make_cod_fib_mor.
+    - <span class="bp">exact</span> (BinProductArrow
+               _ _
+               (identity _)
+               (TerminalArrow _ _ · parameterized_NNO_Z N)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">apply</span> BinProductPr1Commutes).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">slice_parameterized_NNO_S</span>
+    : slice_parameterized_NNO_ob --&gt; slice_parameterized_NNO_ob.
+  <span class="kn">Proof</span>.
+    use make_cod_fib_mor.
+    - <span class="bp">exact</span> (BinProductOfArrows
+               _ _ _
+               (identity _)
+               (parameterized_NNO_S N)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> BinProductOfArrowsPr1 ;
+         <span class="nb">apply</span> id_right).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. The universal mapping property *)</span>
+  <span class="kn">Section</span> <span class="nf">UMP</span>.
+    <span class="kn">Context</span> {<span class="nv">b</span> <span class="nv">y</span> : C/x}
+            (<span class="nv">zy</span> : b --&gt; y)
+            (<span class="nv">sy</span> : y --&gt; y).
+
+    <span class="kn">Local Definition</span> <span class="nf">slice_parameterized_NNO_mor_dom</span>
+      : C/x.
+    <span class="kn">Proof</span>.
+      use make_cod_fib_ob.
+      - <span class="bp">exact</span> (BC (cod_dom b) N).
+      - <span class="bp">exact</span> (BinProductPr1 _ _ · cod_mor b).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">d</span> : C/x
+      := slice_parameterized_NNO_mor_dom.
+
+    <span class="kn">Local Definition</span> <span class="nf">slice_parameterized_NNO_mor_dom_iso_map</span>
+      : d --&gt; codomain_fib_binproducts PC x b slice_parameterized_NNO_ob.
+    <span class="kn">Proof</span>.
+      use make_cod_fib_mor.
+      - use PullbackArrow ; <span class="nb">cbn</span>.
+        + <span class="bp">exact</span> (BinProductPr1 _ _).
+        + <span class="bp">exact</span> (BinProductOfArrows _ _ _ (cod_mor b) (identity _)).
+        + <span class="kp">abstract</span>
+            (<span class="nb">rewrite</span> BinProductOfArrowsPr1 ;
+             <span class="nb">apply</span> idpath).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">rewrite</span> PullbackArrow_PullbackPr1 ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Arguments</span> slice_parameterized_NNO_mor_dom_iso_map /.
+
+    <span class="kn">Local Definition</span> <span class="nf">slice_parameterized_NNO_mor_dom_iso_inv</span>
+      : cod_dom (codomain_fib_binproducts PC x b slice_parameterized_NNO_ob)
+        --&gt;
+        cod_dom d.
+    <span class="kn">Proof</span>.
+      use BinProductArrow.
+      - <span class="nb">apply</span> PullbackPr1.
+      - <span class="bp">exact</span> (PullbackPr2 _ · BinProductPr2 _ _).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Arguments</span> slice_parameterized_NNO_mor_dom_iso_inv /.
+
+    <span class="kn">Local Proposition</span> <span class="nf">is_z_iso_slice_parameterized_NNO_mor_dom_iso_are_invs</span>
+      : is_inverse_in_precat
+          (dom_mor slice_parameterized_NNO_mor_dom_iso_map)
+          slice_parameterized_NNO_mor_dom_iso_inv.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> slice_parameterized_NNO_mor_dom_iso_inv.
+      <span class="nb">split</span>.
+      - use BinProductArrowsEq ; <span class="nb">cbn</span>.
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> BinProductPr1Commutes.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> BinProductPr2Commutes.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+          <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+          <span class="nb">rewrite</span> id_left, id_right.
+          <span class="nb">apply</span> idpath.
+      - use (MorphismsIntoPullbackEqual (isPullback_Pullback (PC _ _ _ _ _))) ; <span class="nb">cbn</span>.
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+          <span class="nb">rewrite</span> BinProductPr1Commutes.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+          use BinProductArrowsEq ; <span class="nb">cbn</span>.
+          * <span class="nb">rewrite</span> !assoc'.
+            <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+            <span class="nb">rewrite</span> !assoc.
+            <span class="nb">rewrite</span> BinProductPr1Commutes.
+            <span class="nb">rewrite</span> id_left.
+            <span class="nb">apply</span> PullbackSqrCommutes.
+          * <span class="nb">rewrite</span> !assoc'.
+            <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+            <span class="nb">rewrite</span> !assoc.
+            <span class="nb">rewrite</span> BinProductPr2Commutes.
+            <span class="nb">rewrite</span> id_left, id_right.
+            <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">is_z_iso_slice_parameterized_NNO_mor_dom_iso_map</span>
+      : is_z_isomorphism (dom_mor slice_parameterized_NNO_mor_dom_iso_map).
+    <span class="kn">Proof</span>.
+      use make_is_z_isomorphism.
+      - <span class="bp">exact</span> slice_parameterized_NNO_mor_dom_iso_inv.
+      - <span class="bp">exact</span> is_z_iso_slice_parameterized_NNO_mor_dom_iso_are_invs.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">slice_parameterized_NNO_mor_dom_iso</span>
+      : z_iso d (codomain_fib_binproducts PC x b slice_parameterized_NNO_ob).
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (slice_parameterized_NNO_mor_dom_iso_map ,, _).
+      use make_is_z_isomorphism.
+      - use make_cod_fib_mor.
+        + <span class="nb">apply</span> slice_parameterized_NNO_mor_dom_iso_inv.
+        + <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> !assoc ;
+             <span class="nb">rewrite</span> BinProductPr1Commutes ;
+             <span class="nb">apply</span> idpath).
+      - <span class="kp">abstract</span>
+          (<span class="nb">split</span> ;
+           use eq_mor_cod_fib ;
+           <span class="nb">rewrite</span> comp_in_cod_fib ;
+           <span class="nb">apply</span> is_z_iso_slice_parameterized_NNO_mor_dom_iso_are_invs).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Arguments</span> slice_parameterized_NNO_mor_dom_iso /.
+
+    <span class="kn">Definition</span> <span class="nf">slice_parameterized_NNO_mor_mor</span>
+      : cod_dom d --&gt; cod_dom y.
+    <span class="kn">Proof</span>.
+      use parameterized_NNO_mor.
+      - <span class="bp">exact</span> (dom_mor zy).
+      - <span class="bp">exact</span> (dom_mor sy).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">slice_parameterized_NNO_mor_eq</span>
+      : slice_parameterized_NNO_mor_mor · cod_mor y = cod_mor d.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> slice_parameterized_NNO_mor_mor ; <span class="nb">cbn</span>.
+      use parameterized_NNO_mor_unique.
+      - <span class="bp">exact</span> (cod_mor b).
+      - <span class="nb">apply</span> identity.
+      - <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> parameterized_NNO_mor_Z.
+        <span class="nb">apply</span> (mor_eq zy).
+      - <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> parameterized_NNO_mor_S.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (mor_eq sy).
+      - <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> BinProductPr1Commutes.
+        <span class="nb">apply</span> id_left.
+      - <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+        <span class="nb">rewrite</span> !id_right.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">slice_parameterized_NNO_mor</span>
+      : codomain_fib_binproducts PC x b slice_parameterized_NNO_ob --&gt; y.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (inv_from_z_iso slice_parameterized_NNO_mor_dom_iso · _).
+      use make_cod_fib_mor.
+      - <span class="bp">exact</span> slice_parameterized_NNO_mor_mor.
+      - <span class="bp">exact</span> slice_parameterized_NNO_mor_eq.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">slice_parameterized_NNO_mor_Z</span>
+      : BinProductArrow
+          _ _
+          (identity b)
+          (TerminalArrow (codomain_fib_terminal x) b · slice_parameterized_NNO_Z)
+        · slice_parameterized_NNO_mor
+        =
+        zy.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> slice_parameterized_NNO_mor.
+      use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> !comp_in_cod_fib.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">refine</span> (_ @ parameterized_NNO_mor_Z N _ _ (dom_mor zy) (dom_mor sy)).
+      <span class="nb">apply</span> maponpaths_2.
+      use BinProductArrowsEq.
+      - <span class="nb">rewrite</span> BinProductPr1Commutes.
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> BinProductPr1Commutes.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (PC _ _ _ _ _)).
+        }
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> BinProductPr2Commutes.
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> BinProductPr2Commutes.
+        }
+        etrans.
+        {
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (PC _ _ _ _ _)).
+        }
+        <span class="nb">rewrite</span> comp_in_cod_fib.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !id_right.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> BinProductPr2Commutes.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> TerminalArrowEq.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">slice_parameterized_NNO_mor_S</span>
+      : BinProductOfArrows
+          _ _ _
+          (identity b)
+          slice_parameterized_NNO_S
+        · slice_parameterized_NNO_mor
+        =
+        slice_parameterized_NNO_mor · sy.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> slice_parameterized_NNO_mor.
+      use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> !comp_in_cod_fib.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (!(parameterized_NNO_mor_S N _ _ (dom_mor zy) (dom_mor sy))).
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      use BinProductArrowsEq.
+      - <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">rewrite</span> BinProductPr1Commutes.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> BinProductPr1Commutes.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (PC _ _ _ _ _)).
+        }
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> BinProductPr2Commutes.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> BinProductPr2Commutes.
+        }
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (PC _ _ _ _ _)).
+        }
+        <span class="nb">rewrite</span> !comp_in_cod_fib ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">slice_parameterized_NNO_unique_Z</span>
+                (<span class="nv">f</span> : codomain_fib_binproducts PC x b slice_parameterized_NNO_ob --&gt; y)
+                (<span class="nv">fz</span> : BinProductArrow
+                        _ _
+                        (identity b)
+                        (TerminalArrow (codomain_fib_terminal x) b
+                         · slice_parameterized_NNO_Z)
+                      · f
+                      =
+                        zy)
+      : BinProductArrow
+          _ _
+          (identity _)
+          (TerminalArrow T (cod_dom b) · parameterized_NNO_Z N)
+        · (dom_mor slice_parameterized_NNO_mor_dom_iso · dom_mor f)
+        =
+        dom_mor zy.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (_ @ maponpaths dom_mor fz).
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+      - <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> BinProductPr1Commutes.
+        }
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (PC _ _ _ _ _)).
+        }
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+        }
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (PC _ _ _ _ _)).
+        }
+        <span class="nb">rewrite</span> comp_in_cod_fib.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_right.
+        use BinProductArrowsEq.
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> BinProductPr1Commutes.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> BinProductPr1Commutes.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> BinProductPr2Commutes.
+          <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> BinProductPr2Commutes.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> TerminalArrowEq.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">slice_parameterized_NNO_unique_S</span>
+                (<span class="nv">f</span> : codomain_fib_binproducts PC x b slice_parameterized_NNO_ob --&gt; y)
+                (<span class="nv">fs</span> : BinProductOfArrows
+                        _ _ _
+                        (identity b)
+                        slice_parameterized_NNO_S
+                      · f
+                      =
+                      f · sy)
+      : BinProductOfArrows
+          _ _ _
+          (identity (cod_dom b))
+          (parameterized_NNO_S N)
+        · (dom_mor slice_parameterized_NNO_mor_dom_iso · dom_mor f)
+        =
+        dom_mor slice_parameterized_NNO_mor_dom_iso
+        · dom_mor f
+        · dom_mor sy.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (_ @ !(maponpaths dom_mor fs)).
+        <span class="nb">rewrite</span> comp_in_cod_fib.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+      - <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (PC _ _ _ _ _)).
+        }
+        <span class="nb">rewrite</span> id_right.
+        etrans.
+        {
+          <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (PC _ _ _ _ _)).
+        }
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (PC _ _ _ _ _)).
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> BinProductOfArrowsPr1.
+        }
+        <span class="nb">apply</span> id_right.
+      - <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (PC _ _ _ _ _)).
+        }
+        <span class="nb">rewrite</span> comp_in_cod_fib.
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (PC _ _ _ _ _)).
+        }
+        <span class="nb">refine</span> (!_).
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (PC _ _ _ _ _)).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !BinProductOfArrows_comp.
+        <span class="nb">rewrite</span> !id_left, !id_right.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">slice_parameterized_NNO_unique</span>
+      : isaprop
+          (∑ (f : codomain_fib_binproducts PC x b slice_parameterized_NNO_ob --&gt; y),
+           (BinProductArrow
+              _ _
+              (identity b)
+              (TerminalArrow (codomain_fib_terminal x) b · slice_parameterized_NNO_Z)
+            · f
+            =
+            zy)
+           ×
+           (BinProductOfArrows _ _ _  (identity b) slice_parameterized_NNO_S · f
+            =
+            f · sy)).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> f₁ f₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        use isapropdirprod ; <span class="nb">apply</span> homset_property.
+      }
+      use (cancel_z_iso' slice_parameterized_NNO_mor_dom_iso).
+      use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> !comp_in_cod_fib.
+      use parameterized_NNO_mor_unique.
+      - <span class="bp">exact</span> (dom_mor zy).
+      - <span class="bp">exact</span> (dom_mor sy).
+      - <span class="nb">apply</span> slice_parameterized_NNO_unique_Z.
+        <span class="bp">exact</span> (pr12 f₁).
+      - <span class="nb">apply</span> slice_parameterized_NNO_unique_S.
+        <span class="bp">exact</span> (pr22 f₁).
+      - <span class="nb">apply</span> slice_parameterized_NNO_unique_Z.
+        <span class="bp">exact</span> (pr12 f₂).
+      - <span class="nb">apply</span> slice_parameterized_NNO_unique_S.
+        <span class="bp">exact</span> (pr22 f₂).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">UMP</span>.
+
+  <span class="sd">(** * 3. Parameterized natural numbers object in the slice category *)</span>
+  <span class="kn">Definition</span> <span class="nf">slice_parameterized_NNO</span>
+    : parameterized_NNO
+        (codomain_fib_terminal x)
+        (codomain_fib_binproducts PC x).
+  <span class="kn">Proof</span>.
+    use make_parameterized_NNO.
+    - <span class="bp">exact</span> slice_parameterized_NNO_ob.
+    - <span class="bp">exact</span> slice_parameterized_NNO_Z.
+    - <span class="bp">exact</span> slice_parameterized_NNO_S.
+    - <span class="nb">intros</span> b y zy sy.
+      use iscontraprop1.
+      + <span class="nb">apply</span> slice_parameterized_NNO_unique.
+      + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        * <span class="bp">exact</span> (slice_parameterized_NNO_mor zy sy).
+        * <span class="nb">apply</span> slice_parameterized_NNO_mor_Z.
+        * <span class="nb">apply</span> slice_parameterized_NNO_mor_S.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CodNNO</span>.
+
+<span class="sd">(** * 4. Stability under substitution *)</span>
+<span class="kn">Section</span> <span class="nf">Stable</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">T</span> : Terminal C}
+          {<span class="nv">BC</span> : BinProducts C}
+          (<span class="nv">N</span> : parameterized_NNO T BC)
+          (<span class="nv">PC</span> : Pullbacks C)
+          {<span class="nv">x</span> <span class="nv">y</span> : C}
+          (<span class="nv">f</span> : x --&gt; y).
+
+  <span class="kn">Definition</span> <span class="nf">slice_parameterized_NNO_stable_mor</span>
+    : BC x N --&gt; PC y (BC y N) x (BinProductPr1 C (BC y N)) f.
+  <span class="kn">Proof</span>.
+    use PullbackArrow.
+    - <span class="nb">refine</span> (BinProductOfArrows _ _ _ f (identity _)).
+    - <span class="nb">apply</span> BinProductPr1.
+    - <span class="kp">abstract</span> (<span class="nb">apply</span> BinProductOfArrowsPr1).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">slice_parameterized_NNO_stable_inv</span>
+    : PC y (BC y N) x (BinProductPr1 C (BC y N)) f --&gt; BC x N.
+  <span class="kn">Proof</span>.
+    use BinProductArrow.
+    - <span class="nb">apply</span> PullbackPr2.
+    - <span class="bp">exact</span> (PullbackPr1 _ · BinProductPr2 _ _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">slice_parameterized_NNO_stable_is_z_iso_inverses</span>
+    : is_inverse_in_precat
+        slice_parameterized_NNO_stable_mor
+        slice_parameterized_NNO_stable_inv.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> slice_parameterized_NNO_stable_mor, slice_parameterized_NNO_stable_inv.
+    <span class="nb">split</span>.
+    - use BinProductArrowsEq.
+      + <span class="nb">rewrite</span> id_left.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> BinProductPr1Commutes.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+      + <span class="nb">rewrite</span> id_left.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> BinProductPr2Commutes.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+        <span class="nb">apply</span> id_right.
+    - use (MorphismsIntoPullbackEqual (isPullback_Pullback (PC _ _ _ _ _))).
+      + <span class="nb">rewrite</span> id_left.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        use BinProductArrowsEq.
+        * <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> BinProductPr1Commutes.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> PullbackSqrCommutes.
+        * <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">rewrite</span> BinProductPr2Commutes.
+          <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> id_left.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">rewrite</span> BinProductPr1Commutes.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">slice_parameterized_NNO_stable_is_z_iso</span>
+    : is_z_isomorphism slice_parameterized_NNO_stable_mor.
+  <span class="kn">Proof</span>.
+    use make_is_z_isomorphism.
+    - <span class="bp">exact</span> slice_parameterized_NNO_stable_inv.
+    - <span class="bp">exact</span> slice_parameterized_NNO_stable_is_z_iso_inverses.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">slice_parameterized_NNO_eq</span>
+    : slice_parameterized_NNO_stable_mor
+      =
+      dom_mor
+        (preserves_parameterized_NNO_mor
+           (slice_parameterized_NNO N PC y)
+           (slice_parameterized_NNO N PC x)
+           (cod_pb PC f)
+           (codomain_fib_preserves_terminal PC f)).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> slice_parameterized_NNO_stable_mor.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback (PC _ _ _ _ _))).
+    - <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      use BinProductArrowsEq.
+      + etrans.
+        {
+          <span class="nb">apply</span> BinProductOfArrowsPr1.
+        }
+        <span class="nb">refine</span> (!_).
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> PullbackSqrCommutes.
+        }
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (mor_eq
+                 (preserves_parameterized_NNO_mor
+                    (slice_parameterized_NNO N PC y)
+                    (slice_parameterized_NNO N PC x)
+                    (cod_pb PC f)
+                    (codomain_fib_preserves_terminal PC f))).
+      + etrans.
+        {
+          <span class="nb">apply</span> BinProductOfArrowsPr2.
+        }
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">rewrite</span> !assoc'.
+        use parameterized_NNO_mor_unique.
+        * <span class="bp">exact</span> (TerminalArrow T x · parameterized_NNO_Z N).
+        * <span class="bp">exact</span> (parameterized_NNO_S N).
+        * <span class="nb">pose</span> (maponpaths
+                  dom_mor
+                  (preserves_parameterized_NNO_mor_Z
+                     (slice_parameterized_NNO N PC y)
+                     (slice_parameterized_NNO N PC x)
+                     (cod_pb PC f)
+                     (codomain_fib_preserves_terminal PC f)))
+            <span class="k">as</span> p.
+          <span class="nb">rewrite</span> !comp_in_cod_fib <span class="k">in</span> p.
+          <span class="nb">rewrite</span> cod_fiber_functor_on_mor <span class="k">in</span> p.
+          etrans.
+          {
+            <span class="nb">rewrite</span> !assoc.
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+            <span class="bp">exact</span> p.
+          }
+          <span class="nb">clear</span> p.
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !assoc.
+            <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+            <span class="nb">rewrite</span> !assoc'.
+            <span class="nb">rewrite</span> BinProductPr2Commutes.
+            <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> TerminalArrowEq.
+        * <span class="nb">pose</span> (maponpaths
+                  dom_mor
+                  (preserves_parameterized_NNO_mor_S
+                     (slice_parameterized_NNO N PC y)
+                     (slice_parameterized_NNO N PC x)
+                     (cod_pb PC f)
+                     (codomain_fib_preserves_terminal PC f)))
+            <span class="k">as</span> p.
+          <span class="nb">rewrite</span> !comp_in_cod_fib <span class="k">in</span> p.
+          <span class="nb">rewrite</span> cod_fiber_functor_on_mor <span class="k">in</span> p.
+          etrans.
+          {
+            <span class="nb">rewrite</span> !assoc.
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+            <span class="bp">exact</span> p.
+          }
+          <span class="nb">clear</span> p.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+          <span class="nb">apply</span> idpath.
+        * <span class="nb">rewrite</span> BinProductPr2Commutes.
+          <span class="nb">apply</span> idpath.
+        * <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+          <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+      <span class="nb">refine</span> (!_).
+      <span class="bp">exact</span> (mor_eq
+               (preserves_parameterized_NNO_mor
+                  (slice_parameterized_NNO N PC y)
+                  (slice_parameterized_NNO N PC x)
+                  (cod_pb PC f)
+                  (codomain_fib_preserves_terminal PC f))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">slice_parameterized_NNO_stable</span>
+    : preserves_parameterized_NNO
+        (slice_parameterized_NNO N PC y)
+        (slice_parameterized_NNO N PC x)
+        _
+        (codomain_fib_preserves_terminal PC f).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> preserves_parameterized_NNO.
+    use is_z_iso_fiber_from_is_z_iso_disp.
+    use is_z_iso_disp_codomain.
+    use is_z_isomorphism_path.
+    - <span class="bp">exact</span> slice_parameterized_NNO_stable_mor.
+    - <span class="bp">exact</span> slice_parameterized_NNO_eq.
+    - <span class="bp">exact</span> slice_parameterized_NNO_stable_is_z_iso.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Stable</span>.
+
+<span class="sd">(** * 5. Preservation by the pseudofunctoriality of the arrow category *)</span>
+<span class="kn">Section</span> <span class="nf">Preservation</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">T₁</span> : Terminal C₁}
+          {<span class="nv">BC₁</span> : BinProducts C₁}
+          (<span class="nv">N₁</span> : parameterized_NNO T₁ BC₁)
+          (<span class="nv">PC₁</span> : Pullbacks C₁)
+          {<span class="nv">T₂</span> : Terminal C₂}
+          {<span class="nv">BC₂</span> : BinProducts C₂}
+          (<span class="nv">N₂</span> : parameterized_NNO T₂ BC₂)
+          (<span class="nv">PC₂</span> : Pullbacks C₂)
+          {<span class="nv">F</span> : C₁ ⟶ C₂}
+          (<span class="nv">HF</span> : preserves_terminal F)
+          (<span class="nv">HF'</span> : preserves_binproduct F)
+          (<span class="nv">HFN</span> : preserves_parameterized_NNO N₁ N₂ F HF)
+          (<span class="nv">x</span> : C₁).
+
+  <span class="kn">Definition</span> <span class="nf">codomain_functor_preserves_parameterized_NNO_mor</span>
+    : BC₂ (F x) N₂ --&gt; F (BC₁ x N₁)
+    := BinProductOfArrows
+         _ _ _
+         (identity _)
+         (preserves_parameterized_NNO_mor N₁ N₂ _ HF)
+       · inv_from_z_iso
+           (preserves_binproduct_to_z_iso F HF' (BC₁ x N₁) (BC₂ (F x) (F N₁))).
+
+  <span class="kn">Definition</span> <span class="nf">codomain_functor_preserves_parameterized_NNO_iso</span>
+    : is_z_isomorphism
+        (BinProductOfArrows
+           _ (BC₂ (F x) (F N₁)) (BC₂ (F x) N₂)
+           (identity (F x))
+           (preserves_parameterized_NNO_mor N₁ N₂ F HF)).
+  <span class="kn">Proof</span>.
+    use make_is_z_isomorphism.
+    - <span class="bp">exact</span> (BinProductOfArrows _ _ _ (identity _) (is_z_isomorphism_mor HFN)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ;
+         <span class="nb">rewrite</span> BinProductOfArrows_comp ;
+         <span class="nb">rewrite</span> id_left ;
+         <span class="nb">refine</span> (_ @ BinProductOfArrows_id _ _ _ _) ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">apply</span> HFN).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">codomain_functor_preserves_parameterized_NNO_eq</span>
+    : codomain_functor_preserves_parameterized_NNO_mor
+      =
+      dom_mor
+        (preserves_parameterized_NNO_mor
+           (slice_parameterized_NNO N₁ PC₁ x)
+           (slice_parameterized_NNO N₂ PC₂ (F x))
+           (fiber_functor (disp_codomain_functor F) x)
+           (preserves_terminal_fiber_disp_codomain_functor F x)).
+  <span class="kn">Proof</span>.
+    use (BinProductArrowsEq _ _ _ (preserves_binproduct_to_binproduct _ HF' (BC₁ x N₁))).
+    - etrans.
+      {
+        <span class="nb">unfold</span> codomain_functor_preserves_parameterized_NNO_mor.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> BinProductPr1Commutes.
+      }
+      <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">refine</span> (!_).
+      <span class="bp">exact</span> (mor_eq
+               (preserves_parameterized_NNO_mor
+                  (slice_parameterized_NNO N₁ PC₁ x)
+                  (slice_parameterized_NNO N₂ PC₂ (F x))
+                  (fiber_functor (disp_codomain_functor F) x)
+                  (preserves_terminal_fiber_disp_codomain_functor F x))).
+    - etrans.
+      {
+        <span class="nb">unfold</span> codomain_functor_preserves_parameterized_NNO_mor.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> BinProductPr2Commutes.
+      }
+      <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+      <span class="nb">refine</span> (!_).
+      use parameterized_NNO_mor_unique.
+      + <span class="bp">exact</span> (#F (TerminalArrow _ x · parameterized_NNO_Z N₁)).
+      + <span class="bp">exact</span> (#F (parameterized_NNO_S N₁)).
+      + <span class="nb">pose</span> (maponpaths
+                dom_mor
+                (preserves_parameterized_NNO_mor_Z
+                   (slice_parameterized_NNO N₁ PC₁ x)
+                   (slice_parameterized_NNO N₂ PC₂ (F x))
+                   (fiber_functor (disp_codomain_functor F) x)
+                   (preserves_terminal_fiber_disp_codomain_functor F x)))
+          <span class="k">as</span> p.
+        <span class="nb">rewrite</span> !comp_in_cod_fib <span class="k">in</span> p.
+        etrans.
+        {
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> p.
+        }
+        <span class="nb">clear</span> p.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> disp_codomain_fiber_functor_mor.
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !id_left.
+        <span class="nb">rewrite</span> functor_id.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">rewrite</span> &lt;- functor_comp.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> BinProductPr2Commutes.
+      + <span class="nb">pose</span> (maponpaths
+                dom_mor
+                (preserves_parameterized_NNO_mor_S
+                   (slice_parameterized_NNO N₁ PC₁ x)
+                   (slice_parameterized_NNO N₂ PC₂ (F x))
+                   (fiber_functor (disp_codomain_functor F) x)
+                   (preserves_terminal_fiber_disp_codomain_functor F x)))
+          <span class="k">as</span> p.
+        <span class="nb">rewrite</span> !comp_in_cod_fib <span class="k">in</span> p.
+        etrans.
+        {
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> p.
+        }
+        <span class="nb">clear</span> p.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> disp_codomain_fiber_functor_mor.
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> &lt;- !functor_comp.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> BinProductOfArrowsPr2.
+      + <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> BinProductPr2Commutes.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> preserves_parameterized_NNO_mor_Z.
+        <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> TerminalArrowEq.
+      + <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> preserves_parameterized_NNO_mor_S.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">codomain_functor_preserves_parameterized_NNO</span>
+    : preserves_parameterized_NNO
+        (slice_parameterized_NNO N₁ PC₁ x)
+        (slice_parameterized_NNO N₂ PC₂ (F x))
+        _
+        (preserves_terminal_fiber_disp_codomain_functor F x).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> preserves_parameterized_NNO.
+    use is_z_iso_fiber_from_is_z_iso_disp.
+    use is_z_iso_disp_codomain.
+    use is_z_isomorphism_path.
+    - <span class="bp">exact</span> codomain_functor_preserves_parameterized_NNO_mor.
+    - <span class="bp">exact</span> codomain_functor_preserves_parameterized_NNO_eq.
+    - use is_z_isomorphism_comp.
+      + <span class="bp">exact</span> codomain_functor_preserves_parameterized_NNO_iso.
+      + <span class="nb">apply</span> is_z_iso_inv_from_z_iso.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Preservation</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Codomain/CodNNO.v</tt>, line 22)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Preservation by the pseudofunctoriality of the arrow category
+  &gt;
+  &gt;  **************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

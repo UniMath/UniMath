@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Vectors.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Vectors as iterated products. *)</span>
+<span class="sd">(** Gianluca Amato, Matteo Calosci, Marco Maggesi, Cosimo Perini Brogi 2019-2024. *)</span>
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Foundations.NaturalNumbers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> nat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+
+<span class="sd">(** ** Lemmata about standard finite sets. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">stn_extens</span> {<span class="nv">n</span>} (<span class="nv">i</span> <span class="nv">j</span> : ⟦ n ⟧) (<span class="nv">p</span> : stntonat _ i = stntonat _ j)
+  : i = j
+  := subtypePath' p (propproperty (j &lt; n)).
+
+<span class="kn">Definition</span> <span class="nf">fromstn0</span> (<span class="nv">i</span> : ⟦ <span class="mi">0</span> ⟧) {<span class="nv">A</span> : UU} : A
+  := fromempty (negnatlthn0 (pr1 i) (pr2 i)).
+
+<span class="sd">(** ** Vectors. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">vec</span> (<span class="nv">A</span> : UU) (<span class="nv">n</span> : nat) : UU.
+<span class="kn">Proof</span>.
+<span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+- <span class="nb">apply</span> unit.
+- <span class="nb">apply</span> (A × IHn).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Constructors. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">vnil</span> {<span class="nv">A</span>: UU}: vec A <span class="mi">0</span> := tt.
+
+<span class="kn">Definition</span> <span class="nf">vcons</span> {<span class="nv">A</span>: UU} {<span class="nv">n</span>} (<span class="nv">x</span> : A) (<span class="nv">v</span> : vec A n) : vec A (S n)
+  := x,, v.
+
+<span class="sd">(** *** Notations. *)</span>
+
+<span class="kn">Declare Scope</span> vec_scope.
+
+<span class="kn">Delimit Scope</span> vec_scope <span class="k">with</span> vec.
+
+<span class="kn">Bind Scope</span> vec_scope <span class="k">with</span> vec.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> vec_scope.
+
+<span class="kn">Notation</span> <span class="s2">"[()]"</span> := vnil (<span class="kn">at level</span> <span class="mi">0</span>, <span class="kn">format</span> <span class="s2">"[()]"</span>): vec_scope.
+
+<span class="kn">Infix</span> <span class="s2">":::"</span> := vcons (<span class="kn">at level</span> <span class="mi">60</span>, <span class="kn">right associativity</span>) : vec_scope.
+
+<span class="kn">Notation</span> <span class="s2">"[( x ; .. ; y )]"</span> := (vcons x .. (vcons y [()]) ..): vec_scope.
+
+<span class="kn">Section</span> <span class="nf">vecs</span>.
+
+<span class="kn">Context</span> {<span class="nv">A</span> : UU}.
+
+<span class="kn">Definition</span> <span class="nf">drop</span> {<span class="nv">n</span>} (<span class="nv">f</span> : ⟦ S n ⟧ → A) (<span class="nv">i</span> : ⟦ n ⟧) : A :=
+  f (dni_firstelement i).
+
+<span class="kn">Definition</span> <span class="nf">make_vec</span> {<span class="nv">n</span>} (<span class="nv">f</span> : ⟦ n ⟧ → A) : vec A n.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [|m h].
+  - <span class="bp">exact</span> [()].
+  - <span class="bp">exact</span> ((f firstelement) ::: (h (drop f))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Projections. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hd</span> {<span class="nv">n</span>} (<span class="nv">v</span> : vec A (S n)) : A := pr1 v.
+
+<span class="kn">Definition</span> <span class="nf">tl</span> {<span class="nv">n</span>} (<span class="nv">v</span> : vec A (S n)) : vec A n := pr2 v.
+
+<span class="kn">Definition</span> <span class="nf">el</span> {<span class="nv">n</span>} (<span class="nv">v</span> : vec A n) : ⟦ n ⟧ → A.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [|m f].
+  - <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">i</span>, fromstn0 i).
+  - <span class="nb">intro</span> i.
+    <span class="nb">induction</span> i <span class="k">as</span> (j,jlt).
+    <span class="nb">induction</span> j <span class="k">as</span> [|k _].
+    + <span class="bp">exact</span> (hd v).
+    + <span class="bp">exact</span> (f (tl v) (k,, jlt)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Some identities for computing [el]. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">el_make_vec</span> {<span class="nv">n</span>} (<span class="nv">f</span> : ⟦ n ⟧ → A) : el (make_vec f) ~ f .
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> i.
+  <span class="nb">induction</span> n <span class="k">as</span> [|m meq].
+  - <span class="bp">exact</span> (fromstn0 i).
+  - <span class="nb">induction</span> i <span class="k">as</span> (j,jlt).
+    <span class="nb">induction</span> j <span class="k">as</span> [|k _].
+    + <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> stn_extens.
+      <span class="nb">apply</span> idpath.
+    + etrans.
+      { <span class="nb">apply</span> meq. }
+      <span class="nb">unfold</span> drop.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">el_make_vec_fun</span> {<span class="nv">n</span>} (<span class="nv">f</span> : ⟦ n ⟧ → A) : el (make_vec f) = f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextfun.
+  <span class="nb">apply</span> el_make_vec.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">el_vcons_tl</span> {<span class="nv">n</span>} (<span class="nv">v</span> : vec A n) (<span class="nv">x</span> : A) (<span class="nv">i</span> : ⟦ n ⟧) :
+  el (x ::: v) (dni_firstelement i) = el v i.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">el_vcons_hd</span> {<span class="nv">n</span>} (<span class="nv">v</span> : vec A n) (<span class="nv">x</span> : A) :
+  el (x ::: v) (firstelement) = x.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">drop_el</span> {<span class="nv">n</span>} (<span class="nv">v</span> : vec A (S n)) (<span class="nv">i</span>: ⟦ n ⟧ ) : drop (el v) i = el (tl v) i.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">el_tl</span> {<span class="nv">n</span>} (<span class="nv">v</span> : vec A (S n)) (<span class="nv">i</span> : ⟦ n ⟧)
+  : el (tl v) i = drop (el v) i.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Extensionality. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">vec0_eq</span> (<span class="nv">u</span> <span class="nv">v</span> : vec A <span class="mi">0</span>) : u = v
+  := proofirrelevancecontr iscontrunit u v.
+
+<span class="kn">Definition</span> <span class="nf">vecS_eq</span> {<span class="nv">n</span>} {<span class="nv">u</span> <span class="nv">v</span> : vec A (S n)}
+           (<span class="nv">p</span> : hd u = hd v) (<span class="nv">q</span> : tl u = tl v)
+  : u = v
+  := dirprod_paths p q.
+
+<span class="kn">Lemma</span> <span class="nf">vec_extens</span> {<span class="nv">n</span>} {<span class="nv">u</span> <span class="nv">v</span> : vec A n}
+  : (∏ i : ⟦ n ⟧, el u i = el v i) → u = v.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H.
+  <span class="nb">induction</span> n <span class="k">as</span> [|m meq].
+  - <span class="nb">apply</span> vec0_eq.
+  - <span class="nb">apply</span> vecS_eq.
+    + <span class="bp">exact</span> (H firstelement).
+    + <span class="nb">apply</span> meq.
+      <span class="nb">intros</span>.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> el_tl.
+      <span class="nb">apply</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">make_vec_el</span> {<span class="nv">n</span>} (<span class="nv">v</span> : vec A n) : make_vec (el v) = v.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> vec_extens.
+  <span class="nb">intros</span> i.
+  <span class="nb">rewrite</span> el_make_vec.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Weak equivalence with functions. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isweqvecfun</span> {<span class="nv">n</span>} : isweq (el:vec A n → ⟦ n ⟧ → A)
+  := isweq_iso el make_vec make_vec_el el_make_vec_fun.
+
+<span class="kn">Definition</span> <span class="nf">weqvecfun</span> <span class="nv">n</span> : vec A n ≃ (⟦ n ⟧ -&gt; A)
+  := make_weq el isweqvecfun.
+
+<span class="kn">Lemma</span> <span class="nf">isofhlevelvec</span> {<span class="nv">n</span>} (<span class="nv">is1</span> : isofhlevel n A) <span class="nv">k</span>
+  : isofhlevel n (vec A k).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> k <span class="k">as</span> [|k IH].
+  - <span class="nb">apply</span> isofhlevelcontr, iscontrunit.
+  - <span class="nb">apply</span> isofhleveldirprod.
+    + <span class="nb">apply</span> is1.
+    + <span class="nb">apply</span> IH.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Induction. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">vec_ind</span> (<span class="nv">P</span> : ∏ n, vec A n → UU) :
+  P <span class="mi">0</span> [()]
+  → (∏ x n (v : vec A n), P n v → P (S n) (x ::: v))
+  → (∏ n (v : vec A n), P n v).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hnil Hcons.
+  <span class="nb">induction</span> n <span class="k">as</span> [|m H]; <span class="nb">intros</span>.
+  - <span class="nb">apply</span> (transportb (P <span class="mi">0</span>) (vec0_eq v [()]) Hnil).
+  - <span class="nb">apply</span> Hcons, H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">vec_ind_compute</span> (<span class="nv">P</span> : ∏ n, vec A n → UU)
+  {<span class="nv">n</span>:nat} {<span class="nv">v</span>:vec A n} {<span class="nv">x</span>:A}
+  (<span class="nv">H0</span> : P <span class="mi">0</span> [()])
+  (<span class="nv">HI</span> : ∏ x n (v : vec A n), P n v → P (S n) (x ::: v))
+  : (vec_ind P H0 HI) (S n) (x:::v) = HI x n v (vec_ind P H0 HI n v).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">vecs</span>.
+
+<span class="sd">(** *** Map, fold and append. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">vec_map</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">f</span> : A → B) {<span class="nv">n</span>} (<span class="nv">v</span> : vec A n) : vec B n.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [|m h].
+  - <span class="bp">exact</span> vnil.
+  - <span class="nb">eapply</span> vcons.
+    + <span class="bp">exact</span> (f (hd v)).
+    + <span class="bp">exact</span> (h (tl v)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hd_vec_map</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">f</span> : A → B) {<span class="nv">n</span>} (<span class="nv">v</span> : vec A (S n))
+  : hd (vec_map f v) = f (hd v).
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">tl_vec_map</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">f</span> : A → B) {<span class="nv">n</span>} (<span class="nv">v</span> : vec A (S n))
+  : tl (vec_map f v) = vec_map f (tl v).
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">el_vec_map</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">f</span> : A → B) {<span class="nv">n</span>} (<span class="nv">v</span> : vec A n) (<span class="nv">i</span> : ⟦ n ⟧)
+  : el (vec_map f v) i = f (el v i).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [|m H].
+  - <span class="bp">exact</span> (fromstn0 i).
+  - <span class="nb">induction</span> i <span class="k">as</span> (j, jlt).
+    <span class="nb">induction</span> j <span class="k">as</span> [|k _].
+    + <span class="nb">apply</span> hd_vec_map.
+    + <span class="nb">change</span> (el (tl (vec_map f v)) (make_stn _ k jlt) =
+              f (el (tl v) (make_stn _ k jlt))).
+              use H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">vec_map_as_make_vec</span> {<span class="nv">A</span> <span class="nv">B</span>: UU} (<span class="nv">f</span>: A → B) {<span class="nv">n</span>} (<span class="nv">v</span>: vec A n)
+  : vec_map f v = make_vec (<span class="k">λ</span> <span class="nv">i</span>, f (el v i)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> vec_extens.
+  <span class="nb">intro</span> i.
+  <span class="nb">rewrite</span> el_vec_map.
+  <span class="nb">rewrite</span> el_make_vec.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">vec_foldr</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">f</span> : A -&gt; B -&gt; B) (<span class="nv">b</span> : B) {<span class="nv">n</span>}
+  : vec A n -&gt; B
+  := vec_ind (<span class="k">λ</span> (<span class="nv">n</span> : nat) (<span class="nv">_</span> : vec A n), B) b
+                (<span class="k">λ</span> (<span class="nv">a</span> : A) (<span class="nv">m</span> : nat) (<span class="nv">_</span> : vec A m) (<span class="nv">acc</span> : B), f a acc)
+                n.
+
+<span class="kn">Definition</span> <span class="nf">vec_foldr1</span> {<span class="nv">A</span> : UU} (<span class="nv">f</span> : A -&gt; A -&gt; A) {<span class="nv">n</span>} : vec A (S n) → A
+  := nat_rect (<span class="k">λ</span> <span class="nv">n</span> : nat, vec A (S n) → A)
+              hd
+              (<span class="k">λ</span> (<span class="nv">m</span> : nat) (<span class="nv">h</span> : vec A (S m) → A),
+               uncurry (<span class="k">λ</span> (<span class="nv">x</span> : A) (<span class="nv">u</span> : vec A (S m)), f x (h u)))
+              n.
+
+<span class="kn">Definition</span> <span class="nf">vec_append</span> {<span class="nv">A</span> : UU} {<span class="nv">m</span>} (<span class="nv">u</span> : vec A m) {<span class="nv">n</span>} (<span class="nv">v</span> : vec A n)
+  : vec A (m + n)
+  := vec_ind (<span class="k">λ</span> (<span class="nv">p</span> : nat) (<span class="nv">_</span> : vec A p), vec A (p + n))
+                v
+                (<span class="k">λ</span> (<span class="nv">x</span> : A) (<span class="nv">p</span> : nat) (<span class="nv">_</span> : vec A p) (<span class="nv">w</span> : vec A (p + n)),
+                 x ::: w)
+                m u.
+
+<span class="sd">(** *** Fusion laws. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">vec_map_id</span> {<span class="nv">A</span> : UU} {<span class="nv">n</span>} (<span class="nv">v</span>: vec A n)
+  : vec_map (idfun A) v = v.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> n v.
+  <span class="nb">refine</span> (vec_ind _ _ _).
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x n xs HPxs.
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> HPxs.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">vec_map_comp</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span>: UU} (<span class="nv">f</span>: A → B) (<span class="nv">g</span>: B → C) {<span class="nv">n</span>: nat} (<span class="nv">v</span>: vec A n) :
+  vec_map (funcomp f g) v = (funcomp (vec_map f) (vec_map g)) v.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> n v.
+  <span class="nb">refine</span> (vec_ind _ _ _).
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x n xs HPxs.
+    <span class="nb">apply</span> vecS_eq.
+    + <span class="bp">reflexivity</span>.
+    + <span class="nb">apply</span> HPxs.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">vec_map_make_vec</span> {<span class="nv">A</span> <span class="nv">B</span>: UU} {<span class="nv">n</span>: nat} (<span class="nv">g</span>: ⟦ n ⟧ → A) (<span class="nv">f</span>: A → B)
+  : vec_map f (make_vec g) = make_vec (f ∘ g).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> vec_extens.
+  <span class="nb">intro</span> i.
+  <span class="nb">rewrite</span> el_vec_map.
+  <span class="nb">rewrite</span> el_make_vec.
+  <span class="nb">rewrite</span> el_make_vec.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">vec_append_lid</span> {<span class="nv">A</span> : UU} (<span class="nv">u</span> : vec A <span class="mi">0</span>) {<span class="nv">n</span>}
+  : vec_append u = idfun (vec A n).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> u.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Other operations on vecs. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">vec_fill</span> {<span class="nv">A</span>: UU} (<span class="nv">a</span>: A): ∏ n: nat, vec A n
+  := nat_rect (<span class="k">λ</span> <span class="nv">n</span>: nat, vec A n) [()] (<span class="k">λ</span> (<span class="nv">n</span>: nat) (<span class="nv">v</span>: vec A n), a ::: v).
+
+<span class="kn">Lemma</span> <span class="nf">el_vec_fill</span> {<span class="nv">A</span>: UU} (<span class="nv">a</span>: A) {<span class="nv">n</span>:nat} (<span class="nv">i</span>:⟦ n ⟧) : el (vec_fill a n) i = a.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn].
+  + use (fromstn0 i).
+  + <span class="nb">induction</span> i <span class="k">as</span> [i ilt].
+    <span class="nb">induction</span> i <span class="k">as</span> [| i IHi].
+    - <span class="nb">apply</span> idpath.
+    - use IHn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">el_vec_map_vec_fill</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">f</span> : A → B) {<span class="nv">n</span>} (<span class="nv">a</span>:A) (<span class="nv">i</span> : ⟦ n ⟧)
+  : el (vec_map f (vec_fill a n)) i = f a.
+  <span class="kn">Proof</span>.
+    etrans.
+    { <span class="nb">apply</span> el_vec_map. }
+    use maponpaths.
+    use el_vec_fill.
+  <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">vec_map_const</span> {<span class="nv">A</span>: UU} {<span class="nv">n</span>: nat} {<span class="nv">v</span>: vec A n} {<span class="nv">B</span>: UU} (<span class="nv">b</span>: B) : vec_map (<span class="k">λ</span> <span class="nv">_</span>, b) v = vec_fill b n.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> n v.
+  <span class="nb">apply</span> vec_ind.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x n xs HPind.
+    <span class="nb">change</span> (b ::: vec_map (<span class="k">λ</span> <span class="nv">_</span>: A, b) xs = b ::: vec_fill b n).
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> HPind.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">vec_zip</span> {<span class="nv">A</span> <span class="nv">B</span>: UU} {<span class="nv">n</span>: nat} (<span class="nv">v1</span>: vec A n) (<span class="nv">v2</span>: vec B n): vec (A × B) n.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n.
+  - <span class="bp">exact</span> [()].
+  - <span class="nb">induction</span> v1 <span class="k">as</span> [x1 xs1].
+    <span class="nb">induction</span> v2 <span class="k">as</span> [x2 xs2].
+    <span class="bp">exact</span> ((x1 ,, x2) ::: IHn xs1 xs2).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Combinatorics/Vectors.v</tt>, line 4)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Combinatorics/StandardFiniteSets.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** * Vectors as iterated products. *)
+  &gt; (** Gianluca Amato, Matteo Calosci, Marco Maggesi, Cosimo Perini Brogi 2019-2024. *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Combinatorics.StandardFiniteSets.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.NaturalNumbers.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CommutingOfOmegaLimitsAndCoproducts.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.Lists.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Structures.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Groupoids.
+
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.Signatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.SumOfSignatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.BinProductOfSignatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSorted_alt.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.OmegaContFunctors.
+
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.ContinuitySignature.GeneralLemmas.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">OmegaLimitsCommutingWithCoproducts</span>.
+
+  <span class="c">(* We ask for the canonical morphism from canonical : ∐ ω-lim -&gt; ω-lim ∐ to be an isomorphism. *)</span>
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+  <span class="kn">Context</span> (<span class="nv">ω_lim_given</span> : Lims_of_shape conat_graph C).
+  <span class="kn">Context</span> {<span class="nv">I</span> : UU} (<span class="nv">Iset</span> : isaset I).
+  <span class="kn">Context</span> (<span class="nv">coproducts_given</span> : Coproducts I C).
+
+  <span class="kn">Context</span> (<span class="nv">ind</span> : I → cochain C).
+
+  <span class="kn">Let</span> <span class="nf">coproduct_n</span> (<span class="nv">n</span> : nat) : Coproduct I C (<span class="k">λ</span> <span class="nv">i</span>, dob (ind i) n) := coproducts_given (<span class="k">λ</span> <span class="nv">i</span>, dob (ind i) n).
+
+  <span class="kn">Definition</span> <span class="nf">coproduct_n_cochain</span> : cochain C.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">n</span>, <span class="nv">coproduct_n</span> <span class="nv">n</span>).
+    <span class="nb">intros</span> n m f.
+    use CoproductArrow.
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">j</span>, dmor (ind j) f · CoproductIn I C (coproducts_given (<span class="k">λ</span> <span class="nv">i0</span> : I, dob (ind i0) m)) j).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">limit_of_coproduct</span> : LimCone coproduct_n_cochain
+    := ω_lim_given coproduct_n_cochain.
+
+  <span class="kn">Definition</span> <span class="nf">coproduct_of_limit</span> : Coproduct I C (<span class="k">λ</span> <span class="nv">i</span> : I, lim (ω_lim_given (ind i)))
+    := coproducts_given (<span class="k">λ</span> <span class="nv">i</span>, lim (ω_lim_given (ind i))).
+
+  <span class="kn">Definition</span> <span class="nf">limit_of_coproduct_as_cone_of_coproduct_to_limit</span>
+    : cone coproduct_n_cochain coproduct_of_limit.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intro</span> n.
+      use CoproductOfArrows.
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, coneOut (limCone (ω_lim_given (ind i))) n).
+    - <span class="nb">intros</span> n m p.
+      <span class="nb">cbn</span>.
+      etrans.
+      <span class="mi">1</span>: <span class="nb">apply</span> precompWithCoproductArrow.
+      use CoproductArrowUnique.
+      <span class="nb">intro</span> i.
+      etrans.
+      <span class="mi">1</span>: <span class="nb">apply</span> (CoproductInCommutes _ _ _ coproduct_of_limit _ (<span class="k">λ</span> <span class="nv">i0</span> : I, coneOut (limCone (ω_lim_given (ind i0))) n · (dmor (ind i0) p · CoproductIn I C (coproducts_given (<span class="k">λ</span> <span class="nv">i1</span> : I, dob (ind i1) m)) i0))).
+      etrans.
+      <span class="mi">1</span>: <span class="nb">apply</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (coneOutCommutes (limCone (ω_lim_given (ind i))) n m p).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coproduct_of_limit_to_limit_of_coproduct</span>
+    : coproduct_of_limit --&gt; lim limit_of_coproduct
+    := pr11 (isLimCone_LimCone limit_of_coproduct _ limit_of_coproduct_as_cone_of_coproduct_to_limit).
+
+  <span class="kn">Definition</span> <span class="nf">coproduct_distribute_over_omega_limits</span> : UU
+    := is_z_isomorphism coproduct_of_limit_to_limit_of_coproduct.
+
+<span class="kn">End</span> <span class="nf">OmegaLimitsCommutingWithCoproducts</span>.
+
+<span class="kn">Definition</span> <span class="nf">ω_limits_distribute_over_I_coproducts</span>
+           (<span class="nv">C</span> : category) (<span class="nv">I</span> : HSET)
+           (<span class="nv">ω_lim</span> : Lims_of_shape conat_graph C)
+           (<span class="nv">coprd</span> : Coproducts (pr1 I) C)
+  : UU := ∏ ind, coproduct_distribute_over_omega_limits C ω_lim coprd ind.
+
+<span class="c">(*</span>
+<span class="c">A coproducts of omega-continuous functors is in general not omega-continuous.</span>
+<span class="c">This boils down to the commutativity of ω-limits and coproducts.</span>
+<span class="c">*)</span>
+<span class="kn">Section</span> <span class="nf">CoproductOfFunctorsContinuity</span>.
+
+  <span class="kn">Context</span> (<span class="nv">D</span> : category) (<span class="nv">I</span> : HSET) (<span class="nv">ω_lim</span> : Lims_of_shape conat_graph D) (<span class="nv">CP</span> : Coproducts (pr1 I) D).
+
+  <span class="kn">Definition</span> <span class="nf">ω_complete_functor_cat</span> (<span class="nv">C</span> : category) : Lims_of_shape conat_graph [C, D].
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> LimsFunctorCategory_of_shape, ω_lim.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">coproduct_functor_cat</span> (<span class="nv">C</span> : category) : Coproducts (pr1 I) [C,D]
+    := Coproducts_functor_precat (pr1 I) C D CP.
+
+  <span class="kn">Definition</span> <span class="nf">functor_category_ω_limits_distribute_over_I_coproducts</span>
+    : ω_limits_distribute_over_I_coproducts D I ω_lim CP
+      -&gt; ∏ C : category, ω_limits_distribute_over_I_coproducts [C,D] I (ω_complete_functor_cat C) (coproduct_functor_cat C).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> distr C ind.
+    use nat_trafo_z_iso_if_pointwise_z_iso.
+    <span class="nb">intro</span> c.
+
+    transparent <span class="nb">assert</span> (ind_c : (pr1 I -&gt; cochain D)).
+    {
+      <span class="nb">intro</span> i.
+      <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">n</span>, <span class="nv">pr1</span> (dob (ind i) n) c).
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">n</span> <span class="nv">m</span> <span class="nv">p</span>, pr1 (dmor (ind i) p) c).
+    }
+
+    <span class="k">exists</span> (<span class="nv">pr1</span> (distr ind_c)).
+    <span class="nb">split</span>.
+    - <span class="nb">refine</span> (_ @ pr12 (distr ind_c)).
+      <span class="nb">apply</span> maponpaths_2.
+      use limArrowUnique ; <span class="nb">intro</span>.
+      use CoproductArrowUnique ; <span class="nb">intro</span>.
+      etrans.
+      <span class="mi">1</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (limArrowCommutes (ω_lim (diagram_pointwise (coproduct_n_cochain [C, D] (coproduct_functor_cat C) ind) c))).
+      }
+      <span class="nb">apply</span> (CoproductInCommutes _ _ _ (CP (<span class="k">λ</span> <span class="nv">i0</span> : pr1 I, lim (ω_lim (ind_c i0))))).
+    - <span class="nb">refine</span> (_ @ pr22 (distr ind_c)).
+      <span class="nb">apply</span> maponpaths.
+      use limArrowUnique ; <span class="nb">intro</span>.
+      use CoproductArrowUnique ; <span class="nb">intro</span>.
+      etrans.
+      <span class="mi">1</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (limArrowCommutes (ω_lim (diagram_pointwise (coproduct_n_cochain [C, D] (coproduct_functor_cat C) ind) c))).
+      }
+      <span class="nb">apply</span> (CoproductInCommutes _ _ _ (CP (<span class="k">λ</span> <span class="nv">i0</span> : pr1 I, lim (ω_lim (ind_c i0))))).
+  <span class="kn">Defined</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">coproduct_of_functors_omega_cont</span>
+             (<span class="nv">C</span> : category)
+             (<span class="nv">F</span> : (pr1 I) → C ⟶ D)
+             (<span class="nv">ω_distr</span> : ω_limits_distribute_over_I_coproducts D I ω_lim CP)
+    : (∏ i : pr1 I, is_omega_cont (F i)) -&gt; is_omega_cont (coproduct_of_functors _ _ _ CP F).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> Fi_cont.
+    <span class="nb">intros</span> coch l l_cone l_lim.
+
+    use Limits.is_z_iso_isLim.
+    { <span class="nb">apply</span> ω_lim. }
+
+    transparent <span class="nb">assert</span> (ind : (pr1 I -&gt; cochain D)).
+    {
+      <span class="nb">intro</span> i.
+      <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">n</span>, <span class="nv">F</span> <span class="nv">i</span> (dob coch n)).
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">n</span> <span class="nv">m</span> <span class="nv">p</span>, #(F i) (dmor coch p)).
+    }
+
+    <span class="nb">set</span> (distr := ω_distr ind).
+    <span class="nb">set</span> (distr1 := pr1 distr).
+    <span class="nb">unfold</span> limit_of_coproduct <span class="k">in</span> distr1.
+    <span class="nb">unfold</span> coproduct_of_limit <span class="k">in</span> distr1.
+
+    use make_is_z_isomorphism.
+    - <span class="nb">refine</span> (distr1 · _).
+      use CoproductOfArrows.
+      <span class="nb">intro</span> i.
+      <span class="nb">set</span> (Fi_l := Fi_cont i coch l l_cone l_lim).
+      <span class="nb">apply</span> (pr1 (isLim_is_z_iso _ _ _ _ Fi_l)).
+      <span class="c">(* apply (Fi_l (pr11 (ω_lim (ind i))) (pr21 (ω_lim (ind i)))). *)</span>
+    - <span class="nb">split</span>.
+      + <span class="nb">cbn</span>.
+
+        transparent <span class="nb">assert</span> (i_iso : (is_z_isomorphism (CoproductOfArrows (pr1 I) D (CP (<span class="k">λ</span> <span class="nv">i</span> : pr1 I, lim (ω_lim (ind i)))) (CP (<span class="k">λ</span> <span class="nv">i</span> : pr1 I, F i l)) (<span class="k">λ</span> <span class="nv">i</span> : pr1 I, limArrow (make_LimCone (mapdiagram (F i) coch) (F i l) (mapcone (F i) coch l_cone) (Fi_cont i coch l l_cone l_lim)) (lim (ω_lim (ind i))) (limCone (ω_lim (ind i))))))).
+        {
+          use CoproductOfArrowsIsos.
+          <span class="nb">intro</span> i.
+          <span class="nb">set</span> (Fi_l := Fi_cont i coch l l_cone l_lim).
+          <span class="nb">apply</span> (pr2 (z_iso_inv (_ ,, isLim_is_z_iso _ _ _ _ Fi_l))).
+        }
+
+        etrans.
+        <span class="mi">1</span>: <span class="nb">apply</span> assoc.
+        use (z_iso_inv_to_right _ _ _ _ (_ ,, i_iso)).
+        etrans.
+        <span class="mi">2</span>: <span class="nb">apply</span> pathsinv0, id_left.
+        use CoproductArrowUnique.
+        <span class="nb">intro</span> i.
+        <span class="nb">cbn</span>.
+        etrans.
+        <span class="mi">1</span>: <span class="nb">apply</span> assoc.
+        etrans.
+        <span class="mi">1</span>: <span class="nb">apply</span> maponpaths_2, postCompWithLimArrow.
+
+        use (z_iso_inv_to_right _ _ _ _ (distr1 ,, _)).
+        {
+          <span class="nb">unfold</span> coproduct_distribute_over_omega_limits <span class="k">in</span> distr.
+          <span class="nb">apply</span> (pr2 (z_iso_inv (_,,distr))).
+        }
+        <span class="nb">apply</span> pathsinv0, limArrowUnique.
+        <span class="nb">intro</span> n.
+        <span class="nb">cbn</span>.
+
+        etrans.
+        <span class="mi">1</span>: <span class="nb">apply</span> assoc'.
+        etrans.
+        <span class="mi">1</span>: {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">set</span> (t := limArrowCommutes (ω_lim (mapdiagram (coproduct_of_functors (pr1 I) C D CP F) coch))).
+          <span class="bp">exact</span> (t (pr11 (CP (<span class="k">λ</span> <span class="nv">i0</span> : pr1 I, lim (ω_lim (ind i0))))) (limit_of_coproduct_as_cone_of_coproduct_to_limit D ω_lim CP ind) n).
+        }
+
+        <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> CoproductOfArrows.
+        etrans.
+        <span class="mi">1</span>: <span class="nb">apply</span> assoc'.
+        etrans.
+        <span class="mi">1</span>: {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (CoproductInCommutes _ _ _  (CP (<span class="k">λ</span> <span class="nv">i0</span> : pr1 I, lim (ω_lim (ind i0))))).
+        }
+
+        etrans.
+        <span class="mi">2</span>: <span class="nb">apply</span> pathsinv0, (CoproductInCommutes _ _ _  (CP (<span class="k">λ</span> <span class="nv">j</span> : pr1 I, F j l))).
+        etrans.
+        <span class="mi">1</span>: <span class="nb">apply</span> assoc.
+
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (limArrowCommutes (ω_lim (ind i))  (F i l) (mapcone (F i) coch l_cone) n).
+      + <span class="nb">cbn</span>.
+        etrans.
+        <span class="mi">1</span>: <span class="nb">apply</span> assoc'.
+        <span class="nb">apply</span> pathsinv0.
+        use (z_iso_inv_to_left _ _ _ (_,,_)).
+        {
+          <span class="nb">unfold</span> coproduct_distribute_over_omega_limits <span class="k">in</span> distr.
+          <span class="nb">apply</span> (pr2 (z_iso_inv (_,,distr))).
+        }
+        etrans.
+        <span class="mi">1</span>: <span class="nb">apply</span> id_right.
+
+        <span class="nb">apply</span> pathsinv0.
+        use limArrowUnique.
+        <span class="nb">intro</span> n.
+
+        etrans.
+        <span class="mi">1</span>: <span class="nb">apply</span> assoc'.
+        etrans.
+        <span class="mi">1</span>: {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (limArrowCommutes  (ω_lim (mapdiagram (coproduct_of_functors (pr1 I) C D CP F) coch))).
+        }
+
+        etrans.
+        <span class="mi">1</span>: <span class="nb">apply</span> CoproductOfArrows_comp.
+        use CoproductArrowUnique.
+        <span class="nb">intro</span> i.
+
+        etrans.
+        <span class="mi">1</span>: <span class="nb">apply</span> (CoproductInCommutes _ _ _  (CP (<span class="k">λ</span> <span class="nv">i0</span> : pr1 I, lim (ω_lim (ind i0))))).
+        <span class="nb">apply</span> maponpaths_2.
+
+        <span class="bp">exact</span> (limArrowCommutes ( (make_LimCone (mapdiagram (F i) coch) (F i l) (mapcone (F i) coch l_cone) (Fi_cont i coch l l_cone l_lim))) _ (limCone (ω_lim (ind i))) n).
+  <span class="kn">Defined</span>.
+
+
+<span class="kn">End</span> <span class="nf">CoproductOfFunctorsContinuity</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/ContinuitySignature/CommutingOfOmegaLimitsAndCoproducts.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

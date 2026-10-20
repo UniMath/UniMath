@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Sheaves.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Sheaves for a Grothendieck Topology</span>
+
+<span class="sd">  Given a site C (a category with, for every X : C, a chosen collection of sieves), there are</span>
+<span class="sd">  multiple equivalent ways to say when a presheaf F on C is a sheaf. Two of these occur on page 122</span>
+<span class="sd">  of Mac Lane and Moerdijk. In the list below, g will range over the selected morphisms of S, and h</span>
+<span class="sd">  will range over the morphisms to the domain of g.</span>
+<span class="sd">  This file defines F to be a sheaf if, for any object X and any X-sieve S, any of these equivalent</span>
+<span class="sd">  properties holds:</span>
+
+<span class="sd">  - Every natural transformation S ⟹ F factorizes uniquely via the transformation S ⟹ よ(X) of S.</span>
+<span class="sd">  - For E the equalizer of the product morphisms</span>
+<span class="sd">      f1, f2 : (∏ g, F (dom g)) → (∏ g h, F (dom h))</span>
+<span class="sd">      α1(x)_{g, h} = x_{h ⋅ g}</span>
+<span class="sd">      α2(x)_{g, h} = #F(h)(x_g)</span>
+<span class="sd">    the morphism β: F(X) → E, given by β(x)_g = #F(g)(x), is an isomorphism.</span>
+<span class="sd">  - (locality) Given x, y : F(X), if #F(g)(x) = #F(g)(y) for all g, then x = y.</span>
+<span class="sd">    (glueing)  Given, for all g, x_g : F(dom g) for all g, if for all h, x_{h ⋅ g} = #F(h)(x_g),</span>
+<span class="sd">                we have x : F(X) such that #F(g)(x) = x_g for all g.</span>
+
+<span class="sd">  This file defines these three properties, shows the equivalences. It also defines the category of</span>
+<span class="sd">  sheaves on a site C as a full subcategory of the presheaf category on C. Lastly, it defines object</span>
+<span class="sd">  and morphism types for this category.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The sheaf properties</span>
+<span class="sd">  1.1. The natural transformation property [is_sheaf]</span>
+<span class="sd">  1.2. The equalizer property [is_sheaf']</span>
+<span class="sd">  1.3. The elementary property [is_sheaf'']</span>
+<span class="sd">  2. The equivalences</span>
+<span class="sd">  2.1. The first implies the second [is_sheaf_to_is_sheaf']</span>
+<span class="sd">  2.2. The second implies the third [is_sheaf'_to_is_sheaf'']</span>
+<span class="sd">  2.3. The third implies the first [is_sheaf''_to_is_sheaf]</span>
+<span class="sd">  2.4. The implications the other way around</span>
+<span class="sd">    [is_sheaf''_to_is_sheaf'] [is_sheaf'_to_is_sheaf] [is_sheaf_to_is_sheaf'']</span>
+<span class="sd">  3. Sheaves</span>
+<span class="sd">  3.1. The category of sheaves [sheaf_cat]</span>
+<span class="sd">  3.2. Sheaves [sheaf]</span>
+<span class="sd">  3.3. Sheaf morphisms [sheaf_morphism]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Notations.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.yoneda.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.GrothendieckToposes.Sieves.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.GrothendieckToposes.Sites.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Sheaves</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : site).
+
+<span class="sd">(** * 1. The sheaf properties *)</span>
+
+  <span class="kn">Section</span> <span class="nf">SheafProperties</span>.
+
+    <span class="kn">Context</span> (<span class="nv">P</span> : C^op ⟶ HSET).
+
+<span class="sd">(** ** 1.1. The natural transformation property *)</span>
+
+    <span class="kn">Definition</span> <span class="nf">is_sheaf</span> : UU :=
+      ∏ (c : C)
+        (S : covering_sieve c)
+        (τ : sieve_functor S ⟹ P),
+      <span class="k">∃</span>! (η : yoneda_objects _ c ⟹ P),
+        nat_trans_comp _ _ _ (sieve_nat_trans S) η = τ.
+
+    <span class="kn">Lemma</span> <span class="nf">isaprop_is_sheaf</span> : isaprop is_sheaf.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> impred_isaprop; <span class="nb">intros</span> t.
+      <span class="nb">apply</span> impred_isaprop; <span class="nb">intros</span> S.
+      <span class="nb">apply</span> impred_isaprop; <span class="nb">intros</span> τ.
+      <span class="nb">apply</span> isapropiscontr.
+    <span class="kn">Qed</span>.
+
+<span class="sd">(** ** 1.2. The equalizer property *)</span>
+
+    <span class="kn">Section</span> <span class="nf">EqualizerSheafProperty</span>.
+
+      <span class="kn">Context</span> {<span class="nv">c</span> : C}.
+      <span class="kn">Context</span> (<span class="nv">S</span> : covering_sieve c).
+
+      <span class="c">(* Domain *)</span>
+
+      <span class="kn">Definition</span> <span class="nf">sheaf_property_equalizer_domain_factor</span>
+        (<span class="nv">f</span> : sieve_selected_morphism S)
+        : hSet
+        := P (sieve_selected_morphism_domain f).
+
+      <span class="kn">Definition</span> <span class="nf">sheaf_property_equalizer_domain</span>
+        : hSet
+        := ProductObject _ _ (ProductsHSET _ sheaf_property_equalizer_domain_factor).
+
+      <span class="c">(* Codomain *)</span>
+
+      <span class="kn">Definition</span> <span class="nf">sheaf_property_equalizer_codomain_index</span>
+        : UU
+        := ∑ (f : sieve_selected_morphism S) (W : C), C⟦W, sieve_selected_morphism_domain f⟧.
+
+      <span class="kn">Definition</span> <span class="nf">make_sheaf_property_equalizer_codomain_index</span>
+        (<span class="nv">f</span> : sieve_selected_morphism S)
+        (<span class="nv">W</span> : C)
+        (<span class="nv">g</span> : C⟦W, sieve_selected_morphism_domain f⟧)
+        : sheaf_property_equalizer_codomain_index
+        := f ,, W ,, g.
+
+      <span class="kn">Definition</span> <span class="nf">sheaf_property_equalizer_codomain_index_selected_morphism</span>
+        (<span class="nv">fWg</span> : sheaf_property_equalizer_codomain_index)
+        : sieve_selected_morphism S
+        := pr1 fWg.
+
+      <span class="kn">Definition</span> <span class="nf">sheaf_property_equalizer_codomain_index_object</span>
+        (<span class="nv">fWg</span> : sheaf_property_equalizer_codomain_index)
+        : C
+        := pr12 fWg.
+
+      <span class="kn">Definition</span> <span class="nf">sheaf_property_equalizer_codomain_index_morphism</span>
+        (<span class="nv">fWg</span> : sheaf_property_equalizer_codomain_index)
+        : sheaf_property_equalizer_codomain_index_object fWg
+            --&gt;
+          sieve_selected_morphism_domain (sheaf_property_equalizer_codomain_index_selected_morphism fWg)
+        := pr22 fWg.
+
+      <span class="kn">Definition</span> <span class="nf">sheaf_property_equalizer_codomain_factor</span>
+        (<span class="nv">fWg</span> : sheaf_property_equalizer_codomain_index)
+        : hSet
+        := P (sheaf_property_equalizer_codomain_index_object fWg).
+
+      <span class="kn">Definition</span> <span class="nf">sheaf_property_equalizer_codomain</span>
+        : hSet
+        := ProductObject _ _ (ProductsHSET _ sheaf_property_equalizer_codomain_factor).
+
+      <span class="c">(* Arrows *)</span>
+
+      <span class="kn">Definition</span> <span class="nf">sheaf_property_equalizer_arrow1</span>
+        : sheaf_property_equalizer_domain → sheaf_property_equalizer_codomain.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> (ProductArrow _ SET).
+        <span class="nb">intro</span> fWg.
+        use (ProductPr _ _ _ (sieve_selected_morphism_compose _ _)).
+        - <span class="nb">apply</span> (sheaf_property_equalizer_codomain_index_selected_morphism fWg).
+        - <span class="bp">exact</span> (sheaf_property_equalizer_codomain_index_morphism fWg).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">sheaf_property_equalizer_arrow2</span>
+        : sheaf_property_equalizer_domain → sheaf_property_equalizer_codomain.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> (ProductArrow _ SET).
+        <span class="nb">intro</span> fWg.
+        <span class="nb">refine</span> (ProductPr _ _ _ (sheaf_property_equalizer_codomain_index_selected_morphism fWg) · _).
+        <span class="nb">apply</span> (# P).
+        <span class="bp">exact</span> (sheaf_property_equalizer_codomain_index_morphism fWg).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">sheaf_property_equalizer_inducer_arrow</span>
+        : (P c : hSet) → sheaf_property_equalizer_domain.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> (ProductArrow _ SET).
+        <span class="nb">intro</span> f.
+        <span class="nb">apply</span> (# P f).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Lemma</span> <span class="nf">sheaf_property_equalizer_inducer_arrow_commutes</span>
+        : (sheaf_property_equalizer_arrow1 ∘ sheaf_property_equalizer_inducer_arrow =
+          sheaf_property_equalizer_arrow2 ∘ sheaf_property_equalizer_inducer_arrow)%functions.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> (ProductArrow_eq _ SET).
+        <span class="nb">intro</span> VWfg.
+        <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        <span class="nb">refine</span> (maponpaths _ (ProductPrCommutes _ _ _ _ _ _ _) @ _).
+        <span class="nb">refine</span> (ProductPrCommutes _ _ _ _ _ _ (pr12 VWfg ,, _) @ !_).
+        <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        <span class="nb">refine</span> (maponpaths _ (ProductPrCommutes _ _ _ _ _ _ _) @ _).
+        <span class="nb">refine</span> (assoc _ _ _ @ _).
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (ProductPrCommutes _ _ _ _ _ _ _) @ !_).
+        <span class="nb">refine</span> (_ @ functor_comp _ _ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (eqtohomot (nat_trans_ax (sieve_nat_trans S) _ _ _) _).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">sheaf_property_equalizer_induced_arrow</span>
+        : SET⟦P c, Equalizers_in_HSET _ _ sheaf_property_equalizer_arrow1 sheaf_property_equalizer_arrow2⟧
+        := EqualizerIn (C := SET) _ _ _ sheaf_property_equalizer_inducer_arrow_commutes.
+
+    <span class="kn">End</span> <span class="nf">EqualizerSheafProperty</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_sheaf'</span> : UU
+      := ∏ c (S : covering_sieve c),
+        is_z_isomorphism (sheaf_property_equalizer_induced_arrow S).
+
+    <span class="kn">Lemma</span> <span class="nf">isaprop_is_sheaf'</span>
+      : isaprop is_sheaf'.
+    <span class="kn">Proof</span>.
+      <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+      <span class="nb">apply</span> isaprop_is_z_isomorphism.
+    <span class="kn">Qed</span>.
+
+<span class="sd">(** ** 1.3. The elementary property *)</span>
+
+    <span class="kn">Definition</span> <span class="nf">sheaf_locality_ax</span>
+      : UU
+      := ∏ (c : C)
+          (S : covering_sieve c)
+          (f g : (P c : hSet)),
+          (∏
+            (h : sieve_selected_morphism S),
+              # P h f
+            = # P h g)
+          → f = g.
+
+    <span class="kn">Lemma</span> <span class="nf">isaprop_locality_ax</span>
+      : isaprop sheaf_locality_ax.
+    <span class="kn">Proof</span>.
+      <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+      <span class="nb">apply</span> setproperty.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">sheaf_glueing_ax</span>
+      : UU
+      := ∏
+        (c : C)
+        (S : covering_sieve c)
+        (x : ∏
+          (f : sieve_selected_morphism S),
+          (P (sieve_selected_morphism_domain f) : hSet)),
+        (∏ (f : sieve_selected_morphism S)
+          (W : C)
+          (g : C⟦W, sieve_selected_morphism_domain f⟧),
+          x (sieve_selected_morphism_compose f g)
+          = # P g (x f))
+        → ∑ (z : P c : hSet),
+            ∏ (f : sieve_selected_morphism S),
+              # P f z
+              = x f.
+
+    <span class="kn">Lemma</span> <span class="nf">isaprop_glueing_ax</span>
+      (<span class="nv">H</span> : sheaf_locality_ax)
+      : isaprop sheaf_glueing_ax.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> impred_isaprop.
+      <span class="nb">intro</span> c.
+      <span class="nb">apply</span> impred_isaprop.
+      <span class="nb">intro</span> S.
+      <span class="nb">apply</span> impred_isaprop.
+      <span class="nb">intro</span> x.
+      <span class="nb">apply</span> impred_isaprop.
+      <span class="nb">intro</span> Hx.
+      <span class="nb">apply</span> invproofirrelevance.
+      <span class="nb">intros</span> z z'.
+      <span class="nb">apply</span> subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">apply</span> (H c S).
+      <span class="nb">intro</span> f.
+      <span class="bp">exact</span> (pr2 z _ @ !pr2 z' _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_sheaf''</span>
+      : UU
+      := sheaf_locality_ax × sheaf_glueing_ax.
+
+    <span class="kn">Lemma</span> <span class="nf">isaprop_is_sheaf''</span>
+      : isaprop is_sheaf''.
+    <span class="kn">Proof</span>.
+      use (isaprop_total2 (make_hProp _ _) (<span class="k">λ</span> <span class="nv">H</span>, make_hProp _ _)).
+      - <span class="bp">exact</span> isaprop_locality_ax.
+      - <span class="bp">exact</span> (isaprop_glueing_ax H).
+    <span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. The equivalences *)</span>
+<span class="sd">(** ** 2.1. The first implies the second *)</span>
+
+    <span class="kn">Lemma</span> <span class="nf">is_sheaf_to_is_sheaf'</span>
+      : is_sheaf → is_sheaf'.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> H c S.
+      <span class="nb">specialize</span> (H c S).
+      use (make_is_z_isomorphism _ _ (make_dirprod _ _)).
+      - <span class="nb">intro</span> fH.
+        <span class="nb">refine</span> (pr11 (H _) _ (identity c)).
+        use make_nat_trans.
+        * <span class="nb">intros</span> d f.
+          <span class="nb">refine</span> (pr1 fH (d ,, f)).
+        * <span class="kp">abstract</span> (
+            <span class="nb">intros</span> d d' f;
+            <span class="nb">apply</span> funextfun;
+            <span class="nb">intro</span> g;
+            <span class="bp">exact</span> (eqtohomot (pr2 fH) (make_sheaf_property_equalizer_codomain_index _ (make_sieve_selected_morphism _ _) _ _))
+          ).
+      - <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> x.
+        use (!eqtohomot (nat_trans_eq_pointwise (path_to_ctr _ _ (H _) (make_nat_trans _ _ _ _) _) _) _ @ _).
+        + <span class="nb">intros</span> d g.
+          <span class="nb">refine</span> (# P g x).
+        + <span class="nb">intros</span> d d' g.
+          <span class="nb">apply</span> funextfun.
+          <span class="nb">intro</span> g'.
+          <span class="bp">exact</span> (eqtohomot (functor_comp P g' g) x).
+        + <span class="nb">apply</span> nat_trans_eq_alt.
+          <span class="bp">reflexivity</span>.
+        + <span class="bp">exact</span> (eqtohomot (functor_id P c) x).
+      - <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> w.
+        <span class="nb">apply</span> subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> impred_isaset.
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> setproperty.
+        }
+        <span class="nb">apply</span> funextsec.
+        <span class="nb">intro</span> f.
+        <span class="nb">refine</span> (!eqtohomot (nat_trans_ax (pr11 (H _)) _ _ _) _ @ _).
+        <span class="nb">refine</span> (maponpaths (pr11 (H _) _) (id_right _) @ _).
+        <span class="bp">exact</span> (eqtohomot (nat_trans_eq_pointwise (pr21 (H _)) _) _).
+    <span class="kn">Qed</span>.
+
+<span class="sd">(** ** 2.2. The second implies the third *)</span>
+
+    <span class="kn">Lemma</span> <span class="nf">is_sheaf'_to_is_sheaf''</span>
+      : is_sheaf' → is_sheaf''.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> H.
+      <span class="nb">split</span>;
+        <span class="nb">intros</span> c S;
+        <span class="nb">specialize</span> (H c S);
+        <span class="nb">pose</span> (i := make_z_iso' _ H).
+      - <span class="nb">intros</span> f g Hfg.
+        <span class="nb">refine</span> (!_ @ eqtohomot (z_iso_inv_after_z_iso i) g).
+        <span class="nb">refine</span> (!_ @ eqtohomot (z_iso_inv_after_z_iso i) f).
+        <span class="nb">apply</span> (maponpaths (inv_from_z_iso i)).
+        <span class="nb">apply</span> subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">apply</span> funextsec.
+        <span class="nb">intro</span> Vf.
+        <span class="nb">apply</span> Hfg.
+      - <span class="nb">intros</span> f Hf.
+        use tpair.
+        + <span class="nb">refine</span> (inv_from_z_iso i _).
+          <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">Vf</span>, <span class="nv">f</span> <span class="nv">Vf</span>).
+          <span class="nb">apply</span> funextsec.
+          <span class="nb">intro</span> VWfg.
+          <span class="nb">apply</span> (Hf (make_sieve_selected_morphism _ _)).
+        + <span class="nb">intros</span> g.
+          <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pr1 (x _) _) (z_iso_after_z_iso_inv i)).
+    <span class="kn">Qed</span>.
+
+<span class="sd">(** ** 2.3. The third implies the first *)</span>
+
+    <span class="kn">Lemma</span> <span class="nf">is_sheaf''_to_is_sheaf</span>
+      : is_sheaf'' → is_sheaf.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> H X S t.
+      <span class="nb">induction</span> H <span class="k">as</span> [HL HG].
+      <span class="nb">specialize</span> (HG
+        X
+        S
+        (<span class="k">λ</span> <span class="nv">f</span>, t _ (sieve_selected_morphism_preimage f))
+        (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">Z</span> <span class="nv">g</span>, eqtohomot (nat_trans_ax t _ _ g) _)).
+      use unique_exists.
+      - <span class="nb">apply</span> (invmap (yoneda_weq C X P)).
+        <span class="bp">exact</span> (pr1 HG).
+      - <span class="nb">apply</span> nat_trans_eq_alt.
+        <span class="nb">intro</span> Y.
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> x.
+        <span class="bp">exact</span> (pr2 HG (make_sieve_selected_morphism (S := S) Y x)).
+      - <span class="nb">intro</span> y.
+        <span class="nb">apply</span> (homset_property (PreShv C)).
+      - <span class="nb">intros</span> f Hf.
+        <span class="nb">apply</span> pathsweq1.
+        <span class="nb">apply</span> (HL X S).
+        <span class="nb">intro</span> g.
+        <span class="nb">refine</span> (_ @ !pr2 HG g).
+        <span class="nb">refine</span> (!eqtohomot (nat_trans_ax f _ _ _) _ @ _).
+        <span class="nb">refine</span> (_ @ eqtohomot (nat_trans_eq_weq (homset_property _) _ t Hf _) _).
+        <span class="nb">apply</span> (maponpaths (f _)).
+        <span class="nb">apply</span> id_right.
+    <span class="kn">Qed</span>.
+
+<span class="sd">(** ** 2.4. The implications the other way around *)</span>
+
+    <span class="kn">Definition</span> <span class="nf">is_sheaf''_to_is_sheaf'</span>
+      : is_sheaf'' → is_sheaf'
+      := (is_sheaf_to_is_sheaf' ∘ is_sheaf''_to_is_sheaf)%functions.
+
+    <span class="kn">Definition</span> <span class="nf">is_sheaf'_to_is_sheaf</span>
+      : is_sheaf' → is_sheaf
+      := (is_sheaf''_to_is_sheaf ∘ is_sheaf'_to_is_sheaf'')%functions.
+
+    <span class="kn">Definition</span> <span class="nf">is_sheaf_to_is_sheaf''</span>
+      : is_sheaf → is_sheaf''
+      := (is_sheaf'_to_is_sheaf'' ∘ is_sheaf_to_is_sheaf')%functions.
+
+  <span class="kn">End</span> <span class="nf">SheafProperties</span>.
+
+<span class="sd">(** * 3. Sheaves *)</span>
+<span class="sd">(** ** 3.1. The category of sheaves *)</span>
+
+  <span class="sd">(** The category of sheaves is the full subcategory of presheaves consisting of the presheaves</span>
+<span class="sd">      which satisfy the is_sheaf proposition. *)</span>
+  <span class="kn">Definition</span> <span class="nf">hsubtype_obs_is_sheaf</span>
+    (<span class="nv">P</span> : PreShv C)
+    : hProp
+    := make_hProp _ (isaprop_is_sheaf P).
+
+  <span class="kn">Definition</span> <span class="nf">sheaf_cat</span> :
+    category :=
+    full_subcat (PreShv C) hsubtype_obs_is_sheaf.
+
+  <span class="kn">Lemma</span> <span class="nf">sheaf_cat_univalent</span>
+    : is_univalent sheaf_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_full_subcat.
+    - <span class="nb">apply</span> is_univalent_functor_category.
+      <span class="nb">apply</span> is_univalent_HSET.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> propproperty.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Sheaves</span>.
+
+<span class="sd">(** ** 3.2. Sheaves *)</span>
+
+<span class="kn">Definition</span> <span class="nf">sheaf</span>
+  (<span class="nv">C</span> : site)
+  : UU
+  := sheaf_cat C.
+
+<span class="kn">Definition</span> <span class="nf">make_sheaf</span>
+  {<span class="nv">C</span> : site}
+  (<span class="nv">F</span> : PreShv C)
+  (<span class="nv">H</span> : is_sheaf C F)
+  : sheaf C
+  := F ,, H.
+
+<span class="kn">Coercion</span> <span class="nf">sheaf_functor</span>
+  {C : site}
+  (F : sheaf C)
+  : C^op ⟶ HSET
+  := pr1 F.
+
+<span class="kn">Definition</span> <span class="nf">sheaf_is_sheaf</span>
+  {<span class="nv">C</span> : site}
+  (<span class="nv">F</span> : sheaf C)
+  : is_sheaf C F
+  := pr2 F.
+
+<span class="sd">(** ** 3.3. Sheaf morphisms *)</span>
+
+<span class="kn">Section</span> <span class="nf">Morphisms</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : site}.
+
+  <span class="kn">Definition</span> <span class="nf">sheaf_morphism</span>
+    (<span class="nv">F</span> <span class="nv">G</span> : sheaf C)
+    : UU
+    := sheaf_cat C⟦F, G⟧.
+
+  <span class="kn">Definition</span> <span class="nf">make_sheaf_morphism</span>
+    {<span class="nv">F</span> <span class="nv">G</span> : sheaf C}
+    (<span class="nv">f</span> : F ⟹ G)
+    : sheaf_morphism F G
+    := f ,, tt.
+
+  <span class="kn">Coercion</span> <span class="nf">sheaf_morphism_nat_trans</span>
+    {F G : sheaf C}
+    (f : sheaf_morphism F G)
+    : F ⟹ G
+    := pr1 f.
+
+  <span class="kn">Lemma</span> <span class="nf">sheaf_morphism_eq</span>
+    {<span class="nv">F</span> <span class="nv">G</span> : sheaf C}
+    (<span class="nv">f</span> <span class="nv">g</span> : sheaf_morphism F G)
+    (<span class="nv">H</span> : (f : _ ⟹ _) = g)
+    : f = g.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropunit.
+    }
+    <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Morphisms</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/GrothendieckToposes/Sheaves.v</tt>, line 43)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   3.3. Sheaf morphisms [sheaf_morphism]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Notations.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

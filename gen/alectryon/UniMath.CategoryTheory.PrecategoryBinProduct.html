@@ -1,0 +1,1521 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PrecategoryBinProduct.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Binary product of (pre)categories</span>
+
+<span class="sd">  Benedikt Ahrens, Ralph Matthes, Peter LeFanu Lumsdaine</span>
+
+<span class="sd">  SubstitutionSystems</span>
+
+<span class="sd">  2015</span>
+
+<span class="sd">  For the general case, see [product_precategory].</span>
+
+<span class="sd">  See [unit_category] for the unit category, which is the unit</span>
+<span class="sd">  under cartesian product up to isomorphism.</span>
+
+<span class="sd">*)</span>
+
+
+<span class="sd">(** ** Contents :</span>
+
+<span class="sd">  - Definition of the cartesian product of two precategories</span>
+
+<span class="sd">  - From a functor on a product of precategories to a functor on one of</span>
+<span class="sd">    the categories by fixing the argument in the other component</span>
+
+<span class="sd">  - From a functor on a product of precategories to a nat. transformation on one of</span>
+<span class="sd">    the categories by fixing the morphism argument in the other component</span>
+
+<span class="sd">  - Definition of the associator functors</span>
+
+<span class="sd">  - Definition of the pair of two functors: A × C → B × D</span>
+<span class="sd">    given A → B and C → D</span>
+
+<span class="sd">  - Definition of the diagonal functor [bindelta_functor].</span>
+
+<span class="sd">  - Definition of post-whiskering with parameter (with a functor on a</span>
+<span class="sd">    product of precategories where one argument is seen as parameter)</span>
+
+<span class="sd">*)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Definition</span> <span class="nf">precategory_binproduct_mor</span> (<span class="nv">C</span> <span class="nv">D</span> : precategory_ob_mor) (<span class="nv">cd</span> <span class="nv">cd'</span> : C × D) := pr1 cd --&gt; pr1 cd' × pr2 cd --&gt; pr2 cd'.
+
+<span class="kn">Definition</span> <span class="nf">precategory_binproduct_ob_mor</span> (<span class="nv">C</span> <span class="nv">D</span> : precategory_ob_mor) : precategory_ob_mor
+  := tpair _ _ (precategory_binproduct_mor C D).
+
+<span class="kn">Definition</span> <span class="nf">precategory_binproduct_data</span> (<span class="nv">C</span> <span class="nv">D</span> : precategory_data) : precategory_data.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">precategory_binproduct_ob_mor</span> <span class="nv">C</span> <span class="nv">D</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> cd.
+    <span class="bp">exact</span> (make_dirprod (identity (pr1 cd)) (identity (pr2 cd))).
+  - <span class="nb">intros</span> cd cd' cd'' fg fg'.
+    <span class="bp">exact</span> (make_dirprod (pr1 fg · pr1 fg') (pr2 fg · pr2 fg')).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">precategory_binproduct</span>.
+
+<span class="kn">Variables</span> <span class="nv">C</span> <span class="nv">D</span> : precategory.
+
+<span class="kn">Lemma</span> <span class="nf">is_precategory_precategory_binproduct_data</span> : is_precategory (precategory_binproduct_data C D).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>.
+  - <span class="nb">apply</span> dirprodeq; <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> dirprodeq; <span class="nb">apply</span> id_right.
+  - <span class="nb">apply</span> dirprodeq; <span class="nb">apply</span> assoc.
+  - <span class="nb">apply</span> dirprodeq; <span class="nb">apply</span> assoc'.
+<span class="kn">Defined</span>. <span class="sd">(** needed for the op-related goal below *)</span>
+
+<span class="kn">Definition</span> <span class="nf">precategory_binproduct</span> : precategory
+  := tpair _ _ is_precategory_precategory_binproduct_data.
+
+<span class="kn">Definition</span> <span class="nf">has_homsets_precategory_binproduct</span> (<span class="nv">hsC</span> : has_homsets C) (<span class="nv">hsD</span> : has_homsets D) :
+  has_homsets precategory_binproduct.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b.
+  <span class="nb">apply</span> isasetdirprod.
+  - <span class="nb">apply</span> hsC.
+  - <span class="nb">apply</span> hsD.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">precategory_binproduct</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">category_binproduct</span> (<span class="nv">C</span> <span class="nv">D</span> : category) : category :=
+    make_category (precategory_binproduct C D) (has_homsets_precategory_binproduct C D C D).
+
+<span class="kn">Definition</span> <span class="nf">ob1</span> {<span class="nv">C</span> <span class="nv">D</span>} (<span class="nv">x</span> : category_binproduct C D) : C := pr1 x.
+<span class="kn">Definition</span> <span class="nf">ob2</span> {<span class="nv">C</span> <span class="nv">D</span>} (<span class="nv">x</span> : category_binproduct C D) : D := pr2 x.
+<span class="kn">Definition</span> <span class="nf">mor1</span> {<span class="nv">C</span> <span class="nv">D</span>} (<span class="nv">x</span> <span class="nv">x'</span> : category_binproduct C D) (<span class="nv">f</span> : _ ⟦x, x'⟧) : _ ⟦ob1 x, ob1 x'⟧ := pr1 f.
+<span class="kn">Definition</span> <span class="nf">mor2</span> {<span class="nv">C</span> <span class="nv">D</span>} (<span class="nv">x</span> <span class="nv">x'</span> : category_binproduct C D) (<span class="nv">f</span> : _ ⟦x, x'⟧) : _ ⟦ob2 x, ob2 x'⟧ := pr2 f.
+
+<span class="kn">Arguments</span> ob1 { _ _ } _ .
+<span class="kn">Arguments</span> ob2 { _ _ } _ .
+<span class="kn">Arguments</span> mor1 { _ _ _ _ } _ .
+<span class="kn">Arguments</span> mor2 { _ _ _ _ } _ .
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C × D"</span> := (category_binproduct C D) (<span class="kn">at level</span> <span class="mi">75</span>, <span class="kn">right associativity</span>).
+
+
+
+<span class="sd">(** Objects and morphisms in the product precategory of two precategories *)</span>
+<span class="kn">Definition</span> <span class="nf">make_catbinprod</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">X</span> : C) (<span class="nv">Y</span> : D) : category_binproduct C D
+  := make_dirprod X Y.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"A ⊗ B"</span> := (make_catbinprod A B).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"( A , B )"</span> := (make_catbinprod A B).
+
+<span class="kn">Definition</span> <span class="nf">catbinprodmor</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">X</span> <span class="nv">X'</span> : C} {<span class="nv">Z</span> <span class="nv">Z'</span> : D} (<span class="nv">α</span> : X --&gt; X') (<span class="nv">β</span> : Z --&gt; Z')
+  : X ⊗ Z --&gt; X' ⊗ Z'
+  := make_dirprod α β.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"( f #, g )"</span> := (catbinprodmor f g).
+
+<span class="c">(* Some useful facts about product precategories *)</span>
+<span class="kn">Lemma</span> <span class="nf">binprod_id</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">c</span> : C) (<span class="nv">d</span> : D) : (identity c #, identity d) = identity (c, d).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>. <span class="sd">(** this seems useful since one often has to tell Coq explicitly to make that conversion *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">binprod_comp</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">c</span> <span class="nv">c'</span> <span class="nv">c''</span> : C) (<span class="nv">d</span> <span class="nv">d'</span> <span class="nv">d''</span> : D) (<span class="nv">f</span> : c --&gt; c') (<span class="nv">f'</span> : c' --&gt; c'') (<span class="nv">g</span> : d --&gt; d') (<span class="nv">g'</span> : d' --&gt; d'') : (f · f' #, g · g') = (f #, g) · (f' #, g').
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>. <span class="sd">(** idem concerning Defined vs. Qed *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">is_z_iso_binprod_z_iso_aux</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">c</span> <span class="nv">c'</span> : C} {<span class="nv">d</span> <span class="nv">d'</span> : D} {<span class="nv">f</span> : c --&gt; c'} {<span class="nv">g</span> : d --&gt; d'} (<span class="nv">f_is_iso</span> : is_z_isomorphism f)
+  (<span class="nv">g_is_iso</span> : is_z_isomorphism g) : is_inverse_in_precat (f #, g)
+        (inv_from_z_iso (make_z_iso' f f_is_iso) #, inv_from_z_iso (make_z_iso' g g_is_iso)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_dirprod.
+  - <span class="nb">transitivity</span> ((make_z_iso' f f_is_iso) · (inv_from_z_iso (make_z_iso' f f_is_iso)) #, (make_z_iso' g g_is_iso) · (inv_from_z_iso (make_z_iso' g g_is_iso))).
+    + <span class="nb">symmetry</span>.
+      <span class="nb">apply</span> binprod_comp.
+    + <span class="nb">rewrite</span> <span class="mi">2</span> z_iso_inv_after_z_iso.
+      <span class="nb">apply</span> binprod_id.
+  - <span class="nb">transitivity</span> ((inv_from_z_iso (make_z_iso' f f_is_iso)) · (make_z_iso' f f_is_iso) #, (inv_from_z_iso (make_z_iso' g g_is_iso)) · (make_z_iso' g g_is_iso)).
+    + <span class="nb">symmetry</span>.
+      <span class="nb">apply</span> binprod_comp.
+    + <span class="nb">rewrite</span> <span class="mi">2</span> z_iso_after_z_iso_inv.
+      <span class="nb">apply</span> binprod_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_z_iso_binprod_z_iso</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">c</span> <span class="nv">c'</span> : C} {<span class="nv">d</span> <span class="nv">d'</span> : D} {<span class="nv">f</span> : c --&gt; c'} {<span class="nv">g</span> : d --&gt; d'} (<span class="nv">f_is_iso</span> : is_z_isomorphism f)
+  (<span class="nv">g_is_iso</span> : is_z_isomorphism g) : is_z_isomorphism (f #, g).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">inv_from_z_iso</span> (make_z_iso' f f_is_iso) #, inv_from_z_iso (make_z_iso' g g_is_iso)).
+  <span class="nb">apply</span> is_z_iso_binprod_z_iso_aux.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Isos in product precategories *)</span>
+<span class="kn">Definition</span> <span class="nf">precatbinprod_z_iso</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">X</span> <span class="nv">X'</span> : C} {<span class="nv">Z</span> <span class="nv">Z'</span> : D} (<span class="nv">α</span> : z_iso X X') (<span class="nv">β</span> : z_iso Z Z')
+  : z_iso (X ⊗ Z) (X' ⊗ Z').
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (f := catbinprodmor α β).
+  <span class="nb">set</span> (g := catbinprodmor (z_iso_inv_from_z_iso α) (z_iso_inv_from_z_iso β)).
+  <span class="k">exists</span> <span class="nv">f</span>.
+  <span class="k">exists</span> <span class="nv">g</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> pathsdirprod;
+    <span class="nb">apply</span> z_iso_inv_after_z_iso.
+  - <span class="nb">apply</span> pathsdirprod;
+    <span class="nb">apply</span> z_iso_after_z_iso_inv.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precatbinprod_z_iso_inv</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">X</span> <span class="nv">X'</span> : C} {<span class="nv">Z</span> <span class="nv">Z'</span> : D}
+  (<span class="nv">α</span> : z_iso X X') (<span class="nv">β</span> : z_iso Z Z')
+  : precatbinprod_z_iso (z_iso_inv_from_z_iso α) (z_iso_inv_from_z_iso β)
+  = z_iso_inv_from_z_iso (precatbinprod_z_iso α β).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> inv_z_iso_unique.
+  <span class="nb">split</span>; <span class="nb">apply</span> z_iso_inv_after_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="c">(*</span>
+<span class="c">Definition is_z_iso_binprod_z_iso {C D : category} {c c' : C} {d d' : D} {f : c --&gt; c'} {g : d --&gt; d'} (f_is_z_iso : is_z_isomorphism f)</span>
+<span class="c">  (g_is_z_iso : is_z_isomorphism g) : is_z_isomorphism (f #, g).</span>
+<span class="c">Proof.</span>
+<span class="c">  red.</span>
+<span class="c">  exists (is_z_isomorphism_mor f_is_z_iso,,is_z_isomorphism_mor g_is_z_iso).</span>
+<span class="c">  red.</span>
+<span class="c">  split; apply dirprodeq; cbn.</span>
+<span class="c">  - apply (pr1 (pr2 f_is_z_iso)).</span>
+<span class="c">  - apply (pr1 (pr2 g_is_z_iso)).</span>
+<span class="c">  - apply (pr2 (pr2 f_is_z_iso)).</span>
+<span class="c">  - apply (pr2 (pr2 g_is_z_iso)).</span>
+<span class="c">Defined.</span>
+
+
+<span class="c">Definition precatbinprod_z_iso {C D : category} {X X' : C} {Z Z' : D} (α : z_iso X X') (β : z_iso Z Z')</span>
+<span class="c">  : z_iso (X ⊗ Z) (X' ⊗ Z') := (pr1 α,, pr1 β) ,, is_z_iso_binprod_z_iso (pr2 α)(pr2 β).</span>
+<span class="c">*)</span>
+
+<span class="sd">(** Associativity functors *)</span>
+<span class="kn">Section</span> <span class="nf">assoc</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_binproduct_assoc_data</span> (<span class="nv">C0</span> <span class="nv">C1</span> <span class="nv">C2</span> : precategory_data)
+  : functor_data (precategory_binproduct_data C0 (precategory_binproduct_data C1 C2))
+                 (precategory_binproduct_data (precategory_binproduct_data C0 C1) C2).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intros</span> c. <span class="bp">exact</span> (tpair _ (tpair _ (pr1 c) (pr1 (pr2 c))) (pr2 (pr2 c))).
+  - <span class="nb">intros</span> a b c. <span class="bp">exact</span> (tpair _ (tpair _ (pr1 c) (pr1 (pr2 c))) (pr2 (pr2 c))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_binproduct_assoc</span> (<span class="nv">C0</span> <span class="nv">C1</span> <span class="nv">C2</span> : category)
+  : (C0 × (C1 × C2)) ⟶ ((C0 × C1) × C2).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">precategory_binproduct_assoc_data</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>).
+  <span class="kp">abstract</span> ( <span class="nb">split</span>; [ <span class="nb">intros</span> c; <span class="nb">apply</span> idpath | <span class="nb">intros</span> c0 c1 c2 f g; <span class="nb">apply</span> idpath] ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_binproduct_unassoc_data</span> (<span class="nv">C0</span> <span class="nv">C1</span> <span class="nv">C2</span> : precategory_data)
+  : functor_data (precategory_binproduct_data (precategory_binproduct_data C0 C1) C2)
+                 (precategory_binproduct_data C0 (precategory_binproduct_data C1 C2)).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intros</span> c. <span class="bp">exact</span> (tpair _ (pr1 (pr1 c)) (tpair _ (pr2 (pr1 c)) (pr2 c))).
+  - <span class="nb">intros</span> a b c. <span class="bp">exact</span> (tpair _ (pr1 (pr1 c)) (tpair _ (pr2 (pr1 c)) (pr2 c))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_binproduct_unassoc</span> (<span class="nv">C0</span> <span class="nv">C1</span> <span class="nv">C2</span> : category)
+  : ((C0 × C1) × C2) ⟶ (C0 × (C1 × C2)).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">precategory_binproduct_unassoc_data</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>).
+  <span class="kp">abstract</span> ( <span class="nb">split</span>; [ <span class="nb">intros</span> c; <span class="nb">apply</span> idpath | <span class="nb">intros</span> c0 c1 c2 f g; <span class="nb">apply</span> idpath] ).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">assoc</span>.
+
+<span class="sd">(** Fixing one argument of C × D -&gt; E results in a functor *)</span>
+<span class="kn">Section</span> <span class="nf">functor_fix_fst_arg</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : precategory.
+<span class="kn">Variable</span> <span class="nv">F</span> : functor (precategory_binproduct C D) E.
+<span class="kn">Variable</span> <span class="nv">c</span> : C.
+
+<span class="kn">Definition</span> <span class="nf">functor_fix_fst_arg_ob</span> (<span class="nv">d</span>: D) : E := F (tpair _ c d).
+<span class="kn">Definition</span> <span class="nf">functor_fix_fst_arg_mor</span> (<span class="nv">d</span> <span class="nv">d'</span> : D) (<span class="nv">f</span> : d --&gt; d') : functor_fix_fst_arg_ob d --&gt; functor_fix_fst_arg_ob d'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (#F).
+  <span class="bp">exact</span> (make_dirprod (identity c) f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_fix_fst_arg_data</span> : functor_data D E
+  := tpair _ functor_fix_fst_arg_ob functor_fix_fst_arg_mor.
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_functor_fix_fst_arg_data</span>: is_functor functor_fix_fst_arg_data.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">split</span>; <span class="nb">red</span>.
+  + <span class="nb">intros</span> d.
+    <span class="nb">unfold</span> functor_fix_fst_arg_data; <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> functor_fix_fst_arg_mor; <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> functor_fix_fst_arg_ob; <span class="nb">simpl</span>.
+    <span class="nb">assert</span> (functor_id_inst := functor_id F).
+    <span class="nb">rewrite</span> &lt;- functor_id_inst.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> idpath.
+  + <span class="nb">intros</span> d d' d'' f g.
+    <span class="nb">unfold</span> functor_fix_fst_arg_data; <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> functor_fix_fst_arg_mor; <span class="nb">simpl</span>.
+    <span class="nb">assert</span> (functor_comp_inst := @functor_comp _ _ F (make_dirprod c d) (make_dirprod c d') (make_dirprod c d'')).
+    <span class="nb">rewrite</span> &lt;- functor_comp_inst.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> compose <span class="nb">at</span> <span class="mi">2</span>.
+    <span class="nb">unfold</span> precategory_binproduct; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_fix_fst_arg</span> : D ⟶ E
+  := tpair _ functor_fix_fst_arg_data is_functor_functor_fix_fst_arg_data.
+
+<span class="kn">End</span> <span class="nf">functor_fix_fst_arg</span>.
+
+<span class="kn">Section</span> <span class="nf">nat_trans_from_functor_fix_fst_morphism_arg</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category.
+<span class="kn">Variable</span> <span class="nv">F</span> : (C × D) ⟶ E.
+<span class="kn">Variable</span> <span class="nv">c</span> <span class="nv">c'</span> : C.
+<span class="kn">Variable</span> <span class="nv">g</span>: c --&gt; c'.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_from_functor_fix_fst_morphism_arg_data</span> (<span class="nv">d</span>: D): functor_fix_fst_arg C D E F c d --&gt; functor_fix_fst_arg C D E F c' d.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (#F).
+  <span class="bp">exact</span> (make_dirprod g (identity d)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_trans_from_functor_fix_fst_morphism_arg_ax</span>: is_nat_trans _ _ nat_trans_from_functor_fix_fst_morphism_arg_data.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span> d d' f.
+  <span class="nb">unfold</span> nat_trans_from_functor_fix_fst_morphism_arg_data.
+  <span class="nb">unfold</span> functor_fix_fst_arg; <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> functor_fix_fst_arg_mor; <span class="nb">simpl</span>.
+  <span class="nb">eapply</span> pathscomp0.
+  <span class="mi">2</span>: { <span class="nb">apply</span> functor_comp. }
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">eapply</span> pathscomp0.
+  <span class="mi">2</span>: { <span class="nb">apply</span> functor_comp. }
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">unfold</span> compose.
+  <span class="nb">cbn</span>.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_from_functor_fix_fst_morphism_arg</span>: functor_fix_fst_arg C D E F c ⟹ functor_fix_fst_arg C D E F c'.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> d. <span class="nb">apply</span> nat_trans_from_functor_fix_fst_morphism_arg_data.
+  - <span class="nb">cbn</span>. <span class="bp">exact</span> nat_trans_from_functor_fix_fst_morphism_arg_ax.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">nat_trans_from_functor_fix_fst_morphism_arg</span>.
+
+<span class="kn">Section</span> <span class="nf">nat_trans_fix_fst_arg</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category.
+<span class="kn">Variable</span> <span class="nv">F</span> <span class="nv">F'</span> : (C × D) ⟶ E.
+<span class="kn">Variable</span> <span class="nv">α</span> : F ⟹ F'.
+<span class="kn">Variable</span> <span class="nv">c</span> : C.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_fix_fst_arg_data</span> (<span class="nv">d</span>: D): functor_fix_fst_arg C D E F c d --&gt; functor_fix_fst_arg C D E F' c d := α (tpair _ c d).
+
+<span class="kn">Lemma</span> <span class="nf">nat_trans_fix_fst_arg_ax</span>: is_nat_trans _ _ nat_trans_fix_fst_arg_data.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span> d d' f.
+  <span class="nb">unfold</span> nat_trans_fix_fst_arg_data, functor_fix_fst_arg; <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> functor_fix_fst_arg_mor; <span class="nb">simpl</span>.
+  <span class="nb">assert</span> (nat_trans_ax_inst := nat_trans_ax α).
+  <span class="nb">apply</span> nat_trans_ax_inst.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_fix_fst_arg</span>: functor_fix_fst_arg C D E F c ⟹ functor_fix_fst_arg C D E F' c
+  := tpair _ nat_trans_fix_fst_arg_data nat_trans_fix_fst_arg_ax.
+
+<span class="kn">End</span> <span class="nf">nat_trans_fix_fst_arg</span>.
+
+<span class="kn">Section</span> <span class="nf">nat_z_iso_fix_fst_arg</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category.
+<span class="kn">Variable</span> <span class="nv">F</span> <span class="nv">F'</span> : (C × D) ⟶ E.
+<span class="kn">Variable</span> <span class="nv">α</span> : nat_z_iso F F'.
+<span class="kn">Variable</span> <span class="nv">c</span> : C.
+
+<span class="kn">Let</span> <span class="nf">nattrans</span> := (nat_trans_fix_fst_arg _ _ _ _ _ α c).
+
+<span class="kn">Lemma</span> <span class="nf">nat_z_iso_fix_fst_arg_ax</span>: is_nat_z_iso (nat_trans_fix_fst_arg _ _ _ _ _ α c).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> d.
+  use (pr2_nat_z_iso α).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_z_iso_fix_fst_arg</span>: nat_z_iso (functor_fix_fst_arg C D E F c) (functor_fix_fst_arg C D E F' c)
+  := make_nat_z_iso _ _ nattrans nat_z_iso_fix_fst_arg_ax.
+
+<span class="kn">End</span> <span class="nf">nat_z_iso_fix_fst_arg</span>.
+
+<span class="kn">Section</span> <span class="nf">functor_fix_snd_arg</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : precategory.
+<span class="kn">Variable</span> <span class="nv">F</span> : functor (precategory_binproduct C D) E.
+<span class="kn">Variable</span> <span class="nv">d</span> : D.
+
+<span class="kn">Definition</span> <span class="nf">functor_fix_snd_arg_ob</span> (<span class="nv">c</span>: C): E := F (tpair _ c d).
+<span class="kn">Definition</span> <span class="nf">functor_fix_snd_arg_mor</span> (<span class="nv">c</span> <span class="nv">c'</span>: C)(<span class="nv">f</span>: c --&gt; c'): functor_fix_snd_arg_ob c --&gt; functor_fix_snd_arg_ob c'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (#F).
+  <span class="bp">exact</span> (make_dirprod f (identity d)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_fix_snd_arg_data</span> : functor_data C E
+  := tpair _ functor_fix_snd_arg_ob functor_fix_snd_arg_mor.
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_functor_fix_snd_arg_data</span>: is_functor functor_fix_snd_arg_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  + <span class="nb">intros</span> c.
+    <span class="nb">unfold</span> functor_fix_snd_arg_data; <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> functor_fix_snd_arg_mor; <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> functor_fix_snd_arg_ob; <span class="nb">simpl</span>.
+    <span class="nb">assert</span> (functor_id_inst := functor_id F).
+    <span class="nb">rewrite</span> &lt;- functor_id_inst.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> idpath.
+  + <span class="nb">intros</span> c c' c'' f g.
+    <span class="nb">unfold</span> functor_fix_snd_arg_data; <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> functor_fix_snd_arg_mor; <span class="nb">simpl</span>.
+    <span class="nb">assert</span> (functor_comp_inst := @functor_comp _ _ F (make_dirprod c d) (make_dirprod c' d) (make_dirprod c'' d)).
+    <span class="nb">rewrite</span> &lt;- functor_comp_inst.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> compose <span class="nb">at</span> <span class="mi">2</span>.
+    <span class="nb">unfold</span> precategory_binproduct; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_fix_snd_arg</span>: C ⟶ E.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">functor_fix_snd_arg_data</span>.
+  <span class="bp">exact</span> is_functor_functor_fix_snd_arg_data.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">functor_fix_snd_arg</span>.
+
+<span class="kn">Section</span> <span class="nf">nat_trans_from_functor_fix_snd_morphism_arg</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category.
+<span class="kn">Variable</span> <span class="nv">F</span> : (C × D) ⟶ E.
+<span class="kn">Variable</span> <span class="nv">d</span> <span class="nv">d'</span> : D.
+<span class="kn">Variable</span> <span class="nv">f</span>: d --&gt; d'.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_from_functor_fix_snd_morphism_arg_data</span> (<span class="nv">c</span>: C): functor_fix_snd_arg C D E F d c --&gt; functor_fix_snd_arg C D E F d' c.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (#F).
+  <span class="bp">exact</span> (make_dirprod (identity c) f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_trans_from_functor_fix_snd_morphism_arg_ax</span>: is_nat_trans _ _ nat_trans_from_functor_fix_snd_morphism_arg_data.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span> c c' g.
+  <span class="nb">unfold</span> nat_trans_from_functor_fix_snd_morphism_arg_data.
+  <span class="nb">unfold</span> functor_fix_snd_arg; <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> functor_fix_snd_arg_mor; <span class="nb">simpl</span>.
+  <span class="nb">eapply</span> pathscomp0.
+  <span class="mi">2</span>: { <span class="nb">apply</span> functor_comp. }
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">eapply</span> pathscomp0.
+  <span class="mi">2</span>: { <span class="nb">apply</span> functor_comp. }
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">unfold</span> compose.
+  <span class="nb">cbn</span>.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_from_functor_fix_snd_morphism_arg</span>: functor_fix_snd_arg C D E F d ⟹ functor_fix_snd_arg C D E F d'.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> c. <span class="nb">apply</span> nat_trans_from_functor_fix_snd_morphism_arg_data.
+  - <span class="nb">cbn</span>. <span class="bp">exact</span> nat_trans_from_functor_fix_snd_morphism_arg_ax.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">nat_trans_from_functor_fix_snd_morphism_arg</span>.
+
+<span class="kn">Section</span> <span class="nf">nat_trans_fix_snd_arg</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category.
+<span class="kn">Variable</span> <span class="nv">F</span> <span class="nv">F'</span>: (C × D) ⟶ E.
+<span class="kn">Variable</span> <span class="nv">α</span>: F ⟹ F'.
+<span class="kn">Variable</span> <span class="nv">d</span>: D.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_fix_snd_arg_data</span> (<span class="nv">c</span>:C): functor_fix_snd_arg C D E F d c --&gt; functor_fix_snd_arg C D E F' d c := α (tpair _ c d).
+
+<span class="kn">Lemma</span> <span class="nf">nat_trans_fix_snd_arg_ax</span>: is_nat_trans _ _ nat_trans_fix_snd_arg_data.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span> c c' f.
+  <span class="nb">unfold</span> nat_trans_fix_snd_arg_data, functor_fix_snd_arg; <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> functor_fix_snd_arg_mor; <span class="nb">simpl</span>.
+  <span class="nb">assert</span> (nat_trans_ax_inst := nat_trans_ax α).
+  <span class="nb">apply</span> nat_trans_ax_inst.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_fix_snd_arg</span>: functor_fix_snd_arg C D E F d ⟹ functor_fix_snd_arg C D E F' d
+  := tpair _ nat_trans_fix_snd_arg_data nat_trans_fix_snd_arg_ax.
+
+<span class="kn">End</span> <span class="nf">nat_trans_fix_snd_arg</span>.
+
+<span class="c">(* Define pairs of functors and functors from pr1 and pr2 *)</span>
+<span class="kn">Section</span> <span class="nf">functors</span>.
+
+<span class="kn">Definition</span> <span class="nf">pair_functor_data</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : category}
+  (<span class="nv">F</span> : A ⟶ C) (<span class="nv">G</span> : B ⟶ D) : functor_data (A × B) (C × D).
+<span class="kn">Proof</span>.
+use tpair.
+- <span class="nb">intro</span> x; <span class="nb">apply</span> (make_catbinprod (F (pr1 x)) (G (pr2 x))).
+- <span class="nb">intros</span> x y f; <span class="nb">simpl</span>; <span class="nb">apply</span> (catbinprodmor (# F (pr1 f)) (# G (pr2 f))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pair_functor</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : category}
+  (<span class="nv">F</span> : A ⟶ C) (<span class="nv">G</span> : B ⟶ D) : (A × B) ⟶ (C × D).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (tpair _ (pair_functor_data F G)).
+<span class="kp">abstract</span> (<span class="nb">split</span>;
+  [ <span class="nb">intro</span> x; <span class="nb">simpl</span>; <span class="nb">rewrite</span> !functor_id; <span class="nb">apply</span> idpath
+  | <span class="nb">intros</span> x y z f g; <span class="nb">simpl</span>; <span class="nb">rewrite</span> !functor_comp; <span class="nb">apply</span> idpath]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr1_functor_data</span> (<span class="nv">A</span> <span class="nv">B</span> : category) :
+  functor_data (A × B) A.
+<span class="kn">Proof</span>.
+use tpair.
+- <span class="nb">intro</span> x; <span class="nb">apply</span> (pr1 x).
+- <span class="nb">intros</span> x y f; <span class="nb">simpl</span>; <span class="nb">apply</span> (pr1 f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr1_functor</span> (<span class="nv">A</span> <span class="nv">B</span> : category) : (A × B) ⟶ A.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (tpair _ (pr1_functor_data A B)).
+<span class="kp">abstract</span> (<span class="nb">split</span>; [ <span class="nb">intro</span> x; <span class="nb">apply</span> idpath | <span class="nb">intros</span> x y z f g; <span class="nb">apply</span> idpath ]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr2_functor_data</span> (<span class="nv">A</span> <span class="nv">B</span> : category) :
+  functor_data (A × B) B.
+<span class="kn">Proof</span>.
+use tpair.
+- <span class="nb">intro</span> x; <span class="nb">apply</span> (pr2 x).
+- <span class="nb">intros</span> x y f; <span class="nb">simpl</span>; <span class="nb">apply</span> (pr2 f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr2_functor</span> (<span class="nv">A</span> <span class="nv">B</span> : category) : (A × B) ⟶ B.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (tpair _ (pr2_functor_data A B)).
+<span class="kp">abstract</span> (<span class="nb">split</span>; [ <span class="nb">intro</span> x; <span class="nb">apply</span> idpath | <span class="nb">intros</span> x y z f g; <span class="nb">apply</span> idpath ]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bindelta_functor_data</span> (<span class="nv">C</span> : category) :
+  functor_data C (C × C).
+<span class="kn">Proof</span>.
+use tpair.
+- <span class="nb">intro</span> x; <span class="nb">apply</span> (make_catbinprod x x).
+- <span class="nb">intros</span> x y f; <span class="nb">simpl</span>; <span class="nb">apply</span> (catbinprodmor f f).
+<span class="kn">Defined</span>.
+
+<span class="c">(* The diagonal functor Δ *)</span>
+<span class="kn">Definition</span> <span class="nf">bindelta_functor</span> (<span class="nv">C</span> : category) : C ⟶ (C × C).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (tpair _ (bindelta_functor_data C)).
+<span class="kp">abstract</span> (<span class="nb">split</span>; [ <span class="nb">intro</span> x; <span class="nb">apply</span> idpath | <span class="nb">intros</span> x y z f g; <span class="nb">apply</span> idpath ]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bindelta_pair_functor_data</span> (<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category)
+  (<span class="nv">F</span> : C ⟶ D) (<span class="nv">G</span> : C ⟶ E) :
+  functor_data C (category_binproduct D E).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> c. <span class="nb">apply</span> (make_catbinprod (F c) (G c)).
+  - <span class="nb">intros</span> x y f. <span class="nb">simpl</span>. <span class="nb">apply</span> (catbinprodmor (# F f) (# G f)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_bindelta_pair_functor_data</span> (<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category)
+  (<span class="nv">F</span> : C ⟶ D) (<span class="nv">G</span> : C ⟶ E) : is_functor (bindelta_pair_functor_data _ _ _ F G).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> c.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> functor_id.
+    <span class="nb">rewrite</span> functor_id.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> c c' c'' f g.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">bindelta_pair_functor</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+  (<span class="nv">F</span> : C ⟶ D) (<span class="nv">G</span> : C ⟶ E) : C ⟶ (D × E).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (tpair _ (bindelta_pair_functor_data C D E F G)).
+  <span class="nb">apply</span> is_functor_bindelta_pair_functor_data.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bindelta_pair_functor_alt</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+  (<span class="nv">F</span> : C ⟶ D) (<span class="nv">G</span> : C ⟶ E) : C ⟶ (D × E) := functor_composite (bindelta_functor C) (pair_functor F G).
+
+<span class="kn">Lemma</span> <span class="nf">bindelta_pair_functor_alt_eq_bindelta_pair_functor</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+  (<span class="nv">F</span> : C ⟶ D) (<span class="nv">G</span> : C ⟶ E) :
+  bindelta_pair_functor_alt F G = bindelta_pair_functor F G.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> functor_eq.
+    - <span class="nb">apply</span> (D × E).
+    - <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Projections of `bindelta_pair_functor` *)</span>
+<span class="kn">Definition</span> <span class="nf">bindelta_pair_pr1_data</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">G</span> : C₁ ⟶ C₃)
+  : nat_trans_data (bindelta_pair_functor F G ∙ pr1_functor _ _) F
+  := <span class="k">λ</span> <span class="nv">_</span>, identity _.
+
+<span class="kn">Definition</span> <span class="nf">bindelta_pair_pr1_is_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">G</span> : C₁ ⟶ C₃)
+  : is_nat_trans _ _ (bindelta_pair_pr1_data F G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ; <span class="nb">unfold</span> bindelta_pair_pr1_data.
+  <span class="nb">rewrite</span> id_left, id_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">bindelta_pair_pr1</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">G</span> : C₁ ⟶ C₃)
+  : bindelta_pair_functor F G ∙ pr1_functor _ _ ⟹ F.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (bindelta_pair_pr1_data F G).
+  - <span class="bp">exact</span> (bindelta_pair_pr1_is_nat_trans F G).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bindelta_pair_pr1_z_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">G</span> : C₁ ⟶ C₃)
+  : nat_z_iso
+      (bindelta_pair_functor F G ∙ pr1_functor _ _)
+      F.
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - <span class="bp">exact</span> (bindelta_pair_pr1 F G).
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> identity_is_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bindelta_pair_pr2_data</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">G</span> : C₁ ⟶ C₃)
+  : nat_trans_data (bindelta_pair_functor F G ∙ pr2_functor _ _) G
+  := <span class="k">λ</span> <span class="nv">_</span>, identity _.
+
+<span class="kn">Definition</span> <span class="nf">bindelta_pair_pr2_is_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">G</span> : C₁ ⟶ C₃)
+  : is_nat_trans _ _ (bindelta_pair_pr2_data F G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ; <span class="nb">unfold</span> bindelta_pair_pr1_data.
+  <span class="nb">rewrite</span> id_left, id_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">bindelta_pair_pr2</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">G</span> : C₁ ⟶ C₃)
+  : bindelta_pair_functor F G ∙ pr2_functor _ _ ⟹ G.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (bindelta_pair_pr2_data F G).
+  - <span class="bp">exact</span> (bindelta_pair_pr2_is_nat_trans F G).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bindelta_pair_pr2_z_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">G</span> : C₁ ⟶ C₃)
+  : nat_z_iso
+      (bindelta_pair_functor F G ∙ pr2_functor _ _)
+      G.
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - <span class="bp">exact</span> (bindelta_pair_pr2 F G).
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> identity_is_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">prod_nat_trans</span>
+           {<span class="nv">C</span> <span class="nv">D₁</span> <span class="nv">D₂</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ category_binproduct D₁ D₂}
+           (<span class="nv">τ</span> : F ∙ pr1_functor _ _ ⟹ G ∙ pr1_functor _ _)
+           (<span class="nv">θ</span> : F ∙ pr2_functor _ _ ⟹ G ∙ pr2_functor _ _)
+  : F ⟹ G.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, τ x ,, θ x).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f ;
+       use pathsdirprod ;
+       [ <span class="nb">apply</span> (nat_trans_ax τ) | <span class="nb">apply</span> (nat_trans_ax θ) ]).
+<span class="kn">Defined</span>.
+
+<span class="c">(* A swapping functor σ : C × D → D × C. *)</span>
+<span class="kn">Definition</span> <span class="nf">binswap_pair_functor</span> {<span class="nv">C</span> <span class="nv">D</span> : category} : (C × D) ⟶ (D × C) :=
+  bindelta_functor (C × D) ∙ pair_functor (pr2_functor C D) (pr1_functor C D).
+
+<span class="c">(* Reversing the order of three arguments *)</span>
+<span class="kn">Definition</span> <span class="nf">reverse_three_args</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category} : ((C × D) × E) ⟶ ((E × D) × C).
+<span class="kn">Proof</span>.
+  use (functor_composite (precategory_binproduct_unassoc _ _ _)).
+  use (functor_composite binswap_pair_functor).
+  <span class="bp">exact</span> (pair_functor binswap_pair_functor (functor_identity _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">reverse_three_args_ok</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category} :
+  functor_on_objects (reverse_three_args(C:=C)(D:=D)(E:=E)) = <span class="k">λ</span> <span class="nv">c</span>, ((pr2 c, pr2 (pr1 c)), pr1 (pr1 c)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">reverse_three_args_idempotent</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category} :
+  functor_composite (reverse_three_args(C:=C)(D:=D)(E:=E))(reverse_three_args(C:=E)(D:=D)(E:=C))
+  = functor_identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> functor_eq.
+  - <span class="kp">repeat</span> (<span class="nb">apply</span> has_homsets_precategory_binproduct; <span class="kp">try</span> <span class="nb">apply</span> homset_property).
+  - use functor_data_eq.
+    + <span class="nb">cbn</span>.
+      <span class="nb">intro</span> cde.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">intros</span> cde1 cde2 f.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">functors</span>.
+
+<span class="kn">Section</span> <span class="nf">whiskering</span>.
+
+<span class="sd">(** Postwhiskering with parameter *)</span>
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_data_post_whisker_fst_param</span> {<span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> <span class="nv">P</span>: category}
+           {<span class="nv">G</span> <span class="nv">H</span> : B ⟶ C} (<span class="nv">γ</span> : G ⟹ H) (<span class="nv">K</span> : (P × C) ⟶ D):
+  nat_trans_data (functor_composite (pair_functor (functor_identity _) G) K)
+                 (functor_composite (pair_functor (functor_identity _) H) K) :=
+  <span class="k">λ</span> <span class="nv">pb</span> : P × B, #K ((identity (ob1 pb),, γ (ob2 pb)):
+                      (P × C)⟦ob1 pb,, G(ob2 pb), ob1 pb,, H(ob2 pb)⟧).
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_post_whisker_fst_param</span> {<span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> <span class="nv">P</span>: category}
+  {<span class="nv">G</span> <span class="nv">H</span> : B ⟶ C} (<span class="nv">γ</span> : G ⟹ H) (<span class="nv">K</span> : (P × C) ⟶ D):
+  is_nat_trans _ _ (nat_trans_data_post_whisker_fst_param γ K).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> pb pb' f.
+  <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> nat_trans_data_post_whisker_fst_param.
+  <span class="nb">eapply</span> pathscomp0.
+  <span class="mi">2</span>: { <span class="nb">apply</span> functor_comp. }
+  <span class="nb">eapply</span> pathscomp0.
+  { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> functor_comp. }
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">unfold</span> compose; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_left. <span class="nb">rewrite</span> id_right.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> (nat_trans_ax γ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">post_whisker_fst_param</span> {<span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> <span class="nv">P</span>: category}
+  {<span class="nv">G</span> <span class="nv">H</span> : B ⟶ C} (<span class="nv">γ</span> : G ⟹ H) (<span class="nv">K</span> : (P × C) ⟶ D):
+  (functor_composite (pair_functor (functor_identity _) G) K) ⟹
+  (functor_composite (pair_functor (functor_identity _) H) K) :=
+  make_nat_trans _ _ _ (is_nat_trans_post_whisker_fst_param γ K).
+
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_data_post_whisker_snd_param</span> {<span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> <span class="nv">P</span>: category}
+           {<span class="nv">G</span> <span class="nv">H</span> : B ⟶ C} (<span class="nv">γ</span> : G ⟹ H) (<span class="nv">K</span> : (C × P) ⟶ D):
+  nat_trans_data (functor_composite (pair_functor G (functor_identity _)) K)
+                 (functor_composite (pair_functor H (functor_identity _)) K) :=
+  <span class="k">λ</span> <span class="nv">bp</span> : B × P, #K ((γ (ob1 bp),, identity (ob2 bp)):
+                      (C × P)⟦G(ob1 bp),, ob2 bp, H(ob1 bp),, ob2 bp⟧).
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_post_whisker_snd_param</span> {<span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> <span class="nv">P</span>: category}
+  {<span class="nv">G</span> <span class="nv">H</span> : B ⟶ C} (<span class="nv">γ</span> : G ⟹ H) (<span class="nv">K</span> : (C × P) ⟶ D):
+  is_nat_trans _ _ (nat_trans_data_post_whisker_snd_param γ K).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> bp bp' f.
+  <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> nat_trans_data_post_whisker_snd_param.
+  <span class="nb">eapply</span> pathscomp0.
+  <span class="mi">2</span>: { <span class="nb">apply</span> functor_comp. }
+  <span class="nb">eapply</span> pathscomp0.
+  { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> functor_comp. }
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">unfold</span> compose; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_left. <span class="nb">rewrite</span> id_right.
+  <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, make_dirprod x (pr2 f))).
+  <span class="nb">apply</span> (nat_trans_ax γ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">post_whisker_snd_param</span> {<span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> <span class="nv">P</span>: category}
+  {<span class="nv">G</span> <span class="nv">H</span> : B ⟶ C} (<span class="nv">γ</span> : G ⟹ H) (<span class="nv">K</span> : (C × P) ⟶ D):
+  (functor_composite (pair_functor G (functor_identity _)) K) ⟹
+  (functor_composite (pair_functor H (functor_identity _)) K) :=
+  make_nat_trans _ _ _ (is_nat_trans_post_whisker_snd_param γ K).
+
+<span class="kn">End</span> <span class="nf">whiskering</span>.
+
+<span class="kn">Section</span> <span class="nf">Currying</span>.
+  <span class="sd">(** we will "Curry away" the first argument - for our intended use with actions *)</span>
+
+  <span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category).
+
+<span class="kn">Section</span> <span class="nf">Def_Curry_Ob</span>.
+  <span class="kn">Context</span> (<span class="nv">F</span>: (C × D) ⟶ E).
+
+  <span class="kn">Definition</span> <span class="nf">curry_functor_data</span>: functor_data D [C, E].
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">intro</span> d.
+      <span class="bp">exact</span> (functor_fix_snd_arg C D E F d).
+    - <span class="nb">intros</span> d d' f.
+      <span class="bp">exact</span> (nat_trans_from_functor_fix_snd_morphism_arg C D E F d d' f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">curry_functor_data_is_functor</span>: is_functor curry_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> d.
+      <span class="nb">apply</span> (nat_trans_eq E).
+      <span class="nb">intro</span> c.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> nat_trans_from_functor_fix_snd_morphism_arg_data.
+      etrans.
+      { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> binprod_id. }
+      <span class="nb">apply</span> functor_id.
+    - <span class="nb">intros</span> d1 d2 d3 f g.
+      <span class="nb">apply</span> (nat_trans_eq E).
+      <span class="nb">intro</span> c.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> nat_trans_from_functor_fix_snd_morphism_arg_data.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> functor_comp. }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> dirprodeq; <span class="nb">cbn</span>.
+      + <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> id_left.
+      + <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">curry_functor</span>: D ⟶ [C, E] := make_functor curry_functor_data curry_functor_data_is_functor.
+
+<span class="kn">End</span> <span class="nf">Def_Curry_Ob</span>.
+
+<span class="kn">Section</span> <span class="nf">Def_Curry_Mor</span>.
+
+  <span class="kn">Context</span> {<span class="nv">F</span> <span class="nv">G</span>: (C × D) ⟶ E} (<span class="nv">α</span>: F ⟹ G).
+
+  <span class="kn">Definition</span> <span class="nf">curry_nattrans</span> : curry_functor F ⟹ curry_functor G.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="nb">intro</span> d.
+      <span class="bp">exact</span> (nat_trans_fix_snd_arg _ _ _ _ _ α d).
+    - <span class="nb">intros</span> d d' f.
+      <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="bp">exact</span> E.
+      <span class="nb">intro</span> c.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> nat_trans_from_functor_fix_snd_morphism_arg_data, nat_trans_fix_snd_arg_data.
+      <span class="nb">apply</span> nat_trans_ax.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Def_Curry_Mor</span>.
+
+
+
+
+<span class="kn">Section</span> <span class="nf">Def_Uncurry_Ob</span>.
+
+  <span class="kn">Context</span> (<span class="nv">G</span>: D ⟶ [C, E]).
+
+  <span class="kn">Definition</span> <span class="nf">uncurry_functor_data</span>: functor_data (C × D) E.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">intro</span> cd. <span class="nb">induction</span> cd <span class="k">as</span> [c d].
+      <span class="bp">exact</span> (pr1 (G d) c).
+    - <span class="nb">intros</span> cd cd' ff'.
+      <span class="nb">induction</span> cd <span class="k">as</span> [c d]. <span class="nb">induction</span> cd' <span class="k">as</span> [c' d']. <span class="nb">induction</span> ff' <span class="k">as</span> [f f'].
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="bp">exact</span> (#(G d: functor C E) f · pr1 (#G f') c').
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">uncurry_functor_data_is_functor</span>: is_functor uncurry_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> cd. <span class="nb">induction</span> cd <span class="k">as</span> [c d].
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> functor_id.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">assert</span> (H := functor_id G d).
+      <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">f</span> =&gt; pr1 f c)) <span class="k">in</span> H.
+      <span class="bp">exact</span> H.
+    - <span class="nb">intros</span> cd1 cd2 cd3 ff' gg'.
+      <span class="nb">induction</span> cd1 <span class="k">as</span> [c1 d1]. <span class="nb">induction</span> cd2 <span class="k">as</span> [c2 d2]. <span class="nb">induction</span> cd3 <span class="k">as</span> [c3 d3]. <span class="nb">induction</span> ff' <span class="k">as</span> [f f']. <span class="nb">induction</span> gg' <span class="k">as</span> [g g'].
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">assert</span> (H := functor_comp G f' g').
+      <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">f</span> =&gt; pr1 f c3)) <span class="k">in</span> H.
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> H. }
+      <span class="nb">cbn</span>.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> nat_trans_ax.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">uncurry_functor</span>: (C × D) ⟶ E := make_functor uncurry_functor_data uncurry_functor_data_is_functor.
+
+<span class="kn">End</span> <span class="nf">Def_Uncurry_Ob</span>.
+
+<span class="kn">Section</span> <span class="nf">Def_Uncurry_Mor</span>.
+
+  <span class="kn">Context</span> {<span class="nv">F</span> <span class="nv">G</span>: D ⟶ [C, E]} (<span class="nv">α</span>: F ⟹ G).
+
+  <span class="kn">Definition</span> <span class="nf">uncurry_nattrans</span> : uncurry_functor F ⟹ uncurry_functor G.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="nb">intro</span> cd.
+      <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (pr1 (α (pr2 cd)) (pr1 cd)).
+    - <span class="nb">intros</span> cd cd' fg.
+      <span class="nb">induction</span> cd <span class="k">as</span> [c d]. <span class="nb">induction</span> cd' <span class="k">as</span> [c' d']. <span class="nb">induction</span> fg <span class="k">as</span> [f g].
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">assert</span> (aux := nat_trans_ax α d d' g).
+      <span class="nb">apply</span> (maponpaths pr1) <span class="k">in</span> aux.
+      <span class="nb">apply</span> toforallpaths <span class="k">in</span> aux.
+      <span class="nb">assert</span> (auxinst := aux c').
+      <span class="nb">rewrite</span> &lt;- assoc.
+      etrans.
+      { <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> auxinst. }
+      <span class="nb">clear</span> aux auxinst.
+      <span class="nb">cbn</span>.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> nat_trans_ax.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Def_Uncurry_Mor</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">uncurry_after_curry</span> (<span class="nv">F</span>: (C × D) ⟶ E): uncurry_functor (curry_functor F) = F.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> functor_eq. { <span class="bp">exact</span> E. }
+  <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+  use functor_data_eq.
+  - <span class="nb">intro</span> cd; <span class="nb">apply</span> idpath.
+  - <span class="nb">cbn</span>. <span class="nb">intros</span> cd cd' ff'.
+    <span class="nb">induction</span> cd <span class="k">as</span> [c d]. <span class="nb">induction</span> cd' <span class="k">as</span> [c' d']. <span class="nb">induction</span> ff' <span class="k">as</span> [f f'].
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">unfold</span> functor_fix_snd_arg_mor, nat_trans_from_functor_fix_snd_morphism_arg_data.
+    etrans.
+    { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> functor_comp. }
+    <span class="nb">unfold</span> compose. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">curry_after_uncurry_pointwise</span> (<span class="nv">G</span>: D ⟶ [C, E]) (<span class="nv">d</span>: D) : pr1 (curry_functor (uncurry_functor G)) d = pr1 G d.
+<span class="kn">Proof</span>.
+  <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+  <span class="nb">apply</span> functor_eq. { <span class="bp">exact</span> E. }
+  use functor_data_eq.
+  - <span class="nb">intro</span> c.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">cbn</span>.
+    <span class="nb">intros</span> c c' f.
+    <span class="nb">assert</span> (H := functor_id G d).
+    <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">f</span> =&gt; pr1 f c')) <span class="k">in</span> H.
+    etrans.
+    { <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> H. }
+    <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Currying</span>.
+
+<span class="kn">Section</span> <span class="nf">Evaluation</span>.
+<span class="sd">(** functor evaluation is the pointwise counit of the biadjunction behind currying and uncurrying</span>
+
+<span class="sd">    for the indended use, we need to switch the order of arguments</span>
+<span class="sd">*)</span>
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}.
+
+<span class="kn">Definition</span> <span class="nf">evaluation_functor</span>: ([C, D] × C) ⟶  D.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (functor_composite (@binswap_pair_functor _ _)).
+  <span class="nb">apply</span> (uncurry_functor).
+  <span class="bp">exact</span> (functor_identity _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Goal</span> ∏ (F: C ⟶ D) (c: C), evaluation_functor (F ,, c) = F c.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Evaluation</span>.
+
+<span class="kn">Section</span> <span class="nf">EvaluationNatTrans</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D₁</span> <span class="nv">D₂</span> : category}
+          (<span class="nv">F</span> <span class="nv">G</span> : D₁ ⟶ functor_category C D₂)
+          (<span class="nv">α</span> : bindelta_pair_functor
+                 (pr1_functor D₁ C ∙ F)
+                 (pr2_functor D₁ C ∙ functor_identity C)
+               ∙ bindelta_functor (category_binproduct [C, D₂] C)
+               ∙ pair_functor (pr2_functor [C, D₂] C) (pr1_functor [C, D₂] C)
+               ∙ uncurry_functor _ _ _ (functor_identity _)
+               ⟹
+               bindelta_pair_functor
+                 (pr1_functor D₁ C ∙ G)
+                 (pr2_functor D₁ C ∙ functor_identity C)
+               ∙ bindelta_functor (category_binproduct [C, D₂] C)
+               ∙ pair_functor (pr2_functor [C, D₂] C) (pr1_functor [C, D₂] C)
+               ∙ uncurry_functor _ _ _ (functor_identity _)).
+
+  <span class="kn">Definition</span> <span class="nf">evaluation_nat_trans_data_point</span>
+             (<span class="nv">x</span> : D₁)
+    : nat_trans_data (F x : _ ⟶ _) (G x : _ ⟶ _)
+    := <span class="k">λ</span> <span class="nv">y</span>, α (x ,, y).
+
+  <span class="kn">Definition</span> <span class="nf">evaluation_nat_trans_data_point_is_nat_trans</span>
+             (<span class="nv">x</span> : D₁)
+    : is_nat_trans _ _ (evaluation_nat_trans_data_point x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y₁ y₂ g ; <span class="nb">unfold</span> evaluation_nat_trans_data_point ; <span class="nb">cbn</span>.
+    <span class="nb">pose</span> (nat_trans_ax α (x ,, y₁) (x ,, y₂) (identity _ ,, g)) <span class="k">as</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">rewrite</span> (functor_id F), (functor_id G) <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !id_right <span class="k">in</span> p.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">evaluation_nat_trans_data</span>
+    : nat_trans_data F G.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (evaluation_nat_trans_data_point x).
+    - <span class="bp">exact</span> (evaluation_nat_trans_data_point_is_nat_trans x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">evaluation_nat_trans_is_nat_trans</span>
+    : is_nat_trans _ _ evaluation_nat_trans_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ f.
+    use nat_trans_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">intros</span> y ; <span class="nb">cbn</span>.
+    <span class="nb">pose</span> (nat_trans_ax α (x₁ ,, y) (x₂ ,, y) (f ,, identity _)) <span class="k">as</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">rewrite</span> (functor_id (F _)), (functor_id (G _)) <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !id_left <span class="k">in</span> p.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">evaluation_nat_trans</span> : F ⟹ G.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> evaluation_nat_trans_data.
+    - <span class="bp">exact</span> evaluation_nat_trans_is_nat_trans.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">EvaluationNatTrans</span>.
+
+<span class="sd">(** Currying but with the product in a different order *)</span>
+<span class="kn">Section</span> <span class="nf">CurryFunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D₁</span> <span class="nv">D₂</span> : category}
+          (<span class="nv">F</span> : category_binproduct D₁ C ⟶ D₂).
+
+  <span class="kn">Definition</span> <span class="nf">curry_functor'_point_data</span>
+             (<span class="nv">x</span> : D₁)
+    : functor_data C D₂.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>, F (x ,, y)).
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">g</span>, #F (_ ,, _)).
+      + <span class="bp">exact</span> (identity x).
+      + <span class="bp">exact</span> g.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">curry_functor'_point_is_functor</span>
+             (<span class="nv">x</span> : D₁)
+    : is_functor (curry_functor'_point_data x).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> y ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (functor_id F).
+    - <span class="nb">intros</span> y₁ y₂ y₃ g₁ g₂ ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ functor_comp F _ _) ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">curry_functor'_point</span>
+             (<span class="nv">x</span> : D₁)
+    : C ⟶ D₂.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> (curry_functor'_point_data x).
+    - <span class="bp">exact</span> (curry_functor'_point_is_functor x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">curry_functor'_mor</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> : D₁}
+             (<span class="nv">f</span> : x₁ --&gt; x₂)
+    : curry_functor'_point x₁ ⟹ curry_functor'_point x₂.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">y</span>, #F (_ ,, _)).
+      + <span class="bp">exact</span> f.
+      + <span class="bp">exact</span> (identity y).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> y₁ y₂ g ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> &lt;- !(functor_comp F) ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !id_left, !id_right ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">curry_functor'_data</span>
+    : functor_data D₁ (functor_precategory_data C D₂).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> curry_functor'_point.
+    - <span class="bp">exact</span> @curry_functor'_mor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">curry_functor'_is_functor</span>
+    : is_functor curry_functor'_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> x.
+      use nat_trans_eq.
+      {
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intro</span> y ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (functor_id F).
+    - <span class="nb">intros</span> x₁ x₂ x₃ f₁ f₂.
+      use nat_trans_eq.
+      {
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intro</span> y ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ functor_comp F _ _).
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">curry_functor'</span>
+    : D₁ ⟶ functor_category C D₂.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> curry_functor'_data.
+    - <span class="bp">exact</span> curry_functor'_is_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">evaluate_curry_functor'</span>
+    : bindelta_pair_functor
+        (pr1_functor D₁ C ∙ curry_functor')
+        (pr2_functor D₁ C ∙ functor_identity _)
+      ∙ evaluation_functor
+      ⟹
+      F.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, identity _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x₁ x₂ f ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> &lt;- !(functor_comp F) ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !id_left, !id_right ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">evaluate_curry_functor'_nat_z_iso</span>
+    : nat_z_iso
+        (bindelta_pair_functor
+           (pr1_functor D₁ C ∙ curry_functor')
+           (pr2_functor D₁ C ∙ functor_identity _)
+         ∙ evaluation_functor)
+        F.
+  <span class="kn">Proof</span>.
+    use make_nat_z_iso.
+    - <span class="bp">exact</span> evaluate_curry_functor'.
+    - <span class="nb">intro</span> x.
+      <span class="nb">apply</span> identity_is_z_iso.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CurryFunctor</span>.
+
+
+<span class="kn">Section</span> <span class="nf">Coevaluation</span>.
+  <span class="sd">(** for completeness, we also define the pointwise unit of that biadjunction *)</span>
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}.
+
+  <span class="kn">Definition</span> <span class="nf">coevaluation_functor</span>: C ⟶  [D, C × D].
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> curry_functor.
+    <span class="nb">apply</span> binswap_pair_functor.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Coevaluation</span>.
+
+<span class="kn">Section</span> <span class="nf">CategoryBinproductIsoWeq</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+          (<span class="nv">x</span> <span class="nv">y</span> : category_binproduct C D).
+
+
+
+  <span class="kn">Definition</span> <span class="nf">category_binproduct_z_iso_map</span>
+    : z_iso (pr1 x) (pr1 y) × z_iso (pr2 x) (pr2 y) → z_iso x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i.
+    <span class="nb">simple refine</span> ((pr11 i ,, pr12 i) ,, _).
+    <span class="nb">apply</span> is_z_iso_binprod_z_iso.
+    - <span class="bp">exact</span> (pr21 i).
+    - <span class="bp">exact</span> (pr22 i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">category_binproduct_z_iso_inv</span>
+    : z_iso x y → z_iso (pr1 x) (pr1 y) × z_iso (pr2 x) (pr2 y)
+    := <span class="k">λ</span> <span class="nv">i</span>, functor_on_z_iso (pr1_functor C D) i ,, functor_on_z_iso (pr2_functor C D) i.
+
+  <span class="kn">Definition</span> <span class="nf">category_binproduct_z_iso_weq</span>
+    : z_iso (pr1 x) (pr1 y) × z_iso (pr2 x) (pr2 y) ≃ z_iso x y.
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="bp">exact</span> category_binproduct_z_iso_map.
+    - use isweq_iso.
+      + <span class="bp">exact</span> category_binproduct_z_iso_inv.
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> i ;
+           use pathsdirprod ;
+           (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism | ]) ;
+           <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> i ;
+           use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism | ] ;
+           <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(*</span>
+<span class="c">  Definition category_binproduct_iso_map</span>
+<span class="c">    : iso (pr1 x) (pr1 y) × iso (pr2 x) (pr2 y) → iso x y.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intros i.</span>
+<span class="c">    simple refine ((pr11 i ,, pr12 i) ,, _).</span>
+<span class="c">    apply is_iso_binprod_iso.</span>
+<span class="c">    - exact (pr21 i).</span>
+<span class="c">    - exact (pr22 i).</span>
+<span class="c">  Defined.</span>
+
+<span class="c">  Definition category_binproduct_iso_inv</span>
+<span class="c">    : iso x y → iso (pr1 x) (pr1 y) × iso (pr2 x) (pr2 y)</span>
+<span class="c">    := λ i, functor_on_iso (pr1_functor C D) i ,, functor_on_iso (pr2_functor C D) i.</span>
+
+<span class="c">  Definition category_binproduct_iso_weq</span>
+<span class="c">    : iso (pr1 x) (pr1 y) × iso (pr2 x) (pr2 y) ≃ iso x y.</span>
+<span class="c">  Proof.</span>
+<span class="c">    use make_weq.</span>
+<span class="c">    - exact category_binproduct_iso_map.</span>
+<span class="c">    - use isweq_iso.</span>
+<span class="c">      + exact category_binproduct_iso_inv.</span>
+<span class="c">      + abstract</span>
+<span class="c">          (intros i ;</span>
+<span class="c">           use pathsdirprod ;</span>
+<span class="c">           (use subtypePath ; [ intro ; apply isaprop_is_iso | ]) ;</span>
+<span class="c">           apply idpath).</span>
+<span class="c">      + abstract</span>
+<span class="c">          (intros i ;</span>
+<span class="c">           use subtypePath ; [ intro ; apply isaprop_is_iso | ] ;</span>
+<span class="c">           apply idpath).</span>
+<span class="c">  Defined.</span>
+<span class="c">*)</span>
+
+<span class="kn">End</span> <span class="nf">CategoryBinproductIsoWeq</span>.
+
+<span class="kn">Section</span> <span class="nf">Univalence</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+          (<span class="nv">HC</span> : is_univalent C)
+          (<span class="nv">HD</span> : is_univalent D).
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_category_binproduct</span>
+    : is_univalent (category_binproduct C D).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use weqhomot.
+    - <span class="bp">exact</span> (category_binproduct_z_iso_weq x y
+             ∘ weqdirprodf
+                 (make_weq _ (HC _ _))
+                 (make_weq _ (HD _ _))
+             ∘ pathsdirprodweq)%weq.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> p ;
+         <span class="nb">induction</span> p ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Univalence</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_category_binproduct</span>
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_category)
+  : univalent_category.
+<span class="kn">Proof</span>.
+  use make_univalent_category.
+  - <span class="bp">exact</span> (category_binproduct C₁ C₂).
+  - use is_univalent_category_binproduct.
+    + <span class="bp">exact</span> (pr2 C₁).
+    + <span class="bp">exact</span> (pr2 C₂).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">product_of_commuting_squares</span>
+           {<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> <span class="nv">C4</span> : category}
+           {<span class="nv">D1</span> <span class="nv">D2</span> <span class="nv">D3</span> <span class="nv">D4</span> : category}
+           {<span class="nv">F1</span> : functor C1 C2} {<span class="nv">F2</span> : functor C2 C4}
+           {<span class="nv">F1'</span> : functor C1 C3} {<span class="nv">F2'</span> : functor C3 C4}
+           {<span class="nv">G1</span> : functor D1 D2} {<span class="nv">G2</span> : functor D2 D4}
+           {<span class="nv">G1'</span> : functor D1 D3} {<span class="nv">G2'</span> : functor D3 D4}
+           (<span class="nv">α</span> : nat_z_iso (F1  ∙ F2) (F1'  ∙ F2'))
+           (<span class="nv">β</span> : nat_z_iso (G1  ∙ G2) (G1'  ∙ G2'))
+  : nat_z_iso (pair_functor F1 G1  ∙ pair_functor F2 G2)
+              (pair_functor F1' G1'  ∙ pair_functor F2' G2').
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - use make_nat_trans.
+    + <span class="nb">intro</span>.
+      use catbinprodmor.
+      * <span class="nb">apply</span> α.
+      * <span class="nb">apply</span> β.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ; use total2_paths_f ;
+         [ <span class="nb">apply</span> (pr21 α) |
+           <span class="nb">rewrite</span> transportf_const ;
+           <span class="nb">apply</span> (pr21 β)
+        ]).
+  - <span class="nb">intro</span>.
+    use is_z_iso_binprod_z_iso.
+    + <span class="nb">apply</span> (pr2 α (pr1 _)).
+    + <span class="nb">apply</span> (pr2 β (pr2 _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">PairingWithAnObject</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_with_object_left_data</span> {<span class="nv">C</span> : category} (<span class="nv">I</span> : C)
+    : functor_data C (C × C).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">x</span>, (I,x)).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, (identity I #, f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_with_object_left_is_functor</span> {<span class="nv">C</span> : category} (<span class="nv">I</span> : C)
+    : is_functor (pair_with_object_left_data I).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">simpl</span>.
+    - <span class="nb">apply</span> idpath.
+    - etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> binprod_comp. }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (! id_right _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_with_object_left</span> {<span class="nv">C</span> : category} (<span class="nv">I</span> : C)
+    : functor C (C × C)
+    := pair_with_object_left_data I ,, pair_with_object_left_is_functor I.
+
+  <span class="kn">Definition</span> <span class="nf">pair_with_object_right_data</span> {<span class="nv">C</span> : category} (<span class="nv">I</span> : C)
+    : functor_data C (C × C).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">x</span>, (x,I)).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, (f #, identity I)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_with_object_right_is_functor</span> {<span class="nv">C</span> : category} (<span class="nv">I</span> : C)
+    : is_functor (pair_with_object_right_data I).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">simpl</span>.
+    - <span class="nb">apply</span> idpath.
+    - etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> binprod_comp. }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (! id_right _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_with_object_right</span> {<span class="nv">C</span> : category} (<span class="nv">I</span> : C)
+    : functor C (C × C)
+    := pair_with_object_right_data I ,, pair_with_object_right_is_functor I.
+
+  <span class="kn">Lemma</span> <span class="nf">PairingWithObjectCommutesLeft</span>
+        {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">H</span> : functor C D) (<span class="nv">I</span> : C)
+    :  nat_z_iso (H ∙ pair_with_object_left (H I)) (pair_with_object_left I ∙ (pair_functor H H)).
+  <span class="kn">Proof</span>.
+    use make_nat_z_iso.
+    - <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">identity</span> (H I, H _)).
+      <span class="kp">abstract</span> (
+          <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+          <span class="nb">refine</span> (id_right  (identity (H I) #, # H f) @ _) ;
+          <span class="nb">refine</span> (_ @ ! id_left  (# H (identity I) #, # H f)) ;
+          <span class="nb">apply</span> maponpaths_2 ;
+          <span class="nb">apply</span> (! functor_id H _)).
+    - <span class="nb">intro</span>.
+      <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+      <span class="kp">abstract</span> (<span class="nb">split</span> ; <span class="nb">apply</span> (id_right (identity (H I, H _)))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">PairingWithObjectCommutesRight</span>
+        {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">H</span> : functor C D) (<span class="nv">I</span> : C)
+    : nat_z_iso (H ∙ pair_with_object_right (H I)) (pair_with_object_right I ∙ (pair_functor H H)).
+  <span class="kn">Proof</span>.
+    use make_nat_z_iso.
+    - <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">identity</span> (H _, H I)).
+      <span class="kp">abstract</span> (
+          <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+          <span class="nb">refine</span> (id_right  (# H f #, identity (H I)) @ _) ;
+          <span class="nb">refine</span> (_ @ ! id_left  (# H f #, # H (identity I))) ;
+          <span class="nb">apply</span> maponpaths ;
+          <span class="nb">apply</span> (! functor_id H _)).
+    - <span class="nb">intro</span>.
+      <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+      <span class="kp">abstract</span> (<span class="nb">split</span> ; <span class="nb">apply</span> (id_right (identity (H _, H I)))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_after_pair_with_object_left</span>
+             {<span class="nv">C</span> : category} (<span class="nv">T</span> : functor (C × C) C) (<span class="nv">I</span> : C)
+    : nat_z_iso (functor_fix_fst_arg _ _ _ T I)
+                (functor_composite (pair_with_object_left I) T).
+  <span class="kn">Proof</span>.
+    use make_nat_z_iso.
+    - <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+      <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="bp">exact</span> (id_right _ @ ! id_left _)).
+    - <span class="nb">intro</span> x.
+      <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+      <span class="kp">abstract</span> (<span class="nb">split</span> ; <span class="nb">apply</span> id_right).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_after_pair_with_object_right</span>
+             {<span class="nv">C</span> : category} (<span class="nv">T</span> : functor (C × C) C) (<span class="nv">I</span> : C)
+    : nat_z_iso (functor_fix_snd_arg _ _ _ T I)
+                (functor_composite (pair_with_object_right I) T).
+  <span class="kn">Proof</span>.
+    use make_nat_z_iso.
+    - <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+      <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="bp">exact</span> (id_right _ @ ! id_left _)).
+    - <span class="nb">intro</span> x.
+      <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+      <span class="kp">abstract</span> (<span class="nb">split</span> ; <span class="nb">apply</span> id_right).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">PairingWithAnObject</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">category_op_binproduct</span> {<span class="nv">C</span> <span class="nv">D</span>:category}: (C^op × D^op) ⟶ (C × D)^op.
+<span class="kn">Proof</span>.
+  use make_functor.
+  + use make_functor_data.
+    - use idfun.
+    - <span class="nb">intros</span> (c,d) (c',d').
+      use idfun.
+  + <span class="nb">split</span>.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="kp">repeat</span> <span class="nb">intro</span>.
+      <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> Taking the diagonal is a pseudofunctor</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">pair_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₁'</span> <span class="nv">C₂'</span> : category}
+           {<span class="nv">F₁</span> <span class="nv">F₂</span> : C₁ ⟶ C₁'}
+           {<span class="nv">G₁</span> <span class="nv">G₂</span> : C₂ ⟶ C₂'}
+           (<span class="nv">τ</span> : F₁ ⟹ F₂)
+           (<span class="nv">θ</span> : G₁ ⟹ G₂)
+  : pair_functor F₁ G₁ ⟹ pair_functor F₂ G₂.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, τ (pr1 x) ,, θ (pr2 x)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f ;
+       <span class="nb">cbn</span> ;
+       use pathsdirprod ; <span class="nb">apply</span> nat_trans_ax).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/PrecategoryBinProduct.v</tt>, line 40)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; *)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

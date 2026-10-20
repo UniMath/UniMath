@@ -1,0 +1,523 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Signatures.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Benedikt Ahrens, Ralph Matthes</span>
+
+<span class="sd">SubstitutionSystems</span>
+
+<span class="sd">2015</span>
+
+
+<span class="sd">************************************************************)</span>
+
+
+<span class="sd">(** **********************************************************</span>
+
+<span class="sd">Contents :</span>
+
+<span class="sd">-    Definition of signatures</span>
+<span class="sd">-    Proof that two forms of strength laws are equivalent</span>
+<span class="sd">-    (Part on relation with relative strength moved into separate file in 2023)</span>
+
+<span class="sd">************************************************************)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.HorizontalComposition.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.BicatOfCatsElementary.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.<span class="kn">Notation</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> subsys.
+
+<span class="sd">(** Goal: define signatures as pairs of a rank-2 functor and a "strength" *)</span>
+
+<span class="sd">(** * Definition of signatures *)</span>
+
+<span class="kn">Section</span> <span class="nf">fix_a_category</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+<span class="sd">(** The category of pointed endofunctors on [C] *)</span>
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'Ptd'"</span> := (category_Ptd C).
+<span class="sd">(** The category of endofunctors on [C] *)</span>
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'EndC'"</span>:= ([C, C]).
+
+<span class="sd">(** in the original definition, this second category was the same as the first one *)</span>
+<span class="kn">Context</span> (<span class="nv">D</span> : category).
+
+<span class="sd">(** we do not yet have a use of this third category being different from the very first one *)</span>
+<span class="kn">Context</span> (<span class="nv">D'</span> : category).
+
+<span class="kn">Section</span> <span class="nf">about_signatures</span>.
+
+<span class="sd">(** [H] is a rank-2 functor: a functor between functor categories *)</span>
+<span class="kn">Context</span> (<span class="nv">H</span> : functor [C, D'] [C, D]).
+
+
+<span class="sd">(** ** Source and target of the natural transformation [θ] *)</span>
+
+
+<span class="sd">(** Source is given by [(X,Z) =&gt; H(X)∙U(Z)] *)</span>
+<span class="kn">Definition</span> <span class="nf">θ_source</span>: ([C, D'] ⊠ Ptd) ⟶ [C, D].
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (functor_composite (pair_functor H U)).
+  <span class="nb">apply</span> (functor_composite binswap_pair_functor).
+  <span class="nb">apply</span> functorial_composition.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">θ_source_ok</span>: functor_on_objects θ_source =  <span class="k">λ</span> <span class="nv">FX</span> : [C, D'] ⊠ Ptd, H (pr1 FX) • U (pr2 FX).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Target is given by [(X,Z) =&gt; H(X∙U(Z))] *)</span>
+<span class="kn">Definition</span> <span class="nf">θ_target</span> : ([C, D'] ⊠ Ptd) ⟶ [C, D].
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (functor_composite (pair_functor (functor_identity _) U)).
+  <span class="nb">apply</span> (functor_composite binswap_pair_functor).
+  use (functor_composite _ H).
+  <span class="nb">apply</span> functorial_composition.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">θ_target_ok</span>: functor_on_objects θ_target =  <span class="k">λ</span> <span class="nv">FX</span> : [C, D'] ⊠ Ptd, H (pr1 FX • U (pr2 FX)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">fix_a_θ</span>.
+
+<span class="sd">(** * Two alternative versions of the strength laws are defined and seen as equivalent *)</span>
+
+
+<span class="sd">(** We assume a suitable (bi)natural transformation [θ] *)</span>
+<span class="kn">Hypothesis</span> <span class="nv">θ</span> : θ_source ⟹ θ_target.
+
+<span class="sd">(** [θ] is supposed to satisfy two strength laws *)</span>
+
+<span class="kn">Definition</span> <span class="nf">θ_Strength1</span> : UU := ∏ X : [C, D'],
+  (θ (X ⊗ (id_Ptd C))) · # H (identity X : functor_composite (functor_identity C) X ⟹ pr1 X)
+          = nat_trans_id _ .
+
+<span class="kn">Section</span> <span class="nf">Strength_law_1_intensional</span>.
+
+<span class="sd">(** needs the heterogeneous formulation of the monoidal operation to type-check *)</span>
+<span class="kn">Definition</span> <span class="nf">θ_Strength1_int</span> : UU
+  := ∏ X : [C, D'],
+           θ (X ⊗ (id_Ptd C)) · # H (lunitor_CAT _) = lunitor_CAT _.
+
+<span class="sd">(** the following naturally-looking definition is often not suitable to work with *)</span>
+<span class="kn">Definition</span> <span class="nf">θ_Strength1_int_nicer</span> : UU
+  := ∏ X : [C, D'],
+           θ (X ⊗ (id_Ptd C)) = nat_trans_id ((H X): functor C D).
+
+<span class="c">(*</span>
+<span class="c">Section Test.</span>
+<span class="c">Context (X : [C, D']).</span>
+<span class="c">Check (nat_trans_id ((H X): functor C D) : (θ_source (X ⊗ (id_Ptd C)): functor C D) ⟹ (θ_target (X ⊗ (id_Ptd C)): functor C D)).</span>
+<span class="c">End Test.</span>
+<span class="c">*)</span>
+
+<span class="kn">Lemma</span> <span class="nf">θ_Strength1_int_nicer_implies_θ_Strength1_int</span> : θ_Strength1_int_nicer → θ_Strength1_int.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> T X.
+  <span class="nb">rewrite</span> T.
+  etrans.
+  { <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (functor_id H X). }
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">θ_Strength1_int_implies_θ_Strength1_int_nicer</span> : θ_Strength1_int → θ_Strength1_int_nicer.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> T X.
+  etrans; [| <span class="nb">apply</span> T].
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0.
+       <span class="nb">apply</span> maponpaths.
+       <span class="nb">apply</span> (functor_id H X). }
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_θ_Strength1_int</span>: isaprop θ_Strength1_int.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred; <span class="nb">intros</span> X x x'.
+  <span class="nb">apply</span> isaset_nat_trans, homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">θ_Strength1_int_implies_θ_Strength1</span> : θ_Strength1_int → θ_Strength1.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> θ_Strength1_int, θ_Strength1.
+  <span class="nb">intros</span> T X.
+  <span class="nb">assert</span> (TX := T X).
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> c; <span class="nb">cbn</span>.
+  <span class="nb">assert</span> (T2 := nat_trans_eq_pointwise TX c).
+  <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="bp">exact</span> T2.
+<span class="kn">Qed</span>.
+
+<span class="c">(* practically the same proof works in the opposite direction *)</span>
+<span class="kn">Lemma</span> <span class="nf">θ_Strength1_implies_θ_Strength1_int</span> : θ_Strength1 → θ_Strength1_int.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> θ_Strength1_int, θ_Strength1.
+  <span class="nb">intros</span> T X.
+  <span class="nb">assert</span> (TX := T X).
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> c; <span class="nb">cbn</span>.
+  <span class="nb">assert</span> (T2 := nat_trans_eq_pointwise TX c).
+  <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="bp">exact</span> T2.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Strength_law_1_intensional</span>.
+
+<span class="sd">(** we are using [Z p• Z'] for compatibility with legacy code - instead of [ptd_compose] *)</span>
+<span class="kn">Definition</span> <span class="nf">θ_Strength2</span> : UU := ∏ (X : [C, D']) (Z Z' : Ptd) (Y : [C, D'])
+           (α : functor_compose (functor_composite (U Z) (U Z')) X --&gt; Y),
+    θ (X ⊗ (Z p• Z' : Ptd)) · # H α =
+    θ (X ⊗ Z') •• (U Z) · θ ((functor_compose (U Z') X) ⊗ Z) ·
+       # H (α : functor_compose (U Z) (X • (U Z')) --&gt; Y).
+
+
+<span class="kn">Section</span> <span class="nf">Strength_law_2_intensional</span>.
+
+<span class="kn">Definition</span> <span class="nf">θ_Strength2_int</span> : UU
+  := ∏ (X : [C, D']) (Z Z' : Ptd),
+      θ (X ⊗ (Z p• Z')) · #H (rassociator_CAT (U Z) (U Z') X )  =
+        (lassociator_CAT (U Z) (U Z') (H X) :
+          [C, D] ⟦ functor_compose (functor_composite (U Z) (U Z')) (H X),
+                        functor_composite (U Z) (functor_composite (U Z') (H X)) ⟧
+      ) ·
+      θ (X ⊗ Z') •• (U Z) · θ ((functor_compose (U Z') X) ⊗ Z) .
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_θ_Strength2_int</span>: isaprop θ_Strength2_int.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred; <span class="nb">intros</span> X.
+  <span class="nb">apply</span> impred; <span class="nb">intros</span> Z.
+  <span class="nb">apply</span> impred; <span class="nb">intros</span> Z'.
+  <span class="nb">apply</span> isaset_nat_trans, homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">θ_Strength2_int_implies_θ_Strength2</span> : θ_Strength2_int → θ_Strength2.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> θ_Strength2_int, θ_Strength2.
+  <span class="nb">intros</span> T X Z Z' Y a.
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> c.
+  <span class="nb">assert</span> (TXZZ' := T X Z Z').
+  <span class="nb">assert</span> (TXZZ'c := nat_trans_eq_pointwise TXZZ' c).
+  <span class="nb">cbn</span> <span class="k">in</span> TXZZ'c.
+  <span class="nb">clear</span> T TXZZ'.
+  <span class="nb">rewrite</span> id_left <span class="k">in</span> TXZZ'c.
+  <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- TXZZ'c; <span class="nb">clear</span> TXZZ'c.
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">assert</span> (functor_comp_H := functor_comp H (rassociator_CAT (pr1 Z) (pr1 Z') X)
+           (a : functor_compose (U Z) (functor_composite (U Z') X) --&gt; Y)).
+  <span class="nb">assert</span> (functor_comp_H_c := nat_trans_eq_pointwise functor_comp_H c).
+  <span class="nb">cbn</span> <span class="k">in</span> functor_comp_H_c.
+  etrans; [| <span class="nb">apply</span> functor_comp_H_c ].
+  <span class="nb">clear</span> functor_comp_H functor_comp_H_c.
+  <span class="nb">revert</span> c.
+  <span class="nb">apply</span> nat_trans_eq_pointwise.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> c; <span class="nb">apply</span> pathsinv0, id_left.
+<span class="kn">Qed</span>.
+
+<span class="c">(* for curiosity also the other direction *)</span>
+<span class="kn">Lemma</span> <span class="nf">θ_Strength2_implies_θ_Strength2_int</span> : θ_Strength2 → θ_Strength2_int.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> θ_Strength2_int, θ_Strength2.
+  <span class="nb">intros</span> T X Z Z'.
+  <span class="nb">assert</span> (TXZZ'_inst := T X Z Z' (functor_compose (U Z)
+          (functor_composite (U Z') X)) (lassociator_CAT (pr1 Z) (pr1 Z') X)).
+  <span class="nb">eapply</span> pathscomp0.
+  { <span class="nb">apply</span> TXZZ'_inst. }
+  <span class="nb">clear</span> T TXZZ'_inst.
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> c.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">apply</span> maponpaths.
+  etrans; [| <span class="nb">apply</span> id_right].
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">assert</span> (functor_id_H := functor_id H (functor_compose (pr1 Z) (functor_composite (pr1 Z') X))).
+  <span class="nb">assert</span> (functor_id_H_c := nat_trans_eq_pointwise functor_id_H c).
+  etrans; [| <span class="nb">apply</span> functor_id_H_c].
+  <span class="nb">clear</span> functor_id_H functor_id_H_c.
+  <span class="nb">revert</span> c.
+  <span class="nb">apply</span> nat_trans_eq_pointwise.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> c; <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">θ_Strength2_int_nicer</span> : UU := ∏ (X : [C, D']) (Z Z' : Ptd),
+      θ (X ⊗ (Z p• Z'))  =
+        (lassociator_CAT (U Z) (U Z') (H X) :
+          [C, D] ⟦ functor_compose (functor_composite (U Z) (U Z')) (H X),
+                        functor_composite (U Z) (functor_composite (U Z') (H X)) ⟧) ·
+             θ (X ⊗ Z') •• (U Z) · θ ((functor_compose (U Z') X) ⊗ Z) ·
+             #H (lassociator_CAT (U Z) (U Z') X ).
+
+
+<span class="kn">Lemma</span> <span class="nf">θ_Strength2_int_implies_θ_Strength2_int_nicer</span>: θ_Strength2_int -&gt; θ_Strength2_int_nicer.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> Hyp.
+  <span class="nb">intros</span> X Z Z'.
+  <span class="nb">assert</span> (HypX := Hyp X Z Z').
+  <span class="nb">set</span> (auxiso := functor_on_z_iso H (z_iso_inv (_,,(lassociator_CAT_pointwise_is_z_iso (U Z) (U Z') X)))).
+  <span class="nb">apply</span> pathsinv0 <span class="k">in</span> HypX. <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ auxiso) <span class="k">in</span> HypX.
+  <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">θ_Strength2_int_nicer_implies_θ_Strength2_int</span>: θ_Strength2_int_nicer -&gt; θ_Strength2_int.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> Hyp.
+  <span class="nb">intros</span> X Z Z'.
+  <span class="nb">assert</span> (HypX := Hyp X Z Z').
+  <span class="nb">set</span> (auxiso := functor_on_z_iso H (z_iso_inv (_,,(lassociator_CAT_pointwise_is_z_iso (U Z) (U Z') X)))).
+  <span class="nb">apply</span> (z_iso_inv_to_right _ _ _ _ auxiso).
+  <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">θ_Strength2_int_nicest</span> : UU := ∏ (X : [C, D']) (Z Z' : Ptd),
+      θ (X ⊗ (Z p• Z'))  =
+      θ (X ⊗ Z') •• (U Z) ·
+        θ ((functor_compose (U Z') X) ⊗ Z) ·
+        #H (lassociator_CAT (U Z) (U Z') X ).
+
+<span class="kn">Lemma</span> <span class="nf">θ_Strength2_int_nicest_implies_θ_Strength2_int_nicer</span>: θ_Strength2_int_nicest -&gt; θ_Strength2_int_nicer.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> Hyp.
+  <span class="nb">intros</span> X Z Z'.
+  <span class="nb">assert</span> (HypX := Hyp X Z Z').
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc.
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths.
+       <span class="nb">rewrite</span> assoc.
+       <span class="bp">exact</span> HypX. }
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (id_left(a:=functor_compose (U Z ∙ U Z') (H X))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">θ_Strength2_int_nicer_implies_θ_Strength2_int_nicest</span>: θ_Strength2_int_nicer -&gt; θ_Strength2_int_nicest.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> Hyp.
+  <span class="nb">intros</span> X Z Z'.
+  <span class="nb">assert</span> (HypX := Hyp X Z Z').
+  etrans. { <span class="bp">exact</span> HypX. }
+  etrans.
+  { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> (id_left(a:=functor_compose (U Z ∙ U Z') (H X))). }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Strength_law_2_intensional</span>.
+
+<span class="sd">(** Not having a general theory of binatural transformations, we isolate</span>
+<span class="sd">    naturality in each component here *)</span>
+
+<span class="sd">(** an experiment *)</span>
+<span class="kn">Lemma</span> <span class="nf">θ_nat_1_pointfree</span> (<span class="nv">X</span> <span class="nv">X'</span> : [C, D']) (<span class="nv">α</span> : X --&gt; X') (<span class="nv">Z</span> : Ptd)
+  : compose (C := [C, D])
+            (# (functorial_composition _ _ _) ((nat_trans_id (pr1 (U Z)),,# H α):
+                                                 [C, C] ⊠ [C, D] ⟦(U Z,, H X), (U Z,, H X') ⟧))
+            (θ (X' ⊗ Z)) =
+      θ (X ⊗ Z) · # H (
+          # (functorial_composition _ _ _) ((nat_trans_id (pr1 (U Z)),, α):
+                                               [C, C] ⊠ [C, D'] ⟦(U Z,, X), (U Z,, X') ⟧)
+        ).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (t := nat_trans_ax θ).
+  <span class="nb">set</span> (t' := t (X ⊗ Z) (X' ⊗ Z)).
+  <span class="nb">set</span> (t'' := t' (catbinprodmor α (identity _ ))).
+  <span class="nb">cbn</span> <span class="k">in</span> t''.
+  <span class="bp">exact</span> t''.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">θ_nat_1</span> (<span class="nv">X</span> <span class="nv">X'</span> : [C, D']) (<span class="nv">α</span> : X --&gt; X') (<span class="nv">Z</span> : Ptd)
+  : compose (C := [C, D]) (# H α ⋆ nat_trans_id (pr1 (U Z))) (θ (X' ⊗ Z)) =
+        θ (X ⊗ Z) · # H (α ⋆ nat_trans_id (pr1 (U Z))).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (t := nat_trans_ax θ).
+  <span class="nb">set</span> (t' := t (X ⊗ Z) (X' ⊗ Z)).
+  <span class="nb">set</span> (t'' := t' (catbinprodmor α (identity _ ))).
+  <span class="nb">rewrite</span> (@horcomp_post_pre _ _ D).
+  <span class="nb">rewrite</span> (@horcomp_post_pre _ _ D').
+  <span class="nb">cbn</span> <span class="k">in</span> t''.
+  <span class="bp">exact</span> t''.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">θ_nat_1_pointwise</span> (<span class="nv">X</span> <span class="nv">X'</span> : [C, D']) (<span class="nv">α</span> : X --&gt; X') (<span class="nv">Z</span> : Ptd) (<span class="nv">c</span> : C)
+  :  pr1 (# H α) ((pr1 Z) c) · pr1 (θ (X' ⊗ Z)) c =
+       pr1 (θ (X ⊗ Z)) c · pr1 (# H (α ⋆ nat_trans_id (pr1 Z))) c.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (t := θ_nat_1 _ _ α Z).
+  <span class="nb">assert</span> (t' := nat_trans_eq_weq (homset_property D) _ _ t c).
+  <span class="nb">clear</span> t.
+  <span class="nb">cbn</span> <span class="k">in</span> t'. <span class="nb">unfold</span> horcomp_data <span class="k">in</span> t'.
+  etrans; [| <span class="bp">exact</span> t' ].
+  <span class="nb">clear</span> t'.
+  <span class="nb">apply</span> pathsinv0.
+  etrans.
+  { <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> functor_id. }
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">θ_nat_2</span> (<span class="nv">X</span> : [C, D']) (<span class="nv">Z</span> <span class="nv">Z'</span> : Ptd) (<span class="nv">f</span> : Z --&gt; Z')
+  : compose (C := [C, D]) (identity (H X) ⋆ pr1 f) (θ (X ⊗ Z')) =
+       θ (X ⊗ Z) · # H (identity X ⋆ pr1 f).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (t := nat_trans_ax θ).
+  <span class="nb">set</span> (t' := t (X ⊗ Z) (X ⊗ Z') (catbinprodmor (identity _ ) f)).
+  <span class="nb">rewrite</span> (@horcomp_post_pre _ _ D).
+  <span class="nb">rewrite</span> (@horcomp_post_pre _ _ D').
+  <span class="nb">cbn</span> <span class="k">in</span> t'.
+  <span class="nb">unfold</span> catbinprodmor <span class="k">in</span> t'.
+  <span class="nb">cbn</span> <span class="k">in</span> t'.
+  <span class="nb">set</span> (T := functor_id H X).
+  <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="nb">rewrite</span> T <span class="k">in</span> t'. <span class="nb">clear</span> T.
+  <span class="bp">exact</span> t'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">θ_nat_2_pointwise</span> (<span class="nv">X</span> : [C, D']) (<span class="nv">Z</span> <span class="nv">Z'</span> : Ptd) (<span class="nv">f</span> : Z --&gt; Z') (<span class="nv">c</span> : C)
+  :  # (pr1 (H X)) ((pr1 f) c) · pr1 (θ (X ⊗ Z')) c =
+       pr1 (θ (X ⊗ Z)) c · pr1 (# H (identity X ⋆ pr1 f)) c .
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (t := θ_nat_2 X _ _ f).
+  <span class="nb">set</span> (t' := nat_trans_eq_weq (homset_property D) _ _ t c).
+  <span class="nb">clearbody</span> t'; <span class="nb">clear</span> t.
+  <span class="nb">cbn</span> <span class="k">in</span> t'. <span class="nb">unfold</span> horcomp_data <span class="k">in</span> t'.
+  <span class="nb">rewrite</span> id_left <span class="k">in</span> t'.
+  <span class="bp">exact</span> t'.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">fix_a_θ</span>.
+
+<span class="sd">(** * Definition of encapsulations of strength (locally/globally, with/without laws *)</span>
+
+<span class="kn">Definition</span> <span class="nf">PrestrengthForSignatureAtPoint</span> (<span class="nv">Z</span>: Ptd) : UU :=
+  functor_fix_snd_arg [C, D'] Ptd [C, D] θ_source Z ⟹
+  functor_fix_snd_arg [C, D'] Ptd [C, D] θ_target Z.
+
+<span class="kn">Definition</span> <span class="nf">PrestrengthForSignature</span> : UU := θ_source ⟹ θ_target.
+
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_data_from_PrestrengthForSignature_funclass</span> (<span class="nv">θ</span>: PrestrengthForSignature) :
+  ∏ x, θ_source x --&gt; θ_target x := pr1 θ.
+<span class="kn">Coercion</span> <span class="nf">nat_trans_data_from_PrestrengthForSignature_funclass</span>: PrestrengthForSignature &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_data_from_PrestrengthForSignatureAtPoint_funclass</span> (<span class="nv">Z</span>: Ptd)(<span class="nv">θ</span>: PrestrengthForSignatureAtPoint Z) :
+  ∏ x, functor_fix_snd_arg [C, D'] Ptd [C, D] θ_source Z x --&gt;
+       functor_fix_snd_arg [C, D'] Ptd [C, D] θ_target Z x := pr1 θ.
+<span class="kn">Coercion</span> <span class="nf">nat_trans_data_from_PrestrengthForSignatureAtPoint_funclass</span>: PrestrengthForSignatureAtPoint &gt;-&gt; <span class="kt">Funclass</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">StrengthForSignature</span> : UU :=
+  ∑ θ : PrestrengthForSignature, θ_Strength1_int θ × θ_Strength2_int θ.
+
+<span class="kn">Coercion</span> <span class="nf">Strength_Prestrength</span> (θwithlaws: StrengthForSignature) : PrestrengthForSignature := pr1 θwithlaws.
+
+
+<span class="kn">End</span> <span class="nf">about_signatures</span>.
+
+<span class="kn">Definition</span> <span class="nf">Presignature</span> : UU
+  := ∑ H : [C, D'] ⟶ [C, D] , PrestrengthForSignature H.
+
+<span class="kn">Definition</span> <span class="nf">Signature</span> : UU
+  := ∑ H : [C, D'] ⟶ [C, D] , StrengthForSignature H.
+
+<span class="kn">Coercion</span> <span class="nf">Presignature_Functor</span> (S : Presignature) : functor _ _ := pr1 S.
+<span class="kn">Coercion</span> <span class="nf">Signature_Functor</span> (S : Signature) : functor _ _ := pr1 S.
+<span class="kn">Coercion</span> <span class="nf">Presignature_Signature</span> (S : Signature) : Presignature := Signature_Functor S ,, Strength_Prestrength _ (pr2 S).
+
+<span class="kn">Definition</span> <span class="nf">theta</span> (<span class="nv">H</span> : Presignature) : PrestrengthForSignature H := pr2 H.
+
+<span class="kn">Definition</span> <span class="nf">Sig_strength_law1</span> (<span class="nv">H</span> : Signature) : θ_Strength1_int _ _ := pr1 (pr2 (pr2 H)).
+
+<span class="kn">Definition</span> <span class="nf">Sig_strength_law2</span> (<span class="nv">H</span> : Signature) : θ_Strength2_int _ _ := pr2 (pr2 (pr2 H)).
+
+<span class="kn">Lemma</span> <span class="nf">StrengthForSignature_eq</span> (<span class="nv">H</span> : [C, D'] ⟶ [C, D] ) (<span class="nv">sθ1</span> <span class="nv">sθ2</span> : StrengthForSignature H) :
+  pr1 sθ1 = pr1 sθ2 -&gt; sθ1 = sθ2.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> Heq.
+  <span class="nb">apply</span> subtypePath; <span class="nb">trivial</span>.
+  <span class="nb">intro</span> θ. <span class="nb">apply</span> isapropdirprod.
+  + <span class="nb">apply</span> isaprop_θ_Strength1_int.
+  + <span class="nb">apply</span> isaprop_θ_Strength2_int.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">fix_a_category</span>.
+
+<span class="kn">Arguments</span> PrestrengthForSignature {_ _ _} _ .
+<span class="kn">Arguments</span> StrengthForSignature {_ _ _} _ .
+<span class="kn">Arguments</span> Presignature_Signature {_ _ _} _ .
+<span class="kn">Arguments</span> theta {_ _ _} _ .
+<span class="kn">Arguments</span> θ_source {_ _ _ } _ .
+<span class="kn">Arguments</span> θ_target {_ _ _ } _ .
+<span class="kn">Arguments</span> θ_Strength1 {_ _ _ _ } _ .
+<span class="kn">Arguments</span> θ_Strength2 {_ _ _ _ } _ .
+<span class="kn">Arguments</span> θ_Strength1_int {_ _ _ _} _ .
+<span class="kn">Arguments</span> θ_Strength2_int {_ _ _ _} _ .
+<span class="kn">Arguments</span> Sig_strength_law1 {_ _ _} _.
+<span class="kn">Arguments</span> Sig_strength_law2 {_ _ _} _.
+<span class="kn">Arguments</span> Signature_Functor {_ _ _} _.
+<span class="kn">Arguments</span> θ_Strength1_int_implies_θ_Strength1 {_ _ _ _} _ _.
+<span class="kn">Arguments</span> θ_Strength2_int_implies_θ_Strength2 {_ _ _ _} _ _.
+<span class="kn">Arguments</span> θ_Strength2_int_implies_θ_Strength2_int_nicer {_ _ _ _} _ _.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/Signatures.v</tt>, line 25)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; ************************************************************)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

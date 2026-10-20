@@ -1,0 +1,900 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DoubleCats.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> Double categories</span>
+
+<span class="sd"> In this file, we provide an interface for double categories. Note that in this</span>
+<span class="sd"> file, we do not assume they are univalent. The definition that we use in this file,</span>
+<span class="sd"> is basically the same as an object in the bicategory of univalent double categories,</span>
+<span class="sd"> but without the univalence conditions. The purpose of this is that we get a</span>
+<span class="sd"> definition which is usable for both univalent and strict pseudo double categories. As</span>
+<span class="sd"> a result, the following constructions and proofs can be proven uniformly for univalent</span>
+<span class="sd"> and for strict pseudo double categories:</span>
+<span class="sd"> - Laws on the unitors (right unitor and left unitor agree on the identity)</span>
+<span class="sd"> - Horizontal bicategory</span>
+<span class="sd"> - Vertical 2-category</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Double categories</span>
+<span class="sd"> 2. Accessors for double categories</span>
+<span class="sd"> 2.1. The vertical category</span>
+<span class="sd"> 2.2. Horizontal morphisms</span>
+<span class="sd"> 2.3. Squares</span>
+<span class="sd"> 2.4. Functoriality of horizontal identities</span>
+<span class="sd"> 2.5. Functoriality of horizontal composition</span>
+<span class="sd"> 2.6. Left unitor</span>
+<span class="sd"> 2.7. Right unitor</span>
+<span class="sd"> 2.8. Associator</span>
+<span class="sd"> 2.9. Triangle and pentagon equations</span>
+<span class="sd"> 3. Builder for double categories</span>
+<span class="sd"> 4. Squares and equalities</span>
+<span class="sd"> 5. Flat double categories</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Declare Scope</span> double_cat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> double_cat.
+
+<span class="sd">(** * 1. Double categories *)</span>
+<span class="kn">Definition</span> <span class="nf">double_cat</span>
+  : UU
+  := ∑ (C : category)
+       (D : twosided_disp_cat C C)
+       (I : hor_id D)
+       (Cm : hor_comp D)
+       (l : double_cat_lunitor I Cm)
+       (r : double_cat_runitor I Cm)
+       (a : double_cat_associator Cm),
+     triangle_law l r a × pentagon_law a.
+
+<span class="sd">(** * 2. Accessors for double categories *)</span>
+
+<span class="sd">(** ** 2.1. The vertical category *)</span>
+<span class="kn">Definition</span> <span class="nf">ob_double_cat</span>
+           (<span class="nv">C</span> : double_cat)
+  : category
+  := pr1 C.
+
+<span class="kn">Coercion</span> <span class="nf">ob_double_cat</span> : double_cat &gt;-&gt; category.
+
+<span class="kn">Definition</span> <span class="nf">ver_mor_double_cat</span>
+           {<span class="nv">C</span> : double_cat}
+           (<span class="nv">x</span> <span class="nv">y</span> : C)
+  : UU
+  := x --&gt; y.
+
+<span class="kn">Notation</span> <span class="s2">"x --&gt;v y"</span> := (ver_mor_double_cat x y) (<span class="kn">at level</span> <span class="mi">55</span>) : double_cat.
+
+<span class="kn">Definition</span> <span class="nf">identity_v</span>
+           {<span class="nv">C</span> : double_cat}
+           (<span class="nv">x</span> : C)
+  : x --&gt;v x
+  := identity _.
+
+<span class="kn">Definition</span> <span class="nf">ver_comp_double_cat</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+           (<span class="nv">f</span> : x --&gt;v y)
+           (<span class="nv">g</span> : y --&gt;v z)
+  : x --&gt;v z
+  := f · g.
+
+<span class="kn">Notation</span> <span class="s2">"f ·v g"</span> := (ver_comp_double_cat f g) (<span class="kn">at level</span> <span class="mi">60</span>) : double_cat.
+
+<span class="kn">Proposition</span> <span class="nf">id_v_left</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> : x --&gt;v y)
+  : identity_v x · f = f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> id_left.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">id_v_right</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> : x --&gt;v y)
+  : f ·v identity_v y = f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">assocl_v</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+            (<span class="nv">f</span> : w --&gt;v x)
+            (<span class="nv">g</span> : x --&gt;v y)
+            (<span class="nv">h</span> : y --&gt;v z)
+  : f ·v (g ·v h) = (f ·v g) ·v h.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> assoc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">assocr_v</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+            (<span class="nv">f</span> : w --&gt;v x)
+            (<span class="nv">g</span> : x --&gt;v y)
+            (<span class="nv">h</span> : y --&gt;v z)
+  : (f ·v g) ·v h = f ·v (g ·v h).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> assoc'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">isaset_ver_mor</span>
+            {<span class="nv">C</span> : double_cat}
+            (<span class="nv">x</span> <span class="nv">y</span> : C)
+  : isaset (x --&gt;v y).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** 2.2. Horizontal morphisms *)</span>
+<span class="kn">Definition</span> <span class="nf">hor_mor</span>
+           (<span class="nv">C</span> : double_cat)
+  : twosided_disp_cat C C
+  := pr12 C.
+
+<span class="kn">Notation</span> <span class="s2">"x --&gt;h y"</span> := (hor_mor _ x y) (<span class="kn">at level</span> <span class="mi">55</span>) : double_cat.
+
+<span class="kn">Definition</span> <span class="nf">hor_id_double_cat</span>
+           (<span class="nv">C</span> : double_cat)
+  : hor_id (hor_mor C)
+  := pr122 C.
+
+<span class="kn">Definition</span> <span class="nf">identity_h</span>
+           {<span class="nv">C</span> : double_cat}
+           (<span class="nv">x</span> : C)
+  : x --&gt;h x
+  := double_id (hor_id_double_cat C) x.
+
+<span class="kn">Definition</span> <span class="nf">hor_comp_double_cat</span>
+           (<span class="nv">C</span> : double_cat)
+  : hor_comp (hor_mor C)
+  := pr1 (pr222 C).
+
+<span class="kn">Definition</span> <span class="nf">hor_mor_comp_double_cat</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+           (<span class="nv">f</span> : x --&gt;h y)
+           (<span class="nv">g</span> : y --&gt;h z)
+  : x --&gt;h z
+  := double_hor_comp (hor_comp_double_cat C) f g.
+
+<span class="kn">Notation</span> <span class="s2">"f ·h g"</span> := (hor_mor_comp_double_cat f g) (<span class="kn">at level</span> <span class="mi">60</span>) : double_cat.
+
+<span class="sd">(** ** 2.3. Squares *)</span>
+<span class="kn">Definition</span> <span class="nf">square</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+           (<span class="nv">v₁</span> : x₁ --&gt;v y₁)
+           (<span class="nv">v₂</span> : x₂ --&gt;v y₂)
+           (<span class="nv">h₁</span> : x₁ --&gt;h x₂)
+           (<span class="nv">h₂</span> : y₁ --&gt;h y₂)
+  : UU
+  := h₁ --&gt;[ v₁ ][ v₂ ] h₂.
+
+<span class="kn">Proposition</span> <span class="nf">isaset_square</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            (<span class="nv">v₁</span> : x₁ --&gt;v y₁)
+            (<span class="nv">v₂</span> : x₂ --&gt;v y₂)
+            (<span class="nv">h₁</span> : x₁ --&gt;h x₂)
+            (<span class="nv">h₂</span> : y₁ --&gt;h y₂)
+  : isaset (square v₁ v₂ h₁ h₂).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isaset_disp_mor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">id_v_square</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">h</span> : x --&gt;h y)
+  : square (identity_v x) (identity_v y) h h
+  := id_two_disp _.
+
+<span class="kn">Definition</span> <span class="nf">comp_v_square</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : C}
+           {<span class="nv">v₁</span> : x₁ --&gt;v y₁} {<span class="nv">v₁'</span> : y₁ --&gt; z₁}
+           {<span class="nv">v₂</span> : x₂ --&gt;v y₂} {<span class="nv">v₂'</span> : y₂ --&gt; z₂}
+           {<span class="nv">h₁</span> : x₁ --&gt;h x₂}
+           {<span class="nv">h₂</span> : y₁ --&gt;h y₂}
+           {<span class="nv">h₃</span> : z₁ --&gt;h z₂}
+           (<span class="nv">s₁</span> : square v₁ v₂ h₁ h₂)
+           (<span class="nv">s₂</span> : square v₁' v₂' h₂ h₃)
+  : square (v₁ ·v v₁') (v₂ ·v v₂') h₁ h₃
+  := s₁ ;;<span class="mi">2</span> s₂.
+
+<span class="kn">Notation</span> <span class="s2">"s₁ ⋆v s₂"</span> := (comp_v_square s₁ s₂) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>) : double_cat.
+
+<span class="kn">Definition</span> <span class="nf">transportf_square</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+           {<span class="nv">v₁</span> <span class="nv">v₁'</span> : x₁ --&gt;v y₁}
+           {<span class="nv">v₂</span> <span class="nv">v₂'</span> : x₂ --&gt;v y₂}
+           {<span class="nv">h₁</span> : x₁ --&gt;h x₂}
+           {<span class="nv">h₂</span> : y₁ --&gt;h y₂}
+           (<span class="nv">p</span> : v₁ = v₁')
+           (<span class="nv">q</span> : v₂ = v₂')
+           (<span class="nv">s</span> : square v₁ v₂ h₁ h₂)
+  : square v₁' v₂' h₁ h₂
+  := transportf_disp_mor2 p q s.
+
+<span class="kn">Definition</span> <span class="nf">transportb_square</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+           {<span class="nv">v₁</span> <span class="nv">v₁'</span> : x₁ --&gt;v y₁}
+           {<span class="nv">v₂</span> <span class="nv">v₂'</span> : x₂ --&gt;v y₂}
+           {<span class="nv">h₁</span> : x₁ --&gt;h x₂}
+           {<span class="nv">h₂</span> : y₁ --&gt;h y₂}
+           (<span class="nv">p</span> : v₁ = v₁')
+           (<span class="nv">q</span> : v₂ = v₂')
+           (<span class="nv">s</span> : square v₁' v₂' h₁ h₂)
+  : square v₁ v₂ h₁ h₂
+  := transportf_square (!p) (!q) s.
+
+<span class="kn">Proposition</span> <span class="nf">transportfb_square</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            {<span class="nv">v₁</span> <span class="nv">v₁'</span> : x₁ --&gt;v y₁}
+            {<span class="nv">v₂</span> <span class="nv">v₂'</span> : x₂ --&gt;v y₂}
+            {<span class="nv">h₁</span> : x₁ --&gt;h x₂}
+            {<span class="nv">h₂</span> : y₁ --&gt;h y₂}
+            (<span class="nv">p</span> : v₁ = v₁')
+            (<span class="nv">q</span> : v₂ = v₂')
+            (<span class="nv">s</span> : square v₁' v₂' h₁ h₂)
+  : transportf_square p q (transportb_square p q s) = s.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p, q.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">transportfb_square'</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            {<span class="nv">v₁</span> <span class="nv">v₁'</span> : x₁ --&gt;v y₁}
+            {<span class="nv">v₂</span> <span class="nv">v₂'</span> : x₂ --&gt;v y₂}
+            {<span class="nv">h₁</span> : x₁ --&gt;h x₂}
+            {<span class="nv">h₂</span> : y₁ --&gt;h y₂}
+            (<span class="nv">p</span> <span class="nv">p'</span> : v₁ = v₁')
+            (<span class="nv">q</span> <span class="nv">q'</span> : v₂ = v₂')
+            (<span class="nv">s</span> : square v₁' v₂' h₁ h₂)
+  : transportf_square p q (transportb_square p' q' s) = s.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p, q.
+  <span class="nb">assert</span> (p' = idpath _) <span class="k">as</span> r <span class="bp">by</span> <span class="nb">apply</span> isaset_ver_mor.
+  <span class="nb">rewrite</span> r ; <span class="nb">clear</span> r.
+  <span class="nb">assert</span> (q' = idpath _) <span class="k">as</span> r <span class="bp">by</span> <span class="nb">apply</span> isaset_ver_mor.
+  <span class="nb">rewrite</span> r ; <span class="nb">clear</span> r.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">transportbf_square</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            {<span class="nv">v₁</span> <span class="nv">v₁'</span> : x₁ --&gt;v y₁}
+            {<span class="nv">v₂</span> <span class="nv">v₂'</span> : x₂ --&gt;v y₂}
+            {<span class="nv">h₁</span> : x₁ --&gt;h x₂}
+            {<span class="nv">h₂</span> : y₁ --&gt;h y₂}
+            (<span class="nv">p</span> : v₁ = v₁')
+            (<span class="nv">q</span> : v₂ = v₂')
+            (<span class="nv">s</span> : square v₁ v₂ h₁ h₂)
+  : transportb_square p q (transportf_square p q s) = s.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p, q.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">transportbf_square'</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            {<span class="nv">v₁</span> <span class="nv">v₁'</span> : x₁ --&gt;v y₁}
+            {<span class="nv">v₂</span> <span class="nv">v₂'</span> : x₂ --&gt;v y₂}
+            {<span class="nv">h₁</span> : x₁ --&gt;h x₂}
+            {<span class="nv">h₂</span> : y₁ --&gt;h y₂}
+            (<span class="nv">p</span> <span class="nv">p'</span> : v₁ = v₁')
+            (<span class="nv">q</span> <span class="nv">q'</span> : v₂ = v₂')
+            (<span class="nv">s</span> : square v₁ v₂ h₁ h₂)
+  : transportb_square p q (transportf_square p' q' s) = s.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p, q.
+  <span class="nb">assert</span> (p' = idpath _) <span class="k">as</span> r <span class="bp">by</span> <span class="nb">apply</span> isaset_ver_mor.
+  <span class="nb">rewrite</span> r ; <span class="nb">clear</span> r.
+  <span class="nb">assert</span> (q' = idpath _) <span class="k">as</span> r <span class="bp">by</span> <span class="nb">apply</span> isaset_ver_mor.
+  <span class="nb">rewrite</span> r ; <span class="nb">clear</span> r.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">square_id_left_v</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            {<span class="nv">v₁</span> : x₁ --&gt;v y₁}
+            {<span class="nv">v₂</span> : x₂ --&gt;v y₂}
+            {<span class="nv">h₁</span> : x₁ --&gt;h x₂}
+            {<span class="nv">h₂</span> : y₁ --&gt;h y₂}
+            (<span class="nv">s</span> : square v₁ v₂ h₁ h₂)
+  : id_v_square h₁ ⋆v s
+    =
+    transportb_square (id_left _) (id_left _) s.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> id_two_disp_left.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">square_id_right_v</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            {<span class="nv">v₁</span> : x₁ --&gt;v y₁}
+            {<span class="nv">v₂</span> : x₂ --&gt;v y₂}
+            {<span class="nv">h₁</span> : x₁ --&gt;h x₂}
+            {<span class="nv">h₂</span> : y₁ --&gt;h y₂}
+            (<span class="nv">s</span> : square v₁ v₂ h₁ h₂)
+  : s ⋆v id_v_square h₂
+    =
+    transportb_square (id_right _) (id_right _) s.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> id_two_disp_right.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">square_assoc_v</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">w₁</span> <span class="nv">w₂</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : C}
+            {<span class="nv">v₁</span> : w₁ --&gt;v x₁} {<span class="nv">v₁'</span> : x₁ --&gt;v y₁} {<span class="nv">v₁''</span> : y₁ --&gt;v z₁}
+            {<span class="nv">v₂</span> : w₂ --&gt;v x₂} {<span class="nv">v₂'</span> : x₂ --&gt;v y₂} {<span class="nv">v₂''</span> : y₂ --&gt;v z₂}
+            {<span class="nv">h₁</span> : w₁ --&gt;h w₂}
+            {<span class="nv">h₂</span> : x₁ --&gt;h x₂}
+            {<span class="nv">h₃</span> : y₁ --&gt;h y₂}
+            {<span class="nv">h₄</span> : z₁ --&gt;h z₂}
+            (<span class="nv">s₁</span> : square v₁ v₂ h₁ h₂)
+            (<span class="nv">s₂</span> : square v₁' v₂' h₂ h₃)
+            (<span class="nv">s₃</span> : square v₁'' v₂'' h₃ h₄)
+  : s₁ ⋆v (s₂ ⋆v s₃)
+    =
+    transportb_square (assoc _ _ _) (assoc _ _ _) ((s₁ ⋆v s₂) ⋆v s₃).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (assoc_two_disp s₁ s₂ s₃).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">globular_iso_square</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">h₁</span> <span class="nv">h₂</span> : x --&gt;h y)
+  : UU
+  := iso_twosided_disp (identity_z_iso _) (identity_z_iso _) h₁ h₂.
+
+<span class="kn">Coercion</span> <span class="nf">globular_iso_square_to_hor_mor</span>
+          {C : double_cat}
+          {x y : C}
+          {h₁ h₂ : x --&gt;h y}
+          (s : globular_iso_square h₁ h₂)
+  : square (identity_v _) (identity_v _) h₁ h₂
+  := pr1 s.
+
+<span class="kn">Definition</span> <span class="nf">globular_iso_square_inv</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">h₁</span> <span class="nv">h₂</span> : x --&gt;h y}
+           (<span class="nv">s</span> : globular_iso_square h₁ h₂)
+  : square (identity_v _) (identity_v _) h₂ h₁
+  := pr12 s.
+
+<span class="kn">Proposition</span> <span class="nf">globular_iso_square_left</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            {<span class="nv">h₁</span> <span class="nv">h₂</span> : x --&gt;h y}
+            (<span class="nv">s</span> : globular_iso_square h₁ h₂)
+  : s ⋆v globular_iso_square_inv s
+    =
+    transportb_square (id_v_left _) (id_v_left _) (id_v_square _).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr122 s).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">globular_iso_square_right</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            {<span class="nv">h₁</span> <span class="nv">h₂</span> : x --&gt;h y}
+            (<span class="nv">s</span> : globular_iso_square h₁ h₂)
+  : globular_iso_square_inv s ⋆v s
+    =
+    transportb_square (id_v_left _) (id_v_left _) (id_v_square _).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr222 s).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_to_globular_iso_square</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">h₁</span> <span class="nv">h₂</span> : x --&gt;h y}
+           (<span class="nv">p</span> : h₁ = h₂)
+  : globular_iso_square h₁ h₂
+  := idtoiso_twosided_disp (idpath _) (idpath _) p.
+
+<span class="sd">(** ** 2.4. Functoriality of horizontal identities *)</span>
+<span class="kn">Definition</span> <span class="nf">id_h_square</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">v</span> : x --&gt;v y)
+  : square v v (identity_h x) (identity_h y)
+  := double_id_mor (hor_id_double_cat C) v.
+
+<span class="kn">Proposition</span> <span class="nf">id_h_square_id</span>
+            {<span class="nv">C</span> : double_cat}
+            (<span class="nv">x</span> : C)
+  : id_h_square (identity_v x) = id_v_square (identity_h x).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> double_id_mor_id.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">id_h_square_comp</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+            (<span class="nv">v₁</span> : x --&gt;v y)
+            (<span class="nv">v₂</span> : y --&gt;v z)
+  : id_h_square (v₁ ·v v₂)
+    =
+    id_h_square v₁ ⋆v id_h_square v₂.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> double_id_mor_id_comp.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** 2.5. Functoriality of horizontal composition *)</span>
+<span class="kn">Definition</span> <span class="nf">comp_h_square</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : C}
+           {<span class="nv">v₁</span> : x₁ --&gt;v x₂}
+           {<span class="nv">v₂</span> : y₁ --&gt;v y₂}
+           {<span class="nv">v₃</span> : z₁ --&gt;v z₂}
+           {<span class="nv">h₁</span> : x₁ --&gt;h y₁}
+           {<span class="nv">h₂</span> : y₁ --&gt;h z₁}
+           {<span class="nv">k₁</span> : x₂ --&gt;h y₂}
+           {<span class="nv">k₂</span> : y₂ --&gt;h z₂}
+           (<span class="nv">s₁</span> : square v₁ v₂ h₁ k₁)
+           (<span class="nv">s₂</span> : square v₂ v₃ h₂ k₂)
+  : square v₁ v₃ (h₁ ·h h₂) (k₁ ·h k₂)
+  := double_hor_comp_mor (hor_comp_double_cat C) s₁ s₂.
+
+<span class="kn">Notation</span> <span class="s2">"s₁ ⋆h s₂"</span> := (comp_h_square s₁ s₂) (<span class="kn">at level</span> <span class="mi">37</span>, <span class="kn">left associativity</span>) : double_cat.
+
+<span class="kn">Proposition</span> <span class="nf">comp_h_square_id</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+            (<span class="nv">h₁</span> : x --&gt;h y)
+            (<span class="nv">h₂</span> : y --&gt;h z)
+  : id_v_square h₁ ⋆h id_v_square h₂ = id_v_square (h₁ ·h h₂).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> double_hor_comp_mor_id.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_h_square_comp</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">y₃</span> <span class="nv">z₁</span> <span class="nv">z₂</span> <span class="nv">z₃</span> : C}
+            {<span class="nv">v₁</span> : x₁ --&gt;v x₂} {<span class="nv">v₁'</span> : x₂ --&gt;v x₃}
+            {<span class="nv">v₂</span> : y₁ --&gt;v y₂} {<span class="nv">v₂'</span> : y₂ --&gt;v y₃}
+            {<span class="nv">v₃</span> : z₁ --&gt;v z₂} {<span class="nv">v₃'</span> : z₂ --&gt;v z₃}
+            {<span class="nv">h₁</span> : x₁ --&gt;h y₁} {<span class="nv">h₂</span> : y₁ --&gt;h z₁}
+            {<span class="nv">k₁</span> : x₂ --&gt;h y₂} {<span class="nv">k₂</span> : y₂ --&gt;h z₂}
+            {<span class="nv">l₁</span> : x₃ --&gt;h y₃} {<span class="nv">l₂</span> : y₃ --&gt;h z₃}
+            (<span class="nv">s₁</span> : square v₁ v₂ h₁ k₁)
+            (<span class="nv">s₁'</span> : square v₁' v₂' k₁ l₁)
+            (<span class="nv">s₂</span> : square v₂ v₃ h₂ k₂)
+            (<span class="nv">s₂'</span> : square v₂' v₃' k₂ l₂)
+  : (s₁ ⋆v s₁') ⋆h (s₂ ⋆v s₂') = (s₁ ⋆h s₂) ⋆v (s₁' ⋆h s₂').
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> double_hor_comp_mor_comp.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** 2.6. Left unitor *)</span>
+<span class="kn">Definition</span> <span class="nf">double_cat_double_lunitor</span>
+           (<span class="nv">C</span> : double_cat)
+  : double_cat_lunitor (hor_id_double_cat C) (hor_comp_double_cat C)
+  := pr12 (pr222 C).
+
+<span class="kn">Definition</span> <span class="nf">lunitor_h</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt;h y)
+  : square (identity_v x) (identity_v y) (identity_h x ·h f) f
+  := double_lunitor (double_cat_double_lunitor C) f.
+
+<span class="kn">Definition</span> <span class="nf">lunitor_globular_iso_square</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt;h y)
+  : globular_iso_square (identity_h x ·h f) f
+  := pr112 (pr222 C) x y f.
+
+<span class="kn">Definition</span> <span class="nf">linvunitor_h</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt;h y)
+  : square (identity_v x) (identity_v y) f (identity_h x ·h f)
+  := globular_iso_square_inv (lunitor_globular_iso_square f).
+
+<span class="kn">Proposition</span> <span class="nf">lunitor_linvunitor_h</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> : x --&gt;h y)
+  : lunitor_h f ⋆v linvunitor_h f
+    =
+      transportb_square (id_v_left _) (id_v_left _) (id_v_square _).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> globular_iso_square_left.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">linvunitor_lunitor_h</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> : x --&gt;h y)
+  : linvunitor_h f ⋆v lunitor_h f
+    =
+    transportb_square (id_v_left _) (id_v_left _) (id_v_square _).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> globular_iso_square_right.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lunitor_square</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            {<span class="nv">v₁</span> : x₁ --&gt;v x₂}
+            {<span class="nv">v₂</span> : y₁ --&gt;v y₂}
+            {<span class="nv">h₁</span> : x₁ --&gt;h y₁}
+            {<span class="nv">h₂</span> : x₂ --&gt;h y₂}
+            (<span class="nv">s</span> : square v₁ v₂ h₁ h₂)
+  : (id_h_square _ ⋆h s) ⋆v lunitor_h h₂
+    =
+    transportb_square
+      (id_v_right _ @ !(id_v_left _))
+      (id_v_right _ @ !(id_v_left _))
+      (lunitor_h h₁ ⋆v s).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (!(double_lunitor_nat (double_cat_double_lunitor C) s)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** 2.7. Right unitor *)</span>
+<span class="kn">Definition</span> <span class="nf">double_cat_double_runitor</span>
+           (<span class="nv">C</span> : double_cat)
+  : double_cat_runitor (hor_id_double_cat C) (hor_comp_double_cat C)
+  := pr122 (pr222 C).
+
+<span class="kn">Definition</span> <span class="nf">runitor_h</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt;h y)
+  : square (identity_v x) (identity_v y) (f ·h identity_h y) f
+  := double_runitor (double_cat_double_runitor C) f.
+
+<span class="kn">Definition</span> <span class="nf">runitor_globular_iso_square</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt;h y)
+  : globular_iso_square (f ·h identity_h y) f
+  := pr1 (pr122 (pr222 C)) x y f.
+
+<span class="kn">Definition</span> <span class="nf">rinvunitor_h</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt;h y)
+  : square (identity_v x) (identity_v y) f (f ·h identity_h y)
+  := globular_iso_square_inv (runitor_globular_iso_square f).
+
+<span class="kn">Proposition</span> <span class="nf">runitor_rinvunitor_h</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> : x --&gt;h y)
+  : runitor_h f ⋆v rinvunitor_h f
+    =
+    transportb_square (id_v_left _) (id_v_left _) (id_v_square _).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> globular_iso_square_left.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rinvunitor_runitor_h</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> : x --&gt;h y)
+  : rinvunitor_h f ⋆v runitor_h f
+    =
+    transportb_square (id_v_left _) (id_v_left _) (id_v_square _).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> globular_iso_square_right.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">runitor_square</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            {<span class="nv">v₁</span> : x₁ --&gt;v x₂}
+            {<span class="nv">v₂</span> : y₁ --&gt;v y₂}
+            {<span class="nv">h₁</span> : x₁ --&gt;h y₁}
+            {<span class="nv">h₂</span> : x₂ --&gt;h y₂}
+            (<span class="nv">s</span> : square v₁ v₂ h₁ h₂)
+  : (s ⋆h id_h_square _) ⋆v runitor_h h₂
+    =
+    transportb_square
+      (id_v_right _ @ !(id_v_left _))
+      (id_v_right _ @ !(id_v_left _))
+      (runitor_h h₁ ⋆v s).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (!(double_runitor_nat (double_cat_double_runitor C) s)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** 2.8. Associator *)</span>
+<span class="kn">Definition</span> <span class="nf">double_cat_double_associator</span>
+           (<span class="nv">C</span> : double_cat)
+  : double_cat_associator (hor_comp_double_cat C)
+  := pr1 (pr222 (pr222 C)).
+
+<span class="kn">Definition</span> <span class="nf">lassociator_h</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+           (<span class="nv">f</span> : w --&gt;h x)
+           (<span class="nv">g</span> : x --&gt;h y)
+           (<span class="nv">h</span> : y --&gt;h z)
+  : square (identity_v w) (identity_v z) (f ·h (g ·h h)) ((f ·h g) ·h h)
+  := double_associator (double_cat_double_associator C) f g h.
+
+<span class="kn">Definition</span> <span class="nf">associator_globular_iso_square</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+           (<span class="nv">f</span> : w --&gt;h x)
+           (<span class="nv">g</span> : x --&gt;h y)
+           (<span class="nv">h</span> : y --&gt;h z)
+  : globular_iso_square (f ·h (g ·h h)) ((f ·h g) ·h h)
+  := pr11 (pr222 (pr222 C)) w x y z f g h.
+
+<span class="kn">Definition</span> <span class="nf">rassociator_h</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+           (<span class="nv">f</span> : w --&gt;h x)
+           (<span class="nv">g</span> : x --&gt;h y)
+           (<span class="nv">h</span> : y --&gt;h z)
+  : square (identity_v w) (identity_v z) ((f ·h g) ·h h) (f ·h (g ·h h))
+  := globular_iso_square_inv (associator_globular_iso_square f g h).
+
+<span class="kn">Proposition</span> <span class="nf">lassociator_rassociator_h</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+            (<span class="nv">f</span> : w --&gt;h x)
+            (<span class="nv">g</span> : x --&gt;h y)
+            (<span class="nv">h</span> : y --&gt;h z)
+  : lassociator_h f g h ⋆v rassociator_h f g h
+    =
+    transportb_square (id_v_left _) (id_v_left _) (id_v_square _).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> globular_iso_square_left.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rassociator_lassociator_h</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+            (<span class="nv">f</span> : w --&gt;h x)
+            (<span class="nv">g</span> : x --&gt;h y)
+            (<span class="nv">h</span> : y --&gt;h z)
+  : rassociator_h f g h ⋆v lassociator_h f g h
+    =
+    transportb_square (id_v_left _) (id_v_left _) (id_v_square _).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> globular_iso_square_right.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lassociator_square</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">w₁</span> <span class="nv">w₂</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : C}
+            {<span class="nv">vw</span> : w₁ --&gt;v w₂} {<span class="nv">vx</span> : x₁ --&gt;v x₂}
+            {<span class="nv">vy</span> : y₁ --&gt;v y₂} {<span class="nv">vz</span> : z₁ --&gt;v z₂}
+            {<span class="nv">h₁</span> : w₁ --&gt;h x₁} {<span class="nv">h₂</span> : w₂ --&gt;h x₂}
+            {<span class="nv">j₁</span> : x₁ --&gt;h y₁} {<span class="nv">j₂</span> : x₂ --&gt;h y₂}
+            {<span class="nv">k₁</span> : y₁ --&gt;h z₁} {<span class="nv">k₂</span> : y₂ --&gt;h z₂}
+            (<span class="nv">s₁</span> : square vw vx h₁ h₂)
+            (<span class="nv">s₂</span> : square vx vy j₁ j₂)
+            (<span class="nv">s₃</span> : square vy vz k₁ k₂)
+  : (s₁ ⋆h (s₂ ⋆h s₃)) ⋆v lassociator_h h₂ j₂ k₂
+    =
+    transportb_square
+      (id_v_right _ @ !(id_v_left _))
+      (id_v_right _ @ !(id_v_left _))
+      (lassociator_h h₁ j₁ k₁ ⋆v ((s₁ ⋆h s₂) ⋆h s₃)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (!(double_associator_nat (double_cat_double_associator C) s₁ s₂ s₃)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lassociator_square'</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">w₁</span> <span class="nv">w₂</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : C}
+            {<span class="nv">vw</span> : w₁ --&gt;v w₂} {<span class="nv">vx</span> : x₁ --&gt;v x₂}
+            {<span class="nv">vy</span> : y₁ --&gt;v y₂} {<span class="nv">vz</span> : z₁ --&gt;v z₂}
+            {<span class="nv">h₁</span> : w₁ --&gt;h x₁} {<span class="nv">h₂</span> : w₂ --&gt;h x₂}
+            {<span class="nv">j₁</span> : x₁ --&gt;h y₁} {<span class="nv">j₂</span> : x₂ --&gt;h y₂}
+            {<span class="nv">k₁</span> : y₁ --&gt;h z₁} {<span class="nv">k₂</span> : y₂ --&gt;h z₂}
+            (<span class="nv">s₁</span> : square vw vx h₁ h₂)
+            (<span class="nv">s₂</span> : square vx vy j₁ j₂)
+            (<span class="nv">s₃</span> : square vy vz k₁ k₂)
+  : transportf_square
+      (id_v_right _ @ !(id_v_left _))
+      (id_v_right _ @ !(id_v_left _))
+      ((s₁ ⋆h (s₂ ⋆h s₃)) ⋆v lassociator_h h₂ j₂ k₂)
+    =
+    lassociator_h h₁ j₁ k₁ ⋆v ((s₁ ⋆h s₂) ⋆h s₃).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> lassociator_square.
+  <span class="nb">rewrite</span> transportfb_square.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** 2.9. Triangle and pentagon equations *)</span>
+<span class="kn">Proposition</span> <span class="nf">double_triangle</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+            (<span class="nv">h</span> : x --&gt;h y)
+            (<span class="nv">k</span> : y --&gt;h z)
+  : lassociator_h h _ k ⋆v (runitor_h h ⋆h id_v_square _)
+    =
+    transportb_square
+      (id_v_left _)
+      (id_v_left _)
+      (id_v_square h ⋆h lunitor_h k).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr12 (pr222 (pr222 C)) x y z h k).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">double_triangle'</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+            (<span class="nv">h</span> : x --&gt;h y)
+            (<span class="nv">k</span> : y --&gt;h z)
+  : transportf_square
+      (id_v_left _)
+      (id_v_left _)
+      (lassociator_h h _ k ⋆v (runitor_h h ⋆h id_v_square _))
+    =
+    id_v_square h ⋆h lunitor_h k.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> double_triangle.
+  <span class="nb">rewrite</span> transportfb_square.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">double_pentagon</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">v</span> <span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+            (<span class="nv">h₁</span> : v --&gt;h w)
+            (<span class="nv">h₂</span> : w --&gt;h x)
+            (<span class="nv">h₃</span> : x --&gt;h y)
+            (<span class="nv">h₄</span> : y --&gt;h z)
+  : transportb_square
+      (id_right _)
+      (id_right _)
+      (lassociator_h h₁ h₂ (h₃ ·h h₄) ⋆v lassociator_h (h₁ ·h h₂) h₃ h₄)
+    =
+    (id_v_square h₁ ⋆h lassociator_h h₂ h₃ h₄)
+    ⋆v lassociator_h h₁ (h₂ ·h h₃) h₄
+    ⋆v (lassociator_h h₁ h₂ h₃ ⋆h id_v_square h₄).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr22 (pr222 (pr222 C)) v w x y z h₁ h₂ h₃ h₄).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">double_pentagon'</span>
+            {<span class="nv">C</span> : double_cat}
+            {<span class="nv">v</span> <span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+            (<span class="nv">h₁</span> : v --&gt;h w)
+            (<span class="nv">h₂</span> : w --&gt;h x)
+            (<span class="nv">h₃</span> : x --&gt;h y)
+            (<span class="nv">h₄</span> : y --&gt;h z)
+  : lassociator_h h₁ h₂ (h₃ ·h h₄) ⋆v lassociator_h (h₁ ·h h₂) h₃ h₄
+    =
+    transportf_square
+      (id_right _)
+      (id_right _)
+      ((id_v_square h₁ ⋆h lassociator_h h₂ h₃ h₄)
+       ⋆v lassociator_h h₁ (h₂ ·h h₃) h₄
+       ⋆v (lassociator_h h₁ h₂ h₃ ⋆h id_v_square h₄)).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- double_pentagon.
+  <span class="nb">rewrite</span> transportfb_square.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Builder for double categories *)</span>
+<span class="kn">Definition</span> <span class="nf">make_double_cat</span>
+           (<span class="nv">C</span> : category)
+           (<span class="nv">D</span> : twosided_disp_cat C C)
+           (<span class="nv">I</span> : hor_id D)
+           (<span class="nv">Cm</span> : hor_comp D)
+           (<span class="nv">l</span> : double_cat_lunitor I Cm)
+           (<span class="nv">r</span> : double_cat_runitor I Cm)
+           (<span class="nv">a</span> : double_cat_associator Cm)
+           (<span class="nv">tr</span> : triangle_law l r a)
+           (<span class="nv">pe</span> : pentagon_law a)
+  : double_cat
+  := C ,, D ,, I ,, Cm ,, l ,, r ,, a ,, tr ,, pe.
+
+<span class="sd">(** * 4. Squares and equalities *)</span>
+<span class="kn">Definition</span> <span class="nf">ver_eq_to_square</span>
+           {<span class="nv">C</span> : double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">v₁</span> <span class="nv">v₂</span> : x --&gt;v y}
+           (<span class="nv">p</span> : v₁ = v₂)
+  : square v₁ v₂ (identity_h x) (identity_h y).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> id_h_square.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ver_weq_square</span>
+           (<span class="nv">C</span> : double_cat)
+  : UU
+  := ∏ (x y : C)
+       (v₁ v₂ : x --&gt;v y),
+     isweq (@ver_eq_to_square C x y v₁ v₂).
+
+<span class="kn">Definition</span> <span class="nf">isaprop_square_ver_weq_square</span>
+           {<span class="nv">C</span> : double_cat}
+           (<span class="nv">H</span> : ver_weq_square C)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">v₁</span> <span class="nv">v₂</span> : x --&gt;v y)
+  : isaprop (square v₁ v₂ (identity_h x) (identity_h y)).
+<span class="kn">Proof</span>.
+  use (isofhlevelweqf <span class="mi">1</span> (make_weq _ (H x y v₁ v₂))).
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 5. Flat double categories *)</span>
+<span class="kn">Definition</span> <span class="nf">is_flat_double_cat</span>
+           (<span class="nv">C</span> : double_cat)
+  : UU
+  := ∏ (x₁ x₂ y₁ y₂ : C)
+       (v₁ : x₁ --&gt;v y₁)
+       (v₂ : x₂ --&gt;v y₂)
+       (h₁ : x₁ --&gt;h x₂)
+       (h₂ : y₁ --&gt;h y₂)
+       (s₁ s₂ : square v₁ v₂ h₁ h₂),
+     s₁ = s₂.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Core/DoubleCats.v</tt>, line 33)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Flat double categories
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,1075 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>UnivalenceTechniques.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(************************************************************************************</span>
+
+<span class="sd"> Techniques for proving displayed univalence</span>
+
+<span class="sd"> This file collects techniques for proving displayed univalence of bicategories.</span>
+
+<span class="sd"> One way to prove displayed univalence for a displayed bicategory, is by constructing</span>
+<span class="sd"> a displayed pseudofunctor to another displayed bicategory and showing that the</span>
+<span class="sd"> action on objects, 1-cells and 2-cells of that pseudofunctor are equivalences. Note</span>
+<span class="sd"> that this displayed pseudofunctor does not need to live over an isomorphism: it can</span>
+<span class="sd"> lie over any pseudofunctor.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Univalence along displayed pseudofunctors that are isomorphisms</span>
+<span class="sd"> 1.1. Notion of isomorphism for displayed pseudofunctors</span>
+<span class="sd"> 1.2. Invertible 2-cells</span>
+<span class="sd"> 1.3. Local univalence</span>
+<span class="sd"> 1.4. Adjoint equivalences</span>
+<span class="sd"> 1.5. Global univalence</span>
+
+<span class="sd"> ************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.Initial.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.Final.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.TransportLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat. <span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispTransportLaws.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Univalence along displayed pseudofunctors</span>
+<span class="sd"> *)</span>
+
+<span class="sd">(**</span>
+<span class="sd"> 1.1. Notion of isomorphism for displayed pseudofunctors</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_psfunctor_iso</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+           {<span class="nv">F</span> : psfunctor B₁ B₂}
+           {<span class="nv">D₁</span> : disp_bicat B₁}
+           {<span class="nv">D₂</span> : disp_bicat B₂}
+           (<span class="nv">FF</span> : disp_psfunctor D₁ D₂ F)
+  : UU
+  := (∏ (x : B₁), isweq (FF x))
+     ×
+     (∏ (x y : B₁)
+        (f : x --&gt; y)
+        (xx : D₁ x)
+        (yy : D₁ y),
+      isweq (<span class="k">λ</span> (<span class="nv">ff</span> : xx --&gt;[ f ] yy), disp_psfunctor_mor _ _ _ FF ff))
+     ×
+     (∏ (x y : B₁)
+        (f g : x --&gt; y)
+        (τ : f ==&gt; g)
+        (xx : D₁ x) (yy : D₁ y)
+        (ff : xx --&gt;[ f ] yy)
+        (gg : xx --&gt;[ g ] yy),
+      isweq (<span class="k">λ</span> (<span class="nv">ττ</span> : ff ==&gt;[ τ ] gg), disp_psfunctor_cell _ _ _ FF ττ)).
+
+<span class="kn">Section</span> <span class="nf">PseudofunctorIsos</span>.
+  <span class="kn">Context</span> {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+          {<span class="nv">F</span> : psfunctor B₁ B₂}
+          {<span class="nv">D₁</span> : disp_bicat B₁}
+          {<span class="nv">D₂</span> : disp_bicat B₂}
+          {<span class="nv">FF</span> : disp_psfunctor D₁ D₂ F}
+          (<span class="nv">HF</span> : disp_psfunctor_iso FF).
+
+  <span class="kn">Definition</span> <span class="nf">disp_psfunctor_iso_ob_weq</span>
+             (<span class="nv">x</span> : B₁)
+    : D₁ x ≃ D₂ (F x)
+    := make_weq (FF x) (pr1 HF x).
+
+  <span class="kn">Definition</span> <span class="nf">disp_psfunctor_iso_mor_weq</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B₁}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">xx</span> : D₁ x)
+             (<span class="nv">yy</span> : D₁ y)
+    : xx --&gt;[ f ] yy ≃ FF x xx --&gt;[ # F f ] FF y yy
+    := make_weq _ (pr12 HF x y f xx yy).
+
+  <span class="kn">Definition</span> <span class="nf">disp_psfunctor_iso_cell_weq</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B₁}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             (<span class="nv">τ</span> : f ==&gt; g)
+             {<span class="nv">xx</span> : D₁ x} {<span class="nv">yy</span> : D₁ y}
+             (<span class="nv">ff</span> : xx --&gt;[ f ] yy)
+             (<span class="nv">gg</span> : xx --&gt;[ g ] yy)
+    : ff ==&gt;[ τ ] gg
+      ≃
+      disp_psfunctor_mor D₁ D₂ F FF ff ==&gt;[ ## F τ] disp_psfunctor_mor D₁ D₂ F FF gg
+    := make_weq _ (pr22 HF x y f g τ xx yy ff gg).
+
+  <span class="kn">Definition</span> <span class="nf">disp_psfunctor_iso_invmap_2</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B₁}
+             {<span class="nv">f</span> : x --&gt; y}
+             {<span class="nv">xx</span> : D₁ x}
+             {<span class="nv">yy</span> : D₁ y}
+             {<span class="nv">ff</span> <span class="nv">gg</span> : xx --&gt;[ f ] yy}
+             (<span class="nv">ττ</span> : disp_psfunctor_mor D₁ D₂ F FF ff
+                   ==&gt;[ ## F (id2 f)]
+                   disp_psfunctor_mor D₁ D₂ F FF gg)
+    : ff ==&gt;[ id2 f ] gg
+    := invmap (disp_psfunctor_iso_cell_weq (id2 f) ff gg) ττ.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_psfunctor_iso_invmap_2_eq_1</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : B₁}
+              {<span class="nv">f</span> : x --&gt; y}
+              {<span class="nv">xx</span> : D₁ x}
+              {<span class="nv">yy</span> : D₁ y}
+              {<span class="nv">ff</span> <span class="nv">gg</span> : xx --&gt;[ f ] yy}
+              (<span class="nv">ττ</span> : disp_psfunctor_mor D₁ D₂ F FF ff
+                    ==&gt;[ ## F (id2 f)]
+                    disp_psfunctor_mor D₁ D₂ F FF gg)
+    : disp_psfunctor_cell _ _ _ FF (disp_psfunctor_iso_invmap_2 ττ) = ττ.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (homotweqinvweq (disp_psfunctor_iso_cell_weq (id2 f) ff gg)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_psfunctor_iso_invmap_2_eq_2</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : B₁}
+              {<span class="nv">f</span> : x --&gt; y}
+              {<span class="nv">xx</span> : D₁ x}
+              {<span class="nv">yy</span> : D₁ y}
+              {<span class="nv">ff</span> <span class="nv">gg</span> : xx --&gt;[ f ] yy}
+              (<span class="nv">ττ</span> : ff ==&gt;[ id2 f ] gg)
+    : disp_psfunctor_iso_invmap_2 (disp_psfunctor_cell _ _ _ FF ττ) = ττ.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (homotinvweqweq (disp_psfunctor_iso_cell_weq (id2 f) ff gg)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_psfunctor_iso_invmap_2_id2</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : B₁}
+              {<span class="nv">f</span> : x --&gt; y}
+              {<span class="nv">xx</span> : D₁ x}
+              {<span class="nv">yy</span> : D₁ y}
+              {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+              (<span class="nv">p</span> : id₂ (# F f) = ## F (id₂ f))
+    : disp_psfunctor_iso_invmap_2
+        (transportf
+           (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+           p
+           (disp_id2 (disp_psfunctor_mor D₁ D₂ F FF ff)))
+      =
+      disp_id2 _.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ disp_psfunctor_iso_invmap_2_eq_2 (disp_id2 ff)).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> (disp_psfunctor_id2 _ _ _ FF (pr2 FF)).
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_psfunctor_iso_invmap_2_vcomp</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : B₁}
+              {<span class="nv">f</span> : x --&gt; y}
+              {<span class="nv">xx</span> : D₁ x}
+              {<span class="nv">yy</span> : D₁ y}
+              {<span class="nv">ff</span> <span class="nv">gg</span> <span class="nv">hh</span> : xx --&gt;[ f ] yy}
+              (<span class="nv">ττ</span> : disp_psfunctor_mor D₁ D₂ F FF ff
+                    ==&gt;[ ## F (id2 f)]
+                    disp_psfunctor_mor D₁ D₂ F FF gg)
+              (<span class="nv">θθ</span> : disp_psfunctor_mor D₁ D₂ F FF gg
+                    ==&gt;[ ## F (id2 f)]
+                    disp_psfunctor_mor D₁ D₂ F FF hh)
+    : disp_psfunctor_iso_invmap_2 ττ •• disp_psfunctor_iso_invmap_2 θθ
+      =
+      transportb
+        (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+        (id2_left _)
+        (disp_psfunctor_iso_invmap_2
+           (transportb
+              (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+              (maponpaths (<span class="k">λ</span> <span class="nv">h</span>, ##F h) (!(id2_left _)) @ psfunctor_vcomp F _ _)
+              (ττ •• θθ))).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (!(transportfbinv
+                       (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                       (!(id2_left _))
+                       (disp_psfunctor_iso_invmap_2 ττ •• disp_psfunctor_iso_invmap_2 θθ))
+                     @ _).
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="bp">exact</span> (!(disp_psfunctor_iso_invmap_2_eq_2 _)).
+    }
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="nb">apply</span> disp_psfunctor_cell_transportf.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (disp_psfunctor_vcomp2 _ _ _ FF (pr2 FF)).
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> !disp_psfunctor_iso_invmap_2_eq_1.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">OverId</span>.
+    <span class="kn">Context</span> (<span class="nv">HB₂</span> : is_univalent_2_1 B₂).
+
+    <span class="kn">Definition</span> <span class="nf">disp_psfunctor_iso_id_mor_weq</span>
+               {<span class="nv">x</span> : B₁}
+               (<span class="nv">xx</span> <span class="nv">yy</span> : D₁ x)
+      : xx --&gt;[ id₁ x ] yy ≃ FF x xx --&gt;[ id₁ (F x) ] FF x yy.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (_ ∘ disp_psfunctor_iso_mor_weq (id₁ x) xx yy)%weq.
+      use weq_iso.
+      - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">f</span>, transportb (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _) _ f).
+        <span class="bp">exact</span> (isotoid_2_1 HB₂ (psfunctor_id F x)).
+      - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">f</span>, transportf (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _) _ f).
+        <span class="bp">exact</span> (isotoid_2_1 HB₂ (psfunctor_id F x)).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intro</span> f ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> transportfbinv ;
+           <span class="nb">apply</span> idpath).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intro</span> f ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> transportbfinv ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_psfunctor_invmap_1</span>
+               {<span class="nv">x</span> : B₁}
+               {<span class="nv">xx</span> <span class="nv">yy</span> : D₁ x}
+               (<span class="nv">f</span> : FF x xx --&gt;[ id₁ (F x) ] FF x yy)
+      : xx --&gt;[ id₁ x ] yy.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (invmap (disp_psfunctor_iso_id_mor_weq xx yy) f).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_psfunctor_invmap_1_id_eq</span>
+               (<span class="nv">HD₂</span> : disp_univalent_2_1 D₂)
+               {<span class="nv">x</span> : B₁}
+               (<span class="nv">xx</span> : D₁ x)
+      : disp_psfunctor_invmap_1 (id_disp (FF x xx))
+        =
+        id_disp xx.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> disp_psfunctor_invmap_1.
+      use (invmaponpathsweq (disp_psfunctor_iso_id_mor_weq xx xx)).
+      etrans.
+      {
+        <span class="nb">apply</span> homotweqinvweq.
+      }
+      <span class="nb">refine</span> (!_).
+      <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">pose</span> (disp_psfunctor_id _ _ _ FF xx) <span class="k">as</span> p.
+        <span class="nb">rewrite</span> &lt;- (idtoiso_2_1_isotoid_2_1 HB₂ (psfunctor_id F x)) <span class="k">in</span> p.
+        <span class="bp">exact</span> (disp_isotoid_2_1 _ HD₂ _ _ _ p).
+      }
+      <span class="nb">rewrite</span> transportbfinv.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_psfunctor_invmap_1_id</span>
+               (<span class="nv">HD₂</span> : disp_univalent_2_1 D₂)
+               {<span class="nv">x</span> : B₁}
+               (<span class="nv">xx</span> : D₁ x)
+      : disp_invertible_2cell
+          (id2_invertible_2cell _)
+          (disp_psfunctor_invmap_1 (id_disp (FF x xx)))
+          (id_disp xx).
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (disp_idtoiso_2_1 _ (idpath _) _ _ (disp_psfunctor_invmap_1_id_eq HD₂ xx)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_psfunctor_invmap_1_inv2cell_eq</span>
+               (<span class="nv">HD₂</span> : disp_univalent_2_1 D₂)
+               {<span class="nv">x</span> : B₁}
+               {<span class="nv">xx</span> <span class="nv">yy</span> : D₁ x}
+               {<span class="nv">f</span> <span class="nv">g</span> : FF x xx --&gt;[ id₁ (F x) ] FF x yy}
+               (<span class="nv">τ</span> : disp_invertible_2cell (id2_invertible_2cell _) f g)
+      : disp_psfunctor_invmap_1 f = disp_psfunctor_invmap_1 g.
+    <span class="kn">Proof</span>.
+      <span class="nb">assert</span> (f = g) <span class="k">as</span> p.
+      {
+        <span class="bp">exact</span> (disp_isotoid_2_1 _ HD₂ (idpath _) f g τ).
+      }
+      <span class="nb">rewrite</span> p.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_psfunctor_invmap_1_inv2cell</span>
+               (<span class="nv">HD₂</span> : disp_univalent_2_1 D₂)
+               {<span class="nv">x</span> : B₁}
+               {<span class="nv">xx</span> <span class="nv">yy</span> : D₁ x}
+               {<span class="nv">f</span> <span class="nv">g</span> : FF x xx --&gt;[ id₁ (F x) ] FF x yy}
+               (<span class="nv">τ</span> : disp_invertible_2cell (id2_invertible_2cell _) f g)
+      : disp_invertible_2cell
+          (id2_invertible_2cell _)
+          (disp_psfunctor_invmap_1 f)
+          (disp_psfunctor_invmap_1 g).
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (disp_idtoiso_2_1 _ (idpath _) _ _ (disp_psfunctor_invmap_1_inv2cell_eq HD₂ τ)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_psfunctor_invmap_1_is_inv2cell</span>
+               (<span class="nv">HD₂</span> : disp_univalent_2_1 D₂)
+               {<span class="nv">x</span> : B₁}
+               {<span class="nv">xx</span> <span class="nv">yy</span> : D₁ x}
+               {<span class="nv">f</span> <span class="nv">g</span> : FF x xx --&gt;[ id₁ (F x) ] FF x yy}
+               (<span class="nv">τ</span> : f ==&gt;[ id2 _ ] g)
+               (<span class="nv">Hτ</span> : is_disp_invertible_2cell (id2_invertible_2cell _) τ)
+      : disp_invertible_2cell
+          (id2_invertible_2cell _)
+          (disp_psfunctor_invmap_1 f)
+          (disp_psfunctor_invmap_1 g).
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (disp_psfunctor_invmap_1_inv2cell HD₂ (τ ,, Hτ)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_psfunctor_invmap_1_comp_eq</span>
+               (<span class="nv">HB₁</span> : is_univalent_2_1 B₁)
+               (<span class="nv">HD₂</span> : disp_univalent_2_1 D₂)
+               {<span class="nv">x</span> : B₁}
+               {<span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">zz</span> : D₁ x}
+               (<span class="nv">f</span> : FF x xx --&gt;[ id₁ (F x) ] FF x yy)
+               (<span class="nv">g</span> : FF x yy --&gt;[ id₁ (F x) ] FF x zz)
+      : transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+          (isotoid_2_1 HB₁ (linvunitor_invertible_2cell (id₁ _)))
+          (disp_psfunctor_invmap_1
+             (transportf
+                (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                (isotoid_2_1 HB₂ (lunitor_invertible_2cell (id₁ _)))
+                (f ;; g)%mor_disp))
+        =
+        (disp_psfunctor_invmap_1 f ;; disp_psfunctor_invmap_1 g)%mor_disp.
+    <span class="kn">Proof</span>.
+      use transportf_transpose_left.
+      use (invmaponpathsweq (disp_psfunctor_iso_id_mor_weq xx zz)).
+      etrans.
+      {
+        <span class="nb">apply</span> homotweqinvweq.
+      }
+      <span class="nb">cbn</span> -[disp_psfunctor_invmap_1].
+      <span class="nb">rewrite</span> disp_psfunctor_mor_transportb.
+      <span class="nb">rewrite</span> transport_b_b.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">pose</span> (disp_psfunctor_comp
+              _ _ _
+              FF
+              (disp_psfunctor_invmap_1 f) (disp_psfunctor_invmap_1 g))
+        <span class="k">as</span> p.
+      <span class="nb">rewrite</span> &lt;- (idtoiso_2_1_isotoid_2_1 HB₂ (psfunctor_comp F (id₁ x) (id₁ x))) <span class="k">in</span> p.
+      <span class="nb">pose</span> (disp_isotoid_2_1 _ HD₂ _ _ _ p) <span class="k">as</span> q.
+      <span class="nb">rewrite</span> &lt;- q ; <span class="nb">clear</span> q.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (homotweqinvweq (disp_psfunctor_iso_mor_weq _ yy zz)).
+        }
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (homotweqinvweq (disp_psfunctor_iso_mor_weq _ xx yy)).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> transportf_postwhisker_1cell.
+      <span class="nb">rewrite</span> transportf_prewhisker_1cell.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      use (invmaponpathsweq (_ ,, HB₂ _ _ _ _)).
+      <span class="nb">cbn</span>.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_invertible_2cell.
+      }
+      <span class="nb">rewrite</span> !idtoiso_2_1_concat.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- idtoiso_2_1_lwhisker.
+      <span class="nb">rewrite</span> &lt;- idtoiso_2_1_rwhisker.
+      <span class="nb">rewrite</span> idtoiso_2_1_inv.
+      <span class="nb">rewrite</span> !idtoiso_2_1_concat.
+      <span class="nb">cbn</span> -[psfunctor_id psfunctor_comp].
+      <span class="nb">rewrite</span> (idtoiso_2_1_psfunctor F).
+      <span class="nb">rewrite</span> !idtoiso_2_1_isotoid_2_1.
+      <span class="nb">cbn</span> -[psfunctor_id psfunctor_comp].
+      <span class="nb">rewrite</span> psfunctor_F_lunitor.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • (_ • z)) (vassocr _ _ _)).
+      <span class="nb">rewrite</span> vcomp_rinv.
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)).
+      <span class="nb">rewrite</span> &lt;- vcomp_whisker.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      <span class="nb">rewrite</span> vcomp_rinv.
+      <span class="nb">rewrite</span> id2_rwhisker.
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">rewrite</span> vcomp_lunitor.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> vcomp_rinv.
+      <span class="nb">apply</span> id2_right.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_psfunctor_invmap_1_comp</span>
+               (<span class="nv">HB₁</span> : is_univalent_2_1 B₁)
+               (<span class="nv">HD₂</span> : disp_univalent_2_1 D₂)
+               {<span class="nv">x</span> : B₁}
+               {<span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">zz</span> : D₁ x}
+               (<span class="nv">f</span> : FF x xx --&gt;[ id₁ (F x) ] FF x yy)
+               (<span class="nv">g</span> : FF x yy --&gt;[ id₁ (F x) ] FF x zz)
+      : disp_invertible_2cell
+          (id2_invertible_2cell _)
+          (transportf
+             (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+             (isotoid_2_1 HB₁ (linvunitor_invertible_2cell (id₁ _)))
+             (disp_psfunctor_invmap_1
+                (transportf
+                   (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                   (isotoid_2_1 HB₂ (lunitor_invertible_2cell (id₁ _)))
+                   (f ;; g)%mor_disp)))
+          (disp_psfunctor_invmap_1 f ;; disp_psfunctor_invmap_1 g).
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (disp_idtoiso_2_1 _ (idpath _) _ _ (disp_psfunctor_invmap_1_comp_eq HB₁ HD₂ f g)).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">OverId</span>.
+
+<span class="kn">End</span> <span class="nf">PseudofunctorIsos</span>.
+
+<span class="kn">Section</span> <span class="nf">UnivalenceIso</span>.
+  <span class="kn">Context</span> {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+          {<span class="nv">F</span> : psfunctor B₁ B₂}
+          {<span class="nv">D₁</span> : disp_bicat B₁}
+          {<span class="nv">D₂</span> : disp_bicat B₂}
+          (<span class="nv">FF</span> : disp_psfunctor D₁ D₂ F)
+          (<span class="nv">HF</span> : disp_psfunctor_iso FF).
+
+  <span class="sd">(**</span>
+<span class="sd">   1.2. Invertible 2-cells</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">DispInvertibles</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : B₁}
+            {<span class="nv">f</span> : x --&gt; y}
+            {<span class="nv">xx</span> : D₁ x}
+            {<span class="nv">yy</span> : D₁ y}
+            (<span class="nv">ff</span> <span class="nv">gg</span> : xx --&gt;[ f ] yy).
+
+    <span class="kn">Definition</span> <span class="nf">disp_invertible_2cell_weq_along_iso_left</span>
+               (<span class="nv">τ</span> : disp_invertible_2cell
+                      (id2_invertible_2cell (# F f))
+                      (disp_psfunctor_mor _ _ _ FF ff)
+                      (disp_psfunctor_mor _ _ _ FF gg))
+      : disp_invertible_2cell (id2_invertible_2cell f) ff gg.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+      - <span class="nb">refine</span> (disp_psfunctor_iso_invmap_2
+                  HF
+                  (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _) _ (pr1 τ))).
+        <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> psfunctor_id2 ;
+           <span class="nb">apply</span> idpath).
+      - <span class="nb">refine</span> (disp_psfunctor_iso_invmap_2
+                  HF
+                  (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _) _ (pr12 τ))).
+        <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> psfunctor_id2 ;
+           <span class="nb">apply</span> idpath).
+      - <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (disp_psfunctor_iso_invmap_2_vcomp _ _ _ @ _) ;
+           <span class="nb">unfold</span> transportb ;
+           <span class="nb">rewrite</span> disp_mor_transportf_prewhisker ;
+           <span class="nb">rewrite</span> disp_mor_transportf_postwhisker ;
+           <span class="nb">rewrite</span> !transport_f_f ;
+           etrans ;
+           [ <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths ;
+             <span class="nb">apply</span> (pr2 τ)
+           | ] ;
+           <span class="nb">unfold</span> transportb ;
+           <span class="nb">rewrite</span> transport_f_f ;
+           <span class="nb">rewrite</span> disp_psfunctor_iso_invmap_2_id2 ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> cellset_property).
+      - <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (disp_psfunctor_iso_invmap_2_vcomp _ _ _ @ _) ;
+           <span class="nb">unfold</span> transportb ;
+           <span class="nb">rewrite</span> disp_mor_transportf_prewhisker ;
+           <span class="nb">rewrite</span> disp_mor_transportf_postwhisker ;
+           <span class="nb">rewrite</span> !transport_f_f ;
+           etrans ;
+           [ <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths ;
+             <span class="nb">apply</span> (pr2 τ)
+           | ] ;
+           <span class="nb">unfold</span> transportb ;
+           <span class="nb">rewrite</span> transport_f_f ;
+           <span class="nb">rewrite</span> disp_psfunctor_iso_invmap_2_id2 ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> cellset_property).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_invertible_2cell_weq_along_iso_right</span>
+               (<span class="nv">τ</span> : disp_invertible_2cell (id2_invertible_2cell f) ff gg)
+          : disp_invertible_2cell
+              (id2_invertible_2cell (# F f))
+              (disp_psfunctor_mor _ _ _ FF ff)
+              (disp_psfunctor_mor _ _ _ FF gg).
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+      - <span class="nb">refine</span> (transportb
+                  (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                  _
+                  (disp_psfunctor_cell _ _ _ FF (pr1 τ))).
+        <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> psfunctor_id2 ;
+           <span class="nb">apply</span> idpath).
+      - <span class="nb">refine</span> (transportb
+                  (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                  _
+                  (disp_psfunctor_cell _ _ _ FF (pr12 τ))).
+        <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> psfunctor_id2 ;
+           <span class="nb">apply</span> idpath).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">unfold</span> transportb ;
+           <span class="nb">rewrite</span> disp_mor_transportf_prewhisker ;
+           <span class="nb">rewrite</span> disp_mor_transportf_postwhisker ;
+           <span class="nb">rewrite</span> transport_f_f ;
+           etrans ;
+           [ <span class="nb">apply</span> maponpaths ;
+             <span class="nb">refine</span> (!_) ;
+             <span class="nb">apply</span> (disp_psfunctor_vcomp2_alt _ _ _ FF (pr2 FF))
+           | ] ;
+           <span class="nb">rewrite</span> transport_f_f ;
+           etrans ;
+           [ <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths ;
+             <span class="nb">apply</span> (pr2 τ)
+           | ] ;
+           etrans ;
+           [ <span class="nb">apply</span> maponpaths ;
+             <span class="nb">apply</span> disp_psfunctor_cell_transportb
+           | ] ;
+           <span class="nb">unfold</span> transportb ;
+           <span class="nb">rewrite</span> transport_f_f ;
+           <span class="nb">rewrite</span> (disp_psfunctor_id2 _ _ _ FF (pr2 FF)) ;
+           <span class="nb">unfold</span> transportb ;
+           <span class="nb">rewrite</span> transport_f_f ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> cellset_property).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">unfold</span> transportb ;
+           <span class="nb">rewrite</span> disp_mor_transportf_prewhisker ;
+           <span class="nb">rewrite</span> disp_mor_transportf_postwhisker ;
+           <span class="nb">rewrite</span> transport_f_f ;
+           etrans ;
+           [ <span class="nb">apply</span> maponpaths ;
+             <span class="nb">refine</span> (!_) ;
+             <span class="nb">apply</span> (disp_psfunctor_vcomp2_alt _ _ _ FF (pr2 FF))
+           | ] ;
+           <span class="nb">rewrite</span> transport_f_f ;
+           etrans ;
+           [ <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths ;
+             <span class="nb">apply</span> (pr2 τ)
+           | ] ;
+           etrans ;
+           [ <span class="nb">apply</span> maponpaths ;
+             <span class="nb">apply</span> disp_psfunctor_cell_transportb
+           | ] ;
+           <span class="nb">unfold</span> transportb ;
+           <span class="nb">rewrite</span> transport_f_f ;
+           <span class="nb">rewrite</span> (disp_psfunctor_id2 _ _ _ FF (pr2 FF)) ;
+           <span class="nb">unfold</span> transportb ;
+           <span class="nb">rewrite</span> transport_f_f ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> cellset_property).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_invertible_2cell_along_iso_weq</span>
+      : disp_invertible_2cell
+          (id2_invertible_2cell (# F f))
+          (disp_psfunctor_mor _ _ _ FF ff)
+          (disp_psfunctor_mor _ _ _ FF gg)
+        ≃
+        disp_invertible_2cell (id2_invertible_2cell f) ff gg.
+    <span class="kn">Proof</span>.
+      use weq_iso.
+      - <span class="bp">exact</span> disp_invertible_2cell_weq_along_iso_left.
+      - <span class="bp">exact</span> disp_invertible_2cell_weq_along_iso_right.
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> τ ;
+           use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_disp_invertible_2cell | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> disp_psfunctor_iso_invmap_2_eq_1 ;
+           <span class="nb">rewrite</span> transport_b_b ;
+           <span class="nb">unfold</span> transportb ;
+           <span class="nb">refine</span> (_ @ idpath_transportf (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _) _) ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> cellset_property).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> τ ;
+           use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_disp_invertible_2cell | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> transport_b_b ;
+           <span class="nb">refine</span> (_ @ disp_psfunctor_iso_invmap_2_eq_2 HF τ) ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">unfold</span> transportb ;
+           <span class="nb">refine</span> (_ @ idpath_transportf (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _) _) ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> cellset_property).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">DispInvertibles</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   1.3. Local univalence</span>
+<span class="sd">   *)</span>
+  <span class="kn">Context</span> (<span class="nv">HD₂</span> : disp_univalent_2_1 D₂).
+
+  <span class="kn">Definition</span> <span class="nf">disp_univalent_2_1_along_iso</span>
+    : disp_univalent_2_1 D₁.
+  <span class="kn">Proof</span>.
+    use fiberwise_local_univalent_is_univalent_2_1.
+    <span class="nb">intros</span> x y f xx yy ff gg.
+    use weqhomot.
+    - <span class="bp">exact</span> (disp_invertible_2cell_along_iso_weq ff gg
+             ∘ make_weq _ (HD₂ _ _ _ _ (idpath (#F f)) (FF x xx) (FF y yy) _ _)
+             ∘ make_weq
+                 _
+                 (isweqonpathsincl
+                    _
+                    (isinclweq
+                       _ _ _
+                       (pr2 (disp_psfunctor_iso_mor_weq HF f xx yy)))
+                    ff gg))%weq.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> p ; <span class="nb">cbn</span> <span class="k">in</span> p ;
+         <span class="nb">induction</span> p ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_disp_invertible_2cell | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (_ @ disp_psfunctor_iso_invmap_2_eq_2 HF _) ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">rewrite</span> (disp_psfunctor_id2 _ _ _ FF (pr2 FF)) ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> cellset_property).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   1.4. Adjoint equivalences</span>
+<span class="sd">   *)</span>
+  <span class="kn">Context</span> (<span class="nv">HB₁</span> : is_univalent_2_1 B₁)
+          (<span class="nv">HB₂</span> : is_univalent_2_1 B₂).
+
+  <span class="kn">Section</span> <span class="nf">DispAdjEquivs</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> : B₁}
+            (<span class="nv">xx</span> <span class="nv">yy</span> : D₁ x).
+
+    <span class="kn">Definition</span> <span class="nf">disp_adjequiv_along_iso_weq_left_equiv</span>
+               (<span class="nv">ff</span> : disp_adjoint_equivalence
+                       (internal_adjoint_equivalence_identity (F x))
+                       (FF x xx) (FF x yy))
+      : disp_left_equivalence
+          (internal_adjoint_equivalence_identity x)
+          (disp_psfunctor_invmap_1 HF HB₂ (pr1 ff)).
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> ((_ ,, (_ ,, _)) ,, (_ ,, _)).
+      - <span class="bp">exact</span> (disp_psfunctor_invmap_1 HF HB₂ (pr112 ff)).
+      - <span class="nb">simple refine</span> (transportf
+                         (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                         _
+                         (inverse_of_disp_invertible_2cell
+                            (disp_psfunctor_invmap_1_id HF HB₂ HD₂ xx)
+                          •• disp_psfunctor_invmap_1_is_inv2cell
+                               HF HB₂ HD₂
+                               (transportf
+                                  (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                                  _
+                                  (pr1 (pr212 ff)
+                                   •• transportf_disp_2cell
+                                        (pr1 ff ;; pr112 ff)%mor_disp
+                                        _))
+                               _
+                          •• transportf_disp_2cell _ _
+                          •• disp_psfunctor_invmap_1_comp HF HB₂ HB₁ HD₂ _ _)).
+        + <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1 ;
+             <span class="nb">rewrite</span> !id2_left, !id2_right ;
+             <span class="nb">apply</span> idpath).
+        + <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1 ;
+             <span class="nb">apply</span> linvunitor_lunitor).
+        + use transportf_is_disp_invertible_2cell.
+          * <span class="nb">cbn</span>.
+            is_iso.
+            <span class="nb">apply</span> property_from_invertible_2cell.
+          * <span class="nb">pose</span> (pr1 (pr212 ff) ,, pr1 (pr222 ff)
+                     : disp_invertible_2cell
+                         (left_equivalence_unit_iso (internal_adjoint_equivalence_identity _))
+                         (id_disp _)
+                         (pr1 ff ;; pr112 ff))
+              <span class="k">as</span> p.
+            <span class="bp">exact</span> (pr2 (vcomp_disp_invertible
+                          p
+                          (transportf_disp_2cell _ _))).
+      - <span class="nb">simpl</span>.
+        <span class="nb">simple refine</span> (transportf
+                         (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                         _
+                         (inverse_of_disp_invertible_2cell
+                            (disp_psfunctor_invmap_1_comp HF HB₂ HB₁ HD₂ _ _)
+                          •• inverse_of_disp_invertible_2cell
+                               (transportf_disp_2cell _ _)
+                          •• disp_psfunctor_invmap_1_is_inv2cell
+                               HF HB₂ HD₂
+                               (transportf
+                                  (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                                  _
+                                  (inverse_of_disp_invertible_2cell
+                                     (transportf_disp_2cell _ _)
+                                   •• pr2 (pr212 ff)))
+                               _
+                          •• disp_psfunctor_invmap_1_id HF HB₂ HD₂ yy)).
+        + <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> id2_left, !id2_right ;
+             <span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1 ; <span class="nb">cbn</span> ;
+             <span class="nb">apply</span> idpath).
+        + <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1 ; <span class="nb">cbn</span> ;
+             <span class="nb">apply</span> linvunitor_lunitor).
+        + use transportf_is_disp_invertible_2cell.
+          * <span class="nb">cbn</span>.
+            is_iso.
+          * <span class="nb">pose</span> (pr2 (pr212 ff) ,, pr2 (pr222 ff)
+                 : disp_invertible_2cell
+                     (left_equivalence_counit_iso (internal_adjoint_equivalence_identity _))
+                     (pr112 ff ;; pr1 ff)
+                     (id_disp _))
+              <span class="k">as</span> p.
+            <span class="bp">exact</span> (pr2 (vcomp_disp_invertible
+                          (inverse_of_disp_invertible_2cell
+                             (transportf_disp_2cell _ _))
+                          p)).
+      - <span class="nb">simpl</span>.
+        use transportf_is_disp_invertible_2cell.
+        + is_iso.
+          <span class="nb">apply</span> property_from_invertible_2cell.
+        + <span class="bp">exact</span> (pr2 (vcomp_disp_invertible
+                        (vcomp_disp_invertible
+                           (vcomp_disp_invertible
+                              (inverse_of_disp_invertible_2cell
+                                 (disp_psfunctor_invmap_1_id HF HB₂ HD₂ xx))
+                              (disp_psfunctor_invmap_1_is_inv2cell _ _ _ _ _))
+                           (transportf_disp_2cell _ _))
+                        (disp_psfunctor_invmap_1_comp HF HB₂ HB₁ HD₂ _ _))).
+      - <span class="nb">simpl</span>.
+        use transportf_is_disp_invertible_2cell.
+        + is_iso.
+        + <span class="bp">exact</span> (pr2 (vcomp_disp_invertible
+                        (vcomp_disp_invertible
+                           (vcomp_disp_invertible
+                              (inverse_of_disp_invertible_2cell
+                                 (disp_psfunctor_invmap_1_comp HF HB₂ HB₁ HD₂ _ _))
+                              (inverse_of_disp_invertible_2cell
+                                 (transportf_disp_2cell _ _)))
+                           (disp_psfunctor_invmap_1_is_inv2cell _ _ _ _ _))
+                        (disp_psfunctor_invmap_1_id HF HB₂ HD₂ yy))).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_adjequiv_along_iso_weq_left</span>
+               (<span class="nv">ff</span> : disp_adjoint_equivalence
+                       (internal_adjoint_equivalence_identity (F x))
+                       (FF x xx) (FF x yy))
+      : disp_adjoint_equivalence
+          (internal_adjoint_equivalence_identity x)
+          xx yy.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> (disp_psfunctor_invmap_1 HF HB₂ (pr1 ff)).
+      - use (disp_left_equivalence_to_left_adjoint_equivalence_over_id HB₁).
+        <span class="bp">exact</span> (disp_adjequiv_along_iso_weq_left_equiv ff).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_adjequiv_along_iso_weq_right_equiv</span>
+               (<span class="nv">ff</span> : disp_adjoint_equivalence
+                       (internal_adjoint_equivalence_identity x)
+                       xx yy)
+      : disp_left_equivalence
+          (internal_adjoint_equivalence_identity (F x))
+          (disp_psfunctor_iso_id_mor_weq HF HB₂ xx yy (pr1 ff)).
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> ((_ ,, (_ ,, _)) ,, (_ ,, _)).
+      - <span class="bp">exact</span> (disp_psfunctor_iso_id_mor_weq HF HB₂ _ _ (pr112 ff)).
+      - <span class="nb">refine</span> (transportf
+                  (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                  _
+                  (disp_psfunctor_id _ _ _ FF xx
+                   •• disp_psfunctor_cell _ _ _ FF (pr1 (pr212 ff))
+                   •• pr12 (disp_psfunctor_comp _ _ _ FF (pr1 ff) (pr112 ff))
+                   •• (_ ◃◃ transportf_disp_2cell _ _)
+                   •• (transportf_disp_2cell _ _ ▹▹ _))).
+        <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> -[psfunctor_id psfunctor_comp] ;
+           <span class="nb">rewrite</span> idtoiso_2_1_inv ;
+           <span class="nb">rewrite</span> !idtoiso_2_1_isotoid_2_1 ;
+           <span class="nb">rewrite</span> psfunctor_linvunitor ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • (_ • (_ • z))) (vassocr _ _ _)) ;
+           <span class="nb">rewrite</span> vcomp_rinv ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">rewrite</span> &lt;- vcomp_whisker ;
+           <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • (_ • z)) (vassocr _ _ _)) ;
+           <span class="nb">rewrite</span> rwhisker_vcomp ;
+           <span class="nb">cbn</span> -[psfunctor_id psfunctor_comp] ;
+           <span class="nb">rewrite</span> vcomp_rinv ;
+           <span class="nb">rewrite</span> id2_rwhisker ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> linvunitor_natural ;
+           <span class="nb">rewrite</span> &lt;- lwhisker_hcomp ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> lwhisker_vcomp ;
+           <span class="nb">rewrite</span> vcomp_rinv ;
+           <span class="nb">rewrite</span> lwhisker_id2 ;
+           <span class="nb">apply</span> id2_right).
+      - <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (transportf
+                  (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                  _
+                  ((_ ◃◃ pr12 (transportf_disp_2cell _ _))
+                   •• (pr12 (transportf_disp_2cell _ _) ▹▹ _)
+                   •• disp_psfunctor_comp _ _ _ FF (pr112 ff) (pr1 ff)
+                   •• disp_psfunctor_cell _ _ _ FF (pr2 (pr212 ff))
+                   •• pr12 (disp_psfunctor_id _ _ _ FF yy))).
+        <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> -[psfunctor_id psfunctor_comp] ;
+           <span class="nb">rewrite</span> idtoiso_2_1_inv ;
+           <span class="nb">rewrite</span> !idtoiso_2_1_isotoid_2_1 ;
+           <span class="nb">rewrite</span> psfunctor_F_lunitor ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • (_ • z)) (vassocr _ _ _)) ;
+           <span class="nb">rewrite</span> vcomp_rinv ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">cbn</span> -[psfunctor_id psfunctor_comp] ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+           <span class="nb">rewrite</span> rwhisker_vcomp ;
+           <span class="nb">rewrite</span> vcomp_rinv ;
+           <span class="nb">rewrite</span> id2_rwhisker ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> vcomp_lunitor ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> vcomp_rinv ;
+           <span class="nb">apply</span> id2_right).
+      - <span class="nb">cbn</span> -[psfunctor_id psfunctor_comp].
+        use transportf_is_disp_invertible_2cell.
+        + is_iso.
+          * <span class="nb">apply</span> property_from_invertible_2cell.
+          * <span class="bp">exact</span> (psfunctor_is_iso F (linvunitor_invertible_2cell _)).
+          * <span class="nb">apply</span> property_from_invertible_2cell.
+          * <span class="nb">apply</span> property_from_invertible_2cell.
+        + <span class="nb">pose</span> (pr1 (pr212 ff) ,, pr1 (pr222 ff)
+                  : disp_invertible_2cell
+                      (left_equivalence_unit_iso (internal_adjoint_equivalence_identity x))
+                      (id_disp xx)
+                      (pr1 ff ;; pr112 ff))
+            <span class="k">as</span> p.
+          <span class="bp">exact</span> (pr2 (vcomp_disp_invertible
+                        (vcomp_disp_invertible
+                           (vcomp_disp_invertible
+                              (vcomp_disp_invertible
+                                 (disp_psfunctor_id _ _ _ FF xx)
+                                 (disp_psfunctor_invertible_2cell FF p))
+                              (inverse_of_disp_invertible_2cell
+                                 (disp_psfunctor_comp _ _ _ FF (pr1 ff) (pr112 ff))))
+                           (disp_invertible_2cell_lwhisker
+                              _
+                              (transportf_disp_2cell _ _)))
+                        (disp_invertible_2cell_rwhisker
+                           _
+                           (transportf_disp_2cell _ _)))).
+      - <span class="nb">cbn</span> -[psfunctor_id psfunctor_comp].
+        use transportf_is_disp_invertible_2cell.
+        + is_iso.
+          * <span class="nb">apply</span> property_from_invertible_2cell.
+          * <span class="bp">exact</span> (psfunctor_is_iso F (lunitor_invertible_2cell _)).
+        + <span class="nb">cbn</span>.
+          <span class="nb">pose</span> (pr2 (pr212 ff) ,, pr2 (pr222 ff)
+                 : disp_invertible_2cell
+                     (left_equivalence_counit_iso (internal_adjoint_equivalence_identity x))
+                     (pr112 ff ;; pr1 ff)
+                     (id_disp yy))
+            <span class="k">as</span> p.
+          <span class="bp">exact</span> (pr2 (vcomp_disp_invertible
+                        (vcomp_disp_invertible
+                           (vcomp_disp_invertible
+                              (vcomp_disp_invertible
+                                 (disp_invertible_2cell_lwhisker
+                                    _
+                                    (inverse_of_disp_invertible_2cell
+                                       (transportf_disp_2cell _ _)))
+                                 (disp_invertible_2cell_rwhisker
+                                    _
+                                    (inverse_of_disp_invertible_2cell
+                                       (transportf_disp_2cell _ _))))
+                              (disp_psfunctor_comp _ _ _ FF _ _))
+                           (disp_psfunctor_invertible_2cell FF p))
+                        (inverse_of_disp_invertible_2cell
+                           (disp_psfunctor_id D₁ D₂ F FF yy)))).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_adjequiv_along_iso_weq_right</span>
+               (<span class="nv">ff</span> : disp_adjoint_equivalence
+                       (internal_adjoint_equivalence_identity x)
+                       xx yy)
+      : disp_adjoint_equivalence
+          (internal_adjoint_equivalence_identity (F x))
+          (FF x xx) (FF x yy).
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> (disp_psfunctor_iso_id_mor_weq HF HB₂ _ _ (pr1 ff)).
+      - use (disp_left_equivalence_to_left_adjoint_equivalence_over_id HB₂).
+        <span class="bp">exact</span> (disp_adjequiv_along_iso_weq_right_equiv ff).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_adjequiv_along_iso_weq</span>
+      : disp_adjoint_equivalence
+          (internal_adjoint_equivalence_identity (F x))
+          (FF x xx) (FF x yy)
+        ≃
+        disp_adjoint_equivalence
+          (internal_adjoint_equivalence_identity x)
+          xx yy.
+    <span class="kn">Proof</span>.
+      use weq_iso.
+      - <span class="bp">exact</span> disp_adjequiv_along_iso_weq_left.
+      - <span class="bp">exact</span> disp_adjequiv_along_iso_weq_right.
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> f ;
+           use subtypePath ;
+           [ <span class="nb">intro</span> ;
+             <span class="bp">exact</span> (isaprop_disp_left_adjoint_equivalence
+                      _ _
+                      HB₂
+                      HD₂)
+           | ] ;
+           <span class="nb">cbn</span> -[disp_psfunctor_iso_id_mor_weq disp_psfunctor_invmap_1] ;
+           <span class="nb">apply</span> homotweqinvweq).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> f ;
+           use subtypePath ;
+           [ <span class="nb">intro</span> ;
+             <span class="bp">exact</span> (isaprop_disp_left_adjoint_equivalence
+                      _ _
+                      HB₁
+                      disp_univalent_2_1_along_iso)
+           | ] ;
+           <span class="nb">cbn</span> -[disp_psfunctor_iso_id_mor_weq disp_psfunctor_invmap_1] ;
+           <span class="nb">apply</span> homotinvweqweq).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">DispAdjEquivs</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   1.5. Global univalence</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_univalent_2_0_along_iso</span>
+             (<span class="nv">HD₂'</span> : disp_univalent_2_0 D₂)
+    : disp_univalent_2_0 D₁.
+  <span class="kn">Proof</span>.
+    use fiberwise_univalent_2_0_to_disp_univalent_2_0.
+    <span class="nb">intros</span> x xx yy.
+    use weqhomot.
+    - <span class="bp">exact</span> (disp_adjequiv_along_iso_weq xx yy
+             ∘ make_weq _ (HD₂' _ _ (idpath _) _ _)
+             ∘ make_weq
+                 _
+                 (isweqonpathsincl
+                    _
+                    (isinclweq
+                       _ _ _
+                       (pr2 (disp_psfunctor_iso_ob_weq HF x)))
+                    xx yy))%weq.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> p ;
+         <span class="nb">cbn</span> <span class="k">in</span> p ;
+         <span class="nb">induction</span> p ;
+         use subtypePath ;
+         [ <span class="nb">intro</span> ;
+           <span class="bp">exact</span> (isaprop_disp_left_adjoint_equivalence
+                    _ _
+                    HB₁
+                    disp_univalent_2_1_along_iso)
+         | ] ;
+         <span class="nb">cbn</span> -[disp_psfunctor_iso_id_mor_weq disp_psfunctor_invmap_1] ;
+         <span class="bp">exact</span> (disp_psfunctor_invmap_1_id_eq HF HB₂ HD₂ xx)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_univalent_2_along_iso</span>
+             (<span class="nv">HD₂'</span> : disp_univalent_2_0 D₂)
+    : disp_univalent_2 D₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> (disp_univalent_2_0_along_iso HD₂').
+    - <span class="bp">exact</span> disp_univalent_2_1_along_iso.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">UnivalenceIso</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/UnivalenceTechniques.v</tt>, line 22)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  1.5. Global univalence
+  &gt;
+  &gt;  ************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>UniversalArrow.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************</span>
+<span class="sd"> Universal arrows</span>
+
+<span class="sd"> One way to construct biadjunctions, is via universal arrows.</span>
+<span class="sd"> These come in two flavors: one to give left biadjoints and one</span>
+<span class="sd"> to give right biadjoints.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Right universal arrows</span>
+<span class="sd"> 2. Left universal arrows</span>
+<span class="sd"> **************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Right universal arrows</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">RightUniversalArrow</span>.
+  <span class="kn">Context</span> {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+          (<span class="nv">L</span> : psfunctor B₁ B₂).
+
+  <span class="kn">Definition</span> <span class="nf">right_universal_arrow_functor_data</span>
+             (<span class="nv">x</span> : B₁)
+             (<span class="nv">y</span> : B₂)
+             {<span class="nv">R</span> : B₂ → B₁}
+             (<span class="nv">ε</span> : ∏ (x : B₂), L(R x) --&gt; x)
+    : functor_data
+        (hom x (R y))
+        (hom (L x) y).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, #L f · ε y).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">α</span>, ##L α ▹ ε y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">right_universal_arrow_functor_is_functor</span>
+             (<span class="nv">x</span> : B₁)
+             (<span class="nv">y</span> : B₂)
+             {<span class="nv">R</span> : B₂ → B₁}
+             (<span class="nv">ε</span> : ∏ (x : B₂), L(R x) --&gt; x)
+    : is_functor (right_universal_arrow_functor_data x y ε).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> f ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> psfunctor_id2.
+      <span class="nb">rewrite</span> id2_rwhisker.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> f g h α β ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> psfunctor_vcomp.
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">right_universal_arrow_functor</span>
+             (<span class="nv">x</span> : B₁)
+             (<span class="nv">y</span> : B₂)
+             {<span class="nv">R</span> : B₂ → B₁}
+             (<span class="nv">ε</span> : ∏ (x : B₂), L(R x) --&gt; x)
+    : hom x (R y) ⟶ hom (L x) y.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> (right_universal_arrow_functor_data x y ε).
+    - <span class="bp">exact</span> (right_universal_arrow_functor_is_functor x y ε).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">right_universal_arrow</span>
+    : UU
+    := ∑ (R : B₂ → B₁)
+         (ε : ∏ (x : B₂), L(R x) --&gt; x),
+       ∏ (x : B₁)
+         (y : B₂),
+       adj_equivalence_of_cats
+         (right_universal_arrow_functor x y ε).
+
+  <span class="kn">Section</span> <span class="nf">Constructor</span>.
+    <span class="kn">Context</span> (<span class="nv">R</span> : B₂ → B₁)
+            (<span class="nv">ε</span> : ∏ (x : B₂), L(R x) --&gt; x)
+            (<span class="nv">inv</span> : ∏ (x : B₁) (y : B₂), hom (L x) y ⟶ hom x (R y))
+            (<span class="nv">unit_adj</span> : ∏ (x : B₁) (y : B₂),
+                        functor_identity _
+                        ⟹
+                        right_universal_arrow_functor x y ε ∙ inv x y)
+            (<span class="nv">counit_adj</span> : ∏ (x : B₁) (y : B₂),
+                          inv x y ∙ right_universal_arrow_functor x y ε
+                              ⟹
+                              functor_identity _)
+            (<span class="nv">unit_iso</span> : ∏ (x : B₁) (y : B₂)
+                          (f : x --&gt; R y),
+                        is_z_isomorphism (unit_adj x y f))
+            (<span class="nv">counit_iso</span> : ∏ (x : B₁) (y : B₂)
+                            (f : L x --&gt; y),
+                          is_z_isomorphism (counit_adj x y f)).
+
+    <span class="kn">Definition</span> <span class="nf">make_right_universal_arrow_equivalence</span>
+               (<span class="nv">x</span> : B₁)
+               (<span class="nv">y</span> : B₂)
+      : equivalence_of_cats
+          (hom x (R y))
+          (hom (L x) y).
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> ((_ ,, (_ ,, (_ ,, _))) ,, _ ,, _) ; <span class="nb">cbn</span>.
+      - <span class="bp">exact</span> (right_universal_arrow_functor x y ε).
+      - <span class="bp">exact</span> (inv x y).
+      - <span class="bp">exact</span> (unit_adj x y).
+      - <span class="bp">exact</span> (counit_adj x y).
+      - <span class="bp">exact</span> (unit_iso x y).
+      - <span class="bp">exact</span> (counit_iso x y).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_right_universal_arrow</span>
+      : right_universal_arrow.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (R ,, ε ,, _) ; <span class="nb">cbn</span>.
+      <span class="nb">intros</span> x y.
+      <span class="bp">exact</span> (adjointification (make_right_universal_arrow_equivalence x y)).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">Constructor</span>.
+
+  <span class="kn">Section</span> <span class="nf">Constructor</span>.
+    <span class="kn">Context</span> (<span class="nv">HB₁</span> : is_univalent_2_1 B₁)
+            (<span class="nv">R</span> : B₂ → B₁)
+            (<span class="nv">ε</span> : ∏ (x : B₂), L(R x) --&gt; x)
+            (<span class="nv">H₁</span> : ∏ (x : B₁)
+                    (y : B₂)
+                    (f g : x --&gt; R y)
+                    (α : # L f · ε y ==&gt; # L g · ε y),
+                  ∑ (β : f ==&gt; g),
+                  ##L β ▹ ε y = α)
+            (<span class="nv">H₂</span> : ∏ (x : B₁)
+                    (y : B₂)
+                    (f g : x --&gt; R y)
+                    (α : # L f · ε y ==&gt; # L g · ε y)
+                    (β₁ β₂ : f ==&gt; g)
+                    (p₁ : ##L β₁ ▹ ε y = α)
+                    (p₂ : ##L β₂ ▹ ε y = α),
+                  β₁ = β₂)
+            (<span class="nv">H₃</span> : ∏ (x : B₁)
+                    (y : B₂)
+                    (f : L x --&gt; y),
+                  ∑ (g : x --&gt; R y),
+                  invertible_2cell (# L g · ε y) f).
+
+    <span class="kn">Definition</span> <span class="nf">make_right_universal_arrow'</span>
+      : right_universal_arrow.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (R ,, ε ,, _) ; <span class="nb">cbn</span>.
+      <span class="nb">intros</span> x y.
+      <span class="nb">simple refine</span> (rad_equivalence_of_cats _ _ _ (right_universal_arrow_functor x y ε) _ _).
+      - <span class="nb">apply</span> is_univ_hom.
+        <span class="bp">exact</span> HB₁.
+      - use full_and_faithful_implies_fully_faithful.
+        <span class="nb">split</span>.
+        + <span class="nb">intros</span> f g α.
+          <span class="nb">apply</span> hinhpr.
+          <span class="nb">apply</span> H₁.
+        + <span class="nb">intros</span> f g α.
+          use invproofirrelevance.
+          <span class="nb">intros</span> β₁ β₂ ; <span class="nb">cbn</span> <span class="k">in</span> *.
+          use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property | ].
+          <span class="bp">exact</span> (H₂ x y f g α (pr1 β₁) (pr1 β₂) (pr2 β₁) (pr2 β₂)).
+      - <span class="nb">intros</span> f.
+        <span class="nb">apply</span> hinhpr.
+        <span class="nb">simple refine</span> (_ ,, _).
+        + <span class="bp">exact</span> (pr1 (H₃ x y f)).
+        + <span class="nb">simpl</span>.
+          <span class="nb">apply</span> inv2cell_to_z_iso.
+          <span class="bp">exact</span> (pr2 (H₃ x y f)).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">Constructor</span>.
+<span class="kn">End</span> <span class="nf">RightUniversalArrow</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Left universal arrows</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">LeftUniversalArrow</span>.
+  <span class="kn">Context</span> {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+          (<span class="nv">R</span> : psfunctor B₂ B₁).
+
+  <span class="kn">Definition</span> <span class="nf">left_universal_arrow_functor_data</span>
+             (<span class="nv">x</span> : B₁)
+             (<span class="nv">y</span> : B₂)
+             {<span class="nv">L</span> : B₁ → B₂}
+             (<span class="nv">η</span> : ∏ (x : B₁), x --&gt; R(L x))
+    : functor_data
+        (hom (L x) y)
+        (hom x (R y)).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, η x · #R f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">α</span>, η x ◃ ##R α).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_universal_arrow_functor_is_functor</span>
+             (<span class="nv">x</span> : B₁)
+             (<span class="nv">y</span> : B₂)
+             {<span class="nv">L</span> : B₁ → B₂}
+             (<span class="nv">η</span> : ∏ (x : B₁), x --&gt; R(L x))
+    : is_functor (left_universal_arrow_functor_data x y η).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> f ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> psfunctor_id2.
+      <span class="nb">rewrite</span> lwhisker_id2.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> f g h α β ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> psfunctor_vcomp.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_universal_arrow_functor</span>
+             (<span class="nv">x</span> : B₁)
+             (<span class="nv">y</span> : B₂)
+             {<span class="nv">L</span> : B₁ → B₂}
+             (<span class="nv">η</span> : ∏ (x : B₁), x --&gt; R(L x))
+    : hom (L x) y ⟶ hom x (R y).
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> (left_universal_arrow_functor_data x y η).
+    - <span class="bp">exact</span> (left_universal_arrow_functor_is_functor x y η).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_universal_arrow</span>
+    : UU
+    := ∑ (L : B₁ → B₂)
+         (η : ∏ (x : B₁), x --&gt; R(L x)),
+       ∏ (x : B₁)
+         (y : B₂),
+       adj_equivalence_of_cats
+         (left_universal_arrow_functor x y η).
+
+  <span class="kn">Section</span> <span class="nf">Constructor</span>.
+    <span class="kn">Context</span> (<span class="nv">L</span> : B₁ → B₂)
+            (<span class="nv">η</span> : ∏ (x : B₁), x --&gt; R(L x))
+            (<span class="nv">inv</span> : ∏ (x : B₁) (y : B₂), hom x (R y) ⟶ hom (L x) y)
+            (<span class="nv">unit_adj</span> : ∏ (x : B₁) (y : B₂),
+                        functor_identity _
+                        ⟹
+                        left_universal_arrow_functor x y η ∙ inv x y)
+            (<span class="nv">counit_adj</span> : ∏ (x : B₁) (y : B₂),
+                          inv x y ∙ left_universal_arrow_functor x y η
+                          ⟹
+                          functor_identity _)
+            (<span class="nv">unit_iso</span> : ∏ (x : B₁) (y : B₂)
+                          (f : L x --&gt; y),
+                        is_z_isomorphism (unit_adj x y f))
+            (<span class="nv">counit_iso</span> : ∏ (x : B₁) (y : B₂)
+                            (f : x --&gt; R y),
+                          is_z_isomorphism (counit_adj x y f)).
+
+    <span class="kn">Definition</span> <span class="nf">make_left_universal_arrow_equivalence</span>
+               (<span class="nv">x</span> : B₁)
+               (<span class="nv">y</span> : B₂)
+      : equivalence_of_cats
+          (hom (L x) y)
+          (hom x (R y)).
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> ((_ ,, (_ ,, (_ ,, _))) ,, _ ,, _) ; <span class="nb">cbn</span>.
+      - <span class="bp">exact</span> (left_universal_arrow_functor x y η).
+      - <span class="bp">exact</span> (inv x y).
+      - <span class="bp">exact</span> (unit_adj x y).
+      - <span class="bp">exact</span> (counit_adj x y).
+      - <span class="bp">exact</span> (unit_iso x y).
+      - <span class="bp">exact</span> (counit_iso x y).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_left_universal_arrow</span>
+      : left_universal_arrow.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (L ,, η ,, _) ; <span class="nb">cbn</span>.
+      <span class="nb">intros</span> x y.
+      <span class="bp">exact</span> (adjointification (make_left_universal_arrow_equivalence x y)).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">Constructor</span>.
+
+  <span class="kn">Section</span> <span class="nf">Constructor</span>.
+    <span class="kn">Context</span> (<span class="nv">HB₂</span> : is_univalent_2_1 B₂)
+            (<span class="nv">L</span> : B₁ → B₂)
+            (<span class="nv">η</span> : ∏ (x : B₁), x --&gt; R(L x))
+            (<span class="nv">H₁</span> : ∏ (x : B₁)
+                    (y : B₂)
+                    (f g : L x --&gt; y)
+                    (α : η x · # R f ==&gt; η x · # R g),
+                  ∑ (β : f ==&gt; g),
+                  η x ◃ ## R β = α)
+            (<span class="nv">H₂</span> : ∏ (x : B₁)
+                    (y : B₂)
+                    (f g : L x --&gt; y)
+                    (α : η x · # R f ==&gt; η x · # R g)
+                    (β₁ β₂ : f ==&gt; g)
+                    (p₁ : η x ◃ ##R β₁ = α)
+                    (p₂ : η x ◃ ##R β₂ = α),
+
+                  β₁ = β₂)
+            (<span class="nv">H₃</span> : ∏ (x : B₁)
+                    (y : B₂)
+                    (f : x --&gt; R y),
+             ∑ (g : L x --&gt; y),
+             invertible_2cell (η x · # R g) f).
+
+    <span class="kn">Definition</span> <span class="nf">make_left_universal_arrow'</span>
+      : left_universal_arrow.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (L ,, η ,, _) ; <span class="nb">cbn</span>.
+      <span class="nb">intros</span> x y.
+      <span class="nb">simple refine</span> (rad_equivalence_of_cats _ _ _ (left_universal_arrow_functor x y η) _ _).
+      - <span class="nb">apply</span> is_univ_hom.
+        <span class="bp">exact</span> HB₂.
+      - use full_and_faithful_implies_fully_faithful.
+        <span class="nb">split</span>.
+        + <span class="nb">intros</span> f g α.
+          <span class="nb">apply</span> hinhpr.
+          <span class="nb">apply</span> H₁.
+        + <span class="nb">intros</span> f g α.
+          use invproofirrelevance.
+          <span class="nb">intros</span> β₁ β₂ ; <span class="nb">cbn</span> <span class="k">in</span> *.
+          use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property | ].
+          <span class="bp">exact</span> (H₂ x y f g α (pr1 β₁) (pr1 β₂) (pr2 β₁) (pr2 β₂)).
+      - <span class="nb">intros</span> f.
+        <span class="nb">apply</span> hinhpr.
+        <span class="nb">simple refine</span> (_ ,, _).
+        + <span class="bp">exact</span> (pr1 (H₃ x y f)).
+        + <span class="nb">simpl</span>.
+          <span class="nb">apply</span> inv2cell_to_z_iso.
+          <span class="bp">exact</span> (pr2 (H₃ x y f)).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">Constructor</span>.
+<span class="kn">End</span> <span class="nf">LeftUniversalArrow</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/PseudoFunctors/UniversalArrow.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  1. Right universal arrows
+  &gt;  2. Left universal arrows
+  &gt;  **************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

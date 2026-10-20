@@ -1,0 +1,1487 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LocallyCartesianClosed.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************************************************************</span>
+
+<span class="sd"> Locally cartesian closed categories</span>
+
+<span class="sd"> In this file, we define locally cartesian closed categories. There are multiple equivalent</span>
+<span class="sd"> definitions for locally cartesian closed categories:</span>
+<span class="sd"> 1. The first definition says that a category is locally cartesian closed categories if each</span>
+<span class="sd">    of its slice category is cartesian closed.</span>
+<span class="sd"> 2. The second definition says that a category is locally cartesian closed if the pullback</span>
+<span class="sd">    functor has a right adjoint.</span>
+<span class="sd"> Note that for both definitions we need to assume that the involved category has pullbacks.</span>
+<span class="sd"> We use the second definition.</span>
+
+<span class="sd"> From the perspective of dependent type theory, we can interpret these definitions. Suppose</span>
+<span class="sd"> that `C` is a finitely complete category. In `C`, we can thus interpret dependent type</span>
+<span class="sd"> theory with `∑`-types, product types, unit types, and extensional identity types (using the</span>
+<span class="sd"> codomain fibration). The first definition says that `C` has function types, whereas the</span>
+<span class="sd"> second definition says that `C` has dependent products. Using this interpretation, we can</span>
+<span class="sd"> also understand why these two variations are equivalent: dependent functions from `X` to a</span>
+<span class="sd"> type family `Y` over `X` are the same as ordinary functions from `X` to `∑ (x : X), Y x` for</span>
+<span class="sd"> which the composition with the first projection is the identity.</span>
+
+<span class="sd"> We use the second variation of the definition in this file, because in dependent type theory,</span>
+<span class="sd"> usually dependent products are used as the basic type former rather than function types.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Locally Cartesian closed categories</span>
+<span class="sd"> 2. Accessors for locally Cartesian closed categories</span>
+<span class="sd"> 3. Functoriality in locally Cartesian closed categories</span>
+<span class="sd"> 4. The slices of locally Cartesian closed categories are Cartesian closed</span>
+<span class="sd"> 5. Some properties of locally Cartesian closed categories</span>
+
+<span class="sd"> *********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Examples.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodDomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodColimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodLeftAdjoint.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.StrictInitial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.DisjointBinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Locally Cartesian closed categories *)</span>
+<span class="kn">Definition</span> <span class="nf">is_locally_cartesian_closed</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">PB</span> : Pullbacks C)
+  : UU
+  := ∏ (x y : C)
+       (f : x --&gt; y),
+     is_left_adjoint (cod_pb PB f).
+
+<span class="sd">(** * 2. Accessors for locally Cartesian closed categories *)</span>
+<span class="sd">(**</span>
+<span class="sd">   Suppose that `C` is a locally Cartesian closed category.</span>
+<span class="sd">   Exponentials in `C` are calculated with the following data:</span>
+<span class="sd">   - an object `Γ : C`, which represents the context</span>
+<span class="sd">   - an object `πA : C/Γ`, which represents a type `A` in context `Γ`</span>
+<span class="sd">   - an object `πB : C/cod_dom πA`, which represents a type `B` in context `Γ , A`</span>
+<span class="sd">   Note that `cod_dom πA` (i.e., the domain of `πA`) represents the extended context.</span>
+<span class="sd">   The resulting ∏-type is an object in `C/Γ`, so a type in context `Γ`.</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">lccc_exp_fib</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">PB</span> : Pullbacks C}
+           (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">πA</span> : C/Γ)
+           (<span class="nv">πB</span> : C/cod_dom πA)
+  : C/Γ
+  := right_adjoint (HC _ _ (cod_mor πA)) πB.
+
+<span class="kn">Definition</span> <span class="nf">lccc_exp</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">PB</span> : Pullbacks C}
+           (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">πA</span> : C/Γ)
+           (<span class="nv">πB</span> : C/cod_dom πA)
+  : C
+  := cod_dom (lccc_exp_fib HC πA πB).
+
+<span class="sd">(**</span>
+<span class="sd">   We define evaluation in a categorical and a type theoretical style. In the categorical</span>
+<span class="sd">   style ([lccc_exp_eval_fib]), we use the counit of the adjunction and we directly obtain</span>
+<span class="sd">   the desired morphisms. The type theoretical style ([lccc_exp_eval]) is formulated using</span>
+<span class="sd">   sections of morphisms, and it is closer to what one uses in type theory.</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">lccc_exp_eval_fib</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">PB</span> : Pullbacks C}
+           (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">πA</span> : C/Γ)
+           (<span class="nv">πB</span> : C/cod_dom πA)
+  : cod_pb PB (cod_mor πA) (lccc_exp_fib HC πA πB) --&gt; πB
+  := counit_from_left_adjoint (HC _ _ (cod_mor πA)) πB.
+
+<span class="kn">Definition</span> <span class="nf">lccc_exp_eval_mor</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">PB</span> : Pullbacks C}
+           (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">πA</span> : C/Γ}
+           {<span class="nv">πB</span> : C/cod_dom πA}
+           (<span class="nv">f</span> : section_of_mor (cod_mor (lccc_exp_fib HC πA πB)))
+           (<span class="nv">t</span> : section_of_mor (cod_mor πA))
+  : Γ --&gt; cod_dom (cod_pb PB t πB).
+<span class="kn">Proof</span>.
+  use PullbackArrow.
+  - <span class="nb">refine</span> (_ · dom_mor (lccc_exp_eval_fib HC _ _)).
+    use PullbackArrow.
+    + <span class="bp">exact</span> f.
+    + <span class="bp">exact</span> t.
+    + <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (section_of_mor_eq f @ _) ;
+         <span class="bp">exact</span> (!(section_of_mor_eq t))).
+  - <span class="bp">exact</span> (identity _).
+  - <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> id_left ;
+       <span class="nb">rewrite</span> assoc' ;
+       etrans ;
+       [ <span class="nb">apply</span> maponpaths ;
+         <span class="bp">exact</span> (mor_eq (lccc_exp_eval_fib HC πA πB))
+       | ] ;
+       <span class="nb">apply</span> PullbackArrow_PullbackPr2).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd">   Here we have</span>
+<span class="sd">   - a context `Γ`</span>
+<span class="sd">   - a type `A` in context `Γ` (i.e., a morphism `πA : A --&gt; Γ`)</span>
+<span class="sd">   - a type `B` in context `Γ , A` (i.e. an object `πB : B --&gt; A`)</span>
+<span class="sd">   In addition, we have a term `f` of type `∏ (a : A), B a` and a term `t` of type `A`.</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">lccc_exp_eval</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">PB</span> : Pullbacks C}
+           (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">πA</span> : C/Γ}
+           {<span class="nv">πB</span> : C/cod_dom πA}
+           (<span class="nv">f</span> : section_of_mor (cod_mor (lccc_exp_fib HC πA πB)))
+           (<span class="nv">t</span> : section_of_mor (cod_mor πA))
+  : section_of_mor (cod_mor (cod_pb PB t πB)).
+<span class="kn">Proof</span>.
+  use make_section_of_mor.
+  - <span class="bp">exact</span> (lccc_exp_eval_mor HC f t).
+  - <span class="kp">abstract</span>
+      (<span class="nb">apply</span> PullbackArrow_PullbackPr2).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd">   We formulate λ-abstractions in two ways, namely in a categorical and in a type-theoretic</span>
+<span class="sd">   way. The categorical way ([lccc_exp_lam_fib]) follows directly from the adjunction. The</span>
+<span class="sd">   type theoretic way ([lccc_exp_lam]) is a reformulation using sections.</span>
+
+<span class="sd">   Note that in the categorical style we have an additional substitution.</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">lccc_exp_lam_fib</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">PB</span> : Pullbacks C}
+           (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">πA</span> <span class="nv">Δs</span> : C/Γ}
+           {<span class="nv">πB</span> : C/cod_dom πA}
+           (<span class="nv">t</span> : cod_pb PB (cod_mor πA) Δs --&gt; πB)
+  : Δs --&gt; lccc_exp_fib HC πA πB
+  := φ_adj (pr2 (HC _ _ (cod_mor πA))) t.
+
+<span class="kn">Definition</span> <span class="nf">lccc_exp_lam_mor</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">PB</span> : Pullbacks C}
+           (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">πA</span> : C/Γ}
+           {<span class="nv">πB</span> : C/cod_dom πA}
+           (<span class="nv">t</span> : section_of_mor (cod_mor πB))
+  : cod_pb PB (cod_mor πA) (cod_fib_id Γ) --&gt; πB.
+<span class="kn">Proof</span>.
+  use make_cod_fib_mor.
+  - <span class="bp">exact</span> (PullbackPr2 _ · t).
+  - <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> !assoc' ;
+       <span class="nb">rewrite</span> (section_of_mor_eq t) ;
+       <span class="nb">rewrite</span> id_right ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd">   Here we have:</span>
+<span class="sd">   - a context `Γ`</span>
+<span class="sd">   - a type `A` in context `Γ` (i.e., a morphism `πA : A --&gt; Γ`)</span>
+<span class="sd">   - a type `B` in context `Γ , A` (i.e. an object `πB : B --&gt; A`)</span>
+<span class="sd">   - a term `Γ , A ⊢ t : B` (i.e., a section of `πB`)</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">lccc_exp_lam</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">PB</span> : Pullbacks C}
+           (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">πA</span> : C/Γ}
+           {<span class="nv">πB</span> : C/cod_dom πA}
+           (<span class="nv">t</span> : section_of_mor (cod_mor πB))
+  : section_of_mor (cod_mor (lccc_exp_fib HC πA πB)).
+<span class="kn">Proof</span>.
+  use make_section_of_mor.
+  - <span class="nb">refine</span> (dom_mor (lccc_exp_lam_fib HC (πA := πA) (Δs := cod_fib_id _) (πB := πB) _)).
+    <span class="bp">exact</span> (lccc_exp_lam_mor HC t).
+  - <span class="kp">abstract</span>
+      (<span class="bp">exact</span> (mor_eq (lccc_exp_lam_fib HC (lccc_exp_lam_mor HC t)))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd">   The following is the β-rule for ∏-types.</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">lccc_exp_beta_fib</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">PB</span> : Pullbacks C}
+            (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+            {<span class="nv">Γ</span> : C}
+            (<span class="nv">f</span> <span class="nv">h</span> : C/Γ)
+            (<span class="nv">g</span> : C/cod_dom f)
+            (<span class="nv">k</span> : cod_pb PB (cod_mor f) h --&gt; g)
+  : #(cod_pb PB (cod_mor f)) (lccc_exp_lam_fib HC k)
+    · lccc_exp_eval_fib HC f g
+    =
+    k.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> lccc_exp_lam_fib.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> functor_comp.
+  }
+  <span class="nb">refine</span> (assoc' _ _ _ @ _).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (nat_trans_ax (counit_from_left_adjoint (HC _ _ (cod_mor f))) _ _ _).
+  }
+  <span class="nb">refine</span> (assoc _ _ _ @ _).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="bp">exact</span> (triangle_id_left_ad (pr2 (HC _ _ (cod_mor f))) h).
+  }
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lccc_exp_beta_subst_mor</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">PB</span> : Pullbacks C)
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">πA</span> : C/Γ}
+           {<span class="nv">πB</span> : C/cod_dom πA}
+           (<span class="nv">f</span> : section_of_mor (cod_mor πB))
+           (<span class="nv">t</span> : section_of_mor (cod_mor πA))
+  : Γ --&gt; cod_dom (cod_pb PB t πB).
+<span class="kn">Proof</span>.
+  use PullbackArrow.
+  - <span class="bp">exact</span> (t · f).
+  - <span class="bp">exact</span> (identity _).
+  - <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> id_left ;
+       <span class="nb">rewrite</span> !assoc' ;
+       <span class="nb">refine</span> (_ @ id_right _) ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="bp">exact</span> (section_of_mor_eq f)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lccc_exp_beta_subst</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">PB</span> : Pullbacks C)
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">πA</span> : C/Γ}
+           {<span class="nv">πB</span> : C/cod_dom πA}
+           (<span class="nv">f</span> : section_of_mor (cod_mor πB))
+           (<span class="nv">t</span> : section_of_mor (cod_mor πA))
+  : section_of_mor (cod_mor (cod_pb PB t πB)).
+<span class="kn">Proof</span>.
+  use make_section_of_mor.
+  - <span class="bp">exact</span> (lccc_exp_beta_subst_mor PB f t).
+  - <span class="kp">abstract</span>
+      (<span class="nb">apply</span> PullbackArrow_PullbackPr2).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lccc_exp_beta_mor</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">PB</span> : Pullbacks C)
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">πA</span> : C/Γ}
+           (<span class="nv">t</span> : section_of_mor (cod_mor πA))
+  : Γ --&gt; PB _ _ _ (identity Γ) (cod_mor πA).
+<span class="kn">Proof</span>.
+  use PullbackArrow.
+  - <span class="bp">exact</span> (identity _).
+  - <span class="bp">exact</span> t.
+  - <span class="nb">rewrite</span> id_left.
+    <span class="bp">exact</span> (!(section_of_mor_eq t)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lccc_exp_beta</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">PB</span> : Pullbacks C}
+            (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">πA</span> : C/Γ}
+            {<span class="nv">πB</span> : C/cod_dom πA}
+            (<span class="nv">f</span> : section_of_mor (cod_mor πB))
+            (<span class="nv">t</span> : section_of_mor (cod_mor πA))
+  : lccc_exp_eval HC (lccc_exp_lam HC f) t
+    =
+    lccc_exp_beta_subst PB f t.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (maponpaths
+          dom_mor
+          (lccc_exp_beta_fib HC πA (cod_fib_id Γ) πB (lccc_exp_lam_mor HC f)))
+    <span class="k">as</span> p.
+  <span class="nb">rewrite</span> comp_in_cod_fib <span class="k">in</span> p.
+  <span class="nb">cbn</span> -[cod_pb lccc_exp_lam_fib] <span class="k">in</span> p.
+  use eq_section_of_mor.
+  use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+  - <span class="nb">simpl</span> ; <span class="nb">unfold</span> lccc_exp_eval_mor, lccc_exp_beta_subst_mor ; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> !PullbackArrow_PullbackPr1.
+    <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, lccc_exp_beta_mor PB t · z) p @ _).
+    + <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+      * <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (PB _ _ _ _ _)).
+        }
+        <span class="nb">rewrite</span> transportf_cod_disp.
+        <span class="nb">simpl</span>.
+        <span class="nb">rewrite</span> assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+        }
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      * <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (PB _ _ _ _ _)).
+        }
+        <span class="nb">simpl</span>.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+    + <span class="nb">unfold</span> lccc_exp_beta_mor.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">simpl</span> ; <span class="nb">unfold</span> lccc_exp_eval_mor, lccc_exp_beta_subst_mor ; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd">   The η-law for ∏-types</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">lccc_exp_eta_fib</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">PB</span> : Pullbacks C}
+            (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+            {<span class="nv">Γ</span> : C}
+            (<span class="nv">πA</span> <span class="nv">πA'</span> : C/Γ)
+            (<span class="nv">πB</span> : C/cod_dom πA)
+            (<span class="nv">k</span> : πA' --&gt; lccc_exp_fib HC πA πB)
+  : k
+    =
+    lccc_exp_lam_fib
+      HC
+      (#(cod_pb PB (cod_mor πA)) k
+       · lccc_exp_eval_fib HC πA πB).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) _).
+    <span class="nb">apply</span> (functor_comp (right_adjoint (HC (cod_dom πA) Γ (cod_mor πA)))).
+  }
+  <span class="nb">rewrite</span> !assoc.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> (nat_trans_ax (unit_from_left_adjoint (HC (cod_dom πA) Γ (cod_mor πA)))).
+  }
+  <span class="nb">refine</span> (assoc' _ _ _ @ _).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (triangle_id_right_ad (pr2 (HC _ _ (cod_mor πA)))).
+  }
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Functoriality in locally Cartesian closed categories *)</span>
+
+<span class="sd">(**</span>
+<span class="sd">   We show that the dependent product in a locally Cartesian closed category is</span>
+<span class="sd">   functorial in both arguments (see [lccc_exp_functor_fib]). It is contravariant</span>
+<span class="sd">   in its first argument and covariant in the second.</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">lccc_exp_functor_base_fib_mor</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">PB</span> : Pullbacks C}
+           (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">πA</span> <span class="nv">πA'</span> : C/Γ}
+           (<span class="nv">πB</span> : C/cod_dom πA)
+           (<span class="nv">f</span> : πA' --&gt; πA)
+  : cod_pb PB (cod_mor πA') (lccc_exp_fib HC πA πB)
+    --&gt;
+    cod_pb PB (dom_mor f) πB.
+<span class="kn">Proof</span>.
+  use make_cod_fib_mor.
+  - use PullbackArrow.
+    + <span class="nb">simple refine</span> (cod_pb_left_functorial _ _ f · _).
+      <span class="bp">exact</span> (dom_mor (lccc_exp_eval_fib HC πA πB)).
+    + <span class="bp">exact</span> (PullbackPr2 _).
+    + <span class="kp">abstract</span>
+        (<span class="nb">unfold</span> cod_pb_left_functorial ;
+         <span class="nb">rewrite</span> !assoc' ;
+         etrans ;
+         [ <span class="nb">apply</span> maponpaths ;
+           <span class="bp">exact</span> (mor_eq (lccc_exp_eval_fib HC πA πB))
+         | ] ;
+         <span class="nb">apply</span> PullbackArrow_PullbackPr2).
+  - <span class="kp">abstract</span>
+      (<span class="nb">apply</span> PullbackArrow_PullbackPr2).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lccc_exp_functor_base_fib</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">PB</span> : Pullbacks C}
+           (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">πA</span> <span class="nv">πA'</span> : C/Γ}
+           {<span class="nv">πB</span> : C/cod_dom πA}
+           (<span class="nv">f</span> : πA' --&gt; πA)
+  : lccc_exp_fib HC πA πB
+    --&gt;
+    lccc_exp_fib HC πA' (cod_pb PB (dom_mor f) πB).
+<span class="kn">Proof</span>.
+  use lccc_exp_lam_fib.
+  <span class="bp">exact</span> (lccc_exp_functor_base_fib_mor HC πB f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lccc_exp_functor_fib</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">PB</span> : Pullbacks C}
+           (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">πA</span> <span class="nv">πA'</span> : C/Γ}
+           {<span class="nv">πB</span> : C/cod_dom πA}
+           {<span class="nv">πB'</span> : C/cod_dom πA'}
+           {<span class="nv">f</span> : πA' --&gt; πA}
+           (<span class="nv">hg</span> : cod_pb PB (dom_mor f) πB --&gt; πB')
+  : lccc_exp_fib HC πA πB --&gt; lccc_exp_fib HC πA' πB'
+  := lccc_exp_functor_base_fib HC f · #(right_adjoint (HC _ _ (cod_mor πA'))) hg.
+
+<span class="kn">Definition</span> <span class="nf">lccc_exp_functor</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">PB</span> : Pullbacks C}
+           (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">πA</span> <span class="nv">πA'</span> : C/Γ}
+           {<span class="nv">πB</span> : C/cod_dom πA}
+           {<span class="nv">πB'</span> : C/cod_dom πA'}
+           {<span class="nv">hf</span> : cod_dom πA' --&gt; cod_dom πA}
+           (<span class="nv">p</span> : cod_mor πA' = hf · cod_mor πA)
+           (<span class="nv">hg</span> : cod_pb PB hf πB --&gt; πB')
+  : cod_dom (lccc_exp_fib HC πA πB) --&gt; cod_dom (lccc_exp_fib HC πA' πB').
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (dom_mor (lccc_exp_functor_fib HC _)).
+  - use make_cod_fib_mor.
+    + <span class="bp">exact</span> hf.
+    + <span class="bp">exact</span> (!p).
+  - <span class="bp">exact</span> hg.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lccc_exp_functor_eq_mor</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">PB</span> : Pullbacks C}
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">f</span> : C/Γ}
+           {<span class="nv">g</span> : C/cod_dom f}
+           {<span class="nv">f'</span> : C/Γ}
+           {<span class="nv">hf</span> <span class="nv">hf'</span> : cod_dom f' --&gt; cod_dom f}
+           (<span class="nv">q</span> : hf = hf')
+  : cod_dom (cod_pb PB hf g) --&gt; cod_dom (cod_pb PB hf' g).
+<span class="kn">Proof</span>.
+  use PullbackArrow.
+  - <span class="bp">exact</span> (PullbackPr1 _).
+  - <span class="bp">exact</span> (PullbackPr2 _).
+  - <span class="kp">abstract</span>
+      (<span class="nb">refine</span> (PullbackSqrCommutes _ @ _) ;
+       <span class="nb">rewrite</span> q ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lccc_exp_functor_fib_eq</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">PB</span> : Pullbacks C}
+           (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">f</span> : C/Γ}
+           {<span class="nv">g</span> : C/cod_dom f}
+           {<span class="nv">f'</span> : C/Γ}
+           {<span class="nv">g'</span> : C/cod_dom f'}
+           {<span class="nv">hf</span> <span class="nv">hf'</span> : f' --&gt; f}
+           (<span class="nv">hg</span> : cod_pb PB (dom_mor hf) g --&gt; g')
+           (<span class="nv">hg'</span> : cod_pb PB (dom_mor hf') g --&gt; g')
+           (<span class="nv">q</span> : hf = hf')
+           (<span class="nv">q'</span> : dom_mor hg
+                 =
+                 lccc_exp_functor_eq_mor (maponpaths dom_mor q) · dom_mor hg')
+  : lccc_exp_functor_fib HC hg = lccc_exp_functor_fib HC hg'.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> q.
+  <span class="nb">enough</span> (hg = hg') <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> idpath.
+  }
+  use eq_mor_cod_fib.
+  <span class="nb">refine</span> (q' @ _ @ id_left _).
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">unfold</span> lccc_exp_functor_eq_mor.
+  use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+  - <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+  - <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lccc_exp_functor_eq</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">PB</span> : Pullbacks C}
+           (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">f</span> : C/Γ}
+           {<span class="nv">g</span> : C/cod_dom f}
+           {<span class="nv">f'</span> : C/Γ}
+           {<span class="nv">g'</span> : C/cod_dom f'}
+           {<span class="nv">hf</span> <span class="nv">hf'</span> : cod_dom f' --&gt; cod_dom f}
+           (<span class="nv">p</span> : cod_mor f' = hf · cod_mor f)
+           (<span class="nv">p'</span> : cod_mor f' = hf' · cod_mor f)
+           (<span class="nv">hg</span> : cod_pb PB hf g --&gt; g')
+           (<span class="nv">hg'</span> : cod_pb PB hf' g --&gt; g')
+           (<span class="nv">q</span> : hf = hf')
+           (<span class="nv">q'</span> : dom_mor hg = lccc_exp_functor_eq_mor q · dom_mor hg')
+  : lccc_exp_functor HC p hg = lccc_exp_functor HC p' hg'.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> lccc_exp_functor.
+  <span class="nb">apply</span> maponpaths.
+  use lccc_exp_functor_fib_eq.
+  - use eq_mor_cod_fib.
+    <span class="bp">exact</span> q.
+  - <span class="nb">refine</span> (q' @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lccc_exp_functor_on_id_fib</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">PB</span> : Pullbacks C}
+            (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">πA</span> : C/Γ}
+            {<span class="nv">πB</span>: C/cod_dom πA}
+            {<span class="nv">hf</span> : πA --&gt; πA}
+            (<span class="nv">phf</span> : identity _ = hf)
+            (<span class="nv">hg</span> : cod_pb PB (dom_mor hf) πB --&gt; πB)
+            (<span class="nv">hgp</span> : dom_mor hg = PullbackPr1 _)
+  : lccc_exp_functor_fib HC hg = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (assoc' _ _ _ @ _).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_).
+    <span class="bp">exact</span> (functor_comp (right_adjoint (HC (cod_dom πA) Γ (cod_mor πA))) _ _).
+  }
+  <span class="nb">assert</span> (lccc_exp_functor_base_fib_mor HC πB hf · hg
+          =
+          lccc_exp_eval_fib HC πA πB)
+    <span class="k">as</span> r.
+  {
+    use eq_mor_cod_fib.
+    <span class="nb">refine</span> (comp_in_cod_fib _ _ @ _).
+    <span class="nb">rewrite</span> hgp.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">induction</span> phf.
+    <span class="nb">apply</span> cod_pb_left_functorial_id.
+  }
+  <span class="nb">rewrite</span> r.
+  <span class="nb">apply</span> (triangle_id_right_ad (pr2 (HC _ _ (cod_mor πA)))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lccc_exp_functor_on_id</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">PB</span> : Pullbacks C}
+            (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">πA</span> : C/Γ}
+            {<span class="nv">πB</span> : C/cod_dom πA}
+            {<span class="nv">hf</span> : cod_dom πA --&gt; cod_dom πA}
+            (<span class="nv">p</span> : cod_mor πA = hf · cod_mor πA)
+            (<span class="nv">phf</span> : identity _ = hf)
+            (<span class="nv">hg</span> : cod_pb PB hf πB --&gt; πB)
+            (<span class="nv">hgp</span> : dom_mor hg = PullbackPr1 _)
+  : lccc_exp_functor HC p hg = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (maponpaths dom_mor (lccc_exp_functor_on_id_fib HC _ _ _)).
+  - use eq_mor_cod_fib.
+    <span class="bp">exact</span> phf.
+  - <span class="bp">exact</span> hgp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cod_pb_comp_fib_mor_fib_mor</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">PB</span> : Pullbacks C}
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">πA₁</span> <span class="nv">πA₂</span> <span class="nv">πA₃</span> : C/Γ}
+           {<span class="nv">πB</span> : C/cod_dom πA₁}
+           (<span class="nv">f₁</span> : πA₂ --&gt; πA₁)
+           (<span class="nv">f₂</span> : πA₃ --&gt; πA₂)
+  : cod_dom (cod_pb PB (dom_mor (f₂ · f₁)) πB)
+    --&gt;
+    cod_dom (cod_pb PB (dom_mor f₁) πB).
+<span class="kn">Proof</span>.
+  use PullbackArrow.
+  - <span class="bp">exact</span> (PullbackPr1 _).
+  - <span class="bp">exact</span> (PullbackPr2 _ · dom_mor f₂).
+  - <span class="kp">abstract</span>
+      (<span class="nb">refine</span> (PullbackSqrCommutes _ @ _ @ assoc _ _ _) ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="nb">apply</span> comp_in_cod_fib).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cod_pb_comp_fib_mor_fib</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">PB</span> : Pullbacks C}
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">πA₁</span> <span class="nv">πA₂</span> <span class="nv">πA₃</span> : C/Γ}
+           {<span class="nv">πB</span> : C/cod_dom πA₁}
+           (<span class="nv">f₁</span> : πA₂ --&gt; πA₁)
+           (<span class="nv">f₂</span> : πA₃ --&gt; πA₂)
+  : cod_pb PB (dom_mor (f₂ · f₁)) πB
+    --&gt;
+    cod_pb PB (dom_mor f₂) (cod_pb PB (dom_mor f₁) πB).
+<span class="kn">Proof</span>.
+  use make_cod_fib_mor.
+  - use PullbackArrow.
+    + <span class="bp">exact</span> (cod_pb_comp_fib_mor_fib_mor f₁ f₂).
+    + <span class="bp">exact</span> (PullbackPr2 _).
+    + <span class="kp">abstract</span>
+        (<span class="bp">exact</span> (PullbackArrow_PullbackPr2 _ _ _ _ _)).
+  - <span class="kp">abstract</span>
+      (<span class="bp">exact</span> (PullbackArrow_PullbackPr2 _ _ _ _ _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cod_pb_comp_fib_mor_mor_pb_mor</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">PB</span> : Pullbacks C}
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">πA₁</span> <span class="nv">πA₂</span> <span class="nv">πA₃</span> : C/Γ}
+           {<span class="nv">πB</span> : C/cod_dom πA₁}
+           (<span class="nv">f₁</span> : cod_dom πA₂ --&gt; cod_dom πA₁)
+           (<span class="nv">f₂</span> : cod_dom πA₃ --&gt; cod_dom πA₂)
+  : cod_dom (cod_pb PB (f₂ · f₁) πB)
+    --&gt;
+    cod_dom (cod_pb PB f₁ πB).
+<span class="kn">Proof</span>.
+  use PullbackArrow.
+  - <span class="bp">exact</span> (PullbackPr1 _).
+  - <span class="bp">exact</span> (PullbackPr2 _ · f₂).
+  - <span class="kp">abstract</span>
+      (<span class="nb">refine</span> (PullbackSqrCommutes _ @ _) ;
+       <span class="nb">rewrite</span> assoc ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cod_pb_comp_fib_mor_mor</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">PB</span> : Pullbacks C}
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">πA₁</span> <span class="nv">πA₂</span> <span class="nv">πA₃</span> : C/Γ}
+           {<span class="nv">πB</span> : C/cod_dom πA₁}
+           (<span class="nv">f₁</span> : cod_dom πA₂ --&gt; cod_dom πA₁)
+           (<span class="nv">f₂</span> : cod_dom πA₃ --&gt; cod_dom πA₂)
+  : cod_dom (cod_pb PB (f₂ · f₁) πB)
+    --&gt;
+    cod_dom (cod_pb PB f₂ (cod_pb PB f₁ πB)).
+<span class="kn">Proof</span>.
+  use PullbackArrow.
+  - <span class="bp">exact</span> (cod_pb_comp_fib_mor_mor_pb_mor f₁ f₂).
+  - <span class="nb">apply</span> PullbackPr2.
+  - <span class="kp">abstract</span>
+      (<span class="bp">exact</span> (PullbackArrow_PullbackPr2 _ _ _ _ _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cod_pb_comp_fib_mor</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">PB</span> : Pullbacks C}
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">πA₁</span> <span class="nv">πA₂</span> <span class="nv">πA₃</span> : C/Γ}
+           {<span class="nv">πB</span> : C/cod_dom πA₁}
+           (<span class="nv">f₁</span> : cod_dom πA₂ --&gt; cod_dom πA₁)
+           (<span class="nv">f₂</span> : cod_dom πA₃ --&gt; cod_dom πA₂)
+  : cod_pb PB (f₂ · f₁) πB
+    --&gt;
+    cod_pb PB f₂ (cod_pb PB f₁ πB).
+<span class="kn">Proof</span>.
+  use make_cod_fib_mor.
+  - <span class="bp">exact</span> (cod_pb_comp_fib_mor_mor f₁ f₂).
+  - <span class="kp">abstract</span>
+      (<span class="bp">exact</span> (PullbackArrow_PullbackPr2 _ _ _ _ _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lccc_exp_functor_base_fib_mor_natural</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">PB</span> : Pullbacks C}
+            (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">πA₁</span> <span class="nv">πA₂</span> <span class="nv">πA₃</span> : C/Γ}
+            (<span class="nv">πB₁</span> : C/cod_dom πA₁)
+            (<span class="nv">f₁</span> : πA₂ --&gt; πA₁)
+            (<span class="nv">f₂</span> : πA₃ --&gt; πA₂)
+  : dom_mor (lccc_exp_functor_base_fib_mor HC πB₁ (f₂ · f₁))
+    · cod_pb_comp_fib_mor_fib_mor f₁ f₂
+    =
+    cod_pb_left_functorial PB _ f₂
+    · dom_mor (lccc_exp_functor_base_fib_mor HC πB₁ f₁).
+<span class="kn">Proof</span>.
+  use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+  - <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> cod_pb_left_functorial_comp.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+    }
+    etrans.
+    {
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+    }
+    <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lccc_exp_functor_on_comp_fib</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">PB</span> : Pullbacks C}
+            (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">πA₁</span> <span class="nv">πA₂</span> <span class="nv">πA₃</span> : C/Γ}
+            {<span class="nv">πB₁</span> : C/cod_dom πA₁}
+            {<span class="nv">πB₂</span> : C/cod_dom πA₂}
+            {<span class="nv">πB₃</span> : C/cod_dom πA₃}
+            {<span class="nv">f₁</span> : πA₂ --&gt; πA₁}
+            {<span class="nv">f₂</span> : πA₃ --&gt; πA₂}
+            (<span class="nv">g₁</span> : cod_pb PB (dom_mor f₁) πB₁ --&gt; πB₂)
+            (<span class="nv">g₂</span> : cod_pb PB (dom_mor f₂) πB₂ --&gt; πB₃)
+  : lccc_exp_functor_fib HC g₁
+    · lccc_exp_functor_fib HC g₂
+    =
+    lccc_exp_functor_fib
+      HC
+      (cod_pb_comp_fib_mor_fib f₁ f₂ · #(cod_pb PB (dom_mor f₂)) g₁ · g₂).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> lccc_exp_functor_fib.
+  <span class="nb">rewrite</span> functor_comp.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">unfold</span> lccc_exp_functor_base_fib, lccc_exp_lam_fib, φ_adj.
+  <span class="nb">rewrite</span> !assoc.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="bp">exact</span> (nat_trans_ax
+             (unit_from_left_adjoint (HC (cod_dom πA₃) Γ (cod_mor πA₃)))
+             _ _
+             (unit_from_left_adjoint
+                (HC (cod_dom πA₂) Γ (cod_mor πA₂))
+                (lccc_exp_fib HC πA₁ πB₁)
+                 · #(right_adjoint (HC (cod_dom πA₂) Γ (cod_mor πA₂)))
+                    (lccc_exp_functor_base_fib_mor HC πB₁ f₁)
+                 · #(right_adjoint (HC (cod_dom πA₂) Γ (cod_mor πA₂))) g₁)).
+  }
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">refine</span> (_ @ functor_comp (right_adjoint (HC (cod_dom πA₃) Γ (cod_mor πA₃))) _ _).
+  <span class="nb">refine</span> (!(functor_comp (right_adjoint (HC (cod_dom πA₃) Γ (cod_mor πA₃))) _ _) @ _).
+  <span class="nb">apply</span> maponpaths.
+  use eq_mor_cod_fib.
+  <span class="nb">refine</span> (comp_in_cod_fib _ _ @ _).
+  <span class="nb">refine</span> (!_).
+  <span class="nb">refine</span> (comp_in_cod_fib _ _ @ _).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (comp_in_cod_fib _ _ @ _).
+    <span class="nb">rewrite</span> cod_fiber_functor_on_mor.
+    <span class="nb">apply</span> idpath.
+  }
+  use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+  - <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+    }
+    etrans.
+    {
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> lccc_exp_functor_base_fib_mor_natural.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+    }
+    etrans.
+    {
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> cod_pb_left_functorial_natural.
+    }
+    <span class="nb">refine</span> (assoc' _ _ _ @ _ @ assoc _ _ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> lccc_exp_eval_fib.
+    <span class="nb">rewrite</span> !functor_comp.
+    <span class="nb">rewrite</span> !comp_in_cod_fib.
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!(comp_in_cod_fib _ _) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (nat_trans_ax (counit_from_left_adjoint (HC (cod_dom πA₂) Γ (cod_mor πA₂)))).
+    }
+    <span class="nb">rewrite</span> comp_in_cod_fib.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!(comp_in_cod_fib _ _) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (nat_trans_ax (counit_from_left_adjoint (HC (cod_dom πA₂) Γ (cod_mor πA₂)))).
+    }
+    <span class="nb">rewrite</span> comp_in_cod_fib.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    {
+      <span class="nb">refine</span> (!(comp_in_cod_fib _ _) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> triangle_id_left_ad.
+    }
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+    }
+    <span class="nb">rewrite</span> cod_fiber_functor_on_mor.
+    <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lccc_exp_functor_on_comp_eq</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">πA₁</span> <span class="nv">πA₂</span> <span class="nv">πA₃</span> : C/Γ}
+            {<span class="nv">f₁</span> : cod_dom πA₂ --&gt; cod_dom πA₁}
+            {<span class="nv">f₂</span> : cod_dom πA₃ --&gt; cod_dom πA₂}
+            (<span class="nv">p₁</span> : cod_mor πA₂ = f₁ · cod_mor πA₁)
+            (<span class="nv">p₂</span> : cod_mor πA₃ = f₂ · cod_mor πA₂)
+  : cod_mor πA₃ = f₂ · f₁ · cod_mor πA₁.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> p₂.
+  <span class="nb">rewrite</span> assoc'.
+  <span class="nb">rewrite</span> p₁.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lccc_exp_functor_on_comp</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">PB</span> : Pullbacks C}
+            (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">πA₁</span> <span class="nv">πA₂</span> <span class="nv">πA₃</span> : C/Γ}
+            {<span class="nv">πB₁</span> : C/cod_dom πA₁}
+            {<span class="nv">πB₂</span> : C/cod_dom πA₂}
+            {<span class="nv">πB₃</span> : C/cod_dom πA₃}
+            {<span class="nv">f₁</span> : cod_dom πA₂ --&gt; cod_dom πA₁}
+            {<span class="nv">f₂</span> : cod_dom πA₃ --&gt; cod_dom πA₂}
+            (<span class="nv">g₁</span> : cod_pb PB f₁ πB₁ --&gt; πB₂)
+            (<span class="nv">g₂</span> : cod_pb PB f₂ πB₂ --&gt; πB₃)
+            (<span class="nv">p₁</span> : cod_mor πA₂ = f₁ · cod_mor πA₁)
+            (<span class="nv">p₂</span> : cod_mor πA₃ = f₂ · cod_mor πA₂)
+  : lccc_exp_functor HC p₁ g₁
+    · lccc_exp_functor HC p₂ g₂
+    =
+    lccc_exp_functor
+      HC
+      (lccc_exp_functor_on_comp_eq p₁ p₂)
+      (cod_pb_comp_fib_mor f₁ f₂ · #(cod_pb PB f₂) g₁ · g₂).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> lccc_exp_functor.
+  <span class="nb">refine</span> (!(comp_in_cod_fib _ _) @ _).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> lccc_exp_functor_on_comp_fib.
+  }
+  <span class="nb">apply</span> maponpaths.
+  use lccc_exp_functor_fib_eq.
+  - <span class="kp">abstract</span>
+      (use eq_mor_cod_fib ;
+       <span class="nb">rewrite</span> !comp_in_cod_fib ;
+       <span class="nb">apply</span> idpath).
+  - <span class="nb">refine</span> (comp_in_cod_fib _ _ @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> comp_in_cod_fib.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (comp_in_cod_fib _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> comp_in_cod_fib.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> !cod_fiber_functor_on_mor.
+    <span class="nb">apply</span> maponpaths_2.
+    use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+    + <span class="nb">rewrite</span> assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+      }
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+      * etrans.
+        {
+          <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+        }
+        <span class="nb">refine</span> (!_).
+        <span class="nb">rewrite</span> assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+        }
+        <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+      * etrans.
+        {
+          <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+        }
+        <span class="nb">refine</span> (!_).
+        <span class="nb">rewrite</span> assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+        }
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+    + <span class="nb">rewrite</span> assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+      }
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">LCCCFunctorIso</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">PB</span> : Pullbacks C}
+          (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+          {<span class="nv">Γ</span> : C}
+          {<span class="nv">πA</span> <span class="nv">πA'</span> : C/Γ}
+          {<span class="nv">πB</span> : C/cod_dom πA}
+          {<span class="nv">πB'</span> : C/cod_dom πA'}
+          {<span class="nv">hf</span> : z_iso (cod_dom πA') (cod_dom πA)}
+          (<span class="nv">p</span> : cod_mor πA' = hf · cod_mor πA)
+          (<span class="nv">hg</span> : z_iso (cod_pb PB hf πB) πB').
+
+  <span class="kn">Definition</span> <span class="nf">lccc_exp_functor_z_iso_inv</span>
+    : cod_dom (lccc_exp_fib HC πA' πB')
+      --&gt;
+      cod_dom (lccc_exp_fib HC πA πB).
+  <span class="kn">Proof</span>.
+    use lccc_exp_functor.
+    - <span class="bp">exact</span> (z_iso_inv hf).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (!_) ;
+         use z_iso_inv_on_right ;
+         <span class="bp">exact</span> p).
+    - <span class="nb">refine</span> (#(cod_pb PB (z_iso_inv hf)) (z_iso_inv hg) · _).
+      <span class="nb">refine</span> (cod_fiber_functor_from_cleaving_comp_mor _ _ _ _ · _).
+      use make_cod_fib_mor.
+      + <span class="bp">exact</span> (PullbackPr1 _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (PullbackSqrCommutes _ @ _) ;
+           <span class="nb">refine</span> (_ @ id_right _) ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">apply</span> z_iso_after_z_iso_inv).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">lccc_exp_functor_z_iso_inv_laws</span>
+    : is_inverse_in_precat
+        (lccc_exp_functor HC p hg)
+        lccc_exp_functor_z_iso_inv.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> lccc_exp_functor_z_iso_inv.
+    <span class="nb">split</span>.
+    - <span class="nb">rewrite</span> lccc_exp_functor_on_comp.
+      use lccc_exp_functor_on_id ; [ <span class="bp">exact</span> (!(z_iso_after_z_iso_inv hf)) | ].
+      <span class="nb">rewrite</span> !comp_in_cod_fib.
+      <span class="nb">rewrite</span> !cod_fiber_functor_on_mor.
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      <span class="nb">rewrite</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)).
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)).
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      <span class="nb">unfold</span> cod_pb_comp_fib_mor_mor.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!(comp_in_cod_fib hg (inv_from_z_iso hg)) @ _).
+        <span class="nb">rewrite</span> (maponpaths dom_mor (z_iso_inv_after_z_iso hg)).
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">unfold</span> cod_pb_comp_fib_mor_mor_pb_mor.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> lccc_exp_functor_on_comp.
+      use lccc_exp_functor_on_id ; [ <span class="bp">exact</span> (!(z_iso_inv_after_z_iso hf)) | ].
+      <span class="nb">rewrite</span> !comp_in_cod_fib.
+      <span class="nb">rewrite</span> !cod_fiber_functor_on_mor.
+      use (z_iso_inv_to_right _ _ _ _ (z_iso_to_cod_dom _ _ _ hg)).
+      <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> cod_pb_comp_fib_mor_mor.
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+      + <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="bp">exact</span> (comp_in_cod_fib
+                     (cod_fiber_functor_pb PB (inv_from_z_iso hf) (inv_from_z_iso hg))
+                     _).
+          }
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> comp_in_cod_fib.
+        }
+        <span class="nb">simpl</span>.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">unfold</span> cod_pb_comp_fib_mor_mor_pb_mor.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (mor_eq (inv_from_z_iso hg)).
+        }
+        <span class="nb">rewrite</span> PullbackSqrCommutes.
+        <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+        <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lccc_exp_functor_z_iso</span>
+    : z_iso (cod_dom (lccc_exp_fib HC πA πB)) (cod_dom (lccc_exp_fib HC πA' πB')).
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    - <span class="bp">exact</span> (lccc_exp_functor _ p hg).
+    - <span class="bp">exact</span> lccc_exp_functor_z_iso_inv.
+    - <span class="bp">exact</span> lccc_exp_functor_z_iso_inv_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">LCCCFunctorIso</span>.
+
+<span class="sd">(** * 4. The slices of locally Cartesian closed categories are Cartesian closed *)</span>
+<span class="kn">Definition</span> <span class="nf">locally_cartesian_closed_to_exponentials_nat_trans_data</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">PB</span> : Pullbacks C)
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">BP</span> := codomain_fib_binproducts PB Γ)
+           (<span class="nv">πA</span> : C/Γ)
+  : nat_trans_data
+      (cod_pb PB (cod_mor πA) ∙ comp_functor (cod_mor πA))
+      (constprod_functor1 BP πA).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> πB.
+  use make_cod_fib_mor.
+  - <span class="nb">apply</span> (swap_pullback_z_iso (cod_mor πB) (cod_mor πA)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">unfold</span> swap_pullback_mor ;
+       <span class="nb">rewrite</span> !assoc ;
+       <span class="nb">rewrite</span> PullbackArrow_PullbackPr1 ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">slice_constprod_functor1_mor</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">PB</span> : Pullbacks C)
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">BP</span> := codomain_fib_binproducts PB Γ)
+           (<span class="nv">πA</span> : C/Γ)
+           {<span class="nv">πB₁</span> <span class="nv">πB₂</span> : C/Γ}
+           (<span class="nv">hp</span> : πB₁ --&gt; πB₂)
+  : cod_dom (constprod_functor1 BP πA πB₁)
+    --&gt;
+    cod_dom (constprod_functor1 BP πA πB₂).
+<span class="kn">Proof</span>.
+  use PullbackArrow.
+  - <span class="nb">apply</span> PullbackPr1.
+  - <span class="bp">exact</span> (PullbackPr2 _ · dom_mor hp).
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">refine</span> (PullbackSqrCommutes _ @ _) ;
+       <span class="nb">rewrite</span> !assoc' ;
+       <span class="nb">rewrite</span> (mor_eq hp) ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">slice_constprod_functor1_mor_eq</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">PB</span> : Pullbacks C)
+            {<span class="nv">Γ</span> : C}
+            (<span class="nv">BP</span> := codomain_fib_binproducts PB Γ)
+            (<span class="nv">πA</span> : C/Γ)
+            {<span class="nv">πB₁</span> <span class="nv">πB₂</span> : C/Γ}
+            (<span class="nv">hp</span> : πB₁ --&gt; πB₂)
+  : dom_mor (#(constprod_functor1 BP πA) hp)
+    =
+    slice_constprod_functor1_mor PB πA hp.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> slice_constprod_functor1_mor.
+  use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+  - <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+    etrans.
+    {
+      <span class="nb">cbn</span> -[fiber_category].
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (make_Pullback _ (pr22 (PB _ _ _ _ _)))).
+    }
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+    etrans.
+    {
+      <span class="nb">cbn</span> -[fiber_category].
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (make_Pullback _ (pr22 (PB _ _ _ _ _)))).
+    }
+    <span class="nb">rewrite</span> comp_in_cod_fib.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">locally_cartesian_closed_to_exponentials_nat_trans_laws</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">PB</span> : Pullbacks C)
+            {<span class="nv">Γ</span> : C}
+            (<span class="nv">BP</span> := codomain_fib_binproducts PB Γ)
+            (<span class="nv">πA</span> : C/Γ)
+  : is_nat_trans
+      _ _
+      (locally_cartesian_closed_to_exponentials_nat_trans_data PB πA).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> πB₁ πB₂ hp.
+  use eq_mor_cod_fib.
+  <span class="nb">rewrite</span> !comp_in_cod_fib.
+  etrans.
+  {
+    <span class="nb">cbn</span> -[cod_pb].
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> cod_fiber_functor_on_mor.
+  }
+  <span class="nb">rewrite</span> slice_constprod_functor1_mor_eq.
+  <span class="nb">cbn</span> ; <span class="nb">unfold</span> swap_pullback_mor, slice_constprod_functor1_mor.
+  use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+  - <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> !PullbackArrow_PullbackPr1.
+    <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+    <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">locally_cartesian_closed_to_exponentials_nat_trans</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">PB</span> : Pullbacks C)
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">BP</span> := codomain_fib_binproducts PB Γ)
+           (<span class="nv">πA</span> : C/Γ)
+  : cod_pb PB (cod_mor πA) ∙ comp_functor (cod_mor πA)
+    ⟹
+    constprod_functor1 BP πA.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (locally_cartesian_closed_to_exponentials_nat_trans_data PB πA).
+  - <span class="nb">apply</span> locally_cartesian_closed_to_exponentials_nat_trans_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">locally_cartesian_closed_to_exponentials_nat_z_iso</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">PB</span> : Pullbacks C)
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">BP</span> := codomain_fib_binproducts PB Γ)
+           (<span class="nv">πA</span> : C/Γ)
+  : nat_z_iso
+      (cod_pb PB (cod_mor πA) ∙ comp_functor (cod_mor πA))
+      (constprod_functor1 BP πA).
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - <span class="nb">apply</span> locally_cartesian_closed_to_exponentials_nat_trans.
+  - <span class="nb">intro</span>.
+    use is_z_iso_fiber_from_is_z_iso_disp.
+    use is_z_iso_disp_codomain.
+    <span class="bp">exact</span> (z_iso_is_z_isomorphism (swap_pullback_z_iso _ _ _ _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">locally_cartesian_closed_to_exponentials</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">PB</span> : Pullbacks C)
+           (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+           (<span class="nv">Γ</span> : C)
+           (<span class="nv">BP</span> := codomain_fib_binproducts PB Γ)
+  : Exponentials BP.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> πA.
+  use is_left_adjoint_nat_z_iso.
+  - <span class="bp">exact</span> (cod_pb PB (cod_mor πA) ∙ comp_functor (cod_mor πA)).
+  - use is_left_adjoint_functor_composite.
+    + <span class="nb">apply</span> HC.
+    + <span class="bp">exact</span> (is_left_adjoint_left_adjoint
+               (is_right_adjoint_cod_fiber_functor PB (cod_mor πA))).
+  - <span class="bp">exact</span> (locally_cartesian_closed_to_exponentials_nat_z_iso PB πA).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 5. Some properties of locally Cartesian closed categories *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_strict_initial_from_exponentials</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">BP</span> : BinProducts C}
+            (<span class="nv">exp</span> : Exponentials BP)
+            (<span class="nv">I</span> : Initial C)
+  : is_strict_initial I.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w f.
+  <span class="nb">pose</span> (I' := make_Initial _ (left_adjoint_preserves_initial _ (exp w) _ (pr2 I))).
+  use make_is_z_isomorphism.
+  - <span class="nb">apply</span> InitialArrow.
+  - <span class="nb">split</span>.
+    + <span class="nb">rewrite</span> &lt;- (BinProductPr2Commutes _ _ _ (BP w I) _ (identity _) f).
+      <span class="nb">refine</span> (_ @ BinProductPr1Commutes _ _ _ (BP w I) _ (identity _) f).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (InitialArrowEq (O := I')).
+    + <span class="nb">apply</span> InitialArrowEq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_strict_initial_from_locally_cartesian_closed</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">T</span> : Terminal C)
+            {<span class="nv">PB</span> : Pullbacks C}
+            (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+            (<span class="nv">I</span> : Initial C)
+  : is_strict_initial I.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w f.
+  <span class="nb">refine</span> (functor_on_is_z_isomorphism
+            (cod_fib_terminal_to_base T)
+            (is_strict_initial_from_exponentials
+               (locally_cartesian_closed_to_exponentials PB HC T)
+               (initial_cod_fib T I)
+               (make_cod_fib_ob (TerminalArrow T w))
+               (f ,, _))).
+  <span class="nb">apply</span> TerminalArrowEq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_locally_cartesian_closed_stable_bincoproducts</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">PB</span> : Pullbacks C}
+            (<span class="nv">BC</span> : BinCoproducts C)
+            (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+  : stable_bincoproducts BC.
+<span class="kn">Proof</span>.
+  use stable_bincoproducts_from_pb_preserves_bincoproduct.
+  - <span class="bp">exact</span> PB.
+  - <span class="nb">intros</span> x y f.
+    <span class="bp">exact</span> (left_adjoint_preserves_bincoproduct _ (HC x y f)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_locally_cartesian_closed_exponentials</span>
+           {<span class="nv">C</span> : univalent_category}
+           (<span class="nv">T</span> : Terminal C)
+           {<span class="nv">PB</span> : Pullbacks C}
+           (<span class="nv">HC</span> : is_locally_cartesian_closed PB)
+  : Exponentials (BinProductsFromPullbacks PB T).
+<span class="kn">Proof</span>.
+  use (exponentials_through_adj_equivalence_univalent_cats
+         _ _
+         (locally_cartesian_closed_to_exponentials PB HC T)).
+  - <span class="bp">exact</span> (_ ,, cod_fib_terminal T).
+  - <span class="nb">apply</span> is_univalent_cod_slice.
+  - <span class="bp">exact</span> (univalent_category_is_univalent C).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/LocallyCartesianClosed/LocallyCartesianClosed.v</tt>, line 34)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Some properties of locally Cartesian closed categories
+  &gt;
+  &gt;  *********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

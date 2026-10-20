@@ -1,0 +1,748 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SquareDoubleCatTwo.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> The square double category of a 2-category</span>
+
+<span class="sd"> In this file, we construct the square double category of a 2-category. Given a 2-category</span>
+<span class="sd"> `C`, we define the following double category:</span>
+<span class="sd"> - Objects: objects in `C`</span>
+<span class="sd"> - Vertical morphisms: morphisms in `C`</span>
+<span class="sd"> - Horizontal morphisms: morphisms in `C`</span>
+<span class="sd"> - Squares with vertical sides `f : x₁ --&gt; x₂` and `g : y₁ --&gt; y₂` and horizontal sides</span>
+<span class="sd">   `h : x₁ --&gt; y₁` and `k : x₂ --&gt; y₂` are 2-cells `h · g ==&gt; f · k`</span>
+
+<span class="sd"> One interesting aspect of this double category is its univalence. To guarantee that this</span>
+<span class="sd"> double category is univalent, we need to assume that `C` is both univalent (which gives</span>
+<span class="sd"> the univalence of the vertical category) and locally univalent (which gives the univalence</span>
+<span class="sd"> of the horizontal category). This is because to guarantee that the horizontal category</span>
+<span class="sd"> is univalent, identity of horizontal morphisms must correspond to invertible squares. This</span>
+<span class="sd"> is not necessarily the case if `C` is only univalent as a category. If `C` is a category</span>
+<span class="sd"> enriched in posets, then it satisfies this local univalence condition, and we thus obtain</span>
+<span class="sd"> a univalent double category.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Horizontal operations</span>
+<span class="sd"> 2. The square double category of a 2-category</span>
+<span class="sd"> 3. The square pseudo double setcategory of a 2-setcategory</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.TwoCategories.
+<span class="kn">Import</span> TwoCategories.Notations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.SquaresTwoCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.StrictDoubleCatBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.PseudoDoubleSetCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">ArrowDoubleCategory</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : two_cat).
+
+  <span class="sd">(** The following notation makes the goals more readable *)</span>
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'idto2mor'"</span> := (idto2mor _) (<span class="kn">only printing</span>).
+
+  <span class="sd">(** * 1. Horizontal operations *)</span>
+  <span class="kn">Definition</span> <span class="nf">hor_id_data_two_cat_arrow_twosided_disp_cat</span>
+    : hor_id_data (two_cat_arrow_twosided_disp_cat C).
+  <span class="kn">Proof</span>.
+    use make_hor_id_data ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, identity x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, two_cat_lunitor _ • two_cat_rinvunitor _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hor_id_laws_two_cat_arrow_twosided_disp_cat</span>
+    : hor_id_laws hor_id_data_two_cat_arrow_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span>.
+    - <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> two_cat_lunitor, two_cat_runitor, two_cat_linvunitor, two_cat_rinvunitor.
+      <span class="nb">rewrite</span> !idto2mor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (homset_property C).
+    - <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> two_cat_lunitor, two_cat_rinvunitor, two_cat_linvunitor.
+      <span class="nb">unfold</span> two_cat_lassociator, two_cat_rassociator.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+      <span class="nb">rewrite</span> !idto2mor_lwhisker.
+      <span class="nb">rewrite</span> !idto2mor_rwhisker.
+      <span class="nb">rewrite</span> !idto2mor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (homset_property C).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_id_two_cat_arrow_twosided_disp_cat</span>
+    : hor_id (two_cat_arrow_twosided_disp_cat C).
+  <span class="kn">Proof</span>.
+    use make_hor_id.
+    - <span class="bp">exact</span> hor_id_data_two_cat_arrow_twosided_disp_cat.
+    - <span class="bp">exact</span> hor_id_laws_two_cat_arrow_twosided_disp_cat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_comp_data_two_cat_arrow_twosided_disp_cat</span>
+    : hor_comp_data (two_cat_arrow_twosided_disp_cat C).
+  <span class="kn">Proof</span>.
+    use make_hor_comp_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span>, f · g).
+    - <span class="nb">intros</span> x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ h₁ h₂ k₁ k₂ s₁ s₂ ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="bp">exact</span> (two_cat_rassociator _ _ _
+             • (_ ◃ s₂)
+             • two_cat_lassociator _ _ _
+             • (s₁ ▹ _)
+             • two_cat_rassociator _ _ _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_comp_laws_two_cat_arrow_twosided_disp_cat</span>
+    : hor_comp_laws hor_comp_data_two_cat_arrow_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span>.
+    - <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">unfold</span> two_cat_runitor, two_cat_linvunitor.
+      <span class="nb">unfold</span> two_cat_lassociator, two_cat_rassociator.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+      <span class="nb">rewrite</span> !idto2mor_lwhisker.
+      <span class="nb">rewrite</span> !idto2mor_rwhisker.
+      <span class="nb">rewrite</span> !idto2mor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (homset_property C).
+    - <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">unfold</span> two_cat_lassociator, two_cat_rassociator.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+      <span class="nb">rewrite</span> !idto2mor_lwhisker.
+      <span class="nb">rewrite</span> !idto2mor_rwhisker.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> !idto2mor_comp.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> rwhisker_lwhisker_mor.
+        }
+        <span class="nb">unfold</span> two_cat_lassociator, two_cat_rassociator.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> !idto2mor_comp.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> idto2mor_comp.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> !idto2mor_comp.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> lwhisker_rwhisker_mor.
+        }
+        <span class="nb">unfold</span> two_cat_lassociator, two_cat_rassociator.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> !idto2mor_comp.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> !idto2mor_comp.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !vassocl.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> lwhisker_lwhisker_mor.
+        }
+        <span class="nb">unfold</span> two_cat_lassociator, two_cat_rassociator.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> !idto2mor_comp.
+        <span class="nb">rewrite</span> !vassocl.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> !idto2mor_comp.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> rwhisker_rwhisker_mor.
+          }
+          <span class="nb">unfold</span> two_cat_lassociator, two_cat_rassociator.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> !idto2mor_comp.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">rewrite</span> !idto2mor_comp.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> idto2mor_id.
+        <span class="nb">rewrite</span> id2_left.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> vcomp_whisker.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> rwhisker_comp_mor.
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> lwhisker_comp_mor.
+          }
+          <span class="nb">unfold</span> two_cat_lassociator, two_cat_rassociator.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">rewrite</span> idto2mor_comp.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> idto2mor_comp.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> idto2mor_comp.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> !idto2mor_comp.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> !idto2mor_comp.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !vassocr.
+      use idto2mor_right.
+      <span class="nb">apply</span> maponpaths_2.
+      use idto2mor_right.
+      <span class="nb">apply</span> maponpaths_2.
+      use idto2mor_right.
+      <span class="nb">apply</span> maponpaths_2.
+      use idto2mor_right.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (homset_property C).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_comp_two_cat_arrow_twosided_disp_cat</span>
+    : hor_comp (two_cat_arrow_twosided_disp_cat C).
+  <span class="kn">Proof</span>.
+    use make_hor_comp.
+    - <span class="bp">exact</span> hor_comp_data_two_cat_arrow_twosided_disp_cat.
+    - <span class="bp">exact</span> hor_comp_laws_two_cat_arrow_twosided_disp_cat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_lunitor_two_cat_arrow_twosided_disp_cat_data</span>
+    : double_lunitor_data
+        hor_id_two_cat_arrow_twosided_disp_cat
+        hor_comp_two_cat_arrow_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+    use z_iso_to_iso_two_cat_arrow.
+    use make_z_iso.
+    - <span class="nb">apply</span> two_cat_lunitor.
+    - <span class="nb">apply</span> two_cat_linvunitor.
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ; [ <span class="nb">apply</span> two_cat_lunitor_linvunitor | ] ;
+         <span class="nb">apply</span> two_cat_linvunitor_lunitor).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_lunitor_two_cat_arrow_twosided_disp_cat_laws</span>
+    : double_lunitor_laws
+        double_cat_lunitor_two_cat_arrow_twosided_disp_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportb_disp_mor2_two_cat_arrow.
+    <span class="nb">unfold</span> two_cat_lassociator, two_cat_rassociator.
+    <span class="nb">unfold</span> two_cat_lunitor, two_cat_linvunitor.
+    <span class="nb">unfold</span> two_cat_runitor, two_cat_rinvunitor.
+    <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+    <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> !idto2mor_lwhisker.
+    <span class="nb">rewrite</span> !idto2mor_rwhisker.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> id1_lwhisker.
+    }
+    <span class="nb">unfold</span> two_cat_lunitor, two_cat_linvunitor.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> rwhisker_id1.
+    }
+    <span class="nb">unfold</span> two_cat_runitor, two_cat_rinvunitor.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> id1_lwhisker.
+    }
+    <span class="nb">unfold</span> two_cat_lunitor, two_cat_linvunitor.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    use arr_idto2mor_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_lunitor_two_cat_arrow_twosided_disp_cat</span>
+    : double_cat_lunitor
+        hor_id_two_cat_arrow_twosided_disp_cat
+        hor_comp_two_cat_arrow_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    use make_double_lunitor.
+    - <span class="bp">exact</span> double_cat_lunitor_two_cat_arrow_twosided_disp_cat_data.
+    - <span class="bp">exact</span> double_cat_lunitor_two_cat_arrow_twosided_disp_cat_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_runitor_two_cat_arrow_twosided_disp_cat_data</span>
+    : double_runitor_data
+        hor_id_two_cat_arrow_twosided_disp_cat
+        hor_comp_two_cat_arrow_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+    use z_iso_to_iso_two_cat_arrow.
+    use make_z_iso.
+    - <span class="nb">apply</span> two_cat_runitor.
+    - <span class="nb">apply</span> two_cat_rinvunitor.
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ; [ <span class="nb">apply</span> two_cat_runitor_rinvunitor | ] ;
+         <span class="nb">apply</span> two_cat_rinvunitor_runitor).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_runitor_two_cat_arrow_twosided_disp_cat_laws</span>
+    : double_runitor_laws
+        double_cat_runitor_two_cat_arrow_twosided_disp_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportb_disp_mor2_two_cat_arrow.
+    <span class="nb">unfold</span> two_cat_lassociator, two_cat_rassociator.
+    <span class="nb">unfold</span> two_cat_lunitor, two_cat_linvunitor.
+    <span class="nb">unfold</span> two_cat_runitor, two_cat_rinvunitor.
+    <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+    <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> !idto2mor_lwhisker.
+    <span class="nb">rewrite</span> !idto2mor_rwhisker.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> id1_lwhisker.
+    }
+    <span class="nb">unfold</span> two_cat_lunitor, two_cat_linvunitor.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> rwhisker_id1.
+    }
+    <span class="nb">unfold</span> two_cat_runitor, two_cat_rinvunitor.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> rwhisker_id1.
+    }
+    <span class="nb">unfold</span> two_cat_runitor, two_cat_rinvunitor.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    use arr_idto2mor_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_runitor_two_cat_arrow_twosided_disp_cat</span>
+    : double_cat_runitor
+        hor_id_two_cat_arrow_twosided_disp_cat
+        hor_comp_two_cat_arrow_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    use make_double_runitor.
+    - <span class="bp">exact</span> double_cat_runitor_two_cat_arrow_twosided_disp_cat_data.
+    - <span class="bp">exact</span> double_cat_runitor_two_cat_arrow_twosided_disp_cat_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_associator_two_cat_arrow_twosided_disp_cat_data</span>
+    : double_associator_data hor_comp_two_cat_arrow_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w x y z h₁ h₂ h₃ ; <span class="nb">cbn</span>.
+    use z_iso_to_iso_two_cat_arrow.
+    use make_z_iso.
+    - <span class="nb">apply</span> two_cat_lassociator.
+    - <span class="nb">apply</span> two_cat_rassociator.
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ; [ <span class="nb">apply</span> two_cat_lassociator_rassociator | ] ;
+         <span class="nb">apply</span> two_cat_rassociator_lassociator).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_associator_two_cat_arrow_twosided_disp_cat_laws</span>
+    : double_associator_laws
+        double_cat_associator_two_cat_arrow_twosided_disp_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportb_disp_mor2_two_cat_arrow.
+    <span class="nb">unfold</span> two_cat_lassociator, two_cat_rassociator.
+    <span class="nb">unfold</span> two_cat_lunitor, two_cat_linvunitor.
+    <span class="nb">unfold</span> two_cat_runitor, two_cat_rinvunitor.
+    <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+    <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+    <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> !idto2mor_lwhisker.
+    <span class="nb">rewrite</span> !idto2mor_rwhisker.
+    <span class="nb">rewrite</span> !idto2mor_lwhisker.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    etrans.
+    {
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> id1_lwhisker.
+      }
+      <span class="nb">unfold</span> two_cat_lunitor, two_cat_linvunitor.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> idto2mor_comp.
+      <span class="nb">rewrite</span> !vassocr.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> rwhisker_rwhisker_mor.
+      }
+      <span class="nb">unfold</span> two_cat_lassociator, two_cat_rassociator.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> idto2mor_comp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> !idto2mor_comp.
+      <span class="nb">rewrite</span> !vassocr.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> id1_lwhisker.
+      }
+      <span class="nb">unfold</span> two_cat_lunitor, two_cat_linvunitor.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> idto2mor_comp.
+      <span class="nb">rewrite</span> !vassocr.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> lwhisker_rwhisker_mor.
+      }
+      <span class="nb">unfold</span> two_cat_lassociator, two_cat_rassociator.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> idto2mor_comp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> !idto2mor_comp.
+      <span class="nb">rewrite</span> !vassocr.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> id1_lwhisker.
+      }
+      <span class="nb">unfold</span> two_cat_lunitor, two_cat_linvunitor.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> idto2mor_comp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> idto2mor_comp.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> lwhisker_comp_mor.
+      }
+      <span class="nb">unfold</span> two_cat_lassociator, two_cat_rassociator.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> idto2mor_comp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> idto2mor_comp.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> rwhisker_id1.
+      }
+      <span class="nb">unfold</span> two_cat_runitor, two_cat_rinvunitor.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> idto2mor_comp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> !idto2mor_comp.
+      <span class="nb">rewrite</span> !vassocr.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> rwhisker_id1.
+      }
+      <span class="nb">unfold</span> two_cat_runitor, two_cat_rinvunitor.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> idto2mor_comp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> !idto2mor_comp.
+      <span class="nb">rewrite</span> !vassocr.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> rwhisker_id1.
+      }
+      <span class="nb">unfold</span> two_cat_runitor, two_cat_rinvunitor.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> idto2mor_comp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> idto2mor_comp.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">refine</span> (arr_idto2mor_eq3 _ _ _ _ _ _ _ _ _ _ _) ; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_associator_two_cat_arrow_twosided_disp_cat</span>
+    : double_cat_associator hor_comp_two_cat_arrow_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    use make_double_associator.
+    - <span class="bp">exact</span> double_cat_associator_two_cat_arrow_twosided_disp_cat_data.
+    - <span class="bp">exact</span> double_cat_associator_two_cat_arrow_twosided_disp_cat_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">triangle_law_two_cat_arrow_twosided_disp_cat</span>
+    : triangle_law
+        double_cat_lunitor_two_cat_arrow_twosided_disp_cat
+        double_cat_runitor_two_cat_arrow_twosided_disp_cat
+        double_cat_associator_two_cat_arrow_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportb_disp_mor2_two_cat_arrow.
+    <span class="nb">unfold</span> two_cat_lassociator, two_cat_rassociator.
+    <span class="nb">unfold</span> two_cat_runitor, two_cat_rinvunitor.
+    <span class="nb">unfold</span> two_cat_lunitor, two_cat_linvunitor.
+    <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+    <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+    <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> !idto2mor_lwhisker.
+    <span class="nb">rewrite</span> !idto2mor_rwhisker.
+    <span class="nb">rewrite</span> !idto2mor_lwhisker.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (homset_property C).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pentagon_law_two_cat_arrow_twosided_disp_cat</span>
+    : pentagon_law double_cat_associator_two_cat_arrow_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportb_disp_mor2_two_cat_arrow.
+    <span class="nb">unfold</span> two_cat_lassociator, two_cat_rassociator.
+    <span class="nb">unfold</span> two_cat_runitor, two_cat_rinvunitor.
+    <span class="nb">unfold</span> two_cat_lunitor, two_cat_linvunitor.
+    <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+    <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+    <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> !idto2mor_lwhisker.
+    <span class="nb">rewrite</span> !idto2mor_rwhisker.
+    <span class="nb">rewrite</span> !idto2mor_lwhisker.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (homset_property C).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">ArrowDoubleCategory</span>.
+
+<span class="sd">(** * 2. The square double category of a 2-category *)</span>
+<span class="kn">Definition</span> <span class="nf">two_cat_square_double_cat</span>
+           (<span class="nv">C</span> : two_cat)
+  : double_cat.
+<span class="kn">Proof</span>.
+  use make_double_cat.
+  - <span class="bp">exact</span> C.
+  - <span class="bp">exact</span> (two_cat_arrow_twosided_disp_cat C).
+  - <span class="bp">exact</span> (hor_id_two_cat_arrow_twosided_disp_cat C).
+  - <span class="bp">exact</span> (hor_comp_two_cat_arrow_twosided_disp_cat C).
+  - <span class="bp">exact</span> (double_cat_lunitor_two_cat_arrow_twosided_disp_cat C).
+  - <span class="bp">exact</span> (double_cat_runitor_two_cat_arrow_twosided_disp_cat C).
+  - <span class="bp">exact</span> (double_cat_associator_two_cat_arrow_twosided_disp_cat C).
+  - <span class="bp">exact</span> (triangle_law_two_cat_arrow_twosided_disp_cat C).
+  - <span class="bp">exact</span> (pentagon_law_two_cat_arrow_twosided_disp_cat C).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">all_companions_two_cat_square_double_cat</span>
+           (<span class="nv">C</span> : two_cat)
+  : all_companions_double_cat (two_cat_square_double_cat C).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f.
+  <span class="nb">refine</span> (f ,, _).
+  use make_double_cat_are_companions'.
+  - <span class="nb">apply</span> id2.
+  - <span class="nb">apply</span> id2.
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> id2_rwhisker ;
+       <span class="nb">rewrite</span> lwhisker_id2 ;
+       <span class="nb">rewrite</span> !id2_right ;
+       <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp ;
+       <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp ;
+       <span class="nb">refine</span> (transportf_disp_mor2_two_cat_arrow _ _ _ _ @ _) ;
+       <span class="nb">unfold</span> two_cat_lassociator, two_cat_rassociator ;
+       <span class="nb">unfold</span> two_cat_runitor, two_cat_rinvunitor ;
+       <span class="nb">unfold</span> two_cat_lunitor, two_cat_linvunitor ;
+       <span class="nb">rewrite</span> !vassocl ;
+       <span class="nb">rewrite</span> !idto2mor_lwhisker ;
+       <span class="nb">rewrite</span> !idto2mor_rwhisker ;
+       <span class="nb">rewrite</span> !idto2mor_comp ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="nb">apply</span> (homset_property C)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> id2_rwhisker ;
+       <span class="nb">rewrite</span> lwhisker_id2 ;
+       <span class="nb">rewrite</span> !id2_right ;
+       <span class="nb">refine</span> (transportf_disp_mor2_two_cat_arrow _ _ _ _ @ _) ;
+       <span class="nb">unfold</span> two_cat_lassociator, two_cat_rassociator ;
+       <span class="nb">unfold</span> two_cat_runitor, two_cat_rinvunitor ;
+       <span class="nb">unfold</span> two_cat_lunitor, two_cat_linvunitor ;
+       <span class="nb">rewrite</span> !vassocl ;
+       <span class="nb">rewrite</span> !idto2mor_lwhisker ;
+       <span class="nb">rewrite</span> !idto2mor_rwhisker ;
+       <span class="nb">rewrite</span> !idto2mor_comp ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="nb">apply</span> (homset_property C)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">two_cat_square_univalent_double_cat</span>
+           (<span class="nv">C</span> : univalent_two_cat)
+           (<span class="nv">H</span> : locally_univalent_two_cat C)
+  : univalent_double_cat.
+<span class="kn">Proof</span>.
+  use make_univalent_double_cat.
+  - <span class="bp">exact</span> (two_cat_square_double_cat C).
+  - <span class="nb">split</span>.
+    + <span class="nb">apply</span> C.
+    + <span class="nb">apply</span> is_univalent_two_cat_arrow.
+      <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. The square pseudo double setcategory of a 2-setcategory *)</span>
+<span class="kn">Definition</span> <span class="nf">strict_two_cat_square_double_cat</span>
+           (<span class="nv">C</span> : two_setcat)
+  : pseudo_double_setcat.
+<span class="kn">Proof</span>.
+  use make_pseudo_double_setcat.
+  - <span class="bp">exact</span> (two_cat_square_double_cat C).
+  - use is_setcategory_two_setcat.
+  - use is_strict_two_cat_arrow_twosided_disp_cat.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Examples/SquareDoubleCatTwo.v</tt>, line 28)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. The square pseudo double setcategory of a 2-setcategory
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Setcategories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

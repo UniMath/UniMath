@@ -1,0 +1,1247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Precomp.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.TotalCategoryFacts.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.precomp_fully_faithful.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Transformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Unitary.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Functors.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Functors.WeakEquivalences.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Definition</span> <span class="nf">dagger_functor_on_unitary</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : category}
+           {<span class="nv">dagC</span> : dagger C} {<span class="nv">dagD</span> : dagger D}
+           {<span class="nv">F</span> : functor C D}
+           (<span class="nv">dagF</span> : is_dagger_functor dagC dagD F)
+  : ∏ c c' : C, unitary dagC c c' -&gt; unitary dagD (F c) (F c').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c c' u.
+  <span class="k">exists</span> (#F (pr1 u)).
+  <span class="nb">split</span>.
+  - <span class="nb">refine</span> (_ @ functor_id F _).
+    <span class="nb">refine</span> (_ @ maponpaths (#F) (pr12 u)).
+    <span class="nb">refine</span> (_ @ ! functor_comp F _ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> pathsinv0, dagF.
+  - <span class="nb">refine</span> (_ @ functor_id F _).
+    <span class="nb">refine</span> (_ @ maponpaths (#F) (pr22 u)).
+    <span class="nb">refine</span> (_ @ ! functor_comp F _ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> pathsinv0, dagF.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dagger_functor_on_unitary_inv</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : category}
+           {<span class="nv">dagC</span> : dagger C} {<span class="nv">dagD</span> : dagger D}
+           {<span class="nv">F</span> : functor C D}
+           (<span class="nv">dagF</span> : is_dagger_functor dagC dagD F)
+  : ∏ c c' : C, ∏ u : unitary dagC c c',
+        unitary_inv (dagger_functor_on_unitary dagF c c' u) = dagger_functor_on_unitary dagF _ _ (unitary_inv u).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span>.
+  <span class="nb">unfold</span> unitary_inv.
+  use subtypePath.
+  { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_unitary. }
+  <span class="nb">apply</span> pathsinv0, dagF.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dagger_functor_on_unitary_inv_on_ob</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : category}
+           {<span class="nv">dagC</span> : dagger C} {<span class="nv">dagD</span> : dagger D}
+           {<span class="nv">F</span> : functor C D}
+           (<span class="nv">dagF</span> : is_dagger_functor dagC dagD F)
+  : ∏ c c' : C, ∏ u : unitary dagC c c',
+        pr1 (unitary_inv (dagger_functor_on_unitary dagF c c' u))
+        = #F (dagC _ _ u).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span>.
+  <span class="nb">apply</span> pathsinv0, dagF.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">dagger_of_idtodaggeriso</span>
+      {<span class="nv">C</span> : category} (<span class="nv">dag</span> : dagger C)
+      {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : x = y)
+  : pr1 dag _ _ (pr1 (idtodaggeriso dag _ _ p)) = pr1 (idtodaggeriso dag _ _ (! p)).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> dagger_to_law_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">Precomp_dagger_functor</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+          {<span class="nv">dagC</span> : dagger C} {<span class="nv">dagD</span> : dagger D}
+          {<span class="nv">F</span> : functor C D}
+          (<span class="nv">dagF</span> : is_dagger_functor dagC dagD F)
+          (<span class="nv">dagE</span> : dagger E).
+
+  <span class="kn">Definition</span> <span class="nf">disp_dagger_pre_composition_functor_data</span>
+    :  disp_functor_data
+         (pre_composition_functor C D E F)
+         (dagger_functor_disp_cat dagD dagE)
+         (dagger_functor_disp_cat dagC dagE).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span> <span class="nv">dagG</span>, <span class="nv">is_dagger_functor_comp</span> <span class="nv">dagF</span> <span class="nv">dagG</span>).
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="bp">exact</span> tt.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_dagger_pre_composition_functor_laws</span>
+    : disp_functor_axioms disp_dagger_pre_composition_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> isapropunit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_dagger_pre_composition_functor</span>
+    :  disp_functor
+         (pre_composition_functor C D E F)
+         (dagger_functor_disp_cat dagD dagE)
+         (dagger_functor_disp_cat dagC dagE)
+    := _ ,, disp_dagger_pre_composition_functor_laws.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_pre_composition_functor</span>
+    : functor (dagger_functor_cat dagD dagE) (dagger_functor_cat dagC dagE)
+    := total_functor (F := pre_composition_functor C D E F)
+                     disp_dagger_pre_composition_functor.
+
+  <span class="kn">Lemma</span> <span class="nf">dagger_pre_composition_functor_is_dagger_functor</span>
+    : is_dagger_functor (dagger_on_functor_cat dagD dagE)
+                        (dagger_on_functor_cat dagC dagE)
+                        dagger_pre_composition_functor.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit. }
+    use (nat_trans_eq (pr2 E)).
+    <span class="nb">intro</span> ; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Precomp_dagger_functor</span>.
+
+<span class="kn">Section</span> <span class="nf">Precomp_with_dagger_weak_equiv</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+          {<span class="nv">dagC</span> : dagger C} {<span class="nv">dagD</span> : dagger D}
+          {<span class="nv">H</span> : functor C D}
+          {<span class="nv">dagH</span> : is_dagger_functor dagC dagD H}
+          (<span class="nv">dagE</span> : dagger E).
+
+  <span class="kn">Context</span> (<span class="nv">wH</span> : is_weak_dagger_equiv dagH).
+
+  <span class="kn">Lemma</span> <span class="nf">disp_dagger_pre_composition_functor_ff</span>
+    : disp_functor_ff (disp_dagger_pre_composition_functor dagH dagE).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="bp">exact</span> (isweqcontrtounit iscontrunit).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">Precomp_is_ff</span>
+    : fully_faithful (dagger_pre_composition_functor dagH dagE).
+  <span class="kn">Proof</span>.
+    use (disp_functor_ff_to_total_ff _ disp_dagger_pre_composition_functor_ff).
+    <span class="nb">apply</span> pre_composition_with_ess_surj_and_full_is_fully_faithful.
+    - <span class="bp">exact</span> (is_unitarily_eso_is_eso _ (pr1 wH)).
+    - <span class="bp">exact</span> (pr1 (fully_faithful_implies_full_and_faithful _ _ _ (pr2 wH))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">IntermediateProp</span>.
+
+    <span class="kn">Context</span> {<span class="nv">F</span> : functor C E} (<span class="nv">dagF</span> : is_dagger_functor dagC dagE F).
+
+  <span class="kn">Local Definition</span> <span class="nf">X</span>
+        (<span class="nv">d</span> : D) : UU
+    := ∑ (ck : ∑ e : E, ∏ c : C, unitary dagD (H c) d -&gt; unitary dagE (F c) e),
+    ∏ t t' : ∑ c : C, unitary dagD (H c) d,
+          ∏ f : pr1 t --&gt; pr1 t',
+             (#H f · pr12 t' = pr12 t -&gt;
+                    #F f · pr1 (pr2 ck (pr1 t') (pr2 t')) = pr1 (pr2 ck (pr1 t) (pr2 t))).
+
+  <span class="kn">Local Definition</span> <span class="nf">kX</span>
+        (<span class="nv">d</span> : D)
+        (<span class="nv">t</span> : X d) := (pr2 (pr1 t)).
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"FF ^-1"</span> := (fully_faithful_inv_hom FF _ _ ).
+  <span class="kn">Let</span> <span class="nf">fH</span> := pr2 wH : fully_faithful H.
+
+  <span class="kn">Ltac</span> <span class="nf">inv_functor</span> HF x y :=
+   <span class="k">let</span> <span class="nv">H</span>:=<span class="kp">fresh</span> <span class="k">in</span>
+   <span class="nb">set</span> (H:= homotweqinvweq (weq_from_fully_faithful HF x y));
+     <span class="nb">simpl</span> <span class="k">in</span> H;
+     <span class="nb">unfold</span> fully_faithful_inv_hom; <span class="nb">simpl</span>;
+     <span class="nb">rewrite</span> H; <span class="nb">clear</span> H.
+
+  <span class="kn">Lemma</span> <span class="nf">X_aux_type_center_of_contr_proof</span>
+        (<span class="nv">b</span> : D) (<span class="nv">anot</span> : C) (<span class="nv">hnot</span> : unitary dagD (H anot) b) :
+    ∏ (t t' : ∑ a :  C, unitary dagD (H a) b)
+      (f : pr1 t --&gt; pr1 t'),
+      #H f· pr12 t' = pr12 t -&gt;
+      #F f·
+       #F (fH^-<span class="mi">1</span> (pr12 t'· dagD _ _ (pr1 hnot))) =
+        #F (fH^-<span class="mi">1</span> (pr12 t· dagD _ _ (pr1 hnot))).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> t t' f.
+    <span class="nb">destruct</span> t <span class="k">as</span> [a h].
+    <span class="nb">destruct</span> t' <span class="k">as</span> [a' h'].
+    <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">intro</span> star.
+    <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (invmaponpathsweq
+             (weq_from_fully_faithful fH a anot)).
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> functor_comp.
+    inv_functor fH a' anot.
+    <span class="nb">rewrite</span> assoc.
+    inv_functor fH a anot.
+    <span class="nb">rewrite</span> &lt;- star.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"F '^-i'"</span> := (fully_faithful_reflects_unitary dagH F) (<span class="kn">at level</span> <span class="mi">20</span>).
+
+  <span class="kn">Definition</span> <span class="nf">X_aux_type_center_of_contr</span> (<span class="nv">b</span> : D)
+             (<span class="nv">anot</span> : C)(<span class="nv">hnot</span> : unitary dagD (H anot) b) : X b.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (cnot := F anot).
+    use tpair.
+    - <span class="k">exists</span> <span class="nv">cnot</span>.
+      <span class="nb">intros</span> c u.
+      <span class="nb">unfold</span> cnot.
+      <span class="nb">set</span> (u' := fully_faithful_reflects_unitary dagH fH c anot (unitary_comp u (unitary_inv hnot))).
+      <span class="bp">exact</span> (dagger_functor_on_unitary dagF _ _ u').
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">t</span> <span class="nv">t'</span> <span class="nv">f</span> <span class="nv">p</span>, X_aux_type_center_of_contr_proof b anot hnot t t' f p).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Any inhabitant of [X b] is equal to the center of [X b]. *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">X_aux_type_contr_eq</span>
+        (<span class="nv">b</span> : D) (<span class="nv">anot</span> : C) (<span class="nv">hnot</span> : unitary dagD (H anot) b) (<span class="nv">Euniv</span> : is_univalent_dagger dagE) :
+    ∏ t : X b, t = X_aux_type_center_of_contr b anot hnot.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> t.
+    <span class="nb">assert</span> (Hpr1 : pr1 (X_aux_type_center_of_contr b anot hnot) = pr1 t).
+    {
+      <span class="nb">set</span> (w := daggerisotoid Euniv ((pr2 (pr1 t)) anot hnot) :
+             pr1 (pr1 (X_aux_type_center_of_contr b anot hnot)) = pr1 (pr1 t)).
+
+      <span class="nb">apply</span> (total2_paths_f w).
+      <span class="nb">simpl</span>.
+      <span class="nb">destruct</span> t <span class="k">as</span> [[c1 k1] q1].
+      <span class="nb">simpl</span> <span class="k">in</span> *.
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> a.
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> h.
+      <span class="nb">set</span> (gah := fH^-i  _ _ (unitary_comp h (unitary_inv hnot))).
+      <span class="nb">set</span> (qhelp := q1 (tpair _ a h)(tpair _ anot hnot) (pr1 gah)).
+      <span class="nb">simpl</span> <span class="k">in</span> *.
+
+      <span class="nb">assert</span> (feedtoqhelp : #H (fH^-<span class="mi">1</span> (pr1 h · pr1 (unitary_inv hnot)))· pr1 hnot = pr1 h).
+      {
+        inv_functor fH a anot.
+        <span class="nb">refine</span> (assoc' _ _ _ @ _ @ id_right _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (pr22 hnot).
+      }
+
+      <span class="nb">assert</span> (quack := qhelp feedtoqhelp).
+
+      <span class="nb">simpl</span> <span class="k">in</span> *.
+
+      intermediate_path (unitary_comp  (dagger_functor_on_unitary dagF _ _ (fH^-i _ _ (unitary_comp h (unitary_inv hnot)))) (idtodaggeriso _ _ _ w) ).
+      - <span class="nb">generalize</span> w; <span class="nb">intro</span> w0.
+        <span class="nb">induction</span> w0.
+        <span class="nb">apply</span> unitary_eq.
+        <span class="nb">apply</span> pathsinv0, id_right.
+      - <span class="nb">apply</span> unitary_eq.
+        <span class="nb">simpl</span>.
+        <span class="nb">unfold</span> w.
+        <span class="nb">refine</span> (_ @ quack).
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> idtodaggeriso_daggerisotoid.
+    }
+
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (total2_paths_f Hpr1).
+    <span class="nb">apply</span> proofirrelevance.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Putting everything together: [X b] is contractible. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">iscontr_X</span> (<span class="nv">Euniv</span> : is_univalent_dagger dagE) : ∏ b : D, iscontr (X b).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> b.
+    <span class="nb">assert</span> (HH : isaprop (iscontr (X b))).
+    <span class="nb">apply</span> isapropiscontr.
+    <span class="nb">apply</span> (pr1 wH b (tpair (<span class="k">λ</span> <span class="nv">x</span>, isaprop x) (iscontr (X b)) HH)).
+    <span class="nb">intro</span> t.
+    <span class="k">exists</span> (<span class="nv">X_aux_type_center_of_contr</span> <span class="nv">b</span> (pr1 t) (pr2 t)).
+    <span class="bp">exact</span> (X_aux_type_contr_eq b (pr1 t) (pr2 t) Euniv).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** The object part of [G], [Go b], is defined as the first component of</span>
+<span class="sd">    the center of [X b]. *)</span>
+
+  <span class="sd">(** *** [G] on objects *)</span>
+
+  <span class="kn">Context</span> (<span class="nv">Euniv</span> : is_univalent_dagger dagE).
+
+  <span class="kn">Local Definition</span> <span class="nf">Go</span> : D -&gt; E :=
+    <span class="k">λ</span> <span class="nv">b</span> : D, pr1 (pr1 (pr1 (iscontr_X Euniv b))).
+
+  <span class="kn">Local Definition</span> <span class="nf">k</span> (<span class="nv">b</span> : D) :
+    ∏ a : C, unitary _ (H a) b -&gt; unitary _ (F a) (Go b) :=
+    pr2 (pr1 (pr1 (iscontr_X Euniv b))).
+
+  <span class="kn">Local Definition</span> <span class="nf">q</span> (<span class="nv">b</span> : D) := pr2 (pr1 (iscontr_X Euniv b)).
+
+  <span class="sd">(** Given any inhabitant of [X b], its first component is equal to [Go b]. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">Xphi</span> (<span class="nv">b</span> : D) (<span class="nv">t</span> : X b) : pr1 (pr1 t) = Go b.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (p1 := pr2 (iscontr_X Euniv b) t).
+    <span class="bp">exact</span> (base_paths _ _ (base_paths _ _ p1)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Given any inhabitant [t : X b], its second component is equal to [k b],</span>
+<span class="sd">       modulo transport along [Xphi b t]. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">Xkphi_transp</span> (<span class="nv">b</span> : D) (<span class="nv">t</span> : X b) :
+    ∏ a : C, ∏ h : unitary _ (H a) b,
+          transportf _ (Xphi b t) (kX _ t) a h =  k b a h.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intro</span>.
+    <span class="nb">set</span> (p := fiber_paths (base_paths _ _ (pr2 (iscontr_X Euniv b) t))).
+    <span class="bp">exact</span> (toforallpaths _ _ _ ((toforallpaths _ _ _ p) a) h).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Similarly to the lemma before, the second component of [t] is the same</span>
+<span class="sd">    as [k b], modulo postcomposition with an isomorphism. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">Xkphi_idtoiso</span> (<span class="nv">b</span> : D) (<span class="nv">t</span> : X b) :
+    ∏ a : C, ∏ h : unitary _ (H a) b,
+          k b a h · idtodaggeriso dagE _ _ (!Xphi b t) = kX _ t a h.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a h.
+    <span class="nb">rewrite</span> &lt;- (Xkphi_transp _ t).
+    <span class="nb">generalize</span> (Xphi b t).
+    <span class="nb">intro</span> i; <span class="nb">destruct</span> i.
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** *** Preparation for [G] on morphisms *)</span>
+
+<span class="sd">(** [G f] will be defined as the first component of the center of</span>
+<span class="sd">     contraction of [Y f]. *)</span>
+
+  <span class="kn">Local Definition</span> <span class="nf">Y</span> {<span class="nv">b</span> <span class="nv">b'</span> : D} (<span class="nv">f</span> : b --&gt; b') :=
+    ∑ g : Go b --&gt; Go b',
+              ∏ a : C,
+                ∏ h : unitary _ (H a) b,
+                  ∏ a' : C,
+                    ∏ h' : unitary _ (H a') b',
+                      ∏ l : a --&gt; a',
+                        #H l · h' = h · f -&gt; #F l · k b' a' h' = k b a h · g.
+
+  <span class="kn">Lemma</span> <span class="nf">Y_inhab_proof</span> (<span class="nv">b</span> <span class="nv">b'</span> : D) (<span class="nv">f</span> : b --&gt; b') (<span class="nv">a0</span> : C) (<span class="nv">h0</span> : unitary _ (H a0) b)
+        (<span class="nv">a0'</span> : C) (<span class="nv">h0'</span> : unitary _ (H a0') b') :
+    ∏ (a : C) (h : unitary _ (H a) b) (a' : C) (h' : unitary _ (H a') b')
+      (l : a --&gt; a'),
+      #H l· h' = h· f -&gt;
+      #F l· k b' a' h' =
+        k b a h· ((unitary_inv (k b a0 h0)·
+                                  #F (fH^-<span class="mi">1</span> ((h0· f)· unitary_inv h0')))· k b' a0' h0').
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a h a' h' l alpha.
+    <span class="nb">set</span> (m := fH^-i _ _ (unitary_comp h0 (unitary_inv h))).
+    <span class="nb">set</span> (m' := fH^-i _ _ (unitary_comp h0' (unitary_inv h'))).
+    <span class="nb">assert</span> (sss : unitary_comp (dagger_functor_on_unitary dagF _ _ m) (k b a h) =
+                    k b a0 h0).
+    {
+      <span class="nb">apply</span> unitary_eq.
+      <span class="nb">apply</span> (q b (tpair _ a0 h0) (tpair _ a h) m).
+      <span class="nb">simpl</span>.
+      inv_functor fH a0 a.
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">apply</span> maponpaths, (pr2 h).
+    }
+    <span class="nb">assert</span> (ssss : unitary_comp (dagger_functor_on_unitary dagF _ _ m') (k b' a' h') =
+                     k b' a0' h0').
+    {
+      <span class="nb">apply</span> unitary_eq.
+      <span class="nb">apply</span> (q b' (tpair _ a0' h0') (tpair _ a' h') m').
+      <span class="nb">simpl</span>;
+        inv_functor fH a0' a'.
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">apply</span> maponpaths, (pr22 h').
+    }
+    <span class="nb">set</span> (hfh := h0 · f · unitary_inv h0').
+    <span class="nb">set</span> (l0 := fH^-<span class="mi">1</span> hfh).
+    <span class="nb">set</span> (g0 := unitary_inv (k b a0 h0) · #F l0  · k b' a0' h0').
+    <span class="nb">assert</span> (sssss : #H (l0 · m') = #H (m · l)).
+    { <span class="nb">rewrite</span> functor_comp .
+      <span class="nb">unfold</span> m'. <span class="nb">simpl</span>.
+      inv_functor fH a0' a'.
+      <span class="nb">unfold</span> l0.
+      inv_functor fH a0 a0'.
+      <span class="nb">unfold</span> hfh.
+      intermediate_path (h0 · f · (unitary_inv h0' · h0') · unitary_inv h').
+      { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc; <span class="nb">apply</span> idpath. }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2, maponpaths.
+        <span class="nb">apply</span> (pr22 h0').
+      }
+      <span class="nb">rewrite</span> id_right, functor_comp.
+      inv_functor fH a0 a.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> maponpaths, pathsinv0.
+      <span class="nb">apply</span> unitary_inv_on_right.
+      { <span class="nb">apply</span> h. }
+
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> unitary_inv_on_left.
+      { <span class="nb">apply</span> h'. }
+      <span class="nb">apply</span> pathsinv0, alpha.
+    }
+    <span class="nb">assert</span> (star5 : unitary_inv m · l0 = l · unitary_inv m').
+    {
+
+      <span class="nb">apply</span> unitary_inv_on_right.
+      { <span class="nb">apply</span> m. }
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> unitary_inv_on_left.
+      { <span class="nb">apply</span> m'. }
+      <span class="nb">apply</span> (invmaponpathsweq (weq_from_fully_faithful fH a0 a')),
+        pathsinv0, sssss.
+    }
+    <span class="nb">clear</span> sssss.
+    <span class="nb">unfold</span> g0.
+    <span class="nb">assert</span> (sss'' : k b a h · unitary_inv (k b a0 h0) =
+                      unitary_inv (dagger_functor_on_unitary dagF _ _ m)).
+    {
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> unitary_inv_on_left.
+      { <span class="nb">apply</span> k. }
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> unitary_inv_on_right.
+      { <span class="nb">apply</span> dagger_functor_on_unitary. }
+      <span class="nb">apply</span> pathsinv0, (base_paths _ _ sss).
+    }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> sss''. <span class="nb">clear</span> sss'' sss.
+
+    <span class="nb">rewrite</span> dagger_functor_on_unitary_inv.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths_2, functor_comp. }
+    <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> m, m' <span class="k">in</span> star5.
+    <span class="nb">cbn</span> <span class="k">in</span> star5.
+    <span class="nb">rewrite</span> star5; <span class="nb">clear</span> star5.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> maponpaths.
+
+    <span class="nb">assert</span> (star4 : unitary_inv (dagger_functor_on_unitary dagF _ _ m')
+                                · k b' a0' h0' = k b' a' h').
+    {
+      <span class="nb">apply</span> unitary_inv_on_right.
+      { <span class="nb">apply</span> dagger_functor_on_unitary. }
+      <span class="nb">apply</span> pathsinv0, (base_paths _ _ ssss).
+    }
+    <span class="nb">refine</span> (! star4 @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> pathsinv0, dagF.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** The center of [Y b b' f]. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">Y_inhab</span> (<span class="nv">b</span> <span class="nv">b'</span> : D) (<span class="nv">f</span> : b --&gt; b')
+             (<span class="nv">a0</span> : C) (<span class="nv">h0</span> : unitary dagD (H a0) b) (<span class="nv">a0'</span> : C) (<span class="nv">h0'</span> : unitary dagD (H a0') b') : Y f.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (hfh := h0 · f · unitary_inv h0').
+    <span class="nb">set</span> (l0 := fH^-<span class="mi">1</span> hfh).
+    <span class="nb">set</span> (g0 := unitary_inv (k b a0 h0) · #F l0  · k b' a0' h0').
+    <span class="k">exists</span> <span class="nv">g0</span>.
+    <span class="nb">apply</span> Y_inhab_proof.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Any inhabitant of [Y b b' f] is equal to the center. *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">Y_contr_eq</span> (<span class="nv">b</span> <span class="nv">b'</span> : D) (<span class="nv">f</span> : b --&gt; b')
+        (<span class="nv">a0</span> : C) (<span class="nv">h0</span> : unitary _ (H a0) b)
+        (<span class="nv">a0'</span> : C) (<span class="nv">h0'</span> : unitary _ (H a0') b') :
+    ∏ t : Y f, t = Y_inhab b b' f a0 h0 a0' h0'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> t.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">assert</span> (Hpr : pr1 (Y_inhab b b' f a0 h0 a0' h0') = pr1 t).
+    {
+      <span class="nb">destruct</span> t <span class="k">as</span> [g1 r1]; <span class="nb">simpl</span> <span class="k">in</span> *.
+      <span class="nb">rewrite</span> &lt;- assoc.
+      use unitary_inv_on_right.
+      { <span class="nb">apply</span> k. }
+
+      <span class="nb">set</span> (hfh := h0 · f · unitary_inv h0').
+      <span class="nb">set</span> (l0 := fH^-<span class="mi">1</span> hfh).
+      <span class="nb">apply</span> (r1 a0 h0 a0' h0' l0).
+      <span class="nb">unfold</span> l0.
+      inv_functor fH a0 a0' .
+      <span class="nb">unfold</span> hfh.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> h0'.
+    }
+
+    <span class="nb">apply</span> (total2_paths_f Hpr).
+    <span class="nb">apply</span> proofirrelevance.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** The type [Y b b' f] is contractible. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">Y_iscontr</span>  (<span class="nv">b</span> <span class="nv">b'</span> : D) (<span class="nv">f</span> : b --&gt; b') :
+    iscontr (Y f).
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (HH : isaprop (iscontr (Y f))).
+    { <span class="nb">apply</span> isapropiscontr. }
+    <span class="nb">apply</span> (pr1 wH b (tpair (<span class="k">λ</span> <span class="nv">x</span>, isaprop x) (iscontr (Y f)) HH)).
+    <span class="nb">intros</span> [a0 h0].
+    <span class="nb">apply</span> (pr1 wH b' (tpair (<span class="k">λ</span> <span class="nv">x</span>, isaprop x) (iscontr (Y f)) HH)).
+    <span class="nb">intros</span> [a0' h0'].
+    <span class="k">exists</span> (<span class="nv">Y_inhab</span> <span class="nv">b</span> <span class="nv">b'</span> <span class="nv">f</span> <span class="nv">a0</span> <span class="nv">h0</span> <span class="nv">a0'</span> <span class="nv">h0'</span>).
+    <span class="nb">apply</span> Y_contr_eq.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** [G] on morphisms *)</span>
+
+  <span class="sd">(** We now have the data necessary to define the functor [G]. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">preimage_functor_data</span> : functor_data D E.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">Go</span>.
+    <span class="nb">intros</span> b b' f.
+    <span class="bp">exact</span> (pr11 (Y_iscontr b b' f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">G</span> {<span class="nv">x</span> <span class="nv">y</span> : D} (<span class="nv">f</span> : D⟦x,y⟧)
+    := (pr11 (Y_iscontr _ _ f)).
+
+  <span class="sd">(** The above data is indeed functorial. *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">is_functor_preimage_functor_data</span> : is_functor preimage_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">unfold</span> functor_idax. <span class="nb">simpl</span>.
+      <span class="nb">intro</span> b.
+      <span class="nb">assert</span> (PR2 : ∏ (a : C) (h : unitary _ (H a) b) (a' : C)
+                      (h' : unitary _ (H a') b)
+                      (l : a --&gt; a'),
+                 #H l· h' = h· identity b -&gt;
+                 #F l· k b a' h' = k b a h· identity (Go b)).
+      {
+        <span class="nb">intros</span> a h a' h' l LL.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> (q b (tpair _ a h) (tpair _ a' h') l).
+        <span class="nb">rewrite</span> id_right <span class="k">in</span> LL.
+        <span class="nb">apply</span> LL.
+      }
+      <span class="nb">set</span> (Gbrtilde :=
+             tpair _ (identity (Go b)) PR2 : Y (identity b)).
+      <span class="nb">set</span> (H' := pr2 (Y_iscontr b b (identity b)) Gbrtilde).
+      <span class="nb">set</span> (H'' := base_paths _ _ H').
+      <span class="nb">simpl</span> <span class="k">in</span> H'.
+      <span class="nb">rewrite</span> &lt;- H'.
+      <span class="nb">apply</span> idpath.
+    - <span class="sd">(** composition *)</span>
+      <span class="nb">intros</span> b b' b'' f f'.
+      <span class="nb">assert</span> (HHHH : isaprop (pr1 (pr1 (Y_iscontr b b'' (f· f'))) =
+                                pr1 (pr1 (Y_iscontr b b' f))· pr1 (pr1 (Y_iscontr b' b'' f')))).
+      { <span class="nb">apply</span> homset_property. }
+      <span class="nb">apply</span> (pr1 wH b (tpair (<span class="k">λ</span> <span class="nv">x</span>, isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f· f'))) =
+                                            pr1 (pr1 (Y_iscontr b b' f))· pr1 (pr1 (Y_iscontr b' b'' f'))) HHHH)).
+      <span class="nb">intros</span> [a0 h0]; <span class="nb">simpl</span>.
+      <span class="nb">apply</span> (pr1 wH b' (tpair (<span class="k">λ</span> <span class="nv">x</span>, isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f· f'))) =
+                                             pr1 (pr1 (Y_iscontr b b' f))· pr1 (pr1 (Y_iscontr b' b'' f'))) HHHH)).
+      <span class="nb">intros</span> [a0' h0']; <span class="nb">simpl</span>.
+      <span class="nb">apply</span> (pr1 wH b'' (tpair (<span class="k">λ</span> <span class="nv">x</span>, isaprop x) (pr1 (pr1 (Y_iscontr b b'' (f· f'))) =
+                                              pr1 (pr1 (Y_iscontr b b' f))· pr1 (pr1 (Y_iscontr b' b'' f'))) HHHH)).
+      <span class="nb">intros</span> [a0'' h0''].
+      <span class="nb">simpl</span>; <span class="nb">clear</span> HHHH.
+      <span class="nb">set</span> (l0 := fH^-<span class="mi">1</span> (h0 · f · unitary_inv h0')).
+      <span class="nb">set</span> (l0' := fH^-<span class="mi">1</span> (h0' · f' · unitary_inv h0'')).
+      <span class="nb">set</span> (l0'' := fH^-<span class="mi">1</span> (h0 · (f· f') · unitary_inv h0'')).
+      <span class="nb">assert</span> (L : l0 · l0' = l0'').
+      {
+        <span class="nb">apply</span> (invmaponpathsweq (weq_from_fully_faithful fH a0 a0'')).
+        <span class="nb">simpl</span>; <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">unfold</span> l0'.
+        inv_functor fH a0' a0''.
+        <span class="nb">unfold</span> l0.
+        inv_functor fH a0 a0'.
+        intermediate_path (h0 · f · (unitary_inv h0' · h0') · f' · unitary_inv h0'').
+        { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc; <span class="nb">apply</span> idpath. }
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> h0'.
+        }
+
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">unfold</span> l0''.
+        inv_functor fH a0 a0''.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc; <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">assert</span> (PR2 : ∏ (a : C) (h : unitary _ (H a) b)(a' : C)
+                      (h' : unitary _ (H a') b') (l : a --&gt; a'),
+                 #H l· h' = h· f -&gt;
+                 #F l· k b' a' h' =
+                   k b a h· ((unitary_inv (k b a0 h0)· #F l0)· k b' a0' h0') ).
+      {
+        <span class="nb">intros</span> a h a' h' l.
+        <span class="nb">intro</span> alpha.
+        <span class="nb">set</span> (m := fH^-i _ _ (unitary_comp h0 (unitary_inv h))).
+        <span class="nb">set</span> (m' := fH^-i _ _ (unitary_comp h0' (unitary_inv h'))).
+        <span class="nb">assert</span> (sss : unitary_comp (dagger_functor_on_unitary dagF _ _ m) (k b a h) =
+                        k b a0 h0).
+        { <span class="nb">apply</span> unitary_eq; <span class="nb">simpl</span>.
+          <span class="nb">apply</span> (q b (tpair _ a0 h0) (tpair _ a h) m).
+          <span class="nb">simpl</span>.
+          inv_functor fH a0 a.
+          <span class="nb">rewrite</span> &lt;- assoc.
+          <span class="nb">refine</span> (_ @ id_right _).
+          <span class="nb">apply</span> maponpaths, h.
+        }
+        <span class="nb">assert</span> (ssss : unitary_comp (dagger_functor_on_unitary dagF _ _ m') (k b' a' h') = k b' a0' h0').
+        {
+          <span class="nb">apply</span> unitary_eq; <span class="nb">simpl</span>.
+          <span class="nb">apply</span> (q b' (tpair _ a0' h0') (tpair _ a' h') m'); <span class="nb">simpl</span>.
+          inv_functor fH a0' a'.
+          <span class="nb">rewrite</span> &lt;- assoc.
+          <span class="nb">refine</span> (_ @ id_right _).
+          <span class="nb">apply</span> maponpaths, h'.
+        }
+        <span class="nb">assert</span> (sssss : #H (l0 · m') = #H (m · l)).
+        {
+          <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">unfold</span> m'; <span class="nb">simpl</span>.
+          inv_functor fH a0' a'.
+          <span class="nb">unfold</span> l0.
+          inv_functor fH a0 a0'.
+          intermediate_path (h0 · f · (unitary_inv h0' · h0') · unitary_inv h').
+          { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc; <span class="nb">apply</span> idpath. }
+          etrans.
+          { <span class="nb">apply</span> maponpaths_2, maponpaths , h0'. }
+          <span class="nb">rewrite</span> id_right, functor_comp.
+          inv_functor fH a0 a.
+          <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> pathsinv0.
+          <span class="nb">apply</span> unitary_inv_on_right.
+          { <span class="nb">apply</span> h. }
+          <span class="nb">rewrite</span> assoc.
+          <span class="nb">apply</span> unitary_inv_on_left.
+          { <span class="nb">apply</span> h'. }
+          <span class="nb">apply</span> pathsinv0.
+          <span class="nb">apply</span> alpha.
+        }
+        <span class="nb">assert</span> (star5 : unitary_inv m · l0 = l · unitary_inv m').
+        {
+          <span class="nb">apply</span> unitary_inv_on_right.
+          { <span class="nb">apply</span> m. }
+          <span class="nb">rewrite</span> assoc.
+          <span class="nb">apply</span> unitary_inv_on_left.
+          { <span class="nb">apply</span> m'. }
+          <span class="nb">apply</span> (invmaponpathsweq (weq_from_fully_faithful fH a0 a' )).
+          <span class="nb">apply</span> pathsinv0.
+          <span class="nb">apply</span> sssss.
+        }
+        <span class="nb">clear</span> sssss.
+        <span class="nb">set</span> (sss':= base_paths _ _ sss); <span class="nb">simpl</span> <span class="k">in</span> sss'.
+        <span class="nb">assert</span> (sss'' : k b a h · unitary_inv (k b a0 h0)
+                        = unitary_inv (dagger_functor_on_unitary dagF _ _ m)).
+        {
+          <span class="nb">apply</span> pathsinv0.
+          <span class="nb">apply</span> unitary_inv_on_left.
+          { <span class="nb">apply</span> k. }
+          <span class="nb">apply</span> pathsinv0.
+          <span class="nb">apply</span> unitary_inv_on_right.
+          { <span class="nb">apply</span> dagger_functor_on_unitary. }
+          <span class="nb">apply</span> pathsinv0.
+          <span class="nb">apply</span> sss'.
+        }
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+        <span class="nb">rewrite</span> sss''. <span class="nb">clear</span> sss'' sss' sss.
+        etrans.
+        <span class="mi">2</span>: {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> pathsinv0, dagger_functor_on_unitary_inv_on_ob.
+        }
+
+        <span class="nb">rewrite</span> &lt;- functor_comp.
+        etrans.
+        <span class="mi">2</span>: {
+          <span class="nb">apply</span> maponpaths_2, maponpaths.
+          <span class="nb">refine</span> (! star5 @ _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (Isos.inverse_unique_precat _ _ m) ; <span class="nb">apply</span> m.
+        }
+        <span class="nb">clear</span> star5.
+
+        <span class="nb">rewrite</span> functor_comp.
+        etrans.
+        <span class="mi">2</span>: {
+          <span class="nb">apply</span> maponpaths_2, maponpaths.
+          <span class="bp">exact</span> (dagger_functor_on_unitary_inv_on_ob dagF _ _ m').
+        }
+
+        <span class="nb">assert</span> (star4 : unitary_inv (dagger_functor_on_unitary dagF _ _ m') · k b' a0' h0'
+                 = k b' a' h' ).
+        {
+          <span class="nb">apply</span> unitary_inv_on_right.
+          { <span class="nb">apply</span> dagger_functor_on_unitary. }
+          <span class="nb">set</span> (ssss' := base_paths _ _ ssss).
+          <span class="nb">apply</span> pathsinv0.
+          <span class="nb">simpl</span> <span class="k">in</span> ssss'. <span class="nb">simpl</span>.
+          <span class="nb">apply</span> ssss'; <span class="nb">clear</span> ssss'.
+        }
+        <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0, star4.
+      }
+      <span class="nb">assert</span> (HGf : G f = unitary_inv (k b a0 h0) · #F l0 · k b' a0' h0').
+      {
+        <span class="nb">set</span> (Gbrtilde :=
+               tpair _ (unitary_inv (k b a0 h0) · #F l0 · k b' a0' h0') PR2 : Y f).
+        <span class="nb">set</span> (H' := pr2 (Y_iscontr b b' f) Gbrtilde).
+        <span class="nb">set</span> (H'' := base_paths _ _ H').
+        <span class="nb">simpl</span> <span class="k">in</span> H'.
+        <span class="nb">unfold</span> G.
+        <span class="nb">rewrite</span> &lt;- H'.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">clear</span> PR2.
+      <span class="nb">assert</span> (PR2 : ∏ (a : C) (h : unitary _ (H a) b') (a' : C)
+                      (h' : unitary _ (H a') b'') (l : a --&gt; a'),
+                 #H l· h' = h· f' -&gt;
+                 #F l· k b'' a' h' =
+                   k b' a h· ((unitary_inv (k b' a0' h0')· #F l0')· k b'' a0'' h0'')).
+      {
+        <span class="nb">intros</span> a' h' a'' h'' l'.
+        <span class="nb">intro</span> alpha.
+        <span class="nb">set</span> (m := fH^-i _ _ (unitary_comp h0' (unitary_inv h'))).
+        <span class="nb">set</span> (m' := fH^-i _ _ (unitary_comp h0'' (unitary_inv h''))).
+        <span class="nb">assert</span> (sss : unitary_comp (dagger_functor_on_unitary dagF _ _ m) (k b' a' h') =
+                        k b' a0' h0').
+        {
+          <span class="nb">apply</span> unitary_eq; <span class="nb">simpl</span>.
+          <span class="nb">apply</span> (q b' (tpair _ a0' h0') (tpair _ a' h') m); <span class="nb">simpl</span>.
+          inv_functor fH a0' a'.
+          <span class="nb">rewrite</span> &lt;- assoc.
+          <span class="nb">refine</span> (_ @ id_right _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> h'.
+        }
+        <span class="nb">assert</span> (ssss : unitary_comp (dagger_functor_on_unitary dagF _ _ m') (k b'' a'' h'') =
+                         k b'' a0'' h0'').
+        {
+          <span class="nb">apply</span> unitary_eq; <span class="nb">simpl</span>.
+          <span class="nb">apply</span> (q b'' (tpair _ a0'' h0'') (tpair _ a'' h'') m'); <span class="nb">simpl</span>.
+          inv_functor fH a0'' a''.
+          <span class="nb">rewrite</span> &lt;- assoc.
+          <span class="nb">refine</span> (_ @ id_right _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> h''.
+        }
+        <span class="nb">assert</span> (sssss : #H (l0' · m') = #H (m · l')).
+        {
+          <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">unfold</span> m'. <span class="nb">simpl</span>.
+          inv_functor fH a0'' a''.
+          <span class="nb">unfold</span> l0'.
+          inv_functor fH a0' a0''.
+          intermediate_path (h0' · f' · (unitary_inv h0'' · h0'') · unitary_inv h'').
+          { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc; <span class="nb">apply</span> idpath. }
+          etrans.
+          { <span class="nb">apply</span> maponpaths_2, maponpaths, h0''. }
+          <span class="nb">rewrite</span> id_right, functor_comp.
+          inv_functor fH a0' a'.
+          <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+          <span class="nb">apply</span> maponpaths, pathsinv0, unitary_inv_on_right.
+          { <span class="nb">apply</span> h'. }
+          <span class="nb">rewrite</span> assoc.
+          <span class="nb">apply</span> unitary_inv_on_left.
+          { <span class="nb">apply</span> h''. }
+          <span class="nb">apply</span> pathsinv0, alpha.
+        }
+        <span class="nb">assert</span> (star5 : unitary_inv m · l0' = l' · unitary_inv m').
+        {
+          <span class="nb">apply</span> unitary_inv_on_right.
+          { <span class="nb">apply</span> m. }
+          <span class="nb">rewrite</span> assoc.
+          <span class="nb">apply</span> unitary_inv_on_left.
+          { <span class="nb">apply</span> m'. }
+          <span class="nb">apply</span> (invmaponpathsweq (weq_from_fully_faithful fH a0' a'' )),
+            pathsinv0, sssss.
+        }
+        <span class="nb">set</span> (sss':= base_paths _ _ sss); <span class="nb">simpl</span> <span class="k">in</span> sss'.
+        <span class="nb">assert</span> (sss'' : k b' a' h' · unitary_inv (k b' a0' h0') =
+                          unitary_inv (dagger_functor_on_unitary dagF _ _ m)).
+        {
+          <span class="nb">apply</span> pathsinv0, unitary_inv_on_left, pathsinv0, unitary_inv_on_right.
+          - <span class="nb">apply</span> k.
+          - <span class="nb">apply</span> dagger_functor_on_unitary.
+          - <span class="nb">apply</span> pathsinv0, sss'.
+        }
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+        <span class="nb">rewrite</span> sss''. <span class="nb">clear</span> sss'' sss' sss.
+        etrans.
+        <span class="mi">2</span>: {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (! dagger_functor_on_unitary_inv_on_ob dagF _ _ m).
+        }
+        <span class="nb">rewrite</span> &lt;- functor_comp.
+        etrans.
+        <span class="mi">2</span>: <span class="nb">apply</span> maponpaths_2, maponpaths, pathsinv0, star5.
+        <span class="nb">clear</span> star5 sssss.
+        <span class="nb">rewrite</span> functor_comp.
+        etrans.
+        <span class="mi">2</span>: {
+          <span class="nb">apply</span> maponpaths_2, maponpaths.
+          <span class="bp">exact</span> (dagger_functor_on_unitary_inv_on_ob dagF _ _ m').
+        }
+
+        <span class="nb">assert</span> (star4 : unitary_inv (dagger_functor_on_unitary dagF _ _ m') · k b'' a0'' h0''
+                 = k b'' a'' h'' ).
+        {
+          <span class="nb">apply</span> unitary_inv_on_right.
+          { <span class="nb">apply</span> dagger_functor_on_unitary. }
+          <span class="nb">set</span> (ssss' := base_paths _ _ ssss).
+          <span class="nb">apply</span> pathsinv0.
+          <span class="nb">simpl</span> <span class="k">in</span> *; <span class="nb">apply</span> ssss'.
+        }
+        <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (! star4).
+      }
+      <span class="nb">assert</span> (HGf' : G f' = unitary_inv (k b' a0' h0') · #F l0' · k b'' a0'' h0'').
+      {
+        <span class="nb">set</span> (Gbrtilde :=
+               tpair _ (unitary_inv (k b' a0' h0') · #F l0' · k b'' a0'' h0'') PR2 :
+               Y f').
+        <span class="nb">set</span> (H' := pr2 (Y_iscontr b' b'' f') Gbrtilde).
+        <span class="nb">unfold</span> G.
+        <span class="nb">rewrite</span> &lt;- (base_paths _ _ H').
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">clear</span> PR2.
+      <span class="nb">assert</span> (PR2 : ∏ (a : C) (h : unitary _ (H a) b) (a' : C)
+                      (h' : unitary _ (H a') b'') (l : a --&gt; a'),
+                 #H l· h' = h· (f· f') -&gt;
+                 #F l· k b'' a' h' =
+                   k b a h· ((unitary_inv (k b a0 h0)· #F l0'')· k b'' a0'' h0'')).
+      {
+        <span class="nb">intros</span> a h a'' h'' l.
+        <span class="nb">intro</span> alpha.
+        <span class="nb">set</span> (m := fH^-i _ _ (unitary_comp h0 (unitary_inv h))).
+        <span class="nb">set</span> (m' := fH^-i _ _ (unitary_comp h0'' (unitary_inv h''))).
+        <span class="nb">assert</span> (sss : unitary_comp (dagger_functor_on_unitary dagF _ _ m) (k b a h) = k b a0 h0).
+        {
+          <span class="nb">apply</span> unitary_eq.
+          <span class="nb">apply</span> (q b (tpair _ a0 h0) (tpair _ a h) m); <span class="nb">simpl</span>.
+          inv_functor fH a0 a.
+          <span class="nb">rewrite</span> &lt;- assoc.
+          <span class="nb">refine</span> (_ @ id_right _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> h.
+        }
+        <span class="nb">assert</span> (ssss : unitary_comp (dagger_functor_on_unitary dagF _ _ m') (k b'' a'' h'') =
+                         k b'' a0'' h0'').
+        { <span class="nb">apply</span> unitary_eq.
+          <span class="nb">apply</span> (q b'' (tpair _ a0'' h0'') (tpair _ a'' h'') m').
+          <span class="nb">simpl</span>; inv_functor fH a0'' a''.
+          <span class="nb">rewrite</span> &lt;- assoc.
+          <span class="nb">refine</span> (_ @ id_right _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> h''.
+        }
+        <span class="nb">assert</span> (sssss : #H (l0'' · m') = #H (m · l)).
+        { <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">unfold</span> m'. <span class="nb">simpl</span>.
+          inv_functor fH a0'' a''.
+          <span class="nb">unfold</span> l0''.
+          inv_functor fH a0 a0''.
+          intermediate_path (h0 · (f · f') · (unitary_inv h0'' · h0'') · unitary_inv h'').
+          { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc; <span class="nb">apply</span> idpath. }
+          etrans.
+          { <span class="nb">apply</span> maponpaths_2, maponpaths, h0''. }
+          <span class="nb">rewrite</span> id_right, functor_comp.
+          inv_functor fH a0 a.
+          <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+          <span class="nb">apply</span> maponpaths, pathsinv0, unitary_inv_on_right.
+          { <span class="nb">apply</span> h. }
+          <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+          <span class="nb">apply</span> unitary_inv_on_left, pathsinv0.
+          { <span class="nb">apply</span> h''. }
+          <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+          <span class="nb">apply</span> alpha.
+        }
+        <span class="nb">assert</span> (star5 : unitary_inv m · l0'' = l · unitary_inv m').
+        {
+          <span class="nb">apply</span> unitary_inv_on_right.
+          { <span class="nb">apply</span> m. }
+          <span class="nb">rewrite</span> assoc.
+          <span class="nb">apply</span> unitary_inv_on_left.
+          { <span class="nb">apply</span> m'. }
+          <span class="nb">apply</span> (invmaponpathsweq (weq_from_fully_faithful fH a0 a'' )).
+          <span class="nb">apply</span> pathsinv0, sssss.
+        }
+
+
+        <span class="nb">set</span> (sss':= base_paths _ _ sss); <span class="nb">simpl</span> <span class="k">in</span> sss'.
+        <span class="nb">assert</span> (sss'' : k b a h · unitary_inv (k b a0 h0) =
+                          unitary_inv (dagger_functor_on_unitary dagF _ _  m)).
+        {
+          <span class="nb">apply</span> pathsinv0, unitary_inv_on_left, pathsinv0, unitary_inv_on_right.
+          - <span class="nb">apply</span> k.
+          - <span class="nb">apply</span> dagger_functor_on_unitary.
+          - <span class="nb">apply</span> pathsinv0, sss'.
+        }
+
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+        <span class="nb">rewrite</span> sss''. <span class="nb">clear</span> sss'' sss' sss.
+        etrans.
+        <span class="mi">2</span>: {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (! dagger_functor_on_unitary_inv_on_ob dagF _ _ m).
+        }
+        <span class="nb">rewrite</span> &lt;- functor_comp.
+        etrans.
+        <span class="mi">2</span>: <span class="nb">apply</span> maponpaths_2, maponpaths, (! star5).
+        <span class="nb">clear</span> star5 sssss.
+        <span class="nb">rewrite</span> functor_comp.
+        etrans.
+        <span class="mi">2</span>: {
+          <span class="nb">apply</span> maponpaths_2, maponpaths.
+          <span class="bp">exact</span> (dagger_functor_on_unitary_inv_on_ob dagF _ _ m').
+        }
+        <span class="nb">assert</span> (star4 : unitary_inv (dagger_functor_on_unitary dagF _ _ m') · k b'' a0'' h0'' = k b'' a'' h'').
+        {
+          <span class="nb">apply</span> unitary_inv_on_right, pathsinv0, (base_paths _ _ ssss).
+          <span class="nb">apply</span> dagger_functor_on_unitary.
+        }
+        <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (! star4).
+      }
+      <span class="nb">assert</span> (HGff' : G (f · f') = unitary_inv (k b a0 h0) · #F l0'' · k b'' a0'' h0'').
+      {
+        <span class="nb">set</span> (Gbrtilde :=
+               tpair _ (unitary_inv (k b a0 h0) · #F l0'' · k b'' a0'' h0'') PR2 :
+               Y (f · f')).
+        <span class="nb">unfold</span> G.
+        <span class="nb">rewrite</span> &lt;- (pr2 (Y_iscontr b b'' (f · f')) Gbrtilde).
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">clear</span> PR2.
+      <span class="nb">fold</span> (G (f · f')).
+      <span class="nb">fold</span> (G (f)) (G f').
+      <span class="nb">rewrite</span> HGf, HGf'.
+      intermediate_path (unitary_inv (k b a0 h0)· #F l0· (k b' a0' h0'·
+                                                            unitary_inv (k b' a0' h0'))· #F l0'· k b'' a0'' h0'').
+      {
+        etrans.
+        <span class="mi">2</span>: {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths, pathsinv0, k.
+        }
+
+        <span class="nb">rewrite</span> id_right, HGff'.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> &lt;- L.
+        <span class="nb">rewrite</span> functor_comp.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="bp">now</span> <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="kn">Qed</span>.
+
+
+  <span class="sd">(** We call the functor [GG] ... *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">GG</span> : functor D E := tpair _ preimage_functor_data
+                                       is_functor_preimage_functor_data.
+
+  <span class="sd">(** ** [G] is the preimage of [F] under [ _ O H] *)</span>
+
+  <span class="sd">(** Given any [a : A], we produce an element in [X (H a)], whose</span>
+<span class="sd">     first component is [F a].</span>
+<span class="sd">   This allows to prove [G (H a) = F a]. *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">qF</span> (<span class="nv">a0</span> : C) :
+    ∏ (t t' : ∑ a :  C, unitary dagD (H a) (H a0))
+      (f : pr1 t --&gt; pr1 t'),
+      #H f· pr2 t' = pr2 t -&gt;
+      #F f· #F (fH^-<span class="mi">1</span> (pr2 t')) =
+        #F (fH^-<span class="mi">1</span>  (pr2 t)).
+  <span class="kn">Proof</span>.
+    <span class="nb">simpl</span>.
+    <span class="nb">intros</span> [a h] [a' h'] f L.
+    <span class="nb">simpl</span> <span class="k">in</span> L; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (invmaponpathsweq (weq_from_fully_faithful fH a a0)
+                            (f· fH^-<span class="mi">1</span> h') (fH^-<span class="mi">1</span> h)  ).
+    inv_functor fH a a0.
+    <span class="nb">rewrite</span> functor_comp.
+    inv_functor fH a' a0.
+    <span class="nb">apply</span> L.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">kFa</span> (<span class="nv">a0</span> : C)
+    : ∏ a : C, unitary _ (H a) (H a0) -&gt; unitary _ (F a) (F a0)
+    := <span class="k">fun</span> (<span class="nv">a</span> : C) (<span class="nv">h</span> : unitary _ (H a) (H a0)) =&gt;
+      dagger_functor_on_unitary dagF _ _ (fully_faithful_reflects_unitary dagH fH _ _ h).
+
+  <span class="kn">Definition</span> <span class="nf">XtripleF</span> (<span class="nv">a0</span> : C) : X (H a0)
+    := tpair _ (tpair _ (F a0) (kFa a0)) (qF a0).
+
+
+  <span class="kn">Lemma</span> <span class="nf">phi</span> (<span class="nv">a0</span> : C)
+    : pr1 (pr1 (functor_composite H GG)) a0 = pr1 (pr1 F) a0.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (!Xphi _ (XtripleF a0)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">extphi</span> : pr1 (pr1 (functor_composite H GG)) = pr1 (pr1 F).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">unfold</span> homot.
+    <span class="nb">apply</span> phi.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Now for the functor as a whole. It remains to prove</span>
+<span class="sd">      equality on morphisms, modulo transport. *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">is_preimage_for_pre_composition</span> : functor_composite H GG = F.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (functor_eq _ _  E (functor_composite H GG) F).
+    <span class="nb">apply</span> (total2_paths_f extphi).
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> a0;
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> a0';
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> f.
+    <span class="nb">rewrite</span> FunctorCategory.transport_of_functor_map_is_pointwise.
+    <span class="nb">unfold</span> extphi.
+    <span class="nb">unfold</span> Univalence.double_transport.
+    <span class="nb">rewrite</span> toforallpaths_funextsec.
+    <span class="nb">rewrite</span> &lt;- Univalence.idtoiso_postcompose.
+    <span class="nb">rewrite</span> &lt;- Univalence.idtoiso_precompose.
+    <span class="nb">rewrite</span> Univalence.idtoiso_inv.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">assert</span> (PSIf : ∏ (a : C) (h : unitary _ (H a) (H a0)) (a' : C)
+                     (h' : unitary _ (H a') (H a0')) (l : a --&gt; a'),
+               #H l· h' = h· #H f -&gt;
+               #F l· k (H a0') a' h' =
+                 k (H a0) a h·
+                   ((pr1 (idtodaggeriso dagE _ _ (phi a0)) · #F f)
+                      · unitary_inv (idtodaggeriso dagE _ _ (phi a0')))).
+    {
+      <span class="nb">intros</span> a h a' h' l alpha.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> unitary_inv_on_left.
+      { <span class="nb">apply</span> idtodaggeriso. }
+      <span class="nb">unfold</span> phi.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> (Xkphi_idtoiso (H a0) (XtripleF a0)).
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> (Xkphi_idtoiso (H a0') (XtripleF a0')).
+      <span class="nb">simpl</span>.
+      <span class="nb">assert</span> (HH4 : fH^-<span class="mi">1</span> h · f = l · fH^-<span class="mi">1</span> h').
+      {
+        <span class="nb">apply</span> (invmaponpathsweq (weq_from_fully_faithful fH a a0')).
+        <span class="nb">simpl</span>; <span class="kp">repeat</span> <span class="nb">rewrite</span> functor_comp.
+        inv_functor fH a a0.
+        inv_functor fH a' a0'.
+        <span class="nb">apply</span> pathsinv0, alpha.
+      }
+      intermediate_path (#F (fH^-<span class="mi">1</span> h· f)).
+      { <span class="bp">now</span> <span class="nb">rewrite</span> functor_comp. }
+      <span class="nb">rewrite</span> HH4.
+      <span class="bp">now</span> <span class="nb">rewrite</span> functor_comp.
+    }
+
+    <span class="nb">set</span> (Ybla := tpair _ (idtodaggeriso _ _ _ (phi a0) · #F f · unitary_inv (idtodaggeriso _ _ _ (phi a0')))
+                    PSIf : Y (#H f)).
+    <span class="nb">set</span> (Ycontr := pr2 (Y_iscontr _ _ (#(pr1 H) f)) Ybla).
+    <span class="nb">set</span> (Ycontr2 := base_paths _ _ Ycontr); <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">change</span> (H a0) <span class="k">with</span> (pr1 H a0).
+    <span class="nb">change</span> (H a0') <span class="k">with</span> (pr1 H a0').
+    <span class="nb">change</span> (G (#H f)) <span class="k">with</span> (G (#(pr1 H) f)).
+    <span class="nb">change</span> (#H f) <span class="k">with</span> (# (pr1 H) f).
+    <span class="nb">rewrite</span> &lt;- Ycontr2.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (_ @ idpath (identity _)).
+      <span class="nb">generalize</span> (phi a0).
+      <span class="nb">intro</span> p ; <span class="nb">induction</span> p ; <span class="nb">apply</span> id_right.
+    }
+
+    <span class="nb">rewrite</span> id_left.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (_ @ idpath (identity _)).
+      <span class="nb">rewrite</span> dagger_of_idtodaggeriso.
+      etrans.
+      { <span class="nb">apply</span> maponpaths_2, idtodaggeriso_is_dagger_of_idtodaggeriso. }
+      <span class="nb">refine</span> (_ @ pr22 (idtodaggeriso dagE _ _ (phi a0'))).
+      <span class="nb">rewrite</span> pathsinv0inv0.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">generalize</span> (phi a0').
+      <span class="nb">intro</span> p ; <span class="nb">induction</span> p ; <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">GG_is_dagger_functor</span>
+    : is_dagger_functor dagD dagE GG.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+
+    transparent <span class="nb">assert</span> (rhs : (Y (dagD x y f))).
+    {
+      <span class="k">exists</span> (<span class="nv">dagE</span> (Go x) (Go y) (G f)).
+      <span class="nb">intros</span> c h c' h' l p.
+
+      <span class="nb">apply</span> (dagger_injective dagE).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> dagger_to_law_comp.
+      <span class="nb">rewrite</span> dagger_to_law_idemp.
+      <span class="nb">rewrite</span> &lt;- dagF.
+      <span class="nb">apply</span> unitary_inv_on_left.
+      { <span class="nb">apply</span> k. }
+
+      <span class="nb">unfold</span> G.
+
+      <span class="nb">set</span> (p0 := pr21 (Y_iscontr _ _ (dagD _ _ f)) _ h _ h' l p).
+      <span class="nb">rewrite</span> assoc'.
+
+      <span class="nb">assert</span> (pf : # H (dagC c c' l) · h = h' · f).
+      {
+        <span class="nb">rewrite</span> dagH.
+        <span class="nb">apply</span> (dagger_injective dagD).
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> dagger_to_law_comp.
+        <span class="nb">rewrite</span> dagger_to_law_idemp.
+        use unitary_inv_on_left.
+        { <span class="nb">apply</span> h'. }
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">rewrite</span> p.
+        <span class="nb">rewrite</span> assoc.
+        etrans.
+        <span class="mi">2</span>: <span class="nb">apply</span> maponpaths_2, pathsinv0, (pr22 h).
+        <span class="nb">apply</span> pathsinv0, id_left.
+      }
+
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths, pathsinv0.
+        <span class="bp">exact</span> (pr21 (Y_iscontr _ _ f) _ h' _ h (dagC _ _ l) pf).
+      }
+      <span class="nb">rewrite</span> assoc.
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> maponpaths_2, pathsinv0, k.
+      <span class="nb">apply</span> pathsinv0, id_left.
+    }
+    <span class="bp">exact</span> (base_paths _ _ (! pr2 (Y_iscontr _ _ (dagD x y f)) rhs)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">IntermediateProp</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">Precomp_is_unitarily_eso</span>
+        (<span class="nv">Euniv</span> : is_univalent_dagger dagE)
+    : is_unitarily_eso (dagger_pre_composition_functor_is_dagger_functor dagH dagE).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [F dagF] p' f.
+    <span class="nb">apply</span> f.
+    <span class="k">exists</span> (<span class="nv">_</span> ,, <span class="nv">GG_is_dagger_functor</span> <span class="nv">dagF</span> <span class="nv">Euniv</span>).
+    <span class="nb">apply</span> idtodaggeriso.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_dagger_functor. }
+    <span class="nb">apply</span> is_preimage_for_pre_composition.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Precomp_with_dagger_weak_equiv</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Precomp_of_dagger_weak_equiv_is_dagger_weak_equiv</span>
+      {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+      {<span class="nv">dagC</span> : dagger C} {<span class="nv">dagD</span> : dagger D}
+      {<span class="nv">H</span> : functor C D}
+      {<span class="nv">dagH</span> : is_dagger_functor dagC dagD H}
+      (<span class="nv">wH</span> : is_weak_dagger_equiv dagH)
+      {<span class="nv">dagE</span> : dagger E}
+      (<span class="nv">univE</span> : is_univalent_dagger dagE)
+  : is_weak_dagger_equiv (dagger_pre_composition_functor_is_dagger_functor dagH dagE).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (Precomp_is_unitarily_eso _ wH univE).
+  - <span class="bp">exact</span> (Precomp_is_ff _ wH).
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DaggerCategories/Functors/Precomp.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

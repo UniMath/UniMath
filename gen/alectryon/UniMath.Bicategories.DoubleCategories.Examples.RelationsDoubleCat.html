@@ -1,0 +1,808 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>RelationsDoubleCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*************************************************************************************</span>
+
+<span class="sd"> The double category of relations</span>
+
+<span class="sd"> We define two double categories of relations: one is the double category of relations</span>
+<span class="sd"> valued in propositions and the other is the double category of relations valued in</span>
+<span class="sd"> sets. The first double category (relations valued in propositiions) is defined as</span>
+<span class="sd"> follows:</span>
+<span class="sd"> - Objects: sets</span>
+<span class="sd"> - Vertical morphisms: functions</span>
+<span class="sd"> - Horizontal morphisms: relations valued in `hProp`</span>
+<span class="sd"> - Squares with sides `f : X₁ → Y₁`, `g : X₂ → Y₂`, `R₁ : X₁ → X₂ → hProp`, and</span>
+<span class="sd">   `R₂ : Y₁ → Y₂ → hProp` are proofs that `R₂ (f x₁) (g x₂)` hold for all `x₁ : X₁` and</span>
+<span class="sd">   `x₂ : X₂` such that `R₁ x₁ x₂`.</span>
+<span class="sd"> The double category of relations valued in sets is defined similarly, but the only</span>
+<span class="sd"> difference is that the horizontal morphisms are relations valued in `hSet`.</span>
+
+<span class="sd"> Note that if you use relations valued in `hProp`, then you obtain a symmetric univalent</span>
+<span class="sd"> pseudo double category. This is not the case for relations valued in `hSet`, which is</span>
+<span class="sd"> caused by the fact that `hSet` is not an `hSet` while `hProp` is. In addition, relations</span>
+<span class="sd"> valued in `hSet` are equivalent to spans of sets.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Relations valued in propositions</span>
+<span class="sd"> 1.1. Horizontal identities</span>
+<span class="sd"> 1.2. Horizontal composition</span>
+<span class="sd"> 1.3. The unitors and associators</span>
+<span class="sd"> 1.4. The triangle and pentagon equations</span>
+<span class="sd"> 1.5. The double category of relations valued in propositions</span>
+<span class="sd"> 1.6. Companions and conjoints</span>
+<span class="sd"> 2. Relations valued in sets</span>
+<span class="sd"> 2.1. Horizontal identities</span>
+<span class="sd"> 2.2. Horizontal composition</span>
+<span class="sd"> 2.3. The unitors and associators</span>
+<span class="sd"> 2.4. The triangle and pentagon equations</span>
+<span class="sd"> 2.5. The double category of relations</span>
+<span class="sd"> 2.6. Companions and conjoints</span>
+
+<span class="sd"> *************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Relations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Rel.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.SymmetricUnivalent.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> double_cat.
+
+<span class="sd">(** * 1. Relations valued in propositions *)</span>
+
+<span class="sd">(** * 1.1. Horizontal identities *)</span>
+<span class="kn">Definition</span> <span class="nf">rel_double_cat_hor_id_data</span>
+  : hor_id_data rel_disp_cat.
+<span class="kn">Proof</span>.
+  use make_hor_id_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">x</span> <span class="nv">y</span>, (x = y)%logic).
+  - <span class="kp">abstract</span>
+      (<span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">p</span>, maponpaths f p)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rel_double_cat_hor_id_laws</span>
+  : hor_id_laws rel_double_cat_hor_id_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ; <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">rel_double_cat_hor_id</span>
+  : hor_id rel_disp_cat.
+<span class="kn">Proof</span>.
+  use make_hor_id.
+  - <span class="bp">exact</span> rel_double_cat_hor_id_data.
+  - <span class="bp">exact</span> rel_double_cat_hor_id_laws.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 1.2. Horizontal composition *)</span>
+<span class="kn">Definition</span> <span class="nf">rel_double_cat_hor_comp_data</span>
+  : hor_comp_data rel_disp_cat.
+<span class="kn">Proof</span>.
+  use make_hor_comp_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet) <span class="nv">R₁</span> <span class="nv">R₂</span> <span class="nv">x</span> <span class="nv">z</span>, <span class="k">∃</span> (<span class="nv">y</span> : Y), R₁ x y × R₂ y z).
+  - <span class="kp">abstract</span>
+      (<span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> <span class="nv">Z₁</span> <span class="nv">Z₂</span> : hSet)
+                 (<span class="nv">f</span> : X₁ → X₂)
+                 (<span class="nv">g</span> : Y₁ → Y₂)
+                 (<span class="nv">h</span> : Z₁ → Z₂)
+                 (<span class="nv">R₁</span> : X₁ → Y₁ → hProp)
+                 (<span class="nv">S₁</span> : Y₁ → Z₁ → hProp)
+                 (<span class="nv">R₂</span> : X₂ → Y₂ → hProp)
+                 (<span class="nv">S₂</span> : Y₂ → Z₂ → hProp)
+                 <span class="nv">fR</span> <span class="nv">gR</span> <span class="nv">x</span> <span class="nv">z</span>,
+               _) ;
+       use factor_through_squash_hProp ;
+       <span class="nb">intros</span> ( y &amp; p &amp; q ) ;
+       use hinhpr ;
+       <span class="bp">exact</span> (g y ,, fR _ _ p ,, gR _ _ q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rel_double_cat_hor_comp_laws</span>
+  : hor_comp_laws rel_double_cat_hor_comp_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ; <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">rel_double_cat_hor_comp</span>
+  : hor_comp rel_disp_cat.
+<span class="kn">Proof</span>.
+  use make_hor_comp.
+  - <span class="bp">exact</span> rel_double_cat_hor_comp_data.
+  - <span class="bp">exact</span> rel_double_cat_hor_comp_laws.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 1.3. The unitors and associators *)</span>
+<span class="kn">Definition</span> <span class="nf">rel_double_cat_lunitor_data</span>
+  : double_lunitor_data
+      rel_double_cat_hor_id
+      rel_double_cat_hor_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y R.
+  use to_iso_rel_disp_cat.
+  <span class="nb">intros</span> x y.
+  <span class="nb">split</span>.
+  - use factor_through_squash_hProp.
+    <span class="nb">intros</span> ( x' &amp; p &amp; q ).
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p.
+    <span class="bp">exact</span> q.
+  - <span class="nb">intros</span> p.
+    use hinhpr.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (x ,, idpath _ ,, _).
+    <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rel_double_cat_lunitor_laws</span>
+  : double_lunitor_laws rel_double_cat_lunitor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ; <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">rel_double_cat_lunitor</span>
+  : double_cat_lunitor
+      rel_double_cat_hor_id
+      rel_double_cat_hor_comp.
+<span class="kn">Proof</span>.
+  use make_double_lunitor.
+  - <span class="bp">exact</span> rel_double_cat_lunitor_data.
+  - <span class="bp">exact</span> rel_double_cat_lunitor_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">rel_double_cat_runitor_data</span>
+  : double_runitor_data
+      rel_double_cat_hor_id
+      rel_double_cat_hor_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y R.
+  use to_iso_rel_disp_cat.
+  <span class="nb">intros</span> x y.
+  <span class="nb">split</span>.
+  - use factor_through_squash_hProp.
+    <span class="nb">intros</span> ( x' &amp; p &amp; q ).
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> q.
+    <span class="bp">exact</span> p.
+  - <span class="nb">intros</span> p.
+    use hinhpr.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (y ,, _ ,, idpath _).
+    <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rel_double_cat_runitor_laws</span>
+  : double_runitor_laws rel_double_cat_runitor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ; <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">rel_double_cat_runitor</span>
+  : double_cat_runitor
+      rel_double_cat_hor_id
+      rel_double_cat_hor_comp.
+<span class="kn">Proof</span>.
+  use make_double_runitor.
+  - <span class="bp">exact</span> rel_double_cat_runitor_data.
+  - <span class="bp">exact</span> rel_double_cat_runitor_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">rel_double_cat_associator_data</span>
+  : double_associator_data rel_double_cat_hor_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> W X Y Z R₁ R₂ R₃.
+  use to_iso_rel_disp_cat.
+  <span class="nb">intros</span> w z.
+  <span class="nb">split</span>.
+  - use factor_through_squash_hProp.
+    <span class="nb">intros</span> ( x &amp; p₁ &amp; q ).
+    <span class="nb">revert</span> q.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> ( y &amp; p₂ &amp; p₃ ).
+    use hinhpr.
+    <span class="nb">refine</span> (y ,, _ ,, _).
+    + use hinhpr.
+      <span class="bp">exact</span> (x ,, p₁ ,, p₂).
+    + <span class="bp">exact</span> p₃.
+  - use factor_through_squash_hProp.
+    <span class="nb">intros</span> ( y &amp; q &amp; p₃ ).
+    <span class="nb">revert</span> q.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> ( x &amp; p₁ &amp; p₂ ).
+    use hinhpr.
+    <span class="nb">refine</span> (x ,, _ ,, _).
+    + <span class="bp">exact</span> p₁.
+    + use hinhpr.
+      <span class="bp">exact</span> (y ,, p₂ ,, p₃).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rel_double_cat_associator_laws</span>
+  : double_associator_laws rel_double_cat_associator_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ; <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">rel_double_cat_associator</span>
+  : double_cat_associator rel_double_cat_hor_comp.
+<span class="kn">Proof</span>.
+  use make_double_associator.
+  - <span class="bp">exact</span> rel_double_cat_associator_data.
+  - <span class="bp">exact</span> rel_double_cat_associator_laws.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 1.4. The triangle and pentagon equations *)</span>
+<span class="kn">Proposition</span> <span class="nf">rel_double_cat_triangle</span>
+  : triangle_law
+      rel_double_cat_lunitor
+      rel_double_cat_runitor
+      rel_double_cat_associator.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ; <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rel_double_cat_pentagon</span>
+  : pentagon_law rel_double_cat_associator.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ; <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 1.5. The double category of relations valued in propositions *)</span>
+<span class="kn">Definition</span> <span class="nf">rel_double_cat</span>
+  : double_cat.
+<span class="kn">Proof</span>.
+  use make_double_cat.
+  - <span class="bp">exact</span> SET.
+  - <span class="bp">exact</span> rel_disp_cat.
+  - <span class="bp">exact</span> rel_double_cat_hor_id.
+  - <span class="bp">exact</span> rel_double_cat_hor_comp.
+  - <span class="bp">exact</span> rel_double_cat_lunitor.
+  - <span class="bp">exact</span> rel_double_cat_runitor.
+  - <span class="bp">exact</span> rel_double_cat_associator.
+  - <span class="bp">exact</span> rel_double_cat_triangle.
+  - <span class="bp">exact</span> rel_double_cat_pentagon.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_flat_rel_double_cat</span>
+  : is_flat_double_cat rel_double_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span>.
+  <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ; <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">rel_univalent_double_cat</span>
+  : univalent_double_cat.
+<span class="kn">Proof</span>.
+  use make_univalent_double_cat.
+  - <span class="bp">exact</span> rel_double_cat.
+  - <span class="nb">split</span>.
+    + <span class="bp">exact</span> is_univalent_HSET.
+    + <span class="bp">exact</span> is_univalent_rel_twosided_disp_cat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">symmetric_univalent_rel_univalent_double_cat</span>
+  : symmetric_univalent rel_univalent_double_cat.
+<span class="kn">Proof</span>.
+  use make_symmetric_univalent.
+  - <span class="nb">intros</span> X Y.
+    use funspace_isaset.
+    use funspace_isaset.
+    <span class="nb">apply</span> isasethProp.
+  - <span class="nb">intros</span> X Y.
+    use weqhomot.
+    + <span class="bp">exact</span> (bin_hrel_z_iso_equiv_hset_z_iso X Y ∘ make_weq _ (is_univalent_HSET X Y))%weq.
+    + <span class="nb">intro</span> p ; <span class="nb">induction</span> p.
+      use (z_iso_eq (C := REL)).
+      <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X X' Y Y' p q f g.
+    <span class="nb">induction</span> p, q.
+    <span class="nb">cbn</span> <span class="k">in</span> X, Y, f, g.
+    use isweqimplimpl.
+    + <span class="nb">intro</span> p.
+      use funextsec.
+      <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (pr1 p x).
+      <span class="nb">apply</span> idpath.
+    + use funspace_isaset.
+      <span class="nb">apply</span> setproperty.
+    + use isaproptotal2.
+      * <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_iso_twosided_disp.
+      * <span class="nb">intros</span>.
+        <span class="kp">do</span> <span class="mi">3</span> (use funextsec ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">rel_double_cat_ver_weq_square</span>
+  : ver_weq_square rel_double_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : hSet) (<span class="nv">f</span> <span class="nv">g</span> : X → Y), _).
+  use isweqimplimpl.
+  - <span class="nb">cbn</span>.
+    <span class="nb">intro</span> p.
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intros</span> x.
+    <span class="nb">apply</span> p.
+    <span class="nb">apply</span> idpath.
+  - use funspace_isaset.
+    <span class="nb">apply</span> setproperty.
+  - <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 1.6. Companions and conjoints *)</span>
+<span class="kn">Definition</span> <span class="nf">all_companions_rel</span>
+  : all_companions_double_cat rel_double_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : hSet) (<span class="nv">f</span> : X → Y), _).
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, (f x = y)%logic).
+  - use make_double_cat_are_companions'.
+    + <span class="kp">abstract</span>
+        (<span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">p</span>, p)).
+    + <span class="kp">abstract</span>
+        (<span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">p</span>, maponpaths f p)).
+    + <span class="kp">abstract</span>
+        (<span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ; <span class="nb">apply</span> propproperty).
+    + <span class="kp">abstract</span>
+        (<span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ; <span class="nb">apply</span> propproperty).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">all_conjoints_rel</span>
+  : all_conjoints_double_cat rel_double_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : hSet) (<span class="nv">f</span> : X → Y), _).
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">x</span>, (f x = y)%logic).
+  - use make_double_cat_are_conjoints'.
+    + <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">p</span>, maponpaths f (!p))).
+    + <span class="kp">abstract</span>
+        (<span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">p</span>, !p)).
+    + <span class="kp">abstract</span>
+        (<span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ; <span class="nb">apply</span> propproperty).
+    + <span class="kp">abstract</span>
+        (<span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ; <span class="nb">apply</span> propproperty).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Relations valued in sets *)</span>
+
+<span class="sd">(** * 2.1. Horizontal identities *)</span>
+<span class="kn">Definition</span> <span class="nf">set_rel_double_cat_hor_id_data</span>
+  : hor_id_data set_rel_disp_cat.
+<span class="kn">Proof</span>.
+  use make_hor_id_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">x</span> <span class="nv">y</span>, hProp_to_hSet (x = y)%logic).
+  - <span class="kp">abstract</span>
+      (<span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">p</span>, maponpaths f p)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_rel_double_cat_hor_id_laws</span>
+  : hor_id_laws set_rel_double_cat_hor_id_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ; <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_rel_double_cat_hor_id</span>
+  : hor_id set_rel_disp_cat.
+<span class="kn">Proof</span>.
+  use make_hor_id.
+  - <span class="bp">exact</span> set_rel_double_cat_hor_id_data.
+  - <span class="bp">exact</span> set_rel_double_cat_hor_id_laws.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2.2. Horizontal composition *)</span>
+<span class="kn">Definition</span> <span class="nf">set_rel_double_cat_hor_comp_data</span>
+  : hor_comp_data set_rel_disp_cat.
+<span class="kn">Proof</span>.
+  use make_hor_comp_data.
+  - <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet) <span class="nv">R₁</span> <span class="nv">R₂</span> <span class="nv">x</span> <span class="nv">z</span>, make_hSet (∑ (y : Y), R₁ x y × R₂ y z) _).
+    <span class="kp">abstract</span>
+      (use isaset_total2 ; [ <span class="nb">apply</span> setproperty | ] ;
+       <span class="nb">intro</span> ;
+       <span class="nb">apply</span> isasetdirprod ; <span class="nb">apply</span> setproperty).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> <span class="nv">Z₁</span> <span class="nv">Z₂</span> : hSet)
+             (<span class="nv">f</span> : X₁ → X₂)
+             (<span class="nv">g</span> : Y₁ → Y₂)
+             (<span class="nv">h</span> : Z₁ → Z₂)
+             (<span class="nv">R₁</span> : X₁ → Y₁ → hSet)
+             (<span class="nv">S₁</span> : Y₁ → Z₁ → hSet)
+             (<span class="nv">R₂</span> : X₂ → Y₂ → hSet)
+             (<span class="nv">S₂</span> : Y₂ → Z₂ → hSet)
+             (<span class="nv">fR</span> : ∏ (x : X₁) (y : Y₁), R₁ x y → R₂ (f x) (g y))
+             (<span class="nv">gR</span> : ∏ (x : Y₁) (y : Z₁), S₁ x y → S₂ (g x) (h y))
+             (<span class="nv">x</span> : X₁)
+             (<span class="nv">z</span> : Z₁)
+             (<span class="nv">p</span> : ∑ (y : Y₁), R₁ x y × S₁ y z),
+           g (pr1 p) ,, fR _ _ (pr12 p) ,, gR _ _ (pr22 p)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_rel_double_cat_hor_comp_laws</span>
+  : hor_comp_laws set_rel_double_cat_hor_comp_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_rel_double_cat_hor_comp</span>
+  : hor_comp set_rel_disp_cat.
+<span class="kn">Proof</span>.
+  use make_hor_comp.
+  - <span class="bp">exact</span> set_rel_double_cat_hor_comp_data.
+  - <span class="bp">exact</span> set_rel_double_cat_hor_comp_laws.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2.3. The unitors and associators *)</span>
+<span class="kn">Definition</span> <span class="nf">set_rel_double_cat_lunitor_data</span>
+  : double_lunitor_data
+      set_rel_double_cat_hor_id
+      set_rel_double_cat_hor_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : hSet) (<span class="nv">R</span> : X → Y → hSet), _).
+  use to_iso_set_rel_disp_cat.
+  <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">p</span>, transportf (<span class="k">λ</span> <span class="nv">z</span>, R z y) (!(pr12 p)) (pr22 p)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">p</span>, x ,, idpath _ ,, p).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> p ;
+       <span class="nb">induction</span> p <span class="k">as</span> [ x' [ p q ]] ;
+       <span class="nb">induction</span> p ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_rel_double_cat_lunitor_laws</span>
+  : double_lunitor_laws set_rel_double_cat_lunitor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X₁ X₂ Y₁ Y₂ R₁ R₂ f g fgR.
+  use funextsec ; <span class="nb">intro</span> x.
+  use funextsec ; <span class="nb">intro</span> y.
+  use funextsec ; <span class="nb">intro</span> p.
+  etrans.
+  {
+    <span class="nb">apply</span> transportf_set_rel.
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">induction</span> p <span class="k">as</span> [ y' [ p q ]].
+  <span class="nb">induction</span> p.
+  <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    use (transportf_set (R₂ (f x))).
+    <span class="nb">apply</span> setproperty.
+  }
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_rel_double_cat_lunitor</span>
+  : double_cat_lunitor
+      set_rel_double_cat_hor_id
+      set_rel_double_cat_hor_comp.
+<span class="kn">Proof</span>.
+  use make_double_lunitor.
+  - <span class="bp">exact</span> set_rel_double_cat_lunitor_data.
+  - <span class="bp">exact</span> set_rel_double_cat_lunitor_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_rel_double_cat_runitor_data</span>
+  : double_runitor_data
+      set_rel_double_cat_hor_id
+      set_rel_double_cat_hor_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : hSet) (<span class="nv">R</span> : X → Y → hSet), _).
+  use to_iso_set_rel_disp_cat.
+  <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">p</span>, transportf (<span class="k">λ</span> <span class="nv">z</span>, R x z) (pr22 p) (pr12 p)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">p</span>, y ,, p ,, idpath _).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> p ;
+       <span class="nb">induction</span> p <span class="k">as</span> [ x' [ p q ]] ;
+       <span class="nb">induction</span> q ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_rel_double_cat_runitor_laws</span>
+  : double_runitor_laws set_rel_double_cat_runitor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X₁ X₂ Y₁ Y₂ R₁ R₂ f g fgR.
+  use funextsec ; <span class="nb">intro</span> x.
+  use funextsec ; <span class="nb">intro</span> y.
+  use funextsec ; <span class="nb">intro</span> p.
+  etrans.
+  {
+    <span class="nb">apply</span> transportf_set_rel.
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">induction</span> p <span class="k">as</span> [ y' [ p q ]].
+  <span class="nb">induction</span> q.
+  <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    use (transportf_set (R₂ (f x))).
+    <span class="nb">apply</span> setproperty.
+  }
+  etrans.
+  {
+    use (transportf_set (<span class="k">λ</span> <span class="nv">z</span>, R₂ z _)).
+    <span class="nb">apply</span> setproperty.
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    use (transportf_set (R₂ (f x))).
+    <span class="nb">apply</span> setproperty.
+  }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_rel_double_cat_runitor</span>
+  : double_cat_runitor
+      set_rel_double_cat_hor_id
+      set_rel_double_cat_hor_comp.
+<span class="kn">Proof</span>.
+  use make_double_runitor.
+  - <span class="bp">exact</span> set_rel_double_cat_runitor_data.
+  - <span class="bp">exact</span> set_rel_double_cat_runitor_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_rel_double_cat_associator_data</span>
+  : double_associator_data set_rel_double_cat_hor_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet)
+            (<span class="nv">R₁</span> : W → X → hSet)
+            (<span class="nv">R₂</span> : X → Y → hSet)
+            (<span class="nv">R₃</span> : Y → Z → hSet),
+          _).
+  use to_iso_set_rel_disp_cat.
+  <span class="nb">intros</span> w z.
+  <span class="nb">cbn</span>.
+  use weq_iso.
+  - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">p</span>, _ ,, (_ ,, _ ,, _) ,, _).
+    + <span class="bp">exact</span> (pr1 (pr22 p)).
+    + <span class="bp">exact</span> (pr1 p).
+    + <span class="bp">exact</span> (pr12 p).
+    + <span class="bp">exact</span> (pr12 (pr22 p)).
+    + <span class="bp">exact</span> (pr22 (pr22 p)).
+  - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">p</span>, _ ,, _ ,, (_ ,, _ ,, _)).
+    + <span class="bp">exact</span> (pr1 (pr12 p)).
+    + <span class="bp">exact</span> (pr12 (pr12 p)).
+    + <span class="bp">exact</span> (pr1 p).
+    + <span class="bp">exact</span> (pr22 (pr12 p)).
+    + <span class="bp">exact</span> (pr22 p).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> p ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> p ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_rel_double_cat_associator_laws</span>
+  : double_associator_laws set_rel_double_cat_associator_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> W₁ W₂ X₁ X₂ Y₁ Y₂ Z₁ Z₂ R₁ R₂ S₁ S₂ T₁ T₂ f g h k H₁ H₂ H₃.
+  use funextsec ; <span class="nb">intro</span> x.
+  use funextsec ; <span class="nb">intro</span> y.
+  use funextsec ; <span class="nb">intro</span> p.
+  etrans.
+  {
+    <span class="nb">apply</span> transportf_set_rel.
+  }
+  <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    use transportf_set.
+    <span class="nb">apply</span> setproperty.
+  }
+  etrans.
+  {
+    use transportf_set.
+    <span class="nb">apply</span> setproperty.
+  }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_rel_double_cat_associator</span>
+  : double_cat_associator set_rel_double_cat_hor_comp.
+<span class="kn">Proof</span>.
+  use make_double_associator.
+  - <span class="bp">exact</span> set_rel_double_cat_associator_data.
+  - <span class="bp">exact</span> set_rel_double_cat_associator_laws.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2.4. The triangle and pentagon equations *)</span>
+<span class="kn">Proposition</span> <span class="nf">set_rel_double_cat_triangle</span>
+  : triangle_law
+      set_rel_double_cat_lunitor
+      set_rel_double_cat_runitor
+      set_rel_double_cat_associator.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y Z R₁ R₂.
+  use funextsec ; <span class="nb">intro</span> x.
+  use funextsec ; <span class="nb">intro</span> y.
+  use funextsec ; <span class="nb">intro</span> p.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> transportf_set_rel.
+  }
+  <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    use transportf_set.
+    <span class="nb">apply</span> setproperty.
+  }
+  etrans.
+  {
+    use transportf_set.
+    <span class="nb">apply</span> setproperty.
+  }
+  <span class="nb">cbn</span> <span class="k">in</span> p.
+  <span class="nb">induction</span> p <span class="k">as</span> [ y' [ p [ y'' [ q r ]]]].
+  <span class="nb">induction</span> q.
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_rel_double_cat_pentagon</span>
+  : pentagon_law set_rel_double_cat_associator.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> V W X Y Z R₁ R₂ R₃ R₄.
+  use funextsec ; <span class="nb">intro</span> x.
+  use funextsec ; <span class="nb">intro</span> y.
+  use funextsec ; <span class="nb">intro</span> p.
+  etrans.
+  {
+    <span class="nb">apply</span> transportf_set_rel.
+  }
+  <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    use transportf_set.
+    <span class="nb">apply</span> setproperty.
+  }
+  etrans.
+  {
+    use transportf_set.
+    <span class="nb">apply</span> setproperty.
+  }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2.5. The double category of relations *)</span>
+<span class="kn">Definition</span> <span class="nf">set_rel_double_cat</span>
+  : double_cat.
+<span class="kn">Proof</span>.
+  use make_double_cat.
+  - <span class="bp">exact</span> SET.
+  - <span class="bp">exact</span> set_rel_disp_cat.
+  - <span class="bp">exact</span> set_rel_double_cat_hor_id.
+  - <span class="bp">exact</span> set_rel_double_cat_hor_comp.
+  - <span class="bp">exact</span> set_rel_double_cat_lunitor.
+  - <span class="bp">exact</span> set_rel_double_cat_runitor.
+  - <span class="bp">exact</span> set_rel_double_cat_associator.
+  - <span class="bp">exact</span> set_rel_double_cat_triangle.
+  - <span class="bp">exact</span> set_rel_double_cat_pentagon.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_rel_univalent_double_cat</span>
+  : univalent_double_cat.
+<span class="kn">Proof</span>.
+  use make_univalent_double_cat.
+  - <span class="bp">exact</span> set_rel_double_cat.
+  - <span class="nb">split</span>.
+    + <span class="bp">exact</span> is_univalent_HSET.
+    + <span class="bp">exact</span> is_univalent_set_rel_twosided_disp_cat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_rel_double_cat_ver_weq_square</span>
+  : ver_weq_square set_rel_double_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : hSet) (<span class="nv">f</span> <span class="nv">g</span> : X → Y), _).
+  use isweqimplimpl.
+  - <span class="nb">cbn</span>.
+    <span class="nb">intro</span> p.
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intros</span> x.
+    <span class="nb">apply</span> p.
+    <span class="nb">apply</span> idpath.
+  - use funspace_isaset.
+    <span class="nb">apply</span> setproperty.
+  - <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2.6. Companions and conjoints *)</span>
+<span class="kn">Definition</span> <span class="nf">all_companions_set_rel</span>
+  : all_companions_double_cat set_rel_double_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : hSet) (<span class="nv">f</span> : X → Y), _).
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, hProp_to_hSet (f x = y)%logic).
+  - use make_double_cat_are_companions'.
+    + <span class="kp">abstract</span>
+        (<span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">p</span>, p)).
+    + <span class="kp">abstract</span>
+        (<span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">p</span>, maponpaths f p)).
+    + <span class="kp">abstract</span>
+        (<span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ; <span class="nb">apply</span> propproperty).
+    + <span class="kp">abstract</span>
+        (<span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ; <span class="nb">apply</span> propproperty).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">all_conjoints_set_rel</span>
+  : all_conjoints_double_cat set_rel_double_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : hSet) (<span class="nv">f</span> : X → Y), _).
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">x</span>, hProp_to_hSet (f x = y)%logic).
+  - use make_double_cat_are_conjoints'.
+    + <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">p</span>, maponpaths f (!p))).
+    + <span class="kp">abstract</span>
+        (<span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">p</span>, !p)).
+    + <span class="kp">abstract</span>
+        (<span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ; <span class="nb">apply</span> propproperty).
+    + <span class="kp">abstract</span>
+        (<span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ; <span class="nb">apply</span> propproperty).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Examples/RelationsDoubleCat.v</tt>, line 40)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2.6. Companions and conjoints
+  &gt;
+  &gt;  *************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Setcategories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

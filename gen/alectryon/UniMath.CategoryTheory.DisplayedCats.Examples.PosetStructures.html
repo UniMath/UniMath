@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PosetStructures.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Poset structure</span>
+
+<span class="sd"> Since posets are structured sets, we can define the category of</span>
+<span class="sd"> posets in a rather convenient way. This approach is taken in this</span>
+<span class="sd"> file.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Poset structures of set</span>
+<span class="sd"> 2. Posets is a cartesian structure</span>
+<span class="sd"> 3. Limits of posets</span>
+<span class="sd"> 4. Exponentials of posets</span>
+<span class="sd"> 5. Binary coproducts of posets</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Poset structures of set</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">struct_poset_data</span>
+  : hset_struct_data.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, PartialOrder X).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">PX</span> <span class="nv">PY</span> <span class="nv">f</span>, is_monotone PX PY f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">struct_poset_laws</span>
+  : hset_struct_laws struct_poset_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intro</span> X.
+    <span class="nb">apply</span> isaset_PartialOrder.
+  - <span class="nb">intros</span> X Y px py f.
+    <span class="nb">apply</span> isaprop_is_monotone.
+  - <span class="nb">intros</span> X PX ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> idfun_is_monotone.
+  - <span class="nb">intros</span> X Y Z PX PY PZ f g Pf Pg.
+    <span class="bp">exact</span> (comp_is_monotone Pf Pg).
+  - <span class="nb">intros</span> X PX PX' p q ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> (eq_PartialOrder p q).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">struct_poset</span>
+  : hset_struct
+  := struct_poset_data ,, struct_poset_laws.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Posets is a cartesian structure</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">cartesian_struct_poset_data</span>
+  : hset_cartesian_struct_data
+  := struct_poset
+     ,,
+     unit_PartialOrder
+     ,,
+     <span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">PX</span> <span class="nv">PY</span>, prod_PartialOrder PX PY.
+
+<span class="kn">Definition</span> <span class="nf">cartesian_struct_poset_laws</span>
+  : hset_cartesian_struct_laws cartesian_struct_poset_data.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ ,, _ ,, _ ,, _).
+  - <span class="nb">intros</span> X PX x y p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> tt.
+  - <span class="nb">intros</span> X Y PX PY ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> dirprod_pr1_is_monotone.
+  - <span class="nb">intros</span> X Y PX PY ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> dirprod_pr2_is_monotone.
+  - <span class="nb">intros</span> W X Y PW PY PZ f g Pf Pg ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> (prodtofun_is_monotone Pf Pg).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cartesian_struct_poset</span>
+  : hset_cartesian_struct
+  := cartesian_struct_poset_data ,, cartesian_struct_poset_laws.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Limits of posets</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">equalizers_struct_poset</span>
+  : hset_equalizer_struct struct_poset.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="nb">intros</span> X Y f g PX PY Pf Pg.
+    <span class="bp">exact</span> (Equalizer_order PX _ f g).
+  - <span class="kp">repeat</span> <span class="nb">split</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> X Y f g PX PY Pf Pg ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+         <span class="bp">exact</span> (Equalizer_pr1_monotone PX Y f g)).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> X Y f g PX PY Pf Pg W PW h Ph q ;
+         <span class="bp">exact</span> (Equalizer_map_monotone PX Y f g PW Ph (eqtohomot q))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">type_products_struct_poset</span>
+           (<span class="nv">I</span> : UU)
+  : hset_struct_type_prod struct_poset I.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">D</span> <span class="nv">fs</span>, depfunction_poset _ fs).
+  - <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> D PD i ;
+         <span class="nb">apply</span> is_monotone_depfunction_poset_pr).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> D PD W PW fs Hfs i ;
+         <span class="nb">apply</span> is_monotone_depfunction_poset_pair ;
+         <span class="bp">exact</span> Hfs).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Exponentials of posets</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">poset_fun_space</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           (<span class="nv">PX</span> : PartialOrder X)
+           (<span class="nv">PY</span> : PartialOrder Y)
+  : PartialOrder (@struct_fun_hSet struct_poset X Y PX PY).
+<span class="kn">Proof</span>.
+  use make_PartialOrder.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span>, <span class="k">∀</span> (<span class="nv">x</span> : X), PY (pr1 f x) (pr1 g x)).
+  - <span class="nb">refine</span> ((_ ,, _) ,, _).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> f g h p q x ;
+         <span class="bp">exact</span> (trans_PartialOrder PY (p x) (q x))).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> f x ;
+         <span class="bp">exact</span> (refl_PartialOrder PY (pr1 f x))).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> f g p q ;
+         use eq_monotone_function ;
+         <span class="nb">intro</span> x ;
+         <span class="bp">exact</span> (antisymm_PartialOrder PY (p x) (q x))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cartesian_closed_struct_poset_data</span>
+  : hset_cartesian_closed_struct_data.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (cartesian_struct_poset ,, _ ,, _).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> X Y PX PY y x₁ x₂ p ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> refl_PartialOrder).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">PX</span> <span class="nv">PY</span>, poset_fun_space PX PY).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cartesian_closed_struct_poset_laws</span>
+  : closed_under_fun_laws cartesian_closed_struct_poset_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> X Y PX PY xf yg p.
+    <span class="nb">induction</span> xf <span class="k">as</span> [ x [ f Hf ]].
+    <span class="nb">induction</span> yg <span class="k">as</span> [ y [ g Hg ]].
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p <span class="k">as</span> [ p q ].
+    <span class="bp">exact</span> (trans_PartialOrder PY (q x) (Hg _ _ p)).
+  - <span class="nb">intros</span> X Y Z PX PY PZ f Pf z₁ z₂ p x.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> (Pf (x ,, z₁) (x ,, z₂) (refl_PartialOrder PX x ,, p)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cartesian_closed_struct_poset</span>
+  : hset_cartesian_closed_struct
+  := cartesian_closed_struct_poset_data
+     ,,
+     cartesian_closed_struct_poset_laws.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Binary coproducts of posets</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">binary_coproducts_struct_poset</span>
+  : hset_binary_coprod_struct struct_poset.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">PX</span> <span class="nv">PY</span>, coproduct_PartialOrder PX PY).
+  - <span class="nb">simple refine</span> (_ ,, _ ,, _) ; <span class="nb">cbn</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> X Y PX PY ; <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> (is_monotone_inl PX PY)).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> X Y PX PY ; <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> (is_monotone_inr PX PY)).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> X Y Z PX PY PZ f g Pf Pg ;
+         <span class="bp">exact</span> (is_monotone_sumofmaps _ _ Pf Pg)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Set-indexed coproducts of posets</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">set_coproducts_struct_poset</span>
+           (<span class="nv">I</span> : hSet)
+  : hset_struct_set_coprod struct_poset I.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Y</span> <span class="nv">PY</span>, coproduct_set_PartialOrder _ PY).
+  - <span class="nb">simple refine</span> (_ ,, _) ; <span class="nb">cbn</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> Y PY ; <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> (is_monotone_set_in _ PY)).
+    + <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">Y</span> <span class="nv">PY</span> <span class="nv">W</span> <span class="nv">PW</span> <span class="nv">f</span> <span class="nv">Pf</span>, _) ;
+         <span class="bp">exact</span> (is_monotone_set_coproduct_map _ _ Pf)).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Examples/PosetStructures.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Binary coproducts of posets
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Posets.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

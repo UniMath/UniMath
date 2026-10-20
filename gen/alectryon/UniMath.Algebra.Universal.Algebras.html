@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Algebras.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Algebra for a given signature. *)</span>
+<span class="sd">(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2023 *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Export</span> UniMath.Algebra.Universal.SortedTypes.
+<span class="kn">Require Export</span> UniMath.Algebra.Universal.Signatures.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> sorted.
+
+<span class="sd">(** ** Basic definitions. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">algebra</span> (<span class="nv">σ</span>: signature): UU
+  := ∑ A: sUU (sorts σ), ∏ nm: names σ, A⋆ (arity nm) → A (sort nm).
+
+<span class="kn">Definition</span> <span class="nf">support</span> {<span class="nv">σ</span>: signature} (<span class="nv">A</span>: algebra σ): sUU (sorts σ) := pr1 A.
+
+<span class="kn">Coercion</span> <span class="nf">support</span>: algebra &gt;-&gt; sUU.
+
+<span class="kn">Definition</span> <span class="nf">ops</span> {<span class="nv">σ</span>: signature} (<span class="nv">A</span>: algebra σ) := pr2 A.
+
+<span class="kn">Definition</span> <span class="nf">make_algebra</span> {<span class="nv">σ</span>: signature} (<span class="nv">A</span> : sUU (sorts σ)) (<span class="nv">ops</span>: ∏ nm: names σ, A⋆ (arity nm) → A (sort nm))
+  : algebra σ := A ,, ops.
+
+<span class="kn">Definition</span> <span class="nf">dom</span> {<span class="nv">σ</span>: signature} (<span class="nv">A</span>: algebra σ) (<span class="nv">nm</span>: names σ): UU := A⋆ (arity nm).
+
+<span class="kn">Definition</span> <span class="nf">rng</span> {<span class="nv">σ</span>: signature} (<span class="nv">A</span>: algebra σ) (<span class="nv">nm</span>: names σ): UU := support A (sort nm).
+
+<span class="kn">Definition</span> <span class="nf">has_supportsets</span> {<span class="nv">σ</span>: signature} (<span class="nv">A</span>: algebra σ): UU
+  := ∏ s: sorts σ, isaset (support A s).
+
+<span class="sd">(** ** Helper for building an algebra starting from a simple signature.</span>
+
+<span class="sd">A simple signature is either a [signature_simple_single_sorted] for the single-sorted case or</span>
+<span class="sd">a [signature_single] for the multi-sorted case.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">make_algebra_simple_single_sorted</span>
+    (<span class="nv">σ</span> : signature_simple_single_sorted)
+    (<span class="nv">A</span> : UU)
+    (<span class="nv">ops</span> : (<span class="k">λ</span> <span class="nv">n</span>: nat, vec A n → A)⋆ σ)
+  : algebra σ.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">A</span>).
+  <span class="nb">unfold</span> arity.
+  <span class="nb">revert</span> σ ops.
+  <span class="nb">refine</span> (list_ind _ _ _).
+  - <span class="nb">intros</span>.
+    <span class="nb">cbn</span> <span class="k">in</span> nm.
+    <span class="nb">apply</span> fromstn0.
+    <span class="bp">assumption</span>.
+  - <span class="nb">intros</span> x xs IHxs ops nm.
+    <span class="nb">simpl</span> <span class="k">in</span> ops.
+    <span class="nb">induction</span> nm <span class="k">as</span> [nm nmproof].
+    <span class="nb">induction</span> nm.
+    + <span class="nb">unfold</span> star.
+      <span class="bp">exact</span> (pr1 ops ∘ h1lower).
+    + <span class="bp">exact</span> (IHxs (pr2 ops) (nm ,, nmproof)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_algebra_simple</span>
+    (<span class="nv">σ</span>: signature_simple)
+    (<span class="nv">A</span>: vec UU (pr1 σ))
+    (<span class="nv">ops</span>: (<span class="k">λ</span> <span class="nv">a</span>, (el A)⋆ (dirprod_pr1 a) → el A (dirprod_pr2 a))⋆ (pr2 σ))
+  : algebra σ.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">el</span> <span class="nv">A</span>).
+  <span class="nb">unfold</span> arity.
+  <span class="nb">induction</span> σ <span class="k">as</span> [ns ar].
+  <span class="nb">simpl</span> <span class="k">in</span> A.
+  <span class="nb">revert</span> ar ops.
+  <span class="nb">refine</span> (list_ind _ _ _).
+  - <span class="nb">intros</span>.
+    <span class="nb">cbn</span> <span class="k">in</span> nm.
+    <span class="nb">apply</span> fromstn0.
+    <span class="bp">assumption</span>.
+  - <span class="nb">simpl</span>.
+    <span class="nb">intros</span> x xs IHxs ops.
+    <span class="nb">induction</span> ops <span class="k">as</span> [op ops].
+    <span class="nb">intro</span>.
+    <span class="nb">cbn</span> <span class="k">in</span> nm.
+    <span class="nb">induction</span> nm <span class="k">as</span> [nm nmproof].
+    <span class="nb">induction</span> nm.
+    + <span class="nb">unfold</span> star.
+      <span class="bp">exact</span> op.
+    + <span class="bp">exact</span> (IHxs ops (nm ,, nmproof)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Homomorphisms of algebras. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">ishom</span> {<span class="nv">σ</span>: signature} {<span class="nv">A1</span> <span class="nv">A2</span>: algebra σ} (<span class="nv">h</span>: A1 s→ A2) : UU
+  := ∏ (nm: names σ) (x: dom A1 nm), h _ (ops A1 nm x) = ops A2 nm (h⋆⋆ _ x).
+
+<span class="kn">Definition</span> <span class="nf">hom</span> {<span class="nv">σ</span>: signature} (<span class="nv">A1</span> <span class="nv">A2</span>: algebra σ): UU := ∑ (h: A1 s→ A2), ishom h.
+
+<span class="kn">Declare Scope</span> hom_scope.
+
+<span class="kn">Notation</span> <span class="s2">"a1 ↷ a2"</span> := (hom a1 a2) (<span class="kn">at level</span> <span class="mi">80</span>, <span class="kn">right associativity</span>): hom_scope.
+
+<span class="kn">Delimit Scope</span> hom_scope <span class="k">with</span> hom.
+
+<span class="kn">Bind Scope</span> hom_scope <span class="k">with</span> hom.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hom.
+
+<span class="kn">Definition</span> <span class="nf">hom2fun</span> {<span class="nv">σ</span>: signature} {<span class="nv">A1</span> <span class="nv">A2</span>: algebra σ} (<span class="nv">f</span>: A1 ↷ A2)
+  : sfun (support A1) (support A2) := pr1 f.
+
+<span class="kn">Coercion</span> <span class="nf">hom2fun</span>: hom &gt;-&gt; sfun.
+
+<span class="kn">Definition</span> <span class="nf">hom2axiom</span> {<span class="nv">σ</span>: signature} {<span class="nv">A1</span> <span class="nv">A2</span>: algebra σ} (<span class="nv">f</span>: A1 ↷ A2) := pr2 f.
+
+<span class="kn">Definition</span> <span class="nf">make_hom</span> {<span class="nv">σ</span>: signature} {<span class="nv">A1</span> <span class="nv">A2</span>: algebra σ} {<span class="nv">f</span>: sfun A1 A2} (<span class="nv">isc</span>: ishom f): A1 ↷ A2 := f ,, isc.
+
+<span class="kn">Theorem</span> <span class="nf">isapropishom</span> {<span class="nv">σ</span>: signature} {<span class="nv">A1</span> <span class="nv">A2</span>: algebra σ} (<span class="nv">f</span>: sfun A1 A2)
+   (<span class="nv">setprop</span>: has_supportsets A2): isaprop (ishom f).
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">apply</span> impred_isaprop.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> impred_isaprop.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> setprop.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">isasethom</span> {<span class="nv">σ</span>: signature} (<span class="nv">A1</span> <span class="nv">A2</span>: algebra σ) (<span class="nv">setprop</span>: has_supportsets A2)
+  : isaset (A1 ↷ A2).
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">apply</span> isaset_total2.
+  - <span class="nb">apply</span> impred_isaset.
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> impred_isaset.
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> setprop.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isapropishom.
+    <span class="bp">exact</span> setprop.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Identity and composition of homomorphisms. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">ishomid</span> {<span class="nv">σ</span>: signature} (<span class="nv">A</span>: algebra σ): ishom (idsfun A).
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">rewrite</span> staridfun.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">homid</span> {<span class="nv">σ</span>: signature} (<span class="nv">A</span>: algebra σ): A ↷ A := make_hom (ishomid A).
+
+<span class="kn">Lemma</span> <span class="nf">ishomcomp</span> {<span class="nv">σ</span>: signature} {<span class="nv">A1</span> <span class="nv">A2</span> <span class="nv">A3</span>: algebra σ} (<span class="nv">h1</span>: A1 ↷ A2) (<span class="nv">h2</span>: A2 ↷ A3): ishom (h2 s∘ h1).
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> h1 <span class="k">as</span> [h1 ishomh1].
+  <span class="nb">induction</span> h2 <span class="k">as</span> [h2 ishomh2].
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> starcomp.
+  <span class="nb">rewrite</span> ishomh1.
+  <span class="nb">rewrite</span> ishomh2.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">homcomp</span> {<span class="nv">σ</span>: signature} {<span class="nv">a1</span> <span class="nv">a2</span> <span class="nv">a3</span>: algebra σ} (<span class="nv">h1</span>: a1 ↷ a2) (<span class="nv">h2</span>: a2 ↷ a3) : a1 ↷ a3
+  := make_hom (ishomcomp h1 h2).
+
+<span class="sd">(** ** The unit algebra and the proof it is final. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">unitalgebra</span> (<span class="nv">σ</span>: signature): algebra σ
+  := make_algebra (sunit (sorts σ)) tosunit.
+
+<span class="kn">Lemma</span> <span class="nf">ishomtounit</span> {<span class="nv">σ</span>: signature} (<span class="nv">A</span>: algebra σ): @ishom σ A (unitalgebra σ) tosunit.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> iscontrunit.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">unithom</span> {<span class="nv">σ</span>: signature} (<span class="nv">A</span> : algebra σ): hom A (unitalgebra σ)
+  := make_hom (ishomtounit A).
+
+<span class="kn">Theorem</span> <span class="nf">iscontrhomstounit</span> {<span class="nv">σ</span>: signature} (<span class="nv">A</span>: algebra σ): iscontr (hom A (unitalgebra σ)).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">unithom</span> <span class="nv">A</span>).
+  <span class="nb">intro</span>.
+  <span class="nb">apply</span> subtypePairEquality'.
+  - <span class="nb">apply</span> proofirrelevancecontr.
+    <span class="nb">apply</span> iscontr_sfuntosunit.
+  - <span class="nb">apply</span> isapropishom.
+    <span class="nb">unfold</span> has_supportsets.
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> isasetunit.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Helpers for working with curried functions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">ops'</span> {<span class="nv">σ</span>: signature} (<span class="nv">A</span>: algebra σ) (<span class="nv">nm</span>: names σ) := currify (ops A nm).
+
+<span class="kn">Definition</span> <span class="nf">make_algebra'</span>
+    {<span class="nv">σ</span>: signature}
+    (<span class="nv">A</span> : sUU (sorts σ))
+    (<span class="nv">ops</span>: ∏ nm: names σ, iterfun (vec_map A (arity nm)) (A (sort nm)))
+  : algebra σ := A ,, <span class="k">λ</span> <span class="nv">nm</span>, uncurrify (ops nm).
+
+<span class="kn">Definition</span> <span class="nf">make_algebra_simple_single_sorted'</span>
+    (<span class="nv">σ</span> : signature_simple_single_sorted)
+    (<span class="nv">A</span> : hSet)
+    (<span class="nv">ops</span> : (<span class="k">λ</span> <span class="nv">n</span>: nat, iterfun (vec_fill (pr1hSet A) n) A)⋆ σ)
+  : algebra σ.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (make_algebra_simple_single_sorted σ A _).
+  <span class="nb">refine</span> (h1map _ ops).
+  <span class="nb">intro</span> a.
+  <span class="nb">induction</span> (@hvec_vec_fill A a).
+  <span class="bp">exact</span> uncurrify.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_algebra_simple'</span>
+    (<span class="nv">σ</span>: signature_simple)
+    (<span class="nv">A</span>: vec UU (pr1 σ))
+    (<span class="nv">ops</span>: (<span class="k">λ</span> <span class="nv">a</span>, iterfun (vec_map (el A) (pr2 (dirprod_pr1 a))) (el A (dirprod_pr2 a)))⋆ (pr2 σ))
+  : algebra σ := make_algebra_simple σ A (h1map (<span class="k">λ</span> <span class="nv">_</span>, uncurrify) ops).
+
+<span class="sd">(** ** Algebras with hSets as carriers *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hSetalgebra</span> (<span class="nv">σ</span> : signature) : UU
+  := ∑ A: shSet (sorts σ), ∏ nm: names σ, A⋆ (arity nm) → A (sort nm).
+
+<span class="kn">Definition</span> <span class="nf">make_hSetalgebra</span> {<span class="nv">σ</span> : signature} {<span class="nv">A</span>: algebra σ} (<span class="nv">setproperty</span>: has_supportsets A): hSetalgebra σ
+:= ((<span class="k">λ</span> <span class="nv">s</span> : sorts σ, make_hSet (support A s) (setproperty s)),, ops A).
+
+<span class="kn">Definition</span> <span class="nf">hSetalgebra_to_algebra</span> {<span class="nv">σ</span> : signature} (<span class="nv">A</span>: hSetalgebra σ): algebra σ
+:= ((<span class="k">λ</span> <span class="nv">s</span> : sorts σ, pr1 (pr1 A s)),, pr2 A).
+
+<span class="kn">Coercion</span> <span class="nf">hSetalgebra_to_algebra</span> : hSetalgebra &gt;-&gt; algebra.
+
+<span class="kn">Definition</span> <span class="nf">has_supportsets_hSetalgebra</span> {<span class="nv">σ</span> : signature} (<span class="nv">A</span>: hSetalgebra σ): has_supportsets (hSetalgebra_to_algebra A)
+:= <span class="k">λ</span> <span class="nv">s</span>: sorts σ, setproperty (pr1 A s).
+
+<span class="kn">Lemma</span> <span class="nf">transportf_fun_op</span> {<span class="nv">σ</span> : signature} {<span class="nv">A</span> <span class="nv">B</span> : sUU (sorts σ)}
+  (<span class="nv">p</span> : A = B)
+  (<span class="nv">nm</span> : names σ) (<span class="nv">f</span> : (A⋆ (arity nm) → A (sort nm)))
+  : transportf (<span class="k">λ</span> <span class="nv">x</span> : sUU (sorts σ), x⋆ (arity nm) → x (sort nm)) p f
+  = (transportf (<span class="k">λ</span> <span class="nv">x</span> : sUU (sorts σ), x (sort nm)) p) ∘ f ∘ (transportb (<span class="k">λ</span> <span class="nv">x</span> : sUU (sorts σ), x⋆ (arity nm)) p).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transportf_fun_op2</span> {<span class="nv">σ</span> : signature} {<span class="nv">A</span> : sUU (sorts σ)}
+  (<span class="nv">D</span> <span class="nv">D'</span> : ∏ s : sorts σ, A s → UU)
+  (<span class="nv">p</span> : D = D')
+  (<span class="nv">nm</span> : names σ)
+  (<span class="nv">base_xs</span> : hvec (vec_map A (arity nm)))
+  (<span class="nv">opsAnm</span> : (A⋆ (arity nm) → A (sort nm)))
+  (<span class="nv">f</span> : hvec (h1lower (h1map D base_xs)) → D (sort nm) (opsAnm base_xs))
+  : transportf
+    (<span class="k">λ</span> <span class="nv">x</span> : ∏ s : sorts σ, A s → UU,
+      hvec (h1lower (h1map x base_xs)) → x (sort nm) (opsAnm base_xs))
+    p f
+  = (transportf
+    (<span class="k">λ</span> <span class="nv">D0</span> : ∏ s : sorts σ, A s → UU , D0 (sort nm) (opsAnm base_xs)) p) ∘ f ∘
+    (transportb (<span class="k">λ</span> <span class="nv">D0</span>, hvec (h1lower (h1map D0 base_xs))) p).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+<span class="c">(*The proof is the same of [transportf_funextsec], but this statement is not captured by it*)</span>
+  <span class="kn">Lemma</span> <span class="nf">transportf_funextsec_op</span>
+    {<span class="nv">S</span> : UU} {<span class="nv">A</span> : sUU S}
+    {<span class="nv">l</span> : list S}
+    (<span class="nv">D</span> <span class="nv">D'</span> : ∏ s : S, A s → UU)
+    (<span class="nv">H</span> : ∏ (s: S), D s = D' s)
+    (<span class="nv">s</span> : S)
+    (<span class="nv">a</span> : A s)
+    (<span class="nv">d</span> : D s a)
+
+  : transportf (<span class="k">λ</span> <span class="nv">D0</span> : ∏ s : S, A s → UU, D0 s a) (funextsec _ _ _ H) d =
+  transportf (<span class="k">λ</span> <span class="nv">Ds0</span> : A s -&gt; UU, Ds0 a) (H s) d.
+  <span class="kn">Proof</span>.
+    use (toforallpaths_induction' S (<span class="k">λ</span> <span class="nv">s</span>, A s → UU) D D'
+      (<span class="k">λ</span> <span class="nv">H'</span>,  transportf
+        (<span class="k">λ</span> <span class="nv">D0</span> : ∏ s : S, A s → UU, D0 s a)
+        (funextsec (<span class="k">λ</span> <span class="nv">s</span> : S, A s → UU) D D' H') d
+        = transportf
+        (<span class="k">λ</span> <span class="nv">Ds0</span> : A s → UU, Ds0 a)
+        (H' s) d ) _ H).
+    <span class="nb">intro</span> e.
+    <span class="nb">clear</span> H.
+    <span class="nb">simpl</span>.
+
+    <span class="nb">set</span> (XR := homotinvweqweq (weqtoforallpaths _ D D') e).
+    <span class="nb">set</span> (H := funextsec (<span class="k">λ</span> <span class="nv">s</span>, A s → UU) D D' (toforallpaths _ D D' e)).
+    <span class="nb">set</span> (P' := (<span class="k">λ</span> <span class="nv">D0</span> : ∏ s : S, A s → UU, D0 s a)).
+    use pathscomp0.
+    - <span class="bp">exact</span> (transportf P' e d).
+    - use (transportf_paths _ XR).
+    - <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transportb_funextsec_op</span>
+    {<span class="nv">S</span> : UU} {<span class="nv">A</span> : sUU S}
+    {<span class="nv">l</span> : list S}
+    (<span class="nv">D</span> <span class="nv">D'</span> : ∏ s : S, A s → UU)
+    (<span class="nv">H</span> : ∏ (s: S), D s = D' s)
+    (<span class="nv">s</span> : S)
+    (<span class="nv">a</span> : A s)
+    (<span class="nv">d</span> : D' s a)
+
+  : transportb (<span class="k">λ</span> <span class="nv">D0</span> : ∏ s : S, A s → UU, D0 s a) (funextsec _ _ _ H) d =
+  transportb (<span class="k">λ</span> <span class="nv">Ds0</span> : A s -&gt; UU, Ds0 a) (H s) d.
+  <span class="kn">Proof</span>.
+    use (toforallpaths_induction' S (<span class="k">λ</span> <span class="nv">s</span>, A s → UU) D D'
+      (<span class="k">λ</span> <span class="nv">H'</span>,  transportb
+        (<span class="k">λ</span> <span class="nv">D0</span> : ∏ s : S, A s → UU, D0 s a)
+        (funextsec (<span class="k">λ</span> <span class="nv">s</span> : S, A s → UU) D D' H') d
+        = transportb
+        (<span class="k">λ</span> <span class="nv">Ds0</span> : A s → UU, Ds0 a)
+        (H' s) d ) _ H).
+    <span class="nb">intro</span> e.
+    <span class="nb">clear</span> H.
+    <span class="nb">simpl</span>.
+
+    <span class="nb">set</span> (XR := homotinvweqweq (weqtoforallpaths _ D D') e).
+    <span class="nb">set</span> (H := funextsec (<span class="k">λ</span> <span class="nv">s</span>, A s → UU) D D' (toforallpaths _ D D' e)).
+    <span class="nb">set</span> (P' := (<span class="k">λ</span> <span class="nv">D0</span> : ∏ s : S, A s → UU, D0 s a)).
+    use pathscomp0.
+    - <span class="bp">exact</span> (transportb P' e d).
+    - use (transportf_paths _ _).
+      use invrot.
+      <span class="nb">eapply</span> pathscomp0.
+      { use pathsinv0inv0. }
+      <span class="bp">exact</span> XR.
+    - <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transportf_funextsec_op'</span>
+  {<span class="nv">σ</span> : signature} {<span class="nv">A</span> : algebra σ}
+  (<span class="nv">D</span> <span class="nv">D'</span> : ∏ s : sorts σ, A s → UU)
+  (<span class="nv">H</span> : ∏ (s: sorts σ), D s = D' s)
+  (<span class="nv">nm</span> : names σ)
+  (<span class="nv">base_xs</span> : hvec (vec_map A (arity nm)))
+  (<span class="nv">opsAnm</span> : (A⋆ (arity nm) → A (sort nm)))
+  (<span class="nv">f</span> : D (sort nm) (ops A nm base_xs))
+
+  : transportf (<span class="k">λ</span> <span class="nv">D0</span> : ∏ s : sorts σ, A s → UU, D0 (sort nm) (ops A nm base_xs)) (funextsec _ _ _ H) f =
+  transportf (<span class="k">λ</span> <span class="nv">Ds0</span> : A (sort nm) -&gt; UU, Ds0 (ops A nm base_xs)) (H (sort nm)) f.
+  <span class="kn">Proof</span>.
+    use transportf_funextsec_op.
+    <span class="bp">exact</span> (arity nm).
+  <span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/Universal/Algebras.v</tt>, line 4)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** * Algebra for a given signature. *)
+  &gt; (** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2023 *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

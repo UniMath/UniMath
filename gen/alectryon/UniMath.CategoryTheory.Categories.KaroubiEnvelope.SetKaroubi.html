@@ -1,0 +1,1046 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SetKaroubi.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  The Setcategory Karoubi Construction</span>
+
+<span class="sd">  Constructs the setcategory Karoubi envelope.</span>
+<span class="sd">  Its objects are the idempotent morphisms on objects of C.</span>
+<span class="sd">  The fully faithful embedding of C into this Karoubi envelope induces an equivalence on</span>
+<span class="sd">  isomorphisms, but also an equivalence on path types. Using these equivalences, one can show that</span>
+<span class="sd">  C is univalent if its Karoubi envelope is. Note that the converse does not necessarily hold: C</span>
+<span class="sd">  can be univalent when the Karoubi envelope is not univalent.</span>
+<span class="sd">  One can equivalently define the Karoubi envelope as a displayed category over the presheaf</span>
+<span class="sd">  category over C, in which every presheaf is endowed with a retraction from the Yoneda embedding of</span>
+<span class="sd">  some object in C.</span>
+<span class="sd">  As is expected of a closure, the construction gives a monad on the category of setcategories.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The setcategory Karoubi envelope</span>
+<span class="sd">  1.1. The objects and morphisms and their constructors and accessors</span>
+<span class="sd">    [set_karoubi_ob] [set_karoubi_mor]</span>
+<span class="sd">  1.2. The category [set_karoubi_cat]</span>
+<span class="sd">  1.3. The embedding [set_karoubi_inclusion]</span>
+<span class="sd">  1.4. Every idempotent in the karoubi envelope splits [set_karoubi_idempotent_splits]</span>
+<span class="sd">  1.5. Every object of the karoubi envelope is a retract of an element of C</span>
+<span class="sd">    [set_karoubi_is_retract]</span>
+<span class="sd">  1.6. The bundling of the above into a term of set_karoubi_envelope [set_karoubi]</span>
+<span class="sd">  2. If the karoubi envelope is univalent, C is univalent [set_karoubi_univalence]</span>
+<span class="sd">  3. The alternative definition, using the presheaf category [set_karoubi']</span>
+<span class="sd">  3.1. The equivalence between the two definitions [set_karoubi_equivalence]</span>
+<span class="sd">  4. The formations of the opposite category and the Karoubi envelope commute [opp_set_karoubi]</span>
+<span class="sd">  5. The Karoubi envelope construction gives a monad on the category of setcategories</span>
+<span class="sd">    [set_karoubi_monad]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Coreflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.yoneda.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. The setcategory Karoubi envelope and its embedding of C *)</span>
+
+<span class="kn">Section</span> <span class="nf">SetKaroubi</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+<span class="sd">(** ** 1.1. The objects and morphisms and their constructors and accessors *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">set_karoubi_ob</span>
+    : UU
+    := ∑ (X : C),
+      idempotent X.
+
+  <span class="kn">Definition</span> <span class="nf">make_set_karoubi_ob</span>
+    (<span class="nv">X</span> : C)
+    (<span class="nv">f</span> : C⟦X, X⟧)
+    (<span class="nv">H</span> : f · f = f)
+    : set_karoubi_ob
+    := X ,, f ,, H.
+
+  <span class="kn">Coercion</span> <span class="nf">set_karoubi_ob_object</span>
+    (X : set_karoubi_ob)
+    : C
+    := pr1 X.
+
+  <span class="kn">Definition</span> <span class="nf">set_karoubi_ob_idempotent</span>
+    (<span class="nv">X</span> : set_karoubi_ob)
+    : idempotent X
+    := pr2 X.
+
+  <span class="kn">Definition</span> <span class="nf">set_karoubi_mor</span>
+    (<span class="nv">X</span> <span class="nv">Y</span> : set_karoubi_ob)
+    : UU
+    := ∑ (f : C⟦X, Y⟧),
+      set_karoubi_ob_idempotent X · f = f ×
+      f · set_karoubi_ob_idempotent Y = f.
+
+  <span class="kn">Definition</span> <span class="nf">make_set_karoubi_mor</span>
+    {<span class="nv">X</span> <span class="nv">Y</span> : set_karoubi_ob}
+    (<span class="nv">f</span> : C⟦X, Y⟧)
+    (<span class="nv">Hl</span> : set_karoubi_ob_idempotent X · f = f)
+    (<span class="nv">Hr</span> : f · set_karoubi_ob_idempotent Y = f)
+    : set_karoubi_mor X Y
+    := f ,, Hl ,, Hr.
+
+  <span class="kn">Coercion</span> <span class="nf">set_karoubi_mor_morphism</span>
+    {X Y : set_karoubi_ob}
+    (f : set_karoubi_mor X Y)
+    : C⟦X, Y⟧
+    := pr1 f.
+
+  <span class="kn">Definition</span> <span class="nf">set_karoubi_mor_commutes_left</span>
+    {<span class="nv">X</span> <span class="nv">Y</span> : set_karoubi_ob}
+    (<span class="nv">f</span> : set_karoubi_mor X Y)
+    : set_karoubi_ob_idempotent X · f = f
+    := pr12 f.
+
+  <span class="kn">Definition</span> <span class="nf">set_karoubi_mor_commutes_right</span>
+    {<span class="nv">X</span> <span class="nv">Y</span> : set_karoubi_ob}
+    (<span class="nv">f</span> : set_karoubi_mor X Y)
+    : f · set_karoubi_ob_idempotent Y = f
+    := pr22 f.
+
+  <span class="kn">Definition</span> <span class="nf">set_karoubi_mor_eq</span>
+    {<span class="nv">X</span> <span class="nv">Y</span> : set_karoubi_ob}
+    (<span class="nv">f</span> <span class="nv">g</span> : set_karoubi_mor X Y)
+    (<span class="nv">H</span> : pr1 f = pr1 g)
+    : f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> subtypePath.
+    {
+      <span class="nb">intro</span> x.
+      <span class="nb">apply</span> isapropdirprod;
+        <span class="nb">apply</span> homset_property.
+    }
+    <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+<span class="sd">(** ** 1.2. The category *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">set_karoubi_ob_mor</span>
+    : precategory_ob_mor
+    := make_precategory_ob_mor
+      set_karoubi_ob
+      set_karoubi_mor.
+
+  <span class="kn">Definition</span> <span class="nf">set_karoubi_cat_data</span>
+    : precategory_data.
+  <span class="kn">Proof</span>.
+    use make_precategory_data.
+    - <span class="bp">exact</span> set_karoubi_ob_mor.
+    - <span class="nb">intro</span> f.
+      <span class="bp">exact</span> (make_set_karoubi_mor (pr12 f) (pr22 f) (pr22 f)).
+    - <span class="nb">intros</span> f f' f'' g g'.
+      use make_set_karoubi_mor.
+      + <span class="bp">exact</span> (pr1 g · pr1 g').
+      + <span class="kp">abstract</span> <span class="bp">now</span> <span class="nb">rewrite</span> assoc, (pr12 g).
+      + <span class="kp">abstract</span> <span class="bp">now</span> <span class="nb">rewrite</span> assoc', (pr22 g').
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">set_karoubi_is_precategory</span>
+    : is_precategory set_karoubi_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_precategory_one_assoc.
+    - <span class="nb">intros</span> m n f.
+      <span class="nb">apply</span> set_karoubi_mor_eq.
+      <span class="bp">exact</span> (pr12 f).
+    - <span class="nb">intros</span> m n f.
+      <span class="nb">apply</span> set_karoubi_mor_eq.
+      <span class="bp">exact</span> (pr22 f).
+    - <span class="nb">intros</span> k l m n f g h.
+      <span class="nb">apply</span> set_karoubi_mor_eq.
+      <span class="nb">apply</span> assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">set_karoubi_has_homsets</span>
+    : has_homsets set_karoubi_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> m n.
+    <span class="nb">apply</span> isaset_total2.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">intro</span> x.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> isapropdirprod;
+        <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">set_karoubi_cat</span>
+    : category
+    := make_category
+      (make_precategory
+        set_karoubi_cat_data
+        set_karoubi_is_precategory)
+      set_karoubi_has_homsets.
+
+<span class="sd">(** ** 1.3. The embedding *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">set_karoubi_inclusion</span>
+    : C ⟶ set_karoubi_cat.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - use make_functor_data.
+      + <span class="nb">intro</span> c.
+        <span class="bp">exact</span> (make_set_karoubi_ob c (identity _) (id_left _)).
+      + <span class="nb">intros</span> a b f.
+        use make_set_karoubi_mor.
+        * <span class="bp">exact</span> f.
+        * <span class="nb">apply</span> id_left.
+        * <span class="nb">apply</span> id_right.
+    - <span class="nb">apply</span> make_is_functor.
+      + <span class="kp">abstract</span> (
+          <span class="nb">intro</span> a;
+          <span class="bp">now</span> <span class="nb">apply</span> set_karoubi_mor_eq
+        ).
+      + <span class="kp">abstract</span> (
+          <span class="nb">intros</span> a b c f g;
+          <span class="bp">now</span> <span class="nb">apply</span> set_karoubi_mor_eq
+        ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">set_karoubi_inclusion_fully_faithful</span>
+    : fully_faithful set_karoubi_inclusion.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> c c'.
+    use isweq_iso.
+    - <span class="nb">intro</span> f.
+      <span class="bp">exact</span> (pr1 f).
+    - <span class="kp">abstract</span> <span class="bp">reflexivity</span>.
+    - <span class="kp">abstract</span> (
+        <span class="nb">intro</span> f;
+        <span class="bp">now</span> <span class="nb">apply</span> set_karoubi_mor_eq
+      ).
+  <span class="kn">Defined</span>.
+
+<span class="sd">(** ** 1.4. Every idempotent in the setcategory karoubi envelope splits *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">set_karoubi_idempotent_splits</span>
+    (<span class="nv">c</span> : set_karoubi_cat)
+    (<span class="nv">e</span> : idempotent c)
+    : is_split_idempotent e.
+  <span class="kn">Proof</span>.
+    use (_ ,, _ ,, _).
+    - <span class="k">exists</span> (<span class="nv">c</span> : set_karoubi_ob).
+      <span class="k">exists</span> ((e : c --&gt; c) : set_karoubi_mor _ _).
+      <span class="kp">abstract</span> <span class="bp">exact</span> (base_paths _ _ (idempotent_is_idempotent e)).
+    - use (_ ,, _ ,, _).
+      + <span class="k">exists</span> ((e : c --&gt; c) : set_karoubi_mor _ _).
+        <span class="kp">abstract</span> (
+          <span class="nb">split</span>;
+          [ <span class="bp">exact</span> (base_paths _ _ (idempotent_is_idempotent e))
+          | <span class="bp">exact</span> (set_karoubi_mor_commutes_right (e : c --&gt; c)) ]
+        ).
+      + <span class="k">exists</span> ((e : c --&gt; c) : set_karoubi_mor _ _).
+        <span class="kp">abstract</span> (
+          <span class="nb">split</span>;
+          [ <span class="bp">exact</span> (set_karoubi_mor_commutes_left (e : c --&gt; c))
+          | <span class="bp">exact</span> (base_paths _ _ (idempotent_is_idempotent e)) ]
+        ).
+      + <span class="kp">abstract</span> (
+          <span class="nb">apply</span> set_karoubi_mor_eq;
+          <span class="bp">exact</span> (base_paths _ _ (idempotent_is_idempotent e))
+        ).
+    - <span class="kp">abstract</span> (
+        <span class="nb">apply</span> set_karoubi_mor_eq;
+        <span class="bp">exact</span> (!base_paths _ _ (idempotent_is_idempotent e))
+      ).
+  <span class="kn">Defined</span>.
+
+<span class="sd">(** ** 1.5. Every object of the setcategory karoubi envelope is a retract of an element of C *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">set_karoubi_is_retract</span>
+    (<span class="nv">d</span> : set_karoubi_cat)
+    : ∑ c, retraction d (set_karoubi_inclusion c).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">d</span> : set_karoubi_ob).
+    use (_ ,, _ ,, _).
+    - <span class="k">exists</span> (<span class="nv">set_karoubi_ob_idempotent</span> <span class="nv">d</span>).
+      <span class="kp">abstract</span> (
+        <span class="nb">split</span>;
+        [ <span class="nb">apply</span> idempotent_is_idempotent
+        | <span class="nb">apply</span> id_right ]
+      ).
+    - <span class="k">exists</span> (<span class="nv">set_karoubi_ob_idempotent</span> <span class="nv">d</span>).
+      <span class="kp">abstract</span> (
+        <span class="nb">split</span>;
+        [ <span class="nb">apply</span> id_left
+        | <span class="nb">apply</span> idempotent_is_idempotent ]
+      ).
+    - <span class="kp">abstract</span> (
+        <span class="nb">apply</span> set_karoubi_mor_eq;
+        <span class="nb">apply</span> idempotent_is_idempotent
+      ).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">SetKaroubi</span>.
+
+<span class="sd">(** ** 1.6. The bundling of the above into a term of set_karoubi_envelope *)</span>
+
+<span class="kn">Definition</span> <span class="nf">set_karoubi_data</span>
+  (<span class="nv">C</span> : category)
+  : karoubi_envelope_data C
+  := make_karoubi_envelope_data
+      (set_karoubi_cat C)
+      (set_karoubi_inclusion C).
+
+<span class="kn">Lemma</span> <span class="nf">set_karoubi_is_karoubi</span>
+  (<span class="nv">C</span> : category)
+  : is_karoubi_envelope (set_karoubi_data C).
+<span class="kn">Proof</span>.
+  use make_is_karoubi_envelope.
+  - <span class="nb">intros</span> X f.
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">apply</span> set_karoubi_idempotent_splits.
+  - <span class="nb">apply</span> set_karoubi_inclusion_fully_faithful.
+  - <span class="nb">intros</span> X.
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">apply</span> set_karoubi_is_retract.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaset_set_karoubi</span>
+  (<span class="nv">C</span> : setcategory)
+  : isaset (set_karoubi_cat C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isaset_total2.
+  + <span class="nb">apply</span> isaset_ob.
+  + <span class="nb">intro</span> x.
+    <span class="nb">refine</span> (isaset_carrier_subset (homset _ _) (<span class="k">λ</span> <span class="nv">_</span>, make_hProp _ _)).
+    <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_karoubi</span>
+  (<span class="nv">C</span> : setcategory)
+  : set_karoubi_envelope C
+  := make_set_karoubi_envelope
+    (make_karoubi_envelope
+      (set_karoubi_data C)
+      (set_karoubi_is_karoubi C))
+    (isaset_set_karoubi C).
+
+<span class="sd">(** 2. If the karoubi envelope is univalent, C is univalent *)</span>
+
+<span class="kn">Section</span> <span class="nf">Univalence</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+  <span class="kn">Definition</span> <span class="nf">set_karoubi_embedding_paths_weq</span>
+    (<span class="nv">X</span> <span class="nv">Y</span> : C)
+    : (X = Y) ≃ (set_karoubi_inclusion C X = set_karoubi_inclusion C Y).
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="nb">intro</span> h.
+      use total2_paths_f.
+      + <span class="bp">exact</span> h.
+      + <span class="bp">now</span> <span class="nb">induction</span> h.
+    - <span class="bp">exact</span> (base_paths _ _).
+    - <span class="kp">abstract</span> (
+        <span class="nb">intro</span> h;
+        <span class="bp">now</span> <span class="nb">induction</span> h
+      ).
+    - <span class="kp">abstract</span> (
+        <span class="nb">intro</span> h;
+        <span class="nb">refine</span> (_ @ total2_fiber_paths _);
+        <span class="nb">apply</span> maponpaths;
+        <span class="nb">refine</span> (pr1 ((_ : isaset _) _ _ _ _));
+        <span class="nb">refine</span> (isaset_carrier_subset (homset _ _) (<span class="k">λ</span> <span class="nv">_</span>, make_hProp _ _));
+        <span class="nb">apply</span> homset_property
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">set_karoubi_univalence</span>
+    (<span class="nv">H</span> : is_univalent (set_karoubi_cat C))
+    : is_univalent C.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y.
+    use weqhomot.
+    - <span class="nb">refine</span> (_ ∘ set_karoubi_embedding_paths_weq X Y)%weq.
+      <span class="nb">refine</span> (_ ∘ make_weq _ (H _ _))%weq.
+      <span class="bp">exact</span> (invweq (weq_ff_functor_on_z_iso (set_karoubi_inclusion_fully_faithful C) _ _)).
+    - <span class="kp">abstract</span> (
+        <span class="nb">intro</span> h;
+        <span class="nb">apply</span> z_iso_eq;
+        <span class="bp">now</span> <span class="nb">induction</span> h
+      ).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Univalence</span>.
+
+<span class="sd">(** * 3. The alternative definition, using the presheaf category *)</span>
+
+<span class="kn">Section</span> <span class="nf">AlternativeDefinition</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+  <span class="kn">Definition</span> <span class="nf">set_karoubi'</span>
+    : category
+    := full_subcat
+      (PreShv C)
+      (<span class="k">λ</span> <span class="nv">P</span>, ∑ (A : C), retraction P (yoneda _ A)).
+
+  <span class="kn">Lemma</span> <span class="nf">set_karoubi'_mor_eq</span>
+    {<span class="nv">A</span> <span class="nv">B</span> : set_karoubi'}
+    (<span class="nv">f</span> <span class="nv">f'</span> : set_karoubi'⟦A, B⟧)
+    (<span class="nv">H</span> : pr1 f = pr1 f')
+    : f = f'.
+  <span class="kn">Proof</span>.
+    use pathsdirprod.
+    - <span class="nb">apply</span> H.
+    - <span class="nb">apply</span> isapropunit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_set_karoubi'_z_iso</span>
+    {<span class="nv">A</span> <span class="nv">B</span> : set_karoubi'}
+    (<span class="nv">f</span> : PreShv C⟦pr1 A, pr1 B⟧)
+    (<span class="nv">g</span> : PreShv C⟦pr1 B, pr1 A⟧)
+    (<span class="nv">H</span> : is_inverse_in_precat f g)
+    : z_iso A B.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> ((f ,, tt) ,, (g ,, tt) ,, _).
+    <span class="kp">abstract</span> <span class="bp">now</span> (
+      <span class="nb">induction</span> H;
+      <span class="nb">split</span>;
+      <span class="nb">apply</span> set_karoubi'_mor_eq
+    ).
+  <span class="kn">Defined</span>.
+
+<span class="sd">(** ** 3.1. The equivalence between the two definitions *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">set_karoubi_equivalence_functor_data</span>
+    : functor_data (set_karoubi_cat C) set_karoubi'.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">intro</span> A.
+      use (_ ,, _ ,, _ ,, _ ,, _).
+      + <span class="bp">exact</span> (Equalizers_PreShv _ _ (identity _) (# (yoneda _) (pr12 A))).
+      + <span class="bp">exact</span> (A : set_karoubi_ob _).
+      + <span class="nb">apply</span> EqualizerArrow.
+      + <span class="nb">apply</span> (EqualizerIn _ _ (# (yoneda _) (set_karoubi_ob_idempotent _ A))).
+        <span class="kp">abstract</span> (
+          <span class="nb">refine</span> (id_right _ @ _);
+          <span class="nb">refine</span> (_ @ functor_comp _ _ _);
+          <span class="nb">apply</span> maponpaths;
+          <span class="bp">exact</span> (!idempotent_is_idempotent _)
+        ).
+      + <span class="kp">abstract</span> (
+          <span class="nb">apply</span> EqualizerInsEq;
+          <span class="nb">refine</span> (assoc' _ _ _ @ _);
+          <span class="nb">refine</span> (maponpaths _ (EqualizerCommutes _ _ _ _) @ _);
+          <span class="nb">refine</span> (!EqualizerEqAr _ @ _);
+          <span class="nb">refine</span> (_ @ !id_left _);
+          <span class="nb">apply</span> id_right
+        ).
+    - <span class="nb">intros</span> A B f.
+      <span class="nb">refine</span> (_ ,, tt).
+      <span class="nb">apply</span> (EqualizerIn _ _ (EqualizerArrow _ · # (yoneda _) (f : set_karoubi_mor _ _ _))).
+      <span class="kp">abstract</span> (
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc' _ _ _ @ !_);
+        <span class="nb">apply</span> maponpaths;
+        <span class="nb">refine</span> (id_right _ @ _);
+        <span class="nb">refine</span> (_ @ functor_comp _ _ _);
+        <span class="nb">apply</span> maponpaths;
+        <span class="bp">exact</span> (!set_karoubi_mor_commutes_right _ f)
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">set_karoubi_equivalence_is_functor</span>
+    : is_functor set_karoubi_equivalence_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_functor.
+    - <span class="nb">intro</span> A.
+      <span class="nb">apply</span> set_karoubi'_mor_eq.
+      <span class="nb">refine</span> (EqualizerInsEq _ _ _ _).
+      <span class="nb">refine</span> (EqualizerCommutes _ _ _ _ @ _).
+      <span class="nb">refine</span> (!EqualizerEqAr _ @ _).
+      <span class="nb">refine</span> (_ @ !id_left _).
+      <span class="nb">apply</span> id_right.
+    - <span class="nb">intros</span> X Y Z f g.
+      <span class="nb">apply</span> set_karoubi'_mor_eq.
+      <span class="nb">refine</span> (EqualizerInsEq _ _ _ _).
+      <span class="nb">refine</span> (EqualizerCommutes _ _ _ _ @ _).
+      <span class="nb">refine</span> (_ @ assoc _ _ _).
+      <span class="nb">refine</span> (_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x) (EqualizerCommutes _ _ _ _)).
+      <span class="nb">refine</span> (_ @ assoc' _ _ _).
+      <span class="nb">refine</span> (_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (EqualizerCommutes _ _ _ _)).
+      <span class="nb">refine</span> (_ @ assoc _ _ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> functor_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">set_karoubi_equivalence_functor</span>
+    : set_karoubi_cat C ⟶ set_karoubi'
+    := make_functor
+      set_karoubi_equivalence_functor_data
+      set_karoubi_equivalence_is_functor.
+
+  <span class="kn">Section</span> <span class="nf">FullyFaithful</span>.
+
+    <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> : set_karoubi_cat C}.
+
+    <span class="kn">Definition</span> <span class="nf">set_karoubi_equivalence_invmap_mor</span>
+      (<span class="nv">f</span> : set_karoubi_equivalence_functor A --&gt; set_karoubi_equivalence_functor B)
+      : C⟦(A : set_karoubi_ob C), (B : set_karoubi_ob C)⟧
+      := invmap (weq_from_fully_faithful (yoneda_fully_faithful C) _ _)
+          (pr22 (set_karoubi_equivalence_functor A) ·
+            pr1 f ·
+            retraction_section (pr22 (set_karoubi_equivalence_functor B))).
+
+    <span class="kn">Lemma</span> <span class="nf">set_karoubi_equivalence_invmap_mor_left</span>
+      (<span class="nv">f</span> : set_karoubi_equivalence_functor A --&gt; set_karoubi_equivalence_functor B)
+      : set_karoubi_ob_idempotent _ A · set_karoubi_equivalence_invmap_mor f
+        = set_karoubi_equivalence_invmap_mor f.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (!invmap_eq _ _ _ (!_)).
+      <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x) (homotweqinvweq (weq_from_fully_faithful _ _ _) _) @ _).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc _ _ _ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+      <span class="nb">apply</span> EqualizerInsEq.
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x) (EqualizerCommutes _ _ _ _) @ _).
+      <span class="nb">refine</span> (_ @ !EqualizerCommutes _ _ _ _).
+      <span class="nb">refine</span> (!functor_comp _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> idempotent_is_idempotent.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">set_karoubi_equivalence_invmap_mor_right</span>
+      (<span class="nv">f</span> : set_karoubi_equivalence_functor A --&gt; set_karoubi_equivalence_functor B)
+      : set_karoubi_equivalence_invmap_mor f · set_karoubi_ob_idempotent _ B
+        = set_karoubi_equivalence_invmap_mor f.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (!invmap_eq _ _ _ (!_)).
+      <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (homotweqinvweq (weq_from_fully_faithful _ _ _) _) @ _).
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!EqualizerEqAr _ @ _).
+      <span class="nb">apply</span> id_right.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">set_karoubi_equivalence_invmap</span>
+      (<span class="nv">f</span> : set_karoubi_equivalence_functor A --&gt; set_karoubi_equivalence_functor B)
+      : A --&gt; B
+      := set_karoubi_equivalence_invmap_mor f ,,
+        set_karoubi_equivalence_invmap_mor_left f ,,
+        set_karoubi_equivalence_invmap_mor_right f.
+
+    <span class="kn">Lemma</span> <span class="nf">set_karoubi_equivalence_invweqweq</span>
+      (<span class="nv">f</span>: set_karoubi_cat C⟦ A, B ⟧)
+      : set_karoubi_equivalence_invmap (# set_karoubi_equivalence_functor f)
+        = f.
+    <span class="kn">Proof</span>.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropdirprod;
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">apply</span> invmap_eq.
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      <span class="nb">refine</span> (maponpaths _ (EqualizerCommutes _ _ _ _) @ _).
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (EqualizerCommutes _ _ _ _) @ _).
+      <span class="nb">refine</span> (!functor_comp _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> set_karoubi_mor_commutes_left.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">set_karoubi_equivalence_weqinvweq</span>
+      (<span class="nv">f</span> : set_karoubi_equivalence_functor A --&gt; set_karoubi_equivalence_functor B)
+      : # set_karoubi_equivalence_functor (set_karoubi_equivalence_invmap f)
+        = f.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> set_karoubi'_mor_eq.
+      <span class="nb">apply</span> EqualizerInsEq.
+      <span class="nb">refine</span> (EqualizerCommutes _ _ _ _ @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x) (homotweqinvweq (weq_from_fully_faithful _ _ _) _) @ _).
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)).
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">refine</span> (_ @ id_left _).
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)).
+      <span class="nb">apply</span> EqualizerInsEq.
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      <span class="nb">refine</span> (maponpaths _ (EqualizerCommutes _ _ _ _) @ _).
+      <span class="nb">refine</span> (_ @ !id_left _).
+      <span class="nb">refine</span> (!EqualizerEqAr _ @ _).
+      <span class="nb">apply</span> id_right.
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">FullyFaithful</span>.
+
+  <span class="kn">Definition</span> <span class="nf">set_karoubi_equivalence_fully_faithful</span>
+    : fully_faithful set_karoubi_equivalence_functor
+    := <span class="k">λ</span> <span class="nv">A</span> <span class="nv">B</span>, isweq_iso _
+      set_karoubi_equivalence_invmap
+      set_karoubi_equivalence_invweqweq
+      set_karoubi_equivalence_weqinvweq.
+
+  <span class="kn">Section</span> <span class="nf">SplitEssentiallySurjective</span>.
+
+    <span class="kn">Context</span> (<span class="nv">P</span> : set_karoubi').
+
+    <span class="kn">Definition</span> <span class="nf">set_karoubi_equivalence_preimage</span>
+      : set_karoubi_cat C.
+    <span class="kn">Proof</span>.
+      use make_set_karoubi_ob.
+      - <span class="bp">exact</span> (pr12 P).
+      - <span class="bp">exact</span> (invmap (weq_from_fully_faithful (yoneda_fully_faithful C) _ _)
+          (pr22 P · retraction_section (pr22 P))).
+      - <span class="kp">abstract</span> (
+          <span class="nb">apply</span> (invmaponpathsweq (weq_from_fully_faithful (yoneda_fully_faithful C) _ _));
+          <span class="nb">refine</span> (functor_comp _ _ _ @ _);
+          <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · x) (homotweqinvweq (weq_from_fully_faithful _ _ _) _) @ _);
+          <span class="nb">refine</span> (_ @ !(homotweqinvweq (weq_from_fully_faithful _ _ _) _));
+          <span class="nb">refine</span> (assoc _ _ _ @ _);
+          <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (assoc' _ _ _) @ _);
+          <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x · _) (retraction_is_retraction _) @ _);
+          <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (id_right _))
+        ).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">set_karoubi_equivalence_preimage_iso_mor</span>
+      : PreShv C⟦
+        pr1 (set_karoubi_equivalence_functor set_karoubi_equivalence_preimage),
+        pr1 P⟧
+      := EqualizerArrow _ · retraction_retraction (pr22 P).
+
+    <span class="kn">Definition</span> <span class="nf">set_karoubi_equivalence_preimage_iso_inv</span>
+      : PreShv C⟦pr1 P,
+        pr1 (set_karoubi_equivalence_functor set_karoubi_equivalence_preimage)⟧.
+    <span class="kn">Proof</span>.
+      use EqualizerIn.
+      - <span class="nb">apply</span> (retraction_section (pr22 P)).
+      - <span class="kp">abstract</span> (
+          <span class="nb">refine</span> (_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x) (homotweqinvweq (weq_from_fully_faithful _ _ _) _));
+          <span class="nb">refine</span> (_ @ assoc' _ _ _);
+          <span class="nb">refine</span> (_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (retraction_is_retraction _));
+          <span class="nb">refine</span> (_ @ !id_left _);
+          <span class="nb">apply</span> id_right
+        ).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">set_karoubi_equivalence_preimage_is_inverse</span>
+      : is_inverse_in_precat
+        set_karoubi_equivalence_preimage_iso_mor
+        set_karoubi_equivalence_preimage_iso_inv.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">apply</span> EqualizerInsEq.
+        <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x) (EqualizerCommutes _ _ _ _) @ _).
+        <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x) (homotweqinvweq (weq_from_fully_faithful (yoneda_fully_faithful C) _ _) _) @ _).
+        <span class="nb">refine</span> (!EqualizerEqAr _ @ _).
+        <span class="nb">refine</span> (_ @ !id_left _).
+        <span class="nb">apply</span> id_right.
+      - <span class="nb">refine</span> (assoc _ _ _ @ _).
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (EqualizerCommutes _ _ _ _) @ _).
+        <span class="nb">apply</span> retraction_is_retraction.
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">SplitEssentiallySurjective</span>.
+
+  <span class="kn">Definition</span> <span class="nf">set_karoubi_equivalence_split_essentially_surjective</span>
+    : split_essentially_surjective set_karoubi_equivalence_functor
+    := <span class="k">λ</span> <span class="nv">P</span>,
+      set_karoubi_equivalence_preimage P ,,
+      make_set_karoubi'_z_iso _ _ (set_karoubi_equivalence_preimage_is_inverse P).
+
+  <span class="kn">Definition</span> <span class="nf">set_karoubi_equivalence</span>
+    : adj_equivalence_of_cats set_karoubi_equivalence_functor
+    := rad_equivalence_of_cats' _ _ _
+      set_karoubi_equivalence_fully_faithful
+      set_karoubi_equivalence_split_essentially_surjective.
+
+<span class="kn">End</span> <span class="nf">AlternativeDefinition</span>.
+
+<span class="sd">(** * 4. The formations of the opposite category and the Karoubi envelope commute *)</span>
+
+<span class="kn">Section</span> <span class="nf">OppKaroubiEquiv</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+  <span class="kn">Definition</span> <span class="nf">opp_set_karoubi_functor_data</span>
+    : functor_data (op_cat (set_karoubi_cat C)) (set_karoubi_cat (op_cat C)).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (idfun _).
+    - <span class="nb">intros</span> a b.
+      <span class="nb">apply</span> totalfun.
+      <span class="nb">intro</span> f.
+      <span class="bp">exact</span> (pr1weq (weqdirprodcomm _ _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">opp_set_karoubi_functor_is_functor</span>
+    : is_functor opp_set_karoubi_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_functor.
+    - <span class="bp">easy</span>.
+    - <span class="kp">do</span> <span class="mi">5</span> <span class="nb">intro</span>.
+      <span class="bp">now</span> <span class="nb">apply</span> set_karoubi_mor_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opp_set_karoubi_functor</span>
+    : op_cat (set_karoubi_cat C) ⟶ set_karoubi_cat (op_cat C)
+    := make_functor _ opp_set_karoubi_functor_is_functor.
+
+  <span class="kn">Definition</span> <span class="nf">opp_set_karoubi_ob_lift</span>
+    : set_karoubi_cat (op_cat C) → op_cat (set_karoubi_cat C)
+    := idfun _.
+
+  <span class="kn">Definition</span> <span class="nf">opp_set_karoubi_ob_lift_mor</span>
+    (<span class="nv">c</span> : set_karoubi_cat (op_cat C))
+    : set_karoubi_cat (op_cat C) ⟦ opp_set_karoubi_functor (opp_set_karoubi_ob_lift c), c ⟧
+    := make_set_karoubi_mor _
+      (set_karoubi_ob_idempotent _ c)
+      (idempotent_is_idempotent _)
+      (idempotent_is_idempotent _).
+
+  <span class="kn">Section</span> <span class="nf">OppKaroubiOfLiftIsUniversalArrow</span>.
+
+    <span class="kn">Context</span> (<span class="nv">c</span> : set_karoubi_cat (op_cat C)).
+    <span class="kn">Context</span> (<span class="nv">c'</span>: op_cat (set_karoubi_cat C)).
+    <span class="kn">Context</span> (<span class="nv">f</span>: set_karoubi_cat (op_cat C) ⟦ opp_set_karoubi_functor c', c ⟧).
+
+    <span class="kn">Definition</span> <span class="nf">opp_set_karoubi_universal_mor</span>
+      : op_cat (set_karoubi_cat C) ⟦ c', opp_set_karoubi_ob_lift c ⟧.
+    <span class="kn">Proof</span>.
+      <span class="nb">revert</span> f.
+      <span class="nb">refine</span> (totalfun _ _ _).
+      <span class="nb">intro</span> f.
+      <span class="bp">exact</span> (invmap (weqdirprodcomm _ _)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">opp_set_karoubi_universal_commutes</span>
+      : f = # opp_set_karoubi_functor opp_set_karoubi_universal_mor · opp_set_karoubi_ob_lift_mor c.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> set_karoubi_mor_eq.
+      <span class="bp">exact</span> (!set_karoubi_mor_commutes_right _ f).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">opp_set_karoubi_universal_eq</span>
+      (<span class="nv">g</span>: op_cat (set_karoubi_cat C) ⟦ c', opp_set_karoubi_ob_lift c ⟧)
+      (<span class="nv">H</span>: f = # opp_set_karoubi_functor g · opp_set_karoubi_ob_lift_mor c)
+      : g = opp_set_karoubi_universal_mor.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> set_karoubi_mor_eq.
+      <span class="nb">refine</span> (_ @ !base_paths _ _ H).
+      <span class="bp">exact</span> (!set_karoubi_mor_commutes_left _ g).
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">OppKaroubiOfLiftIsUniversalArrow</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opp_set_karoubi_is_adjoint</span>
+    : is_left_adjoint opp_set_karoubi_functor.
+  <span class="kn">Proof</span>.
+    use coreflections_to_is_left_adjoint.
+    <span class="nb">intro</span> X.
+    use make_coreflection'.
+    - <span class="bp">exact</span> (opp_set_karoubi_ob_lift X).
+    - <span class="nb">apply</span> opp_set_karoubi_ob_lift_mor.
+    - <span class="nb">intro</span> f.
+      use make_coreflection_arrow.
+      + <span class="nb">apply</span> opp_set_karoubi_universal_mor.
+        <span class="bp">exact</span> (f : _ --&gt; _).
+      + <span class="nb">apply</span> opp_set_karoubi_universal_commutes.
+      + <span class="nb">apply</span> opp_set_karoubi_universal_eq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">OppKaroubiUnitIso</span>.
+
+    <span class="kn">Context</span> (<span class="nv">c</span> : op_cat (set_karoubi_cat C)).
+
+    <span class="kn">Definition</span> <span class="nf">opp_set_karoubi_unit_iso_inv</span>
+      : set_karoubi_cat C ⟦ c, c ⟧
+      := make_set_karoubi_mor _
+        (set_karoubi_ob_idempotent _ c)
+        (idempotent_is_idempotent _)
+        (idempotent_is_idempotent _).
+
+    <span class="kn">Lemma</span> <span class="nf">opp_set_karoubi_unit_is_inverse</span>
+      : is_inverse_in_precat (adjunit opp_set_karoubi_is_adjoint c) opp_set_karoubi_unit_iso_inv.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>;
+        <span class="nb">apply</span> set_karoubi_mor_eq;
+        <span class="nb">apply</span> (idempotent_is_idempotent (set_karoubi_ob_idempotent _ c)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">opp_set_karoubi_unit_is_iso</span>
+      : is_z_isomorphism (adjunit opp_set_karoubi_is_adjoint c)
+      := make_is_z_isomorphism _ _ opp_set_karoubi_unit_is_inverse.
+
+  <span class="kn">End</span> <span class="nf">OppKaroubiUnitIso</span>.
+
+  <span class="kn">Section</span> <span class="nf">OppKaroubiCounitIso</span>.
+
+    <span class="kn">Context</span> (<span class="nv">c</span> : set_karoubi_cat (op_cat C)).
+
+    <span class="kn">Definition</span> <span class="nf">opp_set_karoubi_counit_iso_inv</span>
+      : set_karoubi_cat (op_cat C) ⟦ c, opp_set_karoubi_ob_lift c ⟧
+      := make_set_karoubi_mor _
+        (set_karoubi_ob_idempotent _ c)
+        (idempotent_is_idempotent _)
+        (idempotent_is_idempotent _).
+
+    <span class="kn">Lemma</span> <span class="nf">opp_set_karoubi_counit_is_inverse</span>
+      : is_inverse_in_precat (adjcounit opp_set_karoubi_is_adjoint c) opp_set_karoubi_counit_iso_inv.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>;
+        <span class="nb">apply</span> set_karoubi_mor_eq;
+        <span class="nb">apply</span> (idempotent_is_idempotent (set_karoubi_ob_idempotent _ c)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">opp_set_karoubi_counit_is_iso</span>
+      : is_z_isomorphism (adjcounit opp_set_karoubi_is_adjoint c)
+      := make_is_z_isomorphism _ _ opp_set_karoubi_counit_is_inverse.
+
+  <span class="kn">End</span> <span class="nf">OppKaroubiCounitIso</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opp_set_karoubi</span>
+    : adj_equiv (op_cat (set_karoubi_cat C)) (set_karoubi_cat (op_cat C))
+    := opp_set_karoubi_functor ,,
+      opp_set_karoubi_is_adjoint ,,
+      opp_set_karoubi_unit_is_iso ,,
+      opp_set_karoubi_counit_is_iso.
+
+<span class="kn">End</span> <span class="nf">OppKaroubiEquiv</span>.
+
+<span class="sd">(** * 5. The Karoubi envelope construction gives a monad on the category of setcategories *)</span>
+
+<span class="kn">Definition</span> <span class="nf">set_set_karoubi</span>
+  (<span class="nv">C</span> : setcategory)
+  : setcategory.
+<span class="kn">Proof</span>.
+  use make_setcategory.
+  - <span class="bp">exact</span> (set_karoubi (C : setcategory)).
+  - <span class="nb">apply</span> isaset_set_karoubi.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_karoubi_functor_mor_data</span>
+  {<span class="nv">C</span> <span class="nv">D</span> : setcategory}
+  (<span class="nv">F</span> : C ⟶ D)
+  : functor_data (set_set_karoubi C) (set_set_karoubi D).
+<span class="kn">Proof</span>.
+ use make_functor_data.
+  - <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">c</span> : set_karoubi_ob C), _).
+    <span class="nb">refine</span> (make_set_karoubi_ob _ (F c) _ _).
+    <span class="nb">apply</span> (functor_preserves_is_idempotent _ (set_karoubi_ob_idempotent _ c)).
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">c</span> <span class="nv">d</span> (<span class="nv">f</span> : set_karoubi_mor _ c d), _).
+    use make_set_karoubi_mor.
+    + <span class="bp">exact</span> (#F f).
+    + <span class="kp">abstract</span> (
+        <span class="nb">refine</span> (!functor_comp F _ _ @ _);
+        <span class="nb">apply</span> maponpaths;
+        <span class="nb">apply</span> set_karoubi_mor_commutes_left
+      ).
+    + <span class="kp">abstract</span> (
+        <span class="nb">refine</span> (!functor_comp F _ _ @ _);
+        <span class="nb">apply</span> maponpaths;
+        <span class="nb">apply</span> set_karoubi_mor_commutes_right
+      ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">set_karoubi_functor_mor_is_functor</span>
+  {<span class="nv">C</span> <span class="nv">D</span> : setcategory}
+  (<span class="nv">F</span> : C ⟶ D)
+  : is_functor (set_karoubi_functor_mor_data F).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_is_functor.
+  - <span class="nb">intro</span> c.
+    <span class="bp">now</span> <span class="nb">apply</span> set_karoubi_mor_eq.
+  - <span class="nb">intros</span> c d e f g.
+    <span class="nb">apply</span> set_karoubi_mor_eq.
+    <span class="nb">apply</span> functor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_karoubi_functor_mor</span>
+  {<span class="nv">C</span> <span class="nv">D</span> : setcategory}
+  (<span class="nv">F</span> : C ⟶ D)
+  : set_set_karoubi C ⟶ set_set_karoubi D
+  := make_functor
+    (set_karoubi_functor_mor_data F)
+    (set_karoubi_functor_mor_is_functor F).
+
+<span class="kn">Definition</span> <span class="nf">set_karoubi_functor_data</span>
+  : functor_data cat_of_setcategory cat_of_setcategory
+  := make_functor_data (C := cat_of_setcategory) (C' := cat_of_setcategory)
+    set_set_karoubi
+    (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">D</span> <span class="nv">F</span>, set_karoubi_functor_mor F).
+
+<span class="kn">Definition</span> <span class="nf">set_karoubi_functor_eq</span>
+  {<span class="nv">C</span> <span class="nv">D</span> : category}
+  (<span class="nv">F</span> <span class="nv">G</span> : C ⟶ set_karoubi_cat D)
+  (<span class="nv">H1</span> : ∏ c, set_karoubi_ob_object _ (F c) = set_karoubi_ob_object _ (G c))
+  (<span class="nv">H2</span> : ∏ c, transportf (<span class="k">λ</span> <span class="nv">x</span>, D⟦x, x⟧) (H1 c) (idempotent_morphism (set_karoubi_ob_idempotent _ (F c))) = idempotent_morphism (set_karoubi_ob_idempotent _ (G c)))
+  (<span class="nv">H3</span> : ∏ c d f, double_transport (H1 c) (H1 d) (set_karoubi_mor_morphism _ (#F f)) = set_karoubi_mor_morphism _ (#G f))
+  : F = G.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (functor_eq _ _ (homset_property _)).
+  use functor_data_eq.
+  - <span class="nb">intro</span> c.
+    use total2_paths_f.
+    + <span class="bp">exact</span> (H1 c).
+    + use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        use homset_property.
+      }
+      <span class="nb">refine</span> (pr1_transportf (B := <span class="k">λ</span> <span class="nv">x</span>, D⟦x, x⟧) _ _ @ _).
+      <span class="kp">abstract</span> (<span class="bp">exact</span> (H2 c)).
+  - <span class="nb">intros</span> c d f.
+    <span class="nb">apply</span> set_karoubi_mor_eq.
+    <span class="nb">refine</span> (_ @ H3 _ _ _).
+    <span class="nb">refine</span> (pr1_transportf (B := <span class="k">λ</span> (<span class="nv">x</span> : set_karoubi_ob D), D⟦(G c : set_karoubi_ob D), x⟧) (total2_paths_f _ _) _ @ _).
+    <span class="nb">refine</span> (functtransportf (set_karoubi_ob_object D) _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, transportf (<span class="k">λ</span> <span class="nv">x</span>, D⟦_, x⟧) x _) (base_total2_paths _) @ _).
+    <span class="nb">apply</span> (maponpaths (transportf _ _)).
+    <span class="nb">refine</span> (pr1_transportf (B := <span class="k">λ</span> (<span class="nv">x</span> : set_karoubi_ob D), D⟦x, (F d : set_karoubi_ob D)⟧) (total2_paths_f _ _) (# F f) @ _).
+    <span class="nb">refine</span> (functtransportf (set_karoubi_ob_object D) (<span class="k">λ</span> <span class="nv">x</span>, D⟦x, (F d : set_karoubi_ob D)⟧) (total2_paths_f _ _) (pr1 (#F f)) @ _).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, transportf (<span class="k">λ</span> <span class="nv">y</span>, D⟦y, _⟧) x _)).
+    <span class="bp">exact</span> (base_total2_paths _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">set_karoubi_is_functor</span>
+  : is_functor set_karoubi_functor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_is_functor.
+  - <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">C</span> : setcategory), _).
+    <span class="bp">now</span> use set_karoubi_functor_eq.
+  - <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : setcategory) (<span class="nv">f</span> : C ⟶ D) (<span class="nv">g</span> : D ⟶ E), _).
+    <span class="bp">now</span> use set_karoubi_functor_eq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_karoubi_functor</span>
+  : cat_of_setcategory ⟶ cat_of_setcategory
+  := make_functor
+    set_karoubi_functor_data
+    set_karoubi_is_functor.
+
+<span class="kn">Definition</span> <span class="nf">set_karoubi_monad_multiplication_data_data</span>
+  (<span class="nv">C</span> : setcategory)
+  : functor_data (set_karoubi_functor (set_karoubi_functor C) : setcategory)
+  (set_karoubi_functor C : setcategory).
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="nb">intro</span> c.
+    use make_set_karoubi_ob.
+    + <span class="bp">exact</span> (set_karoubi_ob_object _ (set_karoubi_ob_object _ c)).
+    + <span class="bp">exact</span> (set_karoubi_mor_morphism _ (idempotent_morphism (set_karoubi_ob_idempotent _ c))).
+    + <span class="bp">exact</span> (maponpaths (set_karoubi_mor_morphism _) (idempotent_is_idempotent (set_karoubi_ob_idempotent _ c))).
+  - <span class="nb">intros</span> a b f.
+    use make_set_karoubi_mor.
+    + <span class="bp">exact</span> (set_karoubi_mor_morphism _ (set_karoubi_mor_morphism _ f)).
+    + <span class="bp">exact</span> (maponpaths (set_karoubi_mor_morphism _) (set_karoubi_mor_commutes_left _ f)).
+    + <span class="bp">exact</span> (maponpaths (set_karoubi_mor_morphism _) (set_karoubi_mor_commutes_right _ f)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">set_karoubi_monad_multiplication_data_is_functor</span>
+  (<span class="nv">C</span> : setcategory)
+  : is_functor (set_karoubi_monad_multiplication_data_data C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_is_functor;
+  <span class="kp">repeat</span> <span class="nb">intro</span>;
+  <span class="bp">now</span> <span class="nb">apply</span> set_karoubi_mor_eq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_karoubi_monad_multiplication_data</span>
+  : nat_trans_data (set_karoubi_functor ∙ set_karoubi_functor) set_karoubi_functor
+  := <span class="k">λ</span> <span class="nv">C</span>, make_functor
+    (set_karoubi_monad_multiplication_data_data C)
+    (set_karoubi_monad_multiplication_data_is_functor C).
+
+<span class="kn">Lemma</span> <span class="nf">set_karoubi_monad_multiplication_is_nat_trans</span>
+  : is_nat_trans _ _ set_karoubi_monad_multiplication_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> C D F.
+  <span class="bp">now</span> use set_karoubi_functor_eq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_karoubi_monad_multiplication</span>
+  : set_karoubi_functor ∙ set_karoubi_functor ⟹ set_karoubi_functor
+  := make_nat_trans _ _
+    set_karoubi_monad_multiplication_data
+    set_karoubi_monad_multiplication_is_nat_trans.
+
+<span class="kn">Definition</span> <span class="nf">set_karoubi_monad_unit</span>
+  : functor_identity cat_of_setcategory ⟹ set_karoubi_functor.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">C</span> : setcategory), set_karoubi_inclusion C).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> C D F;
+      use set_karoubi_functor_eq;
+        <span class="nb">intro</span> c;
+        <span class="kp">try</span> <span class="bp">reflexivity</span>;
+        <span class="bp">exact</span> (!functor_id _ _)
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_karoubi_monad_data</span>
+  : disp_Monad_data set_karoubi_functor
+  := set_karoubi_monad_multiplication ,,
+    set_karoubi_monad_unit.
+
+<span class="kn">Lemma</span> <span class="nf">set_karoubi_is_monad</span>
+  : disp_Monad_laws set_karoubi_monad_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>;
+    <span class="nb">intro</span> C;
+    <span class="bp">now</span> use set_karoubi_functor_eq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_karoubi_monad</span>
+  : Monad cat_of_setcategory
+  := set_karoubi_functor ,,
+    set_karoubi_monad_data ,,
+    set_karoubi_is_monad.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/KaroubiEnvelope/SetKaroubi.v</tt>, line 34)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     [set_karoubi_monad]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

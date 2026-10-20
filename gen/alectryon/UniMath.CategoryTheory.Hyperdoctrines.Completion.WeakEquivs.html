@@ -1,0 +1,1007 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>WeakEquivs.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Weak equivalences of hyperdoctrines</span>
+
+<span class="sd"> In the notion of hyperdoctrine, we assume that the collection of formulas forms a</span>
+<span class="sd"> partial order. Since our notion of hyperdoctrine is based on displayed categories,</span>
+<span class="sd"> this means 'concretely' that the displayed category of formulas over contexts is</span>
+<span class="sd"> univalent. However, not every hyperdoctrine that one meets, satisfies this</span>
+<span class="sd"> requirement. For instance, if we want to construct the syntactic hyperdoctrine,</span>
+<span class="sd"> then we need to take a quotient to guarantee that this requirement is satisfied.</span>
+<span class="sd"> Hyperdoctrines arising in the context of realizability also do not necessarily</span>
+<span class="sd"> satisfy this requirement: again, one needs to take the appropriate quotient. In</span>
+<span class="sd"> addition, if we have a topos `E` that is not necessarily univalent, then the</span>
+<span class="sd"> hyperdoctrine arising from the monomorphisms also is not necessarily univalent.</span>
+
+<span class="sd"> Hence, there is a need to give a completion operation for hyperdoctrines and their</span>
+<span class="sd"> variants (like first-order hyperdoctrines and triposes). Such a completion is</span>
+<span class="sd"> essentially an extension of the Rezk completion. The Rezk completion generalizes</span>
+<span class="sd"> the poset completion of preorders, and that is exactly what we want to do to</span>
+<span class="sd"> complete hyperdoctrines.</span>
+
+<span class="sd"> In this file, we set up some of the necessary infrastructure to work with the Rezk</span>
+<span class="sd"> completion of hyperdoctrines. Specifically, we show that displayed weak equivalence</span>
+<span class="sd"> over the identity preserves various kinds of properties and structures of displayed</span>
+<span class="sd"> categories. Our precise starting point is that we have two displayed categories `D₁`</span>
+<span class="sd"> and `D₂` over the same category `C`, and we have displayed functor `FF` from `D₁` to</span>
+<span class="sd"> `D₂` over the identity. We assume that `FF` is fully faithful and essentially surjective</span>
+<span class="sd"> and that `D₂` is univalent. Note that these assumptions make `D₂` a univalent completion</span>
+<span class="sd"> of `D₁`.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The morphisms in the completion form a preorder</span>
+<span class="sd"> 2. The completion is a fibration</span>
+<span class="sd"> 3. Some useful lemmas for the remainder</span>
+<span class="sd"> 4. Fiberwise terminal object in the completion</span>
+<span class="sd"> 5. Fiberwise initial object in the completion</span>
+<span class="sd"> 6. Fiberwise binary products in the completion</span>
+<span class="sd"> 7. Fiberwise binary coproducts in the completion</span>
+<span class="sd"> 8. Fiberwise exponentials in the completion</span>
+<span class="sd"> 9. Dependent sums in the completion</span>
+<span class="sd"> 10. Dependent products in the completion</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Coreflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Reflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseInitial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCartesianClosed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Creation.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Preservation.Binproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.LiftPreservation.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Preservation.Bincoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.LiftPreservation.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Preservation.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.LiftPreservation.Exponentials.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">HyperdoctrineWeakEquiv</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">D₁</span> <span class="nv">D₂</span> : disp_cat C}
+          (<span class="nv">FF</span> : disp_functor (functor_identity _) D₁ D₂)
+          (<span class="nv">HFF₁</span> : disp_functor_ff FF)
+          (<span class="nv">HFF₂</span> : disp_functor_disp_ess_surj FF)
+          (<span class="nv">HD₁</span> : locally_propositional D₁)
+          (<span class="nv">HD₂</span> : is_univalent_disp D₂).
+
+  <span class="sd">(** * 1. The morphisms in the completion form a preorder *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_locally_propositional</span>
+    : locally_propositional D₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f yy₁ yy₂.
+    use invproofirrelevance.
+    <span class="nb">intros</span> ff gg.
+    <span class="nb">pose proof</span> (HFF₂ x yy₁) <span class="k">as</span> p.
+    <span class="nb">revert</span> p.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> homsets_disp.
+    }
+    <span class="nb">intros</span> (xx₁ &amp; hh₁).
+    <span class="nb">pose proof</span> (HFF₂ y yy₂) <span class="k">as</span> p.
+    <span class="nb">revert</span> p.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> homsets_disp.
+    }
+    <span class="nb">intros</span> (xx₂ &amp; hh₂).
+    <span class="nb">refine</span> (id_left_disp_var _ @ _ @ !(id_left_disp_var _)).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (id_right_disp_var _ @ _ @ !(id_right_disp_var _)).
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (_ @ maponpaths (transportf _ _) (!(z_iso_disp_after_inv_mor hh₁))).
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> transportfbinv.
+    }
+    <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (_ @ maponpaths (transportf _ _) (!(z_iso_disp_after_inv_mor hh₁))).
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> transportfbinv.
+    }
+    <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc_disp_var.
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (_ @ maponpaths (transportf _ _) (!(z_iso_disp_after_inv_mor hh₂))).
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> transportfbinv.
+    }
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (_ @ maponpaths (transportf _ _) (!(z_iso_disp_after_inv_mor hh₂))).
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> transportfbinv.
+    }
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc_disp.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (_ @ transportfbinv (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _) (!(id_right _ @ id_left _)) _).
+    <span class="nb">refine</span> (!(transportfbinv (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _) (!(id_right _ @ id_left _)) _) @ _).
+    <span class="nb">apply</span> maponpaths.
+    use (invmaponpathsweq (invweq (disp_functor_ff_weq FF HFF₁ xx₁ xx₂ f))).
+    <span class="nb">apply</span> HD₁.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 2. The completion is a fibration *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_cleaving</span>
+             (<span class="nv">H</span> : cleaving D₁)
+    : cleaving D₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f xx'.
+    <span class="nb">pose proof</span> (HFF₂ x xx') <span class="k">as</span> xx.
+    <span class="nb">revert</span> xx.
+    use factor_through_squash.
+    {
+      use isaprop_cartesian_lifts.
+      <span class="bp">exact</span> HD₂.
+    }
+    <span class="nb">intros</span> (xx &amp; gg).
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (FF y (H x y f xx)).
+    - <span class="bp">exact</span> (transportf
+               (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+               (id_right _)
+               (♯FF (H x y f xx) ;; gg)).
+    - <span class="nb">intros</span> w h ww' hh.
+      <span class="nb">pose proof</span> (HFF₂ w ww') <span class="k">as</span> ww.
+      <span class="nb">revert</span> ww.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> isapropiscontr.
+      }
+      <span class="nb">intros</span> (ww &amp; ff).
+      use make_iscontr.
+      + <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="nb">refine</span> (transportf
+                    (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                    (id_left _)
+                    (inv_mor_disp_from_z_iso ff
+                     ;; ♯FF (cartesian_factorisation (H x y f xx) h _))).
+          use (disp_functor_ff_inv FF HFF₁) ; <span class="nb">cbn</span>.
+          <span class="nb">refine</span> (transportf
+                    (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                    _
+                    (ff
+                     ;; hh
+                     ;; inv_mor_disp_from_z_iso gg)).
+          <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> id_left, id_right ;
+             <span class="nb">apply</span> idpath).
+        * <span class="nb">apply</span> disp_functor_weak_equivalence_locally_propositional.
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> ;
+           use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homsets_disp | ] ;
+           <span class="nb">apply</span> disp_functor_weak_equivalence_locally_propositional).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. Some useful lemmas for the remainder *)</span>
+  <span class="kn">Proposition</span> <span class="nf">is_cartesian_disp_functor_weak_equivalence_cleaving</span>
+              (<span class="nv">H</span> : cleaving D₁)
+    : is_cartesian_disp_functor FF.
+  <span class="kn">Proof</span>.
+    use is_cartesian_disp_functor_chosen_lifts.
+    {
+      <span class="bp">exact</span> H.
+    }
+    <span class="nb">intros</span> x y f yy w h ww' hh.
+    <span class="nb">pose proof</span> (HFF₂ w ww') <span class="k">as</span> ww.
+    <span class="nb">revert</span> ww.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> isapropiscontr.
+    }
+    <span class="nb">intros</span> (ww &amp; ff).
+    use make_iscontr.
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="nb">refine</span> (transportf
+                  (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                  (id_left _)
+                  (inv_mor_disp_from_z_iso ff
+                   ;; ♯FF _)).
+        use (cartesian_factorisation (H y x f yy)).
+        use (disp_functor_ff_inv FF HFF₁) ; <span class="nb">cbn</span>.
+        <span class="bp">exact</span> (transportf
+                 (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                 (id_left _)
+                 (ff ;; hh)).
+      + <span class="nb">apply</span> disp_functor_weak_equivalence_locally_propositional.
+    - <span class="nb">intros</span>.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homsets_disp.
+      }
+      <span class="nb">apply</span> disp_functor_weak_equivalence_locally_propositional.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weak_equivalence_cartesian_disp_functor</span>
+             (<span class="nv">H</span> : cleaving D₁)
+    : cartesian_disp_functor (functor_identity _) D₁ D₂
+    := make_cartesian_disp_functor
+         _
+         (is_cartesian_disp_functor_weak_equivalence_cleaving H).
+
+  <span class="kn">Proposition</span> <span class="nf">disp_functor_weak_equivalence_preserves_lift</span>
+              (<span class="nv">H</span> : cleaving D₁)
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">f</span> : x --&gt; y)
+              (<span class="nv">yy</span> : D₁ y)
+    : FF x (H y x f yy)
+      =
+      disp_functor_weak_equivalence_cleaving H y x f (FF y yy).
+  <span class="kn">Proof</span>.
+    use (isotoid_disp HD₂ (idpath _)).
+    <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+    - <span class="nb">cbn</span>.
+      use (cartesian_factorisation
+             (disp_functor_weak_equivalence_cleaving H y x f (FF y yy))).
+      <span class="nb">refine</span> (transportf
+                (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                _
+                (♯FF (H y x f yy))).
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>.
+      use (cartesian_factorisation
+             (is_cartesian_disp_functor_weak_equivalence_cleaving
+                H
+                _ _ _ _ _ _
+                (H y x f yy))).
+      <span class="nb">refine</span> (transportf
+                (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                (!(id_left _))
+                _).
+      <span class="bp">exact</span> (mor_disp_of_cartesian_lift
+               _ _
+               (disp_functor_weak_equivalence_cleaving H y x f (FF y yy))).
+    - <span class="nb">apply</span> disp_functor_weak_equivalence_locally_propositional.
+    - <span class="nb">apply</span> disp_functor_weak_equivalence_locally_propositional.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_cleaving_nat_z_iso</span>
+             (<span class="nv">H</span> : cleaving D₁)
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">H'</span> := disp_functor_weak_equivalence_cleaving H)
+    : nat_z_iso
+        (fiber_functor FF y
+         ∙ fiber_functor_from_cleaving _ H' f)
+        (fiber_functor_from_cleaving _ H f
+         ∙ fiber_functor FF x).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (fiber_functor_natural_nat_z_iso
+             _ _
+             (weak_equivalence_cartesian_disp_functor H)
+             f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_functor_weak_equivalence_fiber</span>
+              (<span class="nv">x</span> : C)
+    : is_weak_equiv (fiber_functor FF x).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - use fiber_functor_essentially_surjective.
+      <span class="nb">apply</span> HFF₂.
+    - use fiber_functor_ff.
+      <span class="nb">apply</span> HFF₁.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 4. Fiberwise terminal object in the completion *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_terminal_fib</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">T</span> : Terminal (D₁[{x}]))
+    : Terminal (D₂[{x}]).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (weak_equiv_creates_terminal
+             (disp_functor_weak_equivalence_fiber x)
+             T).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_fiberwise_terminal</span>
+             (<span class="nv">H</span> : cleaving D₁)
+             (<span class="nv">T</span> : fiberwise_terminal H)
+    : fiberwise_terminal (disp_functor_weak_equivalence_cleaving H).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> x.
+      use disp_functor_weak_equivalence_terminal_fib.
+      <span class="nb">apply</span> T.
+    - <span class="nb">intros</span> x y f.
+      use (weak_equiv_lifts_preserves_terminal
+             (disp_functor_weak_cleaving_nat_z_iso H f)).
+      + <span class="nb">apply</span> disp_functor_weak_equivalence_fiber.
+      + use composition_preserves_terminal.
+        * <span class="nb">apply</span> T.
+        * use weak_equiv_preserves_terminal.
+          <span class="nb">apply</span> disp_functor_weak_equivalence_fiber.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">preserves_terminal_fiber_functor_weak_equiv</span>
+              (<span class="nv">x</span> : C)
+    : preserves_terminal (fiber_functor FF x).
+  <span class="kn">Proof</span>.
+    use weak_equiv_preserves_terminal.
+    <span class="nb">apply</span> disp_functor_weak_equivalence_fiber.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 5. Fiberwise initial object in the completion *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_initial_fib</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">I</span> : Initial (D₁[{x}]))
+    : Initial (D₂[{x}]).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (weak_equiv_creates_initial
+             (disp_functor_weak_equivalence_fiber x)
+             I).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_fiberwise_initial</span>
+             (<span class="nv">H</span> : cleaving D₁)
+             (<span class="nv">I</span> : fiberwise_initial H)
+    : fiberwise_initial (disp_functor_weak_equivalence_cleaving H).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> x.
+      use disp_functor_weak_equivalence_initial_fib.
+      <span class="nb">apply</span> I.
+    - <span class="nb">intros</span> x y f.
+      use (weak_equiv_lifts_preserves_initial
+             (disp_functor_weak_cleaving_nat_z_iso H f)).
+      + <span class="nb">apply</span> disp_functor_weak_equivalence_fiber.
+      + use composition_preserves_initial.
+        * <span class="nb">apply</span> I.
+        * use weak_equiv_preserves_initial.
+          <span class="nb">apply</span> disp_functor_weak_equivalence_fiber.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">preserves_initial_fiber_functor_weak_equiv</span>
+              (<span class="nv">x</span> : C)
+    : preserves_initial (fiber_functor FF x).
+  <span class="kn">Proof</span>.
+    use weak_equiv_preserves_initial.
+    <span class="nb">apply</span> disp_functor_weak_equivalence_fiber.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 6. Fiberwise binary products in the completion *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_binproducts_fib</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">BP</span> : BinProducts (D₁[{x}]))
+    : BinProducts (D₂[{x}]).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (weak_equiv_into_univ_creates_binproducts
+              _
+              (disp_functor_weak_equivalence_fiber x)
+              BP).
+    use is_univalent_fiber.
+    <span class="bp">exact</span> HD₂.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_fiberwise_binproducts</span>
+             (<span class="nv">H</span> : cleaving D₁)
+             (<span class="nv">BP</span> : fiberwise_binproducts H)
+    : fiberwise_binproducts (disp_functor_weak_equivalence_cleaving H).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> x.
+      use disp_functor_weak_equivalence_binproducts_fib.
+      <span class="nb">apply</span> BP.
+    - <span class="nb">intros</span> x y f.
+      use (weak_equiv_lifts_preserves_binproducts
+             (disp_functor_weak_cleaving_nat_z_iso H f)).
+      + <span class="nb">apply</span> disp_functor_weak_equivalence_fiber.
+      + use composition_preserves_binproduct.
+        * <span class="nb">apply</span> BP.
+        * use weak_equiv_preserves_binproducts.
+          <span class="nb">apply</span> disp_functor_weak_equivalence_fiber.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">preserves_binproduct_fiber_functor_weak_equiv</span>
+              (<span class="nv">x</span> : C)
+    : preserves_binproduct (fiber_functor FF x).
+  <span class="kn">Proof</span>.
+    use weak_equiv_preserves_binproducts.
+    <span class="nb">apply</span> disp_functor_weak_equivalence_fiber.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 7. Fiberwise binary coproducts in the completion *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_bincoproducts_fib</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">BC</span> : BinCoproducts (D₁[{x}]))
+    : BinCoproducts (D₂[{x}]).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (weak_equiv_creates_bincoproducts
+              (disp_functor_weak_equivalence_fiber x)
+              BC
+              _).
+    use is_univalent_fiber.
+    <span class="bp">exact</span> HD₂.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_fiberwise_bincoproducts</span>
+             (<span class="nv">H</span> : cleaving D₁)
+             (<span class="nv">BC</span> : fiberwise_bincoproducts H)
+    : fiberwise_bincoproducts (disp_functor_weak_equivalence_cleaving H).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> x.
+      use disp_functor_weak_equivalence_bincoproducts_fib.
+      <span class="nb">apply</span> BC.
+    - <span class="nb">intros</span> x y f.
+      use (weak_equiv_lifts_preserves_bincoproducts
+             (make_univalent_category _ _)
+             (make_univalent_category _ _)
+             (disp_functor_weak_cleaving_nat_z_iso H f)).
+      + use is_univalent_fiber.
+        <span class="bp">exact</span> HD₂.
+      + use is_univalent_fiber.
+        <span class="bp">exact</span> HD₂.
+      + <span class="nb">apply</span> disp_functor_weak_equivalence_fiber.
+      + use composition_preserves_bincoproduct.
+        * <span class="nb">apply</span> BC.
+        * use weak_equiv_preserves_bincoproducts.
+          <span class="nb">apply</span> disp_functor_weak_equivalence_fiber.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">preserves_bincoproduct_fiber_functor_weak_equiv</span>
+              (<span class="nv">x</span> : C)
+    : preserves_bincoproduct (fiber_functor FF x).
+  <span class="kn">Proof</span>.
+    use weak_equiv_preserves_bincoproducts.
+    <span class="nb">apply</span> disp_functor_weak_equivalence_fiber.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 8. Fiberwise exponentials in the completion *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_exponentials_fib</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">BP</span> : BinProducts (D₁[{x}]))
+             (<span class="nv">E</span> : Exponentials BP)
+    : Exponentials (disp_functor_weak_equivalence_binproducts_fib BP).
+  <span class="kn">Proof</span>.
+    use (weak_equiv_into_univ_creates_exponentials
+           (disp_functor_weak_equivalence_fiber x)
+           _
+           E).
+    use is_univalent_fiber.
+    <span class="bp">exact</span> HD₂.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_fiberwise_exponentials</span>
+             (<span class="nv">H</span> : cleaving D₁)
+             (<span class="nv">BP</span> : fiberwise_binproducts H)
+             (<span class="nv">E</span> : fiberwise_exponentials BP)
+    : fiberwise_exponentials
+        (disp_functor_weak_equivalence_fiberwise_binproducts H BP).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="nb">intro</span> x.
+      <span class="nb">apply</span> disp_functor_weak_equivalence_exponentials_fib.
+      <span class="nb">apply</span> E.
+    - <span class="nb">intros</span> x y f.
+      <span class="nb">simpl</span>.
+      use (weak_equiv_lifts_preserves_exponentials
+             (make_univalent_category _ _)
+             (make_univalent_category _ _)
+             (disp_functor_weak_cleaving_nat_z_iso H f)).
+      + use is_univalent_fiber.
+        <span class="bp">exact</span> HD₂.
+      + use is_univalent_fiber.
+        <span class="bp">exact</span> HD₂.
+      + <span class="nb">apply</span> BP.
+      + use preserves_exponential_objects'_to_preserves_exponential_objects.
+        {
+          <span class="nb">apply</span> E.
+        }
+        use preserves_exponentials_to_preserves_exponential_objects.
+        {
+          <span class="nb">apply</span> disp_functor_weak_equivalence_exponentials_fib.
+          <span class="nb">apply</span> E.
+        }
+        use comp_preserves_exponentials.
+        * <span class="nb">apply</span> BP.
+        * <span class="nb">apply</span> E.
+        * <span class="nb">cbn</span>.
+          <span class="bp">exact</span> (pr2 E x y f).
+        * <span class="nb">apply</span> weak_equiv_preserves_exponentials.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">preserves_exponential_fiber_functor_weak_equiv</span>
+              {<span class="nv">x</span> : C}
+              (<span class="nv">BP₁</span> : BinProducts (D₁[{x}]))
+              (<span class="nv">E₁</span> : Exponentials BP₁)
+              (<span class="nv">BP₂</span> : BinProducts (D₂[{x}]))
+              (<span class="nv">E₂</span> : Exponentials BP₂)
+    : preserves_exponentials
+        E₁
+        E₂
+        (preserves_binproduct_fiber_functor_weak_equiv x).
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (E₂
+            =
+            exponentials_independent
+              _ _
+              (disp_functor_weak_equivalence_exponentials_fib BP₁ E₁))
+      <span class="k">as</span> -&gt;.
+    {
+      <span class="nb">apply</span> isaprop_Exponentials.
+      use is_univalent_fiber.
+      <span class="bp">exact</span> HD₂.
+    }
+    use preserves_exponentials_independent_cod.
+    <span class="nb">apply</span> weak_equiv_preserves_exponentials.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 9. Dependent sums in the completion *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_dependent_sum_reflection</span>
+             (<span class="nv">H₁</span> : cleaving D₁)
+             (<span class="nv">H₂</span> : cleaving D₂)
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">S</span> : dependent_sum H₁ f)
+             (<span class="nv">xx</span> : D₁ x)
+    : reflection (D := D₂ [{x}]) (FF x xx) (fiber_functor_from_cleaving D₂ H₂ f).
+  <span class="kn">Proof</span>.
+    use make_reflection.
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (FF _ (left_adjoint S xx)).
+      + <span class="nb">refine</span> (#(fiber_functor FF _) (unit_from_right_adjoint S xx) · _).
+        <span class="nb">refine</span> (nat_z_iso_inv
+                  (disp_functor_weak_cleaving_nat_z_iso H₁ f)
+                  (left_adjoint S xx)
+                · _).
+        <span class="nb">apply</span> cartesian_lifts_iso.
+    - <span class="nb">intros</span> f'.
+      <span class="nb">induction</span> f' <span class="k">as</span> [ yy' gg ].
+      <span class="nb">pose proof</span> (HFF₂ y yy') <span class="k">as</span> yy.
+      <span class="nb">revert</span> yy.
+      use factor_through_squash.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropiscontr.
+      }
+      <span class="nb">intros</span> (yy &amp; hh).
+      use make_iscontr.
+      + <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="nb">refine</span> (_  · z_iso_fiber_from_z_iso_disp _ _ _ _ hh).
+          <span class="nb">refine</span> (#(fiber_functor FF _) _).
+          <span class="nb">refine</span> (_ · counit_from_right_adjoint S yy).
+          <span class="nb">refine</span> (#(left_adjoint S) _).
+          use (cartesian_factorisation (H₁ y x f yy)).
+          use (disp_functor_ff_inv FF HFF₁).
+          <span class="nb">refine</span> (transportf
+                    (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                    _
+                    (gg
+                     ;; H₂ y x f yy'
+                     ;; inv_mor_disp_from_z_iso hh)).
+          <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> !id_left, id_right ;
+             <span class="nb">apply</span> idpath).
+        * <span class="nb">apply</span> disp_functor_weak_equivalence_locally_propositional.
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> ;
+           use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homsets_disp | ] ;
+           <span class="nb">apply</span> disp_functor_weak_equivalence_locally_propositional).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_dependent_sum</span>
+             (<span class="nv">H</span> : cleaving D₁)
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">S</span> : dependent_sum H f)
+    : dependent_sum (disp_functor_weak_equivalence_cleaving H) f.
+  <span class="kn">Proof</span>.
+    use reflections_to_is_right_adjoint.
+    <span class="nb">intros</span> xx'.
+    <span class="nb">pose proof</span> (HFF₂ x xx') <span class="k">as</span> xx.
+    <span class="nb">revert</span> xx.
+    use factor_through_squash.
+    {
+      use isaprop_reflection.
+      use is_univalent_fiber.
+      <span class="bp">exact</span> HD₂.
+    }
+    <span class="nb">intros</span> (xx &amp; ff).
+    <span class="nb">refine</span> (reflection_transport_along_iso_ob
+              (z_iso_fiber_from_z_iso_disp _ _ _ _ ff)
+              _).
+    <span class="nb">clear</span> ff xx'.
+    <span class="bp">exact</span> (disp_functor_weak_equivalence_dependent_sum_reflection H _ _ S xx).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_functor_weak_equivalence_preserves_dependent_sum</span>
+              {<span class="nv">H₁</span> : cleaving D₁}
+              {<span class="nv">H₂</span> : cleaving D₂}
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">f</span> : x --&gt; y)
+              (<span class="nv">S₁</span> : dependent_sum H₁ f)
+              (<span class="nv">S₂</span> : dependent_sum H₂ f)
+              (<span class="nv">xx</span> : D₁ x)
+    : z_iso
+        (left_adjoint S₂ (FF x xx))
+        (FF y (left_adjoint S₁ xx)).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (reflection_uniqueness_iso
+             (left_adjoint_to_reflection S₂ (FF x xx))
+             (disp_functor_weak_equivalence_dependent_sum_reflection H₁ H₂ f S₁ xx)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">     We also verify the Beck-Chevalley condition for dependent sums</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_fiber_dep_sum</span>
+             (<span class="nv">H</span> : cleaving D₁)
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">S</span> : dependent_sum H f)
+             (<span class="nv">xx</span> : D₁ x)
+    : left_adjoint (disp_functor_weak_equivalence_dependent_sum H f S) (FF x xx)
+      --&gt;
+      fiber_functor FF _ (left_adjoint S xx).
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (counit_from_right_adjoint
+            (disp_functor_weak_equivalence_dependent_sum H f S)
+            (fiber_functor FF _ (left_adjoint S xx)))
+      <span class="k">as</span> ε.
+    <span class="nb">refine</span> (_ · ε).
+    <span class="nb">refine</span> (#(left_adjoint _) _).
+    <span class="nb">refine</span> (_ · nat_z_iso_inv (disp_functor_weak_cleaving_nat_z_iso H f) _).
+    <span class="nb">refine</span> (#(fiber_functor FF _) _).
+    <span class="bp">exact</span> (unit_from_right_adjoint S xx).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_fiber_dep_sum_inv</span>
+             (<span class="nv">H</span> : cleaving D₁)
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">S</span> : dependent_sum H f)
+             (<span class="nv">xx</span> : D₁ x)
+    : fiber_functor FF y (left_adjoint S xx)
+      --&gt;
+      left_adjoint (disp_functor_weak_equivalence_dependent_sum H f S) (FF x xx).
+  <span class="kn">Proof</span>.
+    <span class="nb">pose proof</span> (HFF₂
+                  _
+                  (left_adjoint
+                     (disp_functor_weak_equivalence_dependent_sum H f S)
+                     (FF x xx)))
+      <span class="k">as</span> yy.
+    <span class="nb">revert</span> yy.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> disp_functor_weak_equivalence_locally_propositional.
+    }
+    <span class="nb">intros</span> (yy &amp; i).
+    <span class="nb">refine</span> (_ · z_iso_fiber_from_z_iso_disp _ _ _ _ i).
+    <span class="nb">refine</span> (#(fiber_functor FF y) _).
+    <span class="nb">refine</span> (_ · counit_from_right_adjoint S yy).
+    <span class="nb">refine</span> (#(left_adjoint S) _).
+    use (disp_functor_ff_inv FF HFF₁).
+    <span class="nb">refine</span> (_ · disp_functor_weak_cleaving_nat_z_iso H f yy).
+    <span class="nb">refine</span> (unit_from_right_adjoint (disp_functor_weak_equivalence_dependent_sum H f S) _ · _).
+    <span class="nb">refine</span> (#(fiber_functor_from_cleaving _ _ f) _).
+    <span class="bp">exact</span> (inv_from_z_iso (z_iso_fiber_from_z_iso_disp _ _ _ _ i)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_dependent_sum_stable</span>
+             (<span class="nv">H</span> : cleaving D₁)
+             {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+             {<span class="nv">f</span> : x --&gt; w}
+             {<span class="nv">g</span> : y --&gt; w}
+             {<span class="nv">h</span> : z --&gt; y}
+             {<span class="nv">k</span> : z --&gt; x}
+             (<span class="nv">Sf</span> : dependent_sum H f)
+             (<span class="nv">Sh</span> : dependent_sum H h)
+             (<span class="nv">yy</span> : D₂ x)
+             (<span class="nv">s</span> : ∏ (xx : D₁ x),
+                  fiber_functor_from_cleaving _ H g (left_adjoint Sf xx)
+                  --&gt;
+                  left_adjoint Sh (fiber_functor_from_cleaving _ H k xx))
+    : fiber_functor_from_cleaving
+        _
+        (disp_functor_weak_equivalence_cleaving H)
+        g
+        (left_adjoint
+           (disp_functor_weak_equivalence_dependent_sum H f Sf)
+           yy)
+      --&gt;
+      left_adjoint
+        (disp_functor_weak_equivalence_dependent_sum H h Sh)
+        (fiber_functor_from_cleaving _ (disp_functor_weak_equivalence_cleaving H) k yy).
+  <span class="kn">Proof</span>.
+    <span class="nb">pose proof</span> (HFF₂ x yy) <span class="k">as</span> xx.
+    <span class="nb">revert</span> xx.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> disp_functor_weak_equivalence_locally_propositional.
+    }
+    <span class="nb">intros</span> (xx &amp; i).
+    <span class="nb">specialize</span> (s xx).
+    <span class="nb">refine</span> (_ · #(fiber_functor FF y) s · _).
+    - <span class="nb">refine</span> (_ · disp_functor_weak_cleaving_nat_z_iso H g _).
+      <span class="nb">refine</span> (#(fiber_functor_from_cleaving _ _ g) _).
+      <span class="nb">refine</span> (_ · disp_functor_weak_equivalence_fiber_dep_sum _ _ _ _).
+      <span class="bp">exact</span> (#(left_adjoint _) (inv_from_z_iso (z_iso_fiber_from_z_iso_disp _ _ _ _ i))).
+    - <span class="nb">refine</span> (disp_functor_weak_equivalence_fiber_dep_sum_inv _ _ _ _ · _).
+      <span class="nb">refine</span> (#(left_adjoint _) _).
+      <span class="nb">refine</span> (nat_z_iso_inv (disp_functor_weak_cleaving_nat_z_iso H k) xx · _).
+      <span class="nb">refine</span> (#(fiber_functor_from_cleaving _ _ k) _).
+      <span class="bp">exact</span> (z_iso_fiber_from_z_iso_disp _ _ _ _ i).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 10. Dependent products in the completion *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_dependent_product_coreflection</span>
+             (<span class="nv">H₁</span> : cleaving D₁)
+             (<span class="nv">H₂</span> : cleaving D₂)
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">P</span> : dependent_product H₁ f)
+             (<span class="nv">xx</span> : D₁ x)
+    : coreflection (D := D₂ [{x}]) (FF x xx) (fiber_functor_from_cleaving D₂ H₂ f).
+  <span class="kn">Proof</span>.
+    use make_coreflection.
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (FF _ (right_adjoint P xx)).
+      + <span class="nb">refine</span> (_ · disp_functor_weak_cleaving_nat_z_iso H₁ f (right_adjoint P xx)
+                  · #(fiber_functor FF _) (counit_from_left_adjoint P xx)).
+        <span class="nb">apply</span> cartesian_lifts_iso.
+    - <span class="nb">intros</span> f'.
+      <span class="nb">induction</span> f' <span class="k">as</span> [ yy' gg ].
+      <span class="nb">pose proof</span> (HFF₂ y yy') <span class="k">as</span> yy.
+      <span class="nb">revert</span> yy.
+      use factor_through_squash.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropiscontr.
+      }
+      <span class="nb">intros</span> (yy &amp; hh).
+      use make_iscontr.
+      + <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="nb">refine</span> (inv_from_z_iso (z_iso_fiber_from_z_iso_disp _ _ _ _ hh) · _).
+          <span class="nb">refine</span> (#(fiber_functor FF _) _).
+          <span class="nb">refine</span> (unit_from_left_adjoint P yy · _).
+          <span class="nb">refine</span> (#(right_adjoint P) _).
+          use (disp_functor_ff_inv FF HFF₁).
+          <span class="nb">refine</span> (transportf
+                    (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                    (id_right _)
+                    (cartesian_factorisation (H₂ y x f yy') _ _
+                     ;; gg)).
+          <span class="nb">cbn</span>.
+          <span class="nb">refine</span> (transportf
+                    (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                    _
+                    (♯FF (H₁ y x f yy) ;; hh)).
+          <span class="nb">cbn</span>.
+          <span class="kp">abstract</span>
+            (<span class="nb">rewrite</span> id_left, id_right ;
+             <span class="nb">apply</span> idpath).
+        * <span class="nb">apply</span> disp_functor_weak_equivalence_locally_propositional.
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> ;
+           use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homsets_disp | ] ;
+           <span class="nb">apply</span> disp_functor_weak_equivalence_locally_propositional).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_dependent_product</span>
+             (<span class="nv">H</span> : cleaving D₁)
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">P</span> : dependent_product H f)
+    : dependent_product (disp_functor_weak_equivalence_cleaving H) f.
+  <span class="kn">Proof</span>.
+    use coreflections_to_is_left_adjoint.
+    <span class="nb">intros</span> xx'.
+    <span class="nb">pose proof</span> (HFF₂ x xx') <span class="k">as</span> xx.
+    <span class="nb">revert</span> xx.
+    use factor_through_squash.
+    {
+      use isaprop_coreflection.
+      use is_univalent_fiber.
+      <span class="bp">exact</span> HD₂.
+    }
+    <span class="nb">intros</span> (xx &amp; ff).
+    <span class="nb">refine</span> (coreflection_transport_along_iso_ob
+              (z_iso_fiber_from_z_iso_disp _ _ _ _ ff)
+              _).
+    <span class="nb">apply</span> (disp_functor_weak_equivalence_dependent_product_coreflection H).
+    <span class="bp">exact</span> P.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_functor_weak_equivalence_preserves_dependent_product</span>
+              {<span class="nv">H₁</span> : cleaving D₁}
+              {<span class="nv">H₂</span> : cleaving D₂}
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">f</span> : x --&gt; y)
+              (<span class="nv">P₁</span> : dependent_product H₁ f)
+              (<span class="nv">P₂</span> : dependent_product H₂ f)
+              (<span class="nv">xx</span> : D₁ x)
+    : z_iso
+        (right_adjoint P₂ (FF x xx))
+        (FF y (right_adjoint P₁ xx)).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (coreflection_uniqueness_iso
+             (right_adjoint_to_coreflection P₂ (FF x xx))
+             (disp_functor_weak_equivalence_dependent_product_coreflection H₁ H₂ f P₁ xx)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">     We also verify the Beck-Chevalley condition for dependent products.</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_fiber_dep_prod</span>
+             (<span class="nv">H</span> : cleaving D₁)
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">P</span> : dependent_product H f)
+             (<span class="nv">xx</span> : D₁ x)
+    : fiber_functor FF y (right_adjoint P xx)
+      --&gt;
+      right_adjoint (disp_functor_weak_equivalence_dependent_product H f P) (FF x xx).
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (unit_from_left_adjoint
+            (disp_functor_weak_equivalence_dependent_product H f P)
+            (fiber_functor FF y (right_adjoint P xx)))
+      <span class="k">as</span> η.
+    <span class="nb">refine</span> (η · _).
+    <span class="nb">refine</span> (#(right_adjoint _) _).
+    <span class="nb">refine</span> (disp_functor_weak_cleaving_nat_z_iso H f _ · _).
+    <span class="nb">refine</span> (#(fiber_functor FF _) _).
+    <span class="bp">exact</span> (counit_from_left_adjoint P xx).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_fiber_dep_prod_inv</span>
+             (<span class="nv">H</span> : cleaving D₁)
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">P</span> : dependent_product H f)
+             (<span class="nv">xx</span> : D₁ x)
+    : right_adjoint (disp_functor_weak_equivalence_dependent_product H f P) (FF x xx)
+      --&gt;
+      fiber_functor FF _ (right_adjoint P xx).
+  <span class="kn">Proof</span>.
+    <span class="nb">pose proof</span> (HFF₂
+                  _
+                  (right_adjoint
+                     (disp_functor_weak_equivalence_dependent_product H f P)
+                     (FF x xx)))
+      <span class="k">as</span> yy.
+    <span class="nb">revert</span> yy.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> disp_functor_weak_equivalence_locally_propositional.
+    }
+    <span class="nb">intros</span> (yy &amp; i).
+    <span class="nb">refine</span> (inv_from_z_iso (z_iso_fiber_from_z_iso_disp _ _ _ _ i) · _).
+    <span class="nb">refine</span> (#(fiber_functor FF y) _).
+    <span class="nb">refine</span> (unit_from_left_adjoint P yy · _).
+    <span class="nb">refine</span> (#(right_adjoint P) _).
+    use (disp_functor_ff_inv FF HFF₁).
+    <span class="nb">refine</span> (nat_z_iso_inv (disp_functor_weak_cleaving_nat_z_iso H f) yy · _).
+    <span class="nb">refine</span> (#(fiber_functor_from_cleaving _ _ f) (pr1 i) · _).
+    <span class="nb">apply</span> (counit_from_left_adjoint (disp_functor_weak_equivalence_dependent_product H f P)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_functor_weak_equivalence_dependent_product_stable</span>
+             (<span class="nv">H</span> : cleaving D₁)
+             {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+             {<span class="nv">f</span> : x --&gt; w}
+             {<span class="nv">g</span> : y --&gt; w}
+             {<span class="nv">h</span> : z --&gt; y}
+             {<span class="nv">k</span> : z --&gt; x}
+             (<span class="nv">Pf</span> : dependent_product H f)
+             (<span class="nv">Ph</span> : dependent_product H h)
+             (<span class="nv">yy</span> : D₂ x)
+             (<span class="nv">s</span> : ∏ (xx : D₁ x),
+                  right_adjoint Ph (fiber_functor_from_cleaving _ H k xx)
+                  --&gt;
+                  fiber_functor_from_cleaving _ H g (right_adjoint Pf xx))
+    : right_adjoint
+        (disp_functor_weak_equivalence_dependent_product H h Ph)
+        (fiber_functor_from_cleaving _ (disp_functor_weak_equivalence_cleaving H) k yy)
+      --&gt;
+      fiber_functor_from_cleaving
+        _
+        (disp_functor_weak_equivalence_cleaving H)
+        g
+        (right_adjoint
+           (disp_functor_weak_equivalence_dependent_product H f Pf)
+           yy).
+  <span class="kn">Proof</span>.
+    <span class="nb">pose proof</span> (HFF₂ x yy) <span class="k">as</span> xx.
+    <span class="nb">revert</span> xx.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> disp_functor_weak_equivalence_locally_propositional.
+    }
+    <span class="nb">intros</span> (xx &amp; i).
+    <span class="nb">specialize</span> (s xx).
+    <span class="nb">refine</span> (_ · #(fiber_functor FF y) s · _).
+    - <span class="nb">refine</span> (_ · disp_functor_weak_equivalence_fiber_dep_prod_inv _ _ _ _).
+      <span class="nb">refine</span> (#(right_adjoint _) _).
+      <span class="nb">refine</span> (_ · disp_functor_weak_cleaving_nat_z_iso H k xx).
+      <span class="nb">refine</span> (#(fiber_functor_from_cleaving _ _ k) _).
+      <span class="bp">exact</span> (inv_from_z_iso (z_iso_fiber_from_z_iso_disp _ _ _ _ i)).
+    - <span class="nb">refine</span> (nat_z_iso_inv (disp_functor_weak_cleaving_nat_z_iso H g) _ · _).
+      <span class="nb">refine</span> (#(fiber_functor_from_cleaving _ _ g) _).
+      <span class="nb">refine</span> (disp_functor_weak_equivalence_fiber_dep_prod _ _ _ _ · _).
+      <span class="bp">exact</span> (#(right_adjoint _) (z_iso_fiber_from_z_iso_disp _ _ _ _ i)).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">HyperdoctrineWeakEquiv</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/Completion/WeakEquivs.v</tt>, line 44)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  10. Dependent products in the completion
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

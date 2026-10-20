@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Distributive.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Distributive lattices *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.Preamble.
+
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Lattice.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Bounded.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Complement.
+
+<span class="kn">Section</span> <span class="nf">Def</span>.
+
+  <span class="kn">Context</span> {<span class="nv">X</span> : hSet} (<span class="nv">L</span> : lattice X).
+
+  <span class="sd">(** The normal "∧", "∨" notation conflicts with that for [hProp], whereas</span>
+<span class="sd">      "+", "×" conflict with notation for types. *)</span>
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"x ≤ y"</span> := (Lle L x y).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"x ⊗ y"</span> := (Lmin L x y).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"x ⊕ y"</span> := (Lmax L x y).
+
+  <span class="kn">Definition</span> <span class="nf">is_distributive</span> : hProp.
+  <span class="kn">Proof</span>.
+    use make_hProp.
+    - <span class="bp">exact</span> (∏ x y z : X, x ⊗ (y ⊕ z) = ((x ⊗ y) ⊕ (x ⊗ z))).
+    - <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> setproperty.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Def</span>.
+
+<span class="kn">Definition</span> <span class="nf">distributive_lattice</span> : UU :=
+  ∑ (X : hSet) (L : lattice X), is_distributive L.
+
+<span class="kn">Definition</span> <span class="nf">make_distributive_lattice</span> {<span class="nv">X</span> : hSet} {<span class="nv">l</span> : lattice X} (<span class="nv">i</span> : is_distributive l) : distributive_lattice := (X,,l,,i).
+
+<span class="kn">Definition</span> <span class="nf">distributive_lattice_is_distributive</span> (<span class="nv">l</span> : distributive_lattice) := pr22 l.
+
+<span class="kn">Definition</span> <span class="nf">distributive_lattice_to_lattice</span> (<span class="nv">l</span> : distributive_lattice) : lattice (pr1 l) := pr1 (pr2 l).
+<span class="kn">Coercion</span> <span class="nf">distributive_lattice_to_lattice</span> : distributive_lattice &gt;-&gt; lattice.
+
+<span class="kn">Section</span> <span class="nf">Bounded</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : hSet} (<span class="nv">L</span> : bounded_lattice X).
+
+  <span class="sd">(** The normal "∧", "∨" notation conflicts with that for [hProp], whereas</span>
+<span class="sd">      "+", "×" conflict with notation for types. *)</span>
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"x ≤ y"</span> := (Lle L x y).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"x ⊗ y"</span> := (Lmin L x y).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"x ⊕ y"</span> := (Lmax L x y).
+
+  <span class="kn">Lemma</span> <span class="nf">distributive_lattice_complements_are_unique</span> :
+    is_distributive L -&gt; ∏ x, isaprop (complement L x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> is_distr x; <span class="nb">apply</span> invproofirrelevance; <span class="nb">intros</span> b a.
+    <span class="nb">apply</span> subtypePath.
+    - <span class="nb">intro</span>. <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> setproperty.
+    - <span class="nb">refine</span> (!islunit_Lmin_Ltop L (pr1 b) @ _ @ islunit_Lmin_Ltop L (pr1 a)).
+      <span class="nb">refine</span> (_ @ maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; Lmin L z _) (complement_top_axiom _ _ b)).
+      <span class="nb">refine</span> (iscomm_Lmin _ _ _ @ _ @ iscomm_Lmin _ _ _).
+      <span class="nb">refine</span> (!maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; Lmin L _ z) (complement_top_axiom _ _ a) @ _).
+      <span class="nb">refine</span> (is_distr _ _ _ @ _ @ !is_distr _ _ _).
+
+      <span class="nb">refine</span> (iscomm_Lmax _ _ _ @ _ @iscomm_Lmax _ _ _ ).
+      <span class="nb">refine</span> (maponpaths _ (iscomm_Lmin _ _ _) @ _ @ maponpaths _ (iscomm_Lmin _ _ _)).
+      <span class="nb">refine</span> (maponpaths _ (complement_bottom_axiom _ _ b) @ _).
+      <span class="nb">refine</span> (_ @ !maponpaths _ (complement_bottom_axiom _ _ a)).
+      <span class="nb">refine</span> (_ @ maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; Lmax L z _) (iscomm_Lmin _ _ _)).
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Bounded</span>.
+
+<span class="kn">Section</span> <span class="nf">Properties</span>.
+  <span class="kn">Lemma</span> <span class="nf">distrlattice_Lmax_ldistr</span>  (<span class="nv">l</span> : distributive_lattice) : isldistr (Lmax l) (Lmin l) .
+  <span class="kn">Proof</span> .
+    <span class="nb">intros</span> ? ? ?. use (distributive_lattice_is_distributive l) .
+  <span class="kn">Qed</span> .
+
+  <span class="kn">Lemma</span> <span class="nf">distrlattice_Lmax_rdistr</span> (<span class="nv">l</span> : distributive_lattice) : isrdistr (Lmax l) (Lmin l) .
+  <span class="kn">Proof</span>.
+    use weqldistrrdistr.
+    - use iscomm_Lmin.
+    - <span class="nb">intros</span> ? ? ?. use (distributive_lattice_is_distributive l).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dual_lattice_is_distributive</span> (<span class="nv">l</span> : distributive_lattice) : is_distributive (dual_lattice l) .
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (isldistr (Lmin l) (Lmax l) ) <span class="k">as</span> d.
+    {
+      <span class="nb">intros</span> ? b c .
+      <span class="nb">rewrite</span> ((distributive_lattice_is_distributive l) (Lmax _ _ _) c b).
+      <span class="nb">rewrite</span> (iscomm_Lmin _ (Lmax _ _ _) _).
+      <span class="nb">rewrite</span> (Lmin_absorb) .
+      <span class="nb">rewrite</span> distrlattice_Lmax_rdistr.
+      <span class="nb">rewrite</span> &lt;- (isassoc_Lmax _ c).
+      <span class="nb">rewrite</span> (Lmax_absorb).
+      <span class="bp">reflexivity</span>.
+    }
+    <span class="nb">intros</span> ? ? ?.
+    use d .
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">distrlattice_Lmin_ldistr</span> (<span class="nv">l</span> : distributive_lattice) : isldistr (Lmin l) (Lmax l) .
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (distrlattice_Lmax_ldistr (make_distributive_lattice (dual_lattice_is_distributive l))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">distrlattice_Lmin_rdistr</span> (<span class="nv">l</span> : distributive_lattice): isrdistr (Lmin l) (Lmax l) .
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (distrlattice_Lmax_rdistr (make_distributive_lattice (dual_lattice_is_distributive l))).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Properties</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/Lattice/Distributive.v</tt>, line 3)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Preamble.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** * Distributive lattices *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.Preamble.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.Algebra.Monoids.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

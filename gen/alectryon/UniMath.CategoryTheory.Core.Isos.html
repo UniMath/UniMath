@@ -1,0 +1,1014 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Isos.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Isomorphisms *)</span>
+
+<span class="sd">(** ** Contents</span>
+
+<span class="sd">  - isomorphisms: [iso], [isiso f := isweq (precomp_with f)]</span>
+<span class="sd">  - Equivalence relation identifying isomorphic objects</span>
+<span class="sd">  - Isomorphisms in a category [z_iso]</span>
+<span class="sd">    - Definition: [is_z_iso f := ∑ g, ...]</span>
+<span class="sd">    - Relationship between [z_iso] and [iso]</span>
+<span class="sd">  - Properties of 0-isomorphisms</span>
+<span class="sd">    - uniqueness of inverse, composition etc.</span>
+<span class="sd">    - stability under composition</span>
+<span class="sd">    - Analogue to [isweq_iso]: [is_iso_qinv]</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartA.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** A morphism [f: a --&gt; b] in a precategory is an isomorphism [is_iso(f)],</span>
+<span class="sd">    if for any [c: C], precomposition with [f] yields an equivalence</span>
+<span class="sd">    (b --&gt; c -&gt; a --&gt; c].</span>
+<span class="sd">    Definition suggested by V. Voevodsky</span>
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">precomp_with</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : a --&gt; b) {<span class="nv">c</span> : C} (<span class="nv">g</span> : b --&gt; c): a --&gt; c :=
+   f · g.
+
+<span class="kn">Definition</span> <span class="nf">is_iso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : a --&gt; b) :=
+  ∏ c, isweq (precomp_with f (c:=c)).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_iso</span> {<span class="nv">C</span> : precategory_data} (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">f</span> : a --&gt; b) : isaprop (is_iso f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred; <span class="nb">intro</span>.
+  <span class="nb">apply</span> isapropisweq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">iso</span> {<span class="nv">C</span>: precategory_data} (<span class="nv">a</span> <span class="nv">b</span> : C) := ∑ f : a --&gt; b, is_iso f.
+<span class="kn">Definition</span> <span class="nf">morphism_from_iso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : iso a b) : a --&gt; b := pr1 f.
+<span class="kn">Coercion</span> <span class="nf">morphism_from_iso</span> : iso &gt;-&gt; precategory_morphisms.
+
+<span class="kn">Definition</span> <span class="nf">iso_is_iso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : iso a b) : is_iso f := pr2 f.
+
+<span class="kn">Definition</span> <span class="nf">make_iso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">fiso</span>: is_iso f) : iso a b := (f,,fiso).
+
+<span class="kn">Definition</span> <span class="nf">inv_from_iso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : iso a b) : b --&gt; a :=
+   invmap (make_weq (precomp_with f) (pr2 f a)) (identity _ ).
+
+<span class="kn">Definition</span> <span class="nf">iso_inv_after_iso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span>: iso a b) :
+   f · inv_from_iso f = identity _ .
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (T := homotweqinvweq (make_weq (precomp_with f) (pr2 f a ))).
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">apply</span> T.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">iso_after_iso_inv</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : iso a b) :
+  inv_from_iso f · f = identity _ .
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (T := invmaponpathsweq (make_weq (precomp_with f) (pr2 f b))).
+  <span class="nb">apply</span> T; <span class="nb">clear</span> T; <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> precomp_with.
+  intermediate_path ((f · inv_from_iso f) · f).
+  - <span class="nb">apply</span> assoc.
+  - <span class="nb">apply</span> remove_id_left.
+    + <span class="nb">apply</span> iso_inv_after_iso.
+    + <span class="nb">apply</span> (!(id_right _ )).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_iso_inv_from_iso</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : iso a b) : is_iso (inv_from_iso f).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> c.
+  <span class="nb">apply</span> (isweq_iso _ (precomp_with f)).
+  - <span class="nb">intro</span> g.
+    <span class="nb">unfold</span> precomp_with.
+    intermediate_path ((f · inv_from_iso f) · g).
+    + <span class="nb">apply</span> assoc.
+    + <span class="nb">apply</span> remove_id_left. <span class="nb">apply</span> iso_inv_after_iso. <span class="nb">apply</span> idpath.
+  - <span class="nb">intro</span> g.
+    <span class="nb">unfold</span> precomp_with.
+    intermediate_path ((inv_from_iso f · f) · g).
+    + <span class="nb">apply</span> assoc.
+    + <span class="nb">apply</span> remove_id_left. <span class="nb">apply</span> iso_after_iso_inv. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">iso_inv_from_iso</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : iso a b) : iso b a :=
+  tpair _ _ (is_iso_inv_from_iso f).
+
+<span class="kn">Lemma</span> <span class="nf">eq_iso</span> {<span class="nv">C</span>: precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : iso a b) : pr1 f = pr1 g -&gt; f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">apply</span> subtypePath.
+  - <span class="nb">intros</span> t. <span class="nb">apply</span> isaprop_is_iso.
+  - <span class="nb">apply</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaset_iso</span> {<span class="nv">C</span> : precategory_data} (<span class="nv">hs</span> : has_homsets C) (<span class="nv">a</span> <span class="nv">b</span> : ob C) :
+  isaset (iso a b).
+<span class="kn">Proof</span>.
+  <span class="nb">change</span> isaset <span class="k">with</span> (isofhlevel <span class="mi">2</span>).
+  <span class="nb">apply</span> isofhleveltotal2.
+  - <span class="nb">apply</span> hs.
+  - <span class="nb">intro</span> f.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isaprop_is_iso.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">identity_is_iso</span> (<span class="nv">C</span> : precategory) (<span class="nv">a</span> : ob C) : is_iso (identity a).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c.
+  <span class="nb">set</span> (T := @isweqhomot (a --&gt; c) (a --&gt; c) (<span class="k">λ</span> <span class="nv">t</span>, t) (precomp_with (identity a))).
+  <span class="nb">apply</span> T.
+  - <span class="nb">intro</span> g. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> idisweq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">identity_iso</span> {<span class="nv">C</span> : precategory} (<span class="nv">a</span> : ob C) :
+   iso a a := tpair _ _ (identity_is_iso C a).
+
+
+<span class="kn">Definition</span> <span class="nf">iso_inv_from_is_iso</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : ob C}
+  (<span class="nv">f</span> : a --&gt; b) (<span class="nv">H</span> : is_iso f) : iso b a :=
+  iso_inv_from_iso (f,,H).
+
+<span class="kn">Lemma</span> <span class="nf">iso_inv_on_right</span> {<span class="nv">C</span> : precategory} (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : ob C)
+  (<span class="nv">f</span> : iso a  b) (<span class="nv">g</span> : b --&gt; c) (<span class="nv">h</span> : a --&gt; c) (<span class="nv">H</span> : h = f · g) :
+     inv_from_iso f · h = g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (invmaponpathsweq (make_weq (precomp_with f) (pr2 f c))).
+  <span class="nb">unfold</span> precomp_with; <span class="nb">simpl</span>.
+  intermediate_path ((f · inv_from_iso f) · h).
+  - <span class="nb">apply</span> assoc.
+  - <span class="nb">apply</span> remove_id_left.
+    + <span class="nb">apply</span> iso_inv_after_iso.
+    + <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iso_inv_on_left</span> {<span class="nv">C</span> : precategory} (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : ob C)
+  (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : iso b c) (<span class="nv">h</span> : a --&gt; c) (<span class="nv">H</span> : h = f · g) :
+     f = h · inv_from_iso g.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (H2 : h · inv_from_iso g =
+                         (f · g) · inv_from_iso g).
+    <span class="nb">rewrite</span> H. <span class="nb">apply</span> idpath.
+  <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> H2.
+  <span class="nb">rewrite</span> iso_inv_after_iso <span class="k">in</span> H2.
+  <span class="nb">rewrite</span> id_right <span class="k">in</span> H2.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iso_inv_to_left</span> {<span class="nv">C</span> : precategory} (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : ob C)
+  (<span class="nv">f</span> : iso a  b) (<span class="nv">g</span> : b --&gt; c) (<span class="nv">h</span> : a --&gt; c) :
+    inv_from_iso f · h = g -&gt; h = f · g.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  intermediate_path (f · inv_from_iso f · h).
+  - <span class="nb">rewrite</span> iso_inv_after_iso, id_left; <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> H. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iso_inv_to_right</span> {<span class="nv">C</span> : precategory} (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : ob C)
+  (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : iso b c) (<span class="nv">h</span> : a --&gt; c) :
+     f = h · inv_from_iso g -&gt; f · g = h.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  intermediate_path (h · inv_from_iso g · g).
+  - <span class="nb">rewrite</span> H. <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> &lt;- assoc, iso_after_iso_inv, id_right. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="sd">(** ** Properties of isomorphisms *)</span>
+<span class="sd">(** Stability under composition, inverses etc *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isweqhomot'</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">f</span> <span class="nv">g</span> : X -&gt; Y) (<span class="nv">H</span> : isweq f)
+      (<span class="nv">homot</span> : ∏ x, f x = g x) : isweq g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isweqhomot f g homot H).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_iso_comp_of_isos</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : ob C}
+  (<span class="nv">f</span> : iso a b) (<span class="nv">g</span> : iso b c) : is_iso (f · g).
+<span class="kn">Proof</span>.
+  <span class="nb">simpl</span>.
+  <span class="nb">intro</span> d.
+  <span class="nb">set</span> (T := twooutof3c (precomp_with g) (precomp_with f (c:=d)) (pr2 g d) (pr2 f _)).
+  <span class="nb">apply</span> (isweqhomot' _ _ T).
+  <span class="nb">intro</span> h. <span class="nb">apply</span> assoc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_iso_comp_of_is_isos</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : ob C}
+      (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c) (<span class="nv">H1</span> : is_iso f) (<span class="nv">H2</span> : is_iso g) : is_iso (f · g).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (i1 := make_iso f H1).
+  <span class="nb">set</span> (i2 := make_iso g H2).
+  <span class="bp">exact</span> (is_iso_comp_of_isos i1 i2).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">iso_comp</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : ob C}
+  (<span class="nv">f</span> : iso a b) (<span class="nv">g</span> : iso b c) : iso a c.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">f</span> · g).
+  <span class="nb">apply</span> is_iso_comp_of_isos.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">inv_iso_unique</span> (<span class="nv">C</span> : precategory) (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">f</span> : iso a b) (<span class="nv">g</span> : iso b a) :
+  precomp_with f g = identity _ -&gt; g = iso_inv_from_iso f.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">apply</span> eq_iso. <span class="nb">simpl</span>.
+  <span class="nb">set</span> (T := invmaponpathsweq (make_weq (precomp_with f) (pr2 f a ))).
+  <span class="nb">apply</span> T; <span class="nb">simpl</span>.
+  intermediate_path (identity a).
+  + <span class="bp">assumption</span>.
+  + <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> iso_inv_after_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">inv_iso_unique'</span> (<span class="nv">C</span> : precategory) (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">f</span> : iso a b) (<span class="nv">g</span> : b --&gt; a) :
+  precomp_with f g = identity _ -&gt; g = inv_from_iso f.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">set</span> (T := invmaponpathsweq (make_weq (precomp_with f) (pr2 f a ))).
+  <span class="nb">apply</span> T; <span class="nb">simpl</span>.
+  intermediate_path (identity a).
+  + <span class="bp">assumption</span>.
+  + <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> iso_inv_after_iso.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">iso_inv_of_iso_comp</span> (<span class="nv">C</span> : precategory) (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : ob C)
+   (<span class="nv">f</span> : iso a b) (<span class="nv">g</span> : iso b c) :
+   iso_inv_from_iso (iso_comp f g) = iso_comp (iso_inv_from_iso g) (iso_inv_from_iso f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> inv_iso_unique. <span class="nb">simpl</span>. <span class="nb">unfold</span> precomp_with.
+  intermediate_path (f · (g · inv_from_iso g) · inv_from_iso f).
+  - <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.  <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> iso_inv_after_iso. <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> iso_inv_after_iso.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iso_inv_of_iso_id</span> {<span class="nv">C</span> : precategory} (<span class="nv">a</span> : ob C) :
+   iso_inv_from_iso (identity_iso a) = identity_iso a.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> eq_iso.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">iso_inv_iso_inv</span> {<span class="nv">C</span> : precategory} (<span class="nv">a</span> <span class="nv">b</span> : ob C) (<span class="nv">f</span> : iso a b) :
+     iso_inv_from_iso (iso_inv_from_iso f) = f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> eq_iso. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> inv_iso_unique'.
+  <span class="nb">apply</span> iso_after_iso_inv.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pre_comp_with_iso_is_inj</span> {<span class="nv">C</span> : precategory_data} (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : ob C)
+    (<span class="nv">f</span> : a --&gt; b) (<span class="nv">H</span> : is_iso f) (<span class="nv">g</span> <span class="nv">h</span> : b --&gt; c) : f · g = f · h -&gt; g = h.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> X.
+  <span class="nb">apply</span> (invmaponpathsweq (make_weq (precomp_with f) (H _ ))).
+  <span class="nb">apply</span> X.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cancel_precomposition_iso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+    (<span class="nv">f</span> : iso a b) (<span class="nv">g</span> <span class="nv">h</span> : b --&gt; c) : f · g = f · h -&gt; g = h.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (pre_comp_with_iso_is_inj _ _ _ (pr1 f) (pr2 f)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">post_comp_with_iso_is_inj</span> {<span class="nv">C</span> : precategory} (<span class="nv">b</span> <span class="nv">c</span> : ob C)
+     (<span class="nv">h</span> : b --&gt; c) (<span class="nv">H</span> : is_iso h)
+   (<span class="nv">a</span> : ob C) (<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b) : f · h = g · h -&gt; f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> HH.
+  <span class="nb">set</span> (T := iso_inv_after_iso (h,,H)). <span class="nb">simpl</span> <span class="k">in</span> T.
+  intermediate_path (f · (h · inv_from_iso (h,,H))).
+  - <span class="nb">rewrite</span> T. <span class="nb">clear</span> T.
+    <span class="nb">apply</span> pathsinv0, id_right.
+  - <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> HH.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> T.
+    <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cancel_postcomposition_iso</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+    (<span class="nv">h</span> : iso b c) (<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b) : f · h = g · h -&gt; f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (post_comp_with_iso_is_inj _ _ (pr1 h) (pr2 h)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iso_comp_right_isweq</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : ob C} (<span class="nv">h</span> : iso a b) (<span class="nv">c</span> : C) :
+  isweq (<span class="k">fun</span> <span class="nv">f</span> : b --&gt; c =&gt; h · f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (pr2 h _ ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">iso_comp_right_weq</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">h</span> : iso a b) (<span class="nv">c</span> : C) :
+ (b --&gt; c) ≃ (a --&gt; c) := make_weq _ (iso_comp_right_isweq h c).
+
+<span class="kn">Lemma</span> <span class="nf">iso_comp_left_isweq</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : ob C} (<span class="nv">h</span> : iso a b) (<span class="nv">c</span> : C) :
+  isweq (<span class="k">fun</span> <span class="nv">f</span> : c --&gt; a =&gt; f · h).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> (isweq_iso _ (<span class="k">λ</span> <span class="nv">g</span>, g · inv_from_iso h)).
+  - <span class="nb">intro</span> x. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> remove_id_right.
+    <span class="nb">apply</span> iso_inv_after_iso. <span class="nb">apply</span> idpath.
+  - <span class="nb">intro</span> y. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> remove_id_right.
+    <span class="nb">apply</span> iso_after_iso_inv. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">postcomp_with</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">h</span> : b --&gt; c) {<span class="nv">a</span> : C}
+  (<span class="nv">f</span> : a --&gt; b) : a --&gt; c := f · h.
+
+<span class="kn">Definition</span> <span class="nf">is_iso'</span> {<span class="nv">C</span> : precategory} {<span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : b --&gt; c) :=
+  ∏ a, isweq (postcomp_with f (a:=a)).
+
+<span class="kn">Definition</span> <span class="nf">is_inverse_in_precat</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C}
+  (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; a) :=
+          (f · g = identity a) ×
+          (g · f = identity b).
+
+<span class="kn">Definition</span> <span class="nf">make_is_inverse_in_precat</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : b --&gt; a}
+           (<span class="nv">H1</span> : f · g = identity a) (<span class="nv">H2</span> : g · f = identity b) :
+  is_inverse_in_precat f g := (H1,,H2).
+
+<span class="kn">Definition</span> <span class="nf">is_inverse_in_precat1</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : b --&gt; a}
+           (<span class="nv">H</span> : is_inverse_in_precat f g) :
+  f · g = identity a := dirprod_pr1 H.
+
+<span class="kn">Definition</span> <span class="nf">is_inverse_in_precat2</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : b --&gt; a}
+           (<span class="nv">H</span> : is_inverse_in_precat f g) :
+  g · f = identity b := dirprod_pr2 H.
+
+<span class="kn">Definition</span> <span class="nf">is_inverse_in_precat_inv</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : b --&gt; a}
+           (<span class="nv">H</span> : is_inverse_in_precat f g) : is_inverse_in_precat g f :=
+  make_dirprod (is_inverse_in_precat2 H) (is_inverse_in_precat1 H).
+
+<span class="kn">Definition</span> <span class="nf">is_inverse_in_precat_comp</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f1</span> : a --&gt; b} {<span class="nv">f2</span> : b --&gt; c}
+           {<span class="nv">g1</span> : b --&gt; a} {<span class="nv">g2</span> : c --&gt; b} (<span class="nv">H1</span> : is_inverse_in_precat f1 g1)
+           (<span class="nv">H2</span> : is_inverse_in_precat f2 g2) : is_inverse_in_precat (f1 · f2) (g2 · g1).
+<span class="kn">Proof</span>.
+  use make_is_inverse_in_precat.
+  - <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> &lt;- (assoc _ f2). <span class="nb">rewrite</span> (is_inverse_in_precat1 H2). <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> (is_inverse_in_precat1 H1). <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> &lt;- (assoc _ g1). <span class="nb">rewrite</span> (is_inverse_in_precat2 H1). <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> (is_inverse_in_precat2 H2). <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_inverse_in_precat_identity</span> {<span class="nv">C</span> : precategory} (<span class="nv">c</span> : C) :
+  is_inverse_in_precat (identity c) (identity c).
+<span class="kn">Proof</span>.
+  use make_is_inverse_in_precat.
+  - <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_iso_qinv</span> {<span class="nv">C</span>:precategory} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; a) :
+  is_inverse_in_precat f g -&gt; is_iso f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H c.
+  <span class="nb">apply</span> (isweq_iso _ (precomp_with g)).
+  - <span class="nb">intro</span> h. <span class="nb">unfold</span> precomp_with.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> remove_id_left.
+    <span class="nb">apply</span> (pr2 H). <span class="nb">apply</span> idpath.
+  - <span class="nb">intro</span> h. <span class="nb">unfold</span> precomp_with. <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> remove_id_left.
+    <span class="nb">apply</span> (pr1 H). <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">iso_comp_left_weq</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">h</span> : iso a b) (<span class="nv">c</span> : C) :
+ (c --&gt; a) ≃ (c --&gt; b) := make_weq _ (iso_comp_left_isweq h c).
+
+<span class="kn">Definition</span> <span class="nf">iso_conjug_weq</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">h</span> : iso a b) :
+ (a --&gt; a) ≃ (b --&gt; b) := weqcomp (iso_comp_left_weq h _ ) (iso_comp_right_weq (iso_inv_from_iso h) _ ).
+
+
+<span class="sd">(** ** Equivalence relation identifying isomorphic objects *)</span>
+
+<span class="kn">Section</span> <span class="nf">are_isomorphic</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : precategory}.
+
+  <span class="sd">(** a and b are related if there merely exists an iso between them *)</span>
+  <span class="kn">Definition</span> <span class="nf">are_isomorphic</span> : hrel C := <span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, ∥iso a b∥.
+
+  <span class="kn">Lemma</span> <span class="nf">iseqrel_are_isomorphic</span> : iseqrel are_isomorphic.
+  <span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> x y z h1.
+    <span class="nb">apply</span> hinhuniv; <span class="nb">intros</span> h2; <span class="nb">generalize</span> h1; <span class="nb">clear</span> h1.
+    <span class="bp">now</span> <span class="nb">apply</span> hinhuniv; <span class="nb">intros</span> h1; <span class="nb">apply</span> hinhpr, (iso_comp h1 h2).
+  - <span class="bp">now</span> <span class="nb">intros</span> x; <span class="nb">apply</span> hinhpr, identity_iso.
+  - <span class="bp">now</span> <span class="nb">intros</span> x y; <span class="nb">apply</span> hinhuniv; <span class="nb">intro</span> h1; <span class="nb">apply</span> hinhpr, iso_inv_from_iso.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_eqrel</span> : eqrel C := (are_isomorphic,,iseqrel_are_isomorphic).
+
+<span class="kn">End</span> <span class="nf">are_isomorphic</span>.
+
+
+<span class="sd">(** ** Isomorphisms in a category [z_iso] *)</span>
+
+<span class="sd">(** In a precategory with hom-sets, we can give the usual definition of</span>
+<span class="sd">    isomorphism, called [z_iso] in the following.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_inverse_in_precat</span> {<span class="nv">C</span> : category} (<span class="nv">a</span> <span class="nv">b</span> : ob C)
+   (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; a) : isaprop (is_inverse_in_precat f g).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">inverse_unique_precat</span> {<span class="nv">C</span> : precategory} (<span class="nv">a</span> <span class="nv">b</span> : ob C)
+   (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> <span class="nv">g'</span>: b --&gt; a) (<span class="nv">H</span> : is_inverse_in_precat f g)
+    (<span class="nv">H'</span> : is_inverse_in_precat f g') : g = g'.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> H <span class="k">as</span> [eta eps].
+  <span class="nb">destruct</span> H' <span class="k">as</span> [eta' eps'].
+  <span class="nb">assert</span> (H : g = identity b · g).
+    <span class="nb">rewrite</span> id_left; <span class="nb">apply</span> idpath.
+  <span class="nb">apply</span> (pathscomp0 H).
+  <span class="nb">rewrite</span> &lt;- eps'.
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">rewrite</span> eta.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_z_isomorphism</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : ob C}
+           (<span class="nv">f</span> : a --&gt; b) := ∑ g, is_inverse_in_precat f g.
+
+<span class="kn">Definition</span> <span class="nf">make_is_z_isomorphism</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : a --&gt; b)
+           (<span class="nv">g</span> : b --&gt; a) (<span class="nv">H</span> : is_inverse_in_precat f g) : is_z_isomorphism f := (g,,H).
+
+<span class="kn">Definition</span> <span class="nf">is_z_isomorphism_mor</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">I</span> : is_z_isomorphism f) : b --&gt; a := pr1 I.
+
+<span class="kn">Definition</span> <span class="nf">is_z_isomorphism_is_inverse_in_precat</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C}
+           {<span class="nv">f</span> : a --&gt; b} (<span class="nv">I</span> : is_z_isomorphism f) :
+  is_inverse_in_precat f (is_z_isomorphism_mor I) := pr2 I.
+<span class="kn">Coercion</span> <span class="nf">is_z_isomorphism_is_inverse_in_precat</span> : is_z_isomorphism &gt;-&gt; is_inverse_in_precat.
+
+<span class="kn">Definition</span> <span class="nf">is_z_isomorphism_inv</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">I</span> : is_z_isomorphism f) : is_z_isomorphism (is_z_isomorphism_mor I).
+<span class="kn">Proof</span>.
+  use make_is_z_isomorphism.
+  - <span class="bp">exact</span> f.
+  - <span class="bp">exact</span> (is_inverse_in_precat_inv I).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_z_isomorphism_comp</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f1</span> : a --&gt; b} {<span class="nv">f2</span> : b --&gt; c}
+           (<span class="nv">H1</span> : is_z_isomorphism f1) (<span class="nv">H2</span> : is_z_isomorphism f2) :
+  is_z_isomorphism (f1 · f2).
+<span class="kn">Proof</span>.
+  use make_is_z_isomorphism.
+  - <span class="bp">exact</span> (is_z_isomorphism_mor H2 · is_z_isomorphism_mor H1).
+  - <span class="bp">exact</span> (is_inverse_in_precat_comp H1 H2).
+<span class="kn">Defined</span>.
+
+<span class="kn">Arguments</span> is_z_isomorphism_comp {C a b c f1 f2} H1 H2 /.
+
+<span class="kn">Definition</span> <span class="nf">is_z_isomorphism_identity</span> {<span class="nv">C</span> : precategory} (<span class="nv">c</span> : C) : is_z_isomorphism (identity c).
+<span class="kn">Proof</span>.
+  use make_is_z_isomorphism.
+  - <span class="bp">exact</span> (identity c).
+  - <span class="bp">exact</span> (is_inverse_in_precat_identity c).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_z_isomorphism</span> {<span class="nv">C</span> : category} {<span class="nv">a</span> <span class="nv">b</span> : ob C}
+     (<span class="nv">f</span> : a --&gt; b) : isaprop (is_z_isomorphism f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> invproofirrelevance.
+  <span class="nb">intros</span> g g'.
+  <span class="nb">set</span> (Hpr1 := inverse_unique_precat _ _ _ _ _ (pr2 g) (pr2 g')).
+  <span class="nb">apply</span> (total2_paths_f Hpr1).
+  <span class="nb">destruct</span> g <span class="k">as</span> [g [eta eps]].
+  <span class="nb">destruct</span> g' <span class="k">as</span> [g' [eta' eps']].
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_z_isomorphism_mor_eq</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b}
+      (<span class="nv">e</span> : f = g) (<span class="nv">I1</span> : is_z_isomorphism f) (<span class="nv">I2</span> : is_z_isomorphism g) :
+  is_z_isomorphism_mor I1 = is_z_isomorphism_mor I2.
+<span class="kn">Proof</span>.
+  use inverse_unique_precat.
+  - <span class="bp">exact</span> f.
+  - <span class="bp">exact</span> I1.
+  - <span class="nb">rewrite</span> e. <span class="bp">exact</span> I2.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">z_iso</span> {<span class="nv">C</span> : precategory_data} (<span class="nv">a</span> <span class="nv">b</span> : ob C) := ∑ f : a --&gt; b, is_z_isomorphism f.
+
+<span class="kn">Definition</span> <span class="nf">make_z_iso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; a)
+  (<span class="nv">H</span> : is_inverse_in_precat f g) : z_iso a b := (f,,make_is_z_isomorphism f g H).
+
+<span class="kn">Definition</span> <span class="nf">make_z_iso'</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">H</span> : is_z_isomorphism f) :
+  z_iso a b := (f,,H).
+
+<span class="kn">Definition</span> <span class="nf">z_iso_mor</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : ob C} (<span class="nv">f</span> : z_iso a b) : a --&gt; b := pr1 f.
+<span class="kn">Coercion</span> <span class="nf">z_iso_mor</span> : z_iso &gt;-&gt; precategory_morphisms.
+
+<span class="kn">Definition</span> <span class="nf">inv_from_z_iso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">i</span> : z_iso a b) : b --&gt; a :=
+  is_z_isomorphism_mor (pr2 i).
+
+
+
+<span class="kn">Definition</span> <span class="nf">z_iso_is_inverse_in_precat</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">i</span> : z_iso a b) :
+  is_inverse_in_precat i (inv_from_z_iso i) := pr2 i.
+<span class="kn">Coercion</span> <span class="nf">z_iso_is_inverse_in_precat</span> : z_iso &gt;-&gt; is_inverse_in_precat.
+
+<span class="kn">Definition</span> <span class="nf">z_iso_inv</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">I</span> : z_iso a b) : z_iso b a.
+<span class="kn">Proof</span>.
+  use make_z_iso.
+  - <span class="bp">exact</span> (inv_from_z_iso I).
+  - <span class="bp">exact</span> I.
+  - <span class="bp">exact</span> (is_inverse_in_precat_inv I).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">z_iso_comp</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">I1</span> : z_iso a b) (<span class="nv">I2</span> : z_iso b c) :
+  z_iso a c.
+<span class="kn">Proof</span>.
+  use make_z_iso.
+  - <span class="bp">exact</span> (I1 · I2).
+  - <span class="bp">exact</span> ((inv_from_z_iso I2) · (inv_from_z_iso I1)).
+  - <span class="bp">exact</span> (is_inverse_in_precat_comp I1 I2).
+<span class="kn">Defined</span>.
+
+<span class="c">(* see below [identity_z_iso]</span>
+<span class="c">Definition z_iso_identity {C : precategory} (c : C) : z_iso c c.</span>
+<span class="c">Proof.</span>
+<span class="c">  use make_z_iso.</span>
+<span class="c">  - exact (identity c).</span>
+<span class="c">  - exact (identity c).</span>
+<span class="c">  - exact (is_inverse_in_precat_identity c).</span>
+<span class="c">Defined.</span>
+<span class="c"> *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">z_iso_is_z_isomorphism</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">I</span> : z_iso a b) :
+  is_z_isomorphism I.
+<span class="kn">Proof</span>.
+  use make_is_z_isomorphism.
+  - <span class="bp">exact</span> (inv_from_z_iso I).
+  - <span class="bp">exact</span> I.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_z_iso_inv_from_z_iso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">I</span> : z_iso a b) :
+  is_z_isomorphism (inv_from_z_iso I).
+<span class="kn">Proof</span>.
+  use make_is_z_isomorphism.
+  - <span class="bp">exact</span> I.
+  - <span class="bp">exact</span> (is_inverse_in_precat_inv I).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">post_comp_with_z_iso_is_inj</span> {<span class="nv">C</span> : precategory} {<span class="nv">a'</span> <span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : b --&gt; a}
+      (<span class="nv">i</span> : is_inverse_in_precat f g) : ∏ (f' g' : a' --&gt; a), f' · f = g' · f -&gt; f' = g'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f' g' H.
+  <span class="nb">apply</span> (maponpaths (postcompose g)) <span class="k">in</span> H. <span class="nb">unfold</span> postcompose <span class="k">in</span> H.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> H.
+  <span class="nb">rewrite</span> (is_inverse_in_precat1 i) <span class="k">in</span> H. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right <span class="k">in</span> H.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">post_comp_with_z_iso_inv_is_inj</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">b'</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : b --&gt; a}
+      (<span class="nv">i</span> : is_inverse_in_precat f g) : ∏ (f' g' : b' --&gt; b), f' · g = g' · g -&gt; f' = g'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f' g' H.
+  <span class="nb">apply</span> (maponpaths (postcompose f)) <span class="k">in</span> H. <span class="nb">unfold</span> postcompose <span class="k">in</span> H.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> H.
+  <span class="nb">rewrite</span> (is_inverse_in_precat2 i) <span class="k">in</span> H. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right <span class="k">in</span> H.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pre_comp_with_z_iso_is_inj</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">b'</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : b --&gt; a}
+      (<span class="nv">i</span> : is_inverse_in_precat f g) : ∏ (f' g' : b --&gt; b'), f · f' = f · g' -&gt; f' = g'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f' g' H.
+  <span class="nb">apply</span> (maponpaths (compose g)) <span class="k">in</span> H.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc <span class="k">in</span> H.
+  <span class="nb">rewrite</span> (is_inverse_in_precat2 i) <span class="k">in</span> H. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left <span class="k">in</span> H.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pre_comp_with_z_iso_is_inj'</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">b'</span> : C} {<span class="nv">f</span> : a --&gt; b}
+      (<span class="nv">i</span> : is_z_isomorphism f) : ∏ (f' g' : b --&gt; b'), f · f' = f · g' -&gt; f' = g'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f' g' H.
+  <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj (pr2 i)).
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pre_comp_with_z_iso_inv_is_inj</span> {<span class="nv">C</span> : precategory} {<span class="nv">a'</span> <span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : b --&gt; a}
+      (<span class="nv">i</span> : is_inverse_in_precat f g) : ∏ (f' g' : a --&gt; a'), g · f' = g · g' -&gt; f' = g'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f' g' H.
+  <span class="nb">apply</span> (maponpaths (compose f)) <span class="k">in</span> H.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc <span class="k">in</span> H.
+  <span class="nb">rewrite</span> (is_inverse_in_precat1 i) <span class="k">in</span> H. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left <span class="k">in</span> H.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">z_iso_eq</span> {<span class="nv">C</span> : category} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">i</span> <span class="nv">i'</span> : z_iso a b) (<span class="nv">e</span> : z_iso_mor i = z_iso_mor i') :
+  i = i'.
+<span class="kn">Proof</span>.
+  use total2_paths_f.
+  - <span class="bp">exact</span> e.
+  - use proofirrelevance. <span class="nb">apply</span> isaprop_is_z_isomorphism.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">z_iso_eq_inv</span> {<span class="nv">C</span> : category} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">i</span> <span class="nv">i'</span> : z_iso a b)
+      (<span class="nv">e2</span> : inv_from_z_iso i = inv_from_z_iso i') : i = i'.
+<span class="kn">Proof</span>.
+  use z_iso_eq.
+  <span class="nb">assert</span> (H : is_inverse_in_precat (inv_from_z_iso i) i').
+  {
+    use make_is_inverse_in_precat.
+    - <span class="nb">rewrite</span> e2. <span class="bp">exact</span> (is_inverse_in_precat2 i').
+    - <span class="nb">rewrite</span> e2. <span class="bp">exact</span> (is_inverse_in_precat1 i').
+  }
+  <span class="bp">exact</span> (inverse_unique_precat _ _ _ _ _ (z_iso_inv i) H).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">morphism_from_z_iso</span> {<span class="nv">C</span> : precategory_data} (<span class="nv">a</span> <span class="nv">b</span> : ob C)
+   (<span class="nv">f</span> : z_iso a b) : a --&gt; b := pr1 f.
+<span class="kn">Coercion</span> <span class="nf">morphism_from_z_iso</span> : z_iso &gt;-&gt; precategory_morphisms.
+
+<span class="kn">Lemma</span> <span class="nf">isaset_z_iso</span> {<span class="nv">C</span> : category} (<span class="nv">a</span> <span class="nv">b</span> : ob C) : isaset (z_iso a b).
+<span class="kn">Proof</span>.
+  <span class="nb">change</span> isaset <span class="k">with</span> (isofhlevel <span class="mi">2</span>).
+  <span class="nb">apply</span> isofhleveltotal2.
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">intro</span> f.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isaprop_is_z_isomorphism.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">identity_is_z_iso</span> {<span class="nv">C</span> : precategory} (<span class="nv">a</span> : ob C) :
+    is_z_isomorphism (identity a).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">a</span>).
+  <span class="nb">simpl</span>; <span class="nb">split</span>;
+  <span class="nb">apply</span> id_left.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">identity_z_iso</span> {<span class="nv">C</span> : precategory} (<span class="nv">a</span> : ob C) :
+   z_iso a a := tpair _ _ (identity_is_z_iso a).
+
+<span class="kn">Definition</span> <span class="nf">z_iso_inv_from_z_iso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : ob C}
+  (<span class="nv">f</span> : z_iso a b) : z_iso b a.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">inv_from_z_iso</span> <span class="nv">f</span>).
+  <span class="nb">apply</span> is_z_iso_inv_from_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">z_iso_inv_from_is_z_iso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : ob C}
+  (<span class="nv">f</span> : a --&gt; b) (<span class="nv">H</span> : is_z_isomorphism f) : z_iso b a :=
+  z_iso_inv_from_z_iso (f,,H).
+
+<span class="kn">Definition</span> <span class="nf">z_iso_inv_after_z_iso</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : ob C}
+   (<span class="nv">f</span> : z_iso a b) : f · inv_from_z_iso f = identity _ :=
+      pr1 (pr2 (pr2 f)).
+
+<span class="kn">Definition</span> <span class="nf">z_iso_after_z_iso_inv</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> : ob C}
+   (<span class="nv">f</span> : z_iso a b) : inv_from_z_iso f · f = identity _ :=
+      pr2 (pr2 (pr2 f)).
+
+
+<span class="kn">Lemma</span> <span class="nf">z_iso_inv_on_right</span> {<span class="nv">C</span> : precategory} (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : ob C)
+  (<span class="nv">f</span> : z_iso a  b) (<span class="nv">g</span> : b --&gt; c) (<span class="nv">h</span> : a --&gt; c) (<span class="nv">H</span> : h = f · g) :
+     inv_from_z_iso f · h = g.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (H2 : inv_from_z_iso f · h =
+                  inv_from_z_iso f · (f · g)).
+    <span class="nb">apply</span> maponpaths; <span class="bp">assumption</span>.
+  <span class="nb">rewrite</span> assoc <span class="k">in</span> H2.
+  <span class="nb">rewrite</span> H2.
+  <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">z_iso_inv_on_left</span> {<span class="nv">C</span> : precategory} (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : ob C)
+  (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : z_iso b c) (<span class="nv">h</span> : a --&gt; c) (<span class="nv">H</span> : h = f · g) :
+     f = h · inv_from_z_iso g.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (H2 : h · inv_from_z_iso g =
+                         (f · g) · inv_from_z_iso g).
+    <span class="nb">rewrite</span> H. <span class="nb">apply</span> idpath.
+  <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> H2.
+  <span class="nb">rewrite</span> z_iso_inv_after_z_iso <span class="k">in</span> H2.
+  <span class="nb">rewrite</span> id_right <span class="k">in</span> H2.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">z_iso_inv_to_left</span> {<span class="nv">C</span> : precategory} (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : ob C)
+  (<span class="nv">f</span> : z_iso a  b) (<span class="nv">g</span> : b --&gt; c) (<span class="nv">h</span> : a --&gt; c) :
+    inv_from_z_iso f · h = g -&gt; h = f · g.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  intermediate_path (f · inv_from_z_iso f · h).
+  - <span class="nb">rewrite</span> z_iso_inv_after_z_iso, id_left; <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> maponpaths. <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">z_iso_inv_to_right</span> {<span class="nv">C</span> : precategory} (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : ob C)
+  (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : z_iso b c) (<span class="nv">h</span> : a --&gt; c) :
+     f = h · inv_from_z_iso g -&gt; f · g = h.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  intermediate_path (h · inv_from_z_iso g · g).
+  - <span class="nb">rewrite</span> H. <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> &lt;- assoc, z_iso_after_z_iso_inv, id_right. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">wrap_inverse</span> {<span class="nv">M</span> : precategory} {<span class="nv">x</span> <span class="nv">y</span> : M} (<span class="nv">g</span> : x --&gt; x) (<span class="nv">f</span> : z_iso x y) :
+  g = identity x -&gt; z_iso_inv f · g · f = identity y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="nb">rewrite</span> e. <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> z_iso_after_z_iso_inv.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">wrap_inverse'</span> {<span class="nv">M</span> : precategory} {<span class="nv">x</span> <span class="nv">y</span> : M} (<span class="nv">g</span> : x --&gt; x) (<span class="nv">f</span> : z_iso y x) :
+  g = identity x -&gt; f · g · z_iso_inv f = identity y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="nb">rewrite</span> e. <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> z_iso_inv_after_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cancel_z_iso</span> {<span class="nv">M</span> : precategory} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : M} (<span class="nv">f</span> <span class="nv">f'</span> : x --&gt; y) (<span class="nv">g</span> : z_iso y z) :
+  f · g = f' · g -&gt; f = f'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> e.
+  <span class="nb">destruct</span> g <span class="k">as</span> [g [g' H]].
+  <span class="nb">apply</span> (post_comp_with_z_iso_is_inj H).
+  <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cancel_z_iso'</span> {<span class="nv">M</span> : precategory} {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> : M} (<span class="nv">g</span> : z_iso w x) (<span class="nv">f</span> <span class="nv">f'</span> : x --&gt; y) :
+  g · f = g · f' -&gt; f = f'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> e.
+  <span class="nb">destruct</span> g <span class="k">as</span> [g [g' H]].
+  <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj H).
+  <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">are_z_isomorphic</span> {<span class="nv">C</span> : precategory_data} : hrel C := <span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, ∥z_iso a b∥.
+
+<span class="kn">Lemma</span> <span class="nf">iseqrel_are_z_isomorphic</span> {<span class="nv">C</span> : precategory} : iseqrel (are_z_isomorphic(C:=C)).
+  <span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> x y z h1.
+    <span class="nb">apply</span> hinhuniv; <span class="nb">intros</span> h2; <span class="nb">generalize</span> h1; <span class="nb">clear</span> h1.
+    <span class="bp">now</span> <span class="nb">apply</span> hinhuniv; <span class="nb">intros</span> h1; <span class="nb">apply</span> hinhpr, (z_iso_comp h1 h2).
+  - <span class="bp">now</span> <span class="nb">intros</span> x; <span class="nb">apply</span> hinhpr, identity_z_iso.
+  - <span class="bp">now</span> <span class="nb">intros</span> x y; <span class="nb">apply</span> hinhuniv; <span class="nb">intro</span> h1; <span class="nb">apply</span> hinhpr, z_iso_inv_from_z_iso.
+  <span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">z_iso_eqrel</span> {<span class="nv">C</span> : precategory} : eqrel C := (are_z_isomorphic,,iseqrel_are_z_isomorphic).
+
+
+<span class="sd">(** ** Properties of 0-isomorphisms *)</span>
+
+<span class="sd">(** Stability under composition, inverses etc *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">are_inverse_comp_of_inverses</span> {<span class="nv">C</span> : precategory} (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C)
+     (<span class="nv">f</span> : z_iso a b) (<span class="nv">g</span> : z_iso b c) :
+  is_inverse_in_precat (f · g) (inv_from_z_iso g · inv_from_z_iso f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_inverse_in_precat_comp.
+  - <span class="nb">apply</span> (pr2 f).
+  - <span class="nb">apply</span> (pr2 g).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">inv_z_iso_unique</span> {<span class="nv">C</span> : category} (<span class="nv">a</span> <span class="nv">b</span> : ob C)
+  (<span class="nv">f</span> : z_iso a b) (<span class="nv">g</span> : z_iso b a) :
+  is_inverse_in_precat f g -&gt; g = z_iso_inv_from_z_iso f.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">apply</span> z_iso_eq.
+  <span class="nb">apply</span> (inverse_unique_precat _ _ f).
+    - <span class="bp">assumption</span>.
+    - <span class="nb">split</span>.
+      + <span class="nb">apply</span> z_iso_inv_after_z_iso.
+      + <span class="nb">set</span> (h := z_iso_after_z_iso_inv f).
+        <span class="nb">apply</span> h.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">inv_z_iso_unique'</span> (<span class="nv">C</span> : precategory) (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">f</span> : z_iso a b) (<span class="nv">g</span> : b --&gt; a) :
+  precomp_with f g = identity _ -&gt; g = inv_from_z_iso f.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">apply</span> (cancel_z_iso' f).
+  <span class="nb">unfold</span> precomp_with <span class="k">in</span> H.
+  <span class="nb">rewrite</span> H.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> z_iso_inv_after_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">z_iso_inv_of_z_iso_comp</span> {<span class="nv">C</span> : category} (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : ob C)
+   (<span class="nv">f</span> : z_iso a b) (<span class="nv">g</span> : z_iso b c) :
+   z_iso_inv_from_z_iso (z_iso_comp f g) =
+       z_iso_comp (z_iso_inv_from_z_iso g) (z_iso_inv_from_z_iso f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> z_iso_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">z_iso_inv_of_z_iso_id</span> {<span class="nv">C</span> : category} (<span class="nv">a</span> : ob C) :
+   z_iso_inv_from_z_iso (identity_z_iso a) = identity_z_iso a.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> z_iso_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">z_iso_inv_z_iso_inv</span> {<span class="nv">C</span> : category} (<span class="nv">a</span> <span class="nv">b</span> : ob C) (<span class="nv">f</span> : z_iso a b) :
+     z_iso_inv_from_z_iso (z_iso_inv_from_z_iso f) = f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> z_iso_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">z_iso_comp_right_isweq</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : ob C} (<span class="nv">h</span> : z_iso a b) (<span class="nv">c</span> : C) :
+  isweq (<span class="k">fun</span> <span class="nv">f</span> : b --&gt; c =&gt; h · f).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> (isweq_iso _ (<span class="k">λ</span> <span class="nv">g</span>, inv_from_z_iso h · g)).
+       { <span class="nb">intros</span> f. use (_ @ maponpaths (<span class="k">λ</span> <span class="nv">m</span>, m · f) (pr2 (pr2 (pr2 h))) @ _).
+         { <span class="nb">apply</span> assoc. } { <span class="nb">apply</span> id_left. } }
+       { <span class="nb">intros</span> g. use (_ @ maponpaths (<span class="k">λ</span> <span class="nv">m</span>, m · g) (pr1 (pr2 (pr2 h))) @ _).
+         { <span class="nb">apply</span> assoc. } { <span class="nb">apply</span> id_left. } }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">z_iso_comp_right_weq</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">h</span> : z_iso a b) (<span class="nv">c</span> : C) :
+ (b --&gt; c) ≃ (a --&gt; c) := make_weq _ (z_iso_comp_right_isweq h c).
+
+<span class="kn">Lemma</span> <span class="nf">z_iso_comp_left_isweq</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : ob C} (<span class="nv">h</span> : z_iso a b) (<span class="nv">c</span> : C) :
+  isweq (<span class="k">fun</span> <span class="nv">f</span> : c --&gt; a =&gt; f · h).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> (isweq_iso _ (<span class="k">λ</span> <span class="nv">g</span>, g · inv_from_z_iso h)).
+  { <span class="nb">intros</span> f. use (_ @ maponpaths (<span class="k">λ</span> <span class="nv">m</span>, f · m) (pr1 (pr2 (pr2 h))) @ _).
+         { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> assoc. }  { <span class="nb">apply</span> id_right. } }
+       { <span class="nb">intros</span> g. use (_ @ maponpaths (<span class="k">λ</span> <span class="nv">m</span>, g · m) (pr2 (pr2 (pr2 h))) @ _).
+         { <span class="nb">apply</span> pathsinv0, assoc. } { <span class="nb">apply</span> id_right. } }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">z_iso_comp_left_weq</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">h</span> : z_iso a b) (<span class="nv">c</span> : C) :
+ (c --&gt; a) ≃ (c --&gt; b) := make_weq _ (z_iso_comp_left_isweq h c).
+
+<span class="kn">Definition</span> <span class="nf">z_iso_conjug_weq</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">h</span> : z_iso a b) :
+ (a --&gt; a) ≃ (b --&gt; b) := weqcomp (z_iso_comp_left_weq h _ )
+         (z_iso_comp_right_weq (z_iso_inv_from_z_iso h) _ ).
+
+<span class="kn">Lemma</span> <span class="nf">is_iso_from_is_z_iso</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span>: a --&gt; b) :
+     is_z_isomorphism f -&gt; is_iso f.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">apply</span> (is_iso_qinv _ (pr1 H)).
+  <span class="nb">apply</span> (pr2 H).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">z_iso_to_iso</span> {<span class="nv">C</span> : precategory} {<span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : z_iso b c) : iso b c
+  := pr1 f ,, is_iso_from_is_z_iso (pr1 f) (pr2 f).
+
+<span class="kn">Lemma</span> <span class="nf">is_z_iso_from_is_iso</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : a --&gt; b):
+     is_iso f -&gt; is_z_isomorphism f.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">set</span> (fiso := make_iso f H).
+  <span class="k">exists</span> (<span class="nv">inv_from_iso</span> <span class="nv">fiso</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">set</span> (H2 := iso_inv_after_iso fiso).
+    <span class="nb">simpl</span> <span class="k">in</span> H2. <span class="nb">apply</span> H2.
+  - <span class="nb">set</span> (H2 := iso_after_iso_inv fiso).
+    <span class="nb">simpl</span> <span class="k">in</span> H2. <span class="nb">apply</span> H2.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_z_iso_from_is_iso'</span> (<span class="nv">C</span> : precategory) {<span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : b --&gt; c) :
+  is_iso' f -&gt; is_z_isomorphism f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i.
+  <span class="nb">assert</span> (Q := i c (identity c)). <span class="nb">induction</span> Q <span class="k">as</span> [[g E] _]. <span class="nb">unfold</span> postcomp_with <span class="k">in</span> E.
+  <span class="k">exists</span> <span class="nv">g</span>. <span class="nb">split</span>.
+  <span class="mi">2</span> : { <span class="bp">exact</span> E. }
+  <span class="nb">assert</span> (X := id_left _ : postcomp_with f (identity _) = f).
+  <span class="nb">assert</span> (Y := ! assoc _ _ _ @ maponpaths (precomp_with f) E @ id_right _
+               : postcomp_with f (f · g) = f).
+  <span class="nb">clear</span> E.
+  <span class="nb">set</span> (x := (_,,X) : hfiber (postcomp_with f) f).
+  <span class="nb">set</span> (y := (_,,Y) : hfiber (postcomp_with f) f).
+  <span class="bp">exact</span> (maponpaths pr1 (proofirrelevancecontr (i b f) y x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">iso_to_z_iso</span> {<span class="nv">C</span> : precategory} {<span class="nv">b</span> <span class="nv">c</span> : C} : iso b c -&gt; z_iso b c
+  := <span class="k">λ</span> <span class="nv">f</span>, pr1 f ,, is_z_iso_from_is_iso (pr1 f) (pr2 f).
+
+<span class="kn">Lemma</span> <span class="nf">roundtrip1_iso_z_iso</span> {<span class="nv">C</span> : precategory} {<span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span>: iso b c) :
+  z_iso_to_iso (iso_to_z_iso f) = f.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> f <span class="k">as</span> [f H].
+  use total2_paths_f.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> isaprop_is_iso.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">roundtrip2_iso_z_iso</span> {<span class="nv">C</span> : category} {<span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span>: z_iso b c) :
+  iso_to_z_iso (z_iso_to_iso f) = f.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> f <span class="k">as</span> [f H].
+  use total2_paths_f.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> isaprop_is_z_isomorphism.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">weq_iso_z_iso</span> {<span class="nv">C</span> : category} {<span class="nv">b</span> <span class="nv">c</span> : C} : iso b c ≃ z_iso b c.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">iso_to_z_iso</span>.
+  use isweq_iso.
+  - <span class="nb">apply</span> z_iso_to_iso.
+  - <span class="nb">apply</span> roundtrip1_iso_z_iso.
+  - <span class="nb">apply</span> roundtrip2_iso_z_iso.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** The right inverse of an invertible morphism must be equal to the known (two-sided) inverse. *)</span>
+<span class="sd">(** TODO: Did I switch up right and left here vis a vis the conventional use? *)</span>
+<span class="kn">Lemma</span> <span class="nf">right_inverse_of_iso_is_inverse</span> {<span class="nv">C</span> : precategory} {<span class="nv">c</span> <span class="nv">c'</span> : C}
+      (<span class="nv">f</span> : c --&gt; c')
+      (<span class="nv">g</span> : c' --&gt; c) (<span class="nv">H</span>  : is_inverse_in_precat f g)
+      (<span class="nv">h</span> : c' --&gt; c) (<span class="nv">HH</span> : f · h = identity _) :
+  h = g.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (!id_left _ @ _).
+  <span class="nb">refine</span> (maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; z · h) (!is_inverse_in_precat2 H) @ _).
+  <span class="nb">refine</span> (!assoc _ _ _ @ _).
+  <span class="nb">refine</span> (maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; g · z) HH @ _).
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">left_inverse_of_iso_is_inverse</span> {<span class="nv">C</span> : precategory} {<span class="nv">c</span> <span class="nv">c'</span> : C}
+      (<span class="nv">f</span> : c --&gt; c')
+      (<span class="nv">g</span> : c' --&gt; c) (<span class="nv">H</span>  : is_inverse_in_precat f g)
+      (<span class="nv">h</span> : c' --&gt; c) (<span class="nv">HH</span> : h · f = identity _) :
+  h = g.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (!id_right _ @ _).
+  <span class="nb">refine</span> (maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; h · z) (!is_inverse_in_precat1 H) @ _).
+  <span class="nb">refine</span> (assoc _ _ _ @ _).
+  <span class="nb">refine</span> (maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; z · g) HH @ _).
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_z_isomorphism_path</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">f</span> <span class="nv">f'</span> : x --&gt; y}
+           (<span class="nv">p</span> : f = f')
+           (<span class="nv">Hf</span> : is_z_isomorphism f)
+  : is_z_isomorphism f'.
+<span class="kn">Proof</span>.
+  use make_is_z_isomorphism.
+  - <span class="bp">exact</span> (inv_from_z_iso (_ ,, Hf)).
+  - <span class="nb">split</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> &lt;- p ;
+         <span class="nb">apply</span> (z_iso_inv_after_z_iso (_ ,, Hf))).
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> &lt;- p ;
+         <span class="nb">apply</span> (z_iso_after_z_iso_inv (_ ,, Hf))).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Core/Isos.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartA.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     - Analogue to [isweq_iso]: [is_iso_qinv]
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartA.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

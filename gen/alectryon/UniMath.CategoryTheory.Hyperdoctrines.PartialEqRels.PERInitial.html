@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PERInitial.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> The initial partial setoid</span>
+
+<span class="sd"> The category of partial setoids has a strict initial object. The idea behind its</span>
+<span class="sd"> construction is as follows: we define a partial equivalence relation on the unit type and</span>
+<span class="sd"> we identify none of the objects. In this partial setoid, none of the terms are defined,</span>
+<span class="sd"> because reflexivity never holds. As such, this gives the initial object.</span>
+
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The initial partial setoid</span>
+<span class="sd"> 2. The morphism from the initial partial setoid and its uniqueness</span>
+<span class="sd"> 3. The initial object</span>
+<span class="sd"> 4. This initial object is strict</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.StrictInitial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMorphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERCategory.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hd.
+
+<span class="kn">Section</span> <span class="nf">PartialEquivalenceRelationInitial</span>.
+  <span class="kn">Context</span> (<span class="nv">H</span> : first_order_hyperdoctrine).
+
+  <span class="sd">(** * 1. The initial partial setoid *)</span>
+  <span class="kn">Proposition</span> <span class="nf">bot_partial_setoid_axioms</span>
+    : @per_axioms H <span class="mi">𝟙</span> ⊥.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">unfold</span> per_symm_axiom.
+      hypersimplify.
+      use forall_intro.
+      use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    - <span class="nb">unfold</span> per_trans_axiom.
+      hypersimplify.
+      <span class="kp">do</span> <span class="mi">3</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      use impl_intro.
+      use weaken_right.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bot_partial_setoid</span>
+    : partial_setoid H.
+  <span class="kn">Proof</span>.
+    use make_partial_setoid.
+    - <span class="bp">exact</span> <span class="mi">𝟙</span>.
+    - use make_per.
+      + <span class="bp">exact</span> ⊥.
+      + <span class="bp">exact</span> bot_partial_setoid_axioms.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_in_bot_partial_setoid</span>
+              {<span class="nv">Γ</span> : ty H}
+              {<span class="nv">Δ</span> : form Γ}
+              {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ bot_partial_setoid}
+              (<span class="nv">p</span> : Δ ⊢ ⊥)
+    : Δ ⊢ t₁ ~ t₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> partial_setoid_formula ; <span class="nb">cbn</span>.
+    hypersimplify.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">from_eq_in_bot_partial_setoid</span>
+              {<span class="nv">Γ</span> : ty H}
+              {<span class="nv">Δ</span> : form Γ}
+              {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ bot_partial_setoid}
+              (<span class="nv">p</span> : Δ ⊢ t₁ ~ t₂)
+    : Δ ⊢ ⊥.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (hyperdoctrine_cut p _).
+    <span class="nb">unfold</span> partial_setoid_formula ; <span class="nb">cbn</span>.
+    hypersimplify.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 2. The morphism from the initial partial setoid and its uniqueness *)</span>
+  <span class="kn">Proposition</span> <span class="nf">bot_partial_setoid_morphism_laws</span>
+              (<span class="nv">X</span> : partial_setoid H)
+    : @partial_setoid_morphism_laws H bot_partial_setoid X ⊥.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">unfold</span> partial_setoid_mor_dom_defined_law.
+      <span class="nb">cbn</span>.
+      hypersimplify.
+      <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      use false_elim.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    - <span class="nb">unfold</span> partial_setoid_mor_cod_defined_law.
+      <span class="nb">cbn</span>.
+      hypersimplify.
+      <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      use false_elim.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    - <span class="nb">unfold</span> partial_setoid_mor_eq_defined_law.
+      <span class="nb">cbn</span>.
+      hypersimplify.
+      <span class="kp">do</span> <span class="mi">4</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      <span class="kp">do</span> <span class="mi">2</span> use impl_intro.
+      use weaken_right.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    - <span class="nb">unfold</span> partial_setoid_mor_unique_im_law.
+      <span class="nb">cbn</span>.
+      hypersimplify.
+      <span class="kp">do</span> <span class="mi">3</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      use false_elim.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    - <span class="nb">unfold</span> partial_setoid_mor_hom_exists_law.
+      <span class="nb">cbn</span>.
+      hypersimplify.
+      use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      <span class="nb">unfold</span> partial_setoid_formula ; <span class="nb">cbn</span>.
+      hypersimplify.
+      use false_elim.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bot_partial_setoid_morphism</span>
+             (<span class="nv">X</span> : partial_setoid H)
+    : partial_setoid_morphism bot_partial_setoid X.
+  <span class="kn">Proof</span>.
+    use make_partial_setoid_morphism.
+    - <span class="bp">exact</span> ⊥.
+    - <span class="bp">exact</span> (bot_partial_setoid_morphism_laws X).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">bot_partial_setoid_morphism_eq</span>
+              {<span class="nv">X</span> : partial_setoid H}
+              (<span class="nv">f</span> : partial_setoid_morphism bot_partial_setoid X)
+    : f = bot_partial_setoid_morphism X.
+  <span class="kn">Proof</span>.
+    use eq_partial_setoid_morphism ; <span class="nb">cbn</span>.
+    - <span class="nb">refine</span> (hyperdoctrine_cut
+                (partial_setoid_mor_dom_defined f (π₁ (tm_var _)) (π₂ (tm_var _)) _)
+                _).
+      + <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> &lt;- hyperdoctrine_pair_eta.
+        <span class="nb">rewrite</span> hyperdoctrine_id_subst.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + <span class="bp">exact</span> (from_eq_in_bot_partial_setoid (hyperdoctrine_hyp _)).
+    - use false_elim.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 3. The initial object *)</span>
+  <span class="kn">Definition</span> <span class="nf">initial_partial_setoid</span>
+    : Initial (category_of_partial_setoids H).
+  <span class="kn">Proof</span>.
+    use make_Initial.
+    - <span class="bp">exact</span> bot_partial_setoid.
+    - <span class="nb">intros</span> X.
+      use make_iscontr.
+      + <span class="bp">exact</span> (bot_partial_setoid_morphism X).
+      + <span class="bp">exact</span> bot_partial_setoid_morphism_eq.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 4. This initial object is strict *)</span>
+  <span class="kn">Proposition</span> <span class="nf">bot_partial_setoid_morphism_eq_id</span>
+              {<span class="nv">X</span> : partial_setoid H}
+              (<span class="nv">φ</span> : partial_setoid_morphism X bot_partial_setoid)
+    : partial_setoid_comp_morphism φ (bot_partial_setoid_morphism X)
+      =
+      id_partial_setoid_morphism X.
+  <span class="kn">Proof</span>.
+    use eq_partial_setoid_morphism.
+    - <span class="nb">cbn</span>.
+      use (exists_elim (hyperdoctrine_hyp _)).
+      use weaken_right.
+      hypersimplify_form.
+      use false_elim.
+      use weaken_right.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    - <span class="nb">cbn</span>.
+      use exists_intro.
+      + <span class="bp">exact</span> !!.
+      + hypersimplify.
+        use false_elim.
+        <span class="nb">pose</span> (x₁ := π₁ (tm_var (X ×h X))).
+        <span class="nb">pose</span> (x₂ := π₂ (tm_var (X ×h X))).
+        <span class="nb">fold</span> x₁ x₂.
+        use (exists_elim (partial_setoid_mor_hom_exists φ _)).
+        * <span class="bp">exact</span> x₁.
+        * <span class="bp">exact</span> (partial_setoid_refl_l (hyperdoctrine_hyp _)).
+        * <span class="nb">unfold</span> x₁, x₂ ; <span class="nb">clear</span> x₁ x₂.
+          hypersimplify.
+          <span class="nb">cbn</span>.
+          <span class="nb">pose</span> (x₁ := π₁ (π₁ (tm_var ((X ×h X) ×h <span class="mi">𝟙</span>)))).
+          <span class="nb">pose</span> (x₂ := π₂ (π₁ (tm_var ((X ×h X) ×h <span class="mi">𝟙</span>)))).
+          <span class="nb">pose</span> (y := π₂ (tm_var ((X ×h X) ×h <span class="mi">𝟙</span>))).
+          <span class="nb">fold</span> x₁ x₂ y.
+          use from_eq_in_bot_partial_setoid.
+          ** <span class="bp">exact</span> y.
+          ** <span class="bp">exact</span> y.
+          ** use (partial_setoid_mor_cod_defined φ x₁ y).
+             use weaken_right.
+             <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_strict_initial_parital_setoid</span>
+    : is_strict_initial initial_partial_setoid.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X φ.
+    use make_is_z_isomorphism.
+    - <span class="bp">exact</span> (bot_partial_setoid_morphism X).
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ;
+         [ <span class="nb">apply</span> bot_partial_setoid_morphism_eq_id
+         | <span class="nb">apply</span> InitialArrowEq ]).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PartialEquivalenceRelationInitial</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/PartialEqRels/PERInitial.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. This initial object is strict
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Limits.Initial.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

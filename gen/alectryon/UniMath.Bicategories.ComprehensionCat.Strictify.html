@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Strictify.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Strictification of DFL comprehension categories with a universe</span>
+
+<span class="sd"> In other files, it is shown how one can strictify comprehension categories with a universe.</span>
+<span class="sd"> That development is based on comprehension categories that are not necessarily full, and</span>
+<span class="sd"> the way the type formers are defined is similar to the definitions given by Lumsdaine and</span>
+<span class="sd"> Warren. However, this formulation is different from what is used for DFL comprehension</span>
+<span class="sd"> categories, since for those we interpret quantifiers as adjoints, which is valid since</span>
+<span class="sd"> these comprehension categories are full.</span>
+
+<span class="sd"> In this file, we translate the strictification construction to DFL comprehension categories</span>
+<span class="sd"> with a universe. There are essentially two parts to this file. The first part is mostly</span>
+<span class="sd"> administrative in nature: since the notion of comprehension category is formulated slightly</span>
+<span class="sd"> differently, infrastructure is necessary to move between these two notions. Note that these</span>
+<span class="sd"> differences are very minor, as they only involve the terminal object. The second part does</span>
+<span class="sd"> the same, but for universes in DFL comprehension categories. In the end, we can directly</span>
+<span class="sd"> instantiate the strictification construction.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "The local universes model: An overlooked coherence construction for dependent type</span>
+<span class="sd">   theories" by Lumsdaine and Warren</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. From DFL comprehension categories to comprehension categories</span>
+<span class="sd"> 1.1. The basic construction</span>
+<span class="sd"> 1.2. Operations on terms</span>
+<span class="sd"> 1.3. Type formers</span>
+<span class="sd"> 2. Universes in comprehension categories</span>
+<span class="sd"> 2.1. Construction of the universe</span>
+<span class="sd"> 2.2. The unit is in the universe</span>
+<span class="sd"> 2.3. Closure under ∑-types</span>
+<span class="sd"> 2.4. Closure under ∏-types</span>
+<span class="sd"> 3. Strictification</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require</span> UniMath.CategoryTheory.ComprehensionCats.CompCats.
+<span class="kn">Require</span> UniMath.CategoryTheory.ComprehensionCats.CompCatTypeFormers.
+<span class="kn">Require</span> UniMath.CategoryTheory.ComprehensionCats.CompCatUniverse.
+<span class="kn">Require</span> UniMath.CategoryTheory.ComprehensionCats.CwfFromCompCatWithUniv.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoriesWithFamilies.CatsWithFams.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.SigmaTypeNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.PiTypeNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.TypeFormers.PiTypes.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Sigma.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Pi.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="sd">(** * 1. From DFL comprehension categories to comprehension categories *)</span>
+<span class="sd">(**</span>
+<span class="sd">   Note: there are two definitions of `comp_cat`:</span>
+<span class="sd">   1. one is given in `Bicategories.ComprehensionCat.BicatOfCompCat`</span>
+<span class="sd">   2. one is given in `CategoryTheory.ComprehensionCats.CompCats`</span>
+<span class="sd">   Here we give a map that goes from the first to the second notion</span>
+<span class="sd"> *)</span>
+
+<span class="sd">(** * 1.1. The basic construction *)</span>
+<span class="kn">Definition</span> <span class="nf">comp_cat_to_cat_comp_cat</span>
+           (<span class="nv">C</span> : comp_cat)
+  : CompCats.comp_cat
+  := _ ,, pr12 (comp_cat_to_comprehension_cat_structure C).
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_to_cat_comp_cat_terminal</span>
+           (<span class="nv">C</span> : comp_cat)
+  : CompCatUniverse.comp_cat_with_terminal
+  := comp_cat_to_cat_comp_cat C ,, [].
+
+<span class="sd">(** * 1.2. Operations on terms *)</span>
+<span class="kn">Proposition</span> <span class="nf">comp_cat_to_cat_comp_cat_coerce</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">A</span> <span class="nv">B</span> : ty Γ}
+            (<span class="nv">f</span> : A &lt;: B)
+            (<span class="nv">t</span> : tm Γ A)
+  : CompCats.coerce_comp_cat_tm (C := comp_cat_to_cat_comp_cat C) f t = t ↑ f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_to_cat_comp_cat_subst</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            {<span class="nv">A</span> : ty Δ}
+            (<span class="nv">t</span> : tm Δ A)
+  : CompCats.comp_cat_subst_tm (C := comp_cat_to_cat_comp_cat C) s t = t [[ s ]]tm.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_to_cat_comp_cat_reindex</span>
+            {<span class="nv">C</span> : comp_cat}
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            {<span class="nv">A</span> <span class="nv">B</span> : ty Δ}
+            (<span class="nv">f</span> : z_iso (C := fiber_category _ _) A B)
+  : pr1 (CompCats.comp_cat_reindex_iso (C := comp_cat_to_cat_comp_cat C) s f)
+    =
+    coerce_subst_ty s (pr1 f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 1.3. Type formers *)</span>
+<span class="sd">(**</span>
+<span class="sd">   In full comprehension categories, type formers are interpreted as adjoints of weakening.</span>
+<span class="sd">   However, for arbitrary comprehension categories, one uses a different approach, and</span>
+<span class="sd">   here we collect the facts that show that interpretation of type formers in arbitrary</span>
+<span class="sd">   comprehension categories generalises the way type formers are interpreted in full</span>
+<span class="sd">   comprehension categories</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">comp_cat_to_comp_cat_unit</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat)
+  : CompCatTypeFormers.comp_cat_unit (comp_cat_to_cat_comp_cat C).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span>, dfl_full_comp_cat_unit (C := C) Γ).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span>, dfl_unit_tt (C := C) Γ).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">t</span>, dfl_unit_unique (C := C) t).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">Δ</span> <span class="nv">s</span>, dfl_comp_cat_unit_subst (C := C) s).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_to_comp_cat_sigma</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat)
+  : CompCatTypeFormers.comp_cat_sigma (comp_cat_to_cat_comp_cat C).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span>, dfl_sigma_type (C := C) A B).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span>, comp_cat_dep_sum_pair (C := C) A B).
+  - <span class="nb">intros</span> Γ A B.
+    <span class="bp">exact</span> (comp_cat_dep_sum_pair_comm (C := C) A B).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span>, comp_cat_dep_sum_pr (C := C) A B).
+  - <span class="nb">intros</span> Γ A B.
+    <span class="bp">exact</span> (comp_cat_dep_sum_beta (C := C) A B).
+  - <span class="nb">intros</span> Γ A B.
+    <span class="bp">exact</span> (comp_cat_dep_sum_eta (C := C) A B).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">Δ</span> <span class="nv">s</span> <span class="nv">A</span> <span class="nv">B</span>, z_iso_inv (comp_cat_dep_sum_subst (C := C) A B s)).
+  - <span class="nb">intros</span> Γ Δ s A B.
+    <span class="bp">exact</span> (comp_cat_dep_sum_pair_subst (C := C) A B s).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_cat_to_comp_cat_pi</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat)
+           (<span class="nv">P</span> : comp_cat_dependent_prod C)
+  : CompCatTypeFormers.comp_cat_pi (comp_cat_to_cat_comp_cat C).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span>, dep_prod_cc P A B).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span> <span class="nv">t</span>, comp_cat_pi_lam P t).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">A</span> <span class="nv">B</span> <span class="nv">f</span>, comp_cat_pi_app P f).
+  - <span class="nb">intros</span> Γ A B f.
+    <span class="bp">exact</span> (comp_cat_pi_beta P f).
+  - <span class="nb">intros</span> Γ A B t.
+    <span class="bp">exact</span> (comp_cat_pi_eta P t).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">Δ</span> <span class="nv">s</span> <span class="nv">A</span> <span class="nv">B</span>, comp_cat_pi_subst P A B s).
+  - <span class="nb">intros</span> Γ Δ s A B t.
+    <span class="bp">exact</span> (!(comp_cat_pi_lam_subst P s t)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Universes in comprehension categories *)</span>
+
+<span class="sd">(** * 2.1. Construction of the universe *)</span>
+<span class="kn">Definition</span> <span class="nf">dfl_comp_cat_univ_to_comp_cat_universe_data</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat_with_univ)
+  : CompCatUniverse.comp_cat_universe_data (comp_cat_to_cat_comp_cat_terminal C).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _).
+  - <span class="bp">exact</span> (dfl_full_comp_cat_univ_ob C).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">t</span>, comp_cat_univ_el (dfl_full_comp_cat_el C) t).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">Δ</span> <span class="nv">s</span> <span class="nv">t</span>, comp_cat_univ_el_stable (dfl_full_comp_cat_el C) s t).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dfl_comp_cat_univ_to_comp_cat_universe_on_eq</span>
+            {<span class="nv">C</span> : dfl_full_comp_cat_with_univ}
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ (dfl_full_comp_cat_univ Γ)}
+            (<span class="nv">p</span> : t₁ = t₂)
+  : CompCatUniverse.el_map (dfl_comp_cat_univ_to_comp_cat_universe_data C) _ p
+    =
+    comp_cat_el_map_on_eq (dfl_full_comp_cat_el C) p.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">dfl_comp_cat_univ_to_comp_cat_universe_coherent</span>
+            (<span class="nv">C</span> : dfl_full_comp_cat_with_univ)
+  : CompCatUniverse.comp_cat_universe_coherent
+      (dfl_comp_cat_univ_to_comp_cat_universe_data C).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> Γ t.
+    <span class="nb">rewrite</span> dfl_comp_cat_univ_to_comp_cat_universe_on_eq.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (comp_cat_univ_el_stable_id_coh_alt (dfl_full_comp_cat_el C) t).
+    }
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (z_iso_inv_after_z_iso (id_subst_ty_iso _)).
+      }
+      <span class="bp">exact</span> (id_left _).
+    }
+    etrans.
+    {
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (comp_cat_el_map_on_concat (dfl_full_comp_cat_el C)).
+    }
+    <span class="nb">apply</span> (comp_cat_el_map_on_idpath (dfl_full_comp_cat_el C)).
+  - <span class="nb">intros</span> Γ₁ Γ₂ Γ₃ s₁ s₂ t.
+    <span class="nb">rewrite</span> dfl_comp_cat_univ_to_comp_cat_universe_on_eq.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (comp_cat_univ_el_stable_comp_coh (dfl_full_comp_cat_el C) s₂ s₁ t).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (comp_cat_el_map_on_concat (dfl_full_comp_cat_el C)).
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (comp_cat_to_cat_comp_cat_reindex _ _).
+    }
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!(id_right _) @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> (comp_cat_el_map_on_idpath (dfl_full_comp_cat_el C)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dfl_comp_cat_univ_to_comp_cat_universe</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat_with_univ)
+  : CompCatUniverse.comp_cat_universe (comp_cat_to_cat_comp_cat_terminal C).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (dfl_comp_cat_univ_to_comp_cat_universe_data C).
+  - <span class="bp">exact</span> (dfl_comp_cat_univ_to_comp_cat_universe_coherent C).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dfl_comp_cat_univ_to_comp_cat_with_universe</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat_with_univ)
+  : CompCatUniverse.comp_cat_with_universe
+  := _ ,,dfl_comp_cat_univ_to_comp_cat_universe C.
+
+<span class="kn">Proposition</span> <span class="nf">dfl_comp_cat_univ_to_comp_cat_with_universe_sub_univ_iso</span>
+            {<span class="nv">C</span> : dfl_full_comp_cat_with_univ}
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+  : CompCats.coe_from_z_iso
+      (CompCatUniverse.sub_comp_cat_univ_iso
+         (C := comp_cat_to_cat_comp_cat_terminal C)
+         (dfl_full_comp_cat_univ_ob C)
+         s)
+    =
+    sub_dfl_comp_cat_univ s.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2.2. The unit is in the universe *)</span>
+<span class="kn">Definition</span> <span class="nf">dfl_comp_cat_univ_to_comp_cat_universe_closed_unit</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat_with_univ)
+           (<span class="nv">un</span> : unit_in_comp_cat_univ C)
+  : CompCatUniverse.comp_cat_universe_closed_unit
+      (dfl_comp_cat_univ_to_comp_cat_with_universe C)
+      (comp_cat_to_comp_cat_unit _).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (type_in_comp_cat_univ_code un).
+  - <span class="bp">exact</span> (type_in_comp_cat_univ_z_iso_fiber un).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2.3. Closure under ∑-types *)</span>
+
+<span class="sd">(**</span>
+<span class="sd">   Note: for ∑-types we provide a version where we only require stability for the code.</span>
+<span class="sd">   In case, one is only interested in the strictification, this version is sufficient,</span>
+<span class="sd">   because then one has to verify less coherences.</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">ClosedSigma</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : dfl_full_comp_cat_with_univ)
+          (<span class="nv">sig</span> : sigma_in_comp_cat_univ C)
+          (<span class="nv">p</span> : sigma_in_comp_cat_univ_code_is_stable C sig).
+
+  <span class="kn">Definition</span> <span class="nf">dfl_comp_cat_univ_to_comp_cat_universe_closed_sigma_form</span>
+    : CompCatUniverse.univ_sigma_form
+        (dfl_comp_cat_univ_to_comp_cat_with_universe C)
+    := <span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">a</span> <span class="nv">b</span>, sigma_in_comp_cat_univ_code sig a b.
+
+  <span class="kn">Definition</span> <span class="nf">dfl_comp_cat_univ_to_comp_cat_universe_closed_sigma_iso</span>
+    : CompCatUniverse.univ_sigma_el_iso
+        (dfl_comp_cat_univ_to_comp_cat_with_universe C)
+        (comp_cat_to_comp_cat_sigma (pr1 C))
+        dfl_comp_cat_univ_to_comp_cat_universe_closed_sigma_form
+    := <span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">a</span> <span class="nv">b</span>, sigma_in_comp_cat_univ_z_iso_fiber sig a b.
+
+  <span class="kn">Definition</span> <span class="nf">dfl_comp_cat_univ_to_comp_cat_universe_closed_sigma_law</span>
+    : CompCatUniverse.univ_sigma_subst_law
+        (dfl_comp_cat_univ_to_comp_cat_with_universe C)
+        dfl_comp_cat_univ_to_comp_cat_universe_closed_sigma_form.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Γ Δ s a b.
+    <span class="nb">refine</span> (p _ _ s a b @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> comp_cat_to_cat_comp_cat_coerce.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> comp_cat_to_cat_comp_cat_subst.
+    }
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ↑ z) _).
+    <span class="bp">exact</span> (dfl_comp_cat_univ_to_comp_cat_with_universe_sub_univ_iso _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dfl_comp_cat_univ_to_comp_cat_universe_closed_sigma_code</span>
+    : CompCatUniverse.comp_cat_universe_closed_sigma
+        (dfl_comp_cat_univ_to_comp_cat_with_universe C)
+        (comp_cat_to_comp_cat_sigma _).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> dfl_comp_cat_univ_to_comp_cat_universe_closed_sigma_form.
+    - <span class="bp">exact</span> dfl_comp_cat_univ_to_comp_cat_universe_closed_sigma_iso.
+    - <span class="bp">exact</span> dfl_comp_cat_univ_to_comp_cat_universe_closed_sigma_law.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ClosedSigma</span>.
+
+<span class="kn">Definition</span> <span class="nf">dfl_comp_cat_univ_to_comp_cat_universe_closed_sigma</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat_with_univ)
+           (<span class="nv">sig</span> : stable_sigma_in_comp_cat_univ C)
+  : CompCatUniverse.comp_cat_universe_closed_sigma
+      (dfl_comp_cat_univ_to_comp_cat_with_universe C)
+      (comp_cat_to_comp_cat_sigma _).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (dfl_comp_cat_univ_to_comp_cat_universe_closed_sigma_code C sig _).
+  <span class="nb">intros</span> Γ Δ s a b.
+  <span class="bp">exact</span> (stable_sigma_in_comp_cat_univ_code_stable sig s a b).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2.4. Closure under ∏-types *)</span>
+<span class="kn">Section</span> <span class="nf">ClosedPi</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : dfl_full_comp_cat_with_univ)
+          (<span class="nv">P</span> : comp_cat_dependent_prod C)
+          (<span class="nv">pi</span> : stable_pi_in_comp_cat_univ C P).
+
+  <span class="kn">Definition</span> <span class="nf">dfl_comp_cat_univ_to_comp_cat_universe_closed_pi_form</span>
+    : CompCatUniverse.univ_pi_form
+        (dfl_comp_cat_univ_to_comp_cat_with_universe C)
+    := <span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">a</span> <span class="nv">b</span>, pi_in_comp_cat_univ_code pi a b.
+
+  <span class="kn">Definition</span> <span class="nf">dfl_comp_cat_univ_to_comp_cat_universe_closed_pi_iso</span>
+    : CompCatUniverse.univ_pi_el_iso
+        (dfl_comp_cat_univ_to_comp_cat_with_universe C)
+        (comp_cat_to_comp_cat_pi (pr1 C) P)
+        dfl_comp_cat_univ_to_comp_cat_universe_closed_pi_form
+    := <span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">a</span> <span class="nv">b</span>, pi_in_comp_cat_univ_z_iso_fiber pi a b.
+
+  <span class="kn">Definition</span> <span class="nf">dfl_comp_cat_univ_to_comp_cat_universe_closed_pi_law</span>
+    : CompCatUniverse.univ_pi_subst_law
+        (dfl_comp_cat_univ_to_comp_cat_with_universe C)
+        dfl_comp_cat_univ_to_comp_cat_universe_closed_pi_form.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Γ Δ s a b.
+    <span class="nb">refine</span> (stable_pi_in_comp_cat_univ_code_stable pi s a b @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> comp_cat_to_cat_comp_cat_coerce.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> comp_cat_to_cat_comp_cat_subst.
+    }
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ↑ z) _).
+    <span class="bp">exact</span> (dfl_comp_cat_univ_to_comp_cat_with_universe_sub_univ_iso _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dfl_comp_cat_univ_to_comp_cat_universe_closed_pi</span>
+    : CompCatUniverse.comp_cat_universe_closed_pi
+        (dfl_comp_cat_univ_to_comp_cat_with_universe C)
+        (comp_cat_to_comp_cat_pi _ P).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> dfl_comp_cat_univ_to_comp_cat_universe_closed_pi_form.
+    - <span class="bp">exact</span> dfl_comp_cat_univ_to_comp_cat_universe_closed_pi_iso.
+    - <span class="bp">exact</span> dfl_comp_cat_univ_to_comp_cat_universe_closed_pi_law.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ClosedPi</span>.
+
+<span class="sd">(** * 3. Strictification *)</span>
+<span class="kn">Definition</span> <span class="nf">strictify_dfl_full_comp_cat_univ_code</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat_with_univ)
+           (<span class="nv">un</span> : unit_in_comp_cat_univ C)
+           (<span class="nv">sig</span> : sigma_in_comp_cat_univ C)
+           (<span class="nv">p</span> : sigma_in_comp_cat_univ_code_is_stable C sig)
+  : cwf
+  := CwfFromCompCatWithUniv.cwf_from_comp_cat_with_u
+       _
+       (dfl_comp_cat_univ_to_comp_cat_universe_closed_sigma_code C sig p)
+       _
+       (dfl_comp_cat_univ_to_comp_cat_universe_closed_unit C un).
+
+<span class="kn">Definition</span> <span class="nf">strictify_dfl_full_comp_cat_univ</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat_with_univ)
+           (<span class="nv">un</span> : unit_in_comp_cat_univ C)
+           (<span class="nv">sig</span> : stable_sigma_in_comp_cat_univ C)
+  : cwf
+  := CwfFromCompCatWithUniv.cwf_from_comp_cat_with_u
+       _
+       (dfl_comp_cat_univ_to_comp_cat_universe_closed_sigma C sig)
+       _
+       (dfl_comp_cat_univ_to_comp_cat_universe_closed_unit C un).
+
+<span class="sd">(**</span>
+<span class="sd">   We check that the contexts, types, and terms in the strictification are what we expect.</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">SanityChecks</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : dfl_full_comp_cat_with_univ)
+          (<span class="nv">un</span> : unit_in_comp_cat_univ C)
+          (<span class="nv">sig</span> : stable_sigma_in_comp_cat_univ C).
+
+  <span class="kn">Let</span> <span class="nf">CC</span> : cwf := strictify_dfl_full_comp_cat_univ C un sig.
+
+  <span class="sd">(** Contexts *)</span>
+  <span class="kn">Goal</span> (CC : UU) = tm [] (dfl_full_comp_cat_univ (C := C) []).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Types *)</span>
+  <span class="kn">Goal</span> ∏ (Γ : tm [] (dfl_full_comp_cat_univ (C := C) [])),
+       (cwf_ty (C := CC) Γ : UU)
+       =
+       tm ([] &amp; comp_cat_univ_el (dfl_full_comp_cat_el C) Γ) (dfl_full_comp_cat_univ _).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> Γ.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Terms *)</span>
+  <span class="kn">Goal</span> ∏ (Γ : tm [] (dfl_full_comp_cat_univ (C := C) []))
+         (A : tm ([] &amp; comp_cat_univ_el (dfl_full_comp_cat_el C) Γ)
+                 (dfl_full_comp_cat_univ _)),
+       (cwf_tm (C := CC) A : UU)
+       =
+       tm _ (comp_cat_univ_el (dfl_full_comp_cat_el C) A).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Γ A.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">SanityChecks</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Strictify.v</tt>, line 37)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Strictification
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

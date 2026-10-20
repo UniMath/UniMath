@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>coslicecat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Coslice categories</span>
+
+<span class="sd">Author: Langston Barrett (@siddharthist), March 2018</span>
+<span class="sd">*)</span>
+
+<span class="sd">(** ** Contents:</span>
+
+<span class="sd">- Definition of coslice categories, x/C</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartA.
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="c">(* Require Import UniMath.Foundations.Propositions. *)</span>
+<span class="c">(* Require Import UniMath.Foundations.Sets. *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="sd">(** for second construction: *)</span>
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Definition of coslice categories *)</span>
+
+<span class="sd">(** Given a category C and x : obj C. The coslice category x/C is given by:</span>
+
+<span class="sd">  - obj x/C: pairs (a,f) where f : x --&gt; a</span>
+<span class="sd">  - morphisms (a,f) --&gt; (b,g): morphism h : a --&gt; b with</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">       x</span>
+<span class="sd">       | \</span>
+<span class="sd">       |  \</span>
+<span class="sd">     f |   \  g</span>
+<span class="sd">       v    \</span>
+<span class="sd">       a --&gt; b</span>
+<span class="sd">          h</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd">    where f · h = g</span>
+
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">coslice_cat_def</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> : category) (<span class="nv">x</span> : C).
+
+<span class="sd">(** Accessor functions *)</span>
+<span class="kn">Definition</span> <span class="nf">coslicecat_ob</span> := ∑ a, C⟦x,a⟧.
+<span class="kn">Definition</span> <span class="nf">coslicecat_mor</span> (<span class="nv">f</span> <span class="nv">g</span> : coslicecat_ob) := ∑ h, pr2 f · h = pr2 g.
+<span class="kn">Definition</span> <span class="nf">coslicecat_ob_object</span> (<span class="nv">f</span> : coslicecat_ob) : ob C := pr1 f.
+<span class="kn">Definition</span> <span class="nf">coslicecat_ob_morphism</span> (<span class="nv">f</span> : coslicecat_ob) : C⟦x, coslicecat_ob_object f⟧ := pr2 f.
+<span class="kn">Definition</span> <span class="nf">coslicecat_mor_morphism</span> {<span class="nv">f</span> <span class="nv">g</span> : coslicecat_ob} (<span class="nv">h</span> : coslicecat_mor f g) :
+  C⟦coslicecat_ob_object f, coslicecat_ob_object g⟧ := pr1 h.
+<span class="kn">Definition</span> <span class="nf">coslicecat_mor_comm</span> {<span class="nv">f</span> <span class="nv">g</span> : coslicecat_ob} (<span class="nv">h</span> : coslicecat_mor f g) :
+  (coslicecat_ob_morphism f) · (coslicecat_mor_morphism h) =
+  (coslicecat_ob_morphism g) := pr2 h.
+
+<span class="sd">(** Definitions *)</span>
+<span class="kn">Definition</span> <span class="nf">coslice_precat_ob_mor</span> : precategory_ob_mor :=
+  (coslicecat_ob,,coslicecat_mor).
+
+<span class="kn">Definition</span> <span class="nf">id_coslice_precat</span> (<span class="nv">c</span> : coslice_precat_ob_mor) : c --&gt; c :=
+  tpair _ _ (id_right (pr2 c)).
+
+<span class="kn">Definition</span> <span class="nf">comp_coslice_precat</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : coslice_precat_ob_mor}
+           (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c) : a --&gt; c.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (coslicecat_mor_morphism f · coslicecat_mor_morphism g).
+  - <span class="kp">abstract</span> (<span class="nb">refine</span> (assoc _ _ _ @ _);
+              <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, f · _) (coslicecat_mor_comm f) @ _);
+              <span class="nb">refine</span> (coslicecat_mor_comm g)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">coslice_precat_data</span> : precategory_data :=
+  make_precategory_data _ id_coslice_precat (@comp_coslice_precat).
+
+<span class="kn">Lemma</span> <span class="nf">is_precategory_coslice_precat_data</span> :
+  is_precategory coslice_precat_data.
+<span class="kn">Proof</span>.
+  use make_is_precategory; <span class="nb">intros</span>; <span class="nb">unfold</span> comp_coslice_precat;
+    <span class="nb">cbn</span>; <span class="nb">apply</span> subtypePairEquality.
+  * <span class="nb">intro</span>; <span class="nb">apply</span> C.
+  * <span class="nb">apply</span> id_left.
+  * <span class="nb">intro</span>; <span class="nb">apply</span> C.
+  * <span class="nb">apply</span> id_right.
+  * <span class="nb">intro</span>; <span class="nb">apply</span> C.
+  * <span class="nb">apply</span> assoc.
+  * <span class="nb">intro</span>; <span class="nb">apply</span> C.
+  * <span class="nb">apply</span> assoc'.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** that the previous Lemma is defined was done on purpose in 2018 - is it still appropriate? *)</span>
+
+<span class="kn">Definition</span> <span class="nf">coslice_precat</span> : precategory :=
+  (_,,is_precategory_coslice_precat_data).
+
+<span class="kn">Lemma</span> <span class="nf">has_homsets_coslice_precat</span> : has_homsets (coslice_precat).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b.
+  <span class="nb">induction</span> a <span class="k">as</span> [a f]; <span class="nb">induction</span> b <span class="k">as</span> [b g]; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> (isofhleveltotal2 <span class="mi">2</span>); [ <span class="nb">apply</span> C | <span class="nb">intro</span> h].
+  <span class="nb">apply</span> isasetaprop; <span class="nb">apply</span> C.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">coslice_cat</span> : category := make_category _ has_homsets_coslice_precat.
+
+<span class="kn">End</span> <span class="nf">coslice_cat_def</span>.
+
+<span class="kn">Section</span> <span class="nf">coslice_cat_displayed</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> : category) (<span class="nv">x</span> : C).
+
+
+<span class="kn">Definition</span> <span class="nf">coslice_cat_disp_ob_mor</span> : disp_cat_ob_mor C.
+<span class="kn">Proof</span>.
+  use make_disp_cat_ob_mor.
+  - <span class="nb">intro</span> a. <span class="bp">exact</span> (x --&gt; a).
+  - <span class="nb">intros</span> a b f g h. <span class="bp">exact</span> (f · h = g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">coslice_cat_disp_id_comp</span> : disp_cat_id_comp C coslice_cat_disp_ob_mor.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> a f.
+    <span class="nb">apply</span> id_right.
+  - <span class="nb">intros</span> a1 a2 a3 h h' f1 f2 f3 Hyph Hyph'.
+    etrans.
+    { <span class="nb">apply</span> assoc. }
+    etrans.
+    { <span class="nb">apply</span> cancel_postcomposition, Hyph. }
+    <span class="bp">exact</span> Hyph'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">coslice_cat_disp_data</span> : disp_cat_data C :=
+  coslice_cat_disp_ob_mor ,, coslice_cat_disp_id_comp.
+
+<span class="kn">Lemma</span> <span class="nf">coslice_cat_disp_locally_prop</span> : locally_propositional coslice_cat_disp_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>; <span class="nb">intros</span>; <span class="nb">apply</span> C.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">coslice_cat_disp</span> : disp_cat C.
+<span class="kn">Proof</span>.
+  use make_disp_cat_locally_prop.
+  - <span class="bp">exact</span> coslice_cat_disp_data.
+  - <span class="bp">exact</span> coslice_cat_disp_locally_prop.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">coslice_cat_total</span> : category := total_category coslice_cat_disp.
+
+<span class="kn">End</span> <span class="nf">coslice_cat_displayed</span>.
+
+<span class="sd">(** ** Isos in coslice categories *)</span>
+
+<span class="kn">Section</span> <span class="nf">Isos</span>.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"x / C"</span> := (coslice_cat_total C x).
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+  <span class="kn">Context</span> (<span class="nv">x</span> : C).
+
+  <span class="kn">Lemma</span> <span class="nf">eq_z_iso_coslicecat</span> (<span class="nv">af</span> <span class="nv">bg</span> : x / C) (<span class="nv">f</span> <span class="nv">g</span> : z_iso af bg) : pr1 f = pr1 g -&gt; f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> f <span class="k">as</span> [f fP]; <span class="nb">induction</span> g <span class="k">as</span> [g gP]; <span class="nb">intro</span> eq.
+    use (subtypePairEquality _ eq).
+    <span class="nb">intro</span>; <span class="nb">apply</span> isaprop_is_z_isomorphism.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** It suffices that the underlying morphism is an iso to get an iso in</span>
+<span class="sd">      the coslice category *)</span>
+  <span class="kn">Lemma</span> <span class="nf">z_iso_to_coslice_precat_z_iso</span> (<span class="nv">af</span> <span class="nv">bg</span> : x / C) (<span class="nv">h</span> : af --&gt; bg)
+    (<span class="nv">isoh</span> : is_z_isomorphism (pr1 h)) : is_z_isomorphism h.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> isoh <span class="k">as</span> [hinv [h1 h2]].
+    use ((hinv ,, _) ,, _ ,, _);
+      <span class="nb">simpl</span>.
+    - <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- id_right,
+        &lt;- h1,
+        assoc,
+        (pr2 h).
+    - <span class="nb">apply</span> subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">apply</span> h1.
+    - <span class="nb">apply</span> subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">apply</span> h2.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** An iso in the coslice category gives an iso in the base category *)</span>
+  <span class="kn">Lemma</span> <span class="nf">coslice_precat_z_iso_to_z_iso</span>  (<span class="nv">af</span> <span class="nv">bg</span> : x / C) (<span class="nv">h</span> : af --&gt; bg)
+    (<span class="nv">p</span> : is_z_isomorphism h) : is_z_isomorphism (pr1 h).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p <span class="k">as</span> [hinv [h1 h2]].
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">hinv</span>); <span class="nb">split</span>.
+    - <span class="nb">apply</span> (maponpaths pr1 h1).
+    - <span class="nb">apply</span> (maponpaths pr1 h2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weq_z_iso</span> (<span class="nv">af</span> <span class="nv">bg</span> : x / C) :
+    z_iso af bg ≃ ∑ h : z_iso (pr1 af) (pr1 bg), pr2 af · h = pr2 bg.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (weqcomp (weqtotal2asstor _ _)).
+    <span class="nb">apply</span> invweq.
+    <span class="nb">apply</span> (weqcomp (weqtotal2asstor _ _)).
+    <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> h; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> (weqcomp (weqdirprodcomm _ _)).
+    <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> p.
+    <span class="nb">apply</span> weqimplimpl.
+    - <span class="nb">intro</span> hp; <span class="nb">apply</span> z_iso_to_coslice_precat_z_iso; <span class="bp">assumption</span>.
+    - <span class="nb">intro</span> hp; <span class="nb">apply</span> (coslice_precat_z_iso_to_z_iso _ _ _ hp).
+    - <span class="nb">apply</span> isaprop_is_z_isomorphism.
+    - <span class="nb">apply</span> (isaprop_is_z_isomorphism(C:= x / C)).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Isos</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/coslicecat.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartA.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartA.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.PartD.
+  &gt; (* Require Import UniMath.Foundations.Propositions. *)
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

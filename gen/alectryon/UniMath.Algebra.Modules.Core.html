@@ -1,0 +1,604 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Core.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">  Ring Modules</span>
+
+<span class="sd">  This file defines the small type of R-modules over a ring R as a ring homomorphism from R to the</span>
+<span class="sd">  ring of endomorphisms of an abelian group (in other words, a ring action on the abelian group).</span>
+<span class="sd">  Accessors and a constructor are given to and from the more common axiomatic definition.</span>
+<span class="sd">  Because a right module is equivalent to a left module over the opposite ring, we restrict</span>
+<span class="sd">  ourselves to left modules in this file.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. Modules [module]</span>
+<span class="sd">  1.1. A module constructor that takes a left action satisfying four axioms [mult_to_module]</span>
+<span class="sd">  2. R-module morphisms</span>
+<span class="sd">  2.1 Linearity [islinear] [linearfun]</span>
+<span class="sd">  2.2 Module morphisms [modulefun]</span>
+<span class="sd">  2.3 R-module homomorphisms form an R-module [modulehommodule]</span>
+<span class="sd">  2.4 Isomorphisms [moduleiso]</span>
+
+<span class="sd">  Originally written by Anthony Bordg and Floris van Doorn, February-December 2017</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.ModuleCore.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+<span class="kn">Require Import</span> UniMath.Algebra.RigsAndRings.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> addmonoid.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> abgr.
+
+<span class="sd">(** * 1. Modules *)</span>
+
+<span class="kn">Definition</span> <span class="nf">module_struct</span> (<span class="nv">R</span> : <span class="bp">ring</span>) (<span class="nv">G</span> : abgr) : UU := ringfun R (group_endomorphism_ring G).
+
+<span class="kn">Definition</span> <span class="nf">module</span> (<span class="nv">R</span> : <span class="bp">ring</span>) : UU := module_category R.
+
+<span class="kn">Coercion</span> <span class="nf">pr1module</span> {R : <span class="bp">ring</span>} (M : module R) : abgr := pr1 M.
+
+<span class="kn">Definition</span> <span class="nf">pr2module</span> {<span class="nv">R</span> : <span class="bp">ring</span>} (<span class="nv">M</span> : module R) : module_struct R M := pr2 M.
+
+<span class="kn">Identity Coercion</span> <span class="nf">id_module_struct</span> : module_struct &gt;-&gt; ringfun.
+
+<span class="kn">Definition</span> <span class="nf">make_module</span> {<span class="nv">R</span> : <span class="bp">ring</span>} (<span class="nv">G</span> : abgr) (<span class="nv">f</span> : module_struct R G) : module R := G ,, f.
+
+<span class="sd">(** The ring action gives rise to a notion of multiplication. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">module_mult</span> {<span class="nv">R</span> : <span class="bp">ring</span>} (<span class="nv">M</span> : module R) : R -&gt; M -&gt; M :=
+  <span class="k">λ</span> <span class="nv">r</span> : R, <span class="k">λ</span> <span class="nv">x</span> : M, (pr2module M r : abelian_group_morphism _ _) x.
+
+<span class="kn">Declare Scope</span> module_scope.
+<span class="kn">Notation</span> <span class="s2">"r * x"</span> := (module_mult _ r x) : module_scope.
+
+<span class="kn">Delimit Scope</span> module_scope <span class="k">with</span> module.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> module.
+
+<span class="kn">Lemma</span> <span class="nf">module_mult_0_to_0</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> : module R} (<span class="nv">x</span> : M) : ringunel1 * x = @unel M.
+<span class="kn">Proof</span>.
+   <span class="nb">unfold</span> module_mult. <span class="nb">cbn</span>.
+   <span class="nb">assert</span> (pr2module M ringunel1 = @ringunel1 (group_endomorphism_ring M)).
+   - <span class="bp">exact</span> (rigfun_to_unel_rigaddmonoid (pr2module M)).
+   - <span class="nb">rewrite</span> X.
+     <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> addmonoid.
+
+<span class="kn">Lemma</span> <span class="nf">module_mult_is_ldistr</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> : module R} (<span class="nv">r</span> : R) (<span class="nv">x</span> <span class="nv">y</span> : M) :
+  r * (x + y) = r * x + r * y.
+<span class="kn">Proof</span>. <span class="bp">exact</span> (monoidfunmul (pr2module M r : abelian_group_morphism _ _) x y). <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">module_mult_is_rdistr</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> : module R} (<span class="nv">r</span> <span class="nv">s</span> : R) (<span class="nv">x</span> : M) :
+  (r + s)%<span class="bp">ring</span> * x = r * x + s * x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (abelian_group_morphism_eq (binopfunisbinopfun (rigaddfun (pr2module M : ringfun _ _)) r s) x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">module_mult_assoc</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> : module R} (<span class="nv">r</span> <span class="nv">s</span> : R) (<span class="nv">x</span> : M) :
+  (r * s)%<span class="bp">ring</span> * x = r * (s * x).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (abelian_group_morphism_eq (binopfunisbinopfun (rigmultfun (pr2module M : ringfun _ _)) r s) x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">module_mult_1</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> : module R} (<span class="nv">r</span> : R) : r * unel M = unel M.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (monoidfununel (pr2module M r : abelian_group_morphism _ _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">module_mult_unel2</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> : module R} (<span class="nv">m</span> : M) : ringunel2 * m = m.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (abelian_group_morphism_eq (monoidfununel (rigmultfun (pr2module M : ringfun _ _))) m).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">module_inv_mult</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> : module R} (<span class="nv">r</span> : R) (<span class="nv">x</span> : M) :
+  -(r * x) = r * -x.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> grinv_path_from_op_path. <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- module_mult_is_ldistr, grrinvax, module_mult_1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">module_mult_neg1</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> : module R} (<span class="nv">x</span> : M) : ringminus1 * x = -x.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> grinv_path_from_op_path.
+  <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">y</span>, y * ((_ * x)%module))%multmonoid (!(module_mult_unel2 x)) @ _).
+  <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- module_mult_is_rdistr, ringrinvax1, module_mult_0_to_0.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">module_inv_mult_to_inv1</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> : module R} (<span class="nv">r</span> : R) (<span class="nv">x</span> : M) :
+  -(r * x) = (-r)%<span class="bp">ring</span> * x.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> grinv_path_from_op_path.
+  <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- module_mult_is_rdistr, ringrinvax1, module_mult_0_to_0.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">module_mult_inv_to_inv1</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> : module R} (<span class="nv">r</span> : R) (<span class="nv">x</span> : M) :
+  r * -x = (-r)%<span class="bp">ring</span> * x.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- module_inv_mult_to_inv1, module_inv_mult.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** 1.1. A module constructor that takes a left action satisfying four axioms *)</span>
+
+<span class="kn">Definition</span> <span class="nf">mult_isldistr_wrt_grop</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">G</span> : abgr} (<span class="nv">m</span> : R -&gt; G -&gt; G) : UU :=
+  ∏ r : R, ∏ x y : G, m r (x + y) = (m r x) + (m r y).
+
+<span class="kn">Definition</span> <span class="nf">mult_isrdistr_wrt_ringop1</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">G</span> : abgr} (<span class="nv">m</span> : R -&gt; G -&gt; G) : UU :=
+  ∏ r s : R, ∏ x : G, m (r + s)%<span class="bp">ring</span> x = (m r x) + (m s x).
+
+<span class="kn">Definition</span> <span class="nf">mult_isrdistr_wrt_ringop2</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">G</span> : abgr} (<span class="nv">m</span> : R -&gt; G -&gt; G) : UU :=
+  ∏ r s : R, ∏ x : G, m (r * s)%<span class="bp">ring</span> x = m r (m s x).
+
+<span class="kn">Definition</span> <span class="nf">mult_unel</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">G</span> : abgr} (<span class="nv">m</span> : R -&gt; G -&gt; G) : UU := ∏ x : G, m ringunel2 x = x.
+
+<span class="kn">Local</span> <span class="kn">Close Scope</span> addmonoid.
+
+<span class="kn">Definition</span> <span class="nf">mult_to_group_endomorphism_ring</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">G</span> : abgr} {<span class="nv">m</span> : R -&gt; G -&gt; G}
+           (<span class="nv">ax1</span> : mult_isldistr_wrt_grop m) (<span class="nv">r</span> : R) : group_endomorphism_ring G.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (make_abelian_group_morphism (<span class="k">λ</span> <span class="nv">x</span>, m r x)).
+  <span class="nb">intros</span> x y. <span class="nb">apply</span> ax1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">mult_to_module_struct_fun</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">G</span> : abgr} {<span class="nv">m</span> : R -&gt; G -&gt; G}
+           (<span class="nv">ax1</span> : mult_isldistr_wrt_grop m)
+           : R → group_endomorphism_ring G
+           := mult_to_group_endomorphism_ring ax1.
+
+<span class="kn">Lemma</span> <span class="nf">mult_to_module_struct_ismonoidfun</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">G</span> : abgr} {<span class="nv">m</span> : R -&gt; G -&gt; G}
+           (<span class="nv">ax1</span> : mult_isldistr_wrt_grop m) (<span class="nv">ax2</span> : mult_isrdistr_wrt_ringop1 m)
+           (<span class="nv">ax3</span> : mult_isrdistr_wrt_ringop2 m) (<span class="nv">ax4</span> : mult_unel m)
+  : isrigfun (X := R) (Y := group_endomorphism_ring G) (mult_to_module_struct_fun ax1).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_isrigfun.
+  - <span class="nb">apply</span> make_ismonoidfun.
+    + <span class="nb">intros</span> r s.
+      <span class="nb">apply</span> abelian_group_morphism_eq.
+      <span class="nb">intro</span> x. <span class="nb">apply</span> ax2.
+    + <span class="nb">apply</span> abelian_group_morphism_eq.
+      <span class="nb">intro</span> x. <span class="nb">change</span> (m ringunel1 x = unel G). <span class="nb">apply</span> (grlcan G (m (ringunel1) x)).
+      <span class="nb">rewrite</span> runax. <span class="nb">rewrite</span> &lt;- (ax2 ringunel1 ringunel1 x). <span class="nb">rewrite</span> ringrunax1. <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> make_ismonoidfun.
+    + <span class="nb">intros</span> r s.
+      <span class="nb">apply</span> abelian_group_morphism_eq.
+      <span class="nb">intro</span> x. <span class="nb">apply</span> ax3.
+    + <span class="nb">apply</span> abelian_group_morphism_eq.
+      <span class="nb">intro</span> x. <span class="nb">apply</span> ax4.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">mult_to_module_struct</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">G</span> : abgr} {<span class="nv">m</span> : R -&gt; G -&gt; G}
+           (<span class="nv">ax1</span> : mult_isldistr_wrt_grop m) (<span class="nv">ax2</span> : mult_isrdistr_wrt_ringop1 m)
+           (<span class="nv">ax3</span> : mult_isrdistr_wrt_ringop2 m) (<span class="nv">ax4</span> : mult_unel m)
+  : module_struct R G
+  := mult_to_module_struct_fun ax1 ,, mult_to_module_struct_ismonoidfun ax1 ax2 ax3 ax4.
+
+<span class="kn">Definition</span> <span class="nf">mult_to_module</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">G</span> : abgr} {<span class="nv">m</span> : R -&gt; G -&gt; G} (<span class="nv">ax1</span> : mult_isldistr_wrt_grop m)
+           (<span class="nv">ax2</span> : mult_isrdistr_wrt_ringop1 m) (<span class="nv">ax3</span> : mult_isrdistr_wrt_ringop2 m)
+           (<span class="nv">ax4</span> : mult_unel m) : module R := make_module G (mult_to_module_struct ax1 ax2 ax3 ax4).
+
+<span class="sd">(** * 2. R-module morphisms *)</span>
+
+<span class="sd">(** ** 2.1. Linearity *)</span>
+
+<span class="kn">Definition</span> <span class="nf">islinear</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : M -&gt; N) :=
+  ∏ r : R, ∏ x : M, f (r * x) = r * (f x).
+
+<span class="kn">Definition</span> <span class="nf">linearfun</span> {<span class="nv">R</span> : <span class="bp">ring</span>} (<span class="nv">M</span> <span class="nv">N</span> : module R) : UU := ∑ f : M -&gt; N, islinear f.
+
+<span class="kn">Definition</span> <span class="nf">make_linearfun</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : M -&gt; N) (<span class="nv">isc</span> : islinear f) :
+  linearfun M N := f ,, isc.
+
+<span class="kn">Definition</span> <span class="nf">pr1linearfun</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : linearfun M N) : M -&gt; N := pr1 f.
+
+<span class="kn">Coercion</span> <span class="nf">pr1linearfun</span> : linearfun &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">linearfun_islinear</span> {<span class="nv">R</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : linearfun M N) :
+  islinear f := pr2 f.
+
+<span class="kn">Lemma</span> <span class="nf">islinearfuncomp</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> <span class="nv">P</span> : module R} (<span class="nv">f</span> : linearfun M N) (<span class="nv">g</span> : linearfun N P) :
+  islinear (funcomp f g).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r x; <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> (linearfun_islinear f).
+  <span class="nb">rewrite</span> (linearfun_islinear g).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">linearfuncomp</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> <span class="nv">P</span> : module R} (<span class="nv">f</span> : linearfun M N) (<span class="nv">g</span> : linearfun N P) :
+  linearfun M P := make_linearfun (funcomp f g) (islinearfuncomp f g).
+
+<span class="kn">Lemma</span> <span class="nf">isapropislinear</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : M -&gt; N) :
+  isaprop (islinear f).
+<span class="kn">Proof</span>.
+   <span class="nb">apply</span> (impred <span class="mi">1</span> _). <span class="nb">intro</span> r.
+   <span class="nb">apply</span> (impred <span class="mi">1</span> _). <span class="nb">intro</span> x.
+   <span class="nb">apply</span> (setproperty N).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isasetlinearfun</span> {<span class="nv">R</span> : <span class="bp">ring</span>} (<span class="nv">M</span> <span class="nv">N</span> : module R) : isaset (linearfun M N).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> (isasetsubset (@pr1linearfun R M N)).
+  - <span class="nb">change</span> (isofhlevel <span class="mi">2</span> (M -&gt; N)).
+    <span class="nb">apply</span> impred.
+    <span class="bp">exact</span> (<span class="k">fun</span> <span class="nv">x</span> =&gt; setproperty N).
+  - <span class="nb">refine</span> (isinclpr1 _ _).
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropislinear.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** 2.2. Module morphisms *)</span>
+
+<span class="kn">Definition</span> <span class="nf">ismodulefun</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : M -&gt; N) : UU :=
+   (isbinopfun f) × (islinear f).
+
+<span class="kn">Definition</span> <span class="nf">make_ismodulefun</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} {<span class="nv">f</span> : M -&gt; N}
+           (<span class="nv">H1</span> : isbinopfun f) (<span class="nv">H2</span> : islinear f) : ismodulefun f :=
+  make_dirprod H1 H2.
+
+<span class="kn">Lemma</span> <span class="nf">isapropismodulefun</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : M -&gt; N) :
+  isaprop (ismodulefun f).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (@isofhleveldirprod <span class="mi">1</span> (isbinopfun f) (islinear f)
+                            (isapropisbinopfun f) (isapropislinear f)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">modulefun</span> {<span class="nv">R</span> : <span class="bp">ring</span>} (<span class="nv">M</span> <span class="nv">N</span> : module R) : UU := module_category R⟦M, N⟧%cat.
+
+<span class="kn">Definition</span> <span class="nf">make_modulefun</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : M -&gt; N) (<span class="nv">isc</span> : ismodulefun f)
+  : modulefun M N.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">make_abelian_group_morphism</span> <span class="nv">f</span> (pr1 isc)).
+  <span class="kp">abstract</span> (
+    <span class="nb">intro</span> r;
+    <span class="nb">apply</span> abelian_group_morphism_eq;
+    <span class="bp">exact</span> (pr2 isc r)
+  ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"R-mod( M , N )"</span> := (modulefun M N) : module_scope.
+
+<span class="kn">Section</span> <span class="nf">accessors</span>.
+  <span class="kn">Context</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : R-mod(M, N)).
+
+  <span class="kn">Definition</span> <span class="nf">modulefun_to_abelian_group_morphism</span> : abelian_group_morphism M N := pr1 f.
+
+  <span class="kn">Definition</span> <span class="nf">modulefun_to_binopfun</span> : binopfun M N := modulefun_to_abelian_group_morphism.
+
+  <span class="kn">Definition</span> <span class="nf">pr1modulefun</span> : M → N := modulefun_to_binopfun.
+
+  <span class="kn">Definition</span> <span class="nf">modulefun_to_isbinopfun</span> : isbinopfun pr1modulefun :=
+    binopfunisbinopfun modulefun_to_binopfun.
+
+  <span class="kn">Lemma</span> <span class="nf">modulefun_to_islinear</span> : islinear pr1modulefun.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> r.
+    <span class="bp">exact</span> (abelian_group_morphism_eq (pr2 f r)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">modulefun_to_linearfun</span> : linearfun M N :=
+    make_linearfun pr1modulefun modulefun_to_islinear.
+
+  <span class="kn">Definition</span> <span class="nf">modulefun_ismodulefun</span> : ismodulefun pr1modulefun
+    := make_ismodulefun modulefun_to_isbinopfun modulefun_to_islinear.
+
+<span class="kn">End</span> <span class="nf">accessors</span>.
+
+<span class="kn">Coercion</span> <span class="nf">pr1modulefun</span> : modulefun &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">composite_modulefun</span>
+  {<span class="nv">R</span>} {<span class="nv">M</span> <span class="nv">N</span> <span class="nv">P</span> : module R} (<span class="nv">f</span> : R-mod(M, N)) (<span class="nv">g</span> : R-mod(N,P)) : R-mod(M,P) := (f · g)%cat.
+
+<span class="kn">Definition</span> <span class="nf">identity_modulefun</span>
+  {<span class="nv">R</span>} (<span class="nv">M</span> : module R) : R-mod(M, M) := identity M.
+
+<span class="kn">Lemma</span> <span class="nf">modulefun_unel</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : R-mod(M, N)) : f (unel M) = unel N.
+<span class="kn">Proof</span>.
+   <span class="nb">rewrite</span> &lt;- (module_mult_0_to_0 (unel M)).
+   <span class="nb">rewrite</span> ((modulefun_to_islinear f) ringunel1 (unel M)).
+   <span class="nb">rewrite</span> (module_mult_0_to_0 _).
+   <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">moduletomonoid</span>  {<span class="nv">R</span> : <span class="bp">ring</span>} (<span class="nv">M</span> : module R) : abmonoid := abgrtoabmonoid M.
+
+<span class="kn">Definition</span> <span class="nf">modulefun_to_monoidfun</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : R-mod(M, N)) :
+  monoidfun (moduletomonoid M) (moduletomonoid N) := modulefun_to_abelian_group_morphism f.
+
+<span class="kn">Definition</span> <span class="nf">modulefun_from_monoidfun</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : monoidfun M N)
+           (<span class="nv">H</span> : islinear f) : R-mod(M, N) :=
+  make_modulefun f (make_ismodulefun (binopfunisbinopfun f) H).
+
+<span class="kn">Lemma</span> <span class="nf">modulefun_paths</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} {<span class="nv">f</span> <span class="nv">g</span> : R-mod(M, N)} (<span class="nv">p</span> : (f : _ → _) = g) :
+  f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> impred_isaprop.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> homset_property.
+  }
+  <span class="nb">apply</span> abelian_group_morphism_paths.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">modulefun_paths2</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} {<span class="nv">f</span> <span class="nv">g</span> : modulefun M N} (<span class="nv">p</span> : f ~ g) :
+  f = g.
+<span class="kn">Proof</span>. <span class="bp">exact</span> (modulefun_paths (funextfun _ _ p)). <span class="kn">Qed</span>.
+
+<span class="sd">(** ** 2.3 R-module homomorphisms form an R-module *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">modulehombinop_ismodulefun</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> <span class="nv">g</span> : R-mod(M, N)) :
+  @ismodulefun R M N (<span class="k">λ</span> <span class="nv">x</span> : M, (f x * g x)%multmonoid).
+<span class="kn">Proof</span>.
+  use make_ismodulefun.
+  -  <span class="bp">exact</span> (pr1 (abmonoidshombinop_ismonoidfun (modulefun_to_monoidfun f)
+                                              (modulefun_to_monoidfun g))).
+  - <span class="nb">intros</span> r m. <span class="nb">rewrite</span> (modulefun_to_islinear f). <span class="nb">rewrite</span> (modulefun_to_islinear g).
+    <span class="nb">rewrite</span> &lt;- module_mult_is_ldistr. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">modulehombinop</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} : binop (R-mod(M, N)) :=
+  (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span>, make_modulefun _ (modulehombinop_ismodulefun f g)).
+
+<span class="kn">Lemma</span> <span class="nf">unelmodulefun_ismodulefun</span> {<span class="nv">R</span> : <span class="bp">ring</span>} (<span class="nv">M</span> <span class="nv">N</span> : module R) : ismodulefun (<span class="k">λ</span> <span class="nv">x</span> : M, (unel N)).
+<span class="kn">Proof</span>.
+  use make_ismodulefun.
+  - use make_isbinopfun. <span class="nb">intros</span> m m'. use pathsinv0. use lunax.
+  - <span class="nb">intros</span> r m. <span class="nb">rewrite</span> module_mult_1. <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">unelmodulefun</span> {<span class="nv">R</span> : <span class="bp">ring</span>} (<span class="nv">M</span> <span class="nv">N</span> : module R) : R-mod(M, N) :=
+  make_modulefun _ (unelmodulefun_ismodulefun M N).
+
+<span class="kn">Lemma</span> <span class="nf">modulebinop_runax</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : R-mod(M, N)) :
+  modulehombinop f (unelmodulefun M N) = f.
+<span class="kn">Proof</span>.
+  use modulefun_paths2. <span class="nb">intros</span> x. use (runax N).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">modulebinop_lunax</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : R-mod(M, N)) :
+  modulehombinop (unelmodulefun M N) f = f.
+<span class="kn">Proof</span>.
+  use modulefun_paths2. <span class="nb">intros</span> x. use (lunax N).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">modulehombinop_assoc</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : R-mod(M, N)) :
+  modulehombinop (modulehombinop f g) h = modulehombinop f (modulehombinop g h).
+<span class="kn">Proof</span>.
+  use modulefun_paths2. <span class="nb">intros</span> x. use assocax.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">modulehombinop_comm</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> <span class="nv">g</span> : R-mod(M, N)) :
+  modulehombinop f g = modulehombinop g f.
+<span class="kn">Proof</span>.
+  use modulefun_paths2. <span class="nb">intros</span> x. use (commax N).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">modulehomabmodule_ismoduleop</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} :
+  ismonoidop (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> : R-mod(M, N), modulehombinop f g).
+<span class="kn">Proof</span>.
+  use make_ismonoidop.
+  - <span class="nb">intros</span> f g h. <span class="bp">exact</span> (modulehombinop_assoc f g h).
+  - use make_isunital.
+    + <span class="bp">exact</span> (unelmodulefun M N).
+    + use make_isunit.
+      * <span class="nb">intros</span> f. <span class="bp">exact</span> (modulebinop_lunax f).
+      * <span class="nb">intros</span> f. <span class="bp">exact</span> (modulebinop_runax f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">modulehombinop_inv_ismodulefun</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : R-mod(M, N)) :
+  ismodulefun (<span class="k">λ</span> <span class="nv">m</span> : M, -(f m)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_ismodulefun.
+  - <span class="nb">apply</span> make_isbinopfun. <span class="nb">intros</span> x x'. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> binopfunisbinopfun.
+    <span class="nb">rewrite</span> (commax N).
+    <span class="nb">apply</span> (grinvop N).
+  - <span class="nb">intros</span> r m. <span class="nb">rewrite</span> &lt;- module_inv_mult. <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> modulefun_to_islinear.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">modulehombinop_inv</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : R-mod(M, N)) : R-mod(M, N) :=
+  make_modulefun _ (modulehombinop_inv_ismodulefun f).
+
+<span class="kn">Lemma</span> <span class="nf">modulehombinop_linvax</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : R-mod(M, N)) :
+  modulehombinop (modulehombinop_inv f) f = unelmodulefun M N.
+<span class="kn">Proof</span>.
+  use modulefun_paths2. <span class="nb">intros</span> x. use (@grlinvax N).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">modulehombinop_rinvax</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : R-mod(M, N)) :
+  modulehombinop f (modulehombinop_inv f) = unelmodulefun M N.
+<span class="kn">Proof</span>.
+  use modulefun_paths2. <span class="nb">intros</span> x. use (grrinvax N).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">modulehomabgr_isabgrop</span> {<span class="nv">R</span> : <span class="bp">ring</span>} (<span class="nv">M</span> <span class="nv">N</span> : module R) :
+  isabgrop (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> : R-mod(M, N), modulehombinop f g).
+<span class="kn">Proof</span>.
+  use make_isabgrop.
+  use make_isgrop.
+  - use modulehomabmodule_ismoduleop.
+  - use make_invstruct.
+    + <span class="nb">intros</span> f. <span class="bp">exact</span> (modulehombinop_inv f).
+    + use make_isinv.
+      * <span class="nb">intros</span> f. <span class="bp">exact</span> (modulehombinop_linvax f).
+      * <span class="nb">intros</span> f. <span class="bp">exact</span> (modulehombinop_rinvax f).
+  - <span class="nb">intros</span> f g. <span class="bp">exact</span> (modulehombinop_comm f g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">modulehomabgr</span> {<span class="nv">R</span> : <span class="bp">ring</span>} (<span class="nv">M</span> <span class="nv">N</span> : module R) : abgr.
+<span class="kn">Proof</span>.
+  use make_abgr.
+  use make_setwithbinop.
+  use make_hSet.
+  - <span class="bp">exact</span> (R-mod(M, N)).
+  - <span class="bp">exact</span> (homset_property _ M N).
+  - <span class="bp">exact</span> (@modulehombinop R M N).
+  - <span class="bp">exact</span> (modulehomabgr_isabgrop M N).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">modulehombinop_scalar_ismodulefun</span> {<span class="nv">R</span> : commring} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">r</span> : R)
+           (<span class="nv">f</span> : R-mod(M, N)) : ismodulefun (<span class="k">λ</span> <span class="nv">m</span> : M, r * f m).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_ismodulefun.
+  - <span class="nb">apply</span> make_isbinopfun. <span class="nb">intros</span> x x'.
+    <span class="nb">rewrite</span> modulefun_to_isbinopfun. <span class="nb">rewrite</span> module_mult_is_ldistr. <span class="bp">reflexivity</span>.
+  - <span class="nb">intros</span> r0 m. <span class="nb">rewrite</span> (modulefun_to_islinear f). <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- module_mult_assoc.
+    <span class="nb">rewrite</span> ringcomm2. <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">modulehombinop_smul</span> {<span class="nv">R</span> : commring} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">r</span> : R) (<span class="nv">f</span> : R-mod(M, N)) :
+  modulefun M N :=
+  make_modulefun _ (modulehombinop_scalar_ismodulefun r f).
+
+<span class="kn">Definition</span> <span class="nf">modulehommodule</span> {<span class="nv">R</span> : commring} (<span class="nv">M</span> <span class="nv">N</span> : module R) : module R.
+<span class="kn">Proof</span>.
+  use make_module.
+  use (modulehomabgr M N).
+  use mult_to_module_struct.
+  <span class="bp">exact</span> modulehombinop_smul.
+  - <span class="nb">intros</span> r f g. use modulefun_paths2. <span class="nb">intros</span> x. <span class="nb">apply</span> module_mult_is_ldistr.
+  - <span class="nb">intros</span> r r0 f. use modulefun_paths2. <span class="nb">intros</span> x. <span class="nb">apply</span> module_mult_is_rdistr.
+  - <span class="nb">intros</span> r r0 f. use modulefun_paths2. <span class="nb">intros</span> x. <span class="nb">apply</span> module_mult_assoc.
+  - <span class="nb">intros</span> f. use modulefun_paths2. <span class="nb">intros</span> x. <span class="nb">cbn</span>. <span class="nb">apply</span> module_mult_unel2.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** 2.4. Isomorphisms *)</span>
+
+<span class="kn">Definition</span> <span class="nf">moduleiso</span> {<span class="nv">R</span> : <span class="bp">ring</span>} (<span class="nv">M</span> <span class="nv">N</span> : module R) : UU :=
+  ∑ w : M ≃ N, ismodulefun w.
+
+<span class="kn">Section</span> <span class="nf">accessors_moduleiso</span>.
+  <span class="kn">Context</span> {<span class="nv">R</span> : <span class="bp">ring</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : moduleiso M N).
+
+  <span class="kn">Definition</span> <span class="nf">moduleiso_to_weq</span> : (pr1module M) ≃ (pr1module N) := pr1 f.
+  <span class="kn">Definition</span> <span class="nf">moduleiso_ismodulefun</span> : ismodulefun moduleiso_to_weq := pr2 f.
+  <span class="kn">Definition</span> <span class="nf">moduleiso_to_modulefun</span> : R-mod(M, N) :=
+    make_modulefun _ moduleiso_ismodulefun.
+<span class="kn">End</span> <span class="nf">accessors_moduleiso</span>.
+
+<span class="kn">Coercion</span> <span class="nf">moduleiso_to_weq</span> : moduleiso &gt;-&gt; weq.
+<span class="kn">Coercion</span> <span class="nf">moduleiso_to_modulefun</span> : moduleiso &gt;-&gt; modulefun.
+
+<span class="kn">Definition</span> <span class="nf">make_moduleiso</span> {<span class="nv">R</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} <span class="nv">f</span> <span class="nv">isc</span> : moduleiso M N := f ,, isc.
+
+<span class="kn">Lemma</span> <span class="nf">isbinopfuninvmap</span> {<span class="nv">R</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : moduleiso M N) :
+  isbinopfun (invmap f).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> (invmaponpathsweq f).
+  <span class="nb">rewrite</span> (homotweqinvweq f (op x y)).
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">transitivity</span> (op ((moduleiso_to_weq f) (invmap f x)) ((moduleiso_to_weq f) (invmap f y))).
+  <span class="nb">apply</span> (modulefun_to_isbinopfun f (invmap f x) (invmap f y)).
+  <span class="nb">rewrite</span> <span class="mi">2</span> (homotweqinvweq f).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">islinearinvmap</span> {<span class="nv">R</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : moduleiso M N) : islinear (invmap f).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> r x.
+  <span class="nb">apply</span> (invmaponpathsweq f).
+  <span class="nb">transitivity</span> (module_mult N r x).
+  <span class="bp">exact</span> (homotweqinvweq f (module_mult N r x)).
+  <span class="nb">transitivity</span> (module_mult N r (moduleiso_to_weq f (invmap (moduleiso_to_weq f) x))).
+  <span class="nb">rewrite</span> (homotweqinvweq (moduleiso_to_weq f) x).
+  <span class="nb">apply</span> idpath.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (modulefun_to_islinear f).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">invmoduleiso</span> {<span class="nv">R</span>} {<span class="nv">M</span> <span class="nv">N</span> : module R} (<span class="nv">f</span> : moduleiso M N) : moduleiso N M.
+<span class="kn">Proof</span>.
+  use make_moduleiso.
+  - <span class="bp">exact</span> (invweq f).
+  - <span class="nb">apply</span> make_dirprod.
+    + <span class="bp">exact</span> (isbinopfuninvmap f).
+    + <span class="bp">exact</span> (islinearinvmap f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">moduleiso'</span> {<span class="nv">R</span>} (<span class="nv">M</span> <span class="nv">N</span> : module R) : UU :=
+  ∑ w : monoidiso (pr1module M) (pr1module N), islinear w.
+
+<span class="kn">Lemma</span> <span class="nf">moduleiso_to_moduleiso'</span> {<span class="nv">R</span>} (<span class="nv">M</span> <span class="nv">N</span> : module R) :
+  moduleiso M N -&gt; moduleiso' M N.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> w.
+  use tpair.
+  - use make_monoidiso.
+    + <span class="bp">exact</span> w.
+    + use make_ismonoidfun.
+      * <span class="bp">exact</span> (modulefun_to_isbinopfun w).
+      * <span class="nb">apply</span> (modulefun_unel w).
+  - <span class="bp">exact</span> (modulefun_to_islinear w).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">moduleiso'_to_moduleiso</span> {<span class="nv">R</span>} (<span class="nv">M</span> <span class="nv">N</span> : module R) :
+  moduleiso' M N -&gt; moduleiso M N.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> w.
+  use make_moduleiso.
+  - <span class="bp">exact</span> (pr1 w).
+  - <span class="nb">apply</span> make_dirprod.
+    + <span class="bp">exact</span> (pr121 w).
+    + <span class="bp">exact</span> (pr2 w).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">moduleiso'_to_moduleisweq_iso</span> {<span class="nv">R</span>} (<span class="nv">M</span> <span class="nv">N</span> : module R) :
+  isweq (moduleiso'_to_moduleiso M N).
+<span class="kn">Proof</span>.
+  use (isweq_iso _ (moduleiso_to_moduleiso' M N)).
+  - <span class="nb">intro</span> w.
+    <span class="nb">unfold</span> moduleiso'_to_moduleiso, moduleiso_to_moduleiso'. <span class="nb">cbn</span>.
+    <span class="nb">induction</span> w <span class="k">as</span> [w1 w2]; <span class="nb">cbn</span>.
+    use total2_paths_f; <span class="nb">cbn</span>.
+    + use total2_paths_f; <span class="nb">cbn</span>.
+      * <span class="bp">reflexivity</span>.
+      * <span class="nb">apply</span> isapropismonoidfun.
+    + <span class="nb">apply</span> isapropislinear.
+  - <span class="nb">intro</span> y.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ ,, x)).
+    <span class="nb">apply</span> isapropismodulefun.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">moduleiso'_to_moduleweq_iso</span> {<span class="nv">R</span>} (<span class="nv">M</span> <span class="nv">N</span> : module R) : (moduleiso' M N) ≃ (moduleiso M N) :=
+   make_weq (moduleiso'_to_moduleiso M N) (moduleiso'_to_moduleisweq_iso M N).</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/Modules/Core.v</tt>, line 23)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   Originally written by Anthony Bordg and Floris van Doorn, February-December 2017
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Categories.ModuleCore.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

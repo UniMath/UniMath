@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>QuotientSet.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span>
+        UniMath.Foundations.Sets
+        UniMath.MoreFoundations.PartA.
+
+<span class="kn">Definition</span> <span class="nf">iscomprelfun2'</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span>} (<span class="nv">RX</span>:hrel X) (<span class="nv">RY</span>:hrel Y)
+           (<span class="nv">f</span>:X-&gt;Y-&gt;Z) : <span class="kt">Type</span>
+  := (∏ x x', RX x x' -&gt; ∏ y, f x y = f x' y) ×
+     (∏ y y', RY y y' -&gt; ∏ x, f x y = f x y').
+
+<span class="kn">Definition</span> <span class="nf">iscomprelrelfun2'</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span>} (<span class="nv">RX</span>:hrel X) (<span class="nv">RY</span>:hrel Y) (<span class="nv">RZ</span>:eqrel Z)
+           (<span class="nv">f</span>:X-&gt;Y-&gt;Z) : <span class="kt">Type</span>
+  := (∏ x x' y, RX x x' -&gt; RZ (f x y) (f x' y)) ×
+     (∏ x y y', RY y y' -&gt; RZ (f x y) (f x y')).
+
+<span class="kn">Lemma</span> <span class="nf">setquotuniv_equal</span> { <span class="nv">X</span> : UU } ( <span class="nv">R</span> : hrel X ) ( <span class="nv">Y</span> : hSet )
+      ( <span class="nv">f</span> <span class="nv">f'</span> : X -&gt; Y ) (<span class="nv">p</span> : f = f')
+      ( <span class="nv">isc</span> : iscomprelfun R f ) ( <span class="nv">is'</span> : iscomprelfun R f' )
+: setquotuniv R Y f isc = setquotuniv R Y f' is'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> p. <span class="nb">apply</span> funextsec; <span class="nb">intro</span> c.
+  <span class="nb">assert</span>(ip : isaprop (iscomprelfun R f)).
+  { <span class="nb">apply</span> impred; <span class="nb">intro</span> x; <span class="nb">apply</span> impred; <span class="nb">intro</span> x'.
+    <span class="nb">apply</span> impred; <span class="nb">intro</span> p. <span class="nb">apply</span> setproperty. }
+  <span class="nb">assert</span>( q : isc = is' ).
+  { <span class="nb">apply</span> ip. }
+  <span class="nb">destruct</span> q. <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Definition</span> <span class="nf">setquotuniv2'</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">RX</span>:hrel X) (<span class="nv">RY</span>:hrel Y)
+           {<span class="nv">Z</span>:hSet} (<span class="nv">f</span>:X-&gt;Y-&gt;Z) (<span class="nv">isc</span>:iscomprelfun2' RX RY f) :
+  setquot RX -&gt; setquot RY -&gt; Z.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x''.
+  <span class="nb">simple refine</span> (setquotuniv RX (funset (setquot RY) Z) _ _ _).
+  { <span class="nb">simpl</span>. <span class="nb">intro</span> x. <span class="nb">apply</span> (setquotuniv RY Z (f x)).
+    <span class="nb">intros</span> y y' e. <span class="nb">unfold</span> iscomprelfun2 <span class="k">in</span> isc.
+    <span class="nb">apply</span> (pr2 isc). <span class="bp">assumption</span>. }
+  { <span class="nb">intros</span> x x' e.
+    <span class="nb">assert</span>( p : f x = f x' ).
+    { <span class="nb">apply</span> funextsec; <span class="nb">intro</span> y. <span class="nb">apply</span> (pr1 isc). <span class="bp">assumption</span>. }
+    <span class="nb">apply</span> setquotuniv_equal. <span class="bp">assumption</span>. } <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+<span class="kn">Definition</span> <span class="nf">setquotfun2'</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span>} {<span class="nv">RX</span>:hrel X} {<span class="nv">RY</span>:hrel Y} {<span class="nv">RZ</span>:eqrel Z}
+           (<span class="nv">f</span>:X-&gt;Y-&gt;Z) (<span class="nv">isc</span>:iscomprelrelfun2' RX RY RZ f) :
+  setquot RX -&gt; setquot RY -&gt; setquot RZ.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (f' := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, setquotpr RZ (f x y) : setquotinset RZ).
+  <span class="nb">apply</span> (setquotuniv2' RX RY f'). <span class="nb">split</span>.
+  { <span class="nb">intros</span> ? ? p ?. <span class="nb">apply</span> iscompsetquotpr. <span class="bp">exact</span> (pr1 isc x x' y p). }
+  { <span class="nb">intros</span> ? ? p ?. <span class="nb">apply</span> iscompsetquotpr. <span class="bp">exact</span> (pr2 isc x y y' p). }
+<span class="kn">Defined</span>.
+<span class="kn">Lemma</span> <span class="nf">setquotfun2_equal</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span>} (<span class="nv">RX</span>:eqrel X) (<span class="nv">RY</span>:eqrel Y) (<span class="nv">RZ</span>:eqrel Z)
+           (<span class="nv">f</span>:X-&gt;Y-&gt;Z) (<span class="nv">isc</span>:iscomprelrelfun2' RX RY RZ f)
+           (<span class="nv">x</span>:X) (<span class="nv">y</span>:Y) :
+  setquotfun2' f isc (setquotpr RX x) (setquotpr RY y) =
+  setquotpr RZ (f x y).
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>. <span class="c">(* it computes! *)</span>
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/MoreFoundations/QuotientSet.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Sets.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import
+  &gt;         UniMath.Foundations.Sets
+  &gt;         UniMath.MoreFoundations.PartA.&lt;&lt;&lt;
+  &gt;
+  &gt; Definition iscomprelfun2' {X Y Z} (RX:hrel X) (RY:hrel Y)
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

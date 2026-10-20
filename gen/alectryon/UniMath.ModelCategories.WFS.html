@@ -1,0 +1,817 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>WFS.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(*</span>
+<span class="c">Weak Factorization Systems</span>
+
+<span class="c">Weak Factorization Systems (WFSs) form the foundation of</span>
+<span class="c">model category theory. They describe interacting morphism classes,</span>
+<span class="c">connected by a dual lifting property. We define the notion of WFS,</span>
+<span class="c">as well as some basic properties that they have.</span>
+
+<span class="c">We found that some properties that we would like a WFS to have</span>
+<span class="c">(closedness under arbitrary coproducts or transfinite compotisition)</span>
+<span class="c">relies on the Axiom of Choice.</span>
+
+<span class="c">Important sources:</span>
+<span class="c">- More Concise Algebraic Topology (MCAT)</span>
+<span class="c">- My thesis: https://studenttheses.uu.nl/handle/20.500.12932/45658</span>
+<span class="c">- nlab: https://ncatlab.org/nlab/show/weak+factorization+system</span>
+
+<span class="c">Contents:</span>
+<span class="c">- Definition of lifting property</span>
+<span class="c">- Definition of WFS</span>
+<span class="c">- Properties of WFS (Left Saturatedness)</span>
+
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pushouts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Opp.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Retract.
+<span class="kn">Require Import</span> UniMath.ModelCategories.MorphismClass.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Lifting.
+
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> morcls.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> retract.
+
+<span class="kn">Section</span> <span class="nf">wfs</span>.
+
+<span class="c">(* Any map can be factored through maps in L and R *)</span>
+<span class="kn">Definition</span> <span class="nf">wfs_fact_ax</span> {<span class="nv">C</span> : category} (<span class="nv">L</span> <span class="nv">R</span> : morphism_class C) :=
+  ∏ x y (f : x --&gt; y),
+    <span class="k">∃</span> <span class="nv">ef</span> (<span class="nv">l</span> : x --&gt; ef) (<span class="nv">r</span> : ef --&gt; y),
+      (L _ _) l × (R _ _) r × l · r = f.
+
+<span class="c">(* https://github.com/rwbarton/lean-model-categories/blob/e366fccd9aac01154da9dd950ccf49524f1220d1/src/category_theory/model/wfs.lean#L27 *)</span>
+<span class="kn">Definition</span> <span class="nf">is_wfs</span> {<span class="nv">C</span> : category} (<span class="nv">L</span> <span class="nv">R</span> : morphism_class C) :=
+  (L = llp R) × (R = rlp L) × (wfs_fact_ax L R).
+
+<span class="kn">Definition</span> <span class="nf">make_is_wfs</span> {<span class="nv">C</span> : category} {<span class="nv">L</span> <span class="nv">R</span> : morphism_class C}
+    (<span class="nv">llp</span> : L = llp R) (<span class="nv">rlp</span> : R = rlp L) (<span class="nv">fact</span> : wfs_fact_ax L R) : is_wfs L R :=
+  make_dirprod llp (make_dirprod rlp fact).
+
+<span class="kn">Definition</span> <span class="nf">wfs</span> (<span class="nv">C</span> : category) :=
+  ∑ (L R : morphism_class C), is_wfs L R.
+
+<span class="kn">Definition</span> <span class="nf">make_wfs</span> {<span class="nv">C</span> : category} (<span class="nv">L</span> <span class="nv">R</span> : morphism_class C) (<span class="nv">w</span> : is_wfs L R) : wfs C :=
+  tpair _ L (tpair _ R w).
+
+<span class="kn">Definition</span> <span class="nf">wfs_L</span> {<span class="nv">C</span> : category} (<span class="nv">w</span> : wfs C) := (pr1 w).
+<span class="kn">Definition</span> <span class="nf">wfs_R</span> {<span class="nv">C</span> : category} (<span class="nv">w</span> : wfs C) := pr1 (pr2 w).
+<span class="kn">Definition</span> <span class="nf">is_wfs_llp</span>  {<span class="nv">C</span> : category} {<span class="nv">L</span> <span class="nv">R</span> : morphism_class C} (<span class="nv">w</span> : is_wfs L R) := pr1 w.
+<span class="kn">Definition</span> <span class="nf">is_wfs_rlp</span>  {<span class="nv">C</span> : category} {<span class="nv">L</span> <span class="nv">R</span> : morphism_class C} (<span class="nv">w</span> : is_wfs L R) := pr1 (pr2 w).
+<span class="kn">Definition</span> <span class="nf">is_wfs_fact</span> {<span class="nv">C</span> : category} {<span class="nv">L</span> <span class="nv">R</span> : morphism_class C} (<span class="nv">w</span> : is_wfs L R) := pr2 (pr2 w).
+<span class="kn">Definition</span> <span class="nf">wfs_is_wfs</span> {<span class="nv">C</span> : category} (<span class="nv">w</span> : wfs C) := pr2 (pr2 w).
+<span class="kn">Definition</span> <span class="nf">wfs_llp</span>  {<span class="nv">C</span> : category} (<span class="nv">w</span> : wfs C) := is_wfs_llp (wfs_is_wfs w).
+<span class="kn">Definition</span> <span class="nf">wfs_rlp</span>  {<span class="nv">C</span> : category} (<span class="nv">w</span> : wfs C) := is_wfs_rlp (wfs_is_wfs w).
+<span class="kn">Definition</span> <span class="nf">wfs_fact</span> {<span class="nv">C</span> : category} (<span class="nv">w</span> : wfs C) := is_wfs_fact (wfs_is_wfs w).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_wfs</span> {<span class="nv">C</span> : category} (<span class="nv">L</span> <span class="nv">R</span> : morphism_class C) :
+    isaprop (is_wfs L R).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isapropdirprod.
+  - <span class="nb">unfold</span> isaprop.
+    <span class="bp">exact</span> (isasetmorphism_class _ _).
+  - <span class="nb">apply</span> isapropdirprod.
+    * <span class="bp">exact</span> (isasetmorphism_class _ _).
+    * <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+      <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+
+<span class="c">(* Can't do dot notation like in lean (is_wfs.lp)*)</span>
+<span class="c">(* any two maps in a wfs have the lifting property with respect to each other *)</span>
+<span class="c">(* https://github.com/rwbarton/lean-model-categories/blob/e366fccd9aac01154da9dd950ccf49524f1220d1/src/category_theory/model/wfs.lean#L33 *)</span>
+<span class="kn">Lemma</span> <span class="nf">wfs'lp</span> (<span class="nv">w</span> : wfs C)
+    {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">a</span> <span class="nv">b</span>} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">g</span> : a --&gt; b}
+    (<span class="nv">hf</span> : (wfs_L w _ _) f) (<span class="nv">hg</span> : (wfs_R w _ _) g) :
+  lp f g.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> wfs_L <span class="k">in</span> hf.
+  <span class="nb">rewrite</span> (wfs_llp w) <span class="k">in</span> hf.
+  <span class="bp">exact</span> (hf _ _ _ hg).
+<span class="kn">Qed</span>.
+
+<span class="c">(* if f' is a retract of f and f is in L for some WFS, then so is f' *)</span>
+<span class="c">(* proposition 14.1.13 in More Concise AT *)</span>
+<span class="c">(* https://github.com/rwbarton/lean-model-categories/blob/e366fccd9aac01154da9dd950ccf49524f1220d1/src/category_theory/model/wfs.lean#L40 *)</span>
+<span class="kn">Lemma</span> <span class="nf">wfs_L_retract</span> (<span class="nv">w</span> : wfs C)
+    {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">x'</span> <span class="nv">y'</span> : C} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">f'</span> : x' --&gt; y'}
+    (<span class="nv">r</span> : retract f f') (<span class="nv">hf</span> : (wfs_L w _ _) f) :
+  (wfs_L w _ _) f'.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> r <span class="k">as</span> [ia [ra [ib [rb [ha [hb [hi hr]]]]]]].
+
+  <span class="nb">unfold</span> wfs_L.
+  <span class="nb">rewrite</span> (wfs_llp w).
+  <span class="nb">intros</span> a b g hg h k s.
+  <span class="c">(* existence of lift in part of diagram *)</span>
+  use (wfs'lp w hf hg (h ∘ ra) (k ∘ rb) _).
+  {
+    <span class="nb">rewrite</span> &lt;- assoc, s, assoc, assoc, hr.
+    <span class="bp">reflexivity</span>.
+  }
+  <span class="c">(* extract lift *)</span>
+  <span class="nb">intro</span> hl.
+  <span class="nb">destruct</span> hl <span class="k">as</span>  [l [hlh hlk]].
+
+  <span class="c">(* turn proof into normal ∑-type *)</span>
+  <span class="nb">apply</span> hinhpr.
+  <span class="c">(* composition in diagram *)</span>
+  <span class="k">exists</span> (<span class="nv">l</span> ∘ ib).
+  <span class="c">(* diagram chasing *)</span>
+  <span class="nb">split</span>.
+  * <span class="nb">rewrite</span> assoc, &lt;- hi, &lt;- assoc, hlh, assoc, ha, id_left.
+    <span class="bp">reflexivity</span>.
+  * <span class="nb">rewrite</span> &lt;- assoc, hlk, assoc, hb, id_left.
+    <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="c">(* https://github.com/rwbarton/lean-model-categories/blob/e366fccd9aac01154da9dd950ccf49524f1220d1/src/category_theory/model/wfs.lean#L52 *)</span>
+<span class="c">(* Lemma 14.1.9 in MCAT *)</span>
+<span class="kn">Lemma</span> <span class="nf">llp_rlp_self</span> (<span class="nv">L</span> : morphism_class C) : L ⊆ llp (rlp L).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b f hf x y g hg.
+  <span class="nb">apply</span> (hg _ _ _).
+  <span class="bp">exact</span> hf.
+<span class="kn">Qed</span>.
+
+<span class="c">(* no counterpart in lean *)</span>
+<span class="kn">Lemma</span> <span class="nf">rlp_llp_self</span> (<span class="nv">L</span> : morphism_class C) : L ⊆ rlp (llp L).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b f hf x y g hg.
+  <span class="nb">apply</span> (hg _ _ _).
+  <span class="bp">exact</span> hf.
+<span class="kn">Qed</span>.
+
+<span class="c">(* https://github.com/rwbarton/lean-model-categories/blob/e366fccd9aac01154da9dd950ccf49524f1220d1/src/category_theory/model/wfs.lean#L55 *)</span>
+<span class="c">(* No counterpart in MCAT, (□(I□), I□) is a WFS *)</span>
+<span class="kn">Lemma</span> <span class="nf">wfs_of_factorization</span> (<span class="nv">I</span> : morphism_class C)
+    (<span class="nv">h</span> : ∏ (x y : C) (f : x --&gt; y), <span class="k">∃</span> <span class="nv">z</span> (<span class="nv">g</span> : x --&gt; z) (<span class="nv">h</span> : z --&gt; y), (llp (rlp I) _ _ g) × (rlp I _ _ h) × (h ∘ g = f)) :
+  is_wfs (llp (rlp I)) (rlp I).
+<span class="kn">Proof</span>.
+  use make_is_wfs.
+  - <span class="nb">trivial</span>.
+  - <span class="nb">apply</span> morphism_class_subset_antisymm; <span class="nb">intros</span> x y g hg.
+    * <span class="bp">exact</span> (rlp_llp_self _ _ _ _ hg).
+    * <span class="nb">intros</span> a b f hf.
+      <span class="nb">apply</span> (hg _ _ _).
+      <span class="bp">exact</span> (llp_rlp_self _ _ _ _ hf).
+  - <span class="bp">exact</span> h.
+<span class="kn">Qed</span>.
+
+<span class="c">(* https://github.com/rwbarton/lean-model-categories/blob/e366fccd9aac01154da9dd950ccf49524f1220d1/src/category_theory/model/wfs.lean#L67 *)</span>
+<span class="c">(* same name as Lemma 14.1.12 in MCAT, but a different phrasing</span>
+<span class="c">In MCAT, the statement is in reference of a single morphism, not a whole class</span>
+<span class="c">*)</span>
+<span class="kn">Lemma</span> <span class="nf">retract_argument</span> {<span class="nv">L'</span> : morphism_class C} (<span class="nv">w</span> : wfs C)
+    (<span class="nv">H</span> : wfs_fact_ax L' (wfs_R w)) :
+  ∏ {x y} (f : x --&gt; y),
+    (wfs_L w _ _) f
+    -&gt; <span class="k">∃</span> {<span class="nv">x'</span> <span class="nv">y'</span>} (<span class="nv">f'</span> : x' --&gt; y') (<span class="nv">r</span> : retract f' f), (L' _ _) f'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f hf.
+
+  <span class="c">(* rcases H f with ⟨z, g, h, hg, hh, hgh⟩, *)</span>
+  <span class="c">(* Get factorization for f from H *)</span>
+  <span class="nb">specialize</span> (H _ _ f) <span class="k">as</span> eHf.
+  <span class="nb">simpl</span> <span class="k">in</span> eHf.
+  use (hinhuniv _ eHf).
+  <span class="nb">intro</span> Hf.
+  <span class="nb">destruct</span> Hf <span class="k">as</span> [z [g [h [hg [hh hgh]]]]].
+
+  <span class="c">(* rcases w.lp hf hh g (𝟙 _) (by rw hgh; simp) with ⟨l, hl₁, hl₂⟩, *)</span>
+  <span class="c">(* Use lifting property to get map l in diagram *)</span>
+  use (wfs'lp w hf hh g (identity _)).
+  {
+    <span class="nb">rewrite</span> hgh, id_right.
+    <span class="bp">reflexivity</span>.
+  }
+  <span class="nb">intro</span> hl.
+  <span class="nb">destruct</span> hl <span class="k">as</span> [l [hl1 hl2]].
+
+  <span class="c">(* Show that f is a retract of g *)</span>
+  <span class="nb">assert</span> (r : retract g f).
+  {
+    use (make_retract (identity _) (identity _) l h).
+    use make_is_retract.
+    - <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+    - <span class="bp">assumption</span>.
+    - <span class="nb">rewrite</span> id_left. <span class="bp">now</span> <span class="nb">symmetry</span>.
+    - <span class="nb">rewrite</span> id_left. <span class="bp">now</span> <span class="nb">symmetry</span>.
+  }
+
+  <span class="c">(* convert goal to normal ∑-type *)</span>
+  <span class="nb">apply</span> hinhpr.
+
+  <span class="c">(* finish proof *)</span>
+  <span class="k">exists</span> <span class="nv">x</span>, z, g, r.
+  <span class="bp">exact</span> hg.
+<span class="kn">Qed</span>.
+
+<span class="c">(* https://github.com/rwbarton/lean-model-categories/blob/e366fccd9aac01154da9dd950ccf49524f1220d1/src/category_theory/model/wfs.lean#L82 *)</span>
+<span class="kn">Lemma</span> <span class="nf">lp_isos_univ</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : a --&gt; b) :
+  (morphism_class_isos C _ _ f) -&gt; lp f g.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">set</span> (fiso := make_iso _ H).
+  <span class="c">(* change f to the isomorphism in the goal *)</span>
+  <span class="nb">change</span> (lp fiso g).
+
+  <span class="nb">intros</span> h k s.
+  <span class="c">(* lift we are looking for is h ∘ f^{-1} *)</span>
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> (<span class="nv">h</span> ∘ (inv_from_iso fiso)).
+  <span class="c">(* diagram chasing *)</span>
+  <span class="nb">split</span>.
+  * <span class="nb">rewrite</span> assoc, iso_inv_after_iso, id_left.
+    <span class="bp">reflexivity</span>.
+  * <span class="nb">rewrite</span> &lt;- assoc, s, assoc.
+    <span class="nb">rewrite</span> iso_after_iso_inv, id_left.
+    <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lp_univ_isos</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : a --&gt; b) :
+  (morphism_class_isos C _ _ f) -&gt; lp g f.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">set</span> (fiso := make_iso _ H).
+  <span class="c">(* change f to the isomorphism in the goal *)</span>
+  <span class="nb">change</span> (lp g fiso).
+
+  <span class="nb">intros</span> h k s.
+  <span class="c">(* lift we are looking for is h ∘ f^{-1} *)</span>
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> ((inv_from_iso fiso) ∘ k).
+  <span class="c">(* diagram chasing *)</span>
+  <span class="nb">split</span>.
+  * <span class="nb">rewrite</span> assoc, &lt;- s, &lt;- assoc, iso_inv_after_iso, id_right.
+    <span class="bp">reflexivity</span>.
+  * <span class="nb">rewrite</span> &lt;- assoc, iso_after_iso_inv, id_right.
+    <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="c">(* https://github.com/rwbarton/lean-model-categories/blob/e366fccd9aac01154da9dd950ccf49524f1220d1/src/category_theory/model/wfs.lean#L91 *)</span>
+<span class="kn">Lemma</span> <span class="nf">llp_univ</span> : llp (morphism_class_univ C) = morphism_class_isos C.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> morphism_class_subset_antisymm; <span class="nb">intros</span> x y f H.
+  - <span class="c">(* apply llp of f with itself *)</span>
+    <span class="nb">specialize</span> ((H _ _ f) tt).
+    <span class="c">(* choose horizontal maps to be identity *)</span>
+    use (H (identity _) (identity _)).
+    {
+      <span class="c">(* commutativity of diagram *)</span>
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="bp">reflexivity</span>.
+    }
+    <span class="c">(* extract lift l from diagram *)</span>
+    <span class="nb">intro</span> hl.
+    <span class="nb">destruct</span> hl <span class="k">as</span> [l [hfl hlf]].
+    <span class="nb">unfold</span> morphism_class_isos.
+
+    <span class="c">(* show f is a z_iso (we have its inverse, the lift l) *)</span>
+    <span class="nb">assert</span> (is_z_isomorphism f) <span class="k">as</span> f_z_iso.
+    {
+      <span class="k">exists</span> <span class="nv">l</span>.
+      <span class="nb">split</span>; <span class="bp">assumption</span>.
+    }
+    <span class="c">(* finish proof *)</span>
+    <span class="nb">apply</span> is_iso_from_is_z_iso.
+    <span class="bp">exact</span> f_z_iso.
+  - <span class="nb">intros</span> a b g _.
+    <span class="c">(* other inclusion is exactly the previous Lemma *)</span>
+    <span class="bp">exact</span> (lp_isos_univ f g H).
+<span class="kn">Qed</span>.
+
+<span class="c">(* https://github.com/rwbarton/lean-model-categories/blob/e366fccd9aac01154da9dd950ccf49524f1220d1/src/category_theory/model/wfs.lean#L101 *)</span>
+<span class="kn">Lemma</span> <span class="nf">rlp_isos</span> : rlp (morphism_class_isos C) = morphism_class_univ C.
+<span class="kn">Proof</span>.
+  <span class="c">(* This proof is slightly different *)</span>
+  <span class="nb">apply</span> morphism_class_subset_antisymm.
+  - <span class="c">(* an iso is a morphism *)</span>
+    <span class="nb">intros</span> x y g H.
+    <span class="nb">unfold</span> morphism_class_univ.
+    <span class="bp">exact</span> tt.
+  - <span class="c">(* other inclusion is easy with previous Lemmas *)</span>
+    <span class="nb">rewrite</span> &lt;- llp_univ.
+    <span class="bp">exact</span> (rlp_llp_self _).
+<span class="kn">Qed</span>.
+
+<span class="c">(* https://github.com/rwbarton/lean-model-categories/blob/e366fccd9aac01154da9dd950ccf49524f1220d1/src/category_theory/model/wfs.lean#L109 *)</span>
+<span class="kn">Lemma</span> <span class="nf">wfs_isos_univ</span> : is_wfs (morphism_class_isos C) (morphism_class_univ C).
+<span class="kn">Proof</span>.
+  <span class="c">(* apply symmetry to immediately exact the previous Lemmas *)</span>
+  use make_is_wfs; <span class="kp">try</span> <span class="nb">symmetry</span>.
+  - <span class="bp">exact</span> llp_univ.
+  - <span class="bp">exact</span> rlp_isos.
+  - <span class="c">(* factorize a morphism through identity and itself *)</span>
+    <span class="nb">intros</span> x y f.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> <span class="nv">x</span>, (identity x), f.
+
+    <span class="c">(* this solves the second subgoal, stating that f is a morphism *)</span>
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    * <span class="bp">exact</span> (identity_is_iso C x).
+    * <span class="nb">rewrite</span> id_left.
+      <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">opp_is_wfs</span> {<span class="nv">L</span> <span class="nv">R</span> : morphism_class C} (<span class="nv">w</span> : is_wfs L R) :
+    is_wfs (morphism_class_opp R) (morphism_class_opp L).
+<span class="kn">Proof</span>.
+  use make_is_wfs.
+  - <span class="nb">rewrite</span> (is_wfs_rlp w).
+    <span class="bp">exact</span> (opp_rlp_is_llp_opp _).
+  - <span class="nb">rewrite</span> (is_wfs_llp w).
+    <span class="bp">exact</span> (opp_llp_is_rlp_opp _).
+  - <span class="nb">intros</span> x y f.
+    <span class="nb">specialize</span> ((is_wfs_fact w) _ _ (rm_opp_mor f)) <span class="k">as</span> H.
+    use (hinhuniv _ H).
+    <span class="nb">clear</span> H; <span class="nb">intro</span> H.
+    <span class="nb">destruct</span> H <span class="k">as</span> [z [g [h [? [? ?]]]]].
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">opp_ob</span> <span class="nv">z</span>), (opp_mor h), (opp_mor g).
+    <span class="kp">repeat</span> <span class="nb">split</span>; <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">opp_wfs</span> (<span class="nv">w</span> : wfs C) : wfs (op_cat C).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">morphism_class_opp</span> (wfs_R w)), (morphism_class_opp (wfs_L w)).
+  <span class="bp">exact</span> (opp_is_wfs (wfs_is_wfs w)).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">wfs</span>.
+
+<span class="kn">Section</span> <span class="nf">properties</span>.
+
+<span class="kn">Lemma</span> <span class="nf">wfs_L_contains_isos</span> {<span class="nv">C</span> : category} (<span class="nv">w</span> : wfs C) :
+    (morphism_class_isos C) ⊆ (wfs_L w).
+<span class="kn">Proof</span>.
+  <span class="c">(* isos are the llp of univ *)</span>
+  <span class="nb">rewrite</span> &lt;- llp_univ.
+  <span class="c">(* rewrite llp property *)</span>
+  <span class="nb">unfold</span> wfs_L.
+  <span class="nb">rewrite</span> (wfs_llp w).
+
+  <span class="nb">apply</span> llp_anti.
+  <span class="c">(* every morphism is a morphism *)</span>
+  <span class="nb">intros</span> x y f hf.
+  <span class="bp">exact</span> tt.
+<span class="kn">Qed</span>.
+
+<span class="c">(* Dual statement *)</span>
+<span class="kn">Lemma</span> <span class="nf">wfs_R_contains_isos</span> {<span class="nv">C</span> : category} (<span class="nv">w</span> : wfs C) :
+    (morphism_class_isos C) ⊆ (wfs_R w).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f hf.
+  <span class="nb">set</span> (opp_containment := wfs_L_contains_isos (opp_wfs w)).
+  <span class="bp">exact</span> (opp_containment _ _ (opp_mor f) (opp_is_iso _ hf)).
+<span class="kn">Qed</span>.
+
+<span class="c">(* Dual statement of wfs_L_retract *)</span>
+<span class="kn">Lemma</span> <span class="nf">wfs_R_retract</span> {<span class="nv">C</span> : category} (<span class="nv">w</span> : wfs C)
+    {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">a'</span> <span class="nv">b'</span>} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">f'</span> : a' --&gt; b'}
+    (<span class="nv">r</span> : retract f f') (<span class="nv">hf</span> : (wfs_R w _ _) f) :
+  (wfs_R w _ _) f'.
+<span class="kn">Proof</span>.
+  use (wfs_L_retract (opp_wfs w) (opp_retract r)).
+  <span class="bp">exact</span> hf.
+<span class="kn">Qed</span>.
+
+<span class="c">(* https://ncatlab.org/nlab/show/weak+factorization+system#ClosuredPropertiesOfWeakFactorizationSystem *)</span>
+<span class="kn">Lemma</span> <span class="nf">wfs_closed_pullbacks</span> {<span class="nv">C</span> : category} (<span class="nv">w</span> : wfs C)
+    {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">p</span> : x --&gt; y} {<span class="nv">f</span> : z --&gt; y}
+    (<span class="nv">Pb</span> : Pullback f p) :
+  ((wfs_R w _ _) p) -&gt; ((wfs_R w _ _) (PullbackPr1 Pb)).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> p_r.
+
+  <span class="nb">destruct</span> Pb <span class="k">as</span> [[zfx [f'p p2]] [H isPb]].
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">cbn</span>.
+
+  <span class="c">(* need to show that f'p has rlp w.r.t. all i ∈ L *)</span>
+  <span class="nb">unfold</span> wfs_R.
+  <span class="nb">rewrite</span> (wfs_rlp w).
+  <span class="nb">intros</span> a b i i_l.
+
+  <span class="c">(* commutative diagram *)</span>
+  <span class="nb">intros</span> p1 g Hp1g.
+
+  <span class="c">(* obtain diagram</span>
+<span class="c">      p1     p2</span>
+<span class="c">    a --&gt; Pb --&gt; x</span>
+<span class="c">   i|     |f'p   |p</span>
+<span class="c">    v     v      v</span>
+<span class="c">    b --&gt; z  --&gt; y</span>
+<span class="c">       g      f</span>
+<span class="c">  *)</span>
+
+  <span class="c">(* use rlp of p to get lift  in outer diagram*)</span>
+  <span class="nb">unfold</span> wfs_R <span class="k">in</span> p_r.
+  <span class="nb">rewrite</span> (wfs_rlp w) <span class="k">in</span> p_r.
+
+  use (p_r _ _ i i_l (p2 ∘ p1) (f ∘ g) _).
+  {
+    <span class="nb">rewrite</span> &lt;- assoc, &lt;- H, assoc, Hp1g, assoc.
+    <span class="bp">reflexivity</span>.
+  }
+
+  <span class="c">(* extract lift *)</span>
+  <span class="nb">intro</span> hl.
+  <span class="nb">destruct</span> hl <span class="k">as</span> [l [hl1 hl2]].
+  <span class="nb">symmetry in</span> hl2.
+
+  <span class="c">(* use pullback property to get lift gh in</span>
+<span class="c">          Pb --&gt; x</span>
+<span class="c">    gh  /  |f'p  |p</span>
+<span class="c">      /    v     v</span>
+<span class="c">     b --&gt; z --&gt; y</span>
+<span class="c">        g     f</span>
+<span class="c">  *)</span>
+  <span class="nb">destruct</span> (isPb _ g l hl2) <span class="k">as</span> [[gh [hgh1 hgh2]] _].
+
+  <span class="c">(* gh is the lift in the inner diagram *)</span>
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> <span class="nv">gh</span>.
+  <span class="nb">split</span>.
+  - <span class="c">(* use uniqueness of maps into pullback to show commutativity</span>
+<span class="c">       in top triangle *)</span>
+    <span class="nb">apply</span> (MorphismsIntoPullbackEqual isPb).
+    * <span class="nb">rewrite</span> &lt;-assoc, hgh1, Hp1g.
+      <span class="bp">reflexivity</span>.
+    * <span class="nb">rewrite</span> &lt;- assoc, hgh2, hl1.
+      <span class="bp">reflexivity</span>.
+  - <span class="c">(* commutativity in lower triangle is trivial by pullback property *)</span>
+    <span class="bp">exact</span> hgh1.
+<span class="kn">Qed</span>.
+
+<span class="c">(* Dual statement *)</span>
+<span class="kn">Lemma</span> <span class="nf">wfs_closed_pushouts</span> {<span class="nv">C</span> : category} (<span class="nv">w</span> : wfs C)
+    {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">p</span> : x --&gt; y} {<span class="nv">f</span> : x --&gt; z}
+    (<span class="nv">Po</span> : Pushout f p) :
+  ((wfs_L w _ _) p) -&gt; ((wfs_L w _ _) (PushoutIn1 Po)).
+<span class="kn">Proof</span>.
+  <span class="c">(* didn't expect Coq would be this powerful... *)</span>
+  <span class="nb">apply</span> (wfs_closed_pullbacks (opp_wfs _)).
+<span class="kn">Qed</span>.
+
+<span class="c">(* https://ncatlab.org/nlab/show/weak+factorization+system#ClosuredPropertiesOfWeakFactorizationSystem *)</span>
+<span class="c">(* map between coproducts is in L if all arrows between objects in coproduct are *)</span>
+<span class="kn">Lemma</span> <span class="nf">wfs_closed_coproducts</span> {<span class="nv">C</span> : category} {<span class="nv">I</span> : hSet} (<span class="nv">w</span> : wfs C)
+    {<span class="nv">a</span> <span class="nv">b</span> : I -&gt; C}
+    {<span class="nv">f</span> : ∏ (i : I), a i --&gt; b i} (<span class="nv">hf</span> : <span class="k">∀</span> (<span class="nv">i</span> : I), (wfs_L w _ _) (f i))
+    (<span class="nv">CCa</span> : Coproduct _ _ a) (<span class="nv">CCb</span> : Coproduct _ _ b)
+    (<span class="nv">aoc</span> : AxiomOfChoice) :
+  (wfs_L w _ _) (CoproductOfArrows _ _ CCa CCb f).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> wfs_L <span class="k">in</span> *.
+  <span class="c">(* create square with g ∈ R *)</span>
+  <span class="nb">rewrite</span> (wfs_llp w) <span class="k">in</span> *.
+  <span class="nb">intros</span> x y g hg.
+  <span class="nb">intros</span> h k s.
+
+  <span class="c">(* obtain a square for all i ∈ I *)</span>
+  <span class="c">(* factor maps from A_i / B_i through coproduct object *)</span>
+  <span class="nb">set</span> (hi := <span class="k">λ</span> <span class="nv">i</span>, (CoproductIn _ _ CCa i) · h).
+  <span class="nb">set</span> (ki := <span class="k">λ</span> <span class="nv">i</span>, (CoproductIn _ _ CCb i) · k).
+
+  <span class="nb">assert</span> (∏ i, <span class="k">∃</span> <span class="nv">li</span>, ((f i) · li = hi i) × (li · g = ki i)) <span class="k">as</span> ilift.
+  {
+    <span class="nb">intro</span> i.
+    <span class="c">(* extract lift in i-th diagram *)</span>
+    <span class="nb">specialize</span> (hf i _ _ g hg) <span class="k">as</span> H.
+    <span class="nb">specialize</span> (H (hi i) (ki i)).
+
+    use H.
+
+    <span class="nb">unfold</span> hi, ki.
+    <span class="nb">rewrite</span> &lt;- assoc, s, assoc, assoc.
+    <span class="bp">now</span> <span class="nb">rewrite</span> (CoproductOfArrowsIn _ _).
+  }
+
+  <span class="c">(* we need the axiom of choice here</span>
+<span class="c">     it is basically exactly the definition of the axiom of choice *)</span>
+  <span class="nb">assert</span> (∥∏ i, ∑ li, ((f i) · li = hi i) × (li · g = ki i)∥) <span class="k">as</span> ilift_aoc.
+  {
+    <span class="nb">set</span> (aocI := aoc I).
+    <span class="nb">simpl</span> <span class="k">in</span> aocI.
+    <span class="nb">apply</span> (aocI).
+    <span class="bp">exact</span> ilift.
+  }
+
+  <span class="c">(* obtain lift in original diagram *)</span>
+  <span class="nb">assert</span> (<span class="k">∃</span> (<span class="nv">li</span> : (∏ i, (b i --&gt; x))), (∏ i, (f i) · (li i) = hi i × ((li i) · g = ki i))) <span class="k">as</span> ilifts.
+  {
+    use (hinhuniv _ ilift_aoc).
+    <span class="nb">intro</span> ilift_aoc_sig.
+    <span class="nb">apply</span> hinhpr.
+
+    use tpair.
+    - <span class="nb">intro</span> i.
+      <span class="nb">set</span> (li := ilift_aoc_sig i).
+      <span class="nb">destruct</span> li <span class="k">as</span> [l hl].
+      <span class="bp">exact</span> l.
+    - <span class="nb">intro</span> i.
+      <span class="nb">set</span> (li := ilift_aoc_sig i).
+      <span class="nb">simpl</span>.
+      <span class="nb">destruct</span> li <span class="k">as</span> [l hl].
+      <span class="bp">exact</span> hl.
+  }
+
+  use (hinhuniv _ ilifts).
+  <span class="nb">intro</span> ilift_sig.
+  <span class="nb">destruct</span> ilift_sig <span class="k">as</span> [li hli].
+
+  <span class="c">(* turn individual lifts into lift from coproduct *)</span>
+  <span class="nb">set</span> (hl := isCoproduct_Coproduct _ _ CCb x li).
+  <span class="nb">destruct</span> hl <span class="k">as</span> [[l hl] uniqueness].
+
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> <span class="nv">l</span>.
+  <span class="c">(* factor maps through coproduct object *)</span>
+  <span class="nb">split</span>; <span class="nb">rewrite</span> CoproductArrowEta, (CoproductArrowEta _ _ _ _ _ l).
+  - <span class="c">(* factor f as well *)</span>
+    <span class="nb">rewrite</span> (precompWithCoproductArrow).
+
+    <span class="c">(* maps are equal if maps through coproduct are equal *)</span>
+    <span class="nb">apply</span> CoproductArrowUnique.
+
+    <span class="c">(* now we can reason in separate diagrams again *)</span>
+    <span class="nb">intro</span> i.
+    <span class="nb">rewrite</span> CoproductInCommutes.
+
+    <span class="c">(* this is basically exactly the relation we want to prove: *)</span>
+    <span class="nb">destruct</span> (hli i) <span class="k">as</span> [hlicomm _].
+
+    <span class="c">(* by definition *)</span>
+    <span class="nb">change</span> (CoproductIn _ _ _ _ · h) <span class="k">with</span> (hi i).
+    <span class="nb">rewrite</span> (hl i).
+    <span class="bp">exact</span> hlicomm.
+  - <span class="c">(* factor through coproduct object *)</span>
+    <span class="nb">apply</span> CoproductArrowUnique.
+
+    <span class="c">(* reason about separate diagrams again *)</span>
+    <span class="nb">intro</span> i.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> CoproductInCommutes.
+
+    <span class="c">(* the relation we want to prove *)</span>
+    <span class="nb">destruct</span> (hli i) <span class="k">as</span> [_ klicomm].
+
+    <span class="c">(* by definition *)</span>
+    <span class="nb">change</span> (CoproductIn _ _ _ _ · k) <span class="k">with</span> (ki i).
+    <span class="nb">rewrite</span> (hl i).
+    <span class="bp">exact</span> klicomm.
+<span class="kn">Qed</span>.
+
+<span class="c">(* Dual statement *)</span>
+<span class="kn">Lemma</span> <span class="nf">wfs_closed_products</span> {<span class="nv">C</span> : category} {<span class="nv">I</span> : hSet} (<span class="nv">w</span> : wfs C)
+    {<span class="nv">a</span> <span class="nv">b</span> : I -&gt; C} {<span class="nv">f</span> : ∏ (i : I), b i --&gt; a i}
+    (<span class="nv">hf</span> : <span class="k">∀</span> (<span class="nv">i</span> : I), (wfs_R w _ _) (f i))
+    (<span class="nv">CCa</span> : Product _ _ a) (<span class="nv">CCb</span> : Product _ _ b)
+    (<span class="nv">aoc</span> : AxiomOfChoice) :
+  (wfs_R w _ _) (ProductOfArrows _ _ CCa CCb f).
+<span class="kn">Proof</span>.
+  <span class="c">(* again superpowers by Coq *)</span>
+  <span class="nb">apply</span> (wfs_closed_coproducts (opp_wfs w)).
+  - <span class="bp">exact</span> hf.
+  - <span class="bp">exact</span> aoc.
+<span class="kn">Qed</span>.
+
+<span class="c">(* this cannot be shown without AOC *)</span>
+<span class="c">(* Lemma wfs_closed_transfinite_composition</span>
+<span class="c">    {C : category}</span>
+<span class="c">    {d : chain C}</span>
+<span class="c">    {w : wfs C}</span>
+<span class="c">    (CC : ColimCocone d)</span>
+<span class="c">    (Hd : ∏ {u v : vertex nat_graph} (e : edge u v), wfs_L w _ _ (dmor d e))</span>
+<span class="c">    (aoc : AxiomOfChoice) :</span>
+<span class="c">  wfs_L w _ _ (colimIn CC 0).</span>
+<span class="c">Proof.</span>
+<span class="c">  unfold wfs_L in *.</span>
+<span class="c">  (* create square with g ∈ R *)</span>
+<span class="c">  rewrite (wfs_llp w) in *.</span>
+
+<span class="c">  intros a b g Rg h k hkcomm.</span>
+
+<span class="c">  transparent assert (Hind : (∏ (v : vertex nat_graph), ∃ (va : dob d v --&gt; a), va · g = colimIn CC v · k)).</span>
+<span class="c">  {</span>
+<span class="c">    intro v.</span>
+<span class="c">    induction v as [|v Hv].</span>
+<span class="c">    - apply hinhpr.</span>
+<span class="c">      exists h.</span>
+<span class="c">      exact hkcomm.</span>
+<span class="c">    - transparent assert (lpSv : (∃ (lp : dmor d (idpath (S v)) --&gt; g), arrow_mor11 lp = colimIn CC (S v) · k)).</span>
+<span class="c">      {</span>
+<span class="c">        use (hinhuniv _ Hv).</span>
+<span class="c">        intro Hv'.</span>
+<span class="c">        apply hinhpr.</span>
+<span class="c">        use tpair.</span>
+<span class="c">        - use mors_to_arrow_mor.</span>
+<span class="c">          * exact (pr1 Hv').</span>
+<span class="c">          * exact (colimIn CC (S v) · k).</span>
+<span class="c">          * abstract (</span>
+<span class="c">              etrans; [exact (pr2 Hv')|];</span>
+<span class="c">              apply pathsinv0;</span>
+<span class="c">              etrans; [apply assoc|];</span>
+<span class="c">              apply cancel_postcomposition;</span>
+<span class="c">              exact (colimInCommutes CC _ _ (idpath (S v)))</span>
+<span class="c">            ).</span>
+<span class="c">        - reflexivity.</span>
+<span class="c">      }</span>
+<span class="c">      use (hinhuniv _ lpSv).</span>
+<span class="c">      clear lpSv; intro lpSv.</span>
+<span class="c">      set (fillv := Hd _ _ (idpath (S v)) _ _ _ Rg _ _ (arrow_mor_comm (pr1 lpSv))).</span>
+<span class="c">      use (hinhuniv _ fillv).</span>
+<span class="c">      clear fillv; intro fillv.</span>
+<span class="c">      apply hinhpr.</span>
+<span class="c">      exists (pr1 fillv).</span>
+<span class="c">      etrans; [exact (pr22 fillv)|].</span>
+<span class="c">      exact (pr2 lpSv).</span>
+<span class="c">  }</span>
+
+<span class="c">  assert (∥∏ v : vertex nat_graph, ∑ va : dob d v --&gt; a, va · g = colimIn CC v · k∥) as Hind_aoc.</span>
+<span class="c">  {</span>
+<span class="c">    set (aocI := aoc natset).</span>
+<span class="c">    simpl in aocI.</span>
+<span class="c">    apply (aocI).</span>
+<span class="c">    exact Hind.</span>
+<span class="c">  }</span>
+<span class="c">  use (hinhuniv _ Hind_aoc).</span>
+<span class="c">  clear Hind Hind_aoc; intro Hind.</span>
+<span class="c">  apply hinhpr.</span>
+
+<span class="c">  use tpair.</span>
+<span class="c">  - use colimArrow.</span>
+<span class="c">    use make_cocone.</span>
+<span class="c">    * intro v.</span>
+<span class="c">      exact (pr1 (Hind v)).</span>
+<span class="c">    * intros u v e.</span>
+<span class="c">      simpl in e.</span>
+<span class="c">      rewrite &lt;- e.</span>
+<span class="c">      admit. (* also follows from definition of Hind... *)</span>
+<span class="c">  - split.</span>
+<span class="c">    * etrans. apply colimArrowCommutes.</span>
+<span class="c">      cbn.</span>
+<span class="c">      admit.  (* true by definition of Hind... *)</span>
+<span class="c">    * use colimArrowUnique'.</span>
+<span class="c">      intro v.</span>
+<span class="c">      etrans. apply assoc.</span>
+<span class="c">      etrans. apply cancel_postcomposition.</span>
+<span class="c">              apply colimArrowCommutes.</span>
+<span class="c">      exact (pr2 (Hind v)).</span>
+<span class="c">Qed. *)</span>
+
+<span class="c">(*</span>
+<span class="c">(i)   wfs_&lt;X&gt;_contains_isos</span>
+<span class="c">(ii)  wfs_&lt;X&gt;_retract</span>
+<span class="c">(iii) wfs_closed_&lt;co&gt;products</span>
+<span class="c">(iv)  wfs_closed_&lt;pushouts|pullbacks&gt;</span>
+<span class="c">(v)   wfs_closed_transfinite_composition</span>
+
+<span class="c">prove that L is left saturated, and R is right saturated in a WFS</span>
+<span class="c">or lemma 14.1.8</span>
+<span class="c">*)</span>
+
+<span class="kn">Lemma</span> <span class="nf">llp_iff_lift_with_R</span> {<span class="nv">C</span> : category} (<span class="nv">w</span> : wfs C) {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y)
+  (<span class="nv">H</span> : ∑ z (g : x --&gt; z) (h : z --&gt; y), (wfs_L w _ _) g × (wfs_R w _ _) h × h ∘ g = f) :
+    lp (pr12 H) f &lt;-&gt; (wfs_R w _ _) f.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> H <span class="k">as</span> [z [g [h [Lg [Rh Hgh]]]]].
+
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> hf.
+    <span class="nb">unfold</span> wfs_R.
+    <span class="nb">rewrite</span> (wfs_rlp w).
+
+    <span class="nb">intros</span> a b g' hg'.
+    <span class="nb">intros</span> top bottom comm_total.
+
+    <span class="c">(* extract lp of λ_f and f (assumption) *)</span>
+    <span class="c">(* this diagram has a lift</span>
+<span class="c">       x ==== x</span>
+<span class="c">  λ_f  |      | f</span>
+<span class="c">       |      |</span>
+<span class="c">       Mf --&gt; y</span>
+<span class="c">          ρ_f</span>
+<span class="c">    *)</span>
+    use (hf (identity _) h).
+    {
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> pathsinv0.
+
+      <span class="bp">exact</span> (Hgh).
+    }
+    <span class="nb">intro</span> h'.
+    <span class="c">(* extract lift *)</span>
+    <span class="nb">destruct</span> h' <span class="k">as</span> [lift_lff [comm_lff1 comm_lff2]].
+
+    <span class="c">(* Since ρ_f ∈ R, this diagram has a lift</span>
+<span class="c">        top     λ_f</span>
+<span class="c">      a ---&gt; x ---&gt; Mf</span>
+<span class="c">    g |             | ρ_f</span>
+<span class="c">      |             |</span>
+<span class="c">      b ----------&gt; y</span>
+<span class="c">           bottom</span>
+<span class="c">    *)</span>
+    <span class="c">(* g and rf indeed have the rlp *)</span>
+    <span class="nb">assert</span> (lp g' h) <span class="k">as</span> lp_grf.
+    {
+      <span class="nb">set</span> (rf_r := Rh).
+      <span class="nb">unfold</span> wfs_R <span class="k">in</span> rf_r.
+      <span class="nb">rewrite</span> (wfs_rlp w) <span class="k">in</span> rf_r.
+      <span class="bp">exact</span> (rf_r _ _ g' hg').
+    }
+
+    <span class="c">(* extract this lift *)</span>
+    use (lp_grf (g ∘ top) bottom).
+    {
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="c">(* unfold wfs_left_map, wfs_right_map. *)</span>
+      <span class="nb">rewrite</span> (Hgh).
+      <span class="bp">exact</span> comm_total.
+    }
+
+    <span class="nb">intro</span> H.
+    <span class="nb">destruct</span> H <span class="k">as</span> [lift_grf [comm_grf1 comm_grf2]].
+
+    <span class="c">(* Compose lifts to get total lift *)</span>
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">lift_lff</span> ∘ lift_grf).
+
+    <span class="c">(* diagram chasing *)</span>
+    <span class="nb">split</span>.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="bp">exact</span> comm_grf1.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="bp">exact</span> comm_lff1.
+      <span class="nb">apply</span> id_right.
+    * etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="bp">exact</span> comm_lff2.
+      <span class="bp">exact</span> comm_grf2.
+  - <span class="c">(* this side is easy, we know that f has a lift for all functions in L,</span>
+<span class="c">       so also for its factorization *)</span>
+    <span class="nb">intro</span> hf.
+    <span class="nb">intros</span> h' k Hk.
+
+    <span class="c">(* get factorization of f *)</span>
+    <span class="nb">unfold</span> wfs_R <span class="k">in</span> hf.
+    <span class="nb">rewrite</span> wfs_rlp <span class="k">in</span> hf.
+    use hf.
+    <span class="bp">exact</span> (Lg).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">properties</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/ModelCategories/WFS.v</tt>, line 25)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.opp_precat.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

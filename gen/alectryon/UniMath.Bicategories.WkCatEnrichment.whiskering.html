@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>whiskering.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.PartD.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories. <span class="c">(* unit *)</span>
+<span class="kn">Require Import</span> UniMath.CategoryTheory.HorizontalComposition.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.WkCatEnrichment.prebicategory.
+<span class="kn">Require Import</span> UniMath.Bicategories.WkCatEnrichment.Notations.
+
+<span class="sd">(******************************************************************************)</span>
+<span class="c">(* Whiskering *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">whisker_left</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+           (<span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b) {<span class="nv">g</span> <span class="nv">h</span> : b -<span class="mi">1</span>-&gt; c} (<span class="nv">alpha</span> : g -<span class="mi">2</span>-&gt; h)
+  : (f ;<span class="mi">1</span>; g) -<span class="mi">2</span>-&gt; (f ;<span class="mi">1</span>; h)
+  := identity f ;h; alpha.
+
+<span class="kn">Lemma</span> <span class="nf">whisker_left_id_1mor</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">b</span> <span class="nv">c</span> : C}
+           {<span class="nv">g</span> <span class="nv">h</span> : b -<span class="mi">1</span>-&gt; c} (<span class="nv">alpha</span> : g -<span class="mi">2</span>-&gt; h)
+  : whisker_left (identity1 _) alpha =
+    left_unitor _ ;v; alpha ;v; inv_from_z_iso (left_unitor _).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> whisker_left.
+  <span class="nb">apply</span> id_2mor_left.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">whisker_left_id_2mor</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+           (<span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b) (<span class="nv">g</span> : b -<span class="mi">1</span>-&gt; c)
+  : whisker_left f (identity g) = identity (f ;<span class="mi">1</span>; g).
+<span class="kn">Proof</span>.
+  intermediate_path (functor_on_morphisms (compose_functor a b c)
+                                (identity (make_catbinprod f g))).
+  <span class="bp">reflexivity</span>.
+  <span class="nb">apply</span> functor_id.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cancel_whisker_left</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+      (<span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b) {<span class="nv">g</span> <span class="nv">h</span> : b -<span class="mi">1</span>-&gt; c}
+      {<span class="nv">alpha</span> <span class="nv">alpha'</span>: g -<span class="mi">2</span>-&gt; h} (<span class="nv">p</span> : alpha = alpha')
+  : whisker_left f alpha = whisker_left f alpha'.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">whisker_left_iso</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+           (<span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b) {<span class="nv">g</span> <span class="nv">h</span> : b -<span class="mi">1</span>-&gt; c} (<span class="nv">alpha</span> : z_iso g h)
+  : z_iso (f ;<span class="mi">1</span>; g) (f ;<span class="mi">1</span>; h).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">whisker_left</span> <span class="nv">f</span> <span class="nv">alpha</span>).
+  <span class="nb">apply</span> functor_on_is_z_isomorphism.
+  <span class="nb">apply</span> is_z_iso_binprod_z_iso.
+  - <span class="nb">apply</span> identity_is_z_iso.
+  - <span class="nb">apply</span> alpha.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">whisker_left_inv</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+           (<span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b) {<span class="nv">g</span> <span class="nv">h</span> : b -<span class="mi">1</span>-&gt; c} (<span class="nv">alpha</span> : z_iso g h)
+  : whisker_left f (z_iso_inv_from_z_iso alpha)
+  = inv_from_z_iso (whisker_left_iso f alpha).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> whisker_left.
+  intermediate_path (inv_from_z_iso (identity_z_iso f);h;inv_from_z_iso alpha).
+    <span class="nb">set</span> (W := maponpaths pr1 (iso_inv_of_iso_id f)).
+    <span class="nb">simpl</span> <span class="k">in</span> W.
+    <span class="nb">rewrite</span> &lt;- W.
+    <span class="bp">reflexivity</span>.
+
+  <span class="nb">apply</span> (maponpaths pr1 (inv_horizontal_comp (identity_z_iso f) alpha)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">whisker_left_id_inj</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">b</span> <span class="nv">c</span> : C}
+  {<span class="nv">g</span> <span class="nv">h</span> : b -<span class="mi">1</span>-&gt; c} (<span class="nv">alpha</span> <span class="nv">alpha'</span> : g -<span class="mi">2</span>-&gt; h)
+  : whisker_left (identity1 _) alpha = whisker_left (identity1 _) alpha'
+    -&gt; alpha = alpha'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w.
+  intermediate_path (inv_from_z_iso (left_unitor _)
+           ;v; whisker_left (identity1 _) alpha
+           ;v; left_unitor _ ).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> z_iso_inv_to_right.
+    <span class="nb">apply</span> z_iso_inv_on_right.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> whisker_left_id_1mor.
+
+  intermediate_path (inv_from_z_iso (left_unitor _)
+           ;v; whisker_left (identity1 _) alpha'
+           ;v; left_unitor _ ).
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="bp">assumption</span>.
+
+  <span class="nb">apply</span> z_iso_inv_to_right.
+  <span class="nb">apply</span> z_iso_inv_on_right.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> whisker_left_id_1mor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">whisker_left_on_comp</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+  (<span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b) {<span class="nv">g</span> <span class="nv">h</span> <span class="nv">i</span> : b -<span class="mi">1</span>-&gt; c}
+  (<span class="nv">alpha</span> : g -<span class="mi">2</span>-&gt; h) (<span class="nv">alpha'</span> : h -<span class="mi">2</span>-&gt; i)
+  : whisker_left f (alpha ;v; alpha')
+  = whisker_left f alpha ;v; whisker_left f alpha'.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> whisker_left.
+  intermediate_path ((identity f;v; identity f);h;(alpha;v;alpha')).
+    <span class="nb">rewrite</span> id_left.
+    <span class="bp">reflexivity</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> interchange.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">whisker_right</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+  {<span class="nv">f</span> <span class="nv">g</span> : a -<span class="mi">1</span>-&gt; b} (<span class="nv">alpha</span> : f -<span class="mi">2</span>-&gt; g) (<span class="nv">h</span> : b -<span class="mi">1</span>-&gt; c)
+  : (f ;<span class="mi">1</span>; h) -<span class="mi">2</span>-&gt; (g ;<span class="mi">1</span>; h)
+  := alpha ;h; identity h.
+
+<span class="kn">Lemma</span> <span class="nf">whisker_right_id_1mor</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> : a -<span class="mi">1</span>-&gt; b} (<span class="nv">alpha</span> : f -<span class="mi">2</span>-&gt; g)
+  : whisker_right alpha (identity1 _) =
+    right_unitor _ ;v; alpha ;v; inv_from_z_iso (right_unitor _).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> whisker_right.
+  <span class="nb">apply</span> id_2mor_right.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">whisker_right_id_2mor</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+  (<span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b) (<span class="nv">g</span> : b -<span class="mi">1</span>-&gt; c)
+  : whisker_right (identity f) g = identity (f ;<span class="mi">1</span>; g).
+<span class="kn">Proof</span>.
+  intermediate_path (functor_on_morphisms (compose_functor a b c)
+                                (identity (make_catbinprod f g))).
+  <span class="bp">reflexivity</span>.
+  <span class="nb">apply</span> functor_id.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cancel_whisker_right</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+    {<span class="nv">f</span> <span class="nv">g</span> : a -<span class="mi">1</span>-&gt; b} {<span class="nv">alpha</span> <span class="nv">alpha'</span> : f -<span class="mi">2</span>-&gt; g} (<span class="nv">p</span> : alpha = alpha') (<span class="nv">h</span> : b -<span class="mi">1</span>-&gt; c)
+  : whisker_right alpha h = whisker_right alpha' h.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">whisker_right_iso</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> : a -<span class="mi">1</span>-&gt; b} (<span class="nv">alpha</span> : z_iso f g) (<span class="nv">h</span> : b -<span class="mi">1</span>-&gt; c)
+  : z_iso (f ;<span class="mi">1</span>; h) (g ;<span class="mi">1</span>; h).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">whisker_right</span> <span class="nv">alpha</span> <span class="nv">h</span>).
+  <span class="nb">apply</span> functor_on_is_z_isomorphism.
+  <span class="nb">apply</span> is_z_iso_binprod_z_iso.
+  - <span class="nb">apply</span> alpha.
+  - <span class="nb">apply</span> identity_is_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">whisker_right_inv</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> : a -<span class="mi">1</span>-&gt; b} (<span class="nv">alpha</span> : z_iso f g) (<span class="nv">h</span> : b -<span class="mi">1</span>-&gt; c)
+  : whisker_right (inv_from_z_iso alpha) h
+    =
+    inv_from_z_iso (whisker_right_iso alpha h).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> whisker_right.
+  intermediate_path (inv_from_z_iso alpha ;h; inv_from_iso (identity_iso h)).
+    <span class="nb">set</span> (W := maponpaths pr1 (iso_inv_of_iso_id h)).
+    <span class="nb">simpl</span> <span class="k">in</span> W.
+    <span class="nb">rewrite</span> &lt;- W.
+    <span class="bp">reflexivity</span>.
+  <span class="nb">apply</span> (maponpaths pr1 (inv_horizontal_comp alpha (identity_z_iso h))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">whisker_right_id_inj</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> : C}
+  {<span class="nv">f</span> <span class="nv">g</span> : a -<span class="mi">1</span>-&gt; b} (<span class="nv">alpha</span> <span class="nv">alpha'</span> : f -<span class="mi">2</span>-&gt; g)
+  : whisker_right alpha (identity1 _) = whisker_right alpha' (identity1 _)
+    -&gt; alpha = alpha'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w.
+
+  intermediate_path (inv_from_z_iso (right_unitor _)
+           ;v; whisker_right alpha (identity1 _)
+           ;v; right_unitor _ ).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> z_iso_inv_to_right.
+    <span class="nb">apply</span> z_iso_inv_on_right.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> whisker_right_id_1mor.
+
+  intermediate_path (inv_from_z_iso (right_unitor _)
+           ;v; whisker_right alpha' (identity1 _)
+           ;v; right_unitor _ ).
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="bp">assumption</span>.
+
+  <span class="nb">apply</span> z_iso_inv_to_right.
+  <span class="nb">apply</span> z_iso_inv_on_right.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> whisker_right_id_1mor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">whisker_right_on_comp</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+  {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : a -<span class="mi">1</span>-&gt; b} (<span class="nv">alpha</span> : f -<span class="mi">2</span>-&gt; g) (<span class="nv">alpha'</span> : g -<span class="mi">2</span>-&gt; h) (<span class="nv">i</span> : b -<span class="mi">1</span>-&gt; c)
+  : whisker_right (alpha ;v; alpha') i
+  = whisker_right alpha i ;v; whisker_right alpha' i.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> whisker_right.
+  intermediate_path ((alpha;v;alpha');h;(identity i;v; identity i)).
+    <span class="nb">rewrite</span> id_left.
+    <span class="bp">reflexivity</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> interchange.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">left_unitor_naturality</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> : C}
+  (<span class="nv">f</span> <span class="nv">g</span> : a -<span class="mi">1</span>-&gt; b) (<span class="nv">alpha</span> : f -<span class="mi">2</span>-&gt; g)
+  : whisker_left (identity1 _) alpha ;v; left_unitor g
+  = left_unitor f ;v; alpha.
+<span class="kn">Proof</span>.
+  intermediate_path ((functor_on_morphisms
+                 (functor_composite
+                     (bindelta_pair_functor
+                        (functor_composite (functor_to_unit _) (constant_functor unit_category _ (identity1 a)))
+                        (functor_identity _))
+                     (compose_functor a a b))
+                 alpha)
+           ;v;(left_unitor g)).
+    <span class="bp">reflexivity</span>.
+
+  intermediate_path (left_unitor f ;v; functor_on_morphisms (functor_identity _) alpha).
+    <span class="nb">apply</span> (nat_trans_ax (left_unitor_trans a b)).
+
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">right_unitor_naturality</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> : C}
+  (<span class="nv">f</span> <span class="nv">g</span> : a -<span class="mi">1</span>-&gt; b) (<span class="nv">alpha</span> : f -<span class="mi">2</span>-&gt; g)
+  : whisker_right alpha (identity1 _) ;v; right_unitor g
+  = right_unitor f ;v; alpha.
+<span class="kn">Proof</span>.
+  intermediate_path ((functor_on_morphisms
+                 (functor_composite
+                    (bindelta_pair_functor
+                       (functor_identity _)
+                       (functor_composite (functor_to_unit _) (constant_functor unit_category _ (identity1 b))))
+                    (compose_functor a b b))
+                 alpha)
+           ;v;(right_unitor _)).
+    <span class="bp">reflexivity</span>.
+
+  intermediate_path (right_unitor f ;v; functor_on_morphisms (functor_identity _) alpha).
+    <span class="nb">apply</span> (nat_trans_ax (right_unitor_trans a b)).
+
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">associator_naturality</span> {<span class="nv">C</span> : prebicategory} { <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C }
+  {<span class="nv">f</span> <span class="nv">f'</span> : a -<span class="mi">1</span>-&gt; b} (<span class="nv">alpha</span> : f -<span class="mi">2</span>-&gt; f')
+  {<span class="nv">g</span> <span class="nv">g'</span> : b -<span class="mi">1</span>-&gt; c} (<span class="nv">beta</span>  : g -<span class="mi">2</span>-&gt; g')
+  {<span class="nv">h</span> <span class="nv">h'</span> : c -<span class="mi">1</span>-&gt; d} (<span class="nv">gamma</span> : h -<span class="mi">2</span>-&gt; h')
+  : (alpha ;h; (beta ;h; gamma)) ;v; associator f' g' h'
+  = associator f g h ;v; ((alpha ;h; beta) ;h; gamma).
+<span class="kn">Proof</span>.
+  intermediate_path ((functor_on_morphisms
+            (functor_composite
+              (pair_functor (functor_identity _) (compose_functor b c d))
+              (compose_functor a b d))
+           (catbinprodmor alpha (catbinprodmor beta gamma)))
+           ;v; associator f' g' h'
+          ).
+    <span class="bp">reflexivity</span>.
+
+  intermediate_path (associator f g h ;v;
+          (functor_on_morphisms
+            (functor_composite
+              (precategory_binproduct_assoc _ _ _)
+              (functor_composite
+                (pair_functor (compose_functor a b c) (functor_identity _))
+                (compose_functor a c d)))
+            (catbinprodmor alpha (catbinprodmor beta gamma)))).
+    <span class="nb">apply</span> (nat_trans_ax (associator_trans a b c d) _ _
+                        (catbinprodmor alpha (catbinprodmor beta gamma))).
+
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">twomor_naturality</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+  {<span class="nv">f</span> <span class="nv">g</span> : a -<span class="mi">1</span>-&gt; b}  {<span class="nv">h</span> <span class="nv">k</span> : b -<span class="mi">1</span>-&gt; c}
+  (<span class="nv">gamma</span> : f -<span class="mi">2</span>-&gt; g) (<span class="nv">delta</span>  : h -<span class="mi">2</span>-&gt; k)
+  : (whisker_right gamma h) ;v; (whisker_left g delta)
+  = (whisker_left f delta) ;v; (whisker_right gamma k).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> whisker_left, whisker_right.
+
+  intermediate_path ((gamma ;v; identity g);h;(identity h ;v; delta)).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> interchange.
+
+  intermediate_path ((identity f ;v; gamma);h;(delta ;v; identity k)).
+    <span class="nb">rewrite</span> !id_left, !id_right.
+    <span class="bp">reflexivity</span>.
+
+  <span class="nb">apply</span> interchange.
+<span class="kn">Defined</span>.
+
+<span class="sd">(******************************************************************************)</span>
+<span class="c">(* Kelly's Condition 5 *)</span>
+<span class="c">(* i.e., the two ways of going I(bc) -&gt; bc are equal *)</span>
+
+<span class="kn">Section</span> <span class="nf">kelly_left_pieces</span>.
+<span class="kn">Variable</span> <span class="nv">C</span> : prebicategory.
+<span class="kn">Variables</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C.
+<span class="kn">Variable</span> <span class="nv">f</span> : a -<span class="mi">1</span>-&gt; b.
+<span class="kn">Variable</span> <span class="nv">g</span> : b -<span class="mi">1</span>-&gt; c.
+<span class="kn">Variable</span> <span class="nv">h</span> : c -<span class="mi">1</span>-&gt; d.
+
+<span class="kn">Local Lemma</span> <span class="nf">kelly_left_region_1235</span> :
+      associator f (identity1 _) (g ;<span class="mi">1</span>; h)
+  ;v; associator (f ;<span class="mi">1</span>; (identity1 _)) g h
+  ;v; whisker_right (whisker_right (right_unitor f) g) h
+  =   whisker_left f (associator (identity1 b) g h)
+  ;v; associator f (identity1 _ ;<span class="mi">1</span>; g) h
+  ;v; whisker_right (whisker_left f (left_unitor g)) h.
+<span class="kn">Proof</span>.
+  <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> whisker_left <span class="nb">at</span> <span class="mi">2</span>.
+  <span class="nb">rewrite</span> (cancel_whisker_right (triangle_axiom f g) h).
+  <span class="nb">rewrite</span> whisker_right_on_comp.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">apply</span> (pentagon_axiom f (identity1 b) g h).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">kelly_left_region_123</span> :
+      associator f (identity1 _) (g ;<span class="mi">1</span>; h)
+  ;v; associator (f ;<span class="mi">1</span>; (identity1 _)) g h
+  ;v; whisker_right (whisker_right (right_unitor f) g) h
+  =   whisker_left f (associator (identity1 b) g h)
+  ;v; whisker_left f (whisker_right (left_unitor g) h)
+  ;v; associator f g h.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- (assoc _ _ (associator f g h)).
+  <span class="nb">unfold</span> whisker_left <span class="nb">at</span> <span class="mi">2</span>.
+  <span class="nb">unfold</span> whisker_right <span class="nb">at</span> <span class="mi">3</span>.
+  <span class="nb">rewrite</span> associator_naturality.
+  <span class="nb">fold</span> (whisker_left f (left_unitor g)).
+  <span class="nb">fold</span> (whisker_right (whisker_left f (left_unitor g)) h).
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> kelly_left_region_1235.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">kelly_left_region_12</span> :
+      associator f (identity1 _) (g ;<span class="mi">1</span>; h)
+  ;v; whisker_right (right_unitor f) (g ;<span class="mi">1</span>; h)
+  =   whisker_left f (associator (identity1 b) g h)
+  ;v; whisker_left f (whisker_right (left_unitor g) h).
+<span class="kn">Proof</span>.
+  use (post_comp_with_z_iso_is_inj (associator f g h)).
+  <span class="nb">unfold</span> whisker_right <span class="nb">at</span> <span class="mi">1</span>.
+  <span class="nb">rewrite</span> &lt;- horizontal_comp_id.
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">rewrite</span> associator_naturality.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> kelly_left_region_123.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">kelly_left_region_1</span> :
+      whisker_left f (left_unitor_2mor (g ;<span class="mi">1</span>; h))
+  =   whisker_left f (associator (identity1 b) g h)
+  ;v; whisker_left f (whisker_right (left_unitor g) h).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> whisker_left <span class="nb">at</span> <span class="mi">1</span>.
+  <span class="nb">rewrite</span> triangle_axiom.
+  <span class="nb">apply</span> kelly_left_region_12.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">kelly_left_pieces</span>.
+
+<span class="kn">Lemma</span> <span class="nf">kelly_left</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+  {<span class="nv">g</span> : b -<span class="mi">1</span>-&gt; c} {<span class="nv">h</span> : c -<span class="mi">1</span>-&gt; d}
+  : left_unitor_2mor (g ;<span class="mi">1</span>; h)
+    =
+    associator (identity1 b) g h ;v; whisker_right (left_unitor g) h.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> whisker_left_id_inj.
+  <span class="nb">rewrite</span> whisker_left_on_comp.
+  <span class="nb">apply</span> kelly_left_region_1.
+<span class="kn">Defined</span>.
+
+<span class="c">(* TODO: same for right *)</span>
+
+<span class="sd">(******************************************************************************)</span>
+<span class="c">(* Kelly's Condition 4 *)</span>
+<span class="c">(* i.e., the two ways of going II -&gt; I are equal *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">left_unitor_on_id</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> : C}
+  : whisker_left (identity1 a) (left_unitor (identity1 a))
+  = left_unitor (identity1 a ;<span class="mi">1</span>; identity1 a).
+<span class="kn">Proof</span>.
+  use (post_comp_with_z_iso_is_inj (left_unitor (identity1 a))).
+  <span class="nb">apply</span> left_unitor_naturality.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">left_unitor_id_is_right_unitor_id</span> {<span class="nv">C</span> : prebicategory} {<span class="nv">a</span> : C}
+  : left_unitor_2mor (identity1 a)
+  = right_unitor_2mor (identity1 a).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> whisker_right_id_inj.
+  use (pre_comp_with_z_iso_is_inj (associator _ _ _)).
+  intermediate_path (left_unitor_2mor ((identity1 a) ;<span class="mi">1</span>; (identity1 a))).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> kelly_left.
+  intermediate_path (whisker_left (identity1 a) (left_unitor (identity1 a))).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> left_unitor_on_id.
+  <span class="nb">apply</span> (triangle_axiom (identity1 a) (identity1 a)).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/WkCatEnrichment/whiskering.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

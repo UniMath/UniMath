@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>WeakEquivalences.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Weak equivalences *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartA.
+<span class="kn">Require Import</span> UniMath.Foundations.PartB.
+
+<span class="sd">(** ** Contents</span>
+
+<span class="sd"> - Direct products</span>
+
+<span class="sd"> *)</span>
+
+<span class="sd">(** If x = y, then x = z if and only if y = z by transitivity. *)</span>
+<span class="kn">Definition</span> <span class="nf">transitive_paths_weq</span> {<span class="nv">X</span> : UU} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : X} :
+  x = y -&gt; (x = z ≃ y = z).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> xeqy.
+  use weq_iso.
+  - <span class="nb">intro</span> xeqz.
+    <span class="bp">exact</span> (!xeqy @ xeqz).
+  - <span class="nb">intro</span> yeqz.
+    <span class="bp">exact</span> (xeqy @ yeqz).
+  - <span class="nb">intro</span> xeqz.
+    <span class="nb">refine</span> (path_assoc _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">p</span>, p @ xeqz) (pathsinv0r xeqy) @ _).
+    <span class="bp">reflexivity</span>.
+  - <span class="nb">intro</span> yeqz.
+    <span class="nb">refine</span> (path_assoc _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">p</span>, p @ yeqz) (pathsinv0l xeqy) @ _).
+    <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isweqcontrprop</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) (<span class="nv">f</span> : X → Y) :
+  iscontr X → isaprop Y → isweq f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isx isy.
+  <span class="nb">apply</span> isweqimplimpl.
+  - <span class="nb">intros</span>. <span class="nb">apply</span> isx.
+  - <span class="nb">apply</span> isapropifcontr. <span class="nb">apply</span> isx.
+  - <span class="nb">apply</span> isy.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** TODO: can this be derived from [weqtotal2comm12] or similar? *)</span>
+<span class="kn">Definition</span> <span class="nf">weqtotal2comm</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} {<span class="nv">C</span> : A → B → UU} :
+  (∑ (a : A) (b : B), C a b) ≃ (∑ (b : B) (a : A), C a b).
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">pair</span>, pr1 (pr2 pair),, pr1 pair,, pr2 (pr2 pair)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">pair</span>, pr1 (pr2 pair),, pr1 pair,, pr2 (pr2 pair)).
+  - <span class="bp">reflexivity</span>.
+  - <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Direct products *)</span>
+
+<span class="sd">(** A rewrite of [pathsdirprod] as an equivalence:</span>
+<span class="sd">    Two pairs are equal if and only if both of their components are. *)</span>
+<span class="kn">Definition</span> <span class="nf">pathsdirprodweq</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">x1</span> <span class="nv">x2</span> : X} {<span class="nv">y1</span> <span class="nv">y2</span> : Y} :
+  (make_dirprod x1 y1 = make_dirprod x2 y2) ≃ (x1 = x2) × (y1 = y2).
+<span class="kn">Proof</span>.
+  intermediate_weq (make_dirprod x1 y1 ╝ make_dirprod x2 y2).
+  - <span class="nb">apply</span> total2_paths_equiv.
+  - <span class="nb">unfold</span> PathPair; <span class="nb">cbn</span>.
+    use weqfibtototal; <span class="nb">intro</span> p; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> transitive_paths_weq.
+    <span class="nb">apply</span> (toforallpaths _ _ _ (transportf_const p Y) y1).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Contractible types are neutral elements for ×, up to weak equivalence. *)</span>
+<span class="kn">Lemma</span> <span class="nf">dirprod_with_contr_r</span> : ∏ X Y : UU, iscontr X -&gt; (Y ≃ Y × X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y isx.
+  intermediate_weq (Y × unit); [<span class="nb">apply</span> weqtodirprodwithunit|].
+  - <span class="nb">apply</span> weqdirprodf.
+    * <span class="nb">apply</span> idweq.
+    * <span class="nb">apply</span> invweq, weqcontrtounit; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">dirprod_with_contr_l</span> : ∏ X Y : UU, iscontr X -&gt; (Y ≃ X × Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y isx.
+  intermediate_weq (Y × X).
+  - <span class="nb">apply</span> dirprod_with_contr_r; <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> weqdirprodcomm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">total2_assoc_fun_left</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">C</span> : A -&gt; B -&gt; UU) (<span class="nv">D</span> : (∏ a : A, ∑ b : B, C a b) -&gt; UU) :
+ (∑ (x : ∏ a : A, ∑ b : B, C a b), D x) ≃
+ ∑ (x : ∏ _ : A, B),
+   ∑ (y : ∏ a : A, C a (x a)),
+     D (<span class="k">fun</span> <span class="nv">a</span> : A =&gt; (x a,, y a)).
+<span class="kn">Proof</span>.
+ use weq_iso.
+ - <span class="nb">intros</span> p.
+   <span class="k">exists</span> (<span class="nv">fun</span> <span class="nv">a</span> =&gt; (pr1 (pr1 p a))).
+   <span class="k">exists</span> (<span class="nv">fun</span> <span class="nv">a</span> =&gt; (pr2 (pr1 p a))).
+   <span class="bp">exact</span> (pr2 p).
+ - <span class="nb">intros</span> p.
+   use tpair.
+   + <span class="nb">intros</span> a.
+     use tpair.
+     * <span class="bp">exact</span> (pr1 p a).
+     * <span class="bp">exact</span> (pr1 (pr2 p) a).
+   + <span class="bp">exact</span> (pr2 (pr2 p)).
+ - <span class="bp">reflexivity</span>.
+ - <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">sec_total2_distributivity</span> {<span class="nv">A</span> : UU} {<span class="nv">B</span> : A -&gt; UU} (<span class="nv">C</span> : ∏ a, B a -&gt; UU) :
+  (∏ a : A, ∑ b : B a, C a b)
+    ≃ (∑ b : ∏ a : A, B a, ∏ a, C a (b a)).
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">intro</span> f.
+    use tpair.
+    + <span class="bp">exact</span> (<span class="k">fun</span> <span class="nv">a</span> =&gt; pr1 (f a)).
+    + <span class="bp">exact</span> (<span class="k">fun</span> <span class="nv">a</span> =&gt; pr2 (f a)).
+  - <span class="nb">intro</span> f.
+    <span class="nb">intro</span> a.
+    <span class="k">exists</span> ((pr1 f) a).
+    <span class="nb">apply</span> (pr2 f).
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/MoreFoundations/WeakEquivalences.v</tt>, line 3)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartA.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** * Weak equivalences *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartA.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.PartB.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

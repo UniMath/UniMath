@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>NNOLeftAdjoint.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Left adjoints and NNOs</span>
+
+<span class="sd"> Every left adjoint that preserves terminal objects maps natural numbers objects to natural</span>
+<span class="sd"> numbers objects. We can use this as a method to construct natural numbers in some category.</span>
+<span class="sd"> In this file, we give this construction.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The natural numbers objects with zero and successor</span>
+<span class="sd"> 2. Iteration</span>
+<span class="sd"> 3. The NNO</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.NNO.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">LeftAdjointNNO</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          (<span class="nv">R</span> : C₁ ⟶ C₂)
+          (<span class="nv">HR</span> : is_right_adjoint R)
+          (<span class="nv">L</span> := left_adjoint HR)
+          (<span class="nv">η</span> := unit_from_right_adjoint HR)
+          (<span class="nv">ε</span> := counit_from_right_adjoint HR)
+          (<span class="nv">T₁</span> : Terminal C₁)
+          (<span class="nv">T₂</span> : Terminal C₂)
+          (<span class="nv">HT</span> : preserves_terminal L)
+          (<span class="nv">N</span> : NNO T₂).
+
+  <span class="kn">Let</span> <span class="nf">RT</span> : preserves_terminal R
+    := right_adjoint_preserves_terminal L (is_left_adjoint_left_adjoint HR).
+
+  <span class="sd">(** * 1. The natural numbers objects with zero and successor *)</span>
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_on_NNO_Z</span>
+    : T₁ --&gt; L N
+    := inv_from_z_iso (preserves_terminal_to_z_iso L HT T₂ T₁) · #L (zeroNNO _ N).
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_on_NNO_S</span>
+    : L N --&gt; L N
+    := #L (sucNNO _ N).
+
+  <span class="sd">(** * 2. Iteration *)</span>
+  <span class="kn">Section</span> <span class="nf">Iteration</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> : C₁}
+            (<span class="nv">zx</span> : T₁ --&gt; x)
+            (<span class="nv">sx</span> : x --&gt; x).
+
+    <span class="kn">Definition</span> <span class="nf">left_adjoint_on_NNO_iter</span>
+      : L N --&gt; x.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (#L _ · ε x).
+      use NNO_mor.
+      - <span class="nb">refine</span> (_ · #R zx).
+        <span class="bp">exact</span> (inv_from_z_iso (preserves_terminal_to_z_iso R RT T₁ T₂)).
+      - <span class="bp">exact</span> (#R sx).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">left_adjoint_on_NNO_iter_Z</span>
+      : left_adjoint_on_NNO_Z · left_adjoint_on_NNO_iter = zx.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> left_adjoint_on_NNO_Z, left_adjoint_on_NNO_iter.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> &lt;- (functor_comp L).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> NNO_mor_Z.
+      }
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (nat_trans_ax ε _ _ zx).
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">refine</span> (_ @ id_left _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> TerminalArrowEq.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">left_adjoint_on_NNO_iter_S</span>
+      : left_adjoint_on_NNO_S · left_adjoint_on_NNO_iter
+        =
+        left_adjoint_on_NNO_iter · sx.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> left_adjoint_on_NNO_S, left_adjoint_on_NNO_iter.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> &lt;- (functor_comp L).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> NNO_mor_S.
+      }
+      <span class="nb">rewrite</span> !functor_comp.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (nat_trans_ax ε _ _ sx).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">left_adjoint_on_NNO_iter_unique</span>
+                {<span class="nv">φ</span> : L N --&gt; x}
+                (<span class="nv">pz</span> : left_adjoint_on_NNO_Z · φ = zx)
+                (<span class="nv">ps</span> : left_adjoint_on_NNO_S · φ = φ · sx)
+      : φ = left_adjoint_on_NNO_iter.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (!(id_left _) @ _ @ id_left _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (!(pr122 HR N) : _ = #L (η N) · ε (L N)).
+      }
+      etrans.
+      {
+        <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (!(nat_trans_ax ε _ _ φ)).
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (!(pr122 HR N) : _ = #L (η N) · ε (L N)).
+      }
+      etrans.
+      {
+        <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (!(nat_trans_ax ε _ _ left_adjoint_on_NNO_iter)).
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!(functor_comp L _ (#R _)) @ _).
+      <span class="nb">refine</span> (_ @ functor_comp L _ (#R _)).
+      <span class="nb">apply</span> maponpaths.
+      use NNO_mor_unique.
+      - <span class="nb">refine</span> (_ · #R zx).
+        <span class="bp">exact</span> (inv_from_z_iso (preserves_terminal_to_z_iso R RT T₁ T₂)).
+      - <span class="bp">exact</span> (#R sx).
+      - <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (nat_trans_ax η).
+        }
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!(functor_comp R _ _) @ _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">unfold</span> left_adjoint_on_NNO_iter.
+          <span class="nb">rewrite</span> assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!(functor_comp L _ _) @ _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> NNO_mor_Z.
+        }
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (nat_trans_ax ε).
+        }
+        <span class="nb">rewrite</span> !functor_comp.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (TerminalArrowEq (T := preserves_terminal_to_terminal R RT T₁)).
+      - <span class="nb">rewrite</span> &lt;- pz.
+        <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">unfold</span> left_adjoint_on_NNO_Z.
+        <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">refine</span> (nat_trans_ax η _ _ _ @ _).
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (TerminalArrowEq
+                 (T := preserves_terminal_to_terminal
+                         _ RT
+                         (preserves_terminal_to_terminal _ HT T₂))).
+      - <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (nat_trans_ax η).
+        }
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">refine</span> (!(functor_comp R _ _) @ _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">unfold</span> left_adjoint_on_NNO_iter.
+          <span class="nb">rewrite</span> assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!(functor_comp L _ _) @ _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> NNO_mor_S.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (nat_trans_ax ε).
+        }
+        <span class="nb">rewrite</span> !functor_comp.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!(functor_comp R _ _) @ _).
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (nat_trans_ax η).
+        }
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!(functor_comp R _ _) @ _ @ functor_comp R _ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> ps.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Iteration</span>.
+
+  <span class="sd">(** * 3. The NNO *)</span>
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_on_NNO</span>
+    : NNO T₁.
+  <span class="kn">Proof</span>.
+    use make_NNO.
+    - <span class="bp">exact</span> (L N).
+    - <span class="bp">exact</span> left_adjoint_on_NNO_Z.
+    - <span class="bp">exact</span> left_adjoint_on_NNO_S.
+    - <span class="nb">intros</span> x zx sx.
+      use make_iscontr.
+      + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        * <span class="bp">exact</span> (left_adjoint_on_NNO_iter zx sx).
+        * <span class="nb">apply</span> left_adjoint_on_NNO_iter_Z.
+        * <span class="nb">apply</span> left_adjoint_on_NNO_iter_S.
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> [ φ [ pz ps ]] ;
+           use subtypePath ;
+           [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="bp">exact</span> (left_adjoint_on_NNO_iter_unique zx sx pz ps)).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">LeftAdjointNNO</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Arithmetic/NNOLeftAdjoint.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. The NNO
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Stratified.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************</span>
+
+<span class="sd">This is an equivalent reorganization of the data of Markov categories.</span>
+<span class="sd">The main purpose is to have an easier dependency structure of the data which</span>
+<span class="sd">is helpful for the proofs in `EquivalenceQuasicartesianMarkov.v`.</span>
+
+<span class="sd">The data is organized similar to the way one would define a GAT of Markov categories:</span>
+<span class="sd">- Signature: tensor on objects ⊗, unit I</span>
+<span class="sd">- Structure: </span>
+<span class="sd">  * tensor on morphisms</span>
+<span class="sd">  * all coherence maps</span>
+<span class="sd">  * symmetry</span>
+<span class="sd">  * Markov structure </span>
+<span class="sd">- Laws: all equations (this is a proposition)</span>
+
+<span class="sd">*********************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.SymmetricDiagonal.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.MarkovCategories.MarkovCategory.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Section</span> <span class="nf">Signature</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mon_sig</span> (<span class="nv">C</span> : category) := (C -&gt; C -&gt; C) × C.
+  <span class="kn">Definition</span> <span class="nf">mon_sig_cat</span> := ∑ C : category, mon_sig C.
+  <span class="kn">Definition</span> <span class="nf">mon_sig_cat_to_cat</span> : mon_sig_cat -&gt; category := pr1.
+
+  <span class="kn">Coercion</span> <span class="nf">mon_sig_cat_to_cat</span> : mon_sig_cat &gt;-&gt; category.
+
+  <span class="kn">Definition</span> <span class="nf">I</span> {<span class="nv">C</span> : mon_sig_cat} : C := pr22 C.
+  <span class="kn">Definition</span> <span class="nf">tensor</span> {<span class="nv">C</span> : mon_sig_cat} (<span class="nv">x</span> <span class="nv">y</span> : C) : C := pr12 C x y.
+
+<span class="kn">End</span> <span class="nf">Signature</span>.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"x ⊗ y"</span> := (tensor x y).
+
+<span class="kn">Section</span> <span class="nf">Structure</span>.
+
+  <span class="kn">Definition</span> <span class="nf">markov_struct</span> (<span class="nv">C</span> : mon_sig_cat) : UU :=
+      <span class="c">(* Left whisker *)</span>
+    (∏ (a : C) (b1 b2 : C), C ⟦ b1, b2 ⟧ → C ⟦ a ⊗ b1, a ⊗ b2 ⟧)
+    × <span class="c">(* Right whisker *)</span>
+    (∏ (b : C) (a1 a2 : C), C ⟦ a1, a2 ⟧ → C ⟦ a1 ⊗ b, a2 ⊗ b ⟧)
+    × <span class="c">(* Left unitor *)</span>
+    (∏ x : C, C ⟦ I ⊗ x, x ⟧)
+    × <span class="c">(* Left inv unitor *)</span>
+    (∏ x : C, C ⟦ x, I ⊗ x ⟧)
+    × <span class="c">(* Right unitor *)</span>
+    (∏ x : C, C ⟦ x ⊗ I, x ⟧)
+    × <span class="c">(* Right inv unitor *)</span>
+    (∏ x : C, C ⟦ x, x ⊗ I ⟧)
+    × <span class="c">(* Associator *)</span>
+    (∏ x y z : C, C ⟦ (x ⊗ y) ⊗ z, x ⊗ (y ⊗ z) ⟧)
+    × <span class="c">(* Inv associator *)</span>
+    (∏ x y z : C, C ⟦ x ⊗ (y ⊗ z), (x ⊗ y) ⊗ z ⟧)
+    × <span class="c">(* Symmetry *)</span>
+    (∏ x y : C, C ⟦ x ⊗ y, y ⊗ x ⟧)
+    × <span class="c">(* Delete *)</span>
+    (∏ x : C, C ⟦ x, I ⟧)
+    × <span class="c">(* Copy *)</span>
+    (∏ x : C, C ⟦ x, x ⊗ x ⟧).
+
+  <span class="kn">Definition</span> <span class="nf">markov_struct_cat</span> := ∑ C : mon_sig_cat, markov_struct C.
+
+  <span class="kn">Definition</span> <span class="nf">markov_struct_cat_to_mon_sig_cat</span> : markov_struct_cat -&gt; mon_sig_cat := pr1.
+  <span class="kn">Coercion</span> <span class="nf">markov_struct_cat_to_mon_sig_cat</span> : markov_struct_cat &gt;-&gt; mon_sig_cat.
+
+  <span class="kn">Section</span> <span class="nf">MarkovStructAccessors</span>.
+    <span class="kn">Context</span> {<span class="nv">C</span> : markov_struct_cat}.
+
+    <span class="kn">Definition</span> <span class="nf">whisker_l</span> (<span class="nv">x</span> : C) {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">g</span> : y --&gt; z) 
+      : (x ⊗ y) --&gt; (x ⊗ z) := (pr12 C) _ _ _ g.
+    <span class="kn">Definition</span> <span class="nf">whisker_r</span> (<span class="nv">z</span> : C) {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) 
+      : (x ⊗ z) --&gt; (y ⊗ z) := (pr122 C) _ _ _ f.
+
+    <span class="kn">Definition</span> <span class="nf">tensor_mor</span> {<span class="nv">x1</span> <span class="nv">x2</span> <span class="nv">y1</span> <span class="nv">y2</span> : C} (<span class="nv">f</span> : x1 --&gt; y1) (<span class="nv">g</span> : x2 --&gt; y2) : (x1 ⊗ x2) --&gt; (y1 ⊗ y2) 
+      := (whisker_r _ f) · (whisker_l _ g).
+
+    <span class="kn">Definition</span> <span class="nf">leftunitor</span> (<span class="nv">x</span> : C) : C ⟦ I ⊗ x, x ⟧ := pr1 (pr222 C) x.
+    <span class="kn">Definition</span> <span class="nf">leftunitorinv</span> (<span class="nv">x</span> : C) : C ⟦ x, I ⊗ x ⟧ := pr12 (pr222 C) x.
+
+    <span class="kn">Definition</span> <span class="nf">rightunitor</span> (<span class="nv">x</span> : C) : C ⟦ x ⊗ I, x ⟧ := pr122 (pr222 C) x.
+    <span class="kn">Definition</span> <span class="nf">rightunitorinv</span> (<span class="nv">x</span> : C) : C ⟦ x, x ⊗ I ⟧ := pr1 (pr222 (pr222 C)) x.
+
+    <span class="kn">Definition</span> <span class="nf">associator</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C) : C ⟦ (x ⊗ y) ⊗ z, x ⊗ (y ⊗ z) ⟧ := pr12 (pr222 (pr222 C)) x y z.
+    <span class="kn">Definition</span> <span class="nf">associatorinv</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C) : C ⟦ x ⊗ (y ⊗ z), (x ⊗ y) ⊗ z ⟧ 
+      := pr122 (pr222 (pr222 C)) x y z.
+
+    <span class="kn">Definition</span> <span class="nf">swap</span> (<span class="nv">x</span> <span class="nv">y</span> : C) : C ⟦ x ⊗ y, y ⊗ x ⟧ := pr1 (pr222 (pr222 (pr222 C))) x y.
+
+    <span class="kn">Definition</span> <span class="nf">delete</span> (<span class="nv">x</span> : C) : C ⟦ x, I ⟧ := pr12 (pr222 (pr222 (pr222 C))) x.
+    <span class="kn">Definition</span> <span class="nf">copy</span> (<span class="nv">x</span> : C) : C ⟦ x, x ⊗ x ⟧ := pr22 (pr222 (pr222 (pr222 C))) x.
+  <span class="kn">End</span> <span class="nf">MarkovStructAccessors</span>.
+
+<span class="kn">End</span> <span class="nf">Structure</span>.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"x ⊗ y"</span> := (tensor x y).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f #⊗ g"</span> := (tensor_mor f g).
+
+<span class="kn">Section</span> <span class="nf">Laws</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : markov_struct_cat).
+
+  <span class="kn">Definition</span> <span class="nf">markov_tensor_data</span> : tensor_data C.
+  <span class="kn">Proof</span>.
+    use make_bifunctor_data.
+    - <span class="bp">exact</span> tensor.
+    - <span class="bp">exact</span> (@whisker_l C).
+    - <span class="bp">exact</span> (@whisker_r C).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">markov_monoidal_data</span> : monoidal_data C.
+  <span class="kn">Proof</span>.
+    use make_monoidal_data.
+    - <span class="bp">exact</span> markov_tensor_data.
+    - <span class="bp">exact</span> I.
+    - <span class="bp">exact</span> leftunitor.
+    - <span class="bp">exact</span> leftunitorinv.
+    - <span class="bp">exact</span> rightunitor.
+    - <span class="bp">exact</span> rightunitorinv.
+    - <span class="bp">exact</span> (@associator C).
+    - <span class="bp">exact</span> (@associatorinv C).
+  <span class="kn">Defined</span>.  
+
+  <span class="kn">Definition</span> <span class="nf">symmetry_inv</span> : UU := ∏ x y : C, <span class="nb">swap</span> x y · <span class="nb">swap</span> y x = identity _.
+  <span class="kn">Definition</span> <span class="nf">symmetry_nat</span> : UU := ∏ (x1 x2 y1 y2 : C)
+      (f : C ⟦ x1, x2 ⟧)
+      (g : C ⟦ y1, y2 ⟧),
+      f #⊗ g · <span class="nb">swap</span> x2 y2 =
+      <span class="nb">swap</span> x1 y1 · g #⊗ f.
+  <span class="kn">Definition</span> <span class="nf">symmetry_hexagon</span> := ∏ x y z : C,
+      associator x y z · <span class="nb">swap</span> x (tensor y z)
+      · associator y z x =
+      (<span class="nb">swap</span> x y) #⊗ (identity z) · associator y
+      x z
+      · (identity y) #⊗ (<span class="nb">swap</span> x z).
+
+  <span class="kn">Definition</span> <span class="nf">symmetry_laws</span> : UU := 
+    symmetry_inv
+    ×
+    symmetry_nat
+    ×
+    symmetry_hexagon.
+
+  <span class="kn">Definition</span> <span class="nf">semicartesianness</span> : UU := ∏ (x : C) (f : x --&gt; I), 
+      f = delete x.
+
+  <span class="kn">Definition</span> <span class="nf">copy_assoc</span> : UU := ∏ (x : C),
+      copy x · (identity _ #⊗ copy x)
+    = copy x · (copy x #⊗ identity _) · associator _ _ _.
+
+  <span class="kn">Definition</span> <span class="nf">copy_del_r</span> : UU := ∏ (x : C),
+      copy x · (identity _ #⊗ delete x) · rightunitor _
+    = identity _.
+
+  <span class="kn">Definition</span> <span class="nf">copy_del_l</span> : UU := ∏ (x : C),
+      copy x · (delete x #⊗ identity _) · leftunitor _
+    = identity _.
+
+  <span class="kn">Definition</span> <span class="nf">copy_comm</span> : UU := ∏ (x : C),
+      copy x · <span class="nb">swap</span> _ _ = copy x.
+
+  <span class="kn">Definition</span> <span class="nf">inner_swap</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : C)
+    : C ⟦(x ⊗ y) ⊗ (z ⊗ w), (x ⊗ z) ⊗ (y ⊗ w)⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (associator _ _ _ · _).
+    <span class="nb">simple refine</span> (_ · associatorinv _ _ _).
+    <span class="nb">simple refine</span> (whisker_l _ _).
+    <span class="nb">simple refine</span> (associatorinv _ _ _ · _).
+    <span class="nb">simple refine</span> (_ · associator _ _ _).
+    <span class="nb">simple refine</span> (whisker_r _ (<span class="nb">swap</span> y z)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">copy_tensor</span> : UU := ∏ (x y : C),
+      (copy x #⊗ copy y) · inner_swap _ _ _ _
+    = copy (x ⊗ y).
+
+  <span class="kn">Definition</span> <span class="nf">copydelete_laws</span> : UU := 
+    copy_assoc
+    ×
+    copy_del_r
+    ×
+    copy_del_l
+    ×
+    copy_comm
+    ×
+    copy_tensor.
+
+  <span class="kn">Definition</span> <span class="nf">markov_laws</span> : UU := 
+    monoidal_laws markov_monoidal_data
+    × 
+    symmetry_laws
+    ×
+    semicartesianness
+    ×
+    copydelete_laws.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_markov_laws</span> : isaprop markov_laws.
+  <span class="kn">Proof</span>.
+    (<span class="kp">repeat</span> <span class="nb">apply</span> isapropdirprod)
+    ; <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intros</span>)
+    ; <span class="kp">try</span> (<span class="nb">apply</span> homset_property || <span class="nb">apply</span> Isos.isaprop_is_inverse_in_precat).
+  <span class="kn">Qed</span>.
+  
+<span class="kn">End</span> <span class="nf">Laws</span>.
+
+<span class="kn">Definition</span> <span class="nf">markov_laws_cat</span> := ∑ C : markov_struct_cat, markov_laws C.
+<span class="kn">Definition</span> <span class="nf">markov_laws_cat_to_markov_struct_cat</span> : markov_laws_cat -&gt; markov_struct_cat := pr1.
+<span class="kn">Coercion</span> <span class="nf">markov_laws_cat_to_markov_struct_cat</span> : markov_laws_cat &gt;-&gt; markov_struct_cat.
+
+<span class="kn">Section</span> <span class="nf">MarkovCategoryFromCat</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : markov_laws_cat).
+
+  <span class="kn">Definition</span> <span class="nf">markov_monoidal_laws</span> : monoidal_laws (markov_monoidal_data C) := pr12 C.
+  <span class="kn">Definition</span> <span class="nf">markov_monoidal</span> : monoidal C := (markov_monoidal_data C ,, markov_monoidal_laws).
+  <span class="kn">Definition</span> <span class="nf">markov_monoidal_cat</span> : monoidal_cat := ((C :&gt; category),, markov_monoidal).
+
+  <span class="c">(* Symmetry *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">markov_swap_laws</span> : sym_mon_cat_laws_tensored markov_monoidal_cat <span class="nb">swap</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span>(symlaws := pr122 C). 
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="bp">exact</span> (pr1 symlaws).
+    - <span class="bp">exact</span> (pr12 symlaws).
+    - <span class="bp">exact</span> (pr22 symlaws).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">markov_symmetric</span> : symmetric markov_monoidal.
+  <span class="kn">Proof</span>.
+    use (make_symmetric markov_monoidal_cat).
+    - <span class="bp">exact</span> <span class="nb">swap</span>.
+    - <span class="bp">exact</span> markov_swap_laws.
+  <span class="kn">Defined</span>.
+  
+  <span class="kn">Definition</span> <span class="nf">markov_sym_monoidal_cat</span> : sym_monoidal_cat := (markov_monoidal_cat ,, markov_symmetric).
+
+  <span class="c">(* Markov *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">markov_category_data</span> : markov_category_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (semicart := pr1 (pr222 C)).
+    <span class="nb">simple refine</span> (markov_sym_monoidal_cat ,, _ ,, _).
+    - <span class="nb">intros</span> x. <span class="nb">simple refine</span> (delete x ,, _). <span class="nb">intros</span> f. <span class="bp">exact</span> (semicart x f).
+    - <span class="bp">exact</span> copy.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">markov_category_laws</span> : markov_category_laws markov_category_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (cd := pr2 (pr222 C)).
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="bp">exact</span> (pr1 cd).
+    - <span class="bp">exact</span> (pr12 cd).
+    - <span class="bp">exact</span> (pr122 cd).
+    - <span class="bp">exact</span> (pr1 (pr222 cd)).
+    - <span class="bp">exact</span> (pr2 (pr222 cd)).
+  <span class="kn">Defined</span>.  
+
+  <span class="kn">Definition</span> <span class="nf">markov_category_from_cat</span> : markov_category 
+    := (markov_category_data ,, markov_category_laws).
+
+<span class="kn">End</span> <span class="nf">MarkovCategoryFromCat</span>.
+
+<span class="kn">Section</span> <span class="nf">CatFromMarkovCategory</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : markov_category).
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> markov.
+
+  <span class="kn">Definition</span> <span class="nf">sig</span> : mon_sig C := (monoidal_cat_tensor_pt ,, I_{C}).
+  <span class="kn">Definition</span> <span class="nf">cat</span> : mon_sig_cat := ((C :&gt; category),, sig).
+
+  <span class="kn">Definition</span> <span class="nf">struct</span> : markov_struct cat.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">apply</span> leftwhiskering_on_morphisms.
+    - <span class="nb">apply</span> rightwhiskering_on_morphisms.
+    - <span class="bp">exact</span> mon_lunitor.
+    - <span class="bp">exact</span> mon_linvunitor.
+    - <span class="bp">exact</span> mon_runitor.
+    - <span class="bp">exact</span> mon_rinvunitor.
+    - <span class="bp">exact</span> mon_lassociator.
+    - <span class="bp">exact</span> mon_rassociator.
+    - <span class="nb">apply</span> sym_mon_braiding.
+    - <span class="nb">apply</span> del.
+    - <span class="nb">apply</span> MarkovCategory.copy.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">struct_cat</span> : markov_struct_cat := (cat ,, <span class="k">struct</span>).
+  
+  <span class="kn">Definition</span> <span class="nf">laws</span> : markov_laws struct_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span>(moncat := pr111 C).
+    <span class="nb">simple refine</span> (pr22 moncat ,, _ ,, _ ,, _); 
+    <span class="kp">repeat</span> <span class="nb">split</span>; <span class="kp">repeat</span> <span class="nb">intro</span>.
+    * <span class="nb">apply</span> sym_mon_braiding_inv.
+    * <span class="nb">apply</span> tensor_sym_mon_braiding.
+    * <span class="nb">apply</span> sym_mon_hexagon_lassociator.
+    * <span class="nb">apply</span> markov_category_unit_eq.
+    * <span class="nb">apply</span> MarkovCategory.copy_assoc'.
+    * <span class="nb">apply</span> MarkovCategory.copy_del_r.
+    * <span class="nb">apply</span> MarkovCategory.copy_del_l.
+    * <span class="nb">apply</span> MarkovCategory.copy_comm.
+    * <span class="nb">apply</span> MarkovCategory.copy_tensor.
+  <span class="kn">Defined</span>.
+  
+  <span class="kn">Definition</span> <span class="nf">laws_cat</span> : markov_laws_cat := (struct_cat ,, laws).
+
+<span class="kn">End</span> <span class="nf">CatFromMarkovCategory</span>.
+
+<span class="kn">Section</span> <span class="nf">Roundtrips</span>.
+
+  <span class="kn">Definition</span> <span class="nf">markov_roundtrip</span> (<span class="nv">C</span> : markov_category) 
+    : markov_category_from_cat (laws_cat C) = C.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> C <span class="k">as</span> [[[Cmon [s slaws]] markov] l].
+    use subtypePath. { <span class="nb">intros</span> cc. <span class="nb">apply</span> isaprop_markov_category_laws. }
+    <span class="nb">apply</span> total2asstor_path. <span class="nb">unfold</span> total2asstor. <span class="nb">cbn</span>.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> total2asstor_path. <span class="nb">unfold</span> total2asstor. <span class="nb">cbn</span>.
+    <span class="nb">apply</span> maponpaths.
+
+    <span class="nb">apply</span> dirprod_paths.
+    - <span class="nb">apply</span> isaprop_braiding_laws.
+    - <span class="nb">apply</span> dirprod_paths.
+      * <span class="nb">apply</span> funextsec2; <span class="nb">intros</span> x. <span class="nb">cbn</span>.
+        <span class="nb">apply</span> isapropiscontr.
+      * <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+  
+  <span class="kn">Definition</span> <span class="nf">markov_laws_cat_roundtrip</span> (<span class="nv">C</span> : markov_laws_cat)
+     : laws_cat (markov_category_from_cat C) = C.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> C <span class="k">as</span> [[sig <span class="k">struct</span>] laws].
+    use subtypePath. { <span class="nb">intros</span> cc. <span class="nb">apply</span> isaprop_markov_laws. }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Roundtrips</span>.
+
+<span class="kn">Definition</span> <span class="nf">markov_laws_weq</span> :
+  markov_category ≃ markov_laws_cat.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> laws_cat.
+  - <span class="bp">exact</span> markov_category_from_cat.
+  - <span class="bp">exact</span> markov_roundtrip.
+  - <span class="bp">exact</span> markov_laws_cat_roundtrip.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">markov_laws_eq</span> : 
+  markov_category = markov_laws_cat.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (weqtopaths markov_laws_weq).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/MarkovCategories/AlternativeDefinitions/Stratified.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *********************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

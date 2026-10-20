@@ -1,0 +1,726 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ComprehensionPreservation.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Preservation by the comprehension functor</span>
+
+<span class="sd"> If `C` is a DFL full comprehension category, then its comprehension functor `χ` is an</span>
+<span class="sd"> adjoint equivalence. This allows us to deduce that it preserves structure and properties</span>
+<span class="sd"> of the fiber categories, for instance, initial objects and subobject classifiers.</span>
+
+<span class="sd"> For the propositional truncation, we take a slight detour. The comprehension functor</span>
+<span class="sd"> preserves regular epimorphisms, which means that regular epimorphisms between types are</span>
+<span class="sd"> mapped to regular epimorphisms in the slice category. However, we want to have an</span>
+<span class="sd"> isomorphism between `Γ &amp; regular_local_property_trunc HC A` and the image of `π A` in `C`.</span>
+<span class="sd"> To obtain this isomorphism, we must do some extra work.</span>
+
+<span class="sd"> We also meet a similar problem for extensional identity types. While we can directly show</span>
+<span class="sd"> that the comprehension functor preserves equalizers, there is a technical difficulty. More</span>
+<span class="sd"> specifically, if we write `t₁ =_ext t₂` for the extensional identity type, we want to</span>
+<span class="sd"> construct an isomorphism between `Γ &amp; t₁ =_ext t₂` and the equalizer of `t₁` and `t₂`.</span>
+<span class="sd"> However, preservation only gives us that `Γ &amp; t₁ =_ext t₂` is an equalizer of two morphisms</span>
+<span class="sd"> that are slightly different from `t₁` and `t₂`. In fact, the domain of those morphisms is</span>
+<span class="sd"> only isomorphism to the domains of `t₁` and `t₂` and not definitionally equal. As a result,</span>
+<span class="sd"> we are required to connect those two equalizers.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Preliminary notions</span>
+<span class="sd"> 2. Preservation of initial objects</span>
+<span class="sd"> 3. Preservation of subobject classifiers</span>
+<span class="sd"> 4. Preservation of parameterized natural number objects</span>
+<span class="sd"> 5. Preservation of binary coproducts</span>
+<span class="sd"> 6. Preservation of truncations</span>
+<span class="sd"> 7. Preservation of extensional identity types</span>
+
+<span class="sd">                                                                                          *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularEpi.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularEpiFacts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodRegular.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodColimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodDomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifierIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.ComprehensionEso.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.HPropMono.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatExamples.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="sd">(** * 1. Preliminary notions *)</span>
+<span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_adjequiv_base_functor</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat)
+  : dfl_full_comp_cat_fiber ([] : C) ⟶ dfl_full_comp_cat_to_finlim C
+  := fiber_functor (comp_cat_comprehension C) []
+     ∙ cod_fib_terminal_to_base _.
+
+<span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_adjequiv_base_functor_finlim</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat)
+  : functor_finlim (dfl_full_comp_cat_fiber []) (dfl_full_comp_cat_to_finlim C)
+  := make_functor_finlim_adjequiv
+       (dfl_full_comp_cat_adjequiv_base_functor C)
+       (dfl_full_comp_cat_adjequiv_base C).
+
+<span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_to_cod_fiber_finlim</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">Γ</span> : C)
+  : univ_cat_with_finlim.
+<span class="kn">Proof</span>.
+  use slice_univ_cat_with_finlim.
+  - <span class="bp">exact</span> (dfl_full_comp_cat_to_finlim C).
+  - <span class="bp">exact</span> Γ.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">fiber_comp_cat_comprehension_functor_finlim</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">Γ</span> : C)
+  : functor_finlim
+      (dfl_full_comp_cat_fiber Γ)
+      (dfl_full_comp_cat_to_cod_fiber_finlim Γ).
+<span class="kn">Proof</span>.
+  use (make_functor_finlim_adjequiv _).
+  - <span class="bp">exact</span> (fiber_functor (comp_cat_comprehension C) Γ).
+  - <span class="bp">exact</span> (fiber_functor_comprehension_adj_equiv C Γ).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Preservation of initial objects *)</span>
+<span class="kn">Definition</span> <span class="nf">preserves_initial_dfl_full_comp_cat_adjequiv_base_functor</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">I</span> : fiberwise_cat_property
+                  strict_initial_local_property
+                  C)
+  : preserves_initial
+      (dfl_full_comp_cat_adjequiv_base_functor C)
+  := cat_property_adj_equivalence_of_cats'
+       strict_initial_local_property
+       (dfl_full_comp_cat_adjequiv_base_functor C)
+       (dfl_full_comp_cat_adjequiv_base _)
+       (I [])
+       (local_property_in_dfl_comp_cat strict_initial_local_property C I).
+
+<span class="sd">(** * 3. Preservation of subobject classifiers *)</span>
+<span class="kn">Definition</span> <span class="nf">preserves_subobj_classifier_dfl_full_comp_cat_adjequiv_base_functor</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">Ω</span> : fiberwise_cat_property
+                  subobject_classifier_local_property
+                  C)
+  : preserves_subobject_classifier
+      (dfl_full_comp_cat_adjequiv_base_functor C)
+      (terminal_univ_cat_with_finlim (dfl_full_comp_cat_fiber []))
+      (terminal_univ_cat_with_finlim (dfl_full_comp_cat_to_finlim C))
+      (functor_finlim_preserves_terminal
+         (dfl_full_comp_cat_adjequiv_base_functor_finlim C))
+  := cat_property_adj_equivalence_of_cats'
+       subobject_classifier_local_property
+       (dfl_full_comp_cat_adjequiv_base_functor C)
+       (dfl_full_comp_cat_adjequiv_base _)
+       (Ω [])
+       (local_property_in_dfl_comp_cat subobject_classifier_local_property C Ω).
+
+<span class="sd">(** * 4. Preservation of parameterized natural number objects *)</span>
+<span class="kn">Definition</span> <span class="nf">preserves_pnno_dfl_full_comp_cat_adjequiv_base_functor</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">N</span> : fiberwise_cat_property
+                  parameterized_NNO_local_property
+                  C)
+  : preserves_parameterized_NNO (N [])
+      (local_property_in_dfl_comp_cat parameterized_NNO_local_property C N)
+      (dfl_full_comp_cat_adjequiv_base_functor C)
+      (functor_finlim_preserves_terminal
+         (dfl_full_comp_cat_adjequiv_base_functor_finlim C))
+  := cat_property_adj_equivalence_of_cats'
+       parameterized_NNO_local_property
+       (dfl_full_comp_cat_adjequiv_base_functor C)
+       (dfl_full_comp_cat_adjequiv_base _)
+       (N [])
+       (local_property_in_dfl_comp_cat parameterized_NNO_local_property C N).
+
+<span class="sd">(** * 5. Preservation of binary coproducts *)</span>
+<span class="kn">Definition</span> <span class="nf">preserves_bincoproduct_fiber_comp_cat_comprehension</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">Γ</span> : C)
+  : preserves_bincoproduct (fiber_functor (comp_cat_comprehension C) Γ).
+<span class="kn">Proof</span>.
+  use left_adjoint_preserves_bincoproduct.
+  <span class="nb">apply</span> (fiber_functor_comprehension_adj_equiv C Γ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_bincoproduct_fiber_comp_cat_comprehension_dom</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   stable_bincoproducts_local_property
+                   C)
+           (<span class="nv">Γ</span> : C)
+  : preserves_bincoproduct
+      (fiber_functor (comp_cat_comprehension C) Γ ∙ slice_dom Γ).
+<span class="kn">Proof</span>.
+  use composition_preserves_bincoproduct.
+  - <span class="bp">exact</span> (preserves_bincoproduct_fiber_comp_cat_comprehension Γ).
+  - <span class="nb">refine</span> (preserves_bincoproducts_slice_dom Γ _).
+    <span class="bp">exact</span> (dfl_full_comp_cat_to_finlim_bincoproducts HC).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_bincoproduct_fiber_comp_cat_comprehension_dom_z_iso</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   stable_bincoproducts_local_property
+                   C)
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">A₁</span> <span class="nv">A₂</span> : ty Γ}
+           (<span class="nv">B₁</span> : BinCoproduct (C := fiber_category _ _) A₁ A₂)
+           (<span class="nv">B₂</span> : BinCoproduct (Γ &amp; A₁) (Γ &amp; A₂))
+  : z_iso (Γ &amp; BinCoproductObject B₁) B₂
+  := preserves_bincoproduct_to_z_iso
+       _
+       (preserves_bincoproduct_fiber_comp_cat_comprehension_dom HC Γ)
+       B₁ B₂.
+
+<span class="kn">Definition</span> <span class="nf">preserves_bincoproduct_fiber_comp_cat_comprehension_dom_z_iso_comm</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   stable_bincoproducts_local_property
+                   C)
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">A₁</span> <span class="nv">A₂</span> : ty Γ}
+           (<span class="nv">B₁</span> : BinCoproduct (C := fiber_category _ _) A₁ A₂)
+           (<span class="nv">B₂</span> : BinCoproduct (Γ &amp; A₁) (Γ &amp; A₂))
+  : inv_from_z_iso
+      (preserves_bincoproduct_fiber_comp_cat_comprehension_dom_z_iso HC B₁ B₂)
+    · π _
+    =
+    BinCoproductArrow _ (π A₁) (π A₂).
+<span class="kn">Proof</span>.
+  use BinCoproductArrowsEq.
+  - <span class="nb">rewrite</span> BinCoproductIn1Commutes.
+    <span class="nb">rewrite</span> assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> BinCoproductIn1Commutes.
+    }
+    etrans.
+    {
+      <span class="bp">exact</span> (comprehension_functor_mor_comm
+               (comp_cat_comprehension C)
+               (BinCoproductIn1 B₁)).
+    }
+    <span class="nb">apply</span> id_right.
+  - <span class="nb">rewrite</span> BinCoproductIn2Commutes.
+    <span class="nb">rewrite</span> assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> BinCoproductIn2Commutes.
+    }
+    etrans.
+    {
+      <span class="bp">exact</span> (comprehension_functor_mor_comm
+               (comp_cat_comprehension C)
+               (BinCoproductIn2 B₁)).
+    }
+    <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 6. Preservation of truncations *)</span>
+<span class="kn">Proposition</span> <span class="nf">preserves_regular_epi_comp_cat_comprehension</span>
+            {<span class="nv">C</span> : dfl_full_comp_cat}
+            (<span class="nv">HC</span> : fiberwise_cat_property regular_local_property C)
+            (<span class="nv">Γ</span> : C)
+  : preserves_regular_epi (fiber_functor (comp_cat_comprehension C) Γ).
+<span class="kn">Proof</span>.
+  use (cat_property_adj_equivalence_of_cats'
+         regular_local_property
+         (fiber_comp_cat_comprehension_functor_finlim Γ)
+         (fiber_functor_comprehension_adj_equiv C Γ)).
+  - <span class="nb">apply</span> HC.
+  - <span class="nb">refine</span> (local_property_slice
+              regular_local_property
+              _
+              _
+              _).
+    <span class="nb">apply</span> local_property_in_dfl_comp_cat.
+    <span class="bp">exact</span> HC.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comprehension_preserves_truncation_mor</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property regular_local_property C)
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">A</span> : ty Γ)
+  : (Γ &amp; regular_local_property_trunc HC A)
+    --&gt;
+    regular_category_im
+      (regular_local_property_base_regular HC)
+      (π A).
+<span class="kn">Proof</span>.
+  use (is_strong_epi_regular_epi_lift
+         (from_regular_epi_in_slice
+            (pr12 (regular_local_property_base_regular HC))
+            (pr122 (regular_local_property_base_regular HC))
+            (pr222 (regular_local_property_base_regular HC))
+            (preserves_regular_epi_comp_cat_comprehension
+               HC Γ _ _ _
+               (is_regular_to_regular_local_property_trunc HC A)))
+         (regular_category_im_Monic
+            (regular_local_property_base_regular HC) (π A))
+         (regular_category_to_im _ _)
+         (π _)
+         _
+         (MonicisMonic _ _)).
+  <span class="kp">abstract</span>
+    (<span class="nb">rewrite</span> &lt;- regular_category_im_commutes ;
+     <span class="nb">apply</span> mor_eq).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">comprehension_preserves_truncation_inv</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property regular_local_property C)
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">A</span> : ty Γ)
+  : regular_category_im
+      (regular_local_property_base_regular HC)
+      (π A)
+    --&gt;
+    (Γ &amp; regular_local_property_trunc HC A).
+<span class="kn">Proof</span>.
+  use (is_strong_epi_regular_epi_lift
+         (is_regular_epi_regular_category_to_im
+            (regular_local_property_base_regular HC)
+            (π A))).
+  - <span class="bp">exact</span> Γ.
+  - <span class="bp">exact</span> (π _).
+  - <span class="nb">refine</span> (dom_mor (#(fiber_functor (comp_cat_comprehension C) Γ) _)).
+    <span class="nb">apply</span> to_regular_local_property_trunc.
+  - <span class="nb">apply</span> regular_category_im_Monic.
+  - <span class="kp">abstract</span>
+      (<span class="nb">refine</span> (_ @ !(mor_eq _)) ;
+       <span class="nb">simpl</span> ;
+    <span class="bp">exact</span> (!(regular_category_im_commutes _ _))).
+  - <span class="nb">apply</span> (hprop_ty_to_monic (is_hprop_ty_trunc HC A)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comprehension_preserves_truncation_inv_laws</span>
+            {<span class="nv">C</span> : dfl_full_comp_cat}
+            (<span class="nv">HC</span> : fiberwise_cat_property regular_local_property C)
+            {<span class="nv">Γ</span> : C}
+            (<span class="nv">A</span> : ty Γ)
+  : is_inverse_in_precat
+      (comprehension_preserves_truncation_mor HC A)
+      (comprehension_preserves_truncation_inv HC A).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - use (is_strong_epi_regular_epi_unique
+           (from_regular_epi_in_slice
+              (pr12 (regular_local_property_base_regular HC))
+              (pr122 (regular_local_property_base_regular HC))
+              (pr222 (regular_local_property_base_regular HC))
+              (preserves_regular_epi_comp_cat_comprehension
+                 HC Γ _ _ _
+                 (is_regular_to_regular_local_property_trunc HC A)))).
+    + <span class="bp">exact</span> Γ.
+    + <span class="bp">exact</span> (π _).
+    + <span class="nb">refine</span> (dom_mor (#(fiber_functor (comp_cat_comprehension C) Γ) _)).
+      <span class="nb">apply</span> to_regular_local_property_trunc.
+    + <span class="bp">exact</span> (π _).
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> (hprop_ty_to_monic (is_hprop_ty_trunc HC A)).
+    + <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> is_strong_epi_regular_epi_comm_left.
+      }
+      <span class="nb">apply</span> is_strong_epi_regular_epi_comm_left.
+    + <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> is_strong_epi_regular_epi_comm_right.
+      }
+      <span class="nb">apply</span> is_strong_epi_regular_epi_comm_right.
+    + <span class="nb">apply</span> id_left.
+    + <span class="nb">apply</span> id_right.
+  - use (regular_category_mor_to_im_eq _).
+    + <span class="nb">apply</span> identity.
+    + <span class="nb">apply</span> identity.
+    + <span class="nb">rewrite</span> id_right, id_left.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> id_right.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> is_strong_epi_regular_epi_comm_left.
+      }
+      <span class="nb">apply</span> is_strong_epi_regular_epi_comm_left.
+    + <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> is_strong_epi_regular_epi_comm_right.
+      }
+      <span class="nb">apply</span> is_strong_epi_regular_epi_comm_right.
+    + <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comprehension_preserves_truncation</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property regular_local_property C)
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">A</span> : ty Γ)
+  : z_iso
+      (Γ &amp; regular_local_property_trunc HC A)
+      (regular_category_im
+         (regular_local_property_base_regular HC)
+         (π A)).
+<span class="kn">Proof</span>.
+  use make_z_iso.
+  - <span class="bp">exact</span> (comprehension_preserves_truncation_mor HC A).
+  - <span class="bp">exact</span> (comprehension_preserves_truncation_inv HC A).
+  - <span class="bp">exact</span> (comprehension_preserves_truncation_inv_laws HC A).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comprehension_preserves_truncation_comm</span>
+            {<span class="nv">C</span> : dfl_full_comp_cat}
+            (<span class="nv">HC</span> : fiberwise_cat_property regular_local_property C)
+            {<span class="nv">Γ</span> : C}
+            (<span class="nv">A</span> : ty Γ)
+  : comprehension_preserves_truncation HC A
+    · regular_epi_mono_factorization_mono _ _ _
+    =
+    π _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_strong_epi_regular_epi_comm_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comprehension_preserves_truncation_inv_comm</span>
+            {<span class="nv">C</span> : dfl_full_comp_cat}
+            (<span class="nv">HC</span> : fiberwise_cat_property regular_local_property C)
+            {<span class="nv">Γ</span> : C}
+            (<span class="nv">A</span> : ty Γ)
+  : inv_from_z_iso (comprehension_preserves_truncation HC A)
+    · π _
+    =
+    regular_epi_mono_factorization_mono _ _ _.
+<span class="kn">Proof</span>.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> comprehension_preserves_truncation_comm.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 7. Preservation of extensional identity types *)</span>
+<span class="kn">Section</span> <span class="nf">PreservationExtIdComprehension</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : dfl_full_comp_cat}.
+
+  <span class="kn">Section</span> <span class="nf">FiberEqualizer</span>.
+    <span class="kn">Context</span> {<span class="nv">Γ</span> : C}
+            {<span class="nv">A</span> : ty Γ}
+            (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A)
+            (<span class="nv">e</span> : Equalizer t₁ t₂).
+
+    <span class="kn">Definition</span> <span class="nf">comp_cat_fiber_equalizer_ob</span>
+      : C/Γ.
+    <span class="kn">Proof</span>.
+      use make_cod_fib_ob.
+      - <span class="bp">exact</span> e.
+      - <span class="bp">exact</span> (EqualizerArrow e).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comp_cat_fiber_equalizer_mor</span>
+      : comp_cat_fiber_equalizer_ob
+        --&gt;
+        fiber_functor (comp_cat_comprehension C) Γ (dfl_full_comp_cat_unit Γ).
+    <span class="kn">Proof</span>.
+      use make_cod_fib_mor.
+      - <span class="bp">exact</span> (EqualizerArrow e · inv_from_z_iso (dfl_full_comp_cat_extend_unit_z_iso Γ)).
+      - <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> assoc' ;
+           <span class="nb">rewrite</span> z_iso_after_z_iso_inv ;
+           <span class="nb">apply</span> id_right).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">comp_cat_fiber_equalizer_eq_help</span>
+      : EqualizerArrow e
+        · inv_from_z_iso (dfl_full_comp_cat_extend_unit_z_iso Γ)
+        · dom_mor ((♯(comp_cat_comprehension C))%mor_disp (dfl_full_comp_cat_tm_to_mor t₁))
+        =
+        EqualizerArrow e
+        · inv_from_z_iso (dfl_full_comp_cat_extend_unit_z_iso Γ)
+        · dom_mor ((♯(comp_cat_comprehension C))%mor_disp (dfl_full_comp_cat_tm_to_mor t₂)).
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (maponpaths pr1 (dfl_full_comp_cat_tm_to_mor_to_tm t₁)).
+      }
+      <span class="nb">refine</span> (EqualizerEqAr e @ _).
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (maponpaths pr1 (dfl_full_comp_cat_tm_to_mor_to_tm t₂)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">comp_cat_fiber_equalizer_eq</span>
+      : comp_cat_fiber_equalizer_mor
+        · #(fiber_functor (comp_cat_comprehension C) Γ) (dfl_full_comp_cat_tm_to_mor t₁)
+        =
+        comp_cat_fiber_equalizer_mor
+        · #(fiber_functor (comp_cat_comprehension C) Γ) (dfl_full_comp_cat_tm_to_mor t₂).
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> comp_cat_fiber_equalizer_mor.
+      use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> !comp_in_cod_fib.
+      <span class="bp">exact</span> comp_cat_fiber_equalizer_eq_help.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Section</span> <span class="nf">UMP</span>.
+      <span class="kn">Context</span> {<span class="nv">x</span> : C/Γ}
+              (<span class="nv">h</span> : x --&gt; fiber_functor (comp_cat_comprehension C) Γ (dfl_full_comp_cat_unit Γ))
+              (<span class="nv">p</span> : h · #(fiber_functor (comp_cat_comprehension C) Γ)
+                        (dfl_full_comp_cat_tm_to_mor t₁)
+                   =
+                   h · #(fiber_functor (comp_cat_comprehension C) Γ)
+                        (dfl_full_comp_cat_tm_to_mor t₂)).
+
+      <span class="kn">Lemma</span> <span class="nf">to_comp_cat_fiber_equalizer_mor_dom_help</span>
+        : cod_mor x · t₁ = cod_mor x · t₂.
+      <span class="kn">Proof</span>.
+        <span class="nb">rewrite</span> &lt;- (mor_eq h).
+        <span class="nb">refine</span> (_ @ maponpaths dom_mor p @ _).
+        - <span class="nb">rewrite</span> comp_in_cod_fib.
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (maponpaths pr1 (dfl_full_comp_cat_tm_to_mor_to_tm t₁)).
+          }
+          <span class="nb">simpl</span>.
+          <span class="nb">rewrite</span> !assoc.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> (z_iso_inv_after_z_iso (dfl_full_comp_cat_extend_unit_z_iso Γ)).
+          }
+          <span class="nb">apply</span> id_left.
+        - <span class="nb">rewrite</span> comp_in_cod_fib.
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (maponpaths pr1 (dfl_full_comp_cat_tm_to_mor_to_tm t₂)).
+          }
+          <span class="nb">simpl</span>.
+          <span class="nb">rewrite</span> !assoc.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> (z_iso_inv_after_z_iso (dfl_full_comp_cat_extend_unit_z_iso Γ)).
+          }
+          <span class="nb">apply</span> id_left.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">to_comp_cat_fiber_equalizer_mor_dom</span>
+        : cod_dom x --&gt; cod_dom comp_cat_fiber_equalizer_ob.
+      <span class="kn">Proof</span>.
+        use EqualizerIn.
+        - <span class="bp">exact</span> (cod_mor x).
+        - <span class="bp">exact</span> to_comp_cat_fiber_equalizer_mor_dom_help.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">to_comp_cat_fiber_equalizer_mor</span>
+        : x --&gt; comp_cat_fiber_equalizer_ob.
+      <span class="kn">Proof</span>.
+        use make_cod_fib_mor.
+        - <span class="bp">exact</span> to_comp_cat_fiber_equalizer_mor_dom.
+        - <span class="kp">abstract</span>
+            (<span class="nb">apply</span> EqualizerCommutes).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">to_comp_cat_fiber_equalizer_comm</span>
+        : to_comp_cat_fiber_equalizer_mor · comp_cat_fiber_equalizer_mor
+          =
+          h.
+      <span class="kn">Proof</span>.
+        use eq_mor_cod_fib.
+        <span class="nb">refine</span> (comp_in_cod_fib _ _ @ _).
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> EqualizerCommutes.
+        }
+        <span class="nb">refine</span> (!_).
+        use z_iso_inv_on_left.
+        <span class="bp">exact</span> (!(mor_eq h)).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">to_comp_cat_fiber_equalizer_unique</span>
+        : isaprop (∑ φ, φ · comp_cat_fiber_equalizer_mor = h).
+      <span class="kn">Proof</span>.
+        use invproofirrelevance.
+        <span class="nb">intros</span> ζ₁ ζ₂.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> homset_property.
+        }
+        use eq_mor_cod_fib.
+        use EqualizerInsEq.
+        use (cancel_z_iso _ _ (z_iso_inv (dfl_full_comp_cat_extend_unit_z_iso Γ))).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">pose</span> (q := maponpaths dom_mor (pr2 ζ₁ @ !(pr2 ζ₂))).
+        <span class="nb">rewrite</span> !comp_in_cod_fib <span class="k">in</span> q.
+        <span class="nb">simpl</span> <span class="k">in</span> q.
+        <span class="bp">exact</span> q.
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">UMP</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">comp_cat_fiber_equalizer_isEqualizer</span>
+      : isEqualizer
+          (#(fiber_functor (comp_cat_comprehension C) Γ) (dfl_full_comp_cat_tm_to_mor t₁))
+          (#(fiber_functor (comp_cat_comprehension C) Γ) (dfl_full_comp_cat_tm_to_mor t₂))
+          comp_cat_fiber_equalizer_mor comp_cat_fiber_equalizer_eq.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x h p.
+      use iscontraprop1.
+      - <span class="bp">exact</span> (to_comp_cat_fiber_equalizer_unique h).
+      - <span class="nb">simple refine</span> (_ ,, _).
+        + <span class="bp">exact</span> (to_comp_cat_fiber_equalizer_mor h p).
+        + <span class="bp">exact</span> (to_comp_cat_fiber_equalizer_comm h p).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comp_cat_fiber_equalizer</span>
+      : Equalizer
+          (#(fiber_functor (comp_cat_comprehension C) Γ) (dfl_full_comp_cat_tm_to_mor t₁))
+          (#(fiber_functor (comp_cat_comprehension C) Γ) (dfl_full_comp_cat_tm_to_mor t₂)).
+    <span class="kn">Proof</span>.
+      use make_Equalizer.
+      - <span class="bp">exact</span> comp_cat_fiber_equalizer_ob.
+      - <span class="bp">exact</span> comp_cat_fiber_equalizer_mor.
+      - <span class="bp">exact</span> comp_cat_fiber_equalizer_eq.
+      - <span class="bp">exact</span> comp_cat_fiber_equalizer_isEqualizer.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">FiberEqualizer</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comprehension_preserves_ext_id_z_iso</span>
+             {<span class="nv">Γ</span> : C}
+             {<span class="nv">A</span> : ty Γ}
+             {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A}
+             (<span class="nv">e</span> : Equalizer t₁ t₂)
+    : z_iso (Γ &amp; dfl_ext_identity_type t₁ t₂) e
+    := z_iso_to_cod_dom
+         _ _ _
+         (preserves_equalizer_z_iso
+            _
+            (preserves_equalizer_fiber_functor_comprehension C Γ)
+            (dfl_ext_identity t₁ t₂)
+            (comp_cat_fiber_equalizer t₁ t₂ e)).
+
+  <span class="kn">Proposition</span> <span class="nf">comprehension_preserves_ext_id_z_iso_comm</span>
+              {<span class="nv">Γ</span> : C}
+              {<span class="nv">A</span> : ty Γ}
+              (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A)
+              (<span class="nv">e</span> : Equalizer t₁ t₂)
+    : comprehension_preserves_ext_id_z_iso e · EqualizerArrow e
+      =
+      cod_mor _.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> EqualizerCommutes.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">comprehension_preserves_ext_id_z_iso_inv_comm</span>
+              {<span class="nv">Γ</span> : C}
+              {<span class="nv">A</span> : ty Γ}
+              (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A)
+              (<span class="nv">e</span> : Equalizer t₁ t₂)
+    : inv_from_z_iso (comprehension_preserves_ext_id_z_iso e) · cod_mor _
+      =
+      EqualizerArrow e.
+  <span class="kn">Proof</span>.
+    use z_iso_inv_on_right.
+    <span class="nb">rewrite</span> comprehension_preserves_ext_id_z_iso_comm.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">PreservationExtIdComprehension</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/ComprehensionPreservation.v</tt>, line 34)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  7. Preservation of extensional identity types
+  &gt;
+  &gt;                                                                                           *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Limits.Initial.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

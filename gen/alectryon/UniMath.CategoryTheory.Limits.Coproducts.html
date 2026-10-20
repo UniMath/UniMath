@@ -1,0 +1,688 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Coproducts.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(*</span>
+
+<span class="c">Direct implementation of indexed coproducts together with:</span>
+
+<span class="c">- The general coproduct functor ([coproduct_functor])</span>
+<span class="c">- Definition of a coproduct structure on a functor category by taking pointwise coproducts in the</span>
+<span class="c">  target category (adapted from the binary version) ([])</span>
+<span class="c">- Coproducts from colimits ([Coproducts_from_Colims])</span>
+
+<span class="c">Written by: Anders Mörtberg 2016</span>
+
+<span class="c">Extended by Ralph Matthes 2023 for the distributors</span>
+
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ProductCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Definition of indexed coproducts of objects in a precategory *)</span>
+<span class="kn">Section</span> <span class="nf">coproduct_def</span>.
+
+<span class="kn">Context</span> (<span class="nv">I</span> : UU) (<span class="nv">C</span> : category).
+
+<span class="kn">Definition</span> <span class="nf">isCoproduct</span> (<span class="nv">a</span> : I -&gt; C) (<span class="nv">co</span> : C)
+  (<span class="nv">ia</span> : ∏ i, a i --&gt; co) :=
+  ∏ (c : C) (f : ∏ i, a i --&gt; c),
+    <span class="k">∃</span>! (g : co --&gt; c), ∏ i, ia i · g = f i.
+
+<span class="kn">Definition</span> <span class="nf">Coproduct</span> (<span class="nv">a</span> : I -&gt; C) :=
+   ∑ coia : (∑ co : C, ∏ i, a i --&gt; co),
+          isCoproduct a (pr1 coia) (pr2 coia).
+
+<span class="kn">Definition</span> <span class="nf">Coproducts</span> := ∏ (a : I -&gt; C), Coproduct a.
+<span class="kn">Definition</span> <span class="nf">hasCoproducts</span> :=  ∏ (a : I -&gt; C), ∥ Coproduct a ∥.
+
+<span class="kn">Definition</span> <span class="nf">CoproductObject</span> {<span class="nv">a</span> : I -&gt; C} (<span class="nv">CC</span> : Coproduct a) : C := pr1 (pr1 CC).
+<span class="kn">Coercion</span> <span class="nf">CoproductObject</span> : Coproduct &gt;-&gt; ob.
+
+<span class="kn">Definition</span> <span class="nf">CoproductIn</span> {<span class="nv">a</span> : I -&gt; C} (<span class="nv">CC</span> : Coproduct a): ∏ i, a i --&gt; CoproductObject CC :=
+  pr2 (pr1 CC).
+
+<span class="kn">Definition</span> <span class="nf">isCoproduct_Coproduct</span> {<span class="nv">a</span> : I -&gt; C} (<span class="nv">CC</span> : Coproduct a) :
+   isCoproduct a (CoproductObject CC) (CoproductIn CC).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 CC).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">CoproductArrow</span> {<span class="nv">a</span> : I -&gt; C} (<span class="nv">CC</span> : Coproduct a) {<span class="nv">c</span> : C} (<span class="nv">f</span> : ∏ i, a i --&gt; c) :
+      CoproductObject CC --&gt; c.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (pr1 (isCoproduct_Coproduct CC _ f))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">CoproductInCommutes</span> (<span class="nv">a</span> : I -&gt; C) (<span class="nv">CC</span> : Coproduct a) :
+     ∏ (c : C) (f : ∏ i, a i --&gt; c) i, CoproductIn CC i · CoproductArrow CC f = f i.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c f i.
+  <span class="bp">exact</span> (pr2 (pr1 (isCoproduct_Coproduct CC _ f)) i).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">CoproductIn_idtoiso</span> {<span class="nv">i1</span> <span class="nv">i2</span> : I} (<span class="nv">a</span> : I -&gt; C) (<span class="nv">CC</span> : Coproduct a)
+      (<span class="nv">e</span> : i1 = i2) :
+  idtoiso (maponpaths a e) · CoproductIn CC i2 = CoproductIn CC i1.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e.
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">CoproductArrowUnique</span> (<span class="nv">a</span> : I -&gt; C) (<span class="nv">CC</span> : Coproduct a) (<span class="nv">x</span> : C)
+    (<span class="nv">f</span> : ∏ i, a i --&gt; x) (<span class="nv">k</span> : CoproductObject CC --&gt; x)
+    (<span class="nv">Hk</span> : ∏ i, CoproductIn CC i · k = f i) :
+  k = CoproductArrow CC f.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (H' := pr2 (isCoproduct_Coproduct CC _ f) (k,,Hk)).
+  <span class="nb">apply</span> (base_paths _ _ H').
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">CoproductArrowEta</span> (<span class="nv">a</span> : I -&gt; C) (<span class="nv">CC</span> : Coproduct a) (<span class="nv">x</span> : C)
+    (<span class="nv">f</span> : CoproductObject CC --&gt; x) :
+    f = CoproductArrow CC (<span class="k">λ</span> <span class="nv">i</span>, CoproductIn CC i · f).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> CoproductArrowUnique.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">CoproductArrow_eq</span>
+            {<span class="nv">d</span> : I → C}
+            (<span class="nv">z</span> : C)
+            (<span class="nv">x</span> : Coproduct d)
+            (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; z)
+            (<span class="nv">p</span> : ∏ (i : I), CoproductIn x i · f = CoproductIn x i · g)
+  : f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (CoproductArrowEta _ _ _ _ @ _ @ !(CoproductArrowEta _ _ _ _)).
+  <span class="nb">apply</span> maponpaths.
+  use funextsec.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">CoproductOfArrows</span> {<span class="nv">a</span> : I -&gt; C} (<span class="nv">CCab</span> : Coproduct a) {<span class="nv">c</span> : I -&gt; C}
+    (<span class="nv">CCcd</span> : Coproduct c) (<span class="nv">f</span> : ∏ i, a i --&gt; c i) :
+          CoproductObject CCab --&gt; CoproductObject CCcd :=
+    CoproductArrow CCab (<span class="k">λ</span> <span class="nv">i</span>, f i · CoproductIn CCcd i).
+
+<span class="kn">Lemma</span> <span class="nf">CoproductOfArrowsIn</span> {<span class="nv">a</span> : I -&gt; C} (<span class="nv">CCab</span> : Coproduct a) {<span class="nv">c</span> : I -&gt; C}
+    (<span class="nv">CCcd</span> : Coproduct c) (<span class="nv">f</span> : ∏ i, a i --&gt; c i) :
+    ∏ i, CoproductIn CCab i · CoproductOfArrows CCab CCcd f = f i · CoproductIn CCcd i.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> CoproductOfArrows; <span class="nb">intro</span> i.
+  <span class="nb">apply</span> CoproductInCommutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_Coproduct</span> (<span class="nv">a</span> : I -&gt; C) (<span class="nv">c</span> : C) (<span class="nv">f</span> : ∏ i, a i --&gt; c) :
+   isCoproduct _ _ f → Coproduct a.
+<span class="kn">Proof</span>.
+<span class="nb">intro</span> H.
+use tpair.
+- <span class="nb">apply</span> (tpair _ c f).
+- <span class="nb">apply</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_isCoproduct</span> (<span class="nv">hsC</span> : has_homsets C) (<span class="nv">a</span> : I -&gt; C) (<span class="nv">co</span> : C)
+  (<span class="nv">f</span> : ∏ i, a i --&gt; co) : (∏ (c : C) (g : ∏ i, a i --&gt; c),
+                                  <span class="k">∃</span>! k : C ⟦co, c⟧, ∏ i, f i · k = g i)
+   → isCoproduct a co f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H c cc.
+  <span class="nb">apply</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">precompWithCoproductArrow</span> {<span class="nv">a</span> : I -&gt; C} (<span class="nv">CCab</span> : Coproduct a) {<span class="nv">c</span> : I -&gt; C}
+    (<span class="nv">CCcd</span> : Coproduct c) (<span class="nv">f</span> : ∏ i, a i --&gt; c i)
+    {<span class="nv">x</span> : C} (<span class="nv">k</span> : ∏ i, c i --&gt; x) :
+        CoproductOfArrows CCab CCcd f · CoproductArrow CCcd k =
+         CoproductArrow CCab (<span class="k">λ</span> <span class="nv">i</span>, f i · k i).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> CoproductArrowUnique; <span class="nb">intro</span> i.
+<span class="bp">now</span> <span class="nb">rewrite</span> assoc, CoproductOfArrowsIn, &lt;- assoc, CoproductInCommutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">postcompWithCoproductArrow</span> {<span class="nv">a</span> : I -&gt; C} (<span class="nv">CCab</span> : Coproduct a) {<span class="nv">c</span> : C}
+    (<span class="nv">f</span> : ∏ i, a i --&gt; c) {<span class="nv">x</span> : C} (<span class="nv">k</span> : c --&gt; x)  :
+       CoproductArrow CCab f · k = CoproductArrow CCab (<span class="k">λ</span> <span class="nv">i</span>, f i · k).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> CoproductArrowUnique; <span class="nb">intro</span> i.
+<span class="bp">now</span> <span class="nb">rewrite</span> assoc, CoproductInCommutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Coproduct_endo_is_identity</span> (<span class="nv">a</span> : I -&gt; C) (<span class="nv">CC</span> : Coproduct a)
+  (<span class="nv">k</span> : CoproductObject CC --&gt; CoproductObject CC)
+  (<span class="nv">H1</span> : ∏ i, CoproductIn CC i · k = CoproductIn CC i)
+  : identity _ = k.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> pathsinv0.
+<span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> CoproductArrowEta|].
+<span class="nb">apply</span> pathsinv0, CoproductArrowUnique; <span class="nb">intro</span> i; <span class="nb">apply</span> pathsinv0.
+<span class="bp">now</span> <span class="nb">rewrite</span> id_right, H1.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">coproduct_def</span>.
+
+<span class="kn">Section</span> <span class="nf">Coproducts</span>.
+
+<span class="kn">Context</span> (<span class="nv">I</span> : UU) (<span class="nv">C</span> : category) (<span class="nv">CC</span> : Coproducts I C).
+
+<span class="c">(* Lemma CoproductArrow_eq (f f' : a --&gt; c) (g g' : b --&gt; c) *)</span>
+<span class="c">(*   : f = f' → g = g' → *)</span>
+<span class="c">(*       CoproductArrow _ (CC _ _) f g = CoproductArrow _ _ f' g'. *)</span>
+<span class="c">(* Proof. *)</span>
+<span class="c">(*   induction 1. *)</span>
+<span class="c">(*   induction 1. *)</span>
+<span class="c">(*   apply idpath. *)</span>
+<span class="c">(* Qed. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">CoproductOfArrows_comp</span> (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : I -&gt; C)
+  (<span class="nv">f</span> : ∏ i, a i --&gt; b i) (<span class="nv">g</span> : ∏ i, b i --&gt; c i) :
+   CoproductOfArrows _ _ _ _ f · CoproductOfArrows _ _ (CC _) (CC _) g
+   = CoproductOfArrows _ _ (CC _) (CC _)(<span class="k">λ</span> <span class="nv">i</span>, f i · g i).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> CoproductArrowUnique; <span class="nb">intro</span> i.
+<span class="nb">rewrite</span> assoc, CoproductOfArrowsIn.
+<span class="bp">now</span> <span class="nb">rewrite</span> &lt;- assoc, CoproductOfArrowsIn, assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Coproducts</span>.
+
+<span class="kn">Section</span> <span class="nf">functors</span>.
+
+<span class="kn">Definition</span> <span class="nf">coproduct_functor_data</span> (<span class="nv">I</span> : UU) {<span class="nv">C</span> : category}
+  (<span class="nv">PC</span> : Coproducts I C) : functor_data (power_category I C) C.
+<span class="kn">Proof</span>.
+use tpair.
+- <span class="nb">intros</span> p.
+  <span class="nb">apply</span> (CoproductObject _ _ (PC p)).
+- <span class="nb">simpl</span>; <span class="nb">intros</span> p q f.
+  <span class="nb">apply</span> (CoproductOfArrows _ _ _ _ f).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * The coproduct functor: C^I -&gt; C *)</span>
+<span class="kn">Definition</span> <span class="nf">coproduct_functor</span> (<span class="nv">I</span> : UU) {<span class="nv">C</span> : category}
+  (<span class="nv">PC</span> : Coproducts I C) : functor (power_category I C) C.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (tpair _ (coproduct_functor_data _ PC)).
+<span class="kp">abstract</span> (<span class="nb">split</span>;
+          [<span class="nb">intro</span> x; <span class="nb">simpl</span>; <span class="nb">apply</span> pathsinv0, Coproduct_endo_is_identity;
+           <span class="bp">now</span> <span class="nb">intro</span> i; <span class="nb">rewrite</span> CoproductOfArrowsIn, id_left
+          | <span class="bp">now</span> <span class="nb">intros</span> x y z f g; <span class="nb">simpl</span>; <span class="nb">rewrite</span> CoproductOfArrows_comp]).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">functors</span>.
+
+<span class="c">(* The coproduct of a family of functors *)</span>
+<span class="c">(* This is the old and not so good definition as it is unnecessarily complicated, also the proof</span>
+<span class="c">   that it is omega-cocontinuous requires that C has products *)</span>
+<span class="kn">Definition</span> <span class="nf">coproduct_of_functors_alt_old</span> (<span class="nv">I</span> : UU) {<span class="nv">C</span> <span class="nv">D</span> : category}
+  (<span class="nv">HD</span> : Coproducts I D) (<span class="nv">F</span> : I -&gt; functor C D) : functor C D :=
+  functor_composite (delta_functor I C)
+     (functor_composite (family_functor _ F)
+                        (coproduct_functor _ HD)).
+
+<span class="sd">(** The coproduct of a family of functors *)</span>
+<span class="kn">Definition</span> <span class="nf">coproduct_of_functors_alt</span> (<span class="nv">I</span> : UU) {<span class="nv">C</span> <span class="nv">D</span> : category}
+  (<span class="nv">HD</span> : Coproducts I D) (<span class="nv">F</span> : ∏ (i : I), functor C D)
+  := functor_composite (tuple_functor F) (coproduct_functor _ HD).
+
+
+<span class="sd">(** * Coproducts lift to functor categories *)</span>
+<span class="kn">Section</span> <span class="nf">def_functor_pointwise_coprod</span>.
+
+<span class="kn">Context</span> (<span class="nv">I</span> : UU) (<span class="nv">C</span> <span class="nv">D</span> : category) (<span class="nv">HD</span> : Coproducts I D).
+
+<span class="kn">Section</span> <span class="nf">coproduct_of_functors</span>.
+
+<span class="kn">Context</span> (<span class="nv">F</span> : I -&gt; functor C D).
+
+<span class="kn">Definition</span> <span class="nf">coproduct_of_functors_ob</span> (<span class="nv">c</span> : C) : D
+  := CoproductObject _ _ (HD (<span class="k">λ</span> <span class="nv">i</span>, F i c)).
+
+<span class="kn">Definition</span> <span class="nf">coproduct_of_functors_mor</span> (<span class="nv">c</span> <span class="nv">c'</span> : C) (<span class="nv">f</span> : c --&gt; c')
+  : coproduct_of_functors_ob c --&gt; coproduct_of_functors_ob c' :=
+  CoproductOfArrows _ _ _ _ (<span class="k">λ</span> <span class="nv">i</span>, # (F i) f).
+
+<span class="kn">Definition</span> <span class="nf">coproduct_of_functors_data</span> : functor_data C D.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">coproduct_of_functors_ob</span>.
+  <span class="bp">exact</span> coproduct_of_functors_mor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_coproduct_of_functors_data</span> :
+  is_functor coproduct_of_functors_data.
+<span class="kn">Proof</span>.
+<span class="nb">split</span>; <span class="nb">simpl</span>; <span class="nb">intros</span>.
+- <span class="nb">unfold</span> functor_idax; <span class="nb">intros</span>; <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> Coproduct_endo_is_identity; <span class="nb">intro</span> i.
+    <span class="nb">unfold</span> coproduct_of_functors_mor.
+    <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> (CoproductOfArrowsIn _ _ (HD (<span class="k">λ</span> <span class="nv">i</span>, (F i) a)))|].
+    <span class="bp">now</span> <span class="nb">simpl</span>; <span class="nb">rewrite</span> functor_id, id_left.
+- <span class="nb">unfold</span> functor_compax; <span class="nb">simpl</span>; <span class="nb">unfold</span> coproduct_of_functors_mor.
+  <span class="nb">intros</span>; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">eapply</span> pathscomp0.
+  <span class="nb">apply</span> CoproductOfArrows_comp.
+  <span class="nb">apply</span> maponpaths, funextsec; <span class="nb">intro</span> i.
+  <span class="bp">now</span> <span class="nb">rewrite</span> functor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">coproduct_of_functors</span> : functor C D :=
+  tpair _ _ is_functor_coproduct_of_functors_data.
+
+<span class="kn">Lemma</span> <span class="nf">coproduct_of_functors_alt_old_eq_coproduct_of_functors</span> :
+  coproduct_of_functors_alt_old _ HD F = coproduct_of_functors.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">apply</span> (functor_eq _ _ D).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">coproduct_of_functors_alt_eq_coproduct_of_functors</span> :
+  coproduct_of_functors_alt _ HD F = coproduct_of_functors.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">apply</span> (functor_eq _ _ D).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">coproduct_nat_trans_in_data</span> <span class="nv">i</span> (<span class="nv">c</span> : C) :
+  D ⟦ (F i) c, coproduct_of_functors c ⟧ :=
+  CoproductIn _ _ (HD (<span class="k">λ</span> <span class="nv">j</span>, (F j) c)) i.
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_coproduct_nat_trans_in_data</span> <span class="nv">i</span> :
+  is_nat_trans _ _ (coproduct_nat_trans_in_data i).
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> c c' f; <span class="nb">apply</span> pathsinv0.
+<span class="bp">now</span> <span class="nb">eapply</span> pathscomp0;[<span class="nb">apply</span> (CoproductOfArrowsIn I _ (HD (<span class="k">λ</span> <span class="nv">i</span>, (F i) c)))|].
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">coproduct_nat_trans_in</span> <span class="nv">i</span> : nat_trans (F i) coproduct_of_functors :=
+  tpair _ _ (is_nat_trans_coproduct_nat_trans_in_data i).
+
+<span class="kn">Section</span> <span class="nf">vertex</span>.
+
+<span class="kn">Context</span> (<span class="nv">A</span> : functor C D) (<span class="nv">f</span> : ∏ i, nat_trans (F i) A).
+
+<span class="kn">Definition</span> <span class="nf">coproduct_nat_trans_data</span> <span class="nv">c</span> : coproduct_of_functors c --&gt; A c
+  := CoproductArrow _ _ _ (<span class="k">λ</span> <span class="nv">i</span>, f i c).
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_coproduct_nat_trans_data</span> :
+  is_nat_trans _ _ coproduct_nat_trans_data.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> a b k; <span class="nb">simpl</span>.
+<span class="nb">eapply</span> pathscomp0.
+<span class="nb">apply</span> (precompWithCoproductArrow I D (HD (<span class="k">λ</span> <span class="nv">i</span> : I, (F i) a)) (HD (<span class="k">λ</span> <span class="nv">i</span> : I, (F i) b))).
+<span class="nb">apply</span> pathsinv0.
+<span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> postcompWithCoproductArrow|].
+<span class="nb">apply</span> maponpaths, funextsec; <span class="nb">intro</span> i.
+<span class="bp">now</span> <span class="nb">rewrite</span> (nat_trans_ax (f i)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">coproduct_nat_trans</span> : nat_trans coproduct_of_functors A
+  := tpair _ _ is_nat_trans_coproduct_nat_trans_data.
+
+<span class="kn">End</span> <span class="nf">vertex</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_precat_coproduct_cocone</span>
+  : Coproduct I [C, D] F.
+<span class="kn">Proof</span>.
+use make_Coproduct.
+- <span class="nb">apply</span> coproduct_of_functors.
+- <span class="nb">apply</span> coproduct_nat_trans_in.
+- use make_isCoproduct.
+  + <span class="nb">apply</span> functor_category_has_homsets.
+  + <span class="nb">intros</span> A f.
+    use tpair.
+    * <span class="nb">apply</span> (tpair _ (coproduct_nat_trans A f)).
+      <span class="kp">abstract</span> (<span class="nb">intro</span> i; <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">intro</span> c;
+                <span class="nb">apply</span> (CoproductInCommutes I D _ (HD (<span class="k">λ</span> <span class="nv">j</span>, (F j) c)))).
+    * <span class="kp">abstract</span> (
+        <span class="nb">intro</span> t; <span class="nb">apply</span> subtypePath; <span class="nb">simpl</span>;
+          [<span class="nb">intro</span>; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> (isaset_nat_trans D)|];
+        <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">intro</span> c;
+        <span class="nb">apply</span> CoproductArrowUnique; <span class="nb">intro</span> i;
+        <span class="nb">apply</span> (nat_trans_eq_pointwise (pr2 t i))).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">coproduct_of_functors</span>.
+
+<span class="kn">Definition</span> <span class="nf">Coproducts_functor_precat</span> : Coproducts I [C, D].
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F.
+  <span class="nb">apply</span> functor_precat_coproduct_cocone.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">def_functor_pointwise_coprod</span>.
+
+<span class="sd">(** * Coproducts from colimits *)</span>
+<span class="kn">Section</span> <span class="nf">coproducts_from_colimits</span>.
+
+<span class="kn">Context</span> (<span class="nv">I</span> : UU) (<span class="nv">C</span> : category).
+
+<span class="kn">Definition</span> <span class="nf">I_graph</span> : graph := (I,,<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>,empty).
+
+<span class="kn">Definition</span> <span class="nf">coproducts_diagram</span> (<span class="nv">F</span> : I → C) : diagram I_graph C.
+<span class="kn">Proof</span>.
+<span class="k">exists</span> <span class="nv">F</span>.
+<span class="kp">abstract</span> (<span class="nb">intros</span> u v e; <span class="nb">induction</span> e).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Coproducts_cocone</span> <span class="nv">c</span> (<span class="nv">F</span> : I → C) (<span class="nv">H</span> : ∏ i, F i --&gt; c) :
+  cocone (coproducts_diagram F) c.
+<span class="kn">Proof</span>.
+use tpair.
++ <span class="nb">intro</span> v; <span class="nb">apply</span> H.
++ <span class="kp">abstract</span> (<span class="nb">intros</span> u v e; <span class="nb">induction</span> e).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Coproducts_from_Colims</span> : Colims_of_shape I_graph C -&gt; Coproducts I C.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> H F.
+<span class="nb">set</span> (HF := H (coproducts_diagram F)).
+use make_Coproduct.
++ <span class="nb">apply</span> (colim HF).
++ <span class="nb">intros</span> i; <span class="nb">apply</span> (colimIn HF).
++ <span class="nb">apply</span> (make_isCoproduct _ _ C); <span class="nb">intros</span> c Fic.
+  use unique_exists.
+  - <span class="bp">now</span> <span class="nb">apply</span> colimArrow, Coproducts_cocone.
+  - <span class="kp">abstract</span> (<span class="nb">simpl</span>; <span class="nb">intro</span> i; <span class="nb">apply</span> (colimArrowCommutes HF)).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> y; <span class="nb">apply</span> impred; <span class="nb">intro</span> i; <span class="nb">apply</span> C).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> f Hf; <span class="nb">apply</span> colimArrowUnique; <span class="nb">simpl</span> <span class="k">in</span> *; <span class="nb">intros</span> i; <span class="nb">apply</span> Hf).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">coproducts_from_colimits</span>.
+
+<span class="kn">Section</span> <span class="nf">DistributionThroughFunctor</span>.
+
+  <span class="kn">Context</span> {<span class="nv">I</span> : UU} {<span class="nv">C</span> <span class="nv">D</span> : category}
+    (<span class="nv">CPC</span> : Coproducts I C) (<span class="nv">CPD</span> : Coproducts I D) (<span class="nv">F</span> : functor C D).
+
+  <span class="kn">Definition</span> <span class="nf">coprod_antidistributor</span> (<span class="nv">cs</span> : power_category I C):
+    CPD (<span class="k">fun</span> <span class="nv">i</span> =&gt; F (cs i)) --&gt; F (CPC cs).
+  <span class="kn">Proof</span>.
+    use CoproductArrow; <span class="nb">intro</span> i; <span class="nb">apply</span> (#F). <span class="nb">apply</span> CoproductIn.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">coprod_antidistributor_nat</span> (<span class="nv">cs1</span> <span class="nv">cs2</span> : power_category I C) (<span class="nv">g</span> : power_category I C ⟦ cs1, cs2 ⟧) :
+    coprod_antidistributor cs1 · #F (#(coproduct_functor I CPC) g) =
+    #(coproduct_functor I CPD) (#(family_functor I (<span class="k">fun</span> <span class="nv">_</span> =&gt; F)) g) · coprod_antidistributor cs2.
+  <span class="kn">Proof</span>.
+    etrans.
+    { <span class="nb">apply</span> postcompWithCoproductArrow. }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, precompWithCoproductArrow. }
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> i.
+    etrans.
+    { <span class="nb">apply</span> pathsinv0, functor_comp. }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">cbn</span>. <span class="nb">apply</span> functor_comp. }
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> CoproductInCommutes.
+  <span class="kn">Qed</span>.
+
+   <span class="sd">(** axiomatize extra requirements *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">coprod_distributor_data</span> : UU := ∏ (cs : power_category I C),
+     F (CPC cs) --&gt; CPD (<span class="k">fun</span> <span class="nv">i</span> =&gt; F (cs i)).
+
+  <span class="kn">Identity Coercion</span> <span class="nf">coprod_distributor_data_funclass</span>: coprod_distributor_data &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coprod_distributor_iso_law</span> (<span class="nv">δ</span> : coprod_distributor_data) : UU :=
+    ∏ (cs : power_category I C), is_inverse_in_precat (δ cs) (coprod_antidistributor cs).
+
+  <span class="kn">Definition</span> <span class="nf">coprod_distributor</span> : UU := ∑ δ : coprod_distributor_data, coprod_distributor_iso_law δ.
+
+  <span class="kn">Definition</span> <span class="nf">coprod_distributor_to_data</span> (<span class="nv">δ</span> : coprod_distributor) : coprod_distributor_data := pr1 δ.
+  <span class="kn">Coercion</span> <span class="nf">coprod_distributor_to_data</span> : coprod_distributor &gt;-&gt; coprod_distributor_data.
+
+<span class="kn">End</span> <span class="nf">DistributionThroughFunctor</span>.
+
+<span class="kn">Section</span> <span class="nf">DistributionForPrecompositionFunctor</span>.
+
+  <span class="kn">Context</span> {<span class="nv">I</span> : UU} {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category} (<span class="nv">CPC</span> : Coproducts I C) (<span class="nv">H</span> : functor A B).
+
+  <span class="kn">Let</span> <span class="nf">CPAC</span> : Coproducts I [A,C] := Coproducts_functor_precat I A C CPC.
+  <span class="kn">Let</span> <span class="nf">CPBC</span> : Coproducts I [B,C] := Coproducts_functor_precat I B C CPC.
+  <span class="kn">Let</span> <span class="nf">precomp</span> : functor [B,C] [A,C] := pre_composition_functor A B C H.
+
+  <span class="kn">Definition</span> <span class="nf">precomp_coprod_distributor_data</span> : coprod_distributor_data CPBC CPAC precomp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> Gs.
+    <span class="nb">apply</span> nat_trans_id.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">precomp_coprod_distributor_law</span> :
+    coprod_distributor_iso_law _ _ _ precomp_coprod_distributor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Gs.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> (nat_trans_eq C).
+      <span class="nb">intro</span> c.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> pathsinv0, Coproduct_endo_is_identity.
+      <span class="nb">intro</span> i.
+      <span class="nb">unfold</span> coproduct_nat_trans_data.
+      <span class="nb">cbn</span> <span class="k">in</span> Gs.
+      <span class="nb">apply</span> (CoproductInCommutes I C (<span class="k">λ</span> <span class="nv">i0</span> : I, Gs i0 (H c)) (CPC _) _
+               (<span class="k">λ</span> <span class="nv">i0</span> : I, coproduct_nat_trans_in_data I B C CPC Gs i0 (H c)) i).
+    - etrans.
+      { <span class="nb">apply</span> postcompWithCoproductArrow. }
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, CoproductArrowEta. }
+      <span class="nb">apply</span> maponpaths; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> i;
+        (<span class="nb">rewrite</span> id_right; <span class="nb">apply</span> (nat_trans_eq C); <span class="nb">intro</span> c; <span class="nb">apply</span> id_right).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precomp_coprod_distributor</span> : coprod_distributor CPBC CPAC precomp :=
+    _,,precomp_coprod_distributor_law.
+
+<span class="kn">End</span> <span class="nf">DistributionForPrecompositionFunctor</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> Coproducts are unique</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">eq_Coproduct</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">J</span> : UU}
+           {<span class="nv">D</span> : J → C}
+           (<span class="nv">coprod₁</span> <span class="nv">coprod₂</span> : Coproduct J C D)
+           (<span class="nv">q</span> : CoproductObject _ _ coprod₁ = CoproductObject _ _ coprod₂)
+           (<span class="nv">e</span> : ∏ (j : J),
+                CoproductIn _ _ coprod₁ j
+                =
+                CoproductIn _ _ coprod₂ j · idtoiso (!q))
+  : coprod₁ = coprod₂.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+    use isapropiscontr.
+  }
+  use total2_paths_f.
+  - <span class="bp">exact</span> q.
+  - <span class="nb">rewrite</span> transportf_sec_constant.
+    use funextsec.
+    <span class="nb">intro</span> j.
+    <span class="nb">rewrite</span> &lt;- !idtoiso_postcompose.
+    <span class="nb">pose</span> (p := e j).
+    <span class="nb">rewrite</span> !idtoiso_inv <span class="k">in</span> p.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) p @ _).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">refine</span> (_ @  id_right _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> z_iso_after_z_iso_inv.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">z_iso_between_Coproduct</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">J</span> : UU}
+           {<span class="nv">D</span> : J → C}
+           (<span class="nv">coprod₁</span> <span class="nv">coprod₂</span> : Coproduct J C D)
+  : z_iso coprod₁ coprod₂.
+<span class="kn">Proof</span>.
+  use make_z_iso.
+  - <span class="bp">exact</span> (CoproductArrow _ _ coprod₁ (CoproductIn _ _ coprod₂)).
+  - <span class="bp">exact</span> (CoproductArrow _ _ coprod₂ (CoproductIn _ _ coprod₁)).
+  - <span class="nb">split</span>.
+    + <span class="kp">abstract</span>
+        (use CoproductArrow_eq ;
+         <span class="nb">intro</span> j ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">rewrite</span> !CoproductInCommutes ;
+         <span class="nb">rewrite</span> id_right ;
+         <span class="nb">apply</span> idpath).
+    + <span class="kp">abstract</span>
+        (use CoproductArrow_eq ;
+         <span class="nb">intro</span> j ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">rewrite</span> !CoproductInCommutes ;
+         <span class="nb">rewrite</span> id_right ;
+         <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_Coproduct</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">HC</span> : is_univalent C)
+           (<span class="nv">J</span> : UU)
+           (<span class="nv">D</span> : J → C)
+  : isaprop (Coproduct J C D).
+<span class="kn">Proof</span>.
+  use invproofirrelevance.
+  <span class="nb">intros</span> p₁ p₂.
+  use eq_Coproduct.
+  - <span class="nb">refine</span> (isotoid _ HC _).
+    <span class="nb">apply</span> z_iso_between_Coproduct.
+  - <span class="nb">intro</span> j.
+    <span class="nb">rewrite</span> idtoiso_inv.
+    <span class="nb">rewrite</span> idtoiso_isotoid ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> CoproductInCommutes.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">Coproduct_different_indexers</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">CoproductOfArrowsInclusion</span> {<span class="nv">I</span> <span class="nv">J</span> : UU} {<span class="nv">C</span> : category}
+    (<span class="nv">incl</span> : I -&gt; J) {<span class="nv">a</span> : I -&gt; C} (<span class="nv">CCab</span> : Coproduct _ _ a) {<span class="nv">c</span> : J -&gt; C}
+    (<span class="nv">CCcd</span> : Coproduct _ _ c) (<span class="nv">f</span> : ∏ i, a i --&gt; c (incl i)) :
+          CoproductObject _ _ CCab --&gt; CoproductObject _ _ CCcd :=
+  CoproductArrow _ _ CCab (<span class="k">λ</span> <span class="nv">i</span>, f i · CoproductIn _ _ CCcd (incl i)).
+
+
+<span class="c">(* non-implicit I/C for backwards compatibility *)</span>
+<span class="kn">Definition</span> <span class="nf">CoproductOfArrows'</span> (<span class="nv">I</span> : UU) (<span class="nv">C</span> : category)
+    {<span class="nv">a</span> : I -&gt; C} (<span class="nv">CCab</span> : Coproduct _ _ a) {<span class="nv">c</span> : I -&gt; C}
+    (<span class="nv">CCcd</span> : Coproduct _ _ c) (<span class="nv">f</span> : ∏ i, a i --&gt; c i) :
+        CoproductObject _ _ CCab --&gt; CoproductObject _ _ CCcd :=
+  CoproductOfArrowsInclusion (idfun I) CCab CCcd f.
+
+<span class="kn">Lemma</span> <span class="nf">CoproductOfArrowsInclusionIn</span> {<span class="nv">I</span> <span class="nv">J</span> : UU} {<span class="nv">C</span> : category}
+    (<span class="nv">incl</span> : I -&gt; J) {<span class="nv">a</span> : I -&gt; C} (<span class="nv">CCab</span> : Coproduct _ _ a) {<span class="nv">c</span> : J -&gt; C}
+    (<span class="nv">CCcd</span> : Coproduct _ _ c) (<span class="nv">f</span> : ∏ i, a i --&gt; c (incl i)) :
+  ∏ i, CoproductIn _ _ CCab i · CoproductOfArrowsInclusion incl CCab CCcd f = f i · CoproductIn _ _ CCcd (incl i).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> CoproductOfArrows; <span class="nb">intro</span> i.
+  <span class="nb">apply</span> CoproductInCommutes.
+<span class="kn">Qed</span>.
+
+<span class="c">(* non-implicit I/C for backwards compatibility *)</span>
+<span class="kn">Lemma</span> <span class="nf">CoproductOfArrows'In</span> (<span class="nv">I</span> : UU) (<span class="nv">C</span> : category)
+    {<span class="nv">a</span> : I -&gt; C} (<span class="nv">CCab</span> : Coproduct _ _ a) {<span class="nv">c</span> : I -&gt; C}
+    (<span class="nv">CCcd</span> : Coproduct _ _ c) (<span class="nv">f</span> : ∏ i, a i --&gt; c i) :
+  ∏ i, CoproductIn _ _ CCab i · CoproductOfArrows' _ _ CCab CCcd f = f i · CoproductIn _ _ CCcd i.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> CoproductOfArrowsInclusionIn.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">precompWithCoproductArrowInclusion</span> {<span class="nv">I</span> <span class="nv">J</span> : UU} {<span class="nv">C</span> : category}
+  (<span class="nv">incl</span> : I -&gt; J) {<span class="nv">a</span> : I -&gt; C} (<span class="nv">CCab</span> : Coproduct _ _ a) {<span class="nv">c</span> : J -&gt; C}
+  (<span class="nv">CCcd</span> : Coproduct _ _ c) (<span class="nv">f</span> : ∏ i, a i --&gt; c (incl i))
+  {<span class="nv">x</span> : C} (<span class="nv">k</span> : ∏ i, c i --&gt; x) :
+      CoproductOfArrowsInclusion incl CCab CCcd f · CoproductArrow _ _ CCcd k =
+       CoproductArrow _ _ CCab (<span class="k">λ</span> <span class="nv">i</span>, f i · k (incl i)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> CoproductArrowUnique; <span class="nb">intro</span> i.
+  <span class="bp">now</span> <span class="nb">rewrite</span> assoc, CoproductOfArrowsInclusionIn, &lt;- assoc, CoproductInCommutes.
+<span class="kn">Qed</span>.
+
+<span class="c">(* non-implicit I/C for backwards compatibility *)</span>
+<span class="kn">Lemma</span> <span class="nf">precompWithCoproductArrow'</span> (<span class="nv">I</span> : UU) (<span class="nv">C</span> : category)
+  {<span class="nv">a</span> : I -&gt; C} (<span class="nv">CCab</span> : Coproduct _ _ a) {<span class="nv">c</span> : I -&gt; C}
+  (<span class="nv">CCcd</span> : Coproduct _ _ c) (<span class="nv">f</span> : ∏ i, a i --&gt; c i)
+  {<span class="nv">x</span> : C} (<span class="nv">k</span> : ∏ i, c i --&gt; x) :
+      CoproductOfArrows' _ _ CCab CCcd f · CoproductArrow _ _ CCcd k =
+       CoproductArrow _ _ CCab (<span class="k">λ</span> <span class="nv">i</span>, f i · k i).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> precompWithCoproductArrowInclusion.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">CoproductOfArrowsInclusion_comp</span> {<span class="nv">I</span> <span class="nv">J</span> <span class="nv">K</span>: UU} {<span class="nv">C</span> : category}
+    {<span class="nv">a</span> : I -&gt; C} {<span class="nv">b</span> : J -&gt; C} {<span class="nv">c</span> : K -&gt; C}
+    (<span class="nv">CCI</span> : Coproducts I C) (<span class="nv">CCJ</span> : Coproducts J C) (<span class="nv">CCK</span> : Coproducts K C)
+    {<span class="nv">inclI</span> : I -&gt; J} {<span class="nv">inclJ</span> : J -&gt; K}
+    (<span class="nv">f</span> : ∏ i, a i --&gt; b (inclI i)) (<span class="nv">g</span> : ∏ j, b j --&gt; c (inclJ j)) :
+    CoproductOfArrowsInclusion inclI (CCI _) (CCJ _) f ·
+        CoproductOfArrowsInclusion inclJ (CCJ _) (CCK _) g
+    = CoproductOfArrowsInclusion (<span class="k">λ</span> <span class="nv">i</span>, inclJ (inclI i)) (CCI _) (CCK _) (<span class="k">λ</span> <span class="nv">i</span>, f i · g (inclI i)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> CoproductArrowUnique; <span class="nb">intro</span> i.
+  <span class="nb">rewrite</span> assoc, CoproductOfArrowsInclusionIn.
+  <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- assoc, CoproductOfArrowsInclusionIn, assoc.
+<span class="kn">Qed</span>.
+
+<span class="c">(* non-implicit I/C for backwards compatibility *)</span>
+<span class="kn">Definition</span> <span class="nf">CoproductOfArrows'_comp</span> (<span class="nv">I</span> : UU) (<span class="nv">C</span> : category) (<span class="nv">CC</span> : Coproducts I C)
+  (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : I -&gt; C) (<span class="nv">f</span> : ∏ i, a i --&gt; b i) (<span class="nv">g</span> : ∏ i, b i --&gt; c i) :
+   CoproductOfArrows' _ _ _ _ f · CoproductOfArrows' _ _ (CC _) (CC _) g
+   = CoproductOfArrows' _ _ (CC _) (CC _)(<span class="k">λ</span> <span class="nv">i</span>, f i · g i).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> CoproductOfArrowsInclusion_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Coproduct_different_indexers</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Coproducts.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

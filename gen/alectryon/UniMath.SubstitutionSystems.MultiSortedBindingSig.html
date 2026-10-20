@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MultiSortedBindingSig.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">the syntax of multi-sorted binding signatures, with examples</span>
+
+<span class="sd">moved here in 2024 from other places in the package</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.Lists.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="c">(* Require Import UniMath.CategoryTheory.Categories.StandardCategories.</span>
+<span class="c">Require Import UniMath.CategoryTheory.Groupoids. *)</span>
+
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.BindingSigToMonad.
+<span class="kn">Require</span> UniMath.SubstitutionSystems.SortIndexing.
+
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">MBindingSig</span>.
+
+<span class="c">(* Interestingly we later only need that [sort] is a 1-type *)</span>
+<span class="kn">Context</span> (<span class="nv">sort</span> : UU) (*(Hsort : isofhlevel <span class="mi">3</span> sort) *).
+
+<span class="sd">(** Definition of multisorted binding signatures *)</span>
+<span class="kn">Definition</span> <span class="nf">MultiSortedSig</span> : UU :=
+  ∑ (I : hSet), I → list (list sort × sort) × sort.
+
+<span class="kn">Definition</span> <span class="nf">ops</span> (<span class="nv">M</span> : MultiSortedSig) : hSet := pr1 M.
+<span class="kn">Definition</span> <span class="nf">arity</span> (<span class="nv">M</span> : MultiSortedSig) : ops M → list (list sort × sort) × sort :=
+  <span class="k">λ</span> <span class="nv">x</span>, pr2 M x.
+
+<span class="kn">Definition</span> <span class="nf">make_MultiSortedSig</span> {<span class="nv">I</span> : hSet}
+  (<span class="nv">ar</span> : I → list (list sort × sort) × sort) : MultiSortedSig := (I,,ar).
+
+<span class="sd">(** Sum of multisorted binding signatures *)</span>
+<span class="kn">Definition</span> <span class="nf">SumMultiSortedSig</span> : MultiSortedSig → MultiSortedSig → MultiSortedSig.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> s1 s2.
+use tpair.
+- <span class="nb">apply</span> (setcoprod (ops s1) (ops s2)).
+- <span class="nb">induction</span> <span class="mi">1</span> <span class="k">as</span> [i|i].
+  + <span class="nb">apply</span> (arity s1 i).
+  + <span class="nb">apply</span> (arity s2 i).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">MultiSortedSigFromBindingSig</span>.
+
+  <span class="kn">Context</span> (<span class="nv">s</span> : BindingSig).
+
+  <span class="kn">Let</span> <span class="nf">I</span> : hSet := BindingSigIndex s,, BindingSigIsaset s.
+
+  <span class="kn">Context</span> (<span class="nv">uni</span> : sort). <span class="sd">(** the unique sort being used *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">translateArity</span> : nat -&gt; list sort × sort.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> n.
+    <span class="nb">refine</span> (_,, uni).
+    <span class="bp">exact</span> (functionToList n (<span class="k">fun</span> <span class="nv">_</span> =&gt; uni)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">arFromBindingSig</span> : I → list (list sort × sort) × sort.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> i.
+    <span class="nb">refine</span> (_,, uni).
+    <span class="nb">set</span> (nbbindersallargs := BindingSigMap s i).
+    <span class="bp">exact</span> (map translateArity  nbbindersallargs).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">MultiSortedSigFromBindingSig</span> : MultiSortedSig
+    := I ,, arFromBindingSig.
+
+<span class="kn">End</span> <span class="nf">MultiSortedSigFromBindingSig</span>.
+
+<span class="kn">End</span> <span class="nf">MBindingSig</span>.
+
+<span class="sd">(** Some notations *)</span>
+  <span class="kn">Local</span> <span class="kn">Infix</span> <span class="s2">"::"</span> := (@cons _).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"[]"</span> := (@nil _) (<span class="kn">at level</span> <span class="mi">0</span>, <span class="kn">format</span> <span class="s2">"[]"</span>).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"a + b"</span> := (setcoprod a b) : <span class="nb">set</span>.
+
+<span class="kn">Section</span> <span class="nf">STLC</span>.
+  <span class="sd">(** the example of simply-typed lambda calculus *)</span>
+
+  <span class="kn">Context</span> (<span class="nv">sort</span> : hSet) (<span class="nv">arr</span> : sort → sort → sort).
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"s ⇒ t"</span> := (arr s t).
+
+  <span class="kn">Local Definition</span> <span class="nf">STLC_Hsort</span> : isofhlevel <span class="mi">3</span> sort := SortIndexing.Hsort_from_hSet sort.
+
+  <span class="kn">Definition</span> <span class="nf">STLC_Sig</span> : MultiSortedSig sort.
+  <span class="kn">Proof</span>.
+    use make_MultiSortedSig.
+    - <span class="nb">apply</span> ((sort × sort) + (sort × sort))%<span class="nb">set</span>.
+    - <span class="nb">intros</span> H; <span class="nb">induction</span> H <span class="k">as</span> [st|st]; <span class="nb">induction</span> st <span class="k">as</span> [s t].
+      + <span class="bp">exact</span> ((([],,(s ⇒ t)) :: ([],,s) :: nil),,t).
+      + <span class="bp">exact</span> (((cons s [],,t) :: []),,(s ⇒ t)).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">STLC</span>.
+
+<span class="kn">Section</span> <span class="nf">PCF</span>.
+  <span class="sd">(** Written by: Anders Mörtberg, 2021 *)</span>
+
+<span class="c">(* Was there a general version of this somewhere? *)</span>
+<span class="kn">Definition</span> <span class="nf">six_rec</span> {<span class="nv">A</span> : UU} (<span class="nv">i</span> : stn <span class="mi">6</span>) (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> <span class="nv">f</span> : A) : A.
+<span class="kn">Proof</span>.
+<span class="nb">induction</span> i <span class="k">as</span> [n p].
+<span class="nb">induction</span> n <span class="k">as</span> [|n _]; [<span class="nb">apply</span> a|].
+<span class="nb">induction</span> n <span class="k">as</span> [|n _]; [<span class="nb">apply</span> b|].
+<span class="nb">induction</span> n <span class="k">as</span> [|n _]; [<span class="nb">apply</span> c|].
+<span class="nb">induction</span> n <span class="k">as</span> [|n _]; [<span class="nb">apply</span> d|].
+<span class="nb">induction</span> n <span class="k">as</span> [|n _]; [<span class="nb">apply</span> e|].
+<span class="nb">induction</span> n <span class="k">as</span> [|n _]; [<span class="nb">apply</span> f|].
+<span class="nb">induction</span> (nopathsfalsetotrue p).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** We assume a set of types with bool, nat and function types *)</span>
+<span class="kn">Context</span> (<span class="nv">type</span> : hSet) (<span class="nv">Bool</span> <span class="nv">Nat</span> : type) (<span class="nv">arr</span> : type → type → type).
+
+<span class="kn">Local Definition</span> <span class="nf">PCF_Hsort</span> : isofhlevel <span class="mi">3</span> type := SortIndexing.Hsort_from_hSet type.
+
+<span class="kn">Infix</span> <span class="s2">"++"</span> := (SumMultiSortedSig _).
+
+<span class="sd">(**</span>
+
+<span class="sd">The Inductive version of PCF that we are going to model (copied from</span>
+<span class="sd">https://github.com/benediktahrens/monads/blob/trunk/PCF/pcf.v):</span>
+
+<span class="sd">&lt;&lt;</span>
+<span class="sd">Inductive TY :=</span>
+<span class="sd"> | Bool : TY</span>
+<span class="sd"> | Nat : TY</span>
+<span class="sd"> | arrow: TY -&gt; TY -&gt; TY.</span>
+
+<span class="sd">Inductive PCF_consts : TY -&gt; Type :=</span>
+<span class="sd"> | Nats : nat -&gt; PCF_consts Nat</span>
+<span class="sd"> | tt : PCF_consts Bool</span>
+<span class="sd"> | ff : PCF_consts Bool</span>
+<span class="sd"> | succ : PCF_consts (arrow Nat Nat)</span>
+<span class="sd"> | is_zero : PCF_consts (arr Nat Bool)</span>
+<span class="sd"> | condN: PCF_consts (arrow Bool (arrow Nat (arrow Nat Nat)))</span>
+<span class="sd"> | condB: PCF_consts (arrow Bool (arrow Bool (arrow Bool Bool))).</span>
+
+<span class="sd">Inductive PCF (V:TY -&gt; Type) : TY -&gt; Type:=</span>
+<span class="sd"> | PCFVar : forall t, V t -&gt; PCF V t</span>
+<span class="sd"> | Const  : forall t, PCF_consts t -&gt; PCF V t</span>
+<span class="sd"> | Bottom : forall t, PCF V t</span>
+<span class="sd"> | PApp   : forall t s, PCF V (arrow s t) -&gt; PCF V s -&gt; PCF V t</span>
+<span class="sd"> | PLam   : forall t s, PCF (opt_T t V) s -&gt; PCF V (arrow t s)</span>
+<span class="sd"> | PRec   : forall t, PCF V (arrow t t) -&gt; PCF V t.</span>
+<span class="sd">&gt;&gt;</span>
+
+<span class="sd">We do this by defining the constants and non-constants separately and</span>
+<span class="sd">then taking the sum of the signatures.</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">PCF_Consts</span> : MultiSortedSig type.
+<span class="kn">Proof</span>.
+use make_MultiSortedSig.
+- <span class="bp">exact</span> ((nat,,isasetnat) + (stn <span class="mi">6</span>,,isasetstn <span class="mi">6</span>))%<span class="nb">set</span>.
+- <span class="nb">induction</span> <span class="mi">1</span> <span class="k">as</span> [n|i].
+  + <span class="bp">exact</span> ([],,Nat).                                   <span class="c">(* Nat (one for each nat) *)</span>
+  + <span class="nb">apply</span> (six_rec i).
+    * <span class="bp">exact</span> ([],,Bool).                                <span class="c">(* True *)</span>
+    * <span class="bp">exact</span> ([],,Bool).                                <span class="c">(* False *)</span>
+    * <span class="bp">exact</span> ([],,arr Nat Nat).                         <span class="c">(* Succ *)</span>
+    * <span class="bp">exact</span> ([],,arr Nat Bool).                        <span class="c">(* is_zero *)</span>
+    * <span class="bp">exact</span> ([],,arr Bool (arr Nat (arr Nat Nat))).    <span class="c">(* CondN *)</span>
+    * <span class="bp">exact</span> ([],,arr Bool (arr Bool (arr Bool Bool))). <span class="c">(* CondB *)</span>
+<span class="kn">Defined</span>.
+
+<span class="c">(* We could define PCF as follows, but we instead get App and Lam from the STLC signature *)</span>
+<span class="c">(* Definition PCF : MultiSortedSig type. *)</span>
+<span class="c">(* Proof. *)</span>
+<span class="c">(* use make_MultiSortedSig. *)</span>
+<span class="c">(* - apply (type + (type × type) + (type × type) + type)%set. *)</span>
+<span class="c">(* - intros [[[t|[t s]]|[t s]]|t]. *)</span>
+<span class="c">(*   * exact ([],,t).                                  (* Bottom *) *)</span>
+<span class="c">(*   * exact ((([],,(arr s t)) :: ([],,s) :: nil),,t). (* App *) *)</span>
+<span class="c">(*   * exact (((cons t [],,s) :: []),,(arr t s)).      (* Lam *) *)</span>
+<span class="c">(*   * exact ((([],,(arr t t)) :: nil),,t).            (* Y *) *)</span>
+<span class="c">(* Defined. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">PCF_Bot_Y</span> : MultiSortedSig type.
+<span class="kn">Proof</span>.
+use make_MultiSortedSig.
+- <span class="nb">apply</span> (type + type)%<span class="nb">set</span>.
+- <span class="nb">intros</span> [t|t].
+  * <span class="bp">exact</span> ([],,t).                                  <span class="c">(* Bottom *)</span>
+  * <span class="bp">exact</span> ((([],,(arr t t)) :: nil),,t).            <span class="c">(* Y *)</span>
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">PCF_App_Lam</span> : MultiSortedSig type := STLC_Sig type arr.
+
+<span class="kn">Definition</span> <span class="nf">PCF_Sig</span> : MultiSortedSig type :=
+  PCF_Consts ++ PCF_Bot_Y ++ PCF_App_Lam.
+
+<span class="kn">End</span> <span class="nf">PCF</span>.
+
+<span class="kn">Section</span> <span class="nf">CCS</span>.
+<span class="sd">(**</span>
+
+<span class="sd">Syntax of the calculus of constructions as in Streicher</span>
+<span class="sd">"Semantics of Type Theory" formalized as a multisorted</span>
+<span class="sd">binding signature.</span>
+
+<span class="sd">Written by: Anders Mörtberg, 2017</span>
+
+<span class="sd"> *)</span>
+
+<span class="sd">(** We assume a two element set of sorts *)</span>
+  <span class="kn">Definition</span> <span class="nf">CCSsort</span> : hSet := @tpair _ (<span class="k">λ</span> <span class="nv">X</span>, isaset X) bool isasetbool.
+
+<span class="kn">Lemma</span> <span class="nf">CCS_Hsort</span> : isofhlevel <span class="mi">3</span> CCSsort.
+<span class="kn">Proof</span>.
+<span class="bp">exact</span> (isofhlevelssnset <span class="mi">1</span> CCSsort (setproperty CCSsort)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">CCSty</span> : CCSsort := true.
+<span class="kn">Definition</span> <span class="nf">CCSel</span> : CCSsort := false.
+
+<span class="sd">(** The grammar of expressions and objects from page 157:</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">E ::= (Πx:E) E                product of types</span>
+<span class="sd">    | Prop                    type of propositions</span>
+<span class="sd">    | Proof(t)                type of proofs of proposition t</span>
+
+<span class="sd">t ::= x                       variable</span>
+<span class="sd">    | (λx:E) t                function abstraction</span>
+<span class="sd">    | App([x:E] E, t, t)      function application</span>
+<span class="sd">    | (∀x:E) t                universal quantification</span>
+<span class="sd">&gt;&gt;</span>
+
+<span class="sd">We refer to the first syntactic class as ty and the second as el. We first reformulate the rules as</span>
+<span class="sd">follows:</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">A,B ::= Π(A,x.B)              product of types</span>
+<span class="sd">      | Prop                  type of propositions</span>
+<span class="sd">      | Proof(t)              type of proofs of proposition t</span>
+
+<span class="sd">t,u ::= x                     variable</span>
+<span class="sd">      | λ(A,x.t)              function abstraction</span>
+<span class="sd">      | App(A,x.B,t,u)        function application</span>
+<span class="sd">      | ∀(A,x.t)              universal quantification</span>
+<span class="sd">&gt;&gt;</span>
+
+<span class="sd">This grammar then gives 6 operations, to the left as Vladimir's restricted 2-sorted signature (where</span>
+<span class="sd">el is 0 and ty is 1) and to the right as a multisorted signature:</span>
+
+<span class="sd">((0, 1), (1, 1), 1)                 = (([],ty), ([el], ty), ty)</span>
+<span class="sd">(1)                                 = ([],ty)</span>
+<span class="sd">((0, 0), 1)                         = (([], el), ty)</span>
+<span class="sd">((0, 1), (1, 0), 0)                 = (([], ty), ([el], el), el)</span>
+<span class="sd">((0, 1), (1, 1), (0, 0), (0, 0), 0) = (([], ty), ([el], ty), ([], el), ([], el), el)</span>
+<span class="sd">((0, 1), (1, 0), 0)                 = (([], ty), ([el], el), el)</span>
+
+<span class="sd">*)</span>
+
+<span class="sd">(** The multisorted signature of CC-S *)</span>
+<span class="kn">Definition</span> <span class="nf">CCS_Sig</span> : MultiSortedSig CCSsort.
+<span class="kn">Proof</span>.
+use make_MultiSortedSig.
+- <span class="bp">exact</span> (stn <span class="mi">6</span>,,isasetstn <span class="mi">6</span>).
+- <span class="nb">intro</span> i. <span class="nb">apply</span> (six_rec i).
+  + <span class="bp">exact</span> ((([],,CCSty) :: (cons CCSel [],,CCSty) :: nil),,CCSty).
+  + <span class="bp">exact</span> ([],,CCSty).
+  + <span class="bp">exact</span> ((([],,CCSel) :: nil),,CCSty).
+  + <span class="bp">exact</span> ((([],,CCSty) :: (cons CCSel [],,CCSel) :: nil),,CCSel).
+  + <span class="bp">exact</span> ((([],,CCSty) :: (cons CCSel [],,CCSty) :: ([],,CCSel) :: ([],,CCSel) :: nil),,CCSel).
+  + <span class="bp">exact</span> ((([],,CCSty) :: (cons CCSel [],,CCSel) :: nil),,CCSel).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">CCS</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/MultiSortedBindingSig.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; moved here in 2024 from other places in the package
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Sets.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

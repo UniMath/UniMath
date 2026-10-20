@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>KATriangulated.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * K(A) is a triangulated category *)</span>
+<span class="sd">(** Contents</span>
+<span class="sd">- K(A) triangulated</span>
+<span class="sd"> - Octahedral axiom</span>
+<span class="sd"> - K(A) triangulated</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.UnivalenceAxiom.
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.Foundations.NaturalNumbers.
+
+<span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+
+<span class="kn">Require Import</span> UniMath.NumberSystems.Integers.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Zero.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Kernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Cokernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pushouts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinDirectSums.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Abelian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ShortExactSequences.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.AbelianGroup.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoriesWithBinOps.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoriesWithAbgrops.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PreAdditive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Additive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Morphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.AdditiveFunctors.
+
+<span class="kn">Require Import</span> UniMath.HomologicalAlgebra.Complexes.
+<span class="kn">Require Import</span> UniMath.HomologicalAlgebra.Triangulated.
+<span class="kn">Require Import</span> UniMath.HomologicalAlgebra.KA.
+<span class="kn">Require Import</span> UniMath.HomologicalAlgebra.TranslationFunctors.
+<span class="kn">Require Import</span> UniMath.HomologicalAlgebra.MappingCone.
+<span class="kn">Require Import</span> UniMath.HomologicalAlgebra.KAPreTriangulated.
+
+<span class="kn">Unset</span> Kernel Term Sharing.
+<span class="kn">Opaque</span> hz isdecrelhzeq hzplus hzminus hzone hzzero iscommringops ZeroArrow.
+
+<span class="sd">(** * K(A) as a triangulated category *)</span>
+<span class="kn">Section</span> <span class="nf">KATriangulated</span>.
+
+  <span class="kn">Context</span> {<span class="nv">A</span> : CategoryWithAdditiveStructure}.
+
+  <span class="kn">Local</span> <span class="kn">Opaque</span> ComplexHomotFunctor ComplexHomotSubset Quotcategory identity
+        MappingConePr1 MappingConeIn2 RotMorphism RotMorphismInv InvRotMorphism InvRotMorphismInv
+        to_inv compose to_abgr pathsinv0 pathscomp0 ishinh.
+
+  <span class="kn">Definition</span> <span class="nf">KATriangOcta_TriIso</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob (@KAPreTriang A)} {<span class="nv">f1</span> : x --&gt; y} {<span class="nv">g1</span> : y --&gt; z}
+             (<span class="nv">f1'</span> : hfiber # (ComplexHomotFunctor A) f1)
+             (<span class="nv">g1'</span> : hfiber # (ComplexHomotFunctor A) g1)
+             (<span class="nv">f1''</span> := hfiberpr1 _ _ f1') (<span class="nv">g1''</span> := hfiberpr1 _ _ g1')
+             (<span class="nv">i'</span> := make_hfiber # (ComplexHomotFunctor A) (KAOctaMor1 f1'' g1'')
+                               (idpath (# (ComplexHomotFunctor A) (KAOctaMor1 f1'' g1'')))) :
+        TriIso
+      (@make_Tri KAPreTriang Trans _ _ _
+               (# (ComplexHomotFunctor A) (KAOctaMor1 f1'' g1''))
+               (# (ComplexHomotFunctor A) (KAOctaMor2 f1'' g1''))
+               (# (ComplexHomotFunctor A) (MappingConePr1 A g1'')
+                  · # (AddEquiv1 (@Trans KAPreTriang))
+                  (# (ComplexHomotFunctor A) (MappingConeIn2 A f1''))))
+      (MappingConeTri (# (ComplexHomotFunctor A) (KAOctaMor1 f1'' g1'')) i').
+  <span class="kn">Proof</span>.
+    use make_TriIso.
+    * use make_TriMor.
+      -- use make_MPMor.
+         ++ use make_MPMorMors.
+            ** <span class="bp">exact</span> (identity _).
+            ** <span class="bp">exact</span> (identity _).
+            ** <span class="bp">exact</span> (# (ComplexHomotFunctor A) (KAOctaMor3 f1'' g1'')).
+         ++ use make_MPMorComms.
+            ** <span class="bp">exact</span> (! (KAIdComm _ _ (idpath _))).
+            ** <span class="bp">exact</span> (KAOctaComm2' f1'' g1'').
+      -- <span class="bp">exact</span> (KAOctaComm3' f1'' g1'').
+    * use make_TriMor_is_iso.
+      ++ <span class="bp">exact</span> (is_z_isomorphism_identity _).
+      ++ <span class="bp">exact</span> (is_z_isomorphism_identity _).
+      ++ <span class="bp">exact</span> (KAOctaMor3Iso f1'' g1'').
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">KATriangOcta_KADTriData</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob (@KAPreTriang A)} {<span class="nv">f1</span> : x --&gt; y} {<span class="nv">g1</span> : y --&gt; z}
+             (<span class="nv">f1'</span> : hfiber # (ComplexHomotFunctor A) f1)
+             (<span class="nv">g1'</span> : hfiber # (ComplexHomotFunctor A) g1)
+             (<span class="nv">f1''</span> := hfiberpr1 _ _ f1') (<span class="nv">g1''</span> := hfiberpr1 _ _ g1')  :
+    KADTriData
+      (@make_Tri KAPreTriang Trans _ _ _
+               (# (ComplexHomotFunctor A) (KAOctaMor1 f1'' g1''))
+               (# (ComplexHomotFunctor A) (KAOctaMor2 f1'' g1''))
+               (# (ComplexHomotFunctor A) (MappingConePr1 A g1'')
+                  · # (AddEquiv1 (@Trans KAPreTriang))
+                  (# (ComplexHomotFunctor A) (MappingConeIn2 A f1'')))).
+  <span class="kn">Proof</span>.
+    use make_KADTriData.
+    + <span class="bp">exact</span> (Morphisms.make_Morphism (# (ComplexHomotFunctor A) (KAOctaMor1 f1'' g1''))).
+    + <span class="bp">exact</span> (make_hfiber (# (ComplexHomotFunctor A)) (KAOctaMor1 f1'' g1'') (idpath _)).
+    + <span class="bp">exact</span> (KATriangOcta_TriIso f1' g1').
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">KATriangOcta_hfiber_comp_eq</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob (@KAPreTriang A)} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z)
+        (<span class="nv">f'</span> : hfiber (# (ComplexHomotFunctor A)) f) (<span class="nv">g'</span> : hfiber (# (ComplexHomotFunctor A)) g)
+        (<span class="nv">f''</span> := hfiberpr1 # (ComplexHomotFunctor A) f f')
+        (<span class="nv">g''</span> := hfiberpr1 # (ComplexHomotFunctor A) g g'):
+    # (ComplexHomotFunctor A) (f'' ·  g'') = f · g.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> f'', g''.
+    <span class="nb">rewrite</span> functor_comp. <span class="nb">rewrite</span> hfiberpr2. <span class="nb">rewrite</span> hfiberpr2. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">KATriangOcta</span> {<span class="nv">x1</span> <span class="nv">x2</span> <span class="nv">y1</span> <span class="nv">y2</span> <span class="nv">z1</span> <span class="nv">z2</span> : ob (@KAPreTriang A)}
+             {<span class="nv">f1</span> : x1 --&gt; y1} {<span class="nv">f2</span> : y1 --&gt; z2} {<span class="nv">f3</span> : z2 --&gt; (AddEquiv1 Trans x1)}
+             {<span class="nv">g1</span> : y1 --&gt; z1} {<span class="nv">g2</span> : z1 --&gt; x2} {<span class="nv">g3</span> : x2 --&gt; (AddEquiv1 Trans y1)}
+             {<span class="nv">h2</span> : z1 --&gt; y2} {<span class="nv">h3</span> : y2 --&gt; (AddEquiv1 Trans x1)}
+             (<span class="nv">H1</span> : isDTri (make_Tri f1 f2 f3)) (<span class="nv">H2</span> : isDTri (make_Tri g1 g2 g3))
+             (<span class="nv">H3</span> : isDTri (make_Tri (f1 · g1) h2 h3)) :
+    ∥ Octa H1 H2 H3 ∥.
+  <span class="kn">Proof</span>.
+    use (squash_to_prop (ComplexHomotFunctor_issurj A f1) (propproperty _)). <span class="nb">intros</span> f1'.
+    use (squash_to_prop (ComplexHomotFunctor_issurj A g1) (propproperty _)). <span class="nb">intros</span> g1'.
+    <span class="nb">set</span> (f1'' := hfiberpr1 _ _ f1'). <span class="nb">set</span> (g1'' := hfiberpr1 _ _ g1').
+    <span class="nb">set</span> (fg1' := make_hfiber (# (ComplexHomotFunctor A)) (f1'' · g1'')
+                            (KATriangOcta_hfiber_comp_eq f1 g1 f1' g1')).
+    <span class="nb">set</span> (H1' := KAFiberisDTri (Morphisms.make_Morphism f1) f1').
+    <span class="nb">set</span> (H2' := KAFiberisDTri (Morphisms.make_Morphism g1) g1').
+    <span class="nb">set</span> (H3' := KAFiberisDTri (Morphisms.make_Morphism (f1 · g1)) fg1').
+    use (squash_to_prop
+           (DExt KAPreTriang (make_DTri' _ H1)
+                 (make_DTri' _ (KAFiberisDTri (Morphisms.make_Morphism f1) f1'))
+                 (identity _) (identity _) (! (KAIdComm _ _ (idpath _))))
+           (propproperty _)). <span class="nb">intros</span> Ext1.
+    <span class="nb">set</span> (I1' := make_TriIso
+                  (TExtMor Ext1)
+                  (@make_TriMor_is_iso
+                     KAPreTriang Trans _ _ (TExtMor Ext1) (is_z_isomorphism_identity _)
+                     (is_z_isomorphism_identity _)
+                     (TriangulatedFiveLemma (TExtMor Ext1) (is_z_isomorphism_identity _)
+                                            (is_z_isomorphism_identity _)))).
+    use (squash_to_prop
+           (DExt KAPreTriang (make_DTri' _ H2)
+                 (make_DTri' _ (KAFiberisDTri (Morphisms.make_Morphism g1) g1'))
+                 (identity _) (identity _) (! (KAIdComm _ _ (idpath _))))
+           (propproperty _)). <span class="nb">intros</span> Ext2.
+    <span class="nb">set</span> (I2' := make_TriIso
+                  (TExtMor Ext2)
+                  (@make_TriMor_is_iso
+                     KAPreTriang Trans _ _  (TExtMor Ext2) (is_z_isomorphism_identity _)
+                     (is_z_isomorphism_identity _)
+                     (TriangulatedFiveLemma (TExtMor Ext2) (is_z_isomorphism_identity _)
+                                            (is_z_isomorphism_identity _)))).
+    use (squash_to_prop
+           (DExt KAPreTriang (make_DTri' _ H3)
+                 (make_DTri' _ (KAFiberisDTri (Morphisms.make_Morphism (f1 · g1)) fg1'))
+                 (identity _) (identity _) (! (KAIdComm _ _ (idpath _))))
+           (propproperty _)). <span class="nb">intros</span> Ext3.
+    <span class="nb">set</span> (I3' := make_TriIso (TExtMor Ext3)
+                          (@make_TriMor_is_iso
+                             KAPreTriang Trans _ _
+                             (TExtMor Ext3) (is_z_isomorphism_identity _)
+                             (is_z_isomorphism_identity _)
+                             (TriangulatedFiveLemma (TExtMor Ext3) (is_z_isomorphism_identity _)
+                                                    (is_z_isomorphism_identity _)))).
+    use hinhpr.
+    use (OctaIso H1 H2 H3 H1' H2' H3' I1' I2' I3' (idpath _) (idpath _) (idpath _)).
+    <span class="nb">clear</span> I3' Ext3 I2' Ext2 I1' Ext1.
+    use make_Octa.
+    - <span class="bp">exact</span> (# (ComplexHomotFunctor A) (KAOctaMor1 f1'' g1'')).
+    - <span class="bp">exact</span> (# (ComplexHomotFunctor A) (KAOctaMor2 f1'' g1'')).
+    - <span class="bp">exact</span> (hinhpr (KATriangOcta_KADTriData f1' g1')).
+    - use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _))).
+      <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> (KAOctaMor1Comm f1'' g1'').
+    - use (pathscomp0 (! (functor_comp (ComplexHomotFunctor A) _ _))).
+      <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> (KAOctaMor2Comm f1'' g1'').
+    - use (pathscomp0 (KAOctaComm5' f1'' g1'')).
+      <span class="nb">apply</span> cancel_postcomposition. <span class="bp">exact</span> (hfiberpr2 _ _ g1').
+    - use (pathscomp0 (KAOctaComm4' f1'' g1'')).
+      <span class="nb">apply</span> cancel_precomposition. <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> (hfiberpr2 _ _ f1').
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">KATriang</span> : Triang.
+  <span class="kn">Proof</span>.
+    use make_Triang.
+    - <span class="bp">exact</span> (@KAPreTriang A).
+    - <span class="nb">intros</span> x1 x2 y1 y2 z1 z2 f1 f2 f3 g1 g2 g3 h2 h3 H1 H2 H3.
+      <span class="bp">exact</span>(KATriangOcta H1 H2 H3).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">KATriangulated</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/HomologicalAlgebra/KATriangulated.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/UnivalenceAxiom.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  - K(A) triangulated
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.UnivalenceAxiom.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.PartD.
+  &gt; Require Import UniMath.Foundations.Propositions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

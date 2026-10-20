@@ -1,0 +1,1167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Constant.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Codes for types in the empty context (for categories)</span>
+
+<span class="sd"> Our goal is to express that some universe in a category is closed under type formers,</span>
+<span class="sd"> and in this file we consider the following: unit types, empty types, natural numbers,</span>
+<span class="sd"> and subobject classifiers. Specifically, we define the following:</span>
+<span class="sd"> - when a universe contains codes for these types</span>
+<span class="sd"> - when a functor preserves those codes</span>
+<span class="sd"> We also develop the main infrastructure necessary to construct univalent displayed</span>
+<span class="sd"> bicategories representing that the universe is closed under the aforementioned type</span>
+<span class="sd"> formers.</span>
+
+<span class="sd"> There are several ideas in the development. The first important observation is that</span>
+<span class="sd"> the aforementioned types (unit, empty, natural numbers, subobject classifier) are</span>
+<span class="sd"> essentially determined by a type in the empty context. From the point of view of</span>
+<span class="sd"> type theory, we can see it as follows: we have a type `𝟙` (unit type) in the empty</span>
+<span class="sd"> context, and the unit type in any other context is obtained by weakening. For this</span>
+<span class="sd"> reason, it suffices to add a code for the desired type only in the empty context</span>
+<span class="sd"> meaning that we do not need to add coherence conditions.</span>
+
+<span class="sd"> To express that a universe contains some type, we use another idea. Specifically,</span>
+<span class="sd"> we say that there is a code (i.e., morphism `𝟙 --&gt; u` from the terminal object to</span>
+<span class="sd"> the universe type) whose associated type is isomorphic to the given type. This</span>
+<span class="sd"> means that we assume that the category has enough structure (e.g., we assume that</span>
+<span class="sd"> the category has an initial objects to express that the universe has codes for</span>
+<span class="sd"> the empty type).</span>
+
+<span class="sd"> Finally, we give a uniform treatment of all these type formers. Specifically, we</span>
+<span class="sd"> give a general definition that says when a universe contains a code for a given</span>
+<span class="sd"> type. Note that this treatment is only for a fixed type in the empty context,</span>
+<span class="sd"> because for other type formers (like ∏-types) one would need coherence conditions.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Codes for a type</span>
+<span class="sd"> 2. Examples for codes</span>
+<span class="sd"> 2.1. The terminal object</span>
+<span class="sd"> 2.2. The initial object</span>
+<span class="sd"> 2.3. Parameterized natural numbers object</span>
+<span class="sd"> 2.4. Subobject classifier</span>
+<span class="sd"> 3. Preservation by functors</span>
+<span class="sd"> 4. Examples for preservation</span>
+<span class="sd"> 4.1. Preservation of the code for the terminal object</span>
+<span class="sd"> 4.2. Preservation of the code for the initial object</span>
+<span class="sd"> 4.3. Preservation of the code for the parameterized natural numbers object</span>
+<span class="sd"> 4.4. Preservation of the code for the subobject classifier</span>
+<span class="sd"> 5. Preservation by identity and composition</span>
+<span class="sd"> 6. Instantiation to the examples</span>
+<span class="sd"> 6.1. Preservation of the code for the terminal object</span>
+<span class="sd"> 6.2. Preservation of the code for the initial object</span>
+<span class="sd"> 6.3. Preservation of the code for the parameterized natural numbers object</span>
+<span class="sd"> 6.4. Preservation of the code for the subobject classifier</span>
+<span class="sd"> 7. Univalence condition</span>
+<span class="sd"> 7.1. Univalence condition for the terminal object</span>
+<span class="sd"> 7.2. Univalence condition for the initial object</span>
+<span class="sd"> 7.3. Univalence condition for the parameterized natural numbers object</span>
+<span class="sd"> 7.4. Univalence condition for the subobject classifier</span>
+
+<span class="sd">                                                                                           *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifierIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.CatWithOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseInCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseDispBicat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">TypesInCatUniv</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : univ_cat_with_finlim_universe}.
+
+  <span class="kn">Let</span> <span class="nf">el</span> : cat_stable_el_map_coherent C := univ_cat_cat_stable_el_map C.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"𝟙"</span> := (terminal_univ_cat_with_finlim C).
+
+  <span class="sd">(** * 1. Codes for a type *)</span>
+  <span class="kn">Definition</span> <span class="nf">type_in_cat_univ</span>
+             (<span class="nv">A</span> : C)
+    : UU
+    := ∑ (a : <span class="mi">𝟙</span> --&gt; univ_cat_universe C),
+       z_iso (cat_el_map_el el a) A.
+
+  <span class="kn">Proposition</span> <span class="nf">isaset_type_in_cat_univ</span>
+              (<span class="nv">A</span> : C)
+    : isaset (type_in_cat_univ A).
+  <span class="kn">Proof</span>.
+    use isaset_total2.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaset_z_iso.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_type_in_cat_univ</span>
+             {<span class="nv">A</span> : C}
+             (<span class="nv">a</span> : <span class="mi">𝟙</span> --&gt; univ_cat_universe C)
+             (<span class="nv">f</span> : z_iso (cat_el_map_el el a) A)
+    : type_in_cat_univ A
+    := a ,, f.
+
+  <span class="kn">Definition</span> <span class="nf">type_in_cat_univ_code</span>
+             {<span class="nv">A</span> : C}
+             (<span class="nv">a</span> : type_in_cat_univ A)
+    : <span class="mi">𝟙</span> --&gt; univ_cat_universe C
+    := pr1 a.
+
+  <span class="kn">Definition</span> <span class="nf">type_in_cat_univ_z_iso</span>
+             {<span class="nv">A</span> : C}
+             (<span class="nv">a</span> : type_in_cat_univ A)
+    : z_iso (cat_el_map_el el (type_in_cat_univ_code a)) A
+    := pr2 a.
+
+  <span class="kn">Proposition</span> <span class="nf">type_in_cat_univ_eq</span>
+              {<span class="nv">A</span> : C}
+              {<span class="nv">a₁</span> <span class="nv">a₂</span> : type_in_cat_univ A}
+              (<span class="nv">p</span> : type_in_cat_univ_code a₁ = type_in_cat_univ_code a₂)
+              (<span class="nv">q</span> : cat_el_map_el_eq el p · type_in_cat_univ_z_iso a₂
+                   =
+                   type_in_cat_univ_z_iso a₁)
+    : a₁ = a₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> a₁ <span class="k">as</span> [ a₁ f₁ ].
+    <span class="nb">induction</span> a₂ <span class="k">as</span> [ a₂ f₂ ].
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> maponpaths.
+    use z_iso_eq.
+    <span class="nb">refine</span> (!q @ _) ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 2. Examples for codes *)</span>
+
+  <span class="sd">(** ** 2.1. The terminal object *)</span>
+  <span class="kn">Definition</span> <span class="nf">terminal_in_cat_univ</span>
+    : UU
+    := type_in_cat_univ <span class="mi">𝟙</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">terminal_in_cat_univ_eq</span>
+              {<span class="nv">c₁</span> <span class="nv">c₂</span> : terminal_in_cat_univ}
+              (<span class="nv">p</span> : type_in_cat_univ_code c₁ = type_in_cat_univ_code c₂)
+    : c₁ = c₂.
+  <span class="kn">Proof</span>.
+    use type_in_cat_univ_eq.
+    - <span class="bp">exact</span> p.
+    - <span class="nb">apply</span> TerminalArrowEq.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** 2.2. The initial object *)</span>
+  <span class="kn">Definition</span> <span class="nf">initial_in_cat_univ</span>
+             (<span class="nv">I</span> : Initial C)
+    : UU
+    := type_in_cat_univ I.
+
+  <span class="kn">Proposition</span> <span class="nf">initial_in_cat_univ_eq</span>
+              {<span class="nv">I</span> : Initial C}
+              {<span class="nv">c₁</span> <span class="nv">c₂</span> : initial_in_cat_univ I}
+              (<span class="nv">p</span> : type_in_cat_univ_code c₁ = type_in_cat_univ_code c₂)
+    : c₁ = c₂.
+  <span class="kn">Proof</span>.
+    use type_in_cat_univ_eq.
+    - <span class="bp">exact</span> p.
+    - <span class="nb">refine</span> (maponpaths
+                pr1
+                (z_iso_eq_inv
+                   (z_iso_comp (cat_el_map_el_eq el p) (type_in_cat_univ_z_iso c₂))
+                   (type_in_cat_univ_z_iso c₁)
+                   _)).
+      <span class="nb">apply</span> InitialArrowEq.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** 2.3. Parameterized natural numbers object *)</span>
+  <span class="kn">Definition</span> <span class="nf">pnno_in_cat_univ</span>
+             (<span class="nv">N</span> : parameterized_NNO <span class="mi">𝟙</span> (binproducts_univ_cat_with_finlim C))
+    : UU
+    := type_in_cat_univ N.
+
+  <span class="sd">(** ** 2.4. Subobject classifier*)</span>
+  <span class="kn">Definition</span> <span class="nf">subobject_classifier_in_cat_univ</span>
+             (<span class="nv">Ω</span> : subobject_classifier <span class="mi">𝟙</span>)
+    : UU
+    := type_in_cat_univ Ω.
+<span class="kn">End</span> <span class="nf">TypesInCatUniv</span>.
+
+<span class="kn">Arguments</span> type_in_cat_univ_code {C A} a.
+<span class="kn">Arguments</span> type_in_cat_univ_z_iso {C A} a.
+<span class="kn">Arguments</span> terminal_in_cat_univ C : <span class="kn">clear implicits</span>.
+
+<span class="kn">Section</span> <span class="nf">FunctorPreservesTypes</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_universe}
+          (<span class="nv">F</span> : functor_finlim_universe C₁ C₂).
+
+  <span class="kn">Let</span> <span class="nf">el₁</span> : cat_stable_el_map_coherent C₁ := univ_cat_cat_stable_el_map C₁.
+  <span class="kn">Let</span> <span class="nf">el₂</span> : cat_stable_el_map_coherent C₂ := univ_cat_cat_stable_el_map C₂.
+
+  <span class="kn">Let</span> <span class="nf">Fel</span> : functor_preserves_el
+              (univ_cat_cat_stable_el_map C₁)
+              (univ_cat_cat_stable_el_map C₂)
+              F
+    := functor_finlim_universe_preserves_el F.
+
+  <span class="sd">(** * 3. Preservation by functors *)</span>
+  <span class="kn">Definition</span> <span class="nf">functor_preserves_type_in_cat_univ_code</span>
+             {<span class="nv">A₁</span> : C₁}
+             {<span class="nv">A₂</span> : C₂}
+             (<span class="nv">FA</span> : z_iso (F A₁) A₂)
+             (<span class="nv">a₁</span> : type_in_cat_univ A₁)
+             (<span class="nv">a₂</span> : type_in_cat_univ A₂)
+    : UU
+    := #F(type_in_cat_univ_code a₁) · functor_on_universe F
+       =
+       TerminalArrow _ _ · type_in_cat_univ_code a₂.
+
+  <span class="kn">Definition</span> <span class="nf">functor_preserves_type_in_cat_univ_code_z_iso</span>
+             {<span class="nv">A₁</span> : C₁}
+             {<span class="nv">A₂</span> : C₂}
+             {<span class="nv">FA</span> : z_iso (F A₁) A₂}
+             {<span class="nv">a₁</span> : type_in_cat_univ A₁}
+             {<span class="nv">a₂</span> : type_in_cat_univ A₂}
+             (<span class="nv">Fc</span> : functor_preserves_type_in_cat_univ_code FA a₁ a₂)
+    : UU
+    := #F(type_in_cat_univ_z_iso a₁) · FA
+       =
+       functor_el_map_iso Fel (type_in_cat_univ_code a₁)
+       · (cat_el_map_el_eq el₂ Fc)
+       · cat_el_map_pb_mor _ _ _
+       · type_in_cat_univ_z_iso a₂.
+
+  <span class="kn">Definition</span> <span class="nf">functor_preserves_type_in_cat_univ</span>
+             {<span class="nv">A₁</span> : C₁}
+             {<span class="nv">A₂</span> : C₂}
+             (<span class="nv">FA</span> : z_iso (F A₁) A₂)
+             (<span class="nv">a₁</span> : type_in_cat_univ A₁)
+             (<span class="nv">a₂</span> : type_in_cat_univ A₂)
+    : UU
+    := ∑ (p : functor_preserves_type_in_cat_univ_code FA a₁ a₂),
+       functor_preserves_type_in_cat_univ_code_z_iso p.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_functor_preserves_type_in_cat_univ</span>
+              {<span class="nv">A₁</span> : C₁}
+              {<span class="nv">A₂</span> : C₂}
+              (<span class="nv">FA</span> : z_iso (F A₁) A₂)
+              (<span class="nv">a₁</span> : type_in_cat_univ A₁)
+              (<span class="nv">a₂</span> : type_in_cat_univ A₂)
+    : isaprop (functor_preserves_type_in_cat_univ FA a₁ a₂).
+  <span class="kn">Proof</span>.
+    use isaproptotal2.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_preserves_type_in_cat_univ_z_iso_eq</span>
+             {<span class="nv">A₁</span> : C₁}
+             {<span class="nv">A₂</span> : C₂}
+             {<span class="nv">FA</span> <span class="nv">FA'</span> : z_iso (F A₁) A₂}
+             (<span class="nv">p</span> : FA = FA')
+             {<span class="nv">a₁</span> : type_in_cat_univ A₁}
+             {<span class="nv">a₂</span> : type_in_cat_univ A₂}
+             (<span class="nv">HF</span> : functor_preserves_type_in_cat_univ FA a₁ a₂)
+    : functor_preserves_type_in_cat_univ FA' a₁ a₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="bp">exact</span> HF.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_functor_preserves_type_in_cat_univ</span>
+             {<span class="nv">A₁</span> : C₁}
+             {<span class="nv">A₂</span> : C₂}
+             {<span class="nv">FA</span> : z_iso (F A₁) A₂}
+             {<span class="nv">a₁</span> : type_in_cat_univ A₁}
+             {<span class="nv">a₂</span> : type_in_cat_univ A₂}
+             (<span class="nv">p</span> : functor_preserves_type_in_cat_univ_code FA a₁ a₂)
+             (<span class="nv">q</span> : functor_preserves_type_in_cat_univ_code_z_iso p)
+    : functor_preserves_type_in_cat_univ FA a₁ a₂
+    := p ,, q.
+
+  <span class="kn">Proposition</span> <span class="nf">functor_preserves_type_in_cat_univ_code_eq</span>
+              {<span class="nv">A₁</span> : C₁}
+              {<span class="nv">A₂</span> : C₂}
+              {<span class="nv">FA</span> : z_iso (F A₁) A₂}
+              {<span class="nv">a₁</span> : type_in_cat_univ A₁}
+              {<span class="nv">a₂</span> : type_in_cat_univ A₂}
+              (<span class="nv">Fc</span> : functor_preserves_type_in_cat_univ FA a₁ a₂)
+    : #F(type_in_cat_univ_code a₁) · functor_on_universe F
+      =
+      TerminalArrow _ _ · type_in_cat_univ_code a₂.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 Fc).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">functor_preserves_type_in_cat_univ_code_z_iso_eq</span>
+              {<span class="nv">A₁</span> : C₁}
+              {<span class="nv">A₂</span> : C₂}
+              {<span class="nv">FA</span> : z_iso (F A₁) A₂}
+              {<span class="nv">a₁</span> : type_in_cat_univ A₁}
+              {<span class="nv">a₂</span> : type_in_cat_univ A₂}
+              (<span class="nv">Fc</span> : functor_preserves_type_in_cat_univ FA a₁ a₂)
+    : #F(type_in_cat_univ_z_iso a₁) · FA
+      =
+      functor_el_map_iso Fel (type_in_cat_univ_code a₁)
+      · (cat_el_map_el_eq el₂ (functor_preserves_type_in_cat_univ_code_eq Fc))
+      · cat_el_map_pb_mor _ _ _
+      · type_in_cat_univ_z_iso a₂.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 Fc).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FunctorPreservesTypes</span>.
+
+<span class="kn">Arguments</span> functor_preserves_type_in_cat_univ_code {C₁ C₂} F {A₁ A₂} FA a₁ a₂ /.
+<span class="kn">Arguments</span> functor_preserves_type_in_cat_univ_code_z_iso /.
+
+<span class="sd">(** * 4. Examples for preservation *)</span>
+
+<span class="sd">(** ** 4.1. Preservation of the code for the terminal object *)</span>
+<span class="kn">Definition</span> <span class="nf">functor_preserves_terminal_in_cat_univ</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_universe}
+           (<span class="nv">c₁</span> : terminal_in_cat_univ C₁)
+           (<span class="nv">c₂</span> : terminal_in_cat_univ C₂)
+           (<span class="nv">F</span> : functor_finlim_universe C₁ C₂)
+  : UU
+  := functor_preserves_type_in_cat_univ
+       F
+       (preserves_terminal_to_z_iso
+          F (functor_finlim_preserves_terminal F)
+          _ _)
+       c₁
+       c₂.
+
+<span class="kn">Proposition</span> <span class="nf">make_functor_preserves_terminal_in_cat_univ</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">c₁</span> : terminal_in_cat_univ C₁}
+            {<span class="nv">c₂</span> : terminal_in_cat_univ C₂}
+            {<span class="nv">F</span> : functor_finlim_universe C₁ C₂}
+            (<span class="nv">p</span> : #F(type_in_cat_univ_code c₁) · functor_on_universe F
+                 =
+                 TerminalArrow _ _ · type_in_cat_univ_code c₂)
+  : functor_preserves_terminal_in_cat_univ c₁ c₂ F.
+<span class="kn">Proof</span>.
+  use make_functor_preserves_type_in_cat_univ.
+  - <span class="bp">exact</span> p.
+  - <span class="nb">apply</span> TerminalArrowEq.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** 4.2. Preservation of the code for the initial object *)</span>
+<span class="kn">Definition</span> <span class="nf">functor_preserves_initial_in_cat_univ</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_universe}
+           {<span class="nv">I₁</span> : Initial C₁}
+           {<span class="nv">I₂</span> : Initial C₂}
+           (<span class="nv">c₁</span> : initial_in_cat_univ I₁)
+           (<span class="nv">c₂</span> : initial_in_cat_univ I₂)
+           (<span class="nv">F</span> : functor_finlim_universe C₁ C₂)
+           (<span class="nv">FI</span> : preserves_initial F)
+  : UU
+  := functor_preserves_type_in_cat_univ
+       F
+       (preserves_initial_to_z_iso
+          F FI
+          _ _)
+       c₁
+       c₂.
+
+<span class="kn">Proposition</span> <span class="nf">make_functor_preserves_initial_in_cat_univ</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">I₁</span> : Initial C₁}
+            {<span class="nv">I₂</span> : Initial C₂}
+            {<span class="nv">c₁</span> : initial_in_cat_univ I₁}
+            {<span class="nv">c₂</span> : initial_in_cat_univ I₂}
+            {<span class="nv">F</span> : functor_finlim_universe C₁ C₂}
+            {<span class="nv">FI</span> : preserves_initial F}
+            (<span class="nv">p</span> : #F(type_in_cat_univ_code c₁) · functor_on_universe F
+                 =
+                 TerminalArrow _ _ · type_in_cat_univ_code c₂)
+  : functor_preserves_initial_in_cat_univ c₁ c₂ F FI.
+<span class="kn">Proof</span>.
+  use make_functor_preserves_type_in_cat_univ.
+  - <span class="bp">exact</span> p.
+  - <span class="nb">simpl</span>.
+    use (cancel_z_iso' (z_iso_inv (functor_on_z_iso F (type_in_cat_univ_z_iso c₁)))).
+    <span class="nb">apply</span> (InitialArrowEq (O := preserves_initial_to_initial _ FI I₁)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">functor_preserves_initial_in_cat_univ_eq</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">I₁</span> : Initial C₁}
+            {<span class="nv">I₂</span> : Initial C₂}
+            (<span class="nv">c₁</span> : initial_in_cat_univ I₁)
+            (<span class="nv">c₂</span> : initial_in_cat_univ I₂)
+            {<span class="nv">F</span> <span class="nv">F'</span> : functor_finlim_universe C₁ C₂}
+            (<span class="nv">p</span> : F = F')
+            (<span class="nv">FI</span> : preserves_initial F)
+            (<span class="nv">FI'</span> : preserves_initial F')
+            (<span class="nv">HF</span> : functor_preserves_initial_in_cat_univ c₁ c₂ F FI)
+  : functor_preserves_initial_in_cat_univ c₁ c₂ F' FI'.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">assert</span> (FI = FI') <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> isaprop_preserves_initial.
+  }
+  <span class="bp">exact</span> HF.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** 4.3. Preservation of the code for the parameterized natural numbers object *)</span>
+<span class="kn">Definition</span> <span class="nf">functor_preserves_pnno_in_cat_univ</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_universe}
+           {<span class="nv">N₁</span> : parameterized_NNO
+                   (terminal_univ_cat_with_finlim C₁)
+                   (binproducts_univ_cat_with_finlim C₁)}
+           {<span class="nv">N₂</span> : parameterized_NNO
+                   (terminal_univ_cat_with_finlim C₂)
+                   (binproducts_univ_cat_with_finlim C₂)}
+           (<span class="nv">c₁</span> : pnno_in_cat_univ N₁)
+           (<span class="nv">c₂</span> : pnno_in_cat_univ N₂)
+           (<span class="nv">F</span> : functor_finlim_universe C₁ C₂)
+           (<span class="nv">HF</span> : preserves_parameterized_NNO
+                   N₁ N₂
+                   F
+                   (functor_finlim_preserves_terminal F))
+  : UU
+  := functor_preserves_type_in_cat_univ
+       F
+       (preserves_parameterized_NNO_z_iso HF)
+       c₁
+       c₂.
+
+<span class="kn">Proposition</span> <span class="nf">make_functor_preserves_pnno_in_cat_univ</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">N₁</span> : parameterized_NNO
+                    (terminal_univ_cat_with_finlim C₁)
+                    (binproducts_univ_cat_with_finlim C₁)}
+            {<span class="nv">N₂</span> : parameterized_NNO
+                    (terminal_univ_cat_with_finlim C₂)
+                    (binproducts_univ_cat_with_finlim C₂)}
+            {<span class="nv">c₁</span> : pnno_in_cat_univ N₁}
+            {<span class="nv">c₂</span> : pnno_in_cat_univ N₂}
+            {<span class="nv">F</span> : functor_finlim_universe C₁ C₂}
+            {<span class="nv">HF</span> : preserves_parameterized_NNO
+                    N₁ N₂
+                    F
+                    (functor_finlim_preserves_terminal F)}
+            (<span class="nv">p</span> : #F(type_in_cat_univ_code c₁) · functor_on_universe F
+                 =
+                 TerminalArrow _ _ · type_in_cat_univ_code c₂)
+            (<span class="nv">q</span> : #F (type_in_cat_univ_z_iso c₁)
+                 =
+                 functor_el_map_iso
+                   (functor_finlim_universe_preserves_el F)
+                   (type_in_cat_univ_code c₁)
+                 · cat_el_map_el_eq (univ_cat_cat_stable_el_map C₂) p
+                 · cat_el_map_pb_mor
+                     (univ_cat_cat_stable_el_map C₂)
+                     (TerminalArrow _ _)
+                     (type_in_cat_univ_code c₂)
+                 · type_in_cat_univ_z_iso c₂
+                 · preserves_parameterized_NNO_mor
+                     N₁ N₂
+                     F
+                     (functor_finlim_preserves_terminal F))
+  : functor_preserves_pnno_in_cat_univ c₁ c₂ F HF.
+<span class="kn">Proof</span>.
+  use make_functor_preserves_type_in_cat_univ.
+  - <span class="bp">exact</span> p.
+  - <span class="nb">simpl</span>.
+    <span class="nb">refine</span> (!_).
+    use z_iso_inv_on_left.
+    <span class="bp">exact</span> q.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">functor_preserves_pnno_in_cat_univ_eq</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">N₁</span> : parameterized_NNO
+                    (terminal_univ_cat_with_finlim C₁)
+                    (binproducts_univ_cat_with_finlim C₁)}
+            {<span class="nv">N₂</span> : parameterized_NNO
+                    (terminal_univ_cat_with_finlim C₂)
+                    (binproducts_univ_cat_with_finlim C₂)}
+            {<span class="nv">c₁</span> : pnno_in_cat_univ N₁}
+            {<span class="nv">c₂</span> : pnno_in_cat_univ N₂}
+            {<span class="nv">F</span> <span class="nv">F'</span> : functor_finlim_universe C₁ C₂}
+            (<span class="nv">p</span> : F = F')
+            (<span class="nv">HF</span> : preserves_parameterized_NNO
+                    N₁ N₂
+                    F
+                    (functor_finlim_preserves_terminal F))
+            (<span class="nv">HF'</span> : preserves_parameterized_NNO
+                     N₁ N₂
+                     F'
+                     (functor_finlim_preserves_terminal F'))
+            (<span class="nv">HFF</span> : functor_preserves_pnno_in_cat_univ c₁ c₂ F HF)
+  : functor_preserves_pnno_in_cat_univ c₁ c₂ F' HF'.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">assert</span> (HF = HF') <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> isaprop_preserves_parameterized_NNO.
+  }
+  <span class="bp">exact</span> HFF.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** 4.4. Preservation of the code for the subobject classifier *)</span>
+<span class="kn">Definition</span> <span class="nf">functor_preserves_subobject_classifier_in_cat_univ</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_universe}
+           {<span class="nv">Ω₁</span> : subobject_classifier (terminal_univ_cat_with_finlim C₁)}
+           {<span class="nv">Ω₂</span> : subobject_classifier (terminal_univ_cat_with_finlim C₂)}
+           (<span class="nv">c₁</span> : subobject_classifier_in_cat_univ Ω₁)
+           (<span class="nv">c₂</span> : subobject_classifier_in_cat_univ Ω₂)
+           (<span class="nv">F</span> : functor_finlim_universe C₁ C₂)
+           (<span class="nv">HF</span> : preserves_subobject_classifier
+                   F
+                   (terminal_univ_cat_with_finlim C₁)
+                   (terminal_univ_cat_with_finlim C₂)
+                   (functor_finlim_preserves_terminal F))
+  : UU
+  := functor_preserves_type_in_cat_univ
+       F
+       (preserves_subobject_classifier_z_iso HF Ω₁ Ω₂)
+       c₁
+       c₂.
+
+<span class="kn">Proposition</span> <span class="nf">make_functor_preserves_subobject_classifier_in_cat_univ</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">Ω₁</span> : subobject_classifier (terminal_univ_cat_with_finlim C₁)}
+            {<span class="nv">Ω₂</span> : subobject_classifier (terminal_univ_cat_with_finlim C₂)}
+            {<span class="nv">c₁</span> : subobject_classifier_in_cat_univ Ω₁}
+            {<span class="nv">c₂</span> : subobject_classifier_in_cat_univ Ω₂}
+            {<span class="nv">F</span> : functor_finlim_universe C₁ C₂}
+            {<span class="nv">HF</span> : preserves_subobject_classifier
+                    F
+                    (terminal_univ_cat_with_finlim C₁)
+                    (terminal_univ_cat_with_finlim C₂)
+                    (functor_finlim_preserves_terminal F)}
+            (<span class="nv">p</span> : #F(type_in_cat_univ_code c₁) · functor_on_universe F
+                 =
+                 TerminalArrow _ _ · type_in_cat_univ_code c₂)
+            (<span class="nv">q</span> : functor_el_map_iso
+                   (functor_finlim_universe_preserves_el F)
+                   (type_in_cat_univ_code c₁)
+                 · cat_el_map_el_eq (univ_cat_cat_stable_el_map C₂) p
+                 · cat_el_map_pb_mor
+                     (univ_cat_cat_stable_el_map C₂)
+                     (TerminalArrow _ _)
+                     (type_in_cat_univ_code c₂)
+                 · type_in_cat_univ_z_iso c₂
+                 =
+                 #F (type_in_cat_univ_z_iso c₁)
+                 · mor_subobject_classifier (preserves_subobject_classifier_on_ob HF Ω₁) Ω₂)
+  : functor_preserves_subobject_classifier_in_cat_univ c₁ c₂ F HF.
+<span class="kn">Proof</span>.
+  use make_functor_preserves_type_in_cat_univ.
+  - <span class="bp">exact</span> p.
+  - <span class="nb">simpl</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="bp">exact</span> q.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">functor_preserves_subobject_classifier_in_cat_univ_eq</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">Ω₁</span> : subobject_classifier (terminal_univ_cat_with_finlim C₁)}
+            {<span class="nv">Ω₂</span> : subobject_classifier (terminal_univ_cat_with_finlim C₂)}
+            {<span class="nv">c₁</span> : subobject_classifier_in_cat_univ Ω₁}
+            {<span class="nv">c₂</span> : subobject_classifier_in_cat_univ Ω₂}
+            {<span class="nv">F</span> <span class="nv">F'</span> : functor_finlim_universe C₁ C₂}
+            (<span class="nv">p</span> : F = F')
+            (<span class="nv">HF</span> : preserves_subobject_classifier
+                    F
+                    (terminal_univ_cat_with_finlim C₁)
+                    (terminal_univ_cat_with_finlim C₂)
+                    (functor_finlim_preserves_terminal F))
+            (<span class="nv">HF'</span> : preserves_subobject_classifier
+                     F'
+                     (terminal_univ_cat_with_finlim C₁)
+                     (terminal_univ_cat_with_finlim C₂)
+                     (functor_finlim_preserves_terminal F'))
+            (<span class="nv">HFF</span> : functor_preserves_subobject_classifier_in_cat_univ c₁ c₂ F HF)
+  : functor_preserves_subobject_classifier_in_cat_univ c₁ c₂ F' HF'.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">assert</span> (HF = HF') <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> isaprop_preserves_subobject_classifier.
+  }
+  <span class="bp">exact</span> HFF.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 5. Preservation by identity and composition *)</span>
+<span class="kn">Proposition</span> <span class="nf">identity_preserves_type_in_cat_univ_code_eq</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">A</span> : C}
+            (<span class="nv">a</span> : type_in_cat_univ A)
+  : functor_preserves_type_in_cat_univ_code
+      (identity _)
+      (identity_z_iso A)
+      a
+      a.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">refine</span> (!(id_left _) @ _).
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> TerminalArrowEq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">identity_preserves_type_in_cat_univ_z_iso_eq</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">A</span> : C}
+            (<span class="nv">a</span> : type_in_cat_univ A)
+  : functor_preserves_type_in_cat_univ_code_z_iso
+      (identity _)
+      (identity_preserves_type_in_cat_univ_code_eq a).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (id_right _ @ _).
+  <span class="nb">refine</span> (!(id_left _) @ _).
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    use cat_el_map_pb_mor_id'.
+    <span class="nb">apply</span> TerminalArrowEq.
+  }
+  <span class="nb">rewrite</span> !(cat_el_map_el_eq_comp (univ_cat_cat_stable_el_map C)).
+  <span class="nb">apply</span> (cat_el_map_el_eq_id (univ_cat_cat_stable_el_map C)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">identity_preserves_type_in_cat_univ</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">A</span> : C}
+            (<span class="nv">a</span> : type_in_cat_univ A)
+  : functor_preserves_type_in_cat_univ
+      (identity _)
+      (identity_z_iso A)
+      a
+      a.
+<span class="kn">Proof</span>.
+  use make_functor_preserves_type_in_cat_univ.
+  - <span class="bp">exact</span> (identity_preserves_type_in_cat_univ_code_eq a).
+  - <span class="bp">exact</span> (identity_preserves_type_in_cat_univ_z_iso_eq a).
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">CompPreservation</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : univ_cat_with_finlim_universe}
+          (<span class="nv">F</span> : functor_finlim_universe C₁ C₂)
+          (<span class="nv">G</span> : functor_finlim_universe C₂ C₃)
+          {<span class="nv">A₁</span> : C₁}
+          {<span class="nv">A₂</span> : C₂}
+          {<span class="nv">A₃</span> : C₃}
+          {<span class="nv">a₁</span> : type_in_cat_univ A₁}
+          {<span class="nv">a₂</span> : type_in_cat_univ A₂}
+          {<span class="nv">a₃</span> : type_in_cat_univ A₃}
+          {<span class="nv">FA</span> : z_iso (F A₁) A₂}
+          {<span class="nv">GA</span> : z_iso (G A₂) A₃}
+          (<span class="nv">FcA</span> : functor_preserves_type_in_cat_univ F FA a₁ a₂)
+          (<span class="nv">GcA</span> : functor_preserves_type_in_cat_univ G GA a₂ a₃).
+
+  <span class="kn">Proposition</span> <span class="nf">comp_functor_preserves_type_in_cat_univ_code_eq</span>
+    : functor_preserves_type_in_cat_univ_code
+        (F · G)
+        (z_iso_comp (functor_on_z_iso G FA) GA)
+        a₁
+        a₃.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- functor_comp.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (functor_preserves_type_in_cat_univ_code_eq _ FcA).
+    }
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (functor_preserves_type_in_cat_univ_code_eq _ GcA).
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> TerminalArrowEq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">comp_functor_preserves_type_in_cat_univ_z_iso_eq</span>
+    : functor_preserves_type_in_cat_univ_code_z_iso
+        (F · G)
+        comp_functor_preserves_type_in_cat_univ_code_eq.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">rewrite</span> &lt;- functor_comp.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> FcA.
+    }
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> GcA.
+    }
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> !functor_comp.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (_ @ assoc _ _ _).
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (functor_preserves_el_path (functor_finlim_universe_preserves_el G)).
+    }
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (functor_el_map_iso_eq_alt (functor_finlim_universe_preserves_el G)).
+    }
+    <span class="kp">do</span> <span class="mi">4</span> <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    <span class="nb">refine</span> (_ @ assoc _ _ _).
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      use cat_el_map_pb_mor_eq.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> GcA.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> idpath.
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      use cat_el_map_pb_mor_comp'.
+    }
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">refine</span> (_ @ assoc' _ _ _).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (cat_el_map_el_eq_comp (univ_cat_cat_stable_el_map C₃)).
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (cat_el_map_el_eq_comp (univ_cat_cat_stable_el_map C₃)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (cat_el_map_el_eq_comp (univ_cat_cat_stable_el_map C₃)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      use cat_el_map_pb_mor_subst_eq.
+      - <span class="nb">apply</span> TerminalArrow.
+      - <span class="nb">apply</span> TerminalArrowEq.
+    }
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    {
+      <span class="nb">apply</span> (cat_el_map_el_eq_comp (univ_cat_cat_stable_el_map C₃)).
+    }
+    <span class="nb">refine</span> (!_).
+    <span class="nb">simpl</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (cat_el_map_el_eq_comp (univ_cat_cat_stable_el_map C₃)).
+    }
+    <span class="nb">apply</span> (cat_el_map_el_eq_eq (univ_cat_cat_stable_el_map C₃)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">comp_functor_preserves_type_in_cat_univ</span>
+    : functor_preserves_type_in_cat_univ
+        (F · G)
+        (z_iso_comp (functor_on_z_iso G FA) GA)
+        a₁
+        a₃.
+  <span class="kn">Proof</span>.
+    use make_functor_preserves_type_in_cat_univ.
+    - <span class="bp">exact</span> comp_functor_preserves_type_in_cat_univ_code_eq.
+    - <span class="bp">exact</span> comp_functor_preserves_type_in_cat_univ_z_iso_eq.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">CompPreservation</span>.
+
+<span class="sd">(** * 6. Instantiation to the examples *)</span>
+
+<span class="sd">(** ** 6.1. Preservation of the code for the terminal object *)</span>
+<span class="kn">Proposition</span> <span class="nf">id_functor_preserves_terminal_in_cat_univ</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            (<span class="nv">c</span> : terminal_in_cat_univ C)
+  : functor_preserves_terminal_in_cat_univ
+      c
+      c
+      (identity _).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (functor_preserves_type_in_cat_univ_z_iso_eq
+            _
+            _
+            (identity_preserves_type_in_cat_univ c)).
+  use z_iso_eq.
+  <span class="nb">apply</span> TerminalArrowEq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_functor_preserves_terminal_in_cat_univ</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">F</span> : functor_finlim_universe C₁ C₂}
+            {<span class="nv">G</span> : functor_finlim_universe C₂ C₃}
+            {<span class="nv">c₁</span> : terminal_in_cat_univ C₁}
+            {<span class="nv">c₂</span> : terminal_in_cat_univ C₂}
+            {<span class="nv">c₃</span> : terminal_in_cat_univ C₃}
+            (<span class="nv">Fc</span> : functor_preserves_terminal_in_cat_univ c₁ c₂ F)
+            (<span class="nv">Gc</span> : functor_preserves_terminal_in_cat_univ c₂ c₃ G)
+  : functor_preserves_terminal_in_cat_univ
+      c₁
+      c₃
+      (F · G).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (functor_preserves_type_in_cat_univ_z_iso_eq
+            _
+            _
+            (comp_functor_preserves_type_in_cat_univ F G Fc Gc)).
+  use z_iso_eq.
+  <span class="nb">apply</span> TerminalArrowEq.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** 6.2. Preservation of the code for the initial object *)</span>
+<span class="kn">Proposition</span> <span class="nf">id_functor_preserves_initial_in_cat_univ</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">I</span> : Initial C}
+            (<span class="nv">c</span> : initial_in_cat_univ I)
+  : functor_preserves_initial_in_cat_univ
+      c
+      c
+      (identity _)
+      (identity_preserves_initial _).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (functor_preserves_type_in_cat_univ_z_iso_eq
+            _
+            _
+            (identity_preserves_type_in_cat_univ c)).
+  use z_iso_eq.
+  <span class="nb">apply</span> InitialArrowEq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_functor_preserves_initial_in_cat_univ</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">F</span> : functor_finlim_universe C₁ C₂}
+            {<span class="nv">HF</span> : preserves_initial F}
+            {<span class="nv">G</span> : functor_finlim_universe C₂ C₃}
+            {<span class="nv">HG</span> : preserves_initial G}
+            {<span class="nv">I₁</span> : Initial C₁}
+            {<span class="nv">I₂</span> : Initial C₂}
+            {<span class="nv">I₃</span> : Initial C₃}
+            {<span class="nv">c₁</span> : initial_in_cat_univ I₁}
+            {<span class="nv">c₂</span> : initial_in_cat_univ I₂}
+            {<span class="nv">c₃</span> : initial_in_cat_univ I₃}
+            (<span class="nv">Fc</span> : functor_preserves_initial_in_cat_univ c₁ c₂ F HF)
+            (<span class="nv">Gc</span> : functor_preserves_initial_in_cat_univ c₂ c₃ G HG)
+  : functor_preserves_initial_in_cat_univ
+      c₁
+      c₃
+      (F · G)
+      (composition_preserves_initial HF HG).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (functor_preserves_type_in_cat_univ_z_iso_eq
+            _
+            _
+            (comp_functor_preserves_type_in_cat_univ F G Fc Gc)).
+  use z_iso_eq.
+  <span class="nb">apply</span> (InitialArrowEq
+           (O := preserves_initial_to_initial _ (composition_preserves_initial HF HG) I₁)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** 6.3. Preservation of the code for the parameterized natural numbers object *)</span>
+<span class="kn">Proposition</span> <span class="nf">id_functor_preserves_pnno_in_cat_univ</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">N</span> : parameterized_NNO
+                   (terminal_univ_cat_with_finlim C)
+                   (binproducts_univ_cat_with_finlim C)}
+            (<span class="nv">c</span> : pnno_in_cat_univ N)
+  : functor_preserves_pnno_in_cat_univ
+      c
+      c
+      (identity _)
+      (id_preserves_parameterized_NNO _ _ _).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (identity_preserves_type_in_cat_univ c).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_functor_preserves_pnno_in_cat_univ</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">F</span> : functor_finlim_universe C₁ C₂}
+            {<span class="nv">G</span> : functor_finlim_universe C₂ C₃}
+            {<span class="nv">N₁</span> : parameterized_NNO
+                    (terminal_univ_cat_with_finlim C₁)
+                    (binproducts_univ_cat_with_finlim C₁)}
+            {<span class="nv">N₂</span> : parameterized_NNO
+                    (terminal_univ_cat_with_finlim C₂)
+                    (binproducts_univ_cat_with_finlim C₂)}
+            {<span class="nv">N₃</span> : parameterized_NNO
+                    (terminal_univ_cat_with_finlim C₃)
+                    (binproducts_univ_cat_with_finlim C₃)}
+            {<span class="nv">c₁</span> : pnno_in_cat_univ N₁}
+            {<span class="nv">c₂</span> : pnno_in_cat_univ N₂}
+            {<span class="nv">c₃</span> : pnno_in_cat_univ N₃}
+            {<span class="nv">HF</span> : preserves_parameterized_NNO
+                    N₁ N₂
+                    F
+                    (functor_finlim_preserves_terminal F)}
+            {<span class="nv">HG</span> : preserves_parameterized_NNO
+                    N₂ N₃
+                    G
+                    (functor_finlim_preserves_terminal G)}
+            (<span class="nv">Fc</span> : functor_preserves_pnno_in_cat_univ c₁ c₂ F HF)
+            (<span class="nv">Gc</span> : functor_preserves_pnno_in_cat_univ c₂ c₃ G HG)
+  : functor_preserves_pnno_in_cat_univ
+      c₁
+      c₃
+      (F · G)
+      (comp_preserves_parameterized_NNO HF HG).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (comp_functor_preserves_type_in_cat_univ F G Fc Gc).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** 6.4. Preservation of the code for the subobject classifier *)</span>
+<span class="kn">Proposition</span> <span class="nf">id_functor_preserves_subobject_classifier_in_cat_univ</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">Ω</span> : subobject_classifier (terminal_univ_cat_with_finlim C)}
+            (<span class="nv">c</span> : subobject_classifier_in_cat_univ Ω)
+  : functor_preserves_subobject_classifier_in_cat_univ
+      c
+      c
+      (identity _)
+      (identity_preserves_subobject_classifier _).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (functor_preserves_type_in_cat_univ_z_iso_eq
+            _
+            _
+            (identity_preserves_type_in_cat_univ c)).
+  use z_iso_eq ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> mor_subobject_classifier_is_identity.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_functor_preserves_subobject_classifier_in_cat_univ</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">F</span> : functor_finlim_universe C₁ C₂}
+            {<span class="nv">G</span> : functor_finlim_universe C₂ C₃}
+            {<span class="nv">Ω₁</span> : subobject_classifier (terminal_univ_cat_with_finlim C₁)}
+            {<span class="nv">Ω₂</span> : subobject_classifier (terminal_univ_cat_with_finlim C₂)}
+            {<span class="nv">Ω₃</span> : subobject_classifier (terminal_univ_cat_with_finlim C₃)}
+            {<span class="nv">c₁</span> : subobject_classifier_in_cat_univ Ω₁}
+            {<span class="nv">c₂</span> : subobject_classifier_in_cat_univ Ω₂}
+            {<span class="nv">c₃</span> : subobject_classifier_in_cat_univ Ω₃}
+            {<span class="nv">HF</span> : preserves_subobject_classifier
+                    F
+                    (terminal_univ_cat_with_finlim C₁)
+                    (terminal_univ_cat_with_finlim C₂)
+                    (functor_finlim_preserves_terminal F)}
+            {<span class="nv">HG</span> : preserves_subobject_classifier
+                    G
+                    (terminal_univ_cat_with_finlim C₂)
+                    (terminal_univ_cat_with_finlim C₃)
+                    (functor_finlim_preserves_terminal G)}
+            (<span class="nv">Fc</span> : functor_preserves_subobject_classifier_in_cat_univ c₁ c₂ F HF)
+            (<span class="nv">Gc</span> : functor_preserves_subobject_classifier_in_cat_univ c₂ c₃ G HG)
+  : functor_preserves_subobject_classifier_in_cat_univ
+      c₁
+      c₃
+      (F · G)
+      (comp_preserves_subobject_classifier HF HG).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (functor_preserves_type_in_cat_univ_z_iso_eq
+            _
+            _
+            (comp_functor_preserves_type_in_cat_univ F G Fc Gc)).
+  use z_iso_eq ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> mor_subobject_classifier_is_composition.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 7. Univalence condition *)</span>
+<span class="kn">Proposition</span> <span class="nf">type_in_cat_univ_univalence_lemma</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">A</span> : C}
+            {<span class="nv">a₁</span> <span class="nv">a₂</span> : type_in_cat_univ A}
+            (<span class="nv">Fc</span> : functor_preserves_type_in_cat_univ
+                     (identity _)
+                     (identity_z_iso _)
+                     a₁ a₂)
+  : a₁ = a₂.
+<span class="kn">Proof</span>.
+  use type_in_cat_univ_eq.
+  - <span class="nb">pose</span> (functor_preserves_type_in_cat_univ_code_eq _ Fc) <span class="k">as</span> p.
+    <span class="nb">simpl</span> <span class="k">in</span> p.
+    <span class="nb">refine</span> (!(id_right _) @ _).
+    <span class="nb">refine</span> (p @ _).
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> TerminalArrowEq.
+  - <span class="nb">pose</span> (functor_preserves_type_in_cat_univ_code_z_iso_eq _ Fc) <span class="k">as</span> p.
+    <span class="nb">simpl</span> <span class="k">in</span> p.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">refine</span> (!(id_right _) @ _).
+    <span class="nb">refine</span> (p @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      use cat_el_map_pb_mor_subst_eq.
+      {
+        <span class="nb">apply</span> identity.
+      }
+      <span class="nb">apply</span> TerminalArrowEq.
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> cat_el_map_pb_mor_id.
+    }
+    <span class="nb">rewrite</span> !(cat_el_map_el_eq_comp (univ_cat_cat_stable_el_map C)).
+    <span class="nb">apply</span> (cat_el_map_el_eq_eq (univ_cat_cat_stable_el_map C)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** 7.1. Univalence condition for the terminal object *)</span>
+<span class="kn">Proposition</span> <span class="nf">terminal_in_cat_univ_univalence_lemma</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">c₁</span> <span class="nv">c₂</span> : terminal_in_cat_univ C}
+            (<span class="nv">Fc</span> : functor_preserves_terminal_in_cat_univ c₁ c₂ (identity _))
+  : c₁ = c₂.
+<span class="kn">Proof</span>.
+  use type_in_cat_univ_univalence_lemma.
+  <span class="nb">refine</span> (functor_preserves_type_in_cat_univ_z_iso_eq
+            _
+            _
+            Fc).
+  use z_iso_eq.
+  <span class="nb">apply</span> TerminalArrowEq.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** 7.2. Univalence condition for the initial object *)</span>
+<span class="kn">Proposition</span> <span class="nf">initial_in_cat_univ_univalence_lemma</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">I</span> : Initial C}
+            {<span class="nv">c₁</span> <span class="nv">c₂</span> : initial_in_cat_univ I}
+            (<span class="nv">Fc</span> : functor_preserves_initial_in_cat_univ
+                    c₁ c₂
+                    (identity _)
+                    (identity_preserves_initial _))
+  : c₁ = c₂.
+<span class="kn">Proof</span>.
+  use type_in_cat_univ_univalence_lemma.
+  <span class="nb">refine</span> (functor_preserves_type_in_cat_univ_z_iso_eq
+            _
+            _
+            Fc).
+  use z_iso_eq.
+  <span class="nb">apply</span> InitialArrowEq.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** 7.3. Univalence condition for the parameterized natural numbers object *)</span>
+<span class="kn">Proposition</span> <span class="nf">pnno_in_cat_univ_univalence_lemma</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">N</span> : parameterized_NNO
+                   (terminal_univ_cat_with_finlim C)
+                   (binproducts_univ_cat_with_finlim C)}
+            {<span class="nv">c₁</span> <span class="nv">c₂</span> : pnno_in_cat_univ N}
+            (<span class="nv">Fc</span> : functor_preserves_pnno_in_cat_univ
+                    c₁ c₂
+                    (identity _)
+                    (id_preserves_parameterized_NNO _ _ _))
+  : c₁ = c₂.
+<span class="kn">Proof</span>.
+  use type_in_cat_univ_univalence_lemma.
+  <span class="bp">exact</span> Fc.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** 7.4. Univalence condition for the subobject classifier *)</span>
+<span class="kn">Proposition</span> <span class="nf">subobject_classifier_in_cat_univ_univalence_lemma</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">Ω</span> : subobject_classifier (terminal_univ_cat_with_finlim C)}
+            {<span class="nv">c₁</span> <span class="nv">c₂</span> : subobject_classifier_in_cat_univ Ω}
+            (<span class="nv">Fc</span> : functor_preserves_subobject_classifier_in_cat_univ
+                    c₁ c₂
+                    (identity _)
+                    (identity_preserves_subobject_classifier _))
+  : c₁ = c₂.
+<span class="kn">Proof</span>.
+  use type_in_cat_univ_univalence_lemma.
+  <span class="nb">refine</span> (functor_preserves_type_in_cat_univ_z_iso_eq
+            _
+            _
+            Fc).
+  use z_iso_eq ; <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">apply</span> mor_subobject_classifier_is_identity.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Universes/CatTypes/Constant.v</tt>, line 60)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  7.4. Univalence condition for the subobject classifier
+  &gt;
+  &gt;                                                                                            *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Limits.Initial.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

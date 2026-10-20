@@ -1,0 +1,1623 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ProductDoubleCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(************************************************************************************</span>
+
+<span class="sd"> The product of double categories</span>
+
+<span class="sd"> In this file, we define the product of double categories. Given double categories</span>
+<span class="sd"> `D₁` and `D₂`, the product of `D₁` and `D₂` is defined as follows:</span>
+<span class="sd"> - Objects: pairs of objects in `D₁` and `D₂`</span>
+<span class="sd"> - Vertical morphisms: pairs of vertical morphisms in `D₁` and `D₂`</span>
+<span class="sd"> - Horizontal morphisms: pairs of horizontal morphisms in `D₁` and `D₂`</span>
+<span class="sd"> - Squares: pairs of squares in `D₁` and `D₂`</span>
+<span class="sd"> The operations are defined coordinate-wise.</span>
+
+<span class="sd"> We also verify the universal property of products. More specifically, the product</span>
+<span class="sd"> of double categories is the product in the bicategory of double categories.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Horizontal identity and composition</span>
+<span class="sd"> 2. Unitors and associator</span>
+<span class="sd"> 3. The triangle and pentagon</span>
+<span class="sd"> 4. The product of double categories</span>
+<span class="sd"> 5. Projections</span>
+<span class="sd"> 6. Pairing</span>
+<span class="sd"> 7. Pairing of double transformations</span>
+<span class="sd"> 8. Products of double categories</span>
+
+<span class="sd"> ************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedNatTrans.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.ProdOfTwosidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Products.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.Basics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.BicatOfDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.InvertiblesAndEquivalences.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.DerivedLaws.TransportLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.DerivedLaws.Variations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> double_cat.
+
+<span class="kn">Section</span> <span class="nf">ProdOfDoubleCat</span>.
+  <span class="kn">Context</span> (<span class="nv">D₁</span> <span class="nv">D₂</span> : double_cat).
+
+  <span class="sd">(** * 1. Horizontal identity and composition *)</span>
+  <span class="kn">Definition</span> <span class="nf">prod_double_cat_hor_id_data</span>
+    : hor_id_data (twosided_disp_cat_product (hor_mor D₁) (hor_mor D₂)).
+  <span class="kn">Proof</span>.
+    use make_hor_id_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">wx</span>, identity_h (pr1 wx) ,, identity_h (pr2 wx)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">wx</span> <span class="nv">yz</span> <span class="nv">fg</span>, id_h_square (pr1 fg) ,, id_h_square (pr2 fg)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">prod_double_cat_hor_id_laws</span>
+    : hor_id_laws prod_double_cat_hor_id_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x.
+      use dirprodeq ; <span class="nb">cbn</span>.
+      + <span class="nb">apply</span> id_h_square_id.
+      + <span class="nb">apply</span> id_h_square_id.
+    - <span class="nb">intros</span> x y z f g.
+      use dirprodeq ; <span class="nb">cbn</span>.
+      + <span class="nb">apply</span> id_h_square_comp.
+      + <span class="nb">apply</span> id_h_square_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_double_cat_hor_id</span>
+    : hor_id (twosided_disp_cat_product (hor_mor D₁) (hor_mor D₂)).
+  <span class="kn">Proof</span>.
+    use make_hor_id.
+    - <span class="bp">exact</span> prod_double_cat_hor_id_data.
+    - <span class="bp">exact</span> prod_double_cat_hor_id_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_double_cat_hor_comp_data</span>
+    : hor_comp_data (twosided_disp_cat_product (hor_mor D₁) (hor_mor D₂)).
+  <span class="kn">Proof</span>.
+    use make_hor_comp_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xy₁</span> <span class="nv">xy₂</span> <span class="nv">xy₃</span> <span class="nv">fg</span> <span class="nv">hk</span>, pr1 fg ·h pr1 hk ,, pr2 fg ·h pr2 hk).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> <span class="nv">v₁</span> <span class="nv">v₂</span> <span class="nv">v₃</span> <span class="nv">h₁</span> <span class="nv">h₂</span> <span class="nv">k₁</span> <span class="nv">k₂</span> <span class="nv">s₁</span> <span class="nv">s₂</span>,
+             comp_h_square (pr1 s₁) (pr1 s₂)
+             ,,
+             comp_h_square (pr2 s₁) (pr2 s₂)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">prod_double_cat_hor_comp_laws</span>
+    : hor_comp_laws prod_double_cat_hor_comp_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span>.
+      use dirprodeq ; <span class="nb">cbn</span>.
+      + <span class="nb">apply</span> comp_h_square_id.
+      + <span class="nb">apply</span> comp_h_square_id.
+    - <span class="nb">intros</span>.
+      use dirprodeq ; <span class="nb">cbn</span>.
+      + <span class="nb">apply</span> comp_h_square_comp.
+      + <span class="nb">apply</span> comp_h_square_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_double_cat_hor_comp</span>
+    : hor_comp (twosided_disp_cat_product (hor_mor D₁) (hor_mor D₂)).
+  <span class="kn">Proof</span>.
+    use make_hor_comp.
+    - <span class="bp">exact</span> prod_double_cat_hor_comp_data.
+    - <span class="bp">exact</span> prod_double_cat_hor_comp_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. Unitors and associator *)</span>
+  <span class="kn">Definition</span> <span class="nf">prod_double_cat_lunitor_data</span>
+    : double_lunitor_data prod_double_cat_hor_id prod_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">h</span>, (lunitor_h (pr1 h) ,, lunitor_h (pr2 h)) ,, _).
+    use is_isotwosided_disp_twosided_disp_cat_product.
+    - <span class="nb">refine</span> (linvunitor_h (pr1 h) ,, _ ,, _).
+      + <span class="nb">apply</span> lunitor_linvunitor_h.
+      + <span class="nb">apply</span> linvunitor_lunitor_h.
+    - <span class="nb">refine</span> (linvunitor_h (pr2 h) ,, _ ,, _).
+      + <span class="nb">apply</span> lunitor_linvunitor_h.
+      + <span class="nb">apply</span> linvunitor_lunitor_h.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">prod_double_cat_lunitor_laws</span>
+    : double_lunitor_laws prod_double_cat_lunitor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportb_twosided_disp_cat_product.
+    use dirprodeq ; <span class="nb">cbn</span>.
+    - <span class="nb">refine</span> (_ @ !(lunitor_square _)).
+      <span class="nb">apply</span> transportb_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (_ @ !(lunitor_square _)).
+      <span class="nb">apply</span> transportb_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_double_cat_lunitor</span>
+    : double_cat_lunitor prod_double_cat_hor_id prod_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_lunitor.
+    - <span class="bp">exact</span> prod_double_cat_lunitor_data.
+    - <span class="bp">exact</span> prod_double_cat_lunitor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_double_cat_runitor_data</span>
+    : double_runitor_data prod_double_cat_hor_id prod_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">h</span>, (runitor_h (pr1 h) ,, runitor_h (pr2 h)) ,, _).
+    use is_isotwosided_disp_twosided_disp_cat_product.
+    - <span class="nb">refine</span> (rinvunitor_h (pr1 h) ,, _ ,, _).
+      + <span class="nb">apply</span> runitor_rinvunitor_h.
+      + <span class="nb">apply</span> rinvunitor_runitor_h.
+    - <span class="nb">refine</span> (rinvunitor_h (pr2 h) ,, _ ,, _).
+      + <span class="nb">apply</span> runitor_rinvunitor_h.
+      + <span class="nb">apply</span> rinvunitor_runitor_h.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">prod_double_cat_runitor_laws</span>
+    : double_runitor_laws prod_double_cat_runitor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportb_twosided_disp_cat_product.
+    use dirprodeq ; <span class="nb">cbn</span>.
+    - <span class="nb">refine</span> (_ @ !(runitor_square _)).
+      <span class="nb">apply</span> transportb_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (_ @ !(runitor_square _)).
+      <span class="nb">apply</span> transportb_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_double_cat_runitor</span>
+    : double_cat_runitor prod_double_cat_hor_id prod_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_runitor.
+    - <span class="bp">exact</span> prod_double_cat_runitor_data.
+    - <span class="bp">exact</span> prod_double_cat_runitor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_double_cat_associator_data</span>
+    : double_associator_data prod_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>,
+            (lassociator_h (pr1 f) (pr1 g) (pr1 h)
+             ,,
+             lassociator_h (pr2 f) (pr2 g) (pr2 h))
+            ,, _).
+    use is_isotwosided_disp_twosided_disp_cat_product.
+    - <span class="nb">refine</span> (rassociator_h (pr1 f) (pr1 g) (pr1 h) ,, _ ,, _).
+      + <span class="nb">apply</span> lassociator_rassociator_h.
+      + <span class="nb">apply</span> rassociator_lassociator_h.
+    - <span class="nb">refine</span> (rassociator_h (pr2 f) (pr2 g) (pr2 h) ,, _ ,, _).
+      + <span class="nb">apply</span> lassociator_rassociator_h.
+      + <span class="nb">apply</span> rassociator_lassociator_h.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">prod_double_cat_associator_laws</span>
+    : double_associator_laws prod_double_cat_associator_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportb_twosided_disp_cat_product.
+    use dirprodeq ; <span class="nb">cbn</span>.
+    - <span class="nb">refine</span> (_ @ !(lassociator_square _ _ _)).
+      <span class="nb">apply</span> transportb_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (_ @ !(lassociator_square _ _ _)).
+      <span class="nb">apply</span> transportb_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_double_cat_associator</span>
+    : double_cat_associator prod_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_associator.
+    - <span class="bp">exact</span> prod_double_cat_associator_data.
+    - <span class="bp">exact</span> prod_double_cat_associator_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. The triangle and pentagon *)</span>
+  <span class="kn">Proposition</span> <span class="nf">prod_double_cat_triangle</span>
+    : triangle_law
+        prod_double_cat_lunitor
+        prod_double_cat_runitor
+        prod_double_cat_associator.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportb_twosided_disp_cat_product.
+    use dirprodeq ; <span class="nb">cbn</span>.
+    - <span class="nb">refine</span> (double_triangle _ _ @ _).
+      <span class="nb">apply</span> transportb_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (double_triangle _ _ @ _).
+      <span class="nb">apply</span> transportb_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">prod_double_cat_pentagon</span>
+    : pentagon_law prod_double_cat_associator.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportb_twosided_disp_cat_product.
+    use dirprodeq ; <span class="nb">cbn</span>.
+    - <span class="nb">refine</span> (_ @ double_pentagon _ _ _ _).
+      <span class="nb">apply</span> transportb_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (_ @ double_pentagon _ _ _ _).
+      <span class="nb">apply</span> transportb_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 4. The product of double categories *)</span>
+  <span class="kn">Definition</span> <span class="nf">prod_double_cat</span>
+    : double_cat.
+  <span class="kn">Proof</span>.
+    use make_double_cat.
+    - <span class="bp">exact</span> (category_binproduct D₁ D₂).
+    - <span class="bp">exact</span> (twosided_disp_cat_product (hor_mor D₁) (hor_mor D₂)).
+    - <span class="bp">exact</span> prod_double_cat_hor_id.
+    - <span class="bp">exact</span> prod_double_cat_hor_comp.
+    - <span class="bp">exact</span> prod_double_cat_lunitor.
+    - <span class="bp">exact</span> prod_double_cat_runitor.
+    - <span class="bp">exact</span> prod_double_cat_associator.
+    - <span class="bp">exact</span> prod_double_cat_triangle.
+    - <span class="bp">exact</span> prod_double_cat_pentagon.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_flat_prod_double_cat</span>
+              (<span class="nv">H₁</span> : is_flat_double_cat D₁)
+              (<span class="nv">H₂</span> : is_flat_double_cat D₂)
+    : is_flat_double_cat prod_double_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use pathsdirprod.
+    - <span class="nb">apply</span> H₁.
+    - <span class="nb">apply</span> H₂.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">transportf_prod_double_cat</span>
+              {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : prod_double_cat}
+              {<span class="nv">v₁</span> <span class="nv">v₁'</span> : x₁ --&gt;v y₁}
+              (<span class="nv">p</span> : v₁ = v₁')
+              {<span class="nv">v₂</span> <span class="nv">v₂'</span> : x₂ --&gt;v y₂}
+              (<span class="nv">q</span> : v₂ = v₂')
+              {<span class="nv">h₁</span> : x₁ --&gt;h x₂}
+              {<span class="nv">h₂</span> : y₁ --&gt;h y₂}
+              (<span class="nv">s</span> : square v₁ v₂ h₁ h₂)
+    : transportf_square p q s
+      =
+      transportf_square (maponpaths pr1 p) (maponpaths pr1 q) (pr1 s)
+      ,,
+      transportf_square (maponpaths dirprod_pr2 p) (maponpaths dirprod_pr2 q) (pr2 s).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p, q ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transportb_prod_double_cat</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : prod_double_cat}
+             {<span class="nv">v₁</span> <span class="nv">v₁'</span> : x₁ --&gt;v y₁}
+             (<span class="nv">p</span> : v₁' = v₁)
+             {<span class="nv">v₂</span> <span class="nv">v₂'</span> : x₂ --&gt;v y₂}
+             (<span class="nv">q</span> : v₂' = v₂)
+             {<span class="nv">h₁</span> : x₁ --&gt;h x₂}
+             {<span class="nv">h₂</span> : y₁ --&gt;h y₂}
+             (<span class="nv">s</span> : square v₁ v₂ h₁ h₂)
+    : transportb_square p q s
+      =
+      transportb_square (maponpaths pr1 p) (maponpaths pr1 q) (pr1 s)
+      ,,
+      transportb_square (maponpaths dirprod_pr2 p) (maponpaths dirprod_pr2 q) (pr2 s).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p, q ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">ProdOfDoubleCat</span>.
+
+<span class="kn">Definition</span> <span class="nf">prod_univalent_double_cat</span>
+           (<span class="nv">D₁</span> <span class="nv">D₂</span> : univalent_double_cat)
+  : univalent_double_cat.
+<span class="kn">Proof</span>.
+  use make_univalent_double_cat.
+  - <span class="bp">exact</span> (prod_double_cat D₁ D₂).
+  - <span class="nb">split</span>.
+    + use is_univalent_category_binproduct.
+      * <span class="nb">apply</span> univalent_category_is_univalent.
+      * <span class="nb">apply</span> univalent_category_is_univalent.
+    + use is_univalent_twosided_disp_cat_product.
+      * <span class="nb">apply</span> is_univalent_twosided_disp_cat_hor_mor.
+      * <span class="nb">apply</span> is_univalent_twosided_disp_cat_hor_mor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_prod_ob</span>
+           {<span class="nv">D₁</span> <span class="nv">D₂</span> : univalent_double_cat}
+           (<span class="nv">x</span> : D₁)
+           (<span class="nv">y</span> : D₂)
+  : prod_univalent_double_cat D₁ D₂
+  := x ,, y.
+
+<span class="kn">Definition</span> <span class="nf">make_prod_ver</span>
+           {<span class="nv">D₁</span> <span class="nv">D₂</span> : univalent_double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : D₁}
+           (<span class="nv">v</span> : x --&gt;v y)
+           {<span class="nv">x'</span> <span class="nv">y'</span> : D₂}
+           (<span class="nv">v'</span> : x' --&gt;v y')
+  : make_prod_ob x x' --&gt;v make_prod_ob y y'
+  := v ,, v'.
+
+<span class="kn">Definition</span> <span class="nf">make_prod_hor</span>
+           {<span class="nv">D₁</span> <span class="nv">D₂</span> : univalent_double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : D₁}
+           (<span class="nv">h</span> : x --&gt;h y)
+           {<span class="nv">x'</span> <span class="nv">y'</span> : D₂}
+           (<span class="nv">h'</span> : x' --&gt;h y')
+  : make_prod_ob x x' --&gt;h make_prod_ob y y'
+  := h ,, h'.
+
+<span class="kn">Definition</span> <span class="nf">make_prod_square</span>
+           {<span class="nv">D₁</span> <span class="nv">D₂</span> : univalent_double_cat}
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : D₁}
+           {<span class="nv">v₁</span> : x₁ --&gt;v y₁}
+           {<span class="nv">v₂</span> : x₂ --&gt;v y₂}
+           {<span class="nv">h₁</span> : x₁ --&gt;h x₂}
+           {<span class="nv">h₂</span> : y₁ --&gt;h y₂}
+           (<span class="nv">s</span> : square v₁ v₂ h₁ h₂)
+           {<span class="nv">x₁'</span> <span class="nv">x₂'</span> <span class="nv">y₁'</span> <span class="nv">y₂'</span> : D₂}
+           {<span class="nv">v₁'</span> : x₁' --&gt;v y₁'}
+           {<span class="nv">v₂'</span> : x₂' --&gt;v y₂'}
+           {<span class="nv">h₁'</span> : x₁' --&gt;h x₂'}
+           {<span class="nv">h₂'</span> : y₁' --&gt;h y₂'}
+           (<span class="nv">s'</span> : square v₁' v₂' h₁' h₂')
+  : square
+      (make_prod_ver v₁ v₁') (make_prod_ver v₂ v₂')
+      (make_prod_hor h₁ h₁') (make_prod_hor h₂ h₂')
+  := s ,, s'.
+
+<span class="sd">(** * 5. Projections *)</span>
+<span class="kn">Section</span> <span class="nf">Projections</span>.
+  <span class="kn">Context</span> (<span class="nv">D₁</span> <span class="nv">D₂</span> : univalent_double_cat).
+
+  <span class="kn">Definition</span> <span class="nf">pr1_twosided_disp_functor_data</span>
+    : twosided_disp_functor_double_cat_data
+        (prod_univalent_double_cat D₁ D₂)
+        D₁
+        (pr1_functor D₁ D₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, pr1 f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">h</span> <span class="nv">k</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">s</span>, pr1 s).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pr1_twosided_disp_functor_laws</span>
+    : twosided_disp_functor_double_cat_laws
+        pr1_twosided_disp_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">cbn</span> -[id_v_square].
+      <span class="nb">rewrite</span> transportb_square_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">cbn</span> -[id_v_square].
+      <span class="nb">rewrite</span> transportb_square_id.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr1_twosided_disp_functor</span>
+    : twosided_disp_functor
+        (pr1_functor D₁ D₂)
+        (pr1_functor D₁ D₂)
+        (hor_mor (prod_univalent_double_cat D₁ D₂))
+        (hor_mor D₁).
+  <span class="kn">Proof</span>.
+    use (make_twosided_disp_functor_double_cat (prod_univalent_double_cat D₁ D₂)).
+    - <span class="bp">exact</span> pr1_twosided_disp_functor_data.
+    - <span class="bp">exact</span> pr1_twosided_disp_functor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_univalent_double_cat_pr1_hor_id</span>
+    : double_functor_hor_id
+        pr1_twosided_disp_functor
+        (hor_id_double_cat (prod_univalent_double_cat D₁ D₂))
+        (hor_id_double_cat D₁).
+  <span class="kn">Proof</span>.
+    use (make_double_functor_hor_id_double_cat
+           (C₁ := prod_univalent_double_cat D₁ D₂)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, id_v_square _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> square_id_left_v ;
+         <span class="nb">rewrite</span> square_id_right_v ;
+         <span class="nb">rewrite</span> transportb_b_square ;
+         use transportb_square_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_univalent_double_cat_pr1_hor_comp</span>
+    : double_functor_hor_comp
+        pr1_twosided_disp_functor
+        (hor_comp_double_cat (prod_univalent_double_cat D₁ D₂))
+        (hor_comp_double_cat D₁).
+  <span class="kn">Proof</span>.
+    use (make_double_functor_hor_comp_double_cat
+           (C₁ := prod_univalent_double_cat D₁ D₂)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">h</span> <span class="nv">k</span>, id_v_square (pr1 h ·h pr1 k)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> square_id_left_v ;
+         <span class="nb">rewrite</span> square_id_right_v ;
+         <span class="nb">rewrite</span> transportb_b_square ;
+         use transportb_square_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">prod_univalent_double_cat_pr1_lunitor</span>
+    : double_functor_lunitor
+        (double_cat_double_lunitor (prod_univalent_double_cat D₁ D₂))
+        (double_cat_double_lunitor D₁)
+        prod_univalent_double_cat_pr1_hor_id
+        prod_univalent_double_cat_pr1_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_functor_lunitor_double_cat.
+    <span class="nb">intros</span> x y h ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- square_assoc_v'.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (square_id_left_v (C := D₁)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> &lt;- id_h_square_id.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (lunitor_square (C := D₁)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (square_id_right_v (C := D₁)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">apply</span> transportf_square_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">prod_univalent_double_cat_pr1_runitor</span>
+    : double_functor_runitor
+        (double_cat_double_runitor (prod_univalent_double_cat D₁ D₂))
+        (double_cat_double_runitor D₁)
+        prod_univalent_double_cat_pr1_hor_id
+        prod_univalent_double_cat_pr1_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_functor_runitor_double_cat.
+    <span class="nb">intros</span> x y h ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- square_assoc_v'.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (square_id_left_v (C := D₁)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> &lt;- id_h_square_id.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (runitor_square (C := D₁)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (square_id_right_v (C := D₁)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">apply</span> transportf_square_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">prod_univalent_double_cat_pr1_associator</span>
+    : double_functor_associator
+        (double_cat_double_associator (prod_univalent_double_cat D₁ D₂))
+        (double_cat_double_associator D₁)
+        prod_univalent_double_cat_pr1_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_functor_associator_double_cat.
+    <span class="nb">intros</span> w x y z h₁ h₂ h₃ ; <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (square_id_right_v (C := D₁)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> &lt;- comp_h_square_id.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (lassociator_square' (C := D₁)).
+    }
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (square_id_right_v (C := D₁)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    use transportf_square_eq.
+    <span class="nb">rewrite</span> &lt;- comp_h_square_id.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_univalent_double_cat_pr1</span>
+    : lax_double_functor (prod_univalent_double_cat D₁ D₂) D₁.
+  <span class="kn">Proof</span>.
+    use make_lax_double_functor.
+    - <span class="nb">apply</span> pr1_functor.
+    - <span class="bp">exact</span> pr1_twosided_disp_functor.
+    - <span class="bp">exact</span> prod_univalent_double_cat_pr1_hor_id.
+    - <span class="bp">exact</span> prod_univalent_double_cat_pr1_hor_comp.
+    - <span class="bp">exact</span> prod_univalent_double_cat_pr1_lunitor.
+    - <span class="bp">exact</span> prod_univalent_double_cat_pr1_runitor.
+    - <span class="bp">exact</span> prod_univalent_double_cat_pr1_associator.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr2_twosided_disp_functor_data</span>
+    : twosided_disp_functor_double_cat_data
+        (prod_univalent_double_cat D₁ D₂)
+        D₂
+        (pr2_functor D₁ D₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, pr2 f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">h</span> <span class="nv">k</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">s</span>, pr2 s).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pr2_twosided_disp_functor_laws</span>
+    : twosided_disp_functor_double_cat_laws
+        pr2_twosided_disp_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">cbn</span> -[id_v_square].
+      <span class="nb">rewrite</span> transportb_square_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">cbn</span> -[id_v_square].
+      <span class="nb">rewrite</span> transportb_square_id.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr2_twosided_disp_functor</span>
+    : twosided_disp_functor
+        (pr2_functor D₁ D₂)
+        (pr2_functor D₁ D₂)
+        (hor_mor (prod_univalent_double_cat D₁ D₂))
+        (hor_mor D₂).
+  <span class="kn">Proof</span>.
+    use (make_twosided_disp_functor_double_cat (prod_univalent_double_cat D₁ D₂)).
+    - <span class="bp">exact</span> pr2_twosided_disp_functor_data.
+    - <span class="bp">exact</span> pr2_twosided_disp_functor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_univalent_double_cat_pr2_hor_id</span>
+    : double_functor_hor_id
+        pr2_twosided_disp_functor
+        (hor_id_double_cat (prod_univalent_double_cat D₁ D₂))
+        (hor_id_double_cat D₂).
+  <span class="kn">Proof</span>.
+    use (make_double_functor_hor_id_double_cat
+           (C₁ := prod_univalent_double_cat D₁ D₂)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, id_v_square _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> square_id_left_v ;
+         <span class="nb">rewrite</span> square_id_right_v ;
+         <span class="nb">rewrite</span> transportb_b_square ;
+         use transportb_square_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_univalent_double_cat_pr2_hor_comp</span>
+    : double_functor_hor_comp
+        pr2_twosided_disp_functor
+        (hor_comp_double_cat (prod_univalent_double_cat D₁ D₂))
+        (hor_comp_double_cat D₂).
+  <span class="kn">Proof</span>.
+    use (make_double_functor_hor_comp_double_cat
+           (C₁ := prod_univalent_double_cat D₁ D₂)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">h</span> <span class="nv">k</span>, id_v_square (pr2 h ·h pr2 k)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> square_id_left_v ;
+         <span class="nb">rewrite</span> square_id_right_v ;
+         <span class="nb">rewrite</span> transportb_b_square ;
+         use transportb_square_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">prod_univalent_double_cat_pr2_lunitor</span>
+    : double_functor_lunitor
+        (double_cat_double_lunitor (prod_univalent_double_cat D₁ D₂))
+        (double_cat_double_lunitor D₂)
+        prod_univalent_double_cat_pr2_hor_id
+        prod_univalent_double_cat_pr2_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_functor_lunitor_double_cat.
+    <span class="nb">intros</span> x y h ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- square_assoc_v'.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (square_id_left_v (C := D₂)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> &lt;- id_h_square_id.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (lunitor_square (C := D₂)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (square_id_right_v (C := D₂)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">apply</span> transportf_square_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">prod_univalent_double_cat_pr2_runitor</span>
+    : double_functor_runitor
+        (double_cat_double_runitor (prod_univalent_double_cat D₁ D₂))
+        (double_cat_double_runitor D₂)
+        prod_univalent_double_cat_pr2_hor_id
+        prod_univalent_double_cat_pr2_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_functor_runitor_double_cat.
+    <span class="nb">intros</span> x y h ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- square_assoc_v'.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (square_id_left_v (C := D₂)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> &lt;- id_h_square_id.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (runitor_square (C := D₂)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (square_id_right_v (C := D₂)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">apply</span> transportf_square_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">prod_univalent_double_cat_pr2_associator</span>
+    : double_functor_associator
+        (double_cat_double_associator (prod_univalent_double_cat D₁ D₂))
+        (double_cat_double_associator D₂)
+        prod_univalent_double_cat_pr2_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_functor_associator_double_cat.
+    <span class="nb">intros</span> w x y z h₁ h₂ h₃ ; <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (square_id_right_v (C := D₂)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> &lt;- comp_h_square_id.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (lassociator_square' (C := D₂)).
+    }
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (square_id_right_v (C := D₂)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    use transportf_square_eq.
+    <span class="nb">rewrite</span> &lt;- comp_h_square_id.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_univalent_double_cat_pr2</span>
+    : lax_double_functor (prod_univalent_double_cat D₁ D₂) D₂.
+  <span class="kn">Proof</span>.
+    use make_lax_double_functor.
+    - <span class="nb">apply</span> pr2_functor.
+    - <span class="bp">exact</span> pr2_twosided_disp_functor.
+    - <span class="bp">exact</span> prod_univalent_double_cat_pr2_hor_id.
+    - <span class="bp">exact</span> prod_univalent_double_cat_pr2_hor_comp.
+    - <span class="bp">exact</span> prod_univalent_double_cat_pr2_lunitor.
+    - <span class="bp">exact</span> prod_univalent_double_cat_pr2_runitor.
+    - <span class="bp">exact</span> prod_univalent_double_cat_pr2_associator.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Projections</span>.
+
+<span class="sd">(** * 6. Pairing *)</span>
+<span class="kn">Section</span> <span class="nf">Pairing</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D₁</span> <span class="nv">D₂</span> : univalent_double_cat}
+          (<span class="nv">F</span> : lax_double_functor C D₁)
+          (<span class="nv">G</span> : lax_double_functor C D₂).
+
+  <span class="kn">Let</span> <span class="nf">FG</span> : C ⟶ category_binproduct D₁ D₂ := bindelta_pair_functor F G.
+
+  <span class="kn">Definition</span> <span class="nf">pair_twosided_disp_functor_data</span>
+    : twosided_disp_functor_double_cat_data
+        C (prod_univalent_double_cat D₁ D₂)
+        FG.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">h</span>, #h F h ,, #h G h).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">h₁</span> <span class="nv">h₂</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">s</span>, #s F s ,, #s G s).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pair_twosided_disp_functor_laws</span>
+    : twosided_disp_functor_double_cat_laws
+        pair_twosided_disp_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y h.
+      use dirprodeq ; <span class="nb">cbn</span> -[id_v_square].
+      + <span class="nb">refine</span> (lax_double_functor_id_square F _ @ _).
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (transportb_prod_double_cat D₁ D₂ _ _ (id_v_square _)).
+        }
+        use transportb_square_eq.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">refine</span> (lax_double_functor_id_square G _ @ _).
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (transportb_prod_double_cat D₁ D₂ _ _ (id_v_square _)).
+        }
+        use transportb_square_eq.
+        <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      use dirprodeq ; <span class="nb">cbn</span> -[comp_v_square].
+      + <span class="nb">refine</span> (lax_double_functor_comp_v_square F _ _ @ _).
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (transportb_prod_double_cat D₁ D₂ _ _ (_ ⋆v _)).
+        }
+        use transportb_square_eq.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">refine</span> (lax_double_functor_comp_v_square G _ _ @ _).
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (transportb_prod_double_cat D₁ D₂ _ _ (_ ⋆v _)).
+        }
+        use transportb_square_eq.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_twosided_disp_functor</span>
+    : twosided_disp_functor
+        FG FG
+        (hor_mor C)
+        (hor_mor (prod_univalent_double_cat D₁ D₂)).
+  <span class="kn">Proof</span>.
+    use (make_twosided_disp_functor_double_cat C (prod_univalent_double_cat D₁ D₂)).
+    - <span class="bp">exact</span> pair_twosided_disp_functor_data.
+    - <span class="bp">exact</span> pair_twosided_disp_functor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_lax_double_functor_hor_id</span>
+    : double_functor_hor_id
+        pair_twosided_disp_functor
+        (hor_id_double_cat C)
+        (hor_id_double_cat (prod_univalent_double_cat D₁ D₂)).
+  <span class="kn">Proof</span>.
+    use (make_double_functor_hor_id_double_cat
+           (C₂ := prod_univalent_double_cat D₁ D₂)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, lax_double_functor_id_h F _ ,, lax_double_functor_id_h G _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y v ;
+         <span class="nb">refine</span> (_ @ !(transportb_prod_double_cat D₁ D₂ _ _ _)) ;
+         use dirprodeq ; <span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (lax_double_functor_id_h_mor _ _ @ _) ;
+         use transportb_square_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_lax_double_functor_hor_comp</span>
+    : double_functor_hor_comp
+        pair_twosided_disp_functor
+        (hor_comp_double_cat C)
+        (hor_comp_double_cat (prod_univalent_double_cat D₁ D₂)).
+  <span class="kn">Proof</span>.
+    use (make_double_functor_hor_comp_double_cat
+           (C₂ := prod_univalent_double_cat D₁ D₂)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">h</span> <span class="nv">k</span>,
+             lax_double_functor_comp_h F _ _
+             ,,
+             lax_double_functor_comp_h G _ _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> ;
+         <span class="nb">refine</span> (_ @ !(transportb_prod_double_cat D₁ D₂ _ _ _)) ;
+         use dirprodeq ;
+         <span class="nb">refine</span> (lax_double_functor_comp_h_mor _ _ _ @ _) ;
+         use transportb_square_eq ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_lax_double_functor_lunitor</span>
+    : double_functor_lunitor
+        (double_cat_double_lunitor C)
+        (double_cat_double_lunitor (prod_univalent_double_cat D₁ D₂))
+        pair_lax_double_functor_hor_id
+        pair_lax_double_functor_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_functor_lunitor_double_cat.
+    <span class="nb">intros</span> x y h.
+    <span class="nb">refine</span> (_ @ !(transportf_prod_double_cat D₁ D₂ _ _ _)).
+    use dirprodeq.
+    - <span class="nb">refine</span> (lax_double_functor_lunitor_h _ _ @ _).
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (lax_double_functor_lunitor_h _ _ @ _).
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_lax_double_functor_runitor</span>
+    : double_functor_runitor
+        (double_cat_double_runitor C)
+        (double_cat_double_runitor (prod_univalent_double_cat D₁ D₂))
+        pair_lax_double_functor_hor_id
+        pair_lax_double_functor_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_functor_runitor_double_cat.
+    <span class="nb">intros</span> x y h.
+    <span class="nb">refine</span> (_ @ !(transportf_prod_double_cat D₁ D₂ _ _ _)).
+    use dirprodeq.
+    - <span class="nb">refine</span> (lax_double_functor_runitor_h _ _ @ _).
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (lax_double_functor_runitor_h _ _ @ _).
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_lax_double_functor_associator</span>
+    : double_functor_associator
+        (double_cat_double_associator C)
+        (double_cat_double_associator (prod_univalent_double_cat D₁ D₂))
+        pair_lax_double_functor_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_functor_associator_double_cat.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">refine</span> (_ @ !(transportf_prod_double_cat D₁ D₂ _ _ _)).
+    use dirprodeq.
+    - <span class="nb">refine</span> (lax_double_functor_lassociator_h _ _ _ _ @ _).
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (lax_double_functor_lassociator_h _ _ _ _ @ _).
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_lax_double_functor</span>
+    : lax_double_functor C (prod_univalent_double_cat D₁ D₂).
+  <span class="kn">Proof</span>.
+    use make_lax_double_functor.
+    - <span class="bp">exact</span> FG.
+    - <span class="bp">exact</span> pair_twosided_disp_functor.
+    - <span class="bp">exact</span> pair_lax_double_functor_hor_id.
+    - <span class="bp">exact</span> pair_lax_double_functor_hor_comp.
+    - <span class="bp">exact</span> pair_lax_double_functor_lunitor.
+    - <span class="bp">exact</span> pair_lax_double_functor_runitor.
+    - <span class="bp">exact</span> pair_lax_double_functor_associator.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_lax_double_functor_pr1_twosided_disp_nat_trans_data</span>
+    : twosided_disp_nat_trans_double_cat_data F F (bindelta_pair_pr1 F G)
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">h</span>, id_v_square (#h F h).
+
+  <span class="kn">Arguments</span> pair_lax_double_functor_pr1_twosided_disp_nat_trans_data /.
+
+  <span class="kn">Proposition</span> <span class="nf">pair_lax_double_functor_pr1_twosided_disp_nat_trans_laws</span>
+    : twosided_disp_nat_trans_double_cat_laws
+        pair_lax_double_functor_pr1_twosided_disp_nat_trans_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (square_id_right_v (C := D₁)).
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (square_id_left_v (C := D₁)).
+    }
+    <span class="nb">rewrite</span> transportb_b_square.
+    use transportb_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_lax_double_functor_pr1_twosided_disp_nat_trans</span>
+    : twosided_disp_nat_trans
+        (bindelta_pair_pr1 F G) (bindelta_pair_pr1 F G)
+        (lax_double_functor_hor_mor
+           (pair_lax_double_functor · prod_univalent_double_cat_pr1 D₁ D₂))
+        (lax_double_functor_hor_mor F).
+  <span class="kn">Proof</span>.
+    use make_twosided_disp_nat_trans_double_cat.
+    - <span class="bp">exact</span> pair_lax_double_functor_pr1_twosided_disp_nat_trans_data.
+    - <span class="bp">exact</span> pair_lax_double_functor_pr1_twosided_disp_nat_trans_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pair_lax_double_functor_pr1_hor_id</span>
+    : double_nat_trans_hor_id
+        pair_lax_double_functor_pr1_twosided_disp_nat_trans
+        (lax_double_functor_hor_id
+           (pair_lax_double_functor · prod_univalent_double_cat_pr1 D₁ D₂))
+        (lax_double_functor_hor_id F).
+  <span class="kn">Proof</span>.
+    use (make_double_nat_trans_hor_id
+           (F := pair_lax_double_functor · prod_univalent_double_cat_pr1 D₁ D₂)).
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span> ; <span class="nb">unfold</span> bindelta_pair_pr1_data ; <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (square_id_right_v (C := D₁)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    etrans.
+    {
+      <span class="bp">exact</span> (transportf_f_square _ _ _ _ (id_v_square _ ⋆v lax_double_functor_id_h F x)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (square_id_left_v (C := D₁)).
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (id_h_square_id (C := D₁)).
+      }
+      <span class="nb">apply</span> (square_id_left_v (C := D₁)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> !transportf_f_square.
+    use transportf_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pair_lax_double_functor_pr1_hor_comp</span>
+    : double_nat_trans_hor_comp
+        pair_lax_double_functor_pr1_twosided_disp_nat_trans
+        (lax_double_functor_hor_comp
+           (pair_lax_double_functor · prod_univalent_double_cat_pr1 D₁ D₂))
+        (lax_double_functor_hor_comp F).
+  <span class="kn">Proof</span>.
+    use (make_double_nat_trans_hor_comp
+           (F := pair_lax_double_functor · prod_univalent_double_cat_pr1 D₁ D₂)).
+    <span class="nb">intros</span> x y z h k ; <span class="nb">cbn</span> ; <span class="nb">unfold</span> bindelta_pair_pr1_data ; <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (square_id_right_v (C := D₁)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    etrans.
+    {
+      <span class="bp">exact</span> (transportf_f_square _ _ _ _ _).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (square_id_left_v (C := D₁)).
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (comp_h_square_id (C := D₁)).
+      }
+      <span class="nb">apply</span> (square_id_left_v (C := D₁)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    etrans.
+    {
+      <span class="bp">exact</span> (transportf_f_square _ _ _ _ _).
+    }
+    <span class="nb">rewrite</span> !transportf_f_square.
+    use transportf_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_lax_double_functor_pr1</span>
+    : double_transformation
+        (pair_lax_double_functor · prod_univalent_double_cat_pr1 D₁ D₂)
+        F.
+  <span class="kn">Proof</span>.
+    use make_double_transformation.
+    - <span class="nb">apply</span> bindelta_pair_pr1.
+    - <span class="bp">exact</span> pair_lax_double_functor_pr1_twosided_disp_nat_trans.
+    - <span class="bp">exact</span> pair_lax_double_functor_pr1_hor_id.
+    - <span class="bp">exact</span> pair_lax_double_functor_pr1_hor_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_invertible_2cell_pair_lax_double_functor_pr1</span>
+    : is_invertible_2cell pair_lax_double_functor_pr1.
+  <span class="kn">Proof</span>.
+    use is_invertible_2cell_double_transformation_unfolded.
+    - <span class="nb">intro</span> x.
+      <span class="nb">apply</span> identity_is_z_iso.
+    - <span class="nb">intros</span> x y f.
+      <span class="nb">apply</span> id_is_iso_twosided_disp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_lax_double_functor_pr2_twosided_disp_nat_trans_data</span>
+    : twosided_disp_nat_trans_double_cat_data G G (bindelta_pair_pr2 F G)
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">h</span>, id_v_square (#h G h).
+
+  <span class="kn">Arguments</span> pair_lax_double_functor_pr2_twosided_disp_nat_trans_data /.
+
+  <span class="kn">Proposition</span> <span class="nf">pair_lax_double_functor_pr2_twosided_disp_nat_trans_laws</span>
+    : twosided_disp_nat_trans_double_cat_laws
+        pair_lax_double_functor_pr2_twosided_disp_nat_trans_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (square_id_right_v (C := D₂)).
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (square_id_left_v (C := D₂)).
+    }
+    <span class="nb">rewrite</span> transportb_b_square.
+    use transportb_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_lax_double_functor_pr2_twosided_disp_nat_trans</span>
+    : twosided_disp_nat_trans
+        (bindelta_pair_pr2 F G) (bindelta_pair_pr2 F G)
+        (lax_double_functor_hor_mor
+           (pair_lax_double_functor · prod_univalent_double_cat_pr2 D₁ D₂))
+        (lax_double_functor_hor_mor G).
+  <span class="kn">Proof</span>.
+    use make_twosided_disp_nat_trans_double_cat.
+    - <span class="bp">exact</span> pair_lax_double_functor_pr2_twosided_disp_nat_trans_data.
+    - <span class="bp">exact</span> pair_lax_double_functor_pr2_twosided_disp_nat_trans_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pair_lax_double_functor_pr2_hor_id</span>
+    : double_nat_trans_hor_id
+        pair_lax_double_functor_pr2_twosided_disp_nat_trans
+        (lax_double_functor_hor_id
+           (pair_lax_double_functor · prod_univalent_double_cat_pr2 D₁ D₂))
+        (lax_double_functor_hor_id G).
+  <span class="kn">Proof</span>.
+    use (make_double_nat_trans_hor_id
+           (F := pair_lax_double_functor · prod_univalent_double_cat_pr2 D₁ D₂)).
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span> ; <span class="nb">unfold</span> bindelta_pair_pr1_data ; <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (square_id_right_v (C := D₂)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    etrans.
+    {
+      <span class="bp">exact</span> (transportf_f_square _ _ _ _ (id_v_square _ ⋆v lax_double_functor_id_h G x)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (square_id_left_v (C := D₂)).
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (id_h_square_id (C := D₂)).
+      }
+      <span class="nb">apply</span> (square_id_left_v (C := D₂)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> !transportf_f_square.
+    use transportf_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pair_lax_double_functor_pr2_hor_comp</span>
+    : double_nat_trans_hor_comp
+        pair_lax_double_functor_pr2_twosided_disp_nat_trans
+        (lax_double_functor_hor_comp
+           (pair_lax_double_functor · prod_univalent_double_cat_pr2 D₁ D₂))
+        (lax_double_functor_hor_comp G).
+  <span class="kn">Proof</span>.
+    use (make_double_nat_trans_hor_comp
+           (F := pair_lax_double_functor · prod_univalent_double_cat_pr2 D₁ D₂)).
+    <span class="nb">intros</span> x y z h k ; <span class="nb">cbn</span> ; <span class="nb">unfold</span> bindelta_pair_pr1_data ; <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (square_id_right_v (C := D₂)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    etrans.
+    {
+      <span class="bp">exact</span> (transportf_f_square _ _ _ _ _).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (square_id_left_v (C := D₂)).
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (comp_h_square_id (C := D₂)).
+      }
+      <span class="nb">apply</span> (square_id_left_v (C := D₂)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    etrans.
+    {
+      <span class="bp">exact</span> (transportf_f_square _ _ _ _ _).
+    }
+    <span class="nb">rewrite</span> !transportf_f_square.
+    use transportf_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_lax_double_functor_pr2</span>
+    : double_transformation
+        (pair_lax_double_functor · prod_univalent_double_cat_pr2 D₁ D₂)
+        G.
+  <span class="kn">Proof</span>.
+    use make_double_transformation.
+    - <span class="nb">apply</span> bindelta_pair_pr2.
+    - <span class="bp">exact</span> pair_lax_double_functor_pr2_twosided_disp_nat_trans.
+    - <span class="bp">exact</span> pair_lax_double_functor_pr2_hor_id.
+    - <span class="bp">exact</span> pair_lax_double_functor_pr2_hor_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_invertible_2cell_pair_lax_double_functor_pr2</span>
+    : is_invertible_2cell pair_lax_double_functor_pr2.
+  <span class="kn">Proof</span>.
+    use is_invertible_2cell_double_transformation_unfolded.
+    - <span class="nb">intro</span> x.
+      <span class="nb">apply</span> identity_is_z_iso.
+    - <span class="nb">intros</span> x y f.
+      <span class="nb">apply</span> id_is_iso_twosided_disp.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Pairing</span>.
+
+<span class="sd">(** * 7. Pairing of double transformations *)</span>
+<span class="kn">Section</span> <span class="nf">PairTransformation</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D₁</span> <span class="nv">D₂</span> : univalent_double_cat}
+          {<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C (prod_univalent_double_cat D₁ D₂)}
+          (<span class="nv">τ</span> : double_transformation
+                 (F · prod_univalent_double_cat_pr1 D₁ D₂)
+                 (G · prod_univalent_double_cat_pr1 D₁ D₂))
+          (<span class="nv">θ</span> : double_transformation
+                 (F · prod_univalent_double_cat_pr2 D₁ D₂)
+                 (G · prod_univalent_double_cat_pr2 D₁ D₂)).
+
+  <span class="kn">Definition</span> <span class="nf">pair_double_transformation_twosided_disp_nat_trans_data</span>
+    : twosided_disp_nat_trans_double_cat_data F G (prod_nat_trans τ θ)
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">h</span>,
+       make_prod_square
+         (double_transformation_hor_mor τ h)
+         (double_transformation_hor_mor θ h).
+
+  <span class="kn">Proposition</span> <span class="nf">pair_double_transformation_twosided_disp_nat_laws</span>
+    : twosided_disp_nat_trans_double_cat_laws
+        pair_double_transformation_twosided_disp_nat_trans_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> -[prod_univalent_double_cat bicat_of_double_cats].
+    <span class="nb">refine</span> (_ @ !(transportb_prod_double_cat _ _ _ _ _)).
+    use dirprodeq.
+    - <span class="nb">refine</span> (double_transformation_square τ s @ _).
+      use transportb_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (double_transformation_square θ s @ _).
+      use transportb_square_eq.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_double_transformation_twosided_disp_nat_trans</span>
+    : twosided_disp_nat_trans
+        (prod_nat_trans τ θ) (prod_nat_trans τ θ)
+        (lax_double_functor_hor_mor F)
+        (lax_double_functor_hor_mor G).
+  <span class="kn">Proof</span>.
+    use (make_twosided_disp_nat_trans_double_cat (F := F) (G := G)).
+    - <span class="bp">exact</span> pair_double_transformation_twosided_disp_nat_trans_data.
+    - <span class="bp">exact</span> pair_double_transformation_twosided_disp_nat_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pair_double_transformation_hor_id</span>
+    : double_nat_trans_hor_id
+        pair_double_transformation_twosided_disp_nat_trans
+        (lax_double_functor_hor_id F)
+        (lax_double_functor_hor_id G).
+  <span class="kn">Proof</span>.
+    use (make_double_nat_trans_hor_id (F := F) (G := G)).
+    <span class="nb">cbn</span> -[prod_univalent_double_cat bicat_of_double_cats].
+    <span class="nb">intro</span> x.
+    <span class="nb">refine</span> (_ @ !(transportb_prod_double_cat _ _ _ _ _)).
+    use dirprodeq ; <span class="nb">cbn</span> -[prod_univalent_double_cat bicat_of_double_cats].
+    - <span class="nb">refine</span> (_ @ double_transformation_id_h τ x @ _).
+      + <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z ⋆v _) _).
+        <span class="nb">refine</span> (!_).
+        <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (square_id_left_v (C := D₁)).
+        }
+        <span class="nb">unfold</span> transportb_square.
+        etrans.
+        {
+          <span class="nb">apply</span> (transportf_f_square (C := D₁)).
+        }
+        <span class="nb">apply</span> transportf_square_id.
+      + use transportb_square_eq.
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ⋆v z) _).
+        <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (square_id_left_v (C := D₁)).
+        }
+        <span class="nb">unfold</span> transportb_square.
+        etrans.
+        {
+          <span class="nb">apply</span> (transportf_f_square (C := D₁)).
+        }
+        <span class="nb">apply</span> transportf_square_id.
+    - <span class="nb">refine</span> (_ @ double_transformation_id_h θ x @ _).
+      + <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z ⋆v _) _).
+        <span class="nb">refine</span> (!_).
+        <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (square_id_left_v (C := D₂)).
+        }
+        <span class="nb">unfold</span> transportb_square.
+        etrans.
+        {
+          <span class="nb">apply</span> (transportf_f_square (C := D₂)).
+        }
+        <span class="nb">apply</span> transportf_square_id.
+      + use transportb_square_eq.
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ⋆v z) _).
+        <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (square_id_left_v (C := D₂)).
+        }
+        <span class="nb">unfold</span> transportb_square.
+        etrans.
+        {
+          <span class="nb">apply</span> (transportf_f_square (C := D₂)).
+        }
+        <span class="nb">apply</span> transportf_square_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pair_double_transformation_hor_comp</span>
+    : double_nat_trans_hor_comp
+        pair_double_transformation_twosided_disp_nat_trans
+        (lax_double_functor_hor_comp F)
+        (lax_double_functor_hor_comp G).
+  <span class="kn">Proof</span>.
+    use (make_double_nat_trans_hor_comp (F := F) (G := G)).
+    <span class="nb">cbn</span> -[prod_univalent_double_cat bicat_of_double_cats].
+    <span class="nb">intros</span> x y z h k.
+    <span class="nb">refine</span> (_ @ !(transportb_prod_double_cat _ _ _ _ _)).
+    use dirprodeq ; <span class="nb">cbn</span> -[prod_univalent_double_cat bicat_of_double_cats].
+    - <span class="nb">refine</span> (_ @ double_transformation_comp_h τ h k @ _).
+      + <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z ⋆v _) _).
+        <span class="nb">refine</span> (!_).
+        <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (square_id_left_v (C := D₁)).
+        }
+        <span class="nb">unfold</span> transportb_square.
+        etrans.
+        {
+          <span class="nb">apply</span> (transportf_f_square (C := D₁)).
+        }
+        <span class="nb">apply</span> transportf_square_id.
+      + use transportb_square_eq.
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ⋆v z) _).
+        <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (square_id_left_v (C := D₁)).
+        }
+        <span class="nb">unfold</span> transportb_square.
+        etrans.
+        {
+          <span class="nb">apply</span> (transportf_f_square (C := D₁)).
+        }
+        <span class="nb">apply</span> transportf_square_id.
+    - <span class="nb">refine</span> (_ @ double_transformation_comp_h θ h k @ _).
+      + <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z ⋆v _) _).
+        <span class="nb">refine</span> (!_).
+        <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (square_id_left_v (C := D₂)).
+        }
+        <span class="nb">unfold</span> transportb_square.
+        etrans.
+        {
+          <span class="nb">apply</span> (transportf_f_square (C := D₂)).
+        }
+        <span class="nb">apply</span> transportf_square_id.
+      + use transportb_square_eq.
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ⋆v z) _).
+        <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (square_id_left_v (C := D₂)).
+        }
+        <span class="nb">unfold</span> transportb_square.
+        etrans.
+        {
+          <span class="nb">apply</span> (transportf_f_square (C := D₂)).
+        }
+        <span class="nb">apply</span> transportf_square_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_double_transformation</span>
+    : double_transformation F G.
+  <span class="kn">Proof</span>.
+    use make_double_transformation.
+    - <span class="bp">exact</span> (prod_nat_trans τ θ).
+    - <span class="bp">exact</span> pair_double_transformation_twosided_disp_nat_trans.
+    - <span class="bp">exact</span> pair_double_transformation_hor_id.
+    - <span class="bp">exact</span> pair_double_transformation_hor_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pair_double_transformation_pr1</span>
+    : pair_double_transformation ▹ prod_univalent_double_cat_pr1 D₁ D₂
+      =
+      τ.
+  <span class="kn">Proof</span>.
+    use double_transformation_eq.
+    - <span class="nb">intro</span> x.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y f.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pair_double_transformation_pr2</span>
+    : pair_double_transformation ▹ prod_univalent_double_cat_pr2 D₁ D₂
+      =
+      θ.
+  <span class="kn">Proof</span>.
+    use double_transformation_eq.
+    - <span class="nb">intro</span> x.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y f.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pair_double_transformation_unique</span>
+    : isaprop
+        (∑ (γ : F ==&gt; G),
+         (γ ▹ prod_univalent_double_cat_pr1 D₁ D₂ = τ)
+         ×
+         (γ ▹ prod_univalent_double_cat_pr2 D₁ D₂ = θ)).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> γ₁ γ₂.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property.
+    }
+    <span class="nb">induction</span> γ₁ <span class="k">as</span> [ γ₁ [ p₁ q₁ ]].
+    <span class="nb">induction</span> γ₂ <span class="k">as</span> [ γ₂ [ p₂ q₂ ]].
+    <span class="nb">cbn</span>.
+    <span class="nb">pose</span> (p := p₁ @ !p₂).
+    <span class="nb">pose</span> (q := q₁ @ !q₂).
+    use double_transformation_eq.
+    - <span class="nb">intro</span> x.
+      use dirprodeq.
+      + <span class="bp">exact</span> (double_transformation_eq_ob p x).
+      + <span class="bp">exact</span> (double_transformation_eq_ob q x).
+    - <span class="nb">intros</span> x y h.
+      <span class="nb">refine</span> (_ @ !(transportb_prod_double_cat _ _ _ _ _)).
+      use dirprodeq.
+      + <span class="nb">refine</span> (double_transformation_eq_hor_mor p h @ _).
+        use transportb_square_eq.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">refine</span> (double_transformation_eq_hor_mor q h @ _).
+        use transportb_square_eq.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">PairTransformation</span>.
+
+<span class="sd">(** * 8. Products of double categories *)</span>
+<span class="kn">Section</span> <span class="nf">BinProduct</span>.
+  <span class="kn">Context</span> (<span class="nv">D₁</span> <span class="nv">D₂</span> : bicat_of_double_cats).
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_binprod_cone</span>
+    : binprod_cone D₁ D₂.
+  <span class="kn">Proof</span>.
+    use make_binprod_cone.
+    - <span class="bp">exact</span> (prod_univalent_double_cat D₁ D₂).
+    - <span class="bp">exact</span> (prod_univalent_double_cat_pr1 D₁ D₂).
+    - <span class="bp">exact</span> (prod_univalent_double_cat_pr2 D₁ D₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_binprod_ump_1</span>
+    : binprod_ump_1 double_cat_binprod_cone.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> q.
+    use make_binprod_1cell.
+    - <span class="bp">exact</span> (pair_lax_double_functor
+               (binprod_cone_pr1 q)
+               (binprod_cone_pr2 q)).
+    - use make_invertible_2cell.
+      + <span class="nb">apply</span> pair_lax_double_functor_pr1.
+      + <span class="nb">apply</span> is_invertible_2cell_pair_lax_double_functor_pr1.
+    - use make_invertible_2cell.
+      + <span class="nb">apply</span> pair_lax_double_functor_pr2.
+      + <span class="nb">apply</span> is_invertible_2cell_pair_lax_double_functor_pr2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_binprod_ump_2</span>
+    : binprod_ump_2 double_cat_binprod_cone.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C F G τ θ.
+    use iscontraprop1.
+    - <span class="bp">exact</span> (pair_double_transformation_unique τ θ).
+    - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="bp">exact</span> (pair_double_transformation τ θ).
+      + <span class="bp">exact</span> (pair_double_transformation_pr1 τ θ).
+      + <span class="bp">exact</span> (pair_double_transformation_pr2 τ θ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_binprod_ump</span>
+    : has_binprod_ump double_cat_binprod_cone.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> double_cat_binprod_ump_1.
+    - <span class="bp">exact</span> double_cat_binprod_ump_2.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">BinProduct</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_binprod_bicat_of_double_cat</span>
+  : has_binprod bicat_of_double_cats
+  := <span class="k">λ</span> <span class="nv">D₁</span> <span class="nv">D₂</span>,
+     double_cat_binprod_cone D₁ D₂
+     ,,
+     double_cat_binprod_ump D₁ D₂.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Examples/ProductDoubleCat.v</tt>, line 27)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. Products of double categories
+  &gt;
+  &gt;  ************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

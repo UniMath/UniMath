@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EnrichedCopowers.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Copowers</span>
+
+<span class="sd"> We define the notion of copowers in the setting of enriched</span>
+<span class="sd"> category theory. In ordinary category theory, all colimits can be</span>
+<span class="sd"> constructed from so-called conical colimits (colimits of a</span>
+<span class="sd"> functor). However, this is not necessarily the case for enriched</span>
+<span class="sd"> category theory. Instead, a more general class of colimits is</span>
+<span class="sd"> studied, called weighted colimits.</span>
+
+<span class="sd"> One example of a weighted colimits that is not a conical colimit,</span>
+<span class="sd"> is the copower. Suppose that `V` is a symmetric monoidal closed</span>
+<span class="sd"> category and that `C` is enriched over `V`. Given two objects</span>
+<span class="sd"> `v : V` and `x : C`, the copower is defined by the following</span>
+<span class="sd"> natural isomorphism</span>
+
+<span class="sd">   C ⟦ v ⊙ x , y ⟧ ≅ v ⊸ C ⟦ x , y ⟧</span>
+
+<span class="sd"> where `⊸` denotes the internal hom of `V`.</span>
+
+<span class="sd"> If we were looking at categories enriched over sets, then the</span>
+<span class="sd"> copower of a set `X` with the object `x` would be the coproduct</span>
+<span class="sd"> consisting of a copy of `x` for every member of `X`.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Cocones of copowers</span>
+<span class="sd"> 2. Copowers in an enriched category</span>
+<span class="sd"> 3. Being a copower is a proposition</span>
+<span class="sd"> 4. Accessors for copowers</span>
+<span class="sd"> 5. Builders for copowers</span>
+<span class="sd"> 6. Copowers are closed under iso</span>
+<span class="sd"> 7. Enriched categories with copowers</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+
+<span class="kn">Import</span> MonoidalNotations.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Opaque</span> sym_mon_braiding.
+
+<span class="kn">Section</span> <span class="nf">EnrichedCopowers</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : sym_mon_closed_cat}
+          {<span class="nv">C</span> : category}
+          (<span class="nv">E</span> : enrichment C V)
+          (<span class="nv">v</span> : V)
+          (<span class="nv">x</span> : C).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Cocones of copowers</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">copower_cocone</span>
+    : UU
+    := ∑ (a : C), v --&gt; E ⦃ x , a ⦄.
+
+  <span class="kn">Coercion</span> <span class="nf">ob_copower_cocone</span>
+           (a : copower_cocone)
+    : C
+    := pr1 a.
+
+  <span class="kn">Definition</span> <span class="nf">copower_cocone_mor</span>
+             (<span class="nv">a</span> : copower_cocone)
+    : v --&gt; E ⦃ x , a ⦄
+    := pr2 a.
+
+  <span class="kn">Definition</span> <span class="nf">make_copower_cocone</span>
+             (<span class="nv">a</span> : C)
+             (<span class="nv">f</span> : v --&gt; E ⦃ x , a ⦄)
+    : copower_cocone
+    := a ,, f.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Copowers in an enriched category</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_copower_enriched_map</span>
+             (<span class="nv">a</span> : copower_cocone)
+             (<span class="nv">w</span> : C)
+    : E ⦃ a , w ⦄ --&gt; v ⊸ (E ⦃ x , w ⦄)
+    := internal_lam
+         (identity _ #⊗ copower_cocone_mor a
+          · enriched_comp E  _ _ _).
+
+  <span class="kn">Definition</span> <span class="nf">is_copower_enriched</span>
+             (<span class="nv">a</span> : copower_cocone)
+    : UU
+    := ∏ (w : C),
+       is_z_isomorphism (is_copower_enriched_map a w).
+
+  <span class="kn">Definition</span> <span class="nf">is_copower_enriched_iso</span>
+             {<span class="nv">a</span> : copower_cocone}
+             (<span class="nv">Ha</span> : is_copower_enriched a)
+             (<span class="nv">w</span> : C)
+    : z_iso (E ⦃ a , w ⦄) (v ⊸ (E ⦃ x , w ⦄))
+    := _ ,, Ha w.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Being a copower is a proposition</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">isaprop_is_copower_enriched</span>
+              (<span class="nv">a</span> : copower_cocone)
+    : isaprop (is_copower_enriched a).
+  <span class="kn">Proof</span>.
+    use impred ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_z_isomorphism.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Accessors for copowers</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">Accessors</span>.
+    <span class="kn">Context</span> {<span class="nv">a</span> : copower_cocone}
+            (<span class="nv">Ha</span> : is_copower_enriched a).
+
+    <span class="kn">Definition</span> <span class="nf">mor_to_copower</span>
+               {<span class="nv">w</span> : V}
+               {<span class="nv">b</span> : C}
+               (<span class="nv">f</span> : w --&gt; v ⊸ (E ⦃ x , b ⦄))
+      : w --&gt; E ⦃ a , b ⦄
+      := f · inv_from_z_iso (is_copower_enriched_iso Ha b).
+
+    <span class="kn">Proposition</span> <span class="nf">mor_to_copower_commutes</span>
+                {<span class="nv">w</span> : V}
+                {<span class="nv">b</span> : C}
+                (<span class="nv">f</span> : w --&gt; v ⊸ (E ⦃ x , b ⦄))
+      : mor_to_copower f · is_copower_enriched_map a b
+        =
+        f.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> mor_to_copower.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> z_iso_after_z_iso_inv.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">mor_to_copower_eq</span>
+                {<span class="nv">w</span> : V}
+                {<span class="nv">b</span> : C}
+                {<span class="nv">f</span> <span class="nv">g</span> : w --&gt; E ⦃ a , b ⦄}
+                (<span class="nv">p</span> : f · is_copower_enriched_map a b
+                     =
+                     g · is_copower_enriched_map a b)
+      : f = g.
+    <span class="kn">Proof</span>.
+      use (cancel_z_iso _ _ (is_copower_enriched_iso Ha _)).
+      <span class="bp">exact</span> p.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">arr_to_copower</span>
+               {<span class="nv">b</span> : C}
+               (<span class="nv">f</span> : I_{V} --&gt; v ⊸ (E ⦃ x , b ⦄))
+      : a --&gt; b
+      := enriched_to_arr E (mor_to_copower f).
+
+    <span class="kn">Proposition</span> <span class="nf">arr_to_copower_commutes</span>
+                {<span class="nv">b</span> : C}
+                (<span class="nv">f</span> : I_{V} --&gt; v ⊸ (E ⦃ x , b ⦄))
+      : enriched_from_arr E (arr_to_copower f) · is_copower_enriched_map a b
+        =
+        f.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> arr_to_copower.
+      <span class="nb">rewrite</span> enriched_from_to_arr.
+      <span class="nb">apply</span> mor_to_copower_commutes.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">arr_to_copower_eq</span>
+                {<span class="nv">b</span> : C}
+                {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b}
+                (<span class="nv">p</span> : enriched_from_arr E f · is_copower_enriched_map a b
+                     =
+                     enriched_from_arr E g · is_copower_enriched_map a b)
+      : f = g.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (!(enriched_to_from_arr E _) @ _ @ enriched_to_from_arr E _).
+      <span class="nb">apply</span> maponpaths.
+      use mor_to_copower_eq.
+      <span class="bp">exact</span> p.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Accessors</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. Builders for copowers</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">make_is_copower_enriched</span>
+             (<span class="nv">a</span> : copower_cocone)
+             (<span class="nv">p_map</span> : ∏ (w : C), v ⊸ (E ⦃ x , w ⦄) --&gt; E ⦃ a , w ⦄)
+             (<span class="nv">H₁</span> : ∏ (w : C), is_copower_enriched_map a w · p_map w = identity _)
+             (<span class="nv">H₂</span> : ∏ (w : C), p_map w · is_copower_enriched_map a w = identity _)
+    : is_copower_enriched a.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> w.
+    use make_is_z_isomorphism.
+    - <span class="bp">exact</span> (p_map w).
+    - <span class="nb">split</span>.
+      + <span class="bp">exact</span> (H₁ w).
+      + <span class="bp">exact</span> (H₂ w).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   6. Copowers are closed under iso</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">CopowerIso</span>.
+    <span class="kn">Context</span> (<span class="nv">a</span> : copower_cocone)
+            (<span class="nv">Ha</span> : is_copower_enriched a)
+            (<span class="nv">b</span> : C)
+            (<span class="nv">f</span> : z_iso a b).
+
+    <span class="kn">Definition</span> <span class="nf">copower_cocone_from_iso</span>
+      : copower_cocone.
+    <span class="kn">Proof</span>.
+      use make_copower_cocone.
+      - <span class="bp">exact</span> b.
+      - <span class="bp">exact</span> (copower_cocone_mor a · postcomp_arr E x f).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_copower_enriched_from_iso</span>
+      : is_copower_enriched copower_cocone_from_iso.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> w.
+      <span class="nb">refine</span> (transportf
+                is_z_isomorphism
+                _
+                (is_z_isomorphism_comp (precomp_arr_is_z_iso E w _ (pr2 f)) (Ha w))).
+      <span class="nb">unfold</span> precomp_arr, is_copower_enriched_map.
+      <span class="nb">cbn</span>.
+      use internal_funext.
+      <span class="nb">intros</span> z h.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">rewrite</span> tensor_split.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !internal_beta.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_split'.
+        <span class="nb">rewrite</span> tensor_split.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> enrichment_assoc.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> &lt;- tensor_id_id.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> tensor_lassociator.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> tensor_lassociator.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> tensor_split.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> &lt;- mon_inv_triangle.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> &lt;- !tensor_comp_id_l.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> postcomp_arr.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> tensor_linvunitor.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- !tensor_split.
+      <span class="nb">rewrite</span> &lt;- !tensor_split'.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">CopowerIso</span>.
+<span class="kn">End</span> <span class="nf">EnrichedCopowers</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 7. Enriched categories with copowers</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">enrichment_copower</span>
+           {<span class="nv">V</span> : sym_mon_closed_cat}
+           {<span class="nv">C</span> : category}
+           (<span class="nv">E</span> : enrichment C V)
+  : UU
+  := ∏ (v : V) (x : C),
+     ∑ (e : copower_cocone E v x),
+     is_copower_enriched E v x e.
+
+<span class="kn">Definition</span> <span class="nf">cat_with_enrichment_copower</span>
+           (<span class="nv">V</span> : sym_mon_closed_cat)
+  : UU
+  := ∑ (C : cat_with_enrichment V), enrichment_copower C.
+
+<span class="kn">Coercion</span> <span class="nf">cat_with_enrichment_copower_to_cat_with_enrichment</span>
+         {V : sym_mon_closed_cat}
+         (C : cat_with_enrichment_copower V)
+  : cat_with_enrichment V
+  := pr1 C.
+
+<span class="kn">Definition</span> <span class="nf">copowers_of_cat_with_enrichment</span>
+           {<span class="nv">V</span> : sym_mon_closed_cat}
+           (<span class="nv">C</span> : cat_with_enrichment_copower V)
+  : enrichment_copower C
+  := pr2 C.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Colimits/EnrichedCopowers.v</tt>, line 36)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  7. Enriched categories with copowers
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

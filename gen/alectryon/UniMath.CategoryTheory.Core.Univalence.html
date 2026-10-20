@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Univalence.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Univalent categories (AKA saturated categories) *)</span>
+
+<span class="sd">(** ** Contents</span>
+
+<span class="sd">  - Univalent categories: [idtoiso] is an equivalence ([univalent_category])</span>
+<span class="sd">  - Definition of [isotoid]</span>
+<span class="sd">  - Properties of [idtoiso] and [isotoid]</span>
+<span class="sd">  - Univalent categories have groupoid as objects</span>
+<span class="sd">    [univalent_category_has_groupoid_ob]</span>
+<span class="sd">  - Many lemmas about [idtoiso], [isotoid],</span>
+<span class="sd">    interplay with composition, transport etc.</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartA.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** ** Univalent categories: [idtoiso] is an equivalence *)</span>
+
+<span class="kn">Definition</span> <span class="nf">idtoiso</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : ob C}:
+      a = b -&gt; z_iso a b.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">induction</span> H.
+  <span class="bp">exact</span> (identity_z_iso a).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">idtoiso_idpath</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">x</span> : C)
+  : pr1 (idtoiso (idpath x)) = identity x.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="c">(* use eta expanded version to force printing of object arguments *)</span>
+<span class="kn">Definition</span> <span class="nf">is_univalent</span> (<span class="nv">C</span> : category) :=
+  ∏ (a b : ob C), isweq (<span class="k">fun</span> <span class="nv">p</span> : a = b =&gt; idtoiso p).
+
+<span class="c">(*</span>
+<span class="c">Definition make_is_univalent {C : precategory} (H1 : ∏ (a b : ob C), isweq (fun p : a = b =&gt; idtoiso p))</span>
+<span class="c">           (H2 : has_homsets C) : is_univalent C := make_dirprod H1 H2.</span>
+<span class="c"> *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">eq_idtoiso_idtomor</span> {<span class="nv">C</span>:precategory} (<span class="nv">a</span> <span class="nv">b</span>:ob C) (<span class="nv">e</span>:a = b) :
+    pr1 (idtoiso e) = idtomor _ _ e.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> e; <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_univalent</span> (<span class="nv">C</span> : category) : isaprop (is_univalent C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred.
+  <span class="nb">intro</span> a.
+  <span class="nb">apply</span> impred.
+  <span class="nb">intro</span> b.
+  <span class="nb">apply</span> isapropisweq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_category</span> : UU := ∑ C : category, is_univalent C.
+
+<span class="kn">Definition</span> <span class="nf">make_univalent_category</span> (<span class="nv">C</span> : category) (<span class="nv">H</span> : is_univalent C) : univalent_category
+  := tpair _ C H.
+
+<span class="kn">Coercion</span> <span class="nf">univalent_category_to_category</span> (C : univalent_category) : category := pr1 C.
+
+<span class="kn">Coercion</span> <span class="nf">univalent_category_has_homsets</span> (C : univalent_category)
+  : has_homsets C
+  := pr2 (pr1 C).
+
+<span class="kn">Definition</span> <span class="nf">univalent_category_is_univalent</span> (<span class="nv">C</span> : univalent_category) : is_univalent C := pr2 C.
+
+<span class="kn">Lemma</span> <span class="nf">univalent_category_has_groupoid_ob</span> (<span class="nv">C</span> : univalent_category): isofhlevel <span class="mi">3</span> (ob C).
+<span class="kn">Proof</span>.
+  <span class="nb">change</span> (isofhlevel <span class="mi">3</span> C) <span class="k">with</span>
+        (∏ a b : C, isofhlevel <span class="mi">2</span> (a = b)).
+  <span class="nb">intros</span> a b.
+  <span class="nb">apply</span> (isofhlevelweqb _ (tpair _ _ (pr2 C a b))).
+  <span class="nb">apply</span> isaset_z_iso.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Definition of [isotoid] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isotoid</span> (<span class="nv">C</span> : category) (<span class="nv">H</span> : is_univalent C) {<span class="nv">a</span> <span class="nv">b</span> : ob C}:
+      z_iso a b -&gt; a = b := invmap (make_weq _ (H a b)).
+
+<span class="kn">Lemma</span> <span class="nf">idtoiso_isotoid</span> (<span class="nv">C</span> : category) (<span class="nv">H</span> : is_univalent C) (<span class="nv">a</span> <span class="nv">b</span> : ob C)
+    (<span class="nv">f</span> : z_iso a b) : idtoiso (isotoid _ H f) = f.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> isotoid.
+  <span class="nb">set</span> (Hw := homotweqinvweq (make_weq idtoiso (H a b))).
+  <span class="nb">simpl</span> <span class="k">in</span> Hw.
+  <span class="nb">apply</span> Hw.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isotoid_idtoiso</span> (<span class="nv">C</span> : category) (<span class="nv">H</span> : is_univalent C) (<span class="nv">a</span> <span class="nv">b</span> : ob C)
+    (<span class="nv">p</span> : a = b) : isotoid _ H (idtoiso p) = p.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> isotoid.
+  <span class="nb">set</span> (Hw := homotinvweqweq (make_weq idtoiso (H a b))).
+  <span class="nb">simpl</span> <span class="k">in</span> Hw.
+  <span class="nb">apply</span> Hw.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Properties of [idtoiso] and [isotoid] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">double_transport</span> {<span class="nv">C</span> : precategory_ob_mor} {<span class="nv">a</span> <span class="nv">a'</span> <span class="nv">b</span> <span class="nv">b'</span> : ob C}
+   (<span class="nv">p</span> : a = a') (<span class="nv">q</span> : b = b') (<span class="nv">f</span> : a --&gt; b) : a' --&gt; b' :=
+  transportf (<span class="k">λ</span> <span class="nv">c</span>, a' --&gt; c) q (transportf (<span class="k">λ</span> <span class="nv">c</span>, c --&gt; b) p f).
+
+<span class="kn">Lemma</span> <span class="nf">double_transport_transpose</span>
+  {<span class="nv">C</span> : precategory_ob_mor}
+  {<span class="nv">a</span> <span class="nv">a'</span> <span class="nv">b</span> <span class="nv">b'</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a' --&gt; b'}
+  {<span class="nv">px</span> : a' = a} {<span class="nv">py</span> : b' = b}
+  : double_transport px py g = f -&gt; g = double_transport (!px) (!py) f.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">destruct</span> H.
+  <span class="nb">destruct</span> px, py.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">double_transport_transpose'</span>
+  {<span class="nv">C</span> : precategory_ob_mor}
+  {<span class="nv">a</span> <span class="nv">a'</span> <span class="nv">b</span> <span class="nv">b'</span> : C} {<span class="nv">f</span> : a' --&gt; b'} {<span class="nv">g</span> : a --&gt; b}
+  {<span class="nv">px</span> : a' = a} {<span class="nv">py</span> : b' = b}
+  : f = double_transport (!px) (!py) g -&gt; double_transport px py f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">destruct</span> (!H).
+  <span class="nb">destruct</span> px, py.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">double_transport_compose</span>
+  {<span class="nv">C</span> : precategory}
+  {<span class="nv">a</span> <span class="nv">a'</span> <span class="nv">b</span>  <span class="nv">b'</span> <span class="nv">c</span> <span class="nv">c'</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : b --&gt; c}
+  {<span class="nv">px</span> : a = a'} {<span class="nv">py</span> : b = b'} {<span class="nv">pz</span> : c = c'}
+  : double_transport px py f
+  · double_transport py pz g =
+  double_transport px pz (f · g).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> double_transport.
+  <span class="nb">destruct</span> px, py, pz.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">idtoiso_postcompose</span> (<span class="nv">C</span> : precategory) (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">b'</span> : ob C)
+  (<span class="nv">p</span> : b = b') (<span class="nv">f</span> : a --&gt; b) :
+      f · idtoiso p = transportf (<span class="k">λ</span> <span class="nv">b</span>, a --&gt; b) p f.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> p.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">idtoiso_postcompose_iso</span> (<span class="nv">C</span> : category) (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">b'</span> : ob C)
+  (<span class="nv">p</span> : b = b') (<span class="nv">f</span> : z_iso a b) :
+    z_iso_comp f (idtoiso p) = transportf (<span class="k">λ</span> <span class="nv">b</span>, z_iso a b) p f.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> p.
+  <span class="nb">apply</span> z_iso_eq.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">idtoiso_precompose</span> (<span class="nv">C</span> : precategory) (<span class="nv">a</span> <span class="nv">a'</span> <span class="nv">b</span> : ob C)
+  (<span class="nv">p</span> : a = a') (<span class="nv">f</span> : a --&gt; b) :
+      (idtoiso (!p)) · f = transportf (<span class="k">λ</span> <span class="nv">a</span>, a --&gt; b) p f.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> p.
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">idtoiso_precompose_iso</span> (<span class="nv">C</span> : category) (<span class="nv">a</span> <span class="nv">a'</span> <span class="nv">b</span> : ob C)
+  (<span class="nv">p</span> : a = a') (<span class="nv">f</span> : z_iso a b) :
+      z_iso_comp (idtoiso (!p)) f = transportf (<span class="k">λ</span> <span class="nv">a</span>, z_iso a b) p f.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> p.
+  <span class="nb">apply</span> z_iso_eq.
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">double_transport_idtoiso</span> (<span class="nv">C</span> : precategory) (<span class="nv">a</span> <span class="nv">a'</span> <span class="nv">b</span> <span class="nv">b'</span> : ob C)
+  (<span class="nv">p</span> : a = a') (<span class="nv">q</span> : b = b')  (<span class="nv">f</span> : a --&gt; b) :
+  double_transport p q f = inv_from_z_iso (idtoiso p) · f · idtoiso q.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> p.
+  <span class="nb">destruct</span> q.
+  intermediate_path (identity _ · f).
+  - <span class="nb">apply</span> pathsinv0; <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> pathsinv0; <span class="nb">apply</span> id_right.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">idtoiso_inv</span> (<span class="nv">C</span> : category) (<span class="nv">a</span> <span class="nv">a'</span> : ob C)
+  (<span class="nv">p</span> : a = a') : idtoiso (!p) = z_iso_inv_from_z_iso (idtoiso p).
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> p.
+  <span class="nb">simpl</span>. <span class="nb">apply</span> z_iso_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">idtoiso_concat</span> (<span class="nv">C</span> : category) (<span class="nv">a</span> <span class="nv">a'</span> <span class="nv">a''</span> : ob C)
+  (<span class="nv">p</span> : a = a') (<span class="nv">q</span> : a' = a'') :
+  idtoiso (p @ q) = z_iso_comp (idtoiso p) (idtoiso q).
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> p.
+  <span class="nb">destruct</span> q.
+  <span class="nb">apply</span> z_iso_eq.
+  <span class="nb">simpl</span>; <span class="nb">apply</span> pathsinv0, id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr1_idtoiso_concat</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+           (<span class="nv">f</span> : x = y) (<span class="nv">g</span> : y = z)
+  : pr1 (idtoiso (f @ g)) = pr1 (idtoiso f) · pr1 (idtoiso g).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (maponpaths pr1 (idtoiso_concat _ _ _ _ f g)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">idtoiso_inj</span> (<span class="nv">C</span> : category) (<span class="nv">H</span> : is_univalent C) (<span class="nv">a</span> <span class="nv">a'</span> : ob C)
+   (<span class="nv">p</span> <span class="nv">p'</span> : a = a') : idtoiso p = idtoiso p' -&gt; p = p'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> invmaponpathsincl.
+  <span class="nb">apply</span> isinclweq.
+  <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isotoid_inj</span> (<span class="nv">C</span> : category) (<span class="nv">H</span> : is_univalent C) (<span class="nv">a</span> <span class="nv">a'</span> : ob C)
+   (<span class="nv">f</span> <span class="nv">f'</span> : z_iso a a') : isotoid _ H f = isotoid _ H f' -&gt; f = f'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> invmaponpathsincl.
+  <span class="nb">apply</span> isinclweq.
+  <span class="nb">apply</span> isweqinvmap.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isotoid_comp</span> (<span class="nv">C</span> : category) (<span class="nv">H</span> : is_univalent C) (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : ob C)
+  (<span class="nv">e</span> : z_iso a b) (<span class="nv">f</span> : z_iso b c) :
+  isotoid _ H (z_iso_comp e f) = isotoid _ H e @ isotoid _ H f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idtoiso_inj.
+    <span class="bp">assumption</span>.
+  <span class="nb">rewrite</span> idtoiso_concat.
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> idtoiso_isotoid.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isotoid_identity_iso</span> (<span class="nv">C</span> : category) (<span class="nv">H</span> : is_univalent C) (<span class="nv">a</span> : C) :
+  isotoid _ H (identity_z_iso a) = idpath _ .
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idtoiso_inj; <span class="kp">try</span> <span class="bp">assumption</span>.
+  <span class="nb">rewrite</span> idtoiso_isotoid;
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">inv_isotoid</span> (<span class="nv">C</span> : category) (<span class="nv">H</span> : is_univalent C) (<span class="nv">a</span> <span class="nv">b</span> : C)
+    (<span class="nv">f</span> : z_iso a b) : ! isotoid _ H f = isotoid _ H (z_iso_inv_from_z_iso f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idtoiso_inj; <span class="kp">try</span> <span class="bp">assumption</span>.
+  <span class="nb">rewrite</span> idtoiso_isotoid.
+  <span class="nb">rewrite</span> idtoiso_inv.
+  <span class="nb">rewrite</span> idtoiso_isotoid.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transportf_isotoid</span> (<span class="nv">C</span> : category) (<span class="nv">H</span> : is_univalent C)
+   (<span class="nv">a</span> <span class="nv">a'</span> <span class="nv">b</span> : ob C) (<span class="nv">p</span> : z_iso a a') (<span class="nv">f</span> : a --&gt; b) :
+ transportf (<span class="k">λ</span> <span class="nv">a0</span> : C, a0 --&gt; b) (isotoid C H p) f = inv_from_z_iso p · f.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- idtoiso_precompose.
+  <span class="nb">rewrite</span> idtoiso_inv.
+  <span class="nb">rewrite</span> idtoiso_isotoid.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transportf_isotoid'</span> (<span class="nv">C</span> : category) (<span class="nv">H</span> : is_univalent C)
+   (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">b'</span> : ob C) (<span class="nv">p</span> : z_iso b b') (<span class="nv">f</span> : a --&gt; b) :
+ transportf (<span class="k">λ</span> <span class="nv">a0</span> : C, a --&gt; a0) (isotoid C H p) f = f · p.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- idtoiso_postcompose.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> idtoiso_isotoid.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transportb_isotoid</span> (<span class="nv">C</span> : category) (<span class="nv">H</span> : is_univalent C)
+  (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">b'</span> : ob C) (<span class="nv">p</span> : z_iso b b') (<span class="nv">f</span> : a --&gt; b') :
+  transportb (<span class="k">λ</span> <span class="nv">b0</span> : C, a --&gt; b0) (isotoid C H p) f = f · inv_from_z_iso p.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> transportb_transpose_right.
+  <span class="nb">change</span> (precategory_morphisms a) <span class="k">with</span> (<span class="k">λ</span> <span class="nv">b0</span> : C, a --&gt; b0).
+  <span class="nb">rewrite</span> transportf_isotoid'.
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transportf_isotoid_dep</span> (<span class="nv">C</span> : precategory)
+   (<span class="nv">a</span> <span class="nv">a'</span> : C) (<span class="nv">p</span> : a = a') (<span class="nv">f</span> : ∏ c, a --&gt; c) :
+ transportf (<span class="k">λ</span> <span class="nv">x</span> : C, ∏ c, x --&gt; c) p f = <span class="k">λ</span> <span class="nv">c</span>, idtoiso (!p) · f c.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> p.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> funextsec.
+  <span class="nb">intro</span>.
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">forall_isotoid</span> (<span class="nv">A</span> : category) (<span class="nv">a_is</span> : is_univalent A)
+      (<span class="nv">a</span> <span class="nv">a'</span> : A) (<span class="nv">P</span> : z_iso a a' -&gt; UU) :
+  (∏ e, P (idtoiso e)) → ∏ i, P i.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H i.
+  <span class="nb">rewrite</span> &lt;- (idtoiso_isotoid _ a_is).
+  <span class="nb">apply</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transportf_isotoid_dep'</span> (<span class="nv">J</span> : UU) (<span class="nv">C</span> : precategory) (<span class="nv">F</span> : J -&gt; C)
+  (<span class="nv">a</span> <span class="nv">a'</span> : C) (<span class="nv">p</span> : a = a') (<span class="nv">f</span> : ∏ c, a --&gt; F c) :
+  transportf (<span class="k">λ</span> <span class="nv">x</span> : C, ∏ c, x --&gt; F c) p f = <span class="k">λ</span> <span class="nv">c</span>, idtoiso (!p) · f c.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">destruct</span> p; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> x; <span class="nb">rewrite</span> id_left.
+<span class="kn">Defined</span>.
+
+<span class="c">(* This and the above name is not very good... *)</span>
+ <span class="kn">Lemma</span> <span class="nf">transportf_isotoid_dep''</span> (<span class="nv">J</span> : UU) (<span class="nv">C</span> : precategory) (<span class="nv">F</span> : J -&gt; C)
+   (<span class="nv">a</span> <span class="nv">a'</span> : C) (<span class="nv">p</span> : a = a') (<span class="nv">f</span> : ∏ c, F c --&gt; a) :
+   transportf (<span class="k">λ</span> <span class="nv">x</span> : C, ∏ c, F c --&gt; x) p f = <span class="k">λ</span> <span class="nv">c</span>, f c · idtoiso p.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">destruct</span> p; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> x; <span class="nb">rewrite</span> id_right.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Core/Univalence.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartA.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     interplay with composition, transport etc.
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartA.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Sets.
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

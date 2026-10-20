@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>RowOps.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Matrices</span>
+
+<span class="sd">Elementary row operations on matrices, for elimination procedures</span>
+
+<span class="sd">Primary Author: Daniel @Skantz (November 2022)</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Vectors.
+
+<span class="kn">Require Import</span> UniMath.Algebra.Matrix.
+<span class="kn">Require Import</span> UniMath.Algebra.RigsAndRings.
+<span class="kn">Require Import</span> UniMath.Algebra.IteratedBinaryOperations.
+<span class="kn">Require Import</span> UniMath.Algebra.Domains_and_Fields.
+
+<span class="kn">Require Import</span> UniMath.Algebra.GaussianElimination.Auxiliary.
+<span class="kn">Require Import</span> UniMath.Algebra.GaussianElimination.Vectors.
+
+<span class="kn">Require Import</span> UniMath.Algebra.GaussianElimination.Matrices.
+
+
+<span class="sd">(** This file defines the traditional elementary row operations on matrices over a ring, as used in Gaussian elimination and related procedures:</span>
+<span class="sd">  - addition of a multiple of a row to another row;</span>
+<span class="sd">  - interchange of two rows;</span>
+<span class="sd">  - multiplication of a row by a nonzero scalar.</span>
+
+<span class="sd">  For each operation, we describe its action on matrices directly,</span>
+<span class="sd">  and also equivalently as left multiplication by an elementary matrix.</span>
+
+<span class="sd">  We further show that these elementary matrices are invertible (with inverses just the elementary matrices corresponding to inverse row operations).</span>
+
+<span class="sd">  Hopefully the material can be easily re-used for column operations too. *)</span>
+
+
+<span class="kn">Local Notation</span> <span class="nf">Σ</span> := (iterop_fun <span class="mi">0</span>%rig op1).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"R1 *pw R2"</span> := ((pointwise _ op2) R1 R2) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"R1 +pw R2"</span> := ((pointwise _ op1) R1 R2) (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"A ** B"</span> := (@matrix_mult _ _ _ A _ B) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"A **' B"</span> := (@matrix_mult (_:<span class="bp">ring</span>) _ _ A _ B) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>).
+<span class="c">(* second notation is needed since [pr1ring] being a coercion means the inferred coercions to [setwithbinop] from [ring] and further structures factor syntactically through [ring] but NOT always [rig] *)</span>
+
+<span class="kn">Section</span> <span class="nf">Add_Row</span>.
+
+  <span class="kn">Context</span> { <span class="nv">R</span> : <span class="bp">ring</span> }.
+
+  <span class="kn">Definition</span> <span class="nf">add_row_mult</span>
+    { <span class="nv">m</span> <span class="nv">n</span> } (<span class="nv">r1</span> <span class="nv">r2</span> : ⟦ m ⟧%stn) (<span class="nv">s</span> : R) (<span class="nv">mat</span> : Matrix R m n)
+    : ( Matrix R m n ).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i j.
+    <span class="nb">induction</span> (stn_eq_or_neq i r2).
+    - <span class="bp">exact</span> ((mat r2 j) + (s * (mat r1 j)))%rig.
+    - <span class="bp">exact</span> (mat i j).
+  <span class="kn">Defined</span>.
+<span class="c">(* Note: There’s a tradeoff here (and similarly in other row-operations) between doing the case-split before or after introducing [j].  Putting the case-split first allows defining the rows as linear combinations of vectors, providing useful abstractions in some calculations later, but means the function isn’t in canonical form, which obstructs pointwise calculations. *)</span>
+
+  <span class="sd">(** Basic properties of [add_row_mult] *)</span>
+  <span class="kn">Lemma</span> <span class="nf">add_row_mult_nontarget_row</span>
+      {<span class="nv">m</span> <span class="nv">n</span>} (<span class="nv">r1</span> <span class="nv">r2</span> : ⟦ m ⟧%stn) (<span class="nv">s</span> : R) (<span class="nv">mat</span> : Matrix R m n)
+    : ∏ (i : ⟦ m ⟧%stn), r2 ≠ i -&gt; add_row_mult r1 r2 s mat i = mat i.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i r2_ne_i.
+    <span class="nb">unfold</span> add_row_mult.
+    <span class="bp">now</span> <span class="nb">rewrite</span> (stn_eq_or_neq_right (issymm_stnneq r2_ne_i)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">add_row_mult_target_row</span>
+      {<span class="nv">m</span> <span class="nv">n</span>} (<span class="nv">r1</span> <span class="nv">r2</span> : ⟦ m ⟧%stn) (<span class="nv">s</span> : R) (<span class="nv">mat</span> : Matrix R m n)
+      (<span class="nv">c</span> : ⟦ n ⟧%stn)
+    : (add_row_mult r1 r2 s mat) r2 c = (mat r2 c + s * mat r1 c)%rig.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> add_row_mult.
+    <span class="bp">now</span> <span class="nb">rewrite</span> stn_eq_or_neq_refl.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** The add-a-row-multiple operation as a matrix *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">add_row_mult_matrix</span>
+    { <span class="nv">n</span> : nat } (<span class="nv">r1</span> <span class="nv">r2</span> : ⟦ n ⟧%stn) (<span class="nv">s</span> : R)
+    : Matrix R n n.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i.
+    <span class="nb">induction</span> (stn_eq_or_neq i r2).
+    - <span class="nb">refine</span> ((@stdb_vector R _ i) +pw
+        (@scalar_lmult_vec R s _ (@stdb_vector R _ r1))).
+    - <span class="nb">refine</span> (@stdb_vector R _ i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">add_row_mult_as_matrix</span>
+    { <span class="nv">m</span> <span class="nv">n</span> } (<span class="nv">r1</span> <span class="nv">r2</span> : ⟦ m ⟧%stn) (<span class="nv">ne</span> : r1 ≠ r2) (<span class="nv">s</span> : R) (<span class="nv">mat</span> : Matrix R m n)
+    : (add_row_mult_matrix r1 r2 s) **' mat = add_row_mult r1 r2 s mat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> i; <span class="nb">apply</span> funextfun; <span class="nb">intros</span> j.
+    <span class="nb">unfold</span> matrix_mult, add_row_mult_matrix, add_row_mult, col, row.
+    <span class="nb">destruct</span> (stn_eq_or_neq i r2) <span class="k">as</span> [i_eq_r2 | i_neq_r2]; <span class="nb">simpl</span> coprod_rect.
+    - etrans. { <span class="nb">apply</span> maponpaths, (@pointwise_rdistr_vector R). }
+      etrans. { <span class="nb">apply</span> vecsum_add. }
+      <span class="nb">apply</span> map_on_two_paths.
+      + etrans. <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths_2, i_eq_r2. }
+        use sum_stdb_vector_pointwise_prod.
+      + etrans. { <span class="nb">apply</span> vecsum_scalar_lmult. }
+        <span class="nb">apply</span> maponpaths, @sum_stdb_vector_pointwise_prod.
+    - use sum_stdb_vector_pointwise_prod.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">add_row_mult_matrix_sum</span>
+    { <span class="nv">n</span> : nat } ( <span class="nv">r1</span> <span class="nv">r2</span> : ⟦ n ⟧%stn ) (<span class="nv">ne</span> : r1 ≠ r2) ( <span class="nv">s1</span> <span class="nv">s2</span> : R ) :
+    ((add_row_mult_matrix r1 r2 s1 ) **' (add_row_mult_matrix r1 r2 s2))
+   = (add_row_mult_matrix r1 r2 (s1 + s2)%<span class="bp">ring</span>).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> add_row_mult_as_matrix; <span class="kp">try</span> <span class="bp">assumption</span>.
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> i; <span class="nb">apply</span> funextfun; <span class="nb">intros</span> j.
+    <span class="nb">unfold</span> add_row_mult, add_row_mult_matrix.
+    <span class="nb">destruct</span> (stn_eq_or_neq i r2) <span class="k">as</span> [i_eq_r2 | i_neq_r2].
+    <span class="mi">2</span>: {<span class="nb">apply</span> idpath. }
+    <span class="nb">destruct</span> i_eq_r2.
+    <span class="nb">rewrite</span> stn_eq_or_neq_refl, (stn_eq_or_neq_right ne); <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> scalar_lmult_vec, pointwise, vector_fmap.
+    <span class="nb">rewrite</span> (@rigrdistr R), rigcomm1, (@rigassoc1 R).
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">add_row_mult_matrix_zero</span>
+      { <span class="nv">n</span> } ( <span class="nv">r1</span> <span class="nv">r2</span> : ⟦ n ⟧%stn ) (<span class="nv">ne</span> : r1 ≠ r2)
+    : add_row_mult_matrix r1 r2 (@rigunel1 R) = @identity_matrix R _.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> i.
+    <span class="nb">unfold</span> add_row_mult_matrix.
+    <span class="nb">destruct</span> (stn_eq_or_neq i r2) <span class="k">as</span> [i_eq_r2 | i_neq_r2].
+    <span class="mi">2</span>: { <span class="nb">apply</span> idpath. }
+    <span class="nb">destruct</span> i_eq_r2. <span class="nb">simpl</span>.
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> j.
+    <span class="nb">unfold</span> scalar_lmult_vec, pointwise, vector_fmap.
+    <span class="nb">rewrite</span> (@rigmult0x R).
+    <span class="nb">apply</span> (@rigrunax1 R).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">add_row_mult_matrix_commutes</span>
+      {<span class="nv">n</span>} ( <span class="nv">r1</span> <span class="nv">r2</span> : ⟦ n ⟧%stn) (<span class="nv">ne</span> : r1 ≠ r2) ( <span class="nv">s1</span> <span class="nv">s2</span> : R )
+    : ((add_row_mult_matrix r1 r2 s1 ) **' (add_row_mult_matrix r1 r2 s2 ))
+    = ((add_row_mult_matrix r1 r2 s2 ) **' (add_row_mult_matrix r1 r2 s1 )).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">rewrite</span> add_row_mult_matrix_sum; <span class="kp">try</span> <span class="bp">assumption</span>).
+    <span class="nb">apply</span> maponpaths, (@rigcomm1 R).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">add_row_mult_matrix_invertible</span>
+    { <span class="nv">n</span> } (<span class="nv">r1</span> <span class="nv">r2</span> : ⟦ n ⟧%stn) (<span class="nv">ne</span> : r1 ≠ r2) (<span class="nv">s</span> : R)
+   : @matrix_inverse R n (add_row_mult_matrix r1 r2 s).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">add_row_mult_matrix</span> <span class="nv">r1</span> <span class="nv">r2</span> (- s)%<span class="bp">ring</span>).
+    <span class="nb">split</span>;
+      <span class="nb">refine</span> (add_row_mult_matrix_sum _ _ ne _ _ @ _);
+      <span class="nb">refine</span> (_ @ add_row_mult_matrix_zero _ _ ne);
+      <span class="nb">apply</span> maponpaths.
+    - <span class="nb">apply</span> (@ringrinvax1 R).
+    - <span class="nb">apply</span> (@ringlinvax1 R).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Miscellaneous properties of [add_row_mult], used in [Algebra.GaussianElimination.Elimination] *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">add_row_mult_source_row_zero</span>
+    {<span class="nv">m</span> <span class="nv">n</span>} (<span class="nv">r1</span> <span class="nv">r2</span> : ⟦ m ⟧%stn) (<span class="nv">s</span> : R) (<span class="nv">mat</span> : Matrix R m n)
+    : mat r1 = const_vec <span class="mi">0</span>%<span class="bp">ring</span>
+      -&gt; add_row_mult r1 r2 s mat = mat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> eq0.
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> i'; <span class="nb">apply</span> funextfun; <span class="nb">intros</span> j'.
+    <span class="nb">unfold</span> add_row_mult.
+    <span class="nb">destruct</span> (stn_eq_or_neq _ _ ) <span class="k">as</span> [i'_eq_j' | i'_neq_j'];
+      <span class="nb">simpl</span>; <span class="kp">try</span> <span class="bp">reflexivity</span>.
+    <span class="nb">rewrite</span> &lt;- i'_eq_j', eq0.
+    <span class="nb">unfold</span> const_vec ; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> (@rigmultx0 R).
+    <span class="nb">apply</span> (@rigrunax1 R).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Add_Row</span>.
+
+<span class="kn">Section</span> <span class="nf">Mult_Row</span>.
+
+  <span class="kn">Context</span> { <span class="nv">F</span> : fld }.
+
+  <span class="kn">Definition</span> <span class="nf">scalar_mult_row</span>
+    { <span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">r</span> : ⟦ m ⟧%stn) (<span class="nv">s</span> : F) (<span class="nv">mat</span> : Matrix F m n)
+    : Matrix F m n.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i j.
+    <span class="nb">induction</span> (stn_eq_or_neq i r).
+    - <span class="bp">exact</span> (s * (mat i j))%<span class="bp">ring</span>.
+    - <span class="bp">exact</span> (mat i j).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** The multiply-row operation as a matrix *)</span>
+  <span class="kn">Definition</span> <span class="nf">scalar_mult_row_matrix</span> {<span class="nv">n</span> : nat}
+      (<span class="nv">r</span> : ⟦ n ⟧%stn) (<span class="nv">s</span> : F)
+    : Matrix F n n.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i.
+    <span class="nb">induction</span> (stn_eq_or_neq i r).
+    - <span class="bp">exact</span> (const_vec s *pw @stdb_vector F _ i).
+    - <span class="bp">exact</span> (@stdb_vector F _ i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">scalar_mult_as_matrix</span>
+    {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">r</span> : ⟦ m ⟧%stn) (<span class="nv">s</span> : F) (<span class="nv">mat</span> : Matrix F m n)
+    : ((scalar_mult_row_matrix r s) **' mat) = scalar_mult_row r s mat.
+  <span class="kn">Proof</span>.
+    use funextfun; <span class="nb">intros</span> i; use funextfun; <span class="nb">intros</span> ?.
+    <span class="nb">unfold</span> matrix_mult, scalar_mult_row_matrix, scalar_mult_row, row.
+    <span class="nb">destruct</span> (stn_eq_or_neq i r) <span class="k">as</span> [? | ?].
+    - <span class="nb">simpl</span> coprod_rect.
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        etrans. { <span class="nb">apply</span> maponpaths_2, (@pointwise_comm2_vector F). }
+        <span class="nb">apply</span> pointwise_assoc2_vector. }
+      use sum_stdb_vector_pointwise_prod.
+    - <span class="nb">simpl</span> coprod_rect.
+      use sum_stdb_vector_pointwise_prod.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">scalar_mult_matrix_product</span>
+    { <span class="nv">n</span> } ( <span class="nv">r</span> : ⟦ n ⟧%stn ) ( <span class="nv">s1</span> <span class="nv">s2</span> : F )
+    : ((scalar_mult_row_matrix r s1 ) **' (scalar_mult_row_matrix r s2 ))
+      = (scalar_mult_row_matrix r (s1 * s2)%<span class="bp">ring</span> ).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> scalar_mult_as_matrix.
+    <span class="nb">unfold</span> scalar_mult_row.
+    <span class="nb">unfold</span> scalar_mult_row_matrix.
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> i.
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> j.
+    <span class="nb">destruct</span> (stn_eq_or_neq i r);
+      <span class="nb">simpl</span> coprod_rect.
+    <span class="mi">2</span>: { <span class="bp">reflexivity</span>. }
+    <span class="nb">unfold</span> pointwise.
+    <span class="nb">apply</span> pathsinv0, rigassoc2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">scalar_mult_matrix_one</span>
+    {<span class="nv">n</span> : nat} (<span class="nv">r</span> : ⟦ n ⟧%stn)
+    : scalar_mult_row_matrix r (@rigunel2 F) = @identity_matrix F _.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> scalar_mult_row_matrix.
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> i.
+    <span class="nb">destruct</span> (stn_eq_or_neq i r); <span class="nb">simpl</span> coprod_rect.
+    <span class="mi">2</span>: { <span class="bp">reflexivity</span>. }
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> j.
+    <span class="nb">apply</span> (@riglunax2 F).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">scalar_mult_matrix_comm</span>
+    { <span class="nv">n</span> : nat } ( <span class="nv">r</span> : ⟦ n ⟧%stn ) ( <span class="nv">s1</span> <span class="nv">s2</span> : F )
+    : ((scalar_mult_row_matrix r s1) **' (scalar_mult_row_matrix r s2))
+    = ((scalar_mult_row_matrix r s2) **' (scalar_mult_row_matrix r s1)).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> scalar_mult_matrix_product.
+    <span class="nb">apply</span> maponpaths, (rigcomm2 F).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">scalar_mult_matrix_invertible</span>
+    { <span class="nv">n</span> } ( <span class="nv">i</span> : ⟦ n ⟧%stn ) ( <span class="nv">s</span> : F ) ( <span class="nv">ne</span> : s != (@rigunel1 F))
+  : @matrix_inverse F _ (scalar_mult_row_matrix i s).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">scalar_mult_row_matrix</span> <span class="nv">i</span> (fldmultinv s ne)).
+    <span class="nb">split</span>;
+      <span class="nb">refine</span> (scalar_mult_matrix_product _ _ _ @ _);
+      <span class="nb">refine</span> (_ @ scalar_mult_matrix_one i);
+      <span class="nb">apply</span> maponpaths.
+    - <span class="nb">apply</span> fldmultinvrax; <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> fldmultinvlax; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Mult_Row</span>.
+
+<span class="kn">Section</span> <span class="nf">Switch_Row</span>.
+
+  <span class="kn">Context</span> { <span class="nv">R</span> : rig }.
+
+  <span class="kn">Definition</span> <span class="nf">switch_row</span>
+    {<span class="nv">m</span> <span class="nv">n</span>} (<span class="nv">r1</span> <span class="nv">r2</span> : ⟦ m ⟧%stn) (<span class="nv">mat</span> : Matrix R m n)
+    : Matrix R m n.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i j.
+    <span class="nb">induction</span> (stn_eq_or_neq i r1).
+    - <span class="bp">exact</span> (mat r2 j).
+    - <span class="nb">induction</span> (stn_eq_or_neq i r2).
+      + <span class="bp">exact</span> (mat r1 j).
+      + <span class="bp">exact</span> (mat i j).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Basic properties of [switch_row] *)</span>
+  <span class="kn">Lemma</span> <span class="nf">switch_row_former_row</span>
+      {<span class="nv">m</span> <span class="nv">n</span>} (<span class="nv">r1</span> <span class="nv">r2</span> : ⟦ m ⟧%stn) (<span class="nv">mat</span> : Matrix R m n) (<span class="nv">j</span> : ⟦n⟧%stn)
+    : switch_row r1 r2 mat r1 j = mat r2 j.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> switch_row. <span class="nb">rewrite</span> stn_eq_or_neq_refl; <span class="nb">simpl</span>.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">switch_row_latter_row</span>
+      {<span class="nv">m</span> <span class="nv">n</span>} (<span class="nv">r1</span> <span class="nv">r2</span> : ⟦ m ⟧%stn) (<span class="nv">mat</span> : Matrix R m n) (<span class="nv">j</span> : ⟦n⟧%stn)
+    : switch_row r1 r2 mat r2 j = mat r1 j.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> switch_row.
+    <span class="nb">rewrite</span> stn_eq_or_neq_refl; <span class="nb">simpl</span>.
+    <span class="nb">destruct</span> (stn_eq_or_neq r2 r1) <span class="k">as</span> [ e | ? ];
+      <span class="nb">simpl</span>; <span class="kp">try</span> <span class="nb">destruct</span> e; <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">switch_row_other_row</span>
+      {<span class="nv">m</span> <span class="nv">n</span>} (<span class="nv">r1</span> <span class="nv">r2</span> : ⟦ m ⟧%stn) (<span class="nv">mat</span> : Matrix R m n)
+      (<span class="nv">i</span> : ⟦ m ⟧%stn) (<span class="nv">ne1</span> : i ≠ r1) (<span class="nv">ne2</span> : i ≠ r2) (<span class="nv">j</span> : ⟦n⟧%stn)
+    : switch_row r1 r2 mat i j = mat i j.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> switch_row.
+    <span class="nb">rewrite</span> (stn_eq_or_neq_right ne1), (stn_eq_or_neq_right ne2).
+    <span class="nb">simpl</span>; <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">switch_row_former_row'</span>
+      {<span class="nv">m</span> <span class="nv">n</span>} (<span class="nv">r1</span> <span class="nv">r2</span> : ⟦ m ⟧%stn) (<span class="nv">mat</span> : Matrix R m n)
+      (<span class="nv">i</span> : ⟦m⟧%stn) (<span class="nv">e</span> : i = r1) (<span class="nv">j</span> : ⟦n⟧%stn)
+    : switch_row r1 r2 mat i j = mat r2 j.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> e; <span class="nb">apply</span> switch_row_former_row.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">switch_row_latter_row'</span>
+      {<span class="nv">m</span> <span class="nv">n</span>} (<span class="nv">r1</span> <span class="nv">r2</span> : ⟦ m ⟧%stn) (<span class="nv">mat</span> : Matrix R m n)
+      (<span class="nv">i</span> : ⟦m⟧%stn) (<span class="nv">e</span> : i = r2) (<span class="nv">j</span> : ⟦n⟧%stn)
+    : switch_row r1 r2 mat i j = mat r1 j.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> e; <span class="nb">apply</span> switch_row_latter_row.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">switch_row_other_row'</span>
+    {<span class="nv">m</span> <span class="nv">n</span>} (<span class="nv">r1</span> <span class="nv">r2</span> : ⟦ m ⟧%stn) (<span class="nv">mat</span> : Matrix R m n)
+    : ∏ (i : ⟦ m ⟧%stn), i ≠ r1 -&gt; i ≠ r2
+    -&gt; (switch_row r1 r2 mat) i = mat i.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i i_ne_r1 i_ne_r2.
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> j.
+    <span class="nb">apply</span> switch_row_other_row; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** The switch-row operation as a matrix *)</span>
+  <span class="kn">Definition</span> <span class="nf">switch_row_matrix</span>
+    {<span class="nv">n</span> : nat} (<span class="nv">r1</span> <span class="nv">r2</span> : ⟦ n ⟧ %stn)
+    : Matrix R n n.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i.
+    <span class="nb">induction</span> (stn_eq_or_neq i r1).
+    - <span class="bp">exact</span> (@identity_matrix R n r2).
+    - <span class="nb">induction</span> (stn_eq_or_neq i r2).
+      + <span class="bp">exact</span> (@identity_matrix R n r1).
+      + <span class="bp">exact</span> (@identity_matrix R n i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">switch_row_as_matrix</span>
+    {<span class="nv">m</span> <span class="nv">n</span>} (<span class="nv">r1</span> <span class="nv">r2</span> : ⟦ m ⟧%stn) (<span class="nv">mat</span> : Matrix R m n)
+    : ((switch_row_matrix r1 r2) ** mat) = switch_row r1 r2 mat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> i; <span class="nb">apply</span> funextfun; <span class="nb">intros</span> j.
+    <span class="nb">rewrite</span> matrix_mult_eq; <span class="nb">unfold</span> matrix_mult_unf.
+    <span class="nb">unfold</span> switch_row_matrix, switch_row.
+    <span class="nb">destruct</span> (stn_eq_or_neq i r1) <span class="k">as</span> [i_eq_r1 | i_neq_r1];
+      <span class="nb">destruct</span> (stn_eq_or_neq i r2) <span class="k">as</span> [i_eq_r2 | i_neq_r2];
+      <span class="nb">simpl</span>;
+      use sum_stdb_vector_pointwise_prod.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">switch_row_involution</span>
+    {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">r1</span> <span class="nv">r2</span> : ⟦ m ⟧%stn) (<span class="nv">mat</span> : Matrix R m n)
+    : switch_row r1 r2 (switch_row r1 r2 mat) = mat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> i; <span class="nb">apply</span> funextfun; <span class="nb">intros</span> j.
+    <span class="nb">destruct</span> (stn_eq_or_neq i r1) <span class="k">as</span> [ e_i_r1 | ne_i_r1 ];
+      [ | <span class="nb">destruct</span> (stn_eq_or_neq i r2) <span class="k">as</span> [ e_i_r2 | ne_i_r2 ]].
+    - <span class="nb">destruct</span> e_i_r1.
+      etrans. { <span class="nb">apply</span> switch_row_former_row. }
+      <span class="nb">apply</span> switch_row_latter_row.
+    - <span class="nb">destruct</span> e_i_r2.
+      etrans. { <span class="nb">apply</span> switch_row_latter_row. }
+      <span class="nb">apply</span> switch_row_former_row.
+    - etrans; <span class="nb">apply</span> switch_row_other_row; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">switch_row_matrix_involution</span>
+    { <span class="nv">n</span> : nat } ( <span class="nv">r1</span> <span class="nv">r2</span> : ⟦ n ⟧%stn )
+    : ((switch_row_matrix r1 r2)
+      ** (switch_row_matrix r1 r2))
+      = @identity_matrix _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">rewrite</span> switch_row_as_matrix.
+    <span class="nb">unfold</span> switch_row, switch_row_matrix.
+    <span class="nb">apply</span> funextfun; <span class="nb">intros</span> i.
+    <span class="nb">destruct</span> (stn_eq_or_neq i r1) <span class="k">as</span> [eq | neq];
+      <span class="nb">destruct</span> (stn_eq_or_neq r1 r2) <span class="k">as</span> [eq' | neq'];
+      <span class="nb">rewrite</span> stn_eq_or_neq_refl; <span class="nb">simpl</span>.
+    - <span class="nb">rewrite</span> eq'; <span class="nb">rewrite</span> stn_eq_or_neq_refl; <span class="nb">simpl</span>.
+      <span class="nb">apply</span> funextfun; <span class="nb">intros</span> j.
+      <span class="nb">rewrite</span> &lt;- eq', eq; <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> eq; <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> (stn_eq_or_neq_right (issymm_stnneq neq')); <span class="nb">simpl</span>.
+      <span class="bp">reflexivity</span>.
+    - <span class="nb">rewrite</span> &lt;- eq'; <span class="nb">rewrite</span> stn_eq_or_neq_refl; <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> (stn_eq_or_neq_right neq); <span class="nb">simpl</span>.
+      <span class="bp">reflexivity</span>.
+    - <span class="nb">rewrite</span> stn_eq_or_neq_refl; <span class="nb">simpl</span>.
+      <span class="nb">destruct</span> (stn_eq_or_neq _ _) <span class="k">as</span> [eq | ?]; <span class="nb">simpl</span>.
+      + <span class="bp">now</span> <span class="nb">rewrite</span> eq.
+      + <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">switch_row_matrix_invertible</span>
+    { <span class="nv">n</span> : nat } ( <span class="nv">r1</span> <span class="nv">r2</span> : ⟦ n ⟧%stn )
+    : @matrix_inverse R n (switch_row_matrix r1 r2).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">switch_row_matrix</span> <span class="nv">r1</span> <span class="nv">r2</span>).
+    <span class="nb">split</span>; <span class="nb">apply</span> switch_row_matrix_involution.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Miscellaneous properties of [switch_row], used in [Algebra.GaussianElimination.Elimination] *)</span>
+  <span class="kn">Lemma</span> <span class="nf">switch_row_equal_rows</span>
+    {<span class="nv">m</span> <span class="nv">n</span>} (<span class="nv">r1</span> <span class="nv">r2</span> : ⟦ m ⟧%stn) (<span class="nv">mat</span> : Matrix R m n)
+    : (mat r1) = (mat r2) -&gt; (switch_row r1 r2 mat) = mat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> m_eq.
+    <span class="nb">unfold</span> switch_row.
+    <span class="nb">apply</span> funextfun. <span class="nb">intros</span> i'.
+    <span class="nb">destruct</span> (stn_eq_or_neq _ _) <span class="k">as</span> [eq | neq].
+    - <span class="nb">destruct</span> (stn_eq_or_neq _ _) <span class="k">as</span> [eq' | neq'].
+      + <span class="bp">now</span> <span class="nb">apply</span> maponpaths.
+      + etrans. <span class="nb">apply</span> m_eq.
+        <span class="bp">now</span> <span class="nb">apply</span> maponpaths.
+    - <span class="nb">destruct</span> (stn_eq_or_neq _ _) <span class="k">as</span> [eq | cec].
+      + <span class="nb">cbn</span>. etrans. <span class="nb">apply</span>(!m_eq).
+        <span class="nb">apply</span> maponpaths, (!eq).
+      + <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">switch_row_equal_entries</span>
+    {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">r1</span> <span class="nv">r2</span> : ⟦ m ⟧%stn) (<span class="nv">mat</span> : Matrix R m n)
+    : ∏ (j : ⟦ n ⟧%stn), (mat r1 j) = (mat r2 j) -&gt;
+      ∏ (r3 : ⟦ m ⟧%stn), (switch_row r1 r2 mat) r3 j = mat r3 j.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> j m_eq r3.
+    <span class="nb">unfold</span> switch_row.
+    <span class="nb">destruct</span> (stn_eq_or_neq _ _) <span class="k">as</span> [eq | neq].
+    - <span class="nb">destruct</span> (stn_eq_or_neq _ _) <span class="k">as</span> [eq' | neq']; <span class="nb">cbn</span>.
+      + <span class="bp">now</span> <span class="nb">apply</span> maponpaths_2.
+      + etrans. <span class="nb">apply</span> m_eq.
+        <span class="bp">now</span> <span class="nb">apply</span> maponpaths_2.
+    - <span class="nb">destruct</span> (stn_eq_or_neq _ _) <span class="k">as</span> [eq | cec]; <span class="nb">cbn</span>.
+      + etrans. <span class="nb">apply</span>(!m_eq).
+        <span class="bp">now</span> <span class="nb">apply</span> maponpaths_2.
+      + <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Switch_Row</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/GaussianElimination/RowOps.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Primary Author: Daniel &#64;Skantz (November 2022)
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

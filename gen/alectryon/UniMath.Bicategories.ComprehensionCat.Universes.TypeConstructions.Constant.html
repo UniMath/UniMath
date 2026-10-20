@@ -1,0 +1,479 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Constant.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Equivalences for types in the empty context</span>
+
+<span class="sd"> We have defined the following notions:</span>
+<span class="sd"> - what it means for a universe in a category with finite limits to contain the unit,</span>
+<span class="sd">   empty, NNO, and subobject classifier types</span>
+<span class="sd"> - what it means for a universe in a comprehension category limits to contain the unit,</span>
+<span class="sd">   empty, NNO, and subobject classifier types</span>
+<span class="sd"> In this file, we connect these two notions. More specifically, if `C` is a comprehension</span>
+<span class="sd"> category with a universe `u`, then its category of contexts, which for clarity we denote</span>
+<span class="sd"> by `Cu` (this category is, in fact `C`, but to distinguish it from the comprehension</span>
+<span class="sd"> category `C`, we give it a different name), also has a universe. We show that the universe</span>
+<span class="sd"> in `C` containing the aforementioned type formers is equivalent to `Cu` containing the</span>
+<span class="sd"> aforementioned type formers. We express this as an equivalence of types, since both types</span>
+<span class="sd"> are sets.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Unit type</span>
+<span class="sd"> 2. Empty type</span>
+<span class="sd"> 3. Parameterized natural numbers object</span>
+<span class="sd"> 4. Subobject classifiers</span>
+
+<span class="sd">                                                                                           *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.StrictInitial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifierIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.ComprehensionEso.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.ComprehensionPreservation.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatExamples.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.FinLimToDFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.Counit.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.Unit.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.CatWithOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseInCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseDispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatTypes.Constant.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Constant.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUniv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCompCatUniv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.UnitForUniv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.CounitForUniv.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="sd">(** * 1. Unit type *)</span>
+<span class="kn">Definition</span> <span class="nf">terminal_in_dfl_full_comp_cat_to_finlim_univ</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat_with_univ}
+           (<span class="nv">unit_c</span> : unit_in_comp_cat_univ C)
+  : terminal_in_cat_univ
+      (dfl_full_comp_cat_with_univ_to_univ_cat_finlim C).
+<span class="kn">Proof</span>.
+  use make_type_in_cat_univ.
+  - use (dfl_full_comp_cat_tm_to_mor_univ (C := dfl_full_comp_cat_with_univ_types C)).
+    <span class="bp">exact</span> (type_in_comp_cat_univ_code unit_c).
+  - <span class="nb">refine</span> (z_iso_comp (z_iso_comp _ (type_in_comp_cat_univ_z_iso unit_c)) _).
+    + use comp_cat_comp_fiber_z_iso.
+      use (comp_cat_el_map_on_eq_iso _).
+      <span class="nb">apply</span> dfl_full_comp_cat_tm_to_mor_to_tm_univ.
+    + <span class="nb">apply</span> (dfl_full_comp_cat_extend_unit_z_iso (C := dfl_full_comp_cat_with_univ_types C)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">terminal_in_dfl_full_comp_cat_from_finlim_univ</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat_with_univ}
+           (<span class="nv">unit_c</span> : terminal_in_cat_univ
+                       (dfl_full_comp_cat_with_univ_to_univ_cat_finlim C))
+  : unit_in_comp_cat_univ C.
+<span class="kn">Proof</span>.
+  use make_type_in_comp_cat_univ.
+  - use (dfl_full_comp_cat_mor_to_tm_univ (C := dfl_full_comp_cat_with_univ_types C)).
+    <span class="bp">exact</span> (type_in_cat_univ_code unit_c).
+  - <span class="nb">refine</span> (z_iso_comp (type_in_cat_univ_z_iso unit_c) _).
+    <span class="bp">exact</span> (z_iso_inv
+             (dfl_full_comp_cat_extend_unit_z_iso
+                (C := dfl_full_comp_cat_with_univ_types C)
+                _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">terminal_in_dfl_full_comp_cat_weq_finlim_univ</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat_with_univ)
+  : unit_in_comp_cat_univ C
+    ≃
+    terminal_in_cat_univ
+      (dfl_full_comp_cat_with_univ_to_univ_cat_finlim C).
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> terminal_in_dfl_full_comp_cat_to_finlim_univ.
+  - <span class="bp">exact</span> terminal_in_dfl_full_comp_cat_from_finlim_univ.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> unit_c ;
+       use unit_in_comp_cat_univ_eq ; <span class="nb">cbn</span> ;
+       <span class="bp">exact</span> (dfl_full_comp_cat_tm_to_mor_to_tm_univ
+                _
+                (type_in_comp_cat_univ_code unit_c))).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> unit_c ;
+       use terminal_in_cat_univ_eq ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> dfl_full_comp_cat_mor_to_tm_to_mor_univ).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Empty type *)</span>
+<span class="kn">Definition</span> <span class="nf">empty_in_dfl_full_comp_cat_to_finlim_univ</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat_with_univ}
+           {<span class="nv">I</span> : fiberwise_cat_property
+                  strict_initial_local_property
+                  (dfl_full_comp_cat_with_univ_types C)}
+           (<span class="nv">empty_c</span> : empty_in_comp_cat_univ C I)
+  : initial_in_cat_univ
+      (C := dfl_full_comp_cat_with_univ_to_univ_cat_finlim C)
+      (strict_initial_to_initial
+         (local_property_in_dfl_comp_cat _ _ I)).
+<span class="kn">Proof</span>.
+  use make_type_in_cat_univ.
+  - use (dfl_full_comp_cat_tm_to_mor_univ (C := dfl_full_comp_cat_with_univ_types C)).
+    <span class="bp">exact</span> (type_in_comp_cat_univ_code empty_c).
+  - <span class="nb">refine</span> (z_iso_comp (z_iso_comp _ (type_in_comp_cat_univ_z_iso empty_c)) _).
+    + use comp_cat_comp_fiber_z_iso.
+      use (comp_cat_el_map_on_eq_iso _).
+      <span class="nb">apply</span> dfl_full_comp_cat_tm_to_mor_to_tm_univ.
+    + <span class="bp">exact</span> (preserves_initial_to_z_iso
+               _
+               (preserves_initial_dfl_full_comp_cat_adjequiv_base_functor I)
+               _ _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">empty_in_dfl_full_comp_cat_from_finlim_univ</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat_with_univ}
+           {<span class="nv">I</span> : fiberwise_cat_property
+                  strict_initial_local_property
+                  (dfl_full_comp_cat_with_univ_types C)}
+           (<span class="nv">empty_c</span> : initial_in_cat_univ
+                        (C := dfl_full_comp_cat_with_univ_to_univ_cat_finlim C)
+                        (strict_initial_to_initial
+                           (local_property_in_dfl_comp_cat _ _ I)))
+  : empty_in_comp_cat_univ C I.
+<span class="kn">Proof</span>.
+  use make_type_in_comp_cat_univ.
+  - use (dfl_full_comp_cat_mor_to_tm_univ (C := dfl_full_comp_cat_with_univ_types C)).
+    <span class="bp">exact</span> (type_in_cat_univ_code empty_c).
+  - <span class="nb">refine</span> (z_iso_comp (type_in_cat_univ_z_iso empty_c) _) ; <span class="nb">cbn</span>.
+    use z_iso_inv.
+    <span class="bp">exact</span> (preserves_initial_to_z_iso
+             _
+             (preserves_initial_dfl_full_comp_cat_adjequiv_base_functor I)
+             _ _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">empty_in_dfl_full_comp_cat_weq_finlim_univ</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat_with_univ}
+           (<span class="nv">I</span> : fiberwise_cat_property
+                  strict_initial_local_property
+                  (dfl_full_comp_cat_with_univ_types C))
+  : empty_in_comp_cat_univ C I
+    ≃
+    initial_in_cat_univ
+      (C := dfl_full_comp_cat_with_univ_to_univ_cat_finlim C)
+      (strict_initial_to_initial
+         (local_property_in_dfl_comp_cat _ _ I)).
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> empty_in_dfl_full_comp_cat_to_finlim_univ.
+  - <span class="bp">exact</span> empty_in_dfl_full_comp_cat_from_finlim_univ.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> empty_c ;
+       use empty_in_comp_cat_univ_eq ; <span class="nb">cbn</span> ;
+       <span class="bp">exact</span> (dfl_full_comp_cat_tm_to_mor_to_tm_univ
+                _
+                (type_in_comp_cat_univ_code empty_c))).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> empty_c ;
+       use initial_in_cat_univ_eq ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> dfl_full_comp_cat_mor_to_tm_to_mor_univ).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. Parameterized natural numbers object *)</span>
+<span class="kn">Definition</span> <span class="nf">pnno_in_dfl_full_comp_cat_to_finlim_univ</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat_with_univ}
+           {<span class="nv">N</span> : fiberwise_cat_property
+                  parameterized_NNO_local_property
+                  (dfl_full_comp_cat_with_univ_types C)}
+           (<span class="nv">N_c</span> : pnno_in_comp_cat_univ C N)
+  : pnno_in_cat_univ
+      (C := dfl_full_comp_cat_with_univ_to_univ_cat_finlim C)
+      (local_property_in_dfl_comp_cat _ _ N).
+<span class="kn">Proof</span>.
+  use make_type_in_cat_univ.
+  - use (dfl_full_comp_cat_tm_to_mor_univ (C := dfl_full_comp_cat_with_univ_types C)).
+    <span class="bp">exact</span> (type_in_comp_cat_univ_code N_c).
+  - <span class="nb">refine</span> (z_iso_comp (z_iso_comp _ (type_in_comp_cat_univ_z_iso N_c)) _).
+    + use comp_cat_comp_fiber_z_iso.
+      use (comp_cat_el_map_on_eq_iso _).
+      <span class="nb">apply</span> dfl_full_comp_cat_tm_to_mor_to_tm_univ.
+    + <span class="bp">exact</span> (preserves_parameterized_NNO_z_iso
+               (preserves_pnno_dfl_full_comp_cat_adjequiv_base_functor N)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pnno_in_dfl_full_comp_cat_from_finlim_univ</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat_with_univ}
+           {<span class="nv">N</span> : fiberwise_cat_property
+                  parameterized_NNO_local_property
+                  (dfl_full_comp_cat_with_univ_types C)}
+           (<span class="nv">N_c</span> : pnno_in_cat_univ
+                    (C := dfl_full_comp_cat_with_univ_to_univ_cat_finlim C)
+                    (local_property_in_dfl_comp_cat _ _ N))
+  : pnno_in_comp_cat_univ C N.
+<span class="kn">Proof</span>.
+  use make_type_in_comp_cat_univ.
+  - use (dfl_full_comp_cat_mor_to_tm_univ (C := dfl_full_comp_cat_with_univ_types C)).
+    <span class="bp">exact</span> (type_in_cat_univ_code N_c).
+  - <span class="nb">refine</span> (z_iso_comp (type_in_cat_univ_z_iso N_c) _).
+    use z_iso_inv.
+    <span class="bp">exact</span> (preserves_parameterized_NNO_z_iso
+             (preserves_pnno_dfl_full_comp_cat_adjequiv_base_functor N)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">pnno_in_dfl_full_comp_cat_weq_finlim_univ_left</span>
+            {<span class="nv">C</span> : dfl_full_comp_cat_with_univ}
+            (<span class="nv">N</span> : fiberwise_cat_property
+                   parameterized_NNO_local_property
+                   (dfl_full_comp_cat_with_univ_types C))
+            (<span class="nv">c</span> : pnno_in_comp_cat_univ C N)
+  : pnno_in_dfl_full_comp_cat_from_finlim_univ
+      (pnno_in_dfl_full_comp_cat_to_finlim_univ c)
+    =
+    c.
+<span class="kn">Proof</span>.
+  use type_in_comp_cat_univ_eq.
+  - <span class="bp">exact</span> (dfl_full_comp_cat_tm_to_mor_to_tm_univ
+             _
+             (type_in_comp_cat_univ_code c)).
+  - <span class="nb">simpl</span>.
+    <span class="nb">refine</span> (!(id_right _) @ _).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_).
+    use z_iso_inv_on_right.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">pnno_in_dfl_full_comp_cat_weq_finlim_univ_right</span>
+            {<span class="nv">C</span> : dfl_full_comp_cat_with_univ}
+            (<span class="nv">N</span> : fiberwise_cat_property
+                   parameterized_NNO_local_property
+                   (dfl_full_comp_cat_with_univ_types C))
+            (<span class="nv">c</span> : pnno_in_cat_univ
+                   (C := dfl_full_comp_cat_with_univ_to_univ_cat_finlim C)
+                   (local_property_in_dfl_comp_cat _ _ N))
+  : pnno_in_dfl_full_comp_cat_to_finlim_univ
+      (pnno_in_dfl_full_comp_cat_from_finlim_univ c)
+    =
+    c.
+<span class="kn">Proof</span>.
+  use type_in_cat_univ_eq.
+  - <span class="nb">apply</span> dfl_full_comp_cat_mor_to_tm_to_mor_univ.
+  - <span class="nb">simpl</span>.
+    <span class="nb">refine</span> (!(id_right _) @ _).
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (dfl_full_comp_cat_cat_el_map_el_eq (C := dfl_full_comp_cat_with_univ_types C)).
+    }
+    <span class="nb">rewrite</span> !assoc.
+    use z_iso_inv_on_left.
+    <span class="nb">rewrite</span> id_right.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+    use (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, comprehension_functor_mor _ z)).
+    <span class="nb">apply</span> (eq_comp_cat_el_map_on_eq (dfl_full_comp_cat_el C)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pnno_in_dfl_full_comp_cat_weq_finlim_univ</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat_with_univ}
+           (<span class="nv">N</span> : fiberwise_cat_property
+                  parameterized_NNO_local_property
+                  (dfl_full_comp_cat_with_univ_types C))
+  : pnno_in_comp_cat_univ C N
+    ≃
+    pnno_in_cat_univ
+      (C := dfl_full_comp_cat_with_univ_to_univ_cat_finlim C)
+      (local_property_in_dfl_comp_cat _ _ N).
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> pnno_in_dfl_full_comp_cat_to_finlim_univ.
+  - <span class="bp">exact</span> pnno_in_dfl_full_comp_cat_from_finlim_univ.
+  - <span class="bp">exact</span> (pnno_in_dfl_full_comp_cat_weq_finlim_univ_left N).
+  - <span class="bp">exact</span> (pnno_in_dfl_full_comp_cat_weq_finlim_univ_right N).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. Subobject classifiers *)</span>
+<span class="kn">Definition</span> <span class="nf">subobject_classifier_in_dfl_full_comp_cat_to_finlim_univ</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat_with_univ}
+           {<span class="nv">Ω</span> : fiberwise_cat_property
+                  subobject_classifier_local_property
+                  (dfl_full_comp_cat_with_univ_types C)}
+           (<span class="nv">Ω_c</span> : subobject_classifier_in_comp_cat_univ C Ω)
+  : subobject_classifier_in_cat_univ
+      (C := dfl_full_comp_cat_with_univ_to_univ_cat_finlim C)
+      (local_property_in_dfl_comp_cat _ _ Ω).
+<span class="kn">Proof</span>.
+  use make_type_in_cat_univ.
+  - use (dfl_full_comp_cat_tm_to_mor_univ (C := dfl_full_comp_cat_with_univ_types C)).
+    <span class="bp">exact</span> (type_in_comp_cat_univ_code Ω_c).
+  - <span class="nb">refine</span> (z_iso_comp (z_iso_comp _ (type_in_comp_cat_univ_z_iso Ω_c)) _).
+    + use comp_cat_comp_fiber_z_iso.
+      use (comp_cat_el_map_on_eq_iso _).
+      <span class="nb">apply</span> dfl_full_comp_cat_tm_to_mor_to_tm_univ.
+    + <span class="bp">exact</span> (preserves_subobject_classifier_z_iso
+               (preserves_subobj_classifier_dfl_full_comp_cat_adjequiv_base_functor Ω)
+               _
+               _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">subobject_classifier_in_dfl_full_comp_cat_from_finlim_univ</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat_with_univ}
+           {<span class="nv">Ω</span> : fiberwise_cat_property
+                  subobject_classifier_local_property
+                  (dfl_full_comp_cat_with_univ_types C)}
+           (<span class="nv">Ω_c</span> : subobject_classifier_in_cat_univ
+                    (C := dfl_full_comp_cat_with_univ_to_univ_cat_finlim C)
+                    (local_property_in_dfl_comp_cat _ _ Ω))
+  : subobject_classifier_in_comp_cat_univ C Ω.
+<span class="kn">Proof</span>.
+  use make_type_in_comp_cat_univ.
+  - use (dfl_full_comp_cat_mor_to_tm_univ (C := dfl_full_comp_cat_with_univ_types C)).
+    <span class="bp">exact</span> (type_in_cat_univ_code Ω_c).
+  - <span class="nb">refine</span> (z_iso_comp (type_in_cat_univ_z_iso Ω_c) _).
+    use z_iso_inv.
+    <span class="bp">exact</span> (preserves_subobject_classifier_z_iso
+             (preserves_subobj_classifier_dfl_full_comp_cat_adjequiv_base_functor Ω)
+             _
+             _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">subobject_classifier_in_dfl_full_comp_cat_weq_finlim_univ_left</span>
+            {<span class="nv">C</span> : dfl_full_comp_cat_with_univ}
+            (<span class="nv">Ω</span> : fiberwise_cat_property
+                   subobject_classifier_local_property
+                   (dfl_full_comp_cat_with_univ_types C))
+            (<span class="nv">c</span> : subobject_classifier_in_comp_cat_univ C Ω)
+  : subobject_classifier_in_dfl_full_comp_cat_from_finlim_univ
+      (subobject_classifier_in_dfl_full_comp_cat_to_finlim_univ c)
+    =
+    c.
+<span class="kn">Proof</span>.
+  use type_in_comp_cat_univ_eq.
+  - <span class="bp">exact</span> (dfl_full_comp_cat_tm_to_mor_to_tm_univ
+             _
+             (type_in_comp_cat_univ_code c)).
+  - <span class="nb">simpl</span>.
+    <span class="nb">refine</span> (!(id_right _) @ _).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    use z_iso_inv_on_left.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">subobject_classifier_in_dfl_full_comp_cat_weq_finlim_univ_right</span>
+            {<span class="nv">C</span> : dfl_full_comp_cat_with_univ}
+            (<span class="nv">Ω</span> : fiberwise_cat_property
+                   subobject_classifier_local_property
+                   (dfl_full_comp_cat_with_univ_types C))
+            (<span class="nv">c</span> : subobject_classifier_in_cat_univ
+                   (C := dfl_full_comp_cat_with_univ_to_univ_cat_finlim C)
+                   (local_property_in_dfl_comp_cat _ _ Ω))
+  : subobject_classifier_in_dfl_full_comp_cat_to_finlim_univ
+      (subobject_classifier_in_dfl_full_comp_cat_from_finlim_univ c)
+    =
+    c.
+<span class="kn">Proof</span>.
+  use type_in_cat_univ_eq.
+  - <span class="nb">apply</span> dfl_full_comp_cat_mor_to_tm_to_mor_univ.
+  - <span class="nb">simpl</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> z_iso_after_z_iso_inv.
+    }
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="bp">exact</span> (dfl_full_comp_cat_cat_el_map_el_eq
+               (C := dfl_full_comp_cat_with_univ_types C)
+               _ _
+               (dfl_full_comp_cat_mor_to_tm_to_mor_univ
+                  (dfl_full_comp_cat_univ_ob C)
+                  (type_in_cat_univ_code c))).
+    }
+    use (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, comprehension_functor_mor _ z)).
+    <span class="nb">apply</span> (eq_comp_cat_el_map_on_eq (dfl_full_comp_cat_el C)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">subobject_classifier_in_dfl_full_comp_cat_weq_finlim_univ</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat_with_univ}
+           (<span class="nv">Ω</span> : fiberwise_cat_property
+                  subobject_classifier_local_property
+                  (dfl_full_comp_cat_with_univ_types C))
+  : subobject_classifier_in_comp_cat_univ C Ω
+    ≃
+    subobject_classifier_in_cat_univ
+      (C := dfl_full_comp_cat_with_univ_to_univ_cat_finlim C)
+      (local_property_in_dfl_comp_cat _ _ Ω).
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> subobject_classifier_in_dfl_full_comp_cat_to_finlim_univ.
+  - <span class="bp">exact</span> subobject_classifier_in_dfl_full_comp_cat_from_finlim_univ.
+  - <span class="bp">exact</span> (subobject_classifier_in_dfl_full_comp_cat_weq_finlim_univ_left Ω).
+  - <span class="bp">exact</span> (subobject_classifier_in_dfl_full_comp_cat_weq_finlim_univ_right Ω).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Universes/TypeConstructions/Constant.v</tt>, line 25)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Subobject classifiers
+  &gt;
+  &gt;                                                                                            *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Equivalences.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

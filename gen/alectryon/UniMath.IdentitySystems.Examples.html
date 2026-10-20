@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Examples.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> Constructions of reflexive graphs</span>
+
+<span class="sd"> This file contains a zoo of reflexive graph constructions,</span>
+<span class="sd"> corresponding to various type constructors.</span>
+
+<span class="sd"> Contains:</span>
+<span class="sd"> - Reflexive graphs:</span>
+<span class="sd">   discrete (Δ), codiscrete (∇),</span>
+<span class="sd">   product (∏), binary product (×),</span>
+<span class="sd">   binary coproduct (⨿), universe ([UU_rxgraph]),</span>
+<span class="sd">   opposite (^op), total ([total_rxgraph]),</span>
+<span class="sd">   component (⟦⟧), sub- ({ ∣ }).</span>
+<span class="sd"> - Displayed reflexive graphs:</span>
+<span class="sd">   sigma, discrete, trivial, total opposite.</span>
+<span class="sd"> - Notations for the above.</span>
+
+<span class="sd"> Author: B. Szilvasy</span>
+<span class="sd"> February—September 2026</span>
+
+<span class="sd"> ********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.IdentitySystems.RXGraph.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> rxgraph.
+
+<span class="sd">(** ** Reflexive graphs *)</span>
+
+<span class="sd">(** The discrete reflexive graph [Δ A] is the reflexive graph whose vertices are</span>
+<span class="sd">    [A] and whose edges are identifications.  It is always univalent. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">discrete_rxgraph</span> (<span class="nv">A</span> : UU) : univalent_rxgraph.
+<span class="kn">Proof</span>.
+  use make_univalent_rxgraph.
+  - use make_rxgraph.
+    + <span class="bp">exact</span> A.
+    + <span class="bp">exact</span> (@paths A).
+    + <span class="bp">exact</span> idpath.
+  - <span class="nb">apply</span> is_univalent_from_iscontr_edges_from; <span class="nb">intro</span>.
+    <span class="bp">exact</span> (iscontr_paths_from _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"'Δ' A"</span> := (discrete_rxgraph A) (<span class="kn">at level</span> <span class="mi">200</span>) : rxgraph.
+<span class="c">(* type in Emacs using agda-input with \Delta or \GD *)</span>
+
+<span class="sd">(** The codiscrete reflexive graph [∇ A] has vertices [A]</span>
+<span class="sd">    and edges [unit].  It is univalent if [A] is a proposition. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">codiscrete_rxgraph</span> (<span class="nv">A</span> : UU) : rxgraph.
+<span class="kn">Proof</span>.
+  use make_rxgraph.
+  - <span class="bp">exact</span> A.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, unit).
+  - <span class="bp">easy</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_codiscrete_rxgraph</span> (<span class="nv">A</span> : UU)
+  (<span class="nv">H</span> : isaprop A)
+  : is_univalent (codiscrete_rxgraph A).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_from_weq.
+  <span class="nb">intros</span> a b; <span class="nb">apply</span> weqcontrtounit, H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">rxgraph_from_prop</span> (<span class="nv">A</span> : UU) (<span class="nv">H</span> : isaprop A) : univalent_rxgraph
+  := make_univalent_rxgraph _ (is_univalent_codiscrete_rxgraph A H).
+
+<span class="kn">Definition</span> <span class="nf">rxgraph_from_hProp</span> (<span class="nv">A</span> : hProp) : univalent_rxgraph
+  := rxgraph_from_prop A (propproperty A).
+
+<span class="kn">Notation</span> <span class="s2">"'∇' A"</span> := (codiscrete_rxgraph A) (<span class="kn">at level</span> <span class="mi">200</span>) : rxgraph.
+<span class="kn">Notation</span> <span class="s2">"'∇![' H  ']' A"</span> := (rxgraph_from_prop A H) (<span class="kn">at level</span> <span class="mi">200</span>) : rxgraph.
+<span class="kn">Notation</span> <span class="s2">"'∇!' A"</span> := (rxgraph_from_hProp A) (<span class="kn">at level</span> <span class="mi">200</span>) : rxgraph.
+<span class="c">(* type in Emacs using agda-input with \nabla *)</span>
+
+<span class="sd">(** A family of reflexive graphs [x : B ⊢ E[x]] gives rise to a univalent</span>
+<span class="sd">    reflexive graph whose vertices are [∏ x, E[x]].  It is univalent</span>
+<span class="sd">    if all [E] are (assuming function extensionality). *)</span>
+
+<span class="kn">Definition</span> <span class="nf">product_rxgraph</span> {<span class="nv">B</span> : UU} (<span class="nv">E</span> : B -&gt; rxgraph) : rxgraph.
+<span class="kn">Proof</span>.
+  use make_rxgraph.
+  - <span class="bp">exact</span> (∏ x, E x).
+  - <span class="nb">intros</span> f g.
+    <span class="bp">exact</span> (∏ x, f x ≈ g x).
+  - <span class="nb">intros</span> f x.
+    <span class="bp">exact</span> (refl (f x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_product_rxgraph</span> {<span class="nv">B</span> : UU} (<span class="nv">E</span> : B -&gt; rxgraph)
+  (<span class="nv">H</span> : ∏ x, is_univalent (E x))
+  : is_univalent (product_rxgraph E).
+<span class="kn">Proof</span>.
+  use is_univalent_from_weq.
+  <span class="nb">intros</span> f g.
+  <span class="nb">apply</span> (weqcomp (weqtoforallpaths _ _ _)).
+  use weqonsecfibers; <span class="nb">intro</span> a.
+  <span class="nb">apply</span> (weq_id_to_edge (H a)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">product_univalent_rxgraph</span> {<span class="nv">B</span> : UU} (<span class="nv">E</span> : B -&gt; univalent_rxgraph) : univalent_rxgraph
+  := make_univalent_rxgraph _ (is_univalent_product_rxgraph E (<span class="k">λ</span> <span class="nv">x</span>, E x)).
+
+<span class="kn">Notation</span> <span class="s2">"'∏~' x .. y , G"</span> :=
+  (product_rxgraph (<span class="k">λ</span> <span class="nv">x</span>, .. (product_rxgraph (<span class="k">λ</span> <span class="nv">y</span>, G)) ..))
+    (<span class="kn">at level</span> <span class="mi">200</span>, x <span class="kn">binder</span>, y <span class="kn">binder</span>, <span class="kn">right associativity</span>) : rxgraph.
+<span class="kn">Notation</span> <span class="s2">"'∏!' x .. y , G"</span> :=
+  (product_univalent_rxgraph (<span class="k">λ</span> <span class="nv">x</span>, .. (product_univalent_rxgraph (<span class="k">λ</span> <span class="nv">y</span>, G)) ..))
+    (<span class="kn">at level</span> <span class="mi">200</span>, x <span class="kn">binder</span>, y <span class="kn">binder</span>, <span class="kn">right associativity</span>) : rxgraph.
+<span class="c">(* type in Emacs using agda-input with \prod *)</span>
+
+<span class="kn">Notation</span> <span class="s2">"A '~&gt;' B"</span> :=
+  (∏~ _ : A, B)
+    (<span class="kn">at level</span> <span class="mi">99</span>, B <span class="kn">at level</span> <span class="mi">200</span>, <span class="kn">right associativity</span>) : rxgraph.
+<span class="kn">Notation</span> <span class="s2">"A '~&gt;!' B"</span> :=
+  (∏! _ : A, B)
+    (<span class="kn">at level</span> <span class="mi">99</span>, B <span class="kn">at level</span> <span class="mi">200</span>, <span class="kn">right associativity</span>) : rxgraph.
+
+<span class="sd">(** The binary product [A × B] of reflexive graphs [A] and [B] has the obvious</span>
+<span class="sd">    vertices and edges the binary products of [A]- and [B]-edges.  It is univalent</span>
+<span class="sd">    if both [A] and [B] are. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">dirprod_rxgraph</span> (<span class="nv">A</span> <span class="nv">B</span> : rxgraph) : rxgraph.
+<span class="kn">Proof</span>.
+  use make_rxgraph.
+  - <span class="bp">exact</span> (A × B).
+  - <span class="nb">intros</span> a b.
+    <span class="bp">exact</span> (pr1 a ≈ pr1 b × pr2 a ≈ pr2 b).
+  - <span class="nb">intro</span> a.
+    <span class="bp">exact</span> (refl (pr1 a),, refl (pr2 a)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_dirprod_rxgraph</span> (<span class="nv">A</span> <span class="nv">B</span> : rxgraph)
+  (<span class="nv">HA</span> : is_univalent A)
+  (<span class="nv">HB</span> : is_univalent B)
+  : is_univalent (dirprod_rxgraph A B).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_from_weq.
+  <span class="nb">intros</span> aa bb.
+  <span class="nb">apply</span> (weqcomp pathsdirprodweq).
+  <span class="nb">apply</span> weqdirprodf.
+  - <span class="nb">apply</span> (weq_id_to_edge HA).
+  - <span class="nb">apply</span> (weq_id_to_edge HB).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dirprod_univalent_rxgraph</span> (<span class="nv">A</span> <span class="nv">B</span> : univalent_rxgraph) : univalent_rxgraph
+  := make_univalent_rxgraph _ (is_univalent_dirprod_rxgraph _ _ A B).
+
+<span class="kn">Notation</span> <span class="s2">"A '×~' B"</span> :=
+  (dirprod_rxgraph A B)
+    (<span class="kn">at level</span> <span class="mi">75</span>, <span class="kn">right associativity</span>) : rxgraph.
+<span class="kn">Notation</span> <span class="s2">"A '×!' B"</span> :=
+  (dirprod_univalent_rxgraph A B)
+    (<span class="kn">at level</span> <span class="mi">75</span>, <span class="kn">right associativity</span>) : rxgraph.
+<span class="c">(* type in Emacs using agda-input with \times *)</span>
+
+<span class="sd">(** The (binary) coproduct reflexive graph [A ⨿ B] has the obvious vertices.</span>
+<span class="sd">    Its edges [inl a₁ ≈ inl a₂] are [a₁ ≈ a₂], and edges [inr b₁ ≈ inr b₂] are</span>
+<span class="sd">    [b₁ ≈ b₂], while the other two edges are [empty].  It is univalent if [A]</span>
+<span class="sd">    and [B] are. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">coprod_edges</span>
+  {<span class="nv">A</span> <span class="nv">B</span> : rxgraph}
+  (<span class="nv">x</span> <span class="nv">y</span> : A ⨿ B)
+  : UU.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> x <span class="k">as</span> [a₁ | b₁];
+    <span class="nb">induction</span> y <span class="k">as</span> [a₂ | b₂].
+  - <span class="bp">exact</span> (a₁ ≈ a₂).
+  - <span class="bp">exact</span> empty.
+  - <span class="bp">exact</span> empty.
+  - <span class="bp">exact</span> (b₁ ≈ b₂).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">coprod_refl</span>
+  {<span class="nv">A</span> <span class="nv">B</span> : rxgraph}
+  (<span class="nv">x</span> : A ⨿ B)
+  : coprod_edges x x.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> x <span class="k">as</span> [a | b]; <span class="nb">apply</span> refl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">coprod_rxgraph</span> (<span class="nv">A</span> <span class="nv">B</span> : rxgraph) : rxgraph.
+<span class="kn">Proof</span>.
+  use make_rxgraph.
+  - <span class="bp">exact</span> (A ⨿ B).
+  - <span class="bp">exact</span> (@coprod_edges A B).
+  - <span class="bp">exact</span> (@coprod_refl A B).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_coprod_rxgraph</span>
+  (<span class="nv">A</span> <span class="nv">B</span> : rxgraph)
+  (<span class="nv">HA</span> : is_univalent A)
+  (<span class="nv">HB</span> : is_univalent B)
+  : is_univalent (coprod_rxgraph A B).
+<span class="kn">Proof</span>.
+  use is_univalent_from_weq.
+  <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> (weqcomp (equality_by_case_equiv x y)).
+  <span class="nb">induction</span> x <span class="k">as</span> [a₁ | b₁]; <span class="nb">induction</span> y <span class="k">as</span> [a₂ | b₂]; <span class="nb">cbn</span>.
+  - <span class="nb">apply</span> (weq_id_to_edge HA).
+  - <span class="bp">exact</span> (idweq empty).
+  - <span class="bp">exact</span> (idweq empty).
+  - <span class="nb">apply</span> (weq_id_to_edge HB).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">coprod_univalent_rxgraph</span>
+  (<span class="nv">A</span> <span class="nv">B</span> : univalent_rxgraph)
+  : univalent_rxgraph
+  := make_univalent_rxgraph _
+       (is_univalent_coprod_rxgraph A B A B).
+
+<span class="kn">Notation</span> <span class="s2">"A '⨿~' B"</span> :=
+  (coprod_rxgraph A B)
+    (<span class="kn">at level</span> <span class="mi">75</span>, <span class="kn">right associativity</span>) : rxgraph.
+<span class="kn">Notation</span> <span class="s2">"A '⨿!' B"</span> :=
+  (coprod_univalent_rxgraph A B)
+    (<span class="kn">at level</span> <span class="mi">75</span>, <span class="kn">right associativity</span>) : rxgraph.
+<span class="c">(* type in Emacs with C-X 8 RET AMALGAMATION OR COPRODUCT</span>
+<span class="c">   or using agda-input with \union (on the second page). *)</span>
+
+<span class="sd">(** [UU_rxgraph] is the (large) reflexive graph of (small) types.</span>
+<span class="sd">    It is univalent precisely if the universe is.  We indicate</span>
+<span class="sd">    the larger size with an imaginary universe parameter [ℓ]. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">UU_rxgraph</span> (* ℓ *) : rxgraph <span class="c">(* ℓ+1 *)</span>.
+<span class="kn">Proof</span>.
+  use make_rxgraph.
+  - <span class="bp">exact</span> (UU <span class="c">(* ℓ *)</span>).
+  - <span class="bp">exact</span> weq.
+  - <span class="bp">exact</span> idweq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Goal</span> univalenceStatement = is_univalent UU_rxgraph.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">UU_univalent_rxgraph</span> (* ℓ *) : univalent_rxgraph <span class="c">(* ℓ+1 *)</span>
+  := make_univalent_rxgraph UU_rxgraph univalenceAxiom.
+
+<span class="sd">(** A family of types [x : B ⊢ E[x]] gives a reflexive graph [B/E] called the image of the family. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">family_image_rxgraph</span> (<span class="nv">B</span> : UU) (<span class="nv">E</span> : B -&gt; UU) : rxgraph.
+<span class="kn">Proof</span>.
+  use make_rxgraph.
+  - <span class="bp">exact</span> B.
+  - <span class="nb">intros</span> a b; <span class="bp">exact</span> (E a ≃ E b).
+  - <span class="nb">intro</span> a; <span class="bp">exact</span> (idweq (E a)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"B '/~' E"</span> := (family_image_rxgraph B E) (<span class="kn">at level</span> <span class="mi">75</span>) : rxgraph.
+
+<span class="sd">(** The opposite [G^op] of a reflexive graph [G] has the same vertices, but</span>
+<span class="sd">    flipped edges.  It is univalent if and only if G is. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">opp_rxgraph</span> (<span class="nv">A</span> : rxgraph) : rxgraph.
+<span class="kn">Proof</span>.
+  use make_rxgraph.
+  - <span class="bp">exact</span> A.
+  - <span class="nb">intros</span> a b.
+    <span class="bp">exact</span> (b ≈ a).
+  - <span class="nb">intro</span> a.
+    <span class="bp">exact</span> (refl a).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">opp_opp_rxgraph_compute</span> (<span class="nv">A</span> : rxgraph)
+  : opp_rxgraph (opp_rxgraph A) = A.
+<span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_opp_rxgraph</span> (<span class="nv">A</span> : rxgraph)
+  (<span class="nv">HA</span> : is_univalent A)
+  : is_univalent (opp_rxgraph A).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (is_univalent_from_isaprop_edges_from (opp_rxgraph A)).
+  <span class="bp">exact</span> (is_univalent_to_isaprop_edges_to A HA).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">opp_univalent_rxgraph</span> (<span class="nv">A</span> : univalent_rxgraph) : univalent_rxgraph
+  := make_univalent_rxgraph _ (is_univalent_opp_rxgraph _ A).
+
+<span class="kn">Notation</span> <span class="s2">"A '^op'"</span> := (opp_rxgraph A) (<span class="kn">at level</span> <span class="mi">1</span>, <span class="kn">format</span> <span class="s2">"A ^op"</span>) : rxgraph.
+<span class="kn">Notation</span> <span class="s2">"A '^op!'"</span> := (opp_univalent_rxgraph A) (<span class="kn">at level</span> <span class="mi">1</span>, <span class="kn">format</span> <span class="s2">"A ^op!"</span>) : rxgraph.
+
+<span class="sd">(** A displayed reflexive graph [x : B |- E[x]] gives a reflexive graph</span>
+<span class="sd">    whose vertices are sigma types.  It is univalent if [B] and [E] are. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">total_rxgraph</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : disp_rxgraph B) : rxgraph.
+<span class="kn">Proof</span>.
+  use make_rxgraph.
+  - <span class="bp">exact</span> (∑ x, E x).
+  - <span class="nb">intros</span> [x a] [y b].
+    <span class="bp">exact</span> (∑ (e : x ≈ y), a ≈[e] b).
+  - <span class="nb">intros</span> [x a].
+    <span class="k">exists</span> (<span class="nv">refl</span> <span class="nv">x</span>).
+    <span class="bp">exact</span> (disp_refl x a).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_total_rxgraph</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : disp_rxgraph B)
+  (<span class="nv">HB</span> : is_univalent B)
+  (<span class="nv">HE</span> : is_disp_univalent E)
+  : is_univalent (total_rxgraph E).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_from_weq.
+  <span class="nb">intros</span> xa yb.
+  <span class="nb">apply</span> (weqcomp (total2_paths_equiv' _ _ _)).
+  use weqbandf; <span class="nb">cbn</span>.
+  - <span class="nb">apply</span> (weq_id_to_edge HB).
+  - <span class="nb">intro</span> e.
+    <span class="nb">apply</span> (weqcomp (transportf_weq_pathover _ _ _)).
+    <span class="nb">apply</span> (weq_PathOver_to_disp_edge HE).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">total_univalent_rxgraph</span>
+  {<span class="nv">B</span> : univalent_rxgraph} (<span class="nv">E</span> : univalent_disp_rxgraph B)
+  : univalent_rxgraph
+  := make_univalent_rxgraph _ (is_univalent_total_rxgraph E B E).
+
+<span class="kn">Notation</span> <span class="s2">"'∑~' E"</span> :=
+  (total_rxgraph E)
+    (<span class="kn">at level</span> <span class="mi">200</span>, <span class="kn">right associativity</span>) : rxgraph.
+<span class="kn">Notation</span> <span class="s2">"'∑!' E"</span> :=
+  (total_univalent_rxgraph E)
+    (<span class="kn">at level</span> <span class="mi">200</span>, <span class="kn">right associativity</span>) : rxgraph.
+<span class="c">(* type in Emacs using agda-input with \sum *)</span>
+
+<span class="sd">(** A displayed reflexive graph's components are (by definition) univalent if</span>
+<span class="sd">    the displayed reflexive graph is. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_disp_rxgraph_at</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : disp_rxgraph B)
+  (<span class="nv">HA</span> : is_disp_univalent E)
+  : ∏ x, is_univalent (disp_rxgraph_at E x)
+  := HA.
+
+<span class="kn">Definition</span> <span class="nf">univalent_disp_rxgraph_at</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : univalent_disp_rxgraph B)
+  (<span class="nv">x</span> : B)
+  : univalent_rxgraph
+  := make_univalent_rxgraph _
+       (is_univalent_disp_rxgraph_at E E x).
+
+<span class="kn">Notation</span> <span class="s2">"E ⟦ x ⟧"</span> := (disp_rxgraph_at E x) (<span class="kn">at level</span> <span class="mi">49</span>) : rxgraph.
+<span class="kn">Notation</span> <span class="s2">"E ⟦ x '⟧!'"</span> := (univalent_disp_rxgraph_at E x) (<span class="kn">at level</span> <span class="mi">49</span>) : rxgraph.
+<span class="c">(* type in Emacs using agda-input with \[[ \]] *)</span>
+
+<span class="sd">(** Given a family of types [x : A ⊢ P[x]] over a reflexive graph A,</span>
+<span class="sd">    the sub-reflexive graph of [A] satisfying [P] is the</span>
+<span class="sd">    reflexive graph whose elements are those of [A] satisfying [P].</span>
+<span class="sd">    It is univalent if [A] is univalent and [P] is a predicate. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">sub_rxgraph</span> (<span class="nv">A</span> : rxgraph) (<span class="nv">P</span> : A -&gt; UU) : rxgraph.
+<span class="kn">Proof</span>.
+  use make_rxgraph.
+  - <span class="bp">exact</span> (∑ a, P a).
+  - <span class="nb">intros</span> a b.
+    <span class="bp">exact</span> (pr1 a ≈ pr1 b).
+  - <span class="nb">intros</span> a.
+    <span class="nb">apply</span> refl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_sub_rxgraph</span>
+  (<span class="nv">A</span> : rxgraph) (<span class="nv">P</span> : A -&gt; UU)
+  (<span class="nv">HA</span> : is_univalent A)
+  (<span class="nv">HP</span> : isPredicate P)
+  : is_univalent (sub_rxgraph A P).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_from_weq.
+  <span class="nb">intros</span> a b.
+  <span class="nb">refine</span> (weqcomp (Injectivity pr1 _ a b) _).
+  { <span class="nb">apply</span> isweqonpathsincl, isinclpr1, HP. }
+  <span class="nb">apply</span> (weq_id_to_edge HA).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">sub_univalent_rxgraph</span>
+  (<span class="nv">A</span> : univalent_rxgraph) (<span class="nv">P</span> : A -&gt; hProp)
+  : univalent_rxgraph
+  := make_univalent_rxgraph _
+       (is_univalent_sub_rxgraph A P A
+          (<span class="k">λ</span> <span class="nv">x</span>, propproperty (P x))).
+
+<span class="kn">Definition</span> <span class="nf">sub_univalent_rxgraph_pred</span>
+  (<span class="nv">A</span> : univalent_rxgraph) (<span class="nv">P</span> : A -&gt; UU)
+  (<span class="nv">HP</span> : isPredicate P)
+  : univalent_rxgraph
+  := make_univalent_rxgraph _
+       (is_univalent_sub_rxgraph A P A HP).
+
+<span class="kn">Notation</span> <span class="s2">"'{'  x '∣' P  '}'"</span> := (sub_rxgraph _ (<span class="k">λ</span> <span class="nv">x</span>, P)) (x <span class="kn">binder</span>) : rxgraph.
+<span class="kn">Notation</span> <span class="s2">"'{'  x '∣!' P  '}'"</span> := (sub_univalent_rxgraph _ (<span class="k">λ</span> <span class="nv">x</span>, P)) (x <span class="kn">binder</span>) : rxgraph.
+<span class="kn">Notation</span> <span class="s2">"'{'  x '∣![' H  ']' P  '}'"</span> :=
+  (sub_univalent_rxgraph_pred _ (<span class="k">λ</span> <span class="nv">x</span>, P) (<span class="k">λ</span> <span class="nv">x</span>, H)) (x <span class="kn">binder</span>) : rxgraph.
+<span class="c">(* type in Emacs using agda-input with \mid *)</span>
+
+<span class="sd">(** A displayed reflexive graph [E₁] over [B], along with a</span>
+<span class="sd">    displayed reflexive graph [E₂] over the total reflexive graph of [E₁],</span>
+<span class="sd">    gives rise to a displayed reflexive graph over [B] whose</span>
+<span class="sd">    vertices are the sums of [E₁].  It is univalent if [E₁] and [E₂] are. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">sigma_disp_rxgraph</span>
+  {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E₁</span> : disp_rxgraph B)
+  (<span class="nv">E₂</span> : disp_rxgraph (total_rxgraph E₁))
+  : disp_rxgraph B.
+<span class="kn">Proof</span>.
+  use make_disp_rxgraph.
+  - <span class="nb">intro</span> x; <span class="bp">exact</span> (∑ (e₁ : E₁ x), E₂ (x,, e₁)).
+  - <span class="nb">intros</span> x y p [e₁ e₂] [e₁' e₂'].
+    <span class="nb">refine</span> (∑ (p₁ : e₁ ≈[p] e₁'), e₂ ≈[_] e₂').
+    <span class="bp">exact</span> (p,,p₁).
+  - <span class="nb">intros</span> x [e₁ e₂].
+    <span class="k">exists</span> (<span class="nv">disp_refl</span> <span class="nv">x</span> <span class="nv">e₁</span>).
+    <span class="bp">exact</span> (disp_refl _ e₂).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Components of [sigma_disp_rxgraph] wind up being the total reflexive graph of</span>
+<span class="sd">    the following displayed reflexive graph over the components of [E₁]. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">sigma_disp_rxgraph_at</span>
+  {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E₁</span> : disp_rxgraph B)
+  (<span class="nv">E₂</span> : disp_rxgraph (total_rxgraph E₁))
+  (<span class="nv">x</span> : B)
+  : disp_rxgraph (disp_rxgraph_at E₁ x).
+<span class="kn">Proof</span>.
+  use make_disp_rxgraph.
+  - <span class="nb">intro</span> e₁; <span class="bp">exact</span> (E₂ (x,,e₁)).
+  - <span class="nb">intros</span> e₁ e₁' p₁ e₂ e₂'.
+    <span class="nb">refine</span> (e₂ ≈[_] e₂').
+    <span class="bp">exact</span> (refl _,,p₁).
+  - <span class="nb">intros</span> e₁ e₂.
+    <span class="nb">cbn</span> <span class="k">in</span> e₂.
+    <span class="bp">exact</span> (disp_refl _ e₂).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_sigma_disp_rxgraph</span>
+  {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E₁</span> : disp_rxgraph B)
+  (<span class="nv">E₂</span> : disp_rxgraph (total_rxgraph E₁))
+  (<span class="nv">H₁</span> : is_disp_univalent E₁)
+  (<span class="nv">H₂</span> : is_disp_univalent E₂)
+  : is_disp_univalent (sigma_disp_rxgraph E₁ E₂).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x.
+  <span class="nb">change</span> (is_univalent (total_rxgraph (sigma_disp_rxgraph_at E₁ E₂ x))).
+  <span class="nb">apply</span> is_univalent_total_rxgraph.
+  - <span class="bp">exact</span> (H₁ x).
+  - <span class="nb">intro</span> e₁.
+    <span class="bp">exact</span> (H₂ _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">sigma_univalent_disp_rxgraph</span>
+  {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E₁</span> : univalent_disp_rxgraph B)
+  (<span class="nv">E₂</span> : univalent_disp_rxgraph (total_rxgraph E₁))
+  : univalent_disp_rxgraph B
+  := _,, is_univalent_sigma_disp_rxgraph E₁ E₂ E₁ E₂.
+
+<span class="kn">Notation</span> <span class="s2">"'∑&gt;~' E₁ ',' E₂"</span> :=
+  (sigma_disp_rxgraph E₁ E₂)
+    (<span class="kn">at level</span> <span class="mi">200</span>, <span class="kn">right associativity</span>) : rxgraph.
+<span class="kn">Notation</span> <span class="s2">"'∑&gt;!' E₁ ',' E₂"</span> :=
+  (sigma_univalent_disp_rxgraph E₁ E₂)
+    (<span class="kn">at level</span> <span class="mi">200</span>, <span class="kn">right associativity</span>) : rxgraph.
+<span class="c">(* type in Emacs using agda-input with \sum *)</span>
+
+<span class="sd">(** A family of types [x : B |- E[x]] gives rise to a discrete displayed</span>
+<span class="sd">    reflexive graph whose vertices are the [PathPair]s.  It is always</span>
+<span class="sd">    univalent. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">discrete_disp_rxgraph</span> {<span class="nv">B</span> : UU} (<span class="nv">E</span> : B -&gt; UU)
+  : univalent_disp_rxgraph (discrete_rxgraph B).
+<span class="kn">Proof</span>.
+  use make_univalent_disp_rxgraph.
+  - use make_disp_rxgraph.
+    + <span class="bp">exact</span> E.
+    + <span class="nb">intros</span> x y e a b.
+      <span class="bp">exact</span> (PathOver e a b).
+    + <span class="bp">easy</span>.
+  - <span class="nb">intros</span> x a b.
+    <span class="nb">apply</span> (weqhomot _ (idweq (a = b))).
+    <span class="nb">intro</span> p; <span class="bp">now</span> <span class="nb">induction</span> p.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** A reflexive graph [E] lifts trivially to a displayed reflexive graph over</span>
+<span class="sd">    another. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">trivial_disp_rxgraph</span> (<span class="nv">B</span> <span class="nv">E</span> : rxgraph)
+  : disp_rxgraph B.
+<span class="kn">Proof</span>.
+  use make_disp_rxgraph.
+  - <span class="nb">intro</span>; <span class="bp">exact</span> E.
+  - <span class="nb">intros</span> x y e; <span class="bp">exact</span> (edge E).
+  - <span class="nb">intro</span>; <span class="bp">exact</span> refl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">trivial_disp_rxgraph_at_compute</span>
+  (<span class="nv">B</span> <span class="nv">E</span> : rxgraph) (<span class="nv">x</span> : B)
+  : disp_rxgraph_at (trivial_disp_rxgraph B E) x = E.
+<span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">trivial_univalent_disp_rxgraph</span>
+  (<span class="nv">B</span> : rxgraph) (<span class="nv">E</span> : univalent_rxgraph)
+  : univalent_disp_rxgraph B
+  := make_univalent_disp_rxgraph
+       (trivial_disp_rxgraph B E)
+       (<span class="k">λ</span> <span class="nv">x</span>, E).
+
+<span class="sd">(** The total opposite of a displayed reflexive graph [x : B ⊢ E[x]]</span>
+<span class="sd">    is the displayed reflexive graph over [B^op] with the same</span>
+<span class="sd">    vertices as [E] but flipped edges.  It is univalent if [E] is. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">total_opp_disp_rxgraph</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : disp_rxgraph B)
+  : disp_rxgraph (opp_rxgraph B).
+<span class="kn">Proof</span>.
+  use make_disp_rxgraph.
+  - <span class="bp">exact</span> E.
+  - <span class="nb">intros</span> x y e a b; <span class="nb">cbn</span> <span class="k">in</span> e.
+    <span class="bp">exact</span> (b ≈[e] a).
+  - <span class="nb">intros</span> x a; <span class="nb">cbn</span> <span class="k">in</span> x.
+    <span class="bp">exact</span> (disp_refl x a).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_total_opp_disp_rxgraph</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : disp_rxgraph B)
+  (<span class="nv">HE</span> : is_disp_univalent E)
+  : is_disp_univalent (total_opp_disp_rxgraph E).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x.
+  <span class="nb">apply</span> is_univalent_from_isaprop_edges_from.
+  <span class="bp">exact</span> (is_univalent_to_isaprop_edges_to _ (HE x)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">total_opp_opp_disp_rxgraph_compute</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : disp_rxgraph B)
+  : total_opp_disp_rxgraph (total_opp_disp_rxgraph E) = E.
+<span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">total_opp_univalent_disp_rxgraph</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : univalent_disp_rxgraph B)
+  : univalent_disp_rxgraph (opp_rxgraph B)
+  := make_univalent_disp_rxgraph _
+       (is_univalent_total_opp_disp_rxgraph E E).
+
+<span class="kn">Notation</span> <span class="s2">"E '^op*'"</span> :=
+  (total_opp_disp_rxgraph E)
+    (<span class="kn">at level</span> <span class="mi">1</span>, <span class="kn">format</span> <span class="s2">"E ^op*"</span>) : rxgraph.
+<span class="kn">Notation</span> <span class="s2">"E '^op*!'"</span> :=
+  (total_opp_univalent_disp_rxgraph E)
+    (<span class="kn">at level</span> <span class="mi">1</span>, <span class="kn">format</span> <span class="s2">"E ^op*!"</span>) : rxgraph.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/IdentitySystems/Examples.v</tt>, line 24)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  ********************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

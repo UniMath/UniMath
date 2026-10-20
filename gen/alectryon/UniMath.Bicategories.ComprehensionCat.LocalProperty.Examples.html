@@ -1,0 +1,785 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Examples.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************</span>
+
+<span class="sd"> Examples of local properties</span>
+
+<span class="sd"> In this file, we collect various examples of local properties. More specifically, we</span>
+<span class="sd"> have the following examples.</span>
+<span class="sd"> - We can take the conjunction of local properties ([local_property_conj]).</span>
+<span class="sd"> - We can take subproperty of local properties ([sub_local_property]).</span>
+<span class="sd"> - We have a local property of strict initial objects ([strict_initial_local_property]).</span>
+<span class="sd"> - We have a local property of binary coproducts that are stable under pullback</span>
+<span class="sd">   ([stable_bincoproducts_local_property]).</span>
+<span class="sd"> - We have a local property of being lextensive ([lextensive_local_property]).</span>
+<span class="sd"> Note: we use local properties in the context of finitely complete categories, so we</span>
+<span class="sd"> shall tacitly assume that the involved categories are finitely complete.</span>
+
+<span class="sd"> Of the aforementioned local properties, the one that requires the most explanation, is</span>
+<span class="sd"> the subproperty of a local property. To demonstrate this, we shall look at lextensive</span>
+<span class="sd"> categories. A lextensive category is an extensive category with finite limits. More</span>
+<span class="sd"> specifically, a lextensive category is a category with</span>
+<span class="sd"> - finite limits</span>
+<span class="sd"> - finite coproducts</span>
+<span class="sd"> - coproducts are stable under pullback</span>
+<span class="sd"> - coproducts are disjoint</span>
+<span class="sd"> Every lextensive category has an initial object (nullary coproduct) and this initial</span>
+<span class="sd"> object is strict. We can slightly reformulate the definition of a lextensive category,</span>
+<span class="sd"> namely as a category with finite limits together with</span>
+<span class="sd"> - a strict initial object (which is automatically stable under pullback)</span>
+<span class="sd"> - binary coproducts that are stable under pullback</span>
+<span class="sd"> - the binary coproducts are disjoint</span>
+<span class="sd"> For the first two, we can formulate local properties, which are given by</span>
+<span class="sd"> [strict_initial_local_property] and [stable_bincoproducts_local_property].</span>
+
+<span class="sd"> To specify the disjointness, we use a subproperty. The first important thing to notice</span>
+<span class="sd"> here, is that the formulation of disjointness ([disjoint_bincoproducts]) presupposes</span>
+<span class="sd"> the existence of binary coproducts and of an initial object. For this reason, we need</span>
+<span class="sd"> to express disjointness as an additional property on categories with binary coproducts</span>
+<span class="sd"> and an initial object. In addition, disjointness is an additional axiom that a category</span>
+<span class="sd"> may satisfy, so we do not ask for a preservation requirement.</span>
+
+<span class="sd"> The notion of subproperty is designed to incorporate such examples. It has a predicate</span>
+<span class="sd"> on categories satisfying some local property ([sub_property_of_local_property_data]).</span>
+<span class="sd"> The only two laws for subproperties is that this predicate is a proposition and that</span>
+<span class="sd"> this predicate is closed under slicing.</span>
+
+<span class="sd"> In the file `Biequivalence/LocalProperty.v`, we lift the biequivalence between categories</span>
+<span class="sd"> with finite limits and DFL comprehension categories to incorporate a local property.</span>
+<span class="sd"> Each of these properties can be instantiated meaning that we can get such a biequivalence</span>
+<span class="sd"> for, for example, lextensive categories.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Conjunction of local properties</span>
+<span class="sd"> 2. Subproperties of local properties</span>
+<span class="sd"> 3. Strict initial objects</span>
+<span class="sd"> 4. Stable binary coproducts</span>
+<span class="sd"> 5. Disjoint binary coproducts</span>
+<span class="sd"> 6. Regularity</span>
+<span class="sd"> 7. Exactness</span>
+<span class="sd"> 8. Pretoposes</span>
+<span class="sd"> 9. Subobject classifiers</span>
+<span class="sd"> 10. Elementary toposes</span>
+<span class="sd"> 11. Parameterized natural number objects</span>
+<span class="sd"> 12. Arithmetic universes</span>
+<span class="sd"> 13. Elementary toposes with a natural numbers object</span>
+
+<span class="sd"> **************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularEpi.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularEpiFacts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.ExactCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseSubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodColimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.ColimitProperties.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodRegular.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodSubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodNNO.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.StrictInitial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.DisjointBinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifierIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="sd">(** * 1. Conjunction of local properties *)</span>
+<span class="kn">Definition</span> <span class="nf">cat_property_data_conj</span>
+           (<span class="nv">P₁</span> <span class="nv">P₂</span> : cat_property_data)
+  : cat_property_data.
+<span class="kn">Proof</span>.
+  use make_cat_property_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span>, P₁ C × P₂ C).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">H₁</span> <span class="nv">H₂</span> <span class="nv">F</span>,
+           cat_property_functor P₁ (pr1 H₁) (pr1 H₂) F
+           ×
+           cat_property_functor P₂ (pr2 H₁) (pr2 H₂) F).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cat_property_laws_conj</span>
+            (<span class="nv">P₁</span> <span class="nv">P₂</span> : cat_property)
+  : cat_property_laws (cat_property_data_conj P₁ P₂).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ ,, _ ,, _ ,, _).
+  - <span class="nb">intros</span> C.
+    <span class="nb">apply</span> isapropdirprod.
+    + <span class="nb">apply</span> isaprop_cat_property_ob.
+    + <span class="nb">apply</span> isaprop_cat_property_ob.
+  - <span class="nb">intros</span> C₁ C₂ H₁ H₂ F.
+    <span class="nb">apply</span> isapropdirprod.
+    + <span class="nb">apply</span> isaprop_cat_property_functor.
+    + <span class="nb">apply</span> isaprop_cat_property_functor.
+  - <span class="nb">intros</span> C H.
+    <span class="nb">split</span>.
+    + <span class="nb">apply</span> cat_property_id_functor.
+    + <span class="nb">apply</span> cat_property_id_functor.
+  - <span class="nb">intros</span> C₁ C₂ C₃ H₁ H₂ H₃ F G HF HG.
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> (cat_property_comp_functor P₁ (pr1 HF) (pr1 HG)).
+    + <span class="bp">exact</span> (cat_property_comp_functor P₂ (pr2 HF) (pr2 HG)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_property_conj</span>
+           (<span class="nv">P₁</span> <span class="nv">P₂</span> : cat_property)
+  : cat_property.
+<span class="kn">Proof</span>.
+  use make_cat_property.
+  - <span class="bp">exact</span> (cat_property_data_conj P₁ P₂).
+  - <span class="bp">exact</span> (cat_property_laws_conj P₁ P₂).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_local_property_conj</span>
+            (<span class="nv">P₁</span> <span class="nv">P₂</span> : local_property)
+  : is_local_property (cat_property_conj P₁ P₂).
+<span class="kn">Proof</span>.
+  use make_is_local_property.
+  - <span class="nb">intros</span> C x H.
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> (local_property_slice P₁ C x (pr1 H)).
+    + <span class="bp">exact</span> (local_property_slice P₂ C x (pr2 H)).
+  - <span class="nb">intros</span> C H x y f.
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> (local_property_pb P₁ (pr1 H) f).
+    + <span class="bp">exact</span> (local_property_pb P₂ (pr2 H) f).
+  - <span class="nb">intros</span> C₁ C₂ H₁ H₂ F HF x.
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> (local_property_fiber_functor P₁ (pr1 H₁) (pr1 H₂) F (pr1 HF) x).
+    + <span class="bp">exact</span> (local_property_fiber_functor P₂ (pr2 H₁) (pr2 H₂) F (pr2 HF) x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">local_property_conj</span>
+           (<span class="nv">P₁</span> <span class="nv">P₂</span> : local_property)
+  : local_property.
+<span class="kn">Proof</span>.
+  use make_local_property.
+  - <span class="bp">exact</span> (cat_property_conj P₁ P₂).
+  - <span class="bp">exact</span> (is_local_property_conj P₁ P₂).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Subproperties of local properties *)</span>
+<span class="sd">(**</span>
+<span class="sd">   For subproperties, we further refine the categorical by adding another predicate</span>
+<span class="sd">   on categories (not on the functors).</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">sub_property_of_local_property_data</span>
+           (<span class="nv">P</span> : local_property)
+  : UU
+  := ∏ (C : univ_cat_with_finlim), P C → UU.
+
+<span class="kn">Definition</span> <span class="nf">sub_property_of_local_property_laws</span>
+           (<span class="nv">P</span> : local_property)
+           (<span class="nv">Q</span> : sub_property_of_local_property_data P)
+  : UU
+  := (∏ (C : univ_cat_with_finlim)
+        (H : P C),
+      isaprop (Q C H))
+     ×
+     (∏ (C : univ_cat_with_finlim)
+        (x : C)
+        (H : P C),
+      Q C H
+      →
+      Q (slice_univ_cat_with_finlim x) (local_property_slice P C x H)).
+
+<span class="kn">Definition</span> <span class="nf">sub_property_of_local_property</span>
+           (<span class="nv">P</span> : local_property)
+  : UU
+  := ∑ (Q : sub_property_of_local_property_data P),
+     sub_property_of_local_property_laws P Q.
+
+<span class="kn">Definition</span> <span class="nf">make_sub_property_of_local_property</span>
+           {<span class="nv">P</span> : local_property}
+           (<span class="nv">Q</span> : sub_property_of_local_property_data P)
+           (<span class="nv">H</span> : sub_property_of_local_property_laws P Q)
+  : sub_property_of_local_property P
+  := Q ,, H.
+
+<span class="kn">Definition</span> <span class="nf">sub_property_of_local_property_to_data</span>
+           {<span class="nv">P</span> : local_property}
+           (<span class="nv">Q</span> : sub_property_of_local_property P)
+           (<span class="nv">C</span> : univ_cat_with_finlim)
+           (<span class="nv">H</span> : P C)
+  : UU
+  := pr1 Q C H.
+
+<span class="kn">Coercion</span> <span class="nf">sub_property_of_local_property_to_data</span>
+  : sub_property_of_local_property &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_sub_property_of_local_property</span>
+            {<span class="nv">P</span> : local_property}
+            (<span class="nv">Q</span> : sub_property_of_local_property P)
+            (<span class="nv">C</span> : univ_cat_with_finlim)
+            (<span class="nv">H</span> : P C)
+  : isaprop (Q C H).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr12 Q C H).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">sub_property_of_local_property_slice</span>
+            {<span class="nv">P</span> : local_property}
+            (<span class="nv">Q</span> : sub_property_of_local_property P)
+            (<span class="nv">C</span> : univ_cat_with_finlim)
+            (<span class="nv">x</span> : C)
+            (<span class="nv">H</span> : P C)
+            (<span class="nv">H'</span> : Q C H)
+  : Q (slice_univ_cat_with_finlim x) (local_property_slice P C x H).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr22 Q C x H H').
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">SubLocalProperty</span>.
+  <span class="kn">Context</span> (<span class="nv">P</span> : local_property)
+          (<span class="nv">Q</span> : sub_property_of_local_property P).
+
+  <span class="kn">Definition</span> <span class="nf">sub_cat_property_data</span>
+    : cat_property_data.
+  <span class="kn">Proof</span>.
+    use make_cat_property_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span>, ∑ (H : P C), Q C H).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">H₁</span> <span class="nv">H₂</span> <span class="nv">F</span>, cat_property_functor P (pr1 H₁) (pr1 H₂) F).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">sub_cat_property_laws</span>
+    : cat_property_laws sub_cat_property_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> C.
+      use isaproptotal2.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_sub_property_of_local_property.
+      + <span class="nb">intros</span>.
+        <span class="nb">apply</span> isaprop_cat_property_ob.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> isaprop_cat_property_functor.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> cat_property_id_functor.
+    - <span class="nb">intros</span> C₁ C₂ C₃ H₁ H₂ H₃ F G HF HG.
+      <span class="bp">exact</span> (cat_property_comp_functor P HF HG).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sub_cat_property</span>
+    : cat_property.
+  <span class="kn">Proof</span>.
+    use make_cat_property.
+    - <span class="bp">exact</span> sub_cat_property_data.
+    - <span class="bp">exact</span> sub_cat_property_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_local_property_sub_cat_property</span>
+    : is_local_property sub_cat_property.
+  <span class="kn">Proof</span>.
+    use make_is_local_property.
+    - <span class="nb">intros</span> C x H.
+      <span class="nb">refine</span> (local_property_slice P C x (pr1 H) ,, _).
+      <span class="nb">apply</span> sub_property_of_local_property_slice.
+      <span class="bp">exact</span> (pr2 H).
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> local_property_pb.
+    - <span class="nb">intros</span> C₁ C₂ H₁ H₂ F HF x.
+      <span class="bp">exact</span> (local_property_fiber_functor P _ _ _ HF x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sub_local_property</span>
+    : local_property.
+  <span class="kn">Proof</span>.
+    use make_local_property.
+    - <span class="bp">exact</span> sub_cat_property.
+    - <span class="bp">exact</span> is_local_property_sub_cat_property.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">SubLocalProperty</span>.
+
+<span class="sd">(** * 3. Strict initial objects *)</span>
+<span class="kn">Definition</span> <span class="nf">strict_initial_cat_property_data</span>
+  : cat_property_data.
+<span class="kn">Proof</span>.
+  use make_cat_property_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span>, strict_initial_object C).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">F</span>, preserves_initial (pr1 F)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">strict_initial_cat_property_laws</span>
+  : cat_property_laws strict_initial_cat_property_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intro</span> C.
+    <span class="nb">apply</span> isaprop_strict_initial_object.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_preserves_initial.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> identity_preserves_initial.
+  - <span class="nb">intros</span> ? ? ? ? ? ? ? ? HF HG.
+    <span class="bp">exact</span> (composition_preserves_initial HF HG).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">strict_initial_cat_property</span>
+  : cat_property.
+<span class="kn">Proof</span>.
+  use make_cat_property.
+  - <span class="bp">exact</span> strict_initial_cat_property_data.
+  - <span class="bp">exact</span> strict_initial_cat_property_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_local_property_strict_initial_cat_property</span>
+  : is_local_property strict_initial_cat_property.
+<span class="kn">Proof</span>.
+  use make_is_local_property.
+  - <span class="nb">intros</span> C x I.
+    <span class="bp">exact</span> (strict_initial_cod_fib x I).
+  - <span class="nb">intros</span> C I x y f ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> stict_initial_stable.
+    <span class="bp">exact</span> I.
+  - <span class="nb">intros</span> C₁ C₂ I₁ I₂ F HF x.
+    <span class="nb">apply</span> preserves_initial_fiber_functor_disp_codomain.
+    + <span class="bp">exact</span> (pr1 I₁).
+    + <span class="bp">exact</span> HF.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">strict_initial_local_property</span>
+  : local_property.
+<span class="kn">Proof</span>.
+  use make_local_property.
+  - <span class="bp">exact</span> strict_initial_cat_property.
+  - <span class="bp">exact</span> is_local_property_strict_initial_cat_property.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. Stable binary coproducts *)</span>
+<span class="kn">Definition</span> <span class="nf">stable_bincoproducts_cat_property_data</span>
+  : cat_property_data.
+<span class="kn">Proof</span>.
+  use make_cat_property_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span>, ∑ (BC : BinCoproducts C), stable_bincoproducts BC).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">H₁</span> <span class="nv">H₂</span> <span class="nv">F</span>, preserves_bincoproduct (pr1 F)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">stable_bincoproducts_cat_property_laws</span>
+  : cat_property_laws stable_bincoproducts_cat_property_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> C.
+    use isaproptotal2.
+    + <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_stable_bincoproducts.
+    + <span class="nb">intros</span>.
+      <span class="nb">apply</span> isaprop_BinCoproducts.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_preserves_bincoproduct.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> identity_preserves_bincoproduct.
+  - <span class="nb">intros</span> ? ? ? ? ? ? ? ? HF HG.
+    <span class="bp">exact</span> (composition_preserves_bincoproduct HF HG).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">stable_bincoproducts_cat_property</span>
+  : cat_property.
+<span class="kn">Proof</span>.
+  use make_cat_property.
+  - <span class="bp">exact</span> stable_bincoproducts_cat_property_data.
+  - <span class="bp">exact</span> stable_bincoproducts_cat_property_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_local_property_stable_bincoproducts_cat_property</span>
+  : is_local_property stable_bincoproducts_cat_property.
+<span class="kn">Proof</span>.
+  use make_is_local_property.
+  - <span class="nb">intros</span> C x BC.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="bp">exact</span> (bincoproducts_cod_fib x (pr1 BC)).
+    + <span class="nb">apply</span> stable_bincoproducts_cod_fib.
+      * <span class="bp">exact</span> (pullbacks_univ_cat_with_finlim C).
+      * <span class="bp">exact</span> (pr2 BC).
+  - <span class="nb">intros</span> C HC x y f ; <span class="nb">cbn</span>.
+    use pb_preserves_bincoproduct_from_stable_bincoproducts.
+    + <span class="bp">exact</span> (pr1 HC).
+    + <span class="bp">exact</span> (pr2 HC).
+  - <span class="nb">intros</span> C₁ C₂ HC₁ HC₂ F HF x ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> preserves_bincoproducts_fiber_functor_disp_codomain.
+    + <span class="bp">exact</span> (pr1 HC₁).
+    + <span class="bp">exact</span> HF.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">stable_bincoproducts_local_property</span>
+  : local_property.
+<span class="kn">Proof</span>.
+  use make_local_property.
+  - <span class="bp">exact</span> stable_bincoproducts_cat_property.
+  - <span class="bp">exact</span> is_local_property_stable_bincoproducts_cat_property.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 5. Disjoint binary coproducts *)</span>
+<span class="kn">Definition</span> <span class="nf">strict_initial_stable_bincoprod_local_property</span>
+  : local_property
+  := local_property_conj
+       strict_initial_local_property
+       stable_bincoproducts_local_property.
+
+<span class="kn">Definition</span> <span class="nf">disjoint_bincoprod_subproperty_data</span>
+  : sub_property_of_local_property_data
+      strict_initial_stable_bincoprod_local_property
+  := <span class="k">λ</span> <span class="nv">C</span> <span class="nv">HC</span>, disjoint_bincoproducts (pr12 HC) (pr11 HC).
+
+<span class="kn">Arguments</span> disjoint_bincoprod_subproperty_data /.
+
+<span class="kn">Proposition</span> <span class="nf">disjoint_bincoprod_subproperty_laws</span>
+  : sub_property_of_local_property_laws
+      strict_initial_stable_bincoprod_local_property
+      disjoint_bincoprod_subproperty_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_disjoint_bincoproducts.
+  - <span class="nb">intros</span> C x HC H ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (disjoint_bincoproducts_cod_fib x (pr11 HC) (pr12 HC) H).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disjoint_bincoprod_subproperty</span>
+  : sub_property_of_local_property
+      strict_initial_stable_bincoprod_local_property.
+<span class="kn">Proof</span>.
+  use make_sub_property_of_local_property.
+  - <span class="bp">exact</span> disjoint_bincoprod_subproperty_data.
+  - <span class="bp">exact</span> disjoint_bincoprod_subproperty_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lextensive_local_property</span>
+  : local_property
+  := sub_local_property
+       _
+       disjoint_bincoprod_subproperty.
+
+<span class="sd">(** * 6. Regularity *)</span>
+<span class="kn">Definition</span> <span class="nf">regular_cat_property_data</span>
+  : cat_property_data.
+<span class="kn">Proof</span>.
+  use make_cat_property_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span>, coeqs_of_kernel_pair C × regular_epi_pb_stable C).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">H₁</span> <span class="nv">H₂</span> <span class="nv">F</span>, preserves_regular_epi (pr1 F)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">regular_cat_property_laws</span>
+  : cat_property_laws regular_cat_property_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intro</span>.
+    use isapropdirprod.
+    + <span class="nb">apply</span> isaprop_coeqs_of_kernel_pair.
+    + <span class="nb">apply</span> isaprop_regular_epi_pb_stable.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_preserves_regular_epi.
+  - <span class="nb">intros</span> C H.
+    <span class="nb">apply</span> id_preserves_regular_epi.
+  - <span class="nb">intros</span> C₁ C₂ C₃ H₁ H₂ H₃ F G HF HG.
+    <span class="bp">exact</span> (comp_preserves_regular_epi HF HG).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">regular_cat_property</span>
+  : cat_property.
+<span class="kn">Proof</span>.
+  use make_cat_property.
+  - <span class="bp">exact</span> regular_cat_property_data.
+  - <span class="bp">exact</span> regular_cat_property_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">regular_is_local_property</span>
+  : is_local_property regular_cat_property.
+<span class="kn">Proof</span>.
+  use make_is_local_property.
+  - <span class="nb">intros</span> C x H.
+    <span class="nb">split</span>.
+    + use cod_fib_coeqs_of_kernel_pair.
+      <span class="bp">exact</span> (pr1 H).
+    + use cod_fib_regular_epi_pb_stable.
+      * <span class="bp">exact</span> (pullbacks_univ_cat_with_finlim C).
+      * <span class="bp">exact</span> (pr1 H).
+      * <span class="bp">exact</span> (pr2 H).
+  - <span class="nb">intros</span> C H x y f ; <span class="nb">simpl</span>.
+    use regular_epi_pb_stable_to_pb_preserves.
+    + <span class="bp">exact</span> (pr1 H).
+    + <span class="bp">exact</span> (pr2 H).
+  - <span class="nb">intros</span> C₁ C₂ H₁ H₂ F HF x ; <span class="nb">simpl</span>.
+    use preserves_regular_epi_fiber_disp_cod.
+    + <span class="bp">exact</span> (pullbacks_univ_cat_with_finlim C₁).
+    + <span class="bp">exact</span> (pr1 H₁).
+    + <span class="bp">exact</span> (pr2 H₁).
+    + <span class="bp">exact</span> HF.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">regular_local_property</span>
+  : local_property.
+<span class="kn">Proof</span>.
+  use make_local_property.
+  - <span class="bp">exact</span> regular_cat_property.
+  - <span class="bp">exact</span> regular_is_local_property.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 7. Exactness *)</span>
+<span class="kn">Definition</span> <span class="nf">all_eqrel_effective_cat_property_data</span>
+  : cat_property_data.
+<span class="kn">Proof</span>.
+  use make_cat_property_data.
+  - <span class="bp">exact</span> all_internal_eqrel_effective.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, unit).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">all_eqrel_effective_cat_property_laws</span>
+  : cat_property_laws all_eqrel_effective_cat_property_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intro</span> C.
+    <span class="nb">apply</span> isaprop_all_internal_eqrel_effective.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isapropunit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">all_eqrel_effective_cat_property</span>
+  : cat_property.
+<span class="kn">Proof</span>.
+  use make_cat_property.
+  - <span class="bp">exact</span> all_eqrel_effective_cat_property_data.
+  - <span class="bp">exact</span> all_eqrel_effective_cat_property_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">all_eqrel_effective_is_local_property</span>
+  : is_local_property all_eqrel_effective_cat_property.
+<span class="kn">Proof</span>.
+  use make_is_local_property.
+  - <span class="nb">intros</span> C x H.
+    <span class="nb">apply</span> all_internal_eqrel_effective_fiber_disp_cod.
+    <span class="bp">exact</span> H.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> tt.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> tt.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">all_eqrel_effective_local_property</span>
+  : local_property.
+<span class="kn">Proof</span>.
+  use make_local_property.
+  - <span class="bp">exact</span> all_eqrel_effective_cat_property.
+  - <span class="bp">exact</span> all_eqrel_effective_is_local_property.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">exact_local_property</span>
+  : local_property
+  := local_property_conj
+       regular_local_property
+       all_eqrel_effective_local_property.
+
+<span class="sd">(** * 8. Pretoposes *)</span>
+<span class="kn">Definition</span> <span class="nf">pretopos_local_property</span>
+  : local_property
+  := local_property_conj
+       lextensive_local_property
+       exact_local_property.
+
+<span class="sd">(** * 9. Subobject classifiers *)</span>
+<span class="kn">Definition</span> <span class="nf">subobject_classifier_cat_property_data</span>
+  : cat_property_data.
+<span class="kn">Proof</span>.
+  use make_cat_property_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span>, subobject_classifier (terminal_univ_cat_with_finlim C)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">Ω₁</span> <span class="nv">Ω₂</span> <span class="nv">F</span>,
+           preserves_subobject_classifier
+             F
+             (terminal_univ_cat_with_finlim C₁)
+             (terminal_univ_cat_with_finlim C₂)
+             (functor_finlim_preserves_terminal F)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">subobject_classifier_cat_property_laws</span>
+  : cat_property_laws subobject_classifier_cat_property_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intro</span> C ; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> isaprop_subobject_classifier.
+  - <span class="nb">intros</span> C₁ C₂ Ω₁ Ω₂ F ; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> isaprop_preserves_subobject_classifier.
+  - <span class="nb">intros</span> C Ω ; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> identity_preserves_subobject_classifier.
+  - <span class="nb">intros</span> C₁ C₂ C₃ Ω₁ Ω₂ Ω₃ F G HF HG ; <span class="nb">simpl</span>.
+    <span class="bp">exact</span> (comp_preserves_subobject_classifier HF HG).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">subobject_classifier_cat_property</span>
+  : cat_property.
+<span class="kn">Proof</span>.
+  use make_cat_property.
+  - <span class="bp">exact</span> subobject_classifier_cat_property_data.
+  - <span class="bp">exact</span> subobject_classifier_cat_property_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">subobject_classifier_is_local_property</span>
+  : is_local_property subobject_classifier_cat_property.
+<span class="kn">Proof</span>.
+  use make_is_local_property.
+  - <span class="nb">intros</span> C x Ω.
+    <span class="nb">apply</span> (codomain_fiberwise_subobject_classifier _ (pullbacks_univ_cat_with_finlim C) Ω).
+  - <span class="nb">intros</span> C Ω x y f.
+    <span class="nb">apply</span> (codomain_fiberwise_subobject_classifier _ (pullbacks_univ_cat_with_finlim C) Ω).
+  - <span class="nb">intros</span> C₁ C₂ Ω₁ Ω₂ F HF x ; <span class="nb">cbn</span>.
+    use preserves_subobject_classifier_disp_codomain_fiber_functor.
+    + <span class="bp">exact</span> (terminal_univ_cat_with_finlim C₁).
+    + <span class="bp">exact</span> (terminal_univ_cat_with_finlim C₂).
+    + <span class="bp">exact</span> (binproducts_univ_cat_with_finlim C₁).
+    + <span class="bp">exact</span> (binproducts_univ_cat_with_finlim C₂).
+    + <span class="bp">exact</span> Ω₁.
+    + <span class="bp">exact</span> Ω₂.
+    + <span class="bp">exact</span> (functor_finlim_preserves_terminal F).
+    + <span class="bp">exact</span> (functor_finlim_preserves_binproduct F).
+    + <span class="bp">exact</span> HF.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">subobject_classifier_local_property</span>
+  : local_property.
+<span class="kn">Proof</span>.
+  use make_local_property.
+  - <span class="bp">exact</span> subobject_classifier_cat_property.
+  - <span class="bp">exact</span> subobject_classifier_is_local_property.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 10. Elementary toposes *)</span>
+<span class="kn">Definition</span> <span class="nf">topos_local_property</span>
+  : local_property
+  := local_property_conj
+       pretopos_local_property
+       subobject_classifier_local_property.
+
+<span class="sd">(** * 11. Parameterized natural number objects *)</span>
+<span class="kn">Definition</span> <span class="nf">parameterized_NNO_cat_property_data</span>
+  : cat_property_data.
+<span class="kn">Proof</span>.
+  use make_cat_property_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span>, parameterized_NNO
+                  (terminal_univ_cat_with_finlim C)
+                  (binproducts_univ_cat_with_finlim C)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">N₁</span> <span class="nv">N₂</span> <span class="nv">F</span>,
+           preserves_parameterized_NNO
+             N₁ N₂
+             F
+             (functor_finlim_preserves_terminal F)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cat_property_laws_parameterized_NNO</span>
+  : cat_property_laws parameterized_NNO_cat_property_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intro</span> C.
+    <span class="nb">apply</span> isaprop_parameterized_NNO.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_preserves_parameterized_NNO.
+  - <span class="nb">intros</span> C N.
+    <span class="nb">apply</span> id_preserves_parameterized_NNO.
+  - <span class="nb">intros</span> C₁ C₂ C₃ N₁ N₂ N₃ F G HF HG.
+    <span class="bp">exact</span> (comp_preserves_parameterized_NNO HF HG).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">parameterized_NNO_cat_property</span>
+  : cat_property.
+<span class="kn">Proof</span>.
+  use make_cat_property.
+  - <span class="bp">exact</span> parameterized_NNO_cat_property_data.
+  - <span class="bp">exact</span> cat_property_laws_parameterized_NNO.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_local_property_parameterized_NNO</span>
+  : is_local_property parameterized_NNO_cat_property.
+<span class="kn">Proof</span>.
+  use make_is_local_property.
+  - <span class="nb">intros</span> C x N.
+    <span class="bp">exact</span> (parameterized_NNO_prod_independent
+             (C := slice_univ_cat_with_finlim x)
+             _
+             (slice_parameterized_NNO N (pullbacks_univ_cat_with_finlim C) x)).
+  - <span class="nb">intros</span> C N x y f ; <span class="nb">cbn</span>.
+    use (preserves_parameterized_NNO_prod_independent
+             (C₁ := slice_univ_cat_with_finlim y)
+             (C₂ := slice_univ_cat_with_finlim x)).
+    <span class="nb">apply</span> slice_parameterized_NNO_stable.
+  - <span class="nb">intros</span> C₁ C₂ N₁ N₂ F HF x.
+    use (preserves_parameterized_NNO_prod_independent
+             (C₁ := slice_univ_cat_with_finlim x)
+             (C₂ := slice_univ_cat_with_finlim (F x))).
+    use codomain_functor_preserves_parameterized_NNO.
+    + <span class="nb">apply</span> functor_finlim_preserves_terminal.
+    + <span class="nb">apply</span> functor_finlim_preserves_binproduct.
+    + <span class="bp">exact</span> HF.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">parameterized_NNO_local_property</span>
+  : local_property.
+<span class="kn">Proof</span>.
+  use make_local_property.
+  - <span class="bp">exact</span> parameterized_NNO_cat_property.
+  - <span class="bp">exact</span> is_local_property_parameterized_NNO.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 12. Arithmetic universes *)</span>
+<span class="kn">Definition</span> <span class="nf">pretopos_with_nat_local_property</span>
+  : local_property
+  := local_property_conj
+       pretopos_local_property
+       parameterized_NNO_local_property.
+
+<span class="sd">(** * 13. Elementary toposes with a natural numbers object *)</span>
+<span class="kn">Definition</span> <span class="nf">topos_with_NNO_local_property</span>
+  : local_property
+  := local_property_conj
+       topos_local_property
+       parameterized_NNO_local_property.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/LocalProperty/Examples.v</tt>, line 66)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  13. Elementary toposes with a natural numbers object
+  &gt;
+  &gt;  **************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

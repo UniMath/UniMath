@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MLTT79.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">This file constructs a substitution monad on Set from a binding signature for the syntax of</span>
+<span class="sd">Martin-Löf type theory a la "Constructive Mathematics and Computer Programming" (1979).</span>
+
+<span class="sd">Written by: Anders Mörtberg, 2016</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Lists.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.Signatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.<span class="kn">Notation</span>.
+<span class="kn">Require</span> UniMath.SubstitutionSystems.SubstitutionSystems.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> subsys.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.BindingSigToMonad.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.LiftingInitial_alt.
+
+<span class="kn">Local</span> <span class="kn">Infix</span> <span class="s2">"::"</span> := (@cons nat).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"[]"</span> := (@nil nat) (<span class="kn">at level</span> <span class="mi">0</span>, <span class="kn">format</span> <span class="s2">"[]"</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'HSET2'"</span>:= [HSET, HSET].
+
+<span class="kn">Section</span> <span class="nf">preamble</span>.
+
+<span class="kn">Definition</span> <span class="nf">four_rec</span> {<span class="nv">A</span> : UU} (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : A) : stn <span class="mi">4</span> -&gt; A.
+<span class="kn">Proof</span>.
+<span class="nb">induction</span> <span class="mi">1</span> <span class="k">as</span> [n p].
+<span class="nb">induction</span> n <span class="k">as</span> [|n _]; [<span class="nb">apply</span> a|].
+<span class="nb">induction</span> n <span class="k">as</span> [|n _]; [<span class="nb">apply</span> b|].
+<span class="nb">induction</span> n <span class="k">as</span> [|n _]; [<span class="nb">apply</span> c|].
+<span class="nb">induction</span> n <span class="k">as</span> [|n _]; [<span class="nb">apply</span> d|].
+<span class="nb">induction</span> (nopathsfalsetotrue p).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">preamble</span>.
+
+<span class="kn">Infix</span> <span class="s2">"++"</span> := SumBindingSig.
+
+<span class="kn">Section</span> <span class="nf">MLTT79</span>.
+
+<span class="sd">(** This is the syntax as presented on page 158:</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">Pi types           (∏x:A)B                     [0,1]</span>
+<span class="sd">lambda             (λx)b                       [1]</span>
+<span class="sd">application        (c)a                        [0,0]</span>
+
+<span class="sd">Sigma types        (∑x:A)B                     [0,1]</span>
+<span class="sd">pair               (a,b)                       [0,0]</span>
+<span class="sd">pair-elim          (Ex,y)(c,d)                 [0,2]</span>
+
+<span class="sd">Sum types          A + B                       [0,0]</span>
+<span class="sd">inl                i(a)                        [0]</span>
+<span class="sd">inr                j(b)                        [0]</span>
+<span class="sd">sum-elim           (Dx,y)(c,d,e)               [0,1,1]</span>
+
+<span class="sd">Id types           I(A,a,b)                    [0,0,0]</span>
+<span class="sd">refl               r                           []</span>
+<span class="sd">J                  J(c,d)                      [0,0]</span>
+
+<span class="sd">Fin types          N_i                         []</span>
+<span class="sd">Fin elems          0_i ... (i-1)_i             [] ... []    (i times)</span>
+<span class="sd">Fin-elim           R_i(c,c_0,...,c_(i-1))      [0,0,...,0]  (i+1 zeroes)</span>
+
+<span class="sd">Nat                N                           []</span>
+<span class="sd">zero               0                           []</span>
+<span class="sd">suc                a'                          [0]</span>
+<span class="sd">nat-elim           (Rx,y)(c,d,e)               [0,0,2]</span>
+
+<span class="sd">W-types            (Wx∈A)B                     [0,1]</span>
+<span class="sd">sup                sup(a,b)                    [0,0]</span>
+<span class="sd">W-elim             (Tx,y,z)(c,d)               [0,3]</span>
+
+<span class="sd">Universes          U_0,U_1,...                 [],[],...</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd">*)</span>
+
+<span class="sd">(** Some convenient notations *)</span>
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"[0]"</span> := (<span class="mi">0</span> :: []).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"[1]"</span> := (<span class="mi">1</span> :: []).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"[0,0]"</span> := (<span class="mi">0</span> :: <span class="mi">0</span> :: []).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"[0,1]"</span> := (<span class="mi">0</span> :: <span class="mi">1</span> :: []).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"[0,2]"</span> := (<span class="mi">0</span> :: <span class="mi">2</span> :: []).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"[0,3]"</span> := (<span class="mi">0</span> :: <span class="mi">3</span> :: []).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"[0,0,0]"</span> := (<span class="mi">0</span> :: <span class="mi">0</span> :: <span class="mi">0</span> :: []).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"[0,0,2]"</span> := (<span class="mi">0</span> :: <span class="mi">0</span> :: <span class="mi">2</span> :: []).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"[0,1,1]"</span> := (<span class="mi">0</span> :: <span class="mi">1</span> :: <span class="mi">1</span> :: []).
+
+<span class="kn">Definition</span> <span class="nf">PiSig</span> : BindingSig :=
+  make_BindingSig (isasetstn <span class="mi">3</span>) (three_rec [<span class="mi">0</span>,<span class="mi">1</span>] [<span class="mi">1</span>] [<span class="mi">0</span>,<span class="mi">0</span>]).
+
+<span class="kn">Definition</span> <span class="nf">SigmaSig</span> : BindingSig :=
+  make_BindingSig (isasetstn <span class="mi">3</span>) (three_rec [<span class="mi">0</span>,<span class="mi">1</span>] [<span class="mi">0</span>,<span class="mi">0</span>] [<span class="mi">0</span>,<span class="mi">2</span>]).
+
+<span class="kn">Definition</span> <span class="nf">SumSig</span> : BindingSig :=
+  make_BindingSig (isasetstn <span class="mi">4</span>) (four_rec [<span class="mi">0</span>,<span class="mi">0</span>] [<span class="mi">0</span>] [<span class="mi">0</span>] [<span class="mi">0</span>,<span class="mi">1</span>,<span class="mi">1</span>]).
+
+<span class="kn">Definition</span> <span class="nf">IdSig</span> : BindingSig :=
+  make_BindingSig (isasetstn <span class="mi">3</span>) (three_rec [<span class="mi">0</span>,<span class="mi">0</span>,<span class="mi">0</span>] [] [<span class="mi">0</span>,<span class="mi">0</span>]).
+
+<span class="sd">(** Define the arity of the eliminators for Fin by recursion *)</span>
+<span class="kn">Definition</span> <span class="nf">FinSigElim</span> (<span class="nv">n</span> : nat) : list nat.
+<span class="kn">Proof</span>.
+<span class="nb">induction</span> n <span class="k">as</span> [|n ih].
+- <span class="nb">apply</span> [<span class="mi">0</span>].
+- <span class="nb">apply</span> (<span class="mi">0</span> :: ih).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Define the signature of the constructors for Fin *)</span>
+<span class="kn">Definition</span> <span class="nf">FinSigConstructors</span> (<span class="nv">n</span> : nat) : stn n -&gt; list nat := <span class="k">λ</span> <span class="nv">_</span>, [].
+
+<span class="c">(* The FinSig family is defined by recursion and decomposed into the</span>
+<span class="c">   type, the constructors and the eliminator *)</span>
+<span class="c">(* Definition FinSig (n : nat) : BindingSig (unit ⨿ (stn n ⨿ unit)). *)</span>
+<span class="c">(* Proof. *)</span>
+<span class="c">(* induction 1 as [_|p]. *)</span>
+<span class="c">(* - apply []. *)</span>
+<span class="c">(* - induction p as [p|]. *)</span>
+<span class="c">(*   + apply (FinSigConstructors _ p). *)</span>
+<span class="c">(*   + apply (FinSigElim n). *)</span>
+<span class="c">(* Defined. *)</span>
+
+<span class="sd">(** Uncurried version of the FinSig family *)</span>
+<span class="kn">Definition</span> <span class="nf">FinSigFun</span> : (∑ n : nat, unit ⨿ (stn n ⨿ unit)) → list nat.
+<span class="kn">Proof</span>.
+<span class="nb">induction</span> <span class="mi">1</span> <span class="k">as</span> [n p].
+<span class="nb">induction</span> p <span class="k">as</span> [_|p].
+- <span class="nb">apply</span> [].
+- <span class="nb">induction</span> p <span class="k">as</span> [p|].
+  + <span class="nb">apply</span> (FinSigConstructors _ p).
+  + <span class="nb">apply</span> (FinSigElim n).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isasetFinSig</span> : isaset (∑ n, unit ⨿ (stn n ⨿ unit)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isaset_total2.
+  - <span class="nb">apply</span> isasetnat.
+  - <span class="nb">intros</span>. <span class="kp">repeat</span> <span class="nb">apply</span> isasetcoprod; <span class="kp">try</span> <span class="nb">apply</span> isasetunit.
+    <span class="nb">apply</span> isasetstn.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isdeceqFinSig</span> : isdeceq (∑ n, unit ⨿ (stn n ⨿ unit)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isdeceq_total2.
+  - <span class="nb">apply</span> isdeceqnat.
+  - <span class="nb">intros</span>. <span class="kp">repeat</span> <span class="nb">apply</span> isdeceqcoprod; <span class="kp">try</span> <span class="nb">apply</span> isdecequnit.
+    <span class="nb">apply</span> isdeceqstn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">FinSig</span> : BindingSig := make_BindingSig isasetFinSig FinSigFun.
+
+<span class="kn">Definition</span> <span class="nf">NatSig</span> : BindingSig :=
+  make_BindingSig (isasetstn <span class="mi">4</span>) (four_rec [] [] [<span class="mi">0</span>] [<span class="mi">0</span>,<span class="mi">0</span>,<span class="mi">2</span>]).
+
+<span class="kn">Definition</span> <span class="nf">WSig</span> : BindingSig :=
+  make_BindingSig (isasetstn <span class="mi">3</span>) (three_rec [<span class="mi">0</span>,<span class="mi">1</span>] [<span class="mi">0</span>,<span class="mi">0</span>] [<span class="mi">0</span>,<span class="mi">3</span>]).
+
+<span class="kn">Definition</span> <span class="nf">USig</span> : BindingSig := make_BindingSig isasetnat (<span class="k">λ</span> <span class="nv">_</span>, []).
+
+<span class="kn">Let</span> <span class="nf">SigHSET</span> := Signature HSET HSET HSET.
+
+<span class="sd">(** The binding signature of MLTT79 *)</span>
+<span class="kn">Definition</span> <span class="nf">MLTT79Sig</span> := PiSig ++ SigmaSig ++ SumSig ++ IdSig ++
+                        FinSig ++ NatSig ++ WSig ++ USig.
+
+<span class="c">(* Check MLTT79Sig. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">MLTT79Signature</span> : SigHSET := BindingSigToSignatureHSET MLTT79Sig.
+
+<span class="kn">Let</span> <span class="nf">Id_H</span> := SubstitutionSystems.Id_H _ BinCoproductsHSET.
+
+<span class="kn">Definition</span> <span class="nf">MLTT79Functor</span> : functor HSET2 HSET2 := Id_H (Presignature_Signature MLTT79Signature).
+
+<span class="kn">Definition</span> <span class="nf">MLTT79Monad</span> : Monad HSET := BindingSigToMonadHSET MLTT79Sig.
+
+<span class="kn">Lemma</span> <span class="nf">MLTT79Functor_Initial</span> :
+   Initial (FunctorAlg MLTT79Functor).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> SignatureInitialAlgebraHSET, is_omega_cocont_BindingSigToSignatureHSET.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">MLTT79</span> : HSET2 :=
+  alg_carrier _ (InitialObject MLTT79Functor_Initial).
+
+<span class="kn">Let</span> <span class="nf">MLTT79_mor</span> : HSET2⟦MLTT79Functor MLTT79,MLTT79⟧ :=
+  alg_map _ (InitialObject MLTT79Functor_Initial).
+
+<span class="kn">Let</span> <span class="nf">MLTT79_alg</span> : algebra_ob MLTT79Functor :=
+  InitialObject MLTT79Functor_Initial.
+
+<span class="kn">Definition</span> <span class="nf">var_map</span> : HSET2⟦functor_identity HSET,MLTT79⟧ :=
+  SubstitutionSystems.η MLTT79_alg.
+
+<span class="c">(* TODO: define the rest of the constructors and computation rules? *)</span>
+
+<span class="kn">End</span> <span class="nf">MLTT79</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/MLTT79.v</tt>, line 10)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Sets.
+  &gt; Require Import UniMath.Combinatorics.StandardFiniteSets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

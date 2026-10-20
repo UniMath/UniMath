@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SplitMonicsAndEpis.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Split monics, split epis *)</span>
+
+<span class="sd">(** ** Contents</span>
+<span class="sd">- Split monics</span>
+<span class="sd">- Split epis</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** ** Split monomorphisms *)</span>
+
+<span class="sd">(** The naïve translation of the definition of split monomorphisms into type</span>
+<span class="sd">    theory is stronger than the classical definition. However, we can recover</span>
+<span class="sd">    the classical definition using truncation ([is_merely_split_monic]).</span>
+<span class="sd">    We explore both definitions below.</span>
+<span class="sd">  *)</span>
+
+<span class="kn">Section</span> <span class="nf">SplitMonic</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} {<span class="nv">A</span> <span class="nv">B</span> : ob C}.
+
+  <span class="sd">(** A choice of a section for the given morphism *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_split_monic</span> (<span class="nv">m</span> : A --&gt; B) : UU :=
+    ∑ r : B --&gt; A, is_retraction m r.
+
+  <span class="kn">Definition</span> <span class="nf">split_monic</span> : UU :=
+    ∑ m : A --&gt; B, is_split_monic m.
+
+  <span class="kn">Lemma</span> <span class="nf">split_monic_is_monic</span> (<span class="nv">m</span> : A --&gt; B) :
+    is_split_monic m -&gt; isMonic m.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> is_split.
+    <span class="nb">apply</span> (isMonic_postcomp _ m (pr1 is_split)).
+    <span class="nb">apply</span> (transportf _ (!pr2 is_split)).
+    <span class="nb">apply</span> identity_isMonic.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** We provide a coercion to [Monic C A B], rather than [A --&gt; B], as it is</span>
+<span class="sd">      more generally useful ([Monic C A B] coerces to [A --&gt; B]). *)</span>
+  <span class="kn">Definition</span> <span class="nf">split_monic_to_monic</span> (<span class="nv">m</span> : split_monic) : Monic C A B.
+  <span class="kn">Proof</span>.
+    use make_Monic.
+    - <span class="bp">exact</span> (pr1 m).
+    - <span class="kp">abstract</span> (<span class="nb">apply</span> split_monic_is_monic; <span class="bp">exact</span> (pr2 m)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Coercion</span> <span class="nf">split_monic_to_monic</span> : split_monic &gt;-&gt; Monic.
+
+  <span class="sd">(** The chosen section is not necessarily unique *)</span>
+  <span class="kn">Lemma</span> <span class="nf">isaset_is_split_monic</span> (<span class="nv">m</span> : A --&gt; B) :
+    has_homsets C -&gt; isaset (is_split_monic m).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>; <span class="nb">apply</span> isaset_total2; [<span class="nb">auto</span>|].
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> hlevelntosn; <span class="nb">apply</span> isaprop_is_retraction.
+    <span class="bp">assumption</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Now, for the "more classical" definition *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">is_merely_split_monic</span> (<span class="nv">m</span> : A --&gt; B) : hProp.
+  <span class="kn">Proof</span>.
+    use make_hProp.
+    - <span class="bp">exact</span> (∥ ∑ r : B --&gt; A, is_retraction m r ∥).
+    - <span class="nb">apply</span> isapropishinh.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">merely_split_monic</span> : UU :=
+    ∑ m : A --&gt; B, is_merely_split_monic m.
+
+  <span class="sd">(** Since coercing this to a [Monic] requires an extra hypothesis</span>
+<span class="sd">      (that [C]) has homsets, we just coerce to an arrow instead. *)</span>
+  <span class="kn">Definition</span> <span class="nf">merely_split_monic_to_morphism</span> (<span class="nv">m</span> : merely_split_monic) : A --&gt; B :=
+    pr1 m.
+  <span class="kn">Coercion</span> <span class="nf">merely_split_monic_to_morphism</span> :
+    merely_split_monic &gt;-&gt; precategory_morphisms.
+
+  <span class="kn">Lemma</span> <span class="nf">isaset_merely_split_monic</span> (<span class="nv">m</span> : A --&gt; B) :
+    has_homsets C -&gt; isaset merely_split_monic.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaset_total2; [<span class="nb">auto</span>|].
+    <span class="nb">intro</span>; <span class="nb">apply</span> hlevelntosn, propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** For the purposes of proving a proposition, we can assume a merely split</span>
+<span class="sd">      monic has a chosen section. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">merely_split_monic_to_split_monic</span> {<span class="nv">X</span> : UU} (<span class="nv">m</span> : A --&gt; B) :
+    isaprop X -&gt; (is_split_monic m -&gt; X) -&gt; is_merely_split_monic m -&gt; X.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> isx impl mere.
+    <span class="nb">refine</span> (factor_through_squash isx _ mere).
+    <span class="bp">assumption</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Note that this requires that [C] has homsets, in contrast</span>
+<span class="sd">      to the above statement for "non-mere" monics. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">merely_split_monic_is_monic</span> (<span class="nv">m</span> : A --&gt; B) :
+    has_homsets C -&gt; is_merely_split_monic m -&gt; isMonic m.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H.
+    <span class="nb">apply</span> merely_split_monic_to_split_monic.
+    - <span class="nb">apply</span> isapropisMonic; <span class="nb">auto</span>.
+    - <span class="nb">apply</span> split_monic_is_monic.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">merely_split_monic_to_monic</span> {<span class="nv">hsC</span> : has_homsets C} :
+    merely_split_monic -&gt; Monic C A B.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> m.
+    use make_Monic.
+    - <span class="bp">exact</span> (pr1 m).
+    - <span class="kp">abstract</span> (<span class="nb">apply</span> merely_split_monic_is_monic; [<span class="nb">auto</span>|]; <span class="bp">exact</span> (pr2 m)).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Equivalent definitions *)</span>
+
+  <span class="sd">(** For the truncated version, this is an equivalence (see below). However,</span>
+<span class="sd">      in general, choosing a section is stronger. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_split_monic_to_precomp_is_surjection</span> (<span class="nv">m</span> : A --&gt; B) :
+    is_split_monic m -&gt; ∏ c : ob C, issurjective (@precomp_with _ _ _ m c).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> is_split c f.
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">unfold</span> hfiber, precomp_with.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">is_split</span> · f).
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; z · _) (pr2 is_split) @ _).
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_merely_split_monic_weq_precomp_is_surjection</span> (<span class="nv">m</span> : A --&gt; B) :
+    is_merely_split_monic m &lt;-&gt;
+    ∏ c : ob C, issurjective (@precomp_with _ _ _ m c).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_split_monic.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> is_split ?.
+      <span class="nb">apply</span> (merely_split_monic_to_split_monic m).
+      + <span class="nb">apply</span> isapropissurjective.
+      + <span class="nb">intro</span>; <span class="nb">apply</span> is_split_monic_to_precomp_is_surjection.
+        <span class="bp">assumption</span>.
+      + <span class="bp">assumption</span>.
+    - <span class="nb">intros</span> is_surjective.
+      <span class="nb">specialize</span> (is_surjective _ (identity _)).
+      <span class="nb">refine</span> (factor_through_squash _ _ is_surjective).
+      + <span class="nb">apply</span> propproperty.
+      + <span class="nb">intro</span> fib.
+        <span class="nb">apply</span> hinhpr.
+        <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">fib</span>).
+        <span class="nb">apply</span> (pr2 fib).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">SplitMonic</span>.
+
+<span class="kn">Arguments</span> split_monic {_} _ _.
+<span class="kn">Arguments</span> merely_split_monic {_} _ _.
+
+<span class="sd">(** Functors preserve merely split monomorphisms *)</span>
+<span class="kn">Lemma</span> <span class="nf">functor_preserves_merely_split_monic</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : functor C D)
+      {<span class="nv">A</span> <span class="nv">B</span> : ob C} (<span class="nv">f</span> : C⟦A,B⟧) :
+  is_merely_split_monic f -&gt; is_merely_split_monic (# F f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intro</span> hf.
+  <span class="k">exists</span> (#F (pr1 hf)).
+  <span class="nb">unfold</span> is_retraction.
+  <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- functor_id, &lt;- (pr2 hf), &lt;- functor_comp.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Functors preserve split monomorphisms *)</span>
+<span class="kn">Lemma</span> <span class="nf">functor_preserves_split_monic</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : functor C D)
+      {<span class="nv">A</span> <span class="nv">B</span> : ob C} (<span class="nv">f</span> : C⟦A,B⟧) :
+  is_split_monic f -&gt; is_split_monic (# F f).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> hf.
+  <span class="k">exists</span> (#F (pr1 hf)).
+  <span class="nb">unfold</span> is_retraction.
+  <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- functor_id, &lt;- (pr2 hf), &lt;- functor_comp.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** An epic split monic is an iso. *)</span>
+<span class="kn">Lemma</span> <span class="nf">merely_split_monic_is_epi_to_is_z_iso</span>
+      {<span class="nv">C</span> : category} {<span class="nv">A</span> <span class="nv">B</span> : ob C} (<span class="nv">m</span> : A --&gt; B) :
+      is_merely_split_monic m -&gt; isEpi m -&gt; is_z_isomorphism m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> is_monic is_epi.
+  <span class="nb">apply</span> is_z_iso_from_is_iso. <span class="c">(* such an operation should rather be avoided *)</span>
+  <span class="nb">intro</span> c.
+  <span class="nb">apply</span> isweqinclandsurj.
+  - <span class="nb">apply</span> precomp_with_epi_isincl; <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> is_merely_split_monic_weq_precomp_is_surjection.
+    <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Definition of a split epimorphism.</span>
+<span class="sd">It is a morphism f such that there exists a morphism g that satisfies f ∘ g = id</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">SplitEpis</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : precategory} {<span class="nv">A</span> <span class="nv">B</span> : ob C}.
+
+  <span class="sd">(** An epi with a chosen retraction *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_split_epi</span> (<span class="nv">f</span> : C⟦A,B⟧) :=
+    ∑ (g : C⟦B,A⟧), is_retraction g f.
+
+  <span class="kn">Definition</span> <span class="nf">split_epi</span> : UU :=
+    ∑ f : A --&gt; B, is_split_epi f.
+
+  <span class="kn">Lemma</span> <span class="nf">split_epi_is_epi</span> (<span class="nv">f</span> : A --&gt; B) :
+    is_split_epi f -&gt; isEpi f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> is_split.
+    <span class="nb">apply</span> (isEpi_precomp _ (pr1 is_split) f).
+    <span class="nb">apply</span> (transportf _ (!pr2 is_split)).
+    <span class="nb">apply</span> identity_isEpi.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">split_epi_to_epi</span> (<span class="nv">f</span> : split_epi) : Epi C A B.
+  <span class="kn">Proof</span>.
+    use make_Epi.
+    - <span class="bp">exact</span> (pr1 f).
+    - <span class="kp">abstract</span> (<span class="nb">apply</span> split_epi_is_epi; <span class="bp">exact</span> (pr2 f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_merely_split_epi</span> (<span class="nv">f</span> : A --&gt; B) :=
+    ∥ ∑ (g : C⟦B,A⟧), g · f = identity B ∥.
+
+  <span class="kn">Definition</span> <span class="nf">merely_split_epi</span> : UU :=
+    ∑ (f : A --&gt; B), is_merely_split_epi f.
+
+  <span class="kn">Lemma</span> <span class="nf">isaset_merely_split_epi</span> :
+    has_homsets C -&gt; isaset merely_split_epi.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaset_total2; [<span class="nb">auto</span>|].
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> hlevelntosn, isapropishinh.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** For the purposes of proving a proposition, we can assume a merely split</span>
+<span class="sd">      epi has a chosen retraction. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">merely_split_epi_to_split_epi</span> {<span class="nv">X</span> : UU} (<span class="nv">m</span> : A --&gt; B) :
+    isaprop X -&gt; (is_split_epi m -&gt; X) -&gt; is_merely_split_epi m -&gt; X.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> isx impl mere.
+    <span class="nb">refine</span> (factor_through_squash isx _ mere).
+    <span class="bp">assumption</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">merely_split_epi_is_epi</span> (<span class="nv">f</span> : A --&gt; B) :
+    has_homsets C -&gt; is_merely_split_epi f -&gt; isEpi f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H.
+    <span class="nb">apply</span> merely_split_epi_to_split_epi.
+    - <span class="nb">apply</span> isapropisEpi; <span class="nb">auto</span>.
+    - <span class="nb">apply</span> split_epi_is_epi.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">SplitEpis</span>.
+
+<span class="sd">(** Functors preserve merely split epimorphisms *)</span>
+<span class="kn">Lemma</span> <span class="nf">functor_preserves_merely_split_epi</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory} (<span class="nv">F</span> : functor C D)
+      {<span class="nv">A</span> <span class="nv">B</span> : ob C} (<span class="nv">f</span> : C⟦A,B⟧) :
+  is_merely_split_epi f -&gt; is_merely_split_epi (# F f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intro</span> hf.
+  <span class="k">exists</span> (#F (pr1 hf)).
+  <span class="bp">now</span> <span class="nb">rewrite</span> &lt;-functor_id,&lt;- (pr2 hf), &lt;- functor_comp.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Functors preserve split epimorphisms *)</span>
+<span class="kn">Lemma</span> <span class="nf">functor_preserves_split_epi</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory} (<span class="nv">F</span> : functor C D)
+      {<span class="nv">A</span> <span class="nv">B</span> : ob C} (<span class="nv">f</span> : C⟦A,B⟧) :
+  is_split_epi f -&gt; is_split_epi (# F f).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> hf.
+  <span class="k">exists</span> (#F (pr1 hf)).
+  <span class="nb">unfold</span> is_retraction.
+  <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- functor_id, &lt;- (pr2 hf), &lt;- functor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">epis_are_split</span> (<span class="nv">C</span> : precategory) :=
+  ∏ (A B : C) (f : C⟦A,B⟧), isEpi f -&gt; is_merely_split_epi f.
+
+<span class="kn">Arguments</span> split_epi {_} _ _.
+<span class="kn">Arguments</span> merely_split_epi {_} _ _.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/SplitMonicsAndEpis.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - Split epis
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

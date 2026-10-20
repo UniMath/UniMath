@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SkewMonoidalCategories.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">  Skew-Monoidal categories</span>
+
+
+<span class="sd">Ambroise LAFONT 2020</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ProductCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'id' X"</span> := (identity X) (<span class="kn">at level</span> <span class="mi">30</span>).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C ⊠ D"</span> := (category_binproduct C D) (<span class="kn">at level</span> <span class="mi">38</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"( c , d )"</span> := (make_catbinprod c d).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"( f #, g )"</span> := (catbinprodmor f g).
+
+
+
+<span class="kn">Local Notation</span> <span class="nf">φ₁</span> := (functor_fix_fst_arg _ _ _).
+<span class="kn">Local Notation</span> <span class="nf">φ₂</span> := (functor_fix_snd_arg _ _ _).
+
+<span class="kn">Local</span> <span class="kn">Declare Scope</span> functor_scope.
+<span class="kn">Local</span> <span class="kn">Infix</span> <span class="s2">"×"</span> := pair_functor  : functor_scope .
+<span class="kn">Delimit Scope</span> functor_scope <span class="k">with</span> F.
+
+<span class="kn">Definition</span> <span class="nf">skewmonoidal_data</span> : UU :=
+  ∑ (V : category)(tensor : V ⊠ V ⟶ V) (I : V),
+        <span class="c">(* left unitor *)</span> φ₁ tensor I   ⟹ functor_identity V ×
+        <span class="c">(* right unitor *)</span> functor_identity V ⟹ φ₂ tensor I ×
+        <span class="c">(* associator *)</span> (tensor × (functor_identity _))%F ∙ tensor ⟹
+                             (precategory_binproduct_unassoc _ _ _)
+                             ∙ (functor_identity V × tensor)%F ∙ tensor .
+
+<span class="kn">Coercion</span> <span class="nf">cat_from_skewmonoidal</span> (V : skewmonoidal_data) : category := pr1 V.
+
+<span class="kn">Definition</span> <span class="nf">skewmonoidal_tensor</span> (<span class="nv">V</span> : skewmonoidal_data) :
+   V ⊠ V ⟶ V := pr1 (pr2 V).
+
+<span class="kn">Definition</span> <span class="nf">skewmonoidal_I</span> (<span class="nv">V</span> : skewmonoidal_data) :
+    V := pr1 (pr2 (pr2 V)).
+
+<span class="kn">Local Notation</span> <span class="nf">tensor</span> := (skewmonoidal_tensor _).
+<span class="kn">Local Notation</span> <span class="nf">I</span> := (skewmonoidal_I _).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"X ⊗ Y"</span> := (tensor (X, Y)).
+<span class="kn">Notation</span> <span class="s2">"f #⊗ g"</span> :=
+   (functor_on_morphisms (functor_data_from_functor _ _ tensor) (f #, g))
+                         (<span class="kn">at level</span> <span class="mi">31</span>).
+
+<span class="kn">Local Notation</span> <span class="nf">nts</span> := (pr2 (pr2 (_ : skewmonoidal_data))) .
+
+<span class="kn">Definition</span> <span class="nf">skewmonoidal_unitl_nt</span> (<span class="nv">V</span> : skewmonoidal_data) :
+  φ₁ tensor I  ⟹ functor_identity V :=
+  pr1 (pr2 nts).
+
+
+<span class="kn">Definition</span> <span class="nf">skewmonoidal_unitl</span> (<span class="nv">V</span> : skewmonoidal_data) (<span class="nv">x</span> : V) :
+  I ⊗ x --&gt; x := skewmonoidal_unitl_nt V x.
+
+<span class="kn">Local Notation</span> <span class="nf">λ'</span> := (skewmonoidal_unitl _).
+
+<span class="kn">Definition</span> <span class="nf">skewmonoidal_unitl_ax</span> (<span class="nv">V</span> : skewmonoidal_data) {<span class="nv">x</span> <span class="nv">y</span> : V} (<span class="nv">f</span> : x --&gt; y) :
+  (identity I) #⊗ f · <span class="k">λ</span><span class="nv">' y</span> = <span class="k">λ</span><span class="nv">' x</span> · f
+  := nat_trans_ax (skewmonoidal_unitl_nt V) _ _ f.
+
+
+<span class="kn">Definition</span> <span class="nf">skewmonoidal_unitr_nt</span> (<span class="nv">V</span> : skewmonoidal_data) :
+         functor_identity V ⟹ φ₂ tensor I := pr1 (pr2 (pr2 nts)).
+
+<span class="kn">Definition</span> <span class="nf">skewmonoidal_unitr</span> (<span class="nv">V</span> : skewmonoidal_data) (<span class="nv">x</span> : V) :
+  x --&gt; x ⊗ I := skewmonoidal_unitr_nt V x.
+
+<span class="kn">Local Notation</span> <span class="nf">ρ'</span> := (skewmonoidal_unitr _).
+
+<span class="kn">Definition</span> <span class="nf">skewmonoidal_unitr_ax</span> (<span class="nv">V</span> : skewmonoidal_data) {<span class="nv">x</span> <span class="nv">y</span> : V} (<span class="nv">f</span> : x --&gt; y) :
+  f · ρ' y = ρ' x · f #⊗ identity I
+  := nat_trans_ax (skewmonoidal_unitr_nt V) _ _ f.
+
+
+
+<span class="kn">Definition</span> <span class="nf">skewmonoidal_assoc_nt</span> (<span class="nv">V</span> : skewmonoidal_data) :
+         (tensor × (functor_identity _))%F ∙ tensor ⟹
+                             (precategory_binproduct_unassoc _ _ _)
+                             ∙ (functor_identity V × tensor)%F ∙ tensor
+                             := pr2 (pr2 (pr2 nts)).
+
+<span class="kn">Definition</span> <span class="nf">skewmonoidal_assoc</span> (<span class="nv">V</span> : skewmonoidal_data) (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : V) :
+  x ⊗ y ⊗ z --&gt; x ⊗ (y ⊗ z) := skewmonoidal_assoc_nt V ((x , y) , z).
+
+<span class="kn">Local Notation</span> <span class="nf">α'</span> := (skewmonoidal_assoc _).
+
+<span class="kn">Definition</span> <span class="nf">skewmonoidal_assoc_ax</span> (<span class="nv">V</span> : skewmonoidal_data)
+           {<span class="nv">x</span> <span class="nv">x'</span> <span class="nv">y</span> <span class="nv">y'</span> <span class="nv">z</span> <span class="nv">z'</span> : V} (<span class="nv">f</span> : x --&gt; x')(<span class="nv">g</span> : y --&gt; y')(<span class="nv">h</span> : z --&gt; z') :
+  ((f #⊗ g) #⊗ h) · α' x' y' z' = α' x y z · (f #⊗ (g #⊗ h))
+  := nat_trans_ax (skewmonoidal_assoc_nt V) _ _ ((f #, g) #, h).
+
+
+<span class="kn">Definition</span> <span class="nf">skewmonoidal_category</span> : UU :=
+  ∑ (V : skewmonoidal_data),
+  ρ' I · <span class="k">λ</span><span class="nv">' I</span> = identity (C := V) I ×
+   (∏ (a b : V), ρ' a #⊗ id b  · α' a I b · id a #⊗  <span class="k">λ</span><span class="nv">' b</span> = id (a ⊗ b)) ×
+   (∏ (a b : V), α' I a b · <span class="k">λ</span>' (a ⊗ b) = <span class="k">λ</span><span class="nv">' a</span> #⊗ id b) ×
+   (∏ (a b : V), ρ' (a⊗b) · α' a b I = id a #⊗ ρ' b) ×
+   (∏ (a b c d : V), α' (a ⊗ b) c d · α' a b (c ⊗ d) =
+                     α' a b c #⊗ id d · α' a (b ⊗ c)  d ·
+                         id a #⊗ α' b c d).
+
+<span class="kn">Coercion</span> <span class="nf">data_from_skewmonoidal</span> (V : skewmonoidal_category) : skewmonoidal_data := pr1 V.
+
+<span class="kn">Local Notation</span> <span class="nf">eq</span> := (pr2 (_ : skewmonoidal_category)).
+
+<span class="kn">Definition</span> <span class="nf">skewmonoidal_rho_lambda_eq</span> (<span class="nv">V</span> : skewmonoidal_category) : ρ' I · <span class="k">λ</span><span class="nv">' I</span> = identity (C := V) I :=
+   pr1 eq.
+<span class="kn">Definition</span> <span class="nf">skewmonoidal_triangle_eq</span> (<span class="nv">V</span> : skewmonoidal_category) :
+  ∏ (a b : V), ρ' a #⊗ id b  · α' a I b · id a #⊗  <span class="k">λ</span><span class="nv">' b</span> = id (a ⊗ b)
+  := pr1 (pr2 eq).
+<span class="kn">Definition</span> <span class="nf">skewmonoidal_alpha_lambda_eq</span> (<span class="nv">V</span> : skewmonoidal_category) :
+  ∏ (a b : V), α' I a b · <span class="k">λ</span>' (a ⊗ b) = <span class="k">λ</span><span class="nv">' a</span> #⊗ id b := pr1 (pr2 (pr2 eq)).
+
+<span class="kn">Definition</span> <span class="nf">skewmonoidal_rho_alpha_eq</span> (<span class="nv">V</span> : skewmonoidal_category) :
+  ∏ (a b : V), ρ' (a⊗b) · α' a b I = id a #⊗ ρ' b := pr1 (pr2 (pr2 (pr2 eq))).
+<span class="kn">Definition</span> <span class="nf">skewmonoidal_pentagon_eq</span> (<span class="nv">V</span> : skewmonoidal_category) :
+  ∏ (a b c d : V), α' (a ⊗ b) c d · α' a b (c ⊗ d) =
+                     α' a b c #⊗ id d · α' a (b ⊗ c)  d ·
+                         id a #⊗ α' b c d
+  :=  (pr2 (pr2 (pr2 (pr2 eq)))).
+
+<span class="kn">Lemma</span> <span class="nf">I_mult_laws</span> (<span class="nv">V</span> : skewmonoidal_category) (<span class="nv">X</span> : V) : α' I I X · identity (C := V) I #⊗ <span class="k">λ</span><span class="nv">' X</span> · <span class="k">λ</span><span class="nv">' X</span> = <span class="k">λ</span><span class="nv">' I</span> #⊗ identity X · <span class="k">λ</span><span class="nv">' X</span>.
+<span class="kn">Proof</span>.
+   etrans.
+    {
+      etrans;[<span class="nb">apply</span> pathsinv0,assoc|].
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> skewmonoidal_unitl_ax.
+    }
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> skewmonoidal_alpha_lambda_eq.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/SkewMonoidal/SkewMonoidalCategories.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Ambroise LAFONT 2020
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Isos.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Mono.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">   In this file, we show that weak equivalences reflect and preserve monomorphisms.</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">ReflectionOfMonomorphisms</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">Fw</span> : fully_faithful F).
+
+  <span class="kn">Context</span> {<span class="nv">d₁</span> <span class="nv">d₂</span> : D}
+    {<span class="nv">c₁</span> <span class="nv">c₂</span> : C}
+    (<span class="nv">i₁</span> : z_iso (F c₁) d₁)
+    (<span class="nv">i₂</span> : z_iso (F c₂) d₂).
+
+  <span class="kn">Let</span> <span class="nf">reflection</span> (<span class="nv">f</span> : D⟦d₁, d₂⟧)
+    : C⟦c₁, c₂⟧
+    := fully_faithful_inv_hom Fw c₁ c₂ (i₁ · f· z_iso_inv i₂).
+
+  <span class="kn">Lemma</span> <span class="nf">reflection_of_mono_is_mono</span>
+    (<span class="nv">f</span> : D⟦d₁, d₂⟧)
+    : isMonic f → isMonic (reflection f).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> fm.
+    <span class="nb">unfold</span> reflection.
+    <span class="nb">apply</span> (faithful_reflects_mono _ Fw).
+    <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+    <span class="kp">repeat</span> (use isMonic_comp).
+    + <span class="nb">apply</span> is_iso_isMonic, z_iso_is_z_isomorphism.
+    + <span class="nb">apply</span> fm.
+    + <span class="nb">apply</span> is_iso_isMonic, z_iso_is_z_isomorphism.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reflection_of_mono</span>
+    (<span class="nv">f</span> : Monic D d₁ d₂)
+    : Monic C c₁ c₂
+    := make_Monic _ (reflection f) (reflection_of_mono_is_mono f (pr2 f)).
+
+<span class="kn">End</span> <span class="nf">ReflectionOfMonomorphisms</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weak_equiv_preserves_monic</span>
+  {<span class="nv">C</span> <span class="nv">D</span> : category}
+  {<span class="nv">F</span> : functor C D}
+  (<span class="nv">Fw</span> : is_weak_equiv F)
+  {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">m</span> : Monic _ x y)
+  : isMonic (#F m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> d g₁ g₂ p.
+
+  use (factor_through_squash _ _ (eso_from_weak_equiv _ Fw d)).
+  { <span class="nb">apply</span> homset_property. }
+  <span class="nb">intros</span> [d₀ i].
+  <span class="nb">set</span> (h₁ := fully_faithful_inv_hom (ff_from_weak_equiv _ Fw) _ _ (i · g₁)).
+  <span class="nb">set</span> (h₂ := fully_faithful_inv_hom (ff_from_weak_equiv _ Fw) _ _ (i · g₂)).
+
+  <span class="nb">assert</span> (pf₀ : h₁ = h₂).
+  {
+    use (pr2 m d₀ h₁ h₂).
+    use (faithful_reflects_morphism_equality _ (pr2 Fw)).
+    <span class="nb">unfold</span> h₁, h₂.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_comp.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> p.
+  }
+
+  <span class="nb">assert</span> (spf₀ : g₁ = z_iso_inv i · #F h₁).
+  {
+    <span class="nb">unfold</span> h₁.
+    <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+    <span class="nb">apply</span> pathsinv0, id_left.
+  }
+  <span class="nb">assert</span> (spf₁ : g₂ = z_iso_inv i · #F h₂).
+  {
+    <span class="nb">unfold</span> h₂.
+    <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+    <span class="nb">apply</span> pathsinv0, id_left.
+  }
+  <span class="nb">refine</span> (spf₀ @ _ @ ! spf₁).
+  <span class="nb">apply</span> maponpaths.
+
+  <span class="nb">unfold</span> h₁, h₂.
+  <span class="nb">apply</span> maponpaths.
+  <span class="bp">exact</span> pf₀.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">weak_equiv_preserves_mono</span>
+  {<span class="nv">C</span> <span class="nv">D</span> : category}
+  {<span class="nv">F</span> : functor C D}
+  (<span class="nv">Fw</span> : is_weak_equiv F)
+  {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">m</span> : Monic _ x y)
+  : Monic _ (F x) (F y)
+  := #F m ,, weak_equiv_preserves_monic Fw m.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/WeakEquivalences/Mono.v</tt>, line 5)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;    In this file, we show that weak equivalences reflect and preserve monomorphisms.
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

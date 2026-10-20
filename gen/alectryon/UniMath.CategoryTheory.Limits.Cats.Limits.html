@@ -1,0 +1,596 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Limits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(****************************************************</span>
+<span class="sd">  Benedikt Ahrens and Anders Mörtberg, March 2016</span>
+<span class="sd">*****************************************************)</span>
+
+<span class="sd">(** *************************************************</span>
+
+<span class="sd">Contents :</span>
+
+<span class="sd">	    Definition of limits</span>
+
+<span class="sd">*****************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Propositions.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">lim_def</span>.
+
+<span class="kn">Definition</span> <span class="nf">cone</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} (<span class="nv">F</span> : functor J C) (<span class="nv">c</span> : C) : UU :=
+  ∑ (f : ∏ (v : J), C⟦c,F v⟧),
+    ∏ (u v : J) (e : J⟦u,v⟧), f u · # F e = f v.
+
+<span class="kn">Definition</span> <span class="nf">make_cone</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F</span> : functor J C} {<span class="nv">c</span> : C}
+  (<span class="nv">f</span> : ∏ v, C⟦c, F v⟧) (<span class="nv">Hf</span> : ∏ u v (e : J⟦u,v⟧) , f u · # F e  = f v) :
+  cone F c := tpair _ f Hf.
+
+<span class="kn">Definition</span> <span class="nf">coneOut</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F</span> : functor J C} {<span class="nv">c</span> : C} (<span class="nv">cc</span> : cone F c) :
+  ∏ v, C⟦c, F v⟧ := pr1 cc.
+
+<span class="kn">Lemma</span> <span class="nf">coneOutCommutes</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F</span> : functor J C} {<span class="nv">c</span> : C}
+  (<span class="nv">cc</span> : cone F c) : ∏ u v (e : J⟦u,v⟧), coneOut cc u · # F e = coneOut cc v.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (pr2 cc).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isLimCone</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} (<span class="nv">F</span> : functor J C)
+  (<span class="nv">l</span> : C) (<span class="nv">cc0</span> : cone F l) : UU := ∏ (c : C) (cc : cone F c),
+    iscontr (∑ x : C⟦c,l⟧, ∏ v, x · coneOut cc0 v = coneOut cc v).
+
+<span class="kn">Definition</span> <span class="nf">LimCone</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} (<span class="nv">F</span> : functor J C) : UU :=
+  ∑ (A : (∑ l, cone F l)), isLimCone F (pr1 A) (pr2 A).
+
+<span class="kn">Definition</span> <span class="nf">make_LimCone</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} (<span class="nv">F</span> : functor J C)
+  (<span class="nv">c</span> : C) (<span class="nv">cc</span> : cone F c) (<span class="nv">isCC</span> : isLimCone F c cc) : LimCone F :=
+  tpair _ (tpair _ c cc) isCC.
+
+<span class="c">(* lim is the tip of the lim cone *)</span>
+<span class="kn">Definition</span> <span class="nf">lim</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F</span> : functor J C} (<span class="nv">CC</span> : LimCone F) : C
+  := pr1 (pr1 CC).
+
+<span class="kn">Definition</span> <span class="nf">limCone</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F</span> : functor J C} (<span class="nv">CC</span> : LimCone F) :
+  cone F (lim CC) := pr2 (pr1 CC).
+
+<span class="kn">Definition</span> <span class="nf">limOut</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F</span> : functor J C} (<span class="nv">CC</span> : LimCone F) :
+  ∏ v, C⟦lim CC,F v⟧ := coneOut (limCone CC).
+
+<span class="kn">Lemma</span> <span class="nf">limOutCommutes</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F</span> : functor J C}
+  (<span class="nv">CC</span> : LimCone F) : ∏ u v (e : J⟦u,v⟧),
+   limOut CC u · # F e = limOut CC v.
+<span class="kn">Proof</span>.
+<span class="bp">exact</span> (coneOutCommutes (limCone CC)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">limUnivProp</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F</span> : functor J C}
+  (<span class="nv">CC</span> : LimCone F) : ∏ (c : C) (cc : cone F c),
+  iscontr (∑ x : C⟦c, lim CC⟧, ∏ v, x · limOut CC v = coneOut cc v).
+<span class="kn">Proof</span>.
+<span class="bp">exact</span> (pr2 CC).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_isLimCone</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} (<span class="nv">F</span> : functor J C) (<span class="nv">c0</span> : C)
+  (<span class="nv">cc0</span> : cone F c0) : isaprop (isLimCone F c0 cc0).
+<span class="kn">Proof</span>.
+<span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+<span class="nb">apply</span> isapropiscontr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isLimCone_LimCone</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F</span> : functor J C}
+  (<span class="nv">CC</span> : LimCone F)
+  : isLimCone F (lim CC) (tpair _ (limOut CC) (limOutCommutes CC))
+  := pr2 CC.
+
+<span class="kn">Definition</span> <span class="nf">limArrow</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F</span> : functor J C} (<span class="nv">CC</span> : LimCone F)
+  (<span class="nv">c</span> : C) (<span class="nv">cc</span> : cone F c) : C⟦c, lim CC⟧ := pr1 (pr1 (isLimCone_LimCone CC c cc)).
+
+<span class="kn">Lemma</span> <span class="nf">limArrowCommutes</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F</span> : functor J C} (<span class="nv">CC</span> : LimCone F)
+  (<span class="nv">c</span> : C) (<span class="nv">cc</span> : cone F c) <span class="nv">u</span> :
+   limArrow CC c cc · limOut CC u = coneOut cc u.
+<span class="kn">Proof</span>.
+<span class="bp">exact</span> ((pr2 (pr1 (isLimCone_LimCone CC _ cc))) u).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">limArrowUnique</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F</span> : functor J C} (<span class="nv">CC</span> : LimCone F)
+  (<span class="nv">c</span> : C) (<span class="nv">cc</span> : cone F c) (<span class="nv">k</span> : C⟦c, lim CC⟧)
+  (<span class="nv">Hk</span> : ∏ u, k · limOut CC u = coneOut cc u) :
+  k = limArrow CC c cc.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">apply</span> path_to_ctr, Hk.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Cone_precompose</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F</span> : functor J C}
+  {<span class="nv">c</span> : C} (<span class="nv">cc</span> : cone F c) (<span class="nv">x</span> : C) (<span class="nv">f</span> : C⟦x,c⟧) :
+    ∏ u v (e : J⟦u,v⟧), (f · coneOut cc u) · # F e = f · coneOut cc v.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> u v e; <span class="nb">rewrite</span> &lt;- assoc, coneOutCommutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">limArrowEta</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F</span> : functor J C} (<span class="nv">CC</span> : LimCone F)
+  (<span class="nv">c</span> : C) (<span class="nv">f</span> : C⟦c, lim CC⟧) :
+  f = limArrow CC c (tpair _ (<span class="k">λ</span> <span class="nv">u</span>, f · limOut CC u)
+                 (Cone_precompose (limCone CC) c f)).
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">apply</span> limArrowUnique.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">limOfArrows</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F1</span> <span class="nv">F2</span> : functor J C}
+  (<span class="nv">CC1</span> : LimCone F1) (<span class="nv">CC2</span> : LimCone F2)
+  (<span class="nv">f</span> : ∏ u, C⟦F1 u,F2 u⟧)
+  (<span class="nv">fNat</span> : ∏ u v (e : J⟦u,v⟧), f u · # F2 e = # F1 e · f v) :
+  C⟦lim CC1 , lim CC2⟧.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> limArrow; use make_cone.
+- <span class="bp">now</span> <span class="nb">intro</span> u; <span class="nb">apply</span> (limOut CC1 u · f u).
+- <span class="kp">abstract</span> (<span class="nb">intros</span> u v e; <span class="nb">simpl</span>;
+            <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- assoc, fNat, assoc, limOutCommutes).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">limOfArrowsOut</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F1</span> <span class="nv">F2</span> : functor J C}
+  (<span class="nv">CC1</span> : LimCone F1) (<span class="nv">CC2</span> : LimCone F2)
+  (<span class="nv">f</span> : ∏ u, C⟦F1 u,F2 u⟧)
+  (<span class="nv">fNat</span> : ∏ u v (e : J⟦u,v⟧), f u · # F2 e = # F1 e · f v) :
+    ∏ u, limOfArrows CC1 CC2 f fNat · limOut CC2 u =
+          limOut CC1 u · f u.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">unfold</span> limOfArrows; <span class="nb">intro</span> u; <span class="nb">rewrite</span> limArrowCommutes.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">limOfArrows_id</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F</span> : J ⟶ C} (<span class="nv">CC</span> : LimCone F)
+  (<span class="nv">id_nat</span> : ∏ u v e, identity (F u) · # F e = # F e · identity (F v))
+  : limOfArrows CC CC (<span class="k">λ</span> <span class="nv">_</span>, identity _) id_nat = identity (lim CC).
+<span class="kn">Proof</span>.
+  <span class="nb">symmetry</span>; use limArrowUnique; <span class="nb">intro</span>; <span class="nb">cbn</span>.
+  <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">limOfArrows_comp</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F</span> <span class="nv">G</span> <span class="nv">H</span> : J ⟶ C}
+  (<span class="nv">CC1</span> : LimCone F) (<span class="nv">CC2</span> : LimCone G) (<span class="nv">CC3</span> : LimCone H)
+  (<span class="nv">fg</span> : ∏ u, C⟦F u,G u⟧) (<span class="nv">gh</span> : ∏ u, C⟦G u,H u⟧)
+  (<span class="nv">fg_nat</span> : ∏ u v e, fg u · # G e = # F e · fg v)
+  (<span class="nv">gh_nat</span> : ∏ u v e, gh u · # H e = # G e · gh v)
+  (<span class="nv">fgh_nat</span> : ∏ u v e, (fg u · gh u) · # H e = # F e · (fg v · gh v))
+  : limOfArrows CC1 CC3 (<span class="k">λ</span> <span class="nv">u</span>, fg u · gh u) fgh_nat
+    = limOfArrows CC1 CC2 fg fg_nat · limOfArrows CC2 CC3 gh gh_nat.
+<span class="kn">Proof</span>.
+  <span class="nb">symmetry</span>; use limArrowUnique; <span class="nb">intro</span>; <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ _).
+    use limOfArrowsOut.
+  }
+  etrans.
+  {
+    <span class="nb">rewrite</span> assoc; <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x·_) _).
+    use limOfArrowsOut.
+  }
+  <span class="bp">now</span> <span class="nb">rewrite</span> assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">postCompWithLimOfArrows_subproof</span>
+  {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F1</span> <span class="nv">F2</span> : functor J C}
+  (<span class="nv">CC1</span> : LimCone F1) (<span class="nv">CC2</span> : LimCone F2)
+  (<span class="nv">f</span> : ∏ u, C⟦F1 u,F2 u⟧)
+  (<span class="nv">fNat</span> : ∏ u v (e : J⟦u,v⟧), f u · # F2 e = # F1 e · f v)
+  (<span class="nv">x</span> : C) (<span class="nv">cc</span> : cone F1 x) <span class="nv">u</span> <span class="nv">v</span> (<span class="nv">e</span> : J⟦u,v⟧) :
+    (coneOut cc u · f u) · # F2 e = coneOut cc v · f v.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (coneOutCommutes cc u v e), &lt;- assoc, fNat, assoc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">postcompWithLimOfArrows</span>
+  {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F1</span> <span class="nv">F2</span> : functor J C}
+  (<span class="nv">CC1</span> : LimCone F1) (<span class="nv">CC2</span> : LimCone F2)
+  (<span class="nv">f</span> : ∏ u, C⟦F1 u,F2 u⟧)
+  (<span class="nv">fNat</span> : ∏ u v (e : J⟦u,v⟧), f u · # F2 e = # F1 e · f v)
+  (<span class="nv">x</span> : C) (<span class="nv">cc</span> : cone F1 x) :
+     limArrow CC1 x cc · limOfArrows CC1 CC2 f fNat =
+       limArrow CC2 x (make_cone (<span class="k">λ</span> <span class="nv">u</span>, coneOut cc u · f u)
+         (postCompWithLimOfArrows_subproof CC1 CC2 f fNat x cc)).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> limArrowUnique; <span class="nb">intro</span> u.
+<span class="bp">now</span> <span class="nb">rewrite</span> &lt;- assoc, limOfArrowsOut, assoc, limArrowCommutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">postcompWithLimArrow</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F</span> : functor J C}
+ (<span class="nv">CC</span> : LimCone F) (<span class="nv">c</span> : C) (<span class="nv">cc</span> : cone F c) (<span class="nv">d</span> : C) (<span class="nv">k</span> : C⟦d,c⟧) :
+   k · limArrow CC c cc  =
+   limArrow CC d (make_cone (<span class="k">λ</span> <span class="nv">u</span>, k · coneOut cc u)
+              (Cone_precompose cc d k)).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> limArrowUnique.
+<span class="bp">now</span> <span class="nb">intro</span> u; <span class="nb">rewrite</span> &lt;- assoc, limArrowCommutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lim_endo_is_identity</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F</span> : functor J C}
+  (<span class="nv">CC</span> : LimCone F) (<span class="nv">k</span> : lim CC --&gt; lim CC)
+  (<span class="nv">H</span> : ∏ u, k · limOut CC u = limOut CC u) :
+  identity _ = k.
+<span class="kn">Proof</span>.
+use (uniqueExists (limUnivProp CC _ _)).
+- <span class="bp">now</span> <span class="nb">apply</span> (limCone CC).
+- <span class="bp">now</span> <span class="nb">intros</span> v; <span class="nb">apply</span> id_left.
+- <span class="nb">simpl</span>; <span class="bp">now</span> <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+
+<span class="c">(*</span>
+<span class="c">Definition Cocone_by_postcompose {g : graph} (D : diagram g C)</span>
+<span class="c"> (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) : cocone D d.</span>
+<span class="c">Proof.</span>
+<span class="c">now exists (λ u, coconeIn cc u · k); apply Cocone_postcompose.</span>
+<span class="c">Defined.</span>
+
+<span class="c">Lemma isColim_weq_subproof1 {g : graph} (D : diagram g C)</span>
+<span class="c">  (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) :</span>
+<span class="c">  ∏ u, coconeIn cc u · k = pr1 (Cocone_by_postcompose D c cc d k) u.</span>
+<span class="c">Proof.</span>
+<span class="c">now intro u.</span>
+<span class="c">Qed.</span>
+
+<span class="c">Lemma isColim_weq_subproof2 (g : graph) (D : diagram g C)</span>
+<span class="c">  (c : C) (cc : cocone D c) (H : ∏ d, isweq (Cocone_by_postcompose D c cc d))</span>
+<span class="c">  (d : C) (cd : cocone D d) (u : vertex g) :</span>
+<span class="c">    coconeIn cc u · invmap (make_weq _ (H d)) cd = coconeIn cd u.</span>
+<span class="c">Proof.</span>
+<span class="c">rewrite (isColim_weq_subproof1 D c cc d (invmap (make_weq _ (H d)) _) u).</span>
+<span class="c">set (p := homotweqinvweq (make_weq _ (H d)) cd); simpl in p.</span>
+<span class="c">now rewrite p.</span>
+<span class="c">Qed.</span>
+
+<span class="c">Lemma isColim_weq {g : graph} (D : diagram g C) (c : C) (cc : cocone D c) :</span>
+<span class="c">  isColimCocone D c cc &lt;-&gt; ∏ d, isweq (Cocone_by_postcompose D c cc d).</span>
+<span class="c">Proof.</span>
+<span class="c">split.</span>
+<span class="c">- intros H d.</span>
+<span class="c">  refine (isweq_iso _ _ _ _).</span>
+<span class="c">  + intros k.</span>
+<span class="c">    exact (colimArrow (make_ColimCocone D c cc H) _ k).</span>
+<span class="c">  + abstract (intro k; simpl;</span>
+<span class="c">              now apply pathsinv0, (colimArrowEta (make_ColimCocone D c cc H))).</span>
+<span class="c">  + abstract (simpl; intro k;</span>
+<span class="c">              apply total2_paths_second_isaprop;</span>
+<span class="c">                [ now repeat (apply impred; intro); apply hsC</span>
+<span class="c">                | destruct k as [k Hk]; simpl; apply funextsec; intro u;</span>
+<span class="c">                  now apply (colimArrowCommutes (make_ColimCocone D c cc H))]).</span>
+<span class="c">- intros H d cd.</span>
+<span class="c">  refine (tpair _ _ _).</span>
+<span class="c">  + exists (invmap (make_weq _ (H d)) cd).</span>
+<span class="c">    abstract (intro u; now apply isColim_weq_subproof2).</span>
+<span class="c">  + abstract (intro t; apply total2_paths_second_isaprop;</span>
+<span class="c">                [ now apply impred; intro; apply hsC</span>
+<span class="c">                | destruct t as [t Ht]; simpl;</span>
+<span class="c">                  apply (invmaponpathsweq (make_weq _ (H d))); simpl;</span>
+<span class="c">                  apply total2_paths_second_isaprop;</span>
+<span class="c">                    [ now repeat (apply impred; intro); apply hsC</span>
+<span class="c">                    | simpl; apply pathsinv0, funextsec; intro u; rewrite Ht;</span>
+<span class="c">                      now apply isColim_weq_subproof2]]).</span>
+<span class="c">Defined.</span>
+<span class="c">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">z_iso_from_lim_to_lim</span> {<span class="nv">J</span> <span class="nv">C</span> : precategory} {<span class="nv">F</span> : functor J C}
+  (<span class="nv">CC</span> <span class="nv">CC'</span> : LimCone F) : z_iso (lim CC) (lim CC').
+<span class="kn">Proof</span>.
+  use make_z_iso.
+  - <span class="nb">apply</span> limArrow, limCone.
+  - <span class="nb">apply</span> limArrow, limCone.
+  - <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">split</span>; <span class="nb">apply</span> pathsinv0, lim_endo_is_identity; <span class="nb">intro</span> u;
+                <span class="nb">rewrite</span> &lt;- assoc, limArrowCommutes; <span class="nb">eapply</span> pathscomp0; <span class="kp">try</span> <span class="nb">apply</span> limArrowCommutes).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">lim_def</span>.
+
+<span class="kn">Section</span> <span class="nf">Lims</span>.
+
+<span class="kn">Definition</span> <span class="nf">Lims</span> (<span class="nv">C</span> : precategory) : UU := ∏ (J : precategory) (F : functor J C), LimCone F.
+<span class="kn">Definition</span> <span class="nf">hasLims</span> : UU  :=
+  ∏ (J C : precategory) (F : functor J C), ishinh (LimCone F).
+<span class="kn">Definition</span> <span class="nf">Lims_of_shape</span> (<span class="nv">J</span> <span class="nv">C</span> : precategory) : UU := ∏ (F : functor J C), LimCone F.
+
+<span class="kn">Section</span> <span class="nf">Universal_Unique</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> : univalent_category).
+
+<span class="kn">Let</span> <span class="nf">H</span> : is_univalent C := pr2 C.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_Lims</span>: isaprop (Lims C).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> impred; <span class="nb">intro</span> J; <span class="nb">apply</span> impred; <span class="nb">intro</span> F.
+<span class="nb">apply</span> invproofirrelevance; <span class="nb">intros</span> Hccx Hccy.
+<span class="nb">apply</span> subtypePath.
+- <span class="nb">intro</span>; <span class="nb">apply</span> isaprop_isLimCone.
+- <span class="nb">apply</span> (total2_paths_f (isotoid _ H (z_iso_from_lim_to_lim Hccx Hccy))).
+  <span class="nb">set</span> (B c := ∏ v, C⟦c,F v⟧).
+  <span class="nb">set</span> (C' (c : C) f := ∏ u v (e : J⟦u,v⟧), @compose _ c _ _ (f u) (# F e) = f v).
+  <span class="nb">rewrite</span> (@transportf_total2 _ B C').
+  <span class="nb">apply</span> subtypePath.
+  + <span class="nb">intro</span>; <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>). <span class="nb">apply</span> (homset_property C).
+  + <span class="kp">abstract</span> (<span class="nb">simpl</span>; <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> transportf_isotoid_dep'|]; <span class="nb">apply</span> funextsec;
+              <span class="nb">intro</span> v; <span class="nb">rewrite</span> inv_isotoid, idtoiso_isotoid; <span class="nb">cbn</span>; <span class="nb">apply</span> limArrowCommutes).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Universal_Unique</span>.
+<span class="kn">End</span> <span class="nf">Lims</span>.
+
+<span class="kn">Section</span> <span class="nf">LimFunctor</span>.
+
+<span class="kn">Variable</span> <span class="nv">A</span> <span class="nv">C</span> : precategory.
+<span class="kn">Variable</span> <span class="nv">hsC</span> : has_homsets C.
+<span class="kn">Variable</span> (<span class="nv">J</span> : precategory).
+<span class="kn">Variable</span> (<span class="nv">D</span> : functor J [A, C, hsC]).
+
+<span class="kn">Definition</span> <span class="nf">functor_pointwise</span> (<span class="nv">a</span> : A) : functor J C.
+<span class="kn">Proof</span>.
+use tpair.
+- <span class="nb">apply</span> (tpair _ (<span class="k">λ</span> <span class="nv">v</span>, pr1 (D v) a)).
+  <span class="nb">intros</span> u v e; <span class="nb">simpl</span>; <span class="nb">apply</span> (pr1 (# D e) a).
+- <span class="kp">abstract</span> (use tpair;
+    [ <span class="nb">intro</span> x; <span class="nb">simpl</span>;
+      <span class="nb">apply</span> (toforallpaths _ _ _ (maponpaths pr1 (functor_id D x)) a)
+    | <span class="nb">intros</span> x y z f g; <span class="nb">simpl</span>;
+      <span class="nb">apply</span> (toforallpaths _ _ _ (maponpaths pr1 (functor_comp D f g)) a)]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Variable</span> (<span class="nv">HCg</span> : ∏ (a : A), LimCone (functor_pointwise a)).
+
+<span class="kn">Definition</span> <span class="nf">LimFunctor_ob</span> (<span class="nv">a</span> : A) : C := lim (HCg a).
+
+<span class="kn">Definition</span> <span class="nf">LimFunctor_mor</span> (<span class="nv">a</span> <span class="nv">a'</span> : A) (<span class="nv">f</span> : A⟦a, a'⟧) :
+  C⟦LimFunctor_ob a,LimFunctor_ob a'⟧.
+<span class="kn">Proof</span>.
+use limOfArrows.
+- <span class="bp">now</span> <span class="nb">intro</span> u; <span class="nb">apply</span> (# (pr1 (D u)) f).
+- <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">intros</span> u v e; <span class="nb">simpl</span>; <span class="nb">apply</span> (nat_trans_ax (# D e))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">LimFunctor_data</span> : functor_data A C := tpair _ _ LimFunctor_mor.
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_LimFunctor_data</span> : is_functor LimFunctor_data.
+<span class="kn">Proof</span>.
+<span class="nb">split</span>.
+- <span class="nb">intro</span> a; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> pathsinv0, lim_endo_is_identity; <span class="nb">intro</span> u.
+  <span class="nb">unfold</span> LimFunctor_mor; <span class="nb">rewrite</span> limOfArrowsOut.
+  <span class="nb">assert</span> (H : # (pr1 (D u)) (identity a) = identity (pr1 (D u) a)).
+    <span class="nb">apply</span> (functor_id (D u) a).
+  <span class="bp">now</span> <span class="nb">rewrite</span> H, id_right.
+- <span class="nb">intros</span> a b c fab fbc; <span class="nb">simpl</span>; <span class="nb">unfold</span> LimFunctor_mor.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">eapply</span> pathscomp0; [<span class="bp">now</span> <span class="nb">apply</span> postcompWithLimOfArrows|].
+  <span class="nb">apply</span> pathsinv0, limArrowUnique; <span class="nb">intro</span> u.
+  <span class="nb">rewrite</span> limOfArrowsOut, (functor_comp (D u)); <span class="nb">simpl</span>.
+  <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LimFunctor</span> : functor A C := tpair _ _ is_functor_LimFunctor_data.
+
+<span class="kn">Definition</span> <span class="nf">lim_nat_trans_in_data</span> <span class="nv">v</span> : [A, C, hsC] ⟦ LimFunctor, D v ⟧.
+<span class="kn">Proof</span>.
+use tpair.
+- <span class="nb">intro</span> a; <span class="bp">exact</span> (limOut (HCg a) v).
+- <span class="kp">abstract</span> (<span class="nb">intros</span> a a' f; <span class="nb">apply</span> (limOfArrowsOut (HCg a) (HCg a'))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cone_pointwise</span> (<span class="nv">F</span> : [A,C,hsC]) (<span class="nv">cc</span> : cone D F) <span class="nv">a</span> :
+  cone (functor_pointwise a) (pr1 F a).
+<span class="kn">Proof</span>.
+use make_cone.
+- <span class="bp">now</span> <span class="nb">intro</span> v; <span class="nb">apply</span> (pr1 (coneOut cc v) a).
+- <span class="kp">abstract</span> (<span class="nb">intros</span> u v e;
+    <span class="bp">now</span> <span class="nb">apply</span> (nat_trans_eq_pointwise (coneOutCommutes cc u v e))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">LimFunctor_unique</span> (<span class="nv">F</span> : [A, C, hsC]) (<span class="nv">cc</span> : cone D F) :
+  iscontr (∑ x : [A, C, hsC] ⟦ F, LimFunctor ⟧,
+            ∏ v, x · lim_nat_trans_in_data v = coneOut cc v).
+<span class="kn">Proof</span>.
+use tpair.
+- use tpair.
+  + <span class="nb">apply</span> (tpair _ (<span class="k">λ</span> <span class="nv">a</span>, limArrow (HCg a) _ (cone_pointwise F cc a))).
+    <span class="kp">abstract</span> (<span class="nb">intros</span> a a' f; <span class="nb">simpl</span>; <span class="nb">apply</span> pathsinv0; <span class="nb">eapply</span> pathscomp0;
+    [ <span class="nb">apply</span> (postcompWithLimOfArrows (HCg a))
+    | <span class="nb">apply</span> pathsinv0; <span class="nb">eapply</span> pathscomp0;
+      [ <span class="nb">apply</span> postcompWithLimArrow
+      | <span class="nb">apply</span> limArrowUnique; <span class="nb">intro</span> u; <span class="nb">eapply</span> pathscomp0;
+      [ <span class="bp">now</span> <span class="nb">apply</span> limArrowCommutes | <span class="bp">now</span> use nat_trans_ax]]]).
+  + <span class="kp">abstract</span> (<span class="nb">intro</span> u; <span class="nb">apply</span> (nat_trans_eq hsC); <span class="nb">simpl</span>; <span class="nb">intro</span> a;
+              <span class="bp">now</span> <span class="nb">apply</span> (limArrowCommutes (HCg a))).
+- <span class="kp">abstract</span> (<span class="nb">intro</span> t; <span class="nb">destruct</span> t <span class="k">as</span> [t1 t2];
+            <span class="nb">apply</span> subtypePath; <span class="nb">simpl</span>;
+              [ <span class="nb">intro</span>; <span class="nb">apply</span> impred; <span class="nb">intro</span> u; <span class="nb">apply</span> functor_category_has_homsets
+              | <span class="nb">apply</span> (nat_trans_eq hsC); <span class="nb">simpl</span>; <span class="nb">intro</span> a;
+                <span class="nb">apply</span> limArrowUnique; <span class="nb">intro</span> u;
+                <span class="bp">now</span> <span class="nb">apply</span> (nat_trans_eq_pointwise (t2 u))]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">LimFunctorCone</span> : LimCone D.
+<span class="kn">Proof</span>.
+use make_LimCone.
+- <span class="bp">exact</span> LimFunctor.
+- use make_cone.
+  + <span class="bp">now</span> <span class="nb">apply</span> lim_nat_trans_in_data.
+  + <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">intros</span> u v e; <span class="nb">apply</span> (nat_trans_eq hsC);
+                  <span class="nb">intro</span> a; <span class="nb">apply</span> (limOutCommutes (HCg a))).
+- <span class="bp">now</span> <span class="nb">intros</span> F cc; <span class="nb">simpl</span>; <span class="nb">apply</span> (LimFunctor_unique _ cc).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">LimFunctor</span>.
+
+<span class="kn">Lemma</span> <span class="nf">LimsFunctorCategory</span> (<span class="nv">A</span> <span class="nv">C</span> : precategory) (<span class="nv">hsC</span> : has_homsets C)
+  (<span class="nv">HC</span> : Lims C) : Lims [A,C,hsC].
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> g d; <span class="nb">apply</span> LimFunctorCone.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">LimsFunctorCategory_of_shape</span> (<span class="nv">J</span> <span class="nv">A</span> <span class="nv">C</span> : precategory) (<span class="nv">hsC</span> : has_homsets C)
+  (<span class="nv">HC</span> : Lims_of_shape J C) : Lims_of_shape J [A,C,hsC].
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> d; <span class="nb">apply</span> LimFunctorCone.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Section</span> <span class="nf">LimitsAreRightAdjoints</span>.
+  <span class="kn">Context</span> (<span class="nv">J</span> : category) (<span class="nv">C</span> : category).
+  <span class="kn">Context</span> (<span class="nv">C_complete</span> : Lims_of_shape J C).
+
+  <span class="kn">Definition</span> <span class="nf">limit_functor_data</span> : functor_data [J, C] C.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intro</span> F; <span class="bp">exact</span> (lim (C_complete F)).
+    - <span class="nb">intros</span> F G α; use limOfArrows; <span class="nb">cbn</span> <span class="k">in</span> α.
+      + use α.
+      + <span class="kp">abstract</span> (<span class="nb">symmetry</span>; use (nat_trans_ax α)).
+  <span class="kn">Defined</span>.
+
+
+  <span class="kn">Lemma</span> <span class="nf">limit_functor_is_functor</span> : is_functor limit_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span>; use limOfArrows_id.
+    - <span class="kp">do</span> <span class="mi">5</span> <span class="nb">intro</span>; use limOfArrows_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">limit_functor</span> : [J, C] ⟶ C
+    := make_functor limit_functor_data limit_functor_is_functor.
+
+  <span class="kn">Local Definition</span> <span class="nf">id_to_const_lim_data</span>
+    : nat_trans_data (functor_identity C) (constant_functor_functor ∙ limit_functor).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>; use limArrow; use make_cone.
+    - <span class="nb">intro</span> u; use identity.
+    - <span class="kp">abstract</span> (<span class="nb">intros</span> u v e; use id_left).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">id_to_const_lim_is_nat</span>
+    : is_nat_trans _ _ id_to_const_lim_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> A B f; <span class="nb">unfold</span> id_to_const_lim_data; <span class="nb">cbn</span>.
+    etrans; [|<span class="nb">symmetry</span>]; use limArrowUnique.
+    - use make_cone.
+      * <span class="nb">intro</span>; use f.
+      * <span class="nb">intros</span>; use id_right.
+    - <span class="nb">intro</span>; etrans.
+      { <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ _); use limArrowCommutes. }
+      <span class="nb">cbn</span>. use id_right.
+    - <span class="nb">intro</span>; <span class="nb">cbn</span>; etrans.
+      {
+        <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ _).
+        use (limOfArrowsOut _ (C_complete (constant_functor _ _ _))).
+      }
+      <span class="nb">rewrite</span> assoc; etrans.
+      { <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _); use limArrowCommutes. }
+      <span class="nb">cbn</span>. use id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">id_to_const_lim</span>
+    : functor_identity C ⟹ constant_functor_functor ∙ limit_functor
+    := make_nat_trans _ _ _ id_to_const_lim_is_nat.
+
+  <span class="kn">Local Definition</span> <span class="nf">lim_const_to_id_data</span>
+    : nat_trans_data (limit_functor ∙ constant_functor_functor) (functor_identity [J, C]).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> F; use make_nat_trans.
+    - <span class="nb">intro</span> u; <span class="nb">cbn</span>; use limOut.
+    - <span class="kp">abstract</span> (<span class="nb">intros</span> u v e; <span class="nb">rewrite</span> id_left; <span class="nb">symmetry</span>; use limOutCommutes).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">lim_const_to_id_is_nat</span>
+    : is_nat_trans _ _ lim_const_to_id_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> F F' α; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> nat_trans_eq; [use homset_property|]; use limOfArrowsOut.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">lim_const_to_id</span>
+    : limit_functor ∙ constant_functor_functor ⟹ functor_identity [J, C]
+    := make_nat_trans _ _ _ lim_const_to_id_is_nat.
+
+  <span class="kn">Local Lemma</span> <span class="nf">lim_const_adjunction</span>
+    : form_adjunction constant_functor_functor limit_functor
+        id_to_const_lim lim_const_to_id.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> A; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> nat_trans_eq; [use homset_property|]; <span class="nb">intro</span> u; <span class="nb">cbn</span>.
+      use (limArrowCommutes (C_complete (constant_functor_functor A))).
+    - <span class="nb">intro</span> A; <span class="nb">cbn</span>; etrans.
+      {
+        use limArrowUnique.
+        use limCone.
+        <span class="nb">intro</span> u.
+        etrans.
+        { <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ _); use limOfArrowsOut. }
+        <span class="nb">cbn</span>; etrans.
+        {
+          <span class="nb">rewrite</span> assoc; <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x·_) _).
+          use (limArrowCommutes (C_complete (constant_functor_functor _))).
+        }
+        <span class="nb">cbn</span>. use id_left.
+      }
+      <span class="nb">symmetry</span>; use limArrowUnique; <span class="nb">intro</span> u.
+      use id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">limit_functor_constant_functor_are_adjoints</span>
+    : are_adjoints constant_functor_functor limit_functor.
+  <span class="kn">Proof</span>.
+    use make_are_adjoints.
+    - <span class="bp">exact</span> id_to_const_lim.
+    - <span class="bp">exact</span> lim_const_to_id.
+    - <span class="bp">exact</span> lim_const_adjunction.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">limit_is_right_adjoint</span>
+    : is_right_adjoint limit_functor
+    := constant_functor_functor ,, limit_functor_constant_functor_are_adjoints.
+<span class="kn">End</span> <span class="nf">LimitsAreRightAdjoints</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Cats/Limits.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *****************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

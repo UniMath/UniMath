@@ -1,0 +1,676 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FiveLemma.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * FiveLemma *)</span>
+<span class="sd">(** ** Contents</span>
+<span class="sd">- Definition of structures for five lemma</span>
+<span class="sd">- Five Lemma structure to opposite category</span>
+<span class="sd">- Five Lemma</span>
+<span class="sd">- Five Lemma for short exact sequences, [ShortExact]</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Zero.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pushouts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Opp.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Morphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoriesWithBinOps.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoriesWithAbgrops.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PreAdditive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Additive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Abelian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.AbelianToAdditive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.AbelianPushoutPullback.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ShortExactSequences.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PseudoElements.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Kernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Cokernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinDirectSums.
+
+
+<span class="sd">(** ** FiveLemma</span>
+<span class="sd">Five lemma says that if you have the following commutative diagram in an abelian category</span>
+<span class="sd">                              C_1 --&gt; C_2 --&gt; C_3 --&gt; C_4 --&gt; C_5</span>
+<span class="sd">                           f_1 |   f_2 |   f_3 |   f_4 |   f_5 |</span>
+<span class="sd">                              D_1 --&gt; D_2 --&gt; D_3 --&gt; D_4 --&gt; D_5</span>
+<span class="sd">where the rows are exact and the morphisms f_1, f_2, f_4, and f_5 are isomorphisms, then f_3 is an</span>
+<span class="sd">isomorphism. Exactness of the first row means that an image of C_1 --&gt; C_2 is a kernel of</span>
+<span class="sd">C_2 --&gt; C_3, an image of C_2 --&gt; C_3 is a kernel of C_3 --&gt; C_4, and an image of C_3 --&gt; C_4 is a</span>
+<span class="sd">kernel of C_4 --&gt; C_5.</span>
+
+<span class="sd">The idea of the proof is to show that f_3 is monic and epi, and thus is an isomorphism by</span>
+<span class="sd">[monic_epi_is_iso]. To show that f_3 is monic, we use pseudo elements, [PseudoElem]. By [PEq_isMonic]</span>
+<span class="sd">it suffices to show that if a is a pseudo element of C_3 is mapped to PZero by f_3, then a is</span>
+<span class="sd">pseudo equal to PZero. We construct a pseudo element a' of C_1 which is mapped to a by the composite</span>
+<span class="sd"> C_1 --&gt; C_2 --&gt; C_3. Since the first row is exact, this composite is Zero, and thus the pseudo</span>
+<span class="sd">image is PZero.</span>
+
+<span class="sd">We construct such a pseudo element a' as follows. First, by using exactness at C_3, and the fact</span>
+<span class="sd">that a is mapped to Pzero by C_3 --&gt; C_4 (because of commutativity of f_3 f_4 square and the fact</span>
+<span class="sd">that f_4 is a monic), we obtain by [PEq_isExact] a pseudo element b' of C_2 which is mapped to a.</span>
+<span class="sd">The image of b' under f_2 · D_2 --&gt; D_3 is PZero by commutativity and the assumption that a is</span>
+<span class="sd">mapped to PZero. By [PEq_isExact] we obtain aa pseudo element b'' of D_1 which is mapped to the</span>
+<span class="sd">image of b' under f_2. By the fact that f_1 is an epi, we get a pseudo element a' which is mapped</span>
+<span class="sd">to b''. Now, using commutativity of the square f_1 f_2, and the fact that f_2 is a monic, we get</span>
+<span class="sd">that the image of a' under C_1 --&gt; C_2 is b'. Hence a' is mapped to a, under C_1 --&gt; C_2 --&gt; C_3,</span>
+<span class="sd">and the proof is complete.</span>
+
+<span class="sd">See [FiveLemma_isMonic] for formalization of the above.</span>
+
+<span class="sd">To show that f_3 is an epi we use opposite categories. First we transform the above diagram to</span>
+<span class="sd">the following diagram in the opposite category</span>
+<span class="sd">                              D_5 --&gt; D_4 --&gt; D_3 --&gt; D_2 --&gt; D_1</span>
+<span class="sd">                           f_1 |   f_2 |   f_3 |   f_4 |   f_5 |</span>
+<span class="sd">                              C_5 --&gt; D_2 --&gt; D_3 --&gt; D_4 --&gt; C_5</span>
+<span class="sd">Thus, we need to show that f_3 is monic (here f_3 is the opposite morphism of f_3 in the first</span>
+<span class="sd">diagram), to show that the original f_3 is epi! But this follows from the above proof. See</span>
+<span class="sd">[FiveLemma_isEpi].</span>
+
+<span class="sd">Finally, in [FiveLemma] we put [FiveLemma_isMonic] and [FiveLemma_isEpi] together, and prove the</span>
+<span class="sd">lemma.</span>
+
+
+
+<span class="sd">Five lemma is sometimes used for short exact sequences in which case C_1, C_5, D_1, and D_5 are</span>
+<span class="sd">Zeros. Thus, f_1 and f_5 are automatically isomorphisms, and one only needs to show that f_2 and</span>
+<span class="sd">f_4 are isomorphisms. This is proved in [ShortExactFiveLemma].</span>
+<span class="sd">*)</span>
+
+
+<span class="sd">(** ** Introduction</span>
+<span class="sd">In this section we define the data needed to state the five lemma. The main definitions are</span>
+<span class="sd">[FiveRow] and [FiveRowMorphism]. The first contains the data of a row in the five lemma, and the</span>
+<span class="sd">second contains the data for a morphism between two rows.</span>
+
+<span class="sd">[FiveRow] consists of Objects of the row, [FiveRowObs], differentials of the row [FiveRowDiffs],</span>
+<span class="sd">equations that composition of consecutive differentials is zero, [FiveRowDiffsEq], and the fact</span>
+<span class="sd">that the row is exact, [FiveRowExacts].</span>
+
+<span class="sd">[FiveRowMorphism] takes arguments two [FiveRow] and consists of morphisms between the objects in</span>
+<span class="sd">the rows, [FiveRowMors], and commutativity of the squares, [FiveRowMorsComm].</span>
+<span class="sd">**)</span>
+<span class="kn">Section</span> <span class="nf">five_lemma_data</span>.
+
+  <span class="kn">Context</span> {<span class="nv">A</span> : AbelianPreCat}.
+
+  <span class="sd">(** ** Rows *)</span>
+
+  <span class="sd">(** *** Objects for a row *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">FiveRowObs</span> : UU := (ob A) × (ob A) × (ob A) × (ob A) × (ob A).
+
+  <span class="kn">Definition</span> <span class="nf">make_FiveRowObs</span> (<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> <span class="nv">C4</span> <span class="nv">C5</span> : ob A) : FiveRowObs := (C1,,(C2,,(C3,,(C4,,C5)))).
+
+  <span class="kn">Definition</span> <span class="nf">FOb1</span> (<span class="nv">FRO</span> : FiveRowObs) : ob A := dirprod_pr1 FRO.
+
+  <span class="kn">Definition</span> <span class="nf">FOb2</span> (<span class="nv">FRO</span> : FiveRowObs) : ob A := dirprod_pr1 (dirprod_pr2 FRO).
+
+  <span class="kn">Definition</span> <span class="nf">FOb3</span> (<span class="nv">FRO</span> : FiveRowObs) : ob A := dirprod_pr1 (dirprod_pr2 (dirprod_pr2 FRO)).
+
+  <span class="kn">Definition</span> <span class="nf">FOb4</span> (<span class="nv">FRO</span> : FiveRowObs) : ob A :=
+    dirprod_pr1 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 FRO))).
+
+  <span class="kn">Definition</span> <span class="nf">FOb5</span> (<span class="nv">FRO</span> : FiveRowObs) : ob A :=
+    dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 FRO))).
+
+
+  <span class="sd">(** *** Differentials for a row *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">FiveRowDiffs</span> (<span class="nv">FRO</span> : FiveRowObs) : UU :=
+    (A⟦FOb1 FRO, FOb2 FRO⟧) × (A⟦FOb2 FRO, FOb3 FRO⟧) × (A⟦FOb3 FRO, FOb4 FRO⟧)
+                            × (A⟦FOb4 FRO, FOb5 FRO⟧).
+
+  <span class="kn">Definition</span> <span class="nf">make_FiveRowDiffs</span> (<span class="nv">FRO</span> : FiveRowObs) (<span class="nv">f1</span> : A⟦FOb1 FRO, FOb2 FRO⟧)
+             (<span class="nv">f2</span> : A⟦FOb2 FRO, FOb3 FRO⟧) (<span class="nv">f3</span> : A⟦FOb3 FRO, FOb4 FRO⟧)
+             (<span class="nv">f4</span> : A⟦FOb4 FRO, FOb5 FRO⟧) : FiveRowDiffs FRO := (f1,,(f2,,(f3,,f4))).
+
+  <span class="kn">Definition</span> <span class="nf">FDiff1</span> {<span class="nv">FRO</span> : FiveRowObs} (<span class="nv">FRD</span> : FiveRowDiffs FRO) : A⟦FOb1 FRO, FOb2 FRO⟧ :=
+    dirprod_pr1 FRD.
+
+  <span class="kn">Definition</span> <span class="nf">FDiff2</span> {<span class="nv">FRO</span> : FiveRowObs} (<span class="nv">FRD</span> : FiveRowDiffs FRO) : A⟦FOb2 FRO, FOb3 FRO⟧ :=
+    dirprod_pr1 (dirprod_pr2 FRD).
+
+  <span class="kn">Definition</span> <span class="nf">FDiff3</span> {<span class="nv">FRO</span> : FiveRowObs} (<span class="nv">FRD</span> : FiveRowDiffs FRO) : A⟦FOb3 FRO, FOb4 FRO⟧ :=
+    dirprod_pr1 (dirprod_pr2 (dirprod_pr2 FRD)).
+
+  <span class="kn">Definition</span> <span class="nf">FDiff4</span> {<span class="nv">FRO</span> : FiveRowObs} (<span class="nv">FRD</span> : FiveRowDiffs FRO) : A⟦FOb4 FRO, FOb5 FRO⟧ :=
+    dirprod_pr2 (dirprod_pr2 (dirprod_pr2 FRD)).
+
+  <span class="sd">(** *** Composition of consecutive differentials is 0 *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">FiveRowDiffsEq</span> {<span class="nv">FRO</span> : FiveRowObs} (<span class="nv">FRD</span> : FiveRowDiffs FRO) : UU :=
+    (FDiff1 FRD · FDiff2 FRD = ZeroArrow (to_Zero A) _ _)
+      × (FDiff2 FRD · FDiff3 FRD = ZeroArrow (to_Zero A) _ _)
+      × (FDiff3 FRD · FDiff4 FRD = ZeroArrow (to_Zero A) _ _).
+
+  <span class="kn">Definition</span> <span class="nf">make_FiveRowDiffsEq</span> {<span class="nv">FRO</span> : FiveRowObs} (<span class="nv">FRD</span> : FiveRowDiffs FRO)
+             (<span class="nv">H1</span> : FDiff1 FRD · FDiff2 FRD = ZeroArrow (to_Zero A) _ _)
+             (<span class="nv">H2</span> : FDiff2 FRD · FDiff3 FRD = ZeroArrow (to_Zero A) _ _)
+             (<span class="nv">H3</span> : FDiff3 FRD · FDiff4 FRD = ZeroArrow (to_Zero A) _ _) : FiveRowDiffsEq FRD :=
+    (H1,,(H2,,H3)).
+
+  <span class="kn">Definition</span> <span class="nf">FEq1</span> {<span class="nv">FRO</span> : FiveRowObs} {<span class="nv">FRD</span> : FiveRowDiffs FRO} (<span class="nv">FRDE</span> : FiveRowDiffsEq FRD) :
+    FDiff1 FRD · FDiff2 FRD = ZeroArrow (to_Zero A) _ _ := dirprod_pr1 FRDE.
+
+  <span class="kn">Definition</span> <span class="nf">FEq2</span> {<span class="nv">FRO</span> : FiveRowObs} {<span class="nv">FRD</span> : FiveRowDiffs FRO} (<span class="nv">FRDE</span> : FiveRowDiffsEq FRD) :
+    FDiff2 FRD · FDiff3 FRD = ZeroArrow (to_Zero A) _ _ := dirprod_pr1 (dirprod_pr2 FRDE).
+
+  <span class="kn">Definition</span> <span class="nf">FEq3</span> {<span class="nv">FRO</span> : FiveRowObs} {<span class="nv">FRD</span> : FiveRowDiffs FRO} (<span class="nv">FRDE</span> : FiveRowDiffsEq FRD) :
+    FDiff3 FRD · FDiff4 FRD = ZeroArrow (to_Zero A) _ _ := dirprod_pr2 (dirprod_pr2 FRDE).
+
+  <span class="sd">(** *** Row is exact *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">FiveRowExacts</span> {<span class="nv">FRO</span> : FiveRowObs} {<span class="nv">FRD</span> : FiveRowDiffs FRO}
+             (<span class="nv">FRDE</span> : FiveRowDiffsEq FRD) : UU :=
+    (isExact A (FDiff1 FRD) (FDiff2 FRD) (FEq1 FRDE))
+      × (isExact A (FDiff2 FRD) (FDiff3 FRD) (FEq2 FRDE))
+      × (isExact A (FDiff3 FRD) (FDiff4 FRD) (FEq3 FRDE)).
+
+  <span class="kn">Definition</span> <span class="nf">make_FiveRowExacts</span> {<span class="nv">FRO</span> : FiveRowObs} {<span class="nv">FRD</span> : FiveRowDiffs FRO}
+             (<span class="nv">FRDE</span> : FiveRowDiffsEq FRD) (<span class="nv">H1</span> : isExact A (FDiff1 FRD) (FDiff2 FRD) (FEq1 FRDE))
+             (<span class="nv">H2</span> : isExact A (FDiff2 FRD) (FDiff3 FRD) (FEq2 FRDE))
+             (<span class="nv">H3</span> : isExact A (FDiff3 FRD) (FDiff4 FRD) (FEq3 FRDE)) : FiveRowExacts FRDE :=
+    (H1,,(H2,,H3)).
+
+  <span class="kn">Definition</span> <span class="nf">FEx1</span> {<span class="nv">FRO</span> : FiveRowObs} {<span class="nv">FRD</span> : FiveRowDiffs FRO} {<span class="nv">FRDE</span> : FiveRowDiffsEq FRD}
+             (<span class="nv">FRE</span> : FiveRowExacts FRDE) : isExact A (FDiff1 FRD) (FDiff2 FRD) (FEq1 FRDE) :=
+    dirprod_pr1 FRE.
+
+  <span class="kn">Definition</span> <span class="nf">FEx2</span> {<span class="nv">FRO</span> : FiveRowObs} {<span class="nv">FRD</span> : FiveRowDiffs FRO} {<span class="nv">FRDE</span> : FiveRowDiffsEq FRD}
+             (<span class="nv">FRE</span> : FiveRowExacts FRDE) : isExact A (FDiff2 FRD) (FDiff3 FRD) (FEq2 FRDE) :=
+    dirprod_pr1 (dirprod_pr2 FRE).
+
+  <span class="kn">Definition</span> <span class="nf">FEx3</span> {<span class="nv">FRO</span> : FiveRowObs} {<span class="nv">FRD</span> : FiveRowDiffs FRO} {<span class="nv">FRDE</span> : FiveRowDiffsEq FRD}
+             (<span class="nv">FRE</span> : FiveRowExacts FRDE) : isExact A (FDiff3 FRD) (FDiff4 FRD) (FEq3 FRDE) :=
+    dirprod_pr2 (dirprod_pr2 FRE).
+
+  <span class="sd">(** *** Define row for [FiveLemma] *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">FiveRow</span> : UU :=
+    ∑ (FRO : FiveRowObs),
+    (∑ (FRD : FiveRowDiffs FRO), (∑ (FRDE : FiveRowDiffsEq FRD), FiveRowExacts FRDE)).
+
+  <span class="kn">Definition</span> <span class="nf">make_FiveRow</span> (<span class="nv">FRO</span> : FiveRowObs) (<span class="nv">FRD</span> : FiveRowDiffs FRO) (<span class="nv">FRDE</span> : FiveRowDiffsEq FRD)
+             (<span class="nv">FRE</span> : FiveRowExacts FRDE) : FiveRow := (FRO,,(FRD,,(FRDE,,FRE))).
+
+  <span class="kn">Definition</span> <span class="nf">FiveRow_Obs</span> (<span class="nv">FR</span> : FiveRow) : FiveRowObs := pr1 FR.
+  <span class="kn">Coercion</span> <span class="nf">FiveRow_Obs</span> : FiveRow &gt;-&gt; FiveRowObs.
+
+  <span class="kn">Definition</span> <span class="nf">FiveRow_Diffs</span> (<span class="nv">FR</span> : FiveRow) : FiveRowDiffs FR := pr1 (pr2 FR).
+  <span class="kn">Coercion</span> <span class="nf">FiveRow_Diffs</span> : FiveRow &gt;-&gt; FiveRowDiffs.
+
+  <span class="kn">Definition</span> <span class="nf">FiveRow_DiffsEq</span> (<span class="nv">FR</span> : FiveRow) : FiveRowDiffsEq FR := pr1 (pr2 (pr2 FR)).
+  <span class="kn">Coercion</span> <span class="nf">FiveRow_DiffsEq</span> : FiveRow &gt;-&gt; FiveRowDiffsEq.
+
+  <span class="kn">Definition</span> <span class="nf">FiveRow_Exacts</span> (<span class="nv">FR</span> : FiveRow) : FiveRowExacts FR := pr2 (pr2 (pr2 FR)).
+  <span class="kn">Coercion</span> <span class="nf">FiveRow_Exacts</span> : FiveRow &gt;-&gt; FiveRowExacts.
+
+
+  <span class="sd">(** ** Morphism of [FiveRows] *)</span>
+
+  <span class="sd">(** *** Morphisms in the morphism *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">FiveRowMors</span> (<span class="nv">FR1</span> <span class="nv">FR2</span> : FiveRow) : UU :=
+    (A⟦FOb1 FR1, FOb1 FR2⟧) × (A⟦FOb2 FR1, FOb2 FR2⟧) × (A⟦FOb3 FR1, FOb3 FR2⟧)
+                            × (A⟦FOb4 FR1, FOb4 FR2⟧) × (A⟦FOb5 FR1, FOb5 FR2⟧).
+
+  <span class="kn">Definition</span> <span class="nf">make_FiveRowMors</span> (<span class="nv">FR1</span> <span class="nv">FR2</span> : FiveRow) (<span class="nv">f1</span> : A⟦FOb1 FR1, FOb1 FR2⟧)
+             (<span class="nv">f2</span> : A⟦FOb2 FR1, FOb2 FR2⟧) (<span class="nv">f3</span> : A⟦FOb3 FR1, FOb3 FR2⟧)
+             (<span class="nv">f4</span> : A⟦FOb4 FR1, FOb4 FR2⟧) (<span class="nv">f5</span> : A⟦FOb5 FR1, FOb5 FR2⟧) : FiveRowMors FR1 FR2 :=
+    (f1,,(f2,,(f3,,(f4,,f5)))).
+
+  <span class="kn">Definition</span> <span class="nf">FMor1</span> {<span class="nv">FR1</span> <span class="nv">FR2</span> : FiveRow} (<span class="nv">FRMs</span> : FiveRowMors FR1 FR2) : A⟦FOb1 FR1, FOb1 FR2⟧ :=
+    dirprod_pr1 FRMs.
+
+  <span class="kn">Definition</span> <span class="nf">FMor2</span> {<span class="nv">FR1</span> <span class="nv">FR2</span> : FiveRow} (<span class="nv">FRMs</span> : FiveRowMors FR1 FR2) : A⟦FOb2 FR1, FOb2 FR2⟧ :=
+    dirprod_pr1 (dirprod_pr2 FRMs).
+
+  <span class="kn">Definition</span> <span class="nf">FMor3</span> {<span class="nv">FR1</span> <span class="nv">FR2</span> : FiveRow} (<span class="nv">FRMs</span> : FiveRowMors FR1 FR2) : A⟦FOb3 FR1, FOb3 FR2⟧ :=
+    dirprod_pr1 (dirprod_pr2 (dirprod_pr2 FRMs)).
+
+  <span class="kn">Definition</span> <span class="nf">FMor4</span> {<span class="nv">FR1</span> <span class="nv">FR2</span> : FiveRow} (<span class="nv">FRMs</span> : FiveRowMors FR1 FR2) : A⟦FOb4 FR1, FOb4 FR2⟧ :=
+    dirprod_pr1 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 FRMs))).
+
+  <span class="kn">Definition</span> <span class="nf">FMor5</span> {<span class="nv">FR1</span> <span class="nv">FR2</span> : FiveRow} (<span class="nv">FRMs</span> : FiveRowMors FR1 FR2) : A⟦FOb5 FR1, FOb5 FR2⟧ :=
+    dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 FRMs))).
+
+  <span class="sd">(** *** Commutativity of the squares *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">FiveRowMorsComm</span> {<span class="nv">FR1</span> <span class="nv">FR2</span> : FiveRow} (<span class="nv">FRMs</span> : FiveRowMors FR1 FR2) : UU :=
+    (FDiff1 FR1 · FMor2 FRMs = FMor1 FRMs · FDiff1 FR2)
+      × (FDiff2 FR1 · FMor3 FRMs = FMor2 FRMs · FDiff2 FR2)
+      × (FDiff3 FR1 · FMor4 FRMs = FMor3 FRMs · FDiff3 FR2)
+      × (FDiff4 FR1 · FMor5 FRMs = FMor4 FRMs · FDiff4 FR2).
+
+  <span class="kn">Definition</span> <span class="nf">make_FiveRowMorsComm</span> {<span class="nv">FR1</span> <span class="nv">FR2</span> : FiveRow} (<span class="nv">FRMs</span> : FiveRowMors FR1 FR2)
+    (<span class="nv">H1</span> : FDiff1 FR1 · FMor2 FRMs = FMor1 FRMs · FDiff1 FR2)
+    (<span class="nv">H2</span> : FDiff2 FR1 · FMor3 FRMs = FMor2 FRMs · FDiff2 FR2)
+    (<span class="nv">H3</span> : FDiff3 FR1 · FMor4 FRMs = FMor3 FRMs · FDiff3 FR2)
+    (<span class="nv">H4</span> : FDiff4 FR1 · FMor5 FRMs = FMor4 FRMs · FDiff4 FR2) : FiveRowMorsComm FRMs :=
+    (H1,,(H2,,(H3,,H4))).
+
+  <span class="kn">Definition</span> <span class="nf">FComm1</span> {<span class="nv">FR1</span> <span class="nv">FR2</span> : FiveRow} {<span class="nv">FRMs</span> : FiveRowMors FR1 FR2} (<span class="nv">FRMC</span> : FiveRowMorsComm FRMs) :
+    FDiff1 FR1 · FMor2 FRMs = FMor1 FRMs · FDiff1 FR2 := dirprod_pr1 FRMC.
+
+  <span class="kn">Definition</span> <span class="nf">FComm2</span> {<span class="nv">FR1</span> <span class="nv">FR2</span> : FiveRow} {<span class="nv">FRMs</span> : FiveRowMors FR1 FR2} (<span class="nv">FRMC</span> : FiveRowMorsComm FRMs) :
+    FDiff2 FR1 · FMor3 FRMs = FMor2 FRMs · FDiff2 FR2 := dirprod_pr1 (dirprod_pr2 FRMC).
+
+  <span class="kn">Definition</span> <span class="nf">FComm3</span> {<span class="nv">FR1</span> <span class="nv">FR2</span> : FiveRow} {<span class="nv">FRMs</span> : FiveRowMors FR1 FR2} (<span class="nv">FRMC</span> : FiveRowMorsComm FRMs) :
+    FDiff3 FR1 · FMor4 FRMs = FMor3 FRMs · FDiff3 FR2 :=
+    dirprod_pr1 (dirprod_pr2 (dirprod_pr2 FRMC)).
+
+  <span class="kn">Definition</span> <span class="nf">FComm4</span> {<span class="nv">FR1</span> <span class="nv">FR2</span> : FiveRow} {<span class="nv">FRMs</span> : FiveRowMors FR1 FR2} (<span class="nv">FRMC</span> : FiveRowMorsComm FRMs) :
+    FDiff4 FR1 · FMor5 FRMs = FMor4 FRMs · FDiff4 FR2 :=
+    dirprod_pr2 (dirprod_pr2 (dirprod_pr2 FRMC)).
+
+  <span class="sd">(** *** Morphism of rows *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">FiveRowMorphism</span> (<span class="nv">FR1</span> <span class="nv">FR2</span> : FiveRow) : UU :=
+    ∑ (FRMs : FiveRowMors FR1 FR2), FiveRowMorsComm FRMs.
+
+  <span class="kn">Definition</span> <span class="nf">make_FiveRowMorphism</span> (<span class="nv">FR1</span> <span class="nv">FR2</span> : FiveRow) (<span class="nv">FRMs</span> : FiveRowMors FR1 FR2)
+             (<span class="nv">FRMC</span> : FiveRowMorsComm FRMs) : FiveRowMorphism FR1 FR2 := (FRMs,,FRMC).
+
+  <span class="kn">Definition</span> <span class="nf">FiveRowMorphism_Mors</span> {<span class="nv">FR1</span> <span class="nv">FR2</span> : FiveRow} (<span class="nv">FRM</span> : FiveRowMorphism FR1 FR2) :
+    FiveRowMors FR1 FR2 := pr1 FRM.
+  <span class="kn">Coercion</span> <span class="nf">FiveRowMorphism_Mors</span> : FiveRowMorphism &gt;-&gt; FiveRowMors.
+
+  <span class="kn">Definition</span> <span class="nf">FiveRowMorphism_Comms</span> {<span class="nv">FR1</span> <span class="nv">FR2</span> : FiveRow} (<span class="nv">FRM</span> : FiveRowMorphism FR1 FR2) :
+    FiveRowMorsComm FRM := pr2 FRM.
+  <span class="kn">Coercion</span> <span class="nf">FiveRowMorphism_Comms</span> : FiveRowMorphism &gt;-&gt; FiveRowMorsComm.
+
+<span class="kn">End</span> <span class="nf">five_lemma_data</span>.
+
+
+<span class="sd">(** ** Introduction</span>
+<span class="sd">In this section we translate the definitions in the previous section [five_lemma_data] to opposite</span>
+<span class="sd">categories, so that [FiveLemma_isEpi] can use these.</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">five_lemma_opp</span>.
+
+  <span class="kn">Definition</span> <span class="nf">FiveRowObs_opp</span> {<span class="nv">A</span> : AbelianPreCat} (<span class="nv">FRO</span> : FiveRowObs) :
+    @FiveRowObs (Abelian_opp A) :=
+    @make_FiveRowObs (Abelian_opp A) (FOb5 FRO) (FOb4 FRO) (FOb3 FRO) (FOb2 FRO) (FOb1 FRO).
+
+  <span class="kn">Definition</span> <span class="nf">FiveRowDiffs_opp</span> {<span class="nv">A</span> : AbelianPreCat} {<span class="nv">FRO</span> : @FiveRowObs A}
+             (<span class="nv">FRD</span> : FiveRowDiffs FRO) : @FiveRowDiffs (Abelian_opp A) (FiveRowObs_opp FRO) :=
+    @make_FiveRowDiffs (Abelian_opp A) (FiveRowObs_opp FRO)
+                     (FDiff4 FRD) (FDiff3 FRD) (FDiff2 FRD) (FDiff1 FRD).
+
+  <span class="kn">Local</span> <span class="kn">Opaque</span> ZeroArrow.
+  <span class="kn">Local Lemma</span> <span class="nf">FiveRowDiffsEq_opp1</span> {<span class="nv">A</span> : AbelianPreCat} {<span class="nv">FRO</span> : @FiveRowObs A}
+        {<span class="nv">FRD</span> : @FiveRowDiffs A FRO} (<span class="nv">FRDE</span> : @FiveRowDiffsEq A FRO FRD) :
+    (@FDiff1 (Abelian_opp A) _ (FiveRowDiffs_opp FRD))
+      · (@FDiff2 (Abelian_opp A) _ (FiveRowDiffs_opp FRD)) =
+    ZeroArrow (to_Zero (Abelian_opp A)) _ _.
+  <span class="kn">Proof</span>.
+    use (pathscomp0 (FEq3 FRDE)). use ZeroArrow_opp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">FiveRowDiffsEq_opp2</span> {<span class="nv">A</span> : AbelianPreCat} {<span class="nv">FRO</span> : @FiveRowObs A}
+        {<span class="nv">FRD</span> : @FiveRowDiffs A FRO} (<span class="nv">FRDE</span> : @FiveRowDiffsEq A FRO FRD) :
+    (@FDiff2 (Abelian_opp A) _ (FiveRowDiffs_opp FRD))
+      · (@FDiff3 (Abelian_opp A) _ (FiveRowDiffs_opp FRD)) =
+    ZeroArrow (to_Zero (Abelian_opp A)) _ _.
+  <span class="kn">Proof</span>.
+    use (pathscomp0 (FEq2 FRDE)). use ZeroArrow_opp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">FiveRowDiffsEq_opp3</span> {<span class="nv">A</span> : AbelianPreCat} {<span class="nv">FRO</span> : @FiveRowObs A}
+        {<span class="nv">FRD</span> : @FiveRowDiffs A FRO} (<span class="nv">FRDE</span> : @FiveRowDiffsEq A FRO FRD) :
+    (@FDiff3 (Abelian_opp A) _ (FiveRowDiffs_opp FRD))
+      · (@FDiff4 (Abelian_opp A) _ (FiveRowDiffs_opp FRD)) =
+    ZeroArrow (to_Zero (Abelian_opp A)) _ _.
+  <span class="kn">Proof</span>.
+    use (pathscomp0 (FEq1 FRDE)). use ZeroArrow_opp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">FiveRowDiffsEq_opp</span> {<span class="nv">A</span> : AbelianPreCat} {<span class="nv">FRO</span> : @FiveRowObs A}
+             {<span class="nv">FRD</span> : @FiveRowDiffs A FRO} (<span class="nv">FRDE</span> : @FiveRowDiffsEq A FRO FRD) :
+    @FiveRowDiffsEq (Abelian_opp A) _ (FiveRowDiffs_opp FRD) :=
+    @make_FiveRowDiffsEq _ _ (FiveRowDiffs_opp FRD) (FiveRowDiffsEq_opp1 FRDE)
+                       (FiveRowDiffsEq_opp2 FRDE) (FiveRowDiffsEq_opp3 FRDE).
+
+  <span class="kn">Definition</span> <span class="nf">FiveRowExacts_opp</span> {<span class="nv">A</span> : AbelianPreCat} {<span class="nv">FRO</span> : @FiveRowObs A}
+             {<span class="nv">FRD</span> : @FiveRowDiffs A FRO} {<span class="nv">FRDE</span> : @FiveRowDiffsEq A FRO FRD}
+             (<span class="nv">FRE</span> : @FiveRowExacts A FRO FRD FRDE) :
+    @FiveRowExacts (Abelian_opp A) _ _ (FiveRowDiffsEq_opp FRDE) :=
+    @make_FiveRowExacts (Abelian_opp A)  _ _ (FiveRowDiffsEq_opp FRDE)
+                      (isExact_opp (FEx3 FRE)) (isExact_opp (FEx2 FRE))
+                      (isExact_opp (FEx1 FRE)).
+
+  <span class="kn">Definition</span> <span class="nf">FiveRow_opp</span> {<span class="nv">A</span> : AbelianPreCat}  (<span class="nv">FR</span> : @FiveRow A) :
+    @FiveRow (Abelian_opp A) :=
+    @make_FiveRow (Abelian_opp A) (FiveRowObs_opp FR)
+                (FiveRowDiffs_opp FR) (FiveRowDiffsEq_opp FR) (FiveRowExacts_opp FR).
+
+  <span class="kn">Definition</span> <span class="nf">FiveRowMors_opp</span> {<span class="nv">A</span> : AbelianPreCat}  {<span class="nv">FR1</span> <span class="nv">FR2</span> : @FiveRow A}
+             (<span class="nv">FRM</span> : @FiveRowMors A FR1 FR2) :
+    @FiveRowMors (Abelian_opp A) (FiveRow_opp FR2) (FiveRow_opp FR1) :=
+    @make_FiveRowMors (Abelian_opp A) (FiveRow_opp FR2) (FiveRow_opp FR1)
+                    (FMor5 FRM) (FMor4 FRM) (FMor3 FRM) (FMor2 FRM) (FMor1 FRM).
+
+  <span class="kn">Definition</span> <span class="nf">FiveRowMorsComm_opp</span> {<span class="nv">A</span> : AbelianPreCat}  {<span class="nv">FR1</span> <span class="nv">FR2</span> : @FiveRow A}
+             {<span class="nv">FRM</span> : @FiveRowMors A FR1 FR2} (<span class="nv">FRMC</span> : @FiveRowMorsComm A FR1 FR2 FRM) :
+    @FiveRowMorsComm (Abelian_opp A) _ _ (FiveRowMors_opp FRM) :=
+    @make_FiveRowMorsComm (Abelian_opp A) _ _ (FiveRowMors_opp FRM)
+                        (! FComm4 FRMC) (! FComm3 FRMC) (! FComm2 FRMC) (! FComm1 FRMC).
+
+  <span class="kn">Definition</span> <span class="nf">FiveRowMorphism_opp</span> {<span class="nv">A</span> : AbelianPreCat}  {<span class="nv">FR1</span> <span class="nv">FR2</span> : @FiveRow A}
+             (<span class="nv">FRM</span> : @FiveRowMorphism A FR1 FR2) :
+    @FiveRowMorphism (Abelian_opp A) (FiveRow_opp FR2) (FiveRow_opp FR1) :=
+    @make_FiveRowMorphism (Abelian_opp A) (FiveRow_opp FR2) (FiveRow_opp FR1)
+                        (FiveRowMors_opp FRM) (FiveRowMorsComm_opp FRM).
+
+<span class="kn">End</span> <span class="nf">five_lemma_opp</span>.
+
+
+<span class="sd">(** ** Introduction</span>
+<span class="sd">In this section we prove the five lemma following the sketch of a proof on top of this file.</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">five_lemma</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">FiveLemma_isMonic</span> {<span class="nv">A</span> : AbelianPreCat}  {<span class="nv">FR1</span> <span class="nv">FR2</span> : FiveRow}
+        (<span class="nv">FRM</span> : FiveRowMorphism FR1 FR2) (<span class="nv">H1</span> : is_z_isomorphism (FMor1 FRM))
+        (<span class="nv">H2</span> : is_z_isomorphism (FMor2 FRM)) (<span class="nv">H4</span> : is_z_isomorphism (FMor4 FRM))
+        (<span class="nv">H5</span> : is_z_isomorphism (FMor5 FRM)) : isMonic (FMor3 (A:=A) FRM).
+  <span class="kn">Proof</span>.
+    use (dirprod_pr2 (PEq_isMonic (FMor3 FRM))).
+    <span class="nb">intros</span> d' a X. <span class="nb">apply</span> pathsinv0. <span class="nb">cbn</span> <span class="k">in</span> X. <span class="nb">set</span> (X' := PEq_Zero_Eq' _ _ X). <span class="nb">cbn</span> <span class="k">in</span> X'.
+    <span class="nb">assert</span> (e1 : a · FDiff3 FR1 = ZeroArrow (to_Zero A) _ _).
+    {
+      <span class="nb">set</span> (comm := FComm3 FRM). use (is_iso_isMonic A _ H4).
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> comm. <span class="nb">clear</span> comm. <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> X'. <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> ZeroArrow_comp_left.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">set</span> (b := dirprod_pr1 (PEq_isExact _ _ (FEq2 FR1)) (FEx2 FR1) a e1).
+    <span class="nb">set</span> (PE1 := PseudoIm b (FMor2 FRM)).
+    <span class="nb">assert</span> (e2 : PE1 · FDiff2 FR2 = ZeroArrow (to_Zero A) _ _).
+    {
+      <span class="nb">cbn</span>. <span class="nb">set</span> (comm := FComm2 FRM). <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- comm. <span class="nb">clear</span> comm.
+      <span class="nb">rewrite</span> assoc. <span class="nb">set</span> (tmp := PEqEq (PFiber_Eq b)). <span class="nb">cbn</span> <span class="k">in</span> tmp.
+      use (EpiisEpi _ (PEqEpi2 (PFiber_Eq b))). <span class="nb">rewrite</span> assoc.
+      <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- tmp. <span class="nb">clear</span> tmp. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> X'.
+      <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> ZeroArrow_comp_right.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">set</span> (b' := dirprod_pr1 (PEq_isExact _ _ (FEq1 FR2)) (FEx1 FR2) PE1 e2).
+    <span class="nb">set</span> (a' := dirprod_pr1 (PEq_isEpi (FMor1 FRM)) (is_iso_isEpi A _ H1) b').
+    <span class="nb">assert</span> (e3 : PEq (PseudoIm a' (FDiff1 FR1)) b).
+    {
+      <span class="nb">assert</span> (e31 : PEq (PseudoIm (PseudoIm a' (FDiff1 FR1)) (FMor2 FRM))
+                        (PseudoIm b (FMor2 FRM))).
+      {
+        use (PEq_trans (PEq_Im_Comm a' (FComm1 FRM))).
+        use (PEq_trans (PEq_Im _ _ (FDiff1 FR2) (PFiber_Eq a'))).
+        use (PEq_trans (PFiber_Eq b')). use PEq_refl.
+      }
+      <span class="bp">exact</span> (dirprod_pr1 (PEq_isMonic' (FMor2 FRM)) (is_iso_isMonic A _ H2)
+                         (PseudoIm a' (FDiff1 FR1)) b e31).
+    }
+    <span class="nb">assert</span> (e4 : PEq (PseudoIm (PseudoIm a' (FDiff1 FR1)) (FDiff2 FR1)) a).
+    {
+      use (PEq_trans _ (PFiber_Eq b)).
+      use (PEq_trans _ (PEq_Im _ _ (FDiff2 FR1) e3)).
+      use PEq_refl.
+    }
+    use PEq_Zero_Eq'.
+    - <span class="bp">exact</span> (PseudoOb a').
+    - use (PEq_trans (PEq_symm e4)).
+      use (PEq_trans (PEq_Comp a' (FDiff1 FR1) (FDiff2 FR1))).
+      use (PEq_trans (PEq_Im_Paths a' (FEq1 FR1))).
+      use PEq_Eq_Zero. <span class="nb">cbn</span>. <span class="nb">apply</span> ZeroArrow_comp_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Context</span> {<span class="nv">A</span> : AbelianPreCat}.
+
+  <span class="kn">Lemma</span> <span class="nf">FiveLemma_isEpi</span> {<span class="nv">FR1</span> <span class="nv">FR2</span> : FiveRow} (<span class="nv">FRM</span> : FiveRowMorphism FR1 FR2)
+        (<span class="nv">H1</span> : is_z_isomorphism (FMor1 FRM)) (<span class="nv">H2</span> : is_z_isomorphism (FMor2 FRM))
+        (<span class="nv">H4</span> : is_z_isomorphism (FMor4 FRM)) (<span class="nv">H5</span> : is_z_isomorphism (FMor5 FRM)) :
+    isEpi (FMor3 (A:=A) FRM).
+  <span class="kn">Proof</span>.
+    use opp_isMonic.
+    <span class="nb">set</span> (H1' := opp_is_z_isomorphism _ H1).
+    <span class="nb">set</span> (H2' := opp_is_z_isomorphism _ H2).
+    <span class="nb">set</span> (H4' := opp_is_z_isomorphism _ H4).
+    <span class="nb">set</span> (H5' := opp_is_z_isomorphism _ H5).
+    <span class="nb">set</span> (FRM' := FiveRowMorphism_opp FRM).
+    <span class="bp">exact</span> (FiveLemma_isMonic FRM' H5' H4' H2' H1').
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">FiveLemma</span> {<span class="nv">FR1</span> <span class="nv">FR2</span> : FiveRow} (<span class="nv">FRM</span> : FiveRowMorphism FR1 FR2)
+        (<span class="nv">H1</span> : is_z_isomorphism (FMor1 FRM)) (<span class="nv">H2</span> : is_z_isomorphism (FMor2 FRM))
+        (<span class="nv">H4</span> : is_z_isomorphism (FMor4 FRM)) (<span class="nv">H5</span> : is_z_isomorphism (FMor5 FRM)) :
+    is_z_isomorphism (FMor3 (A:=A) FRM).
+  <span class="kn">Proof</span>.
+    use monic_epi_is_iso.
+    - use FiveLemma_isMonic.
+      + <span class="bp">exact</span> H1.
+      + <span class="bp">exact</span> H2.
+      + <span class="bp">exact</span> H4.
+      + <span class="bp">exact</span> H5.
+    - use FiveLemma_isEpi.
+      + <span class="bp">exact</span> H1.
+      + <span class="bp">exact</span> H2.
+      + <span class="bp">exact</span> H4.
+      + <span class="bp">exact</span> H5.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">five_lemma</span>.
+
+
+<span class="sd">(** ** Introduction</span>
+<span class="sd">Five lemma for short exact sequences. Suppose you have a morphism of short exact sequences</span>
+<span class="sd">represented by the following diagram</span>
+<span class="sd">                               0  --&gt; C_1 --&gt; C_2 --&gt; C_3 --&gt;  0</span>
+<span class="sd">                               |   f_2 |   f_3 |   f_4 |       |</span>
+<span class="sd">                               0  --&gt; D_1 --&gt; D_2 --&gt; D_3 --&gt;  0</span>
+<span class="sd">If f_2 and f_4 are isomorphisms, then f_3 is an isomorphism. This is proved in</span>
+<span class="sd">[ShortExactFiveLemma].</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">short_exact_five_lemma</span>.
+
+  <span class="kn">Context</span> {<span class="nv">A</span> : AbelianPreCat}.
+
+  <span class="sd">(** ** Construction of the first row *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">ShortExactObs1</span> {<span class="nv">SSE1</span> <span class="nv">SSE2</span> : ShortExact A} (<span class="nv">Mor</span> : MPMor SSE1 SSE2) :
+    @FiveRowObs A.
+  <span class="kn">Proof</span>.
+    use make_FiveRowObs.
+    - <span class="bp">exact</span> (to_Zero A).
+    - <span class="bp">exact</span> (Ob1 SSE1).
+    - <span class="bp">exact</span> (Ob2 SSE1).
+    - <span class="bp">exact</span> (Ob3 SSE1).
+    - <span class="bp">exact</span> (to_Zero A).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ShortExactDiffs1</span> {<span class="nv">SSE1</span> <span class="nv">SSE2</span> : ShortExact A} (<span class="nv">Mor</span> : MPMor SSE1 SSE2) :
+    @FiveRowDiffs A (ShortExactObs1 Mor).
+  <span class="kn">Proof</span>.
+    use make_FiveRowDiffs.
+    - <span class="bp">exact</span> (ZeroArrow (to_Zero A) _ _).
+    - <span class="bp">exact</span> (Mor1 SSE1).
+    - <span class="bp">exact</span> (Mor2 SSE1).
+    - <span class="bp">exact</span> (ZeroArrow (to_Zero A) _ _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ShortExactDiffsEq1</span> {<span class="nv">SSE1</span> <span class="nv">SSE2</span> : ShortExact A} (<span class="nv">Mor</span> : MPMor SSE1 SSE2) :
+    @FiveRowDiffsEq A _ (ShortExactDiffs1 Mor).
+  <span class="kn">Proof</span>.
+    use make_FiveRowDiffsEq.
+    - <span class="nb">cbn</span>. <span class="nb">apply</span> ZeroArrow_comp_left.
+    - <span class="nb">cbn</span>. use (ShortShortExactData_Eq (to_Zero A) SSE1).
+    - <span class="nb">cbn</span>. <span class="nb">apply</span> ZeroArrow_comp_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ShortExactExacts1</span> {<span class="nv">SSE1</span> <span class="nv">SSE2</span> : ShortExact A} (<span class="nv">Mor</span> : MPMor SSE1 SSE2) :
+    @FiveRowExacts A _ _ (ShortExactDiffsEq1 Mor).
+  <span class="kn">Proof</span>.
+    use make_FiveRowExacts.
+    - <span class="nb">cbn</span>. use isExactisMonic. <span class="bp">exact</span> (ShortExactSequences.isMonic SSE1).
+    - <span class="nb">unfold</span> isExact. <span class="bp">exact</span> (ShortShortExact_isKernel SSE1).
+    - <span class="nb">cbn</span>. use isExactisEpi. <span class="bp">exact</span> (ShortExactSequences.isEpi SSE1).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ShortExactRow1</span> {<span class="nv">SSE1</span> <span class="nv">SSE2</span> : ShortExact A} (<span class="nv">Mor</span> : MPMor SSE1 SSE2) :
+    @FiveRow A.
+  <span class="kn">Proof</span>.
+    use make_FiveRow.
+    - <span class="bp">exact</span> (ShortExactObs1 Mor).
+    - <span class="bp">exact</span> (ShortExactDiffs1 Mor).
+    - <span class="bp">exact</span> (ShortExactDiffsEq1 Mor).
+    - <span class="bp">exact</span> (ShortExactExacts1 Mor).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** ** Construction of the second row *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">ShortExactObs2</span> {<span class="nv">SSE1</span> <span class="nv">SSE2</span> : ShortExact A} (<span class="nv">Mor</span> : MPMor SSE1 SSE2) :
+    @FiveRowObs A.
+  <span class="kn">Proof</span>.
+    use make_FiveRowObs.
+    - <span class="bp">exact</span> (to_Zero A).
+    - <span class="bp">exact</span> (Ob1 SSE2).
+    - <span class="bp">exact</span> (Ob2 SSE2).
+    - <span class="bp">exact</span> (Ob3 SSE2).
+    - <span class="bp">exact</span> (to_Zero A).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ShortExactDiffs2</span> {<span class="nv">SSE1</span> <span class="nv">SSE2</span> : ShortExact A} (<span class="nv">Mor</span> : MPMor SSE1 SSE2) :
+    @FiveRowDiffs A (ShortExactObs2 Mor).
+  <span class="kn">Proof</span>.
+    use make_FiveRowDiffs.
+    - <span class="bp">exact</span> (ZeroArrow (to_Zero A) _ _).
+    - <span class="bp">exact</span> (Mor1 SSE2).
+    - <span class="bp">exact</span> (Mor2 SSE2).
+    - <span class="bp">exact</span> (ZeroArrow (to_Zero A) _ _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ShortExactDiffsEq2</span> {<span class="nv">SSE1</span> <span class="nv">SSE2</span> : ShortExact A} (<span class="nv">Mor</span> : MPMor SSE1 SSE2) :
+    @FiveRowDiffsEq A _ (ShortExactDiffs2 Mor).
+  <span class="kn">Proof</span>.
+    use make_FiveRowDiffsEq.
+    - <span class="nb">cbn</span>. <span class="nb">apply</span> ZeroArrow_comp_left.
+    - <span class="nb">cbn</span>. use (ShortShortExactData_Eq (to_Zero A) SSE2).
+    - <span class="nb">cbn</span>. <span class="nb">apply</span> ZeroArrow_comp_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ShortExactExacts2</span> {<span class="nv">SSE1</span> <span class="nv">SSE2</span> : ShortExact A} (<span class="nv">Mor</span> : MPMor SSE1 SSE2) :
+    @FiveRowExacts A _ _ (ShortExactDiffsEq2 Mor).
+  <span class="kn">Proof</span>.
+    use make_FiveRowExacts.
+    - <span class="nb">cbn</span>. use isExactisMonic. <span class="bp">exact</span> (ShortExactSequences.isMonic SSE2).
+    - <span class="nb">unfold</span> isExact. <span class="bp">exact</span> (ShortShortExact_isKernel SSE2).
+    - <span class="nb">cbn</span>. use isExactisEpi. <span class="bp">exact</span> (ShortExactSequences.isEpi SSE2).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ShortExactRow2</span> {<span class="nv">SSE1</span> <span class="nv">SSE2</span> : ShortExact A} (<span class="nv">Mor</span> : MPMor SSE1 SSE2) :
+    @FiveRow A.
+  <span class="kn">Proof</span>.
+    use make_FiveRow.
+    - <span class="bp">exact</span> (ShortExactObs2 Mor).
+    - <span class="bp">exact</span> (ShortExactDiffs2 Mor).
+    - <span class="bp">exact</span> (ShortExactDiffsEq2 Mor).
+    - <span class="bp">exact</span> (ShortExactExacts2 Mor).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** ** Construction of the morphism between rows *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">ShortExactMors</span> {<span class="nv">SSE1</span> <span class="nv">SSE2</span> : ShortExact A} (<span class="nv">Mor</span> : MPMor SSE1 SSE2) :
+    @FiveRowMors A (ShortExactRow1 Mor) (ShortExactRow2 Mor).
+  <span class="kn">Proof</span>.
+    use make_FiveRowMors.
+    - <span class="bp">exact</span> (identity _).
+    - <span class="bp">exact</span> (MPMor1 Mor).
+    - <span class="bp">exact</span> (MPMor2 Mor).
+    - <span class="bp">exact</span> (MPMor3 Mor).
+    - <span class="bp">exact</span> (identity _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ShortExactMorComm</span> {<span class="nv">SSE1</span> <span class="nv">SSE2</span> : ShortExact A} (<span class="nv">Mor</span> : MPMor SSE1 SSE2) :
+    @FiveRowMorsComm A _ _ (ShortExactMors Mor).
+  <span class="kn">Proof</span>.
+    use make_FiveRowMorsComm.
+    - <span class="nb">cbn</span>. <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>. <span class="bp">exact</span> (! (MPComm1 Mor)).
+    - <span class="nb">cbn</span>. <span class="bp">exact</span> (! (MPComm2 Mor)).
+    - <span class="nb">cbn</span>. <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ShortExactMor</span> {<span class="nv">SSE1</span> <span class="nv">SSE2</span> : ShortExact A} (<span class="nv">Mor</span> : MPMor SSE1 SSE2) :
+    @FiveRowMorphism A (ShortExactRow1 Mor) (ShortExactRow2 Mor).
+  <span class="kn">Proof</span>.
+    use make_FiveRowMorphism.
+    - <span class="bp">exact</span> (ShortExactMors Mor).
+    - <span class="bp">exact</span> (ShortExactMorComm Mor).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** ** FiveLemma for short exact sequences *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">ShortExactFiveLemma</span> {<span class="nv">SSE1</span> <span class="nv">SSE2</span> : ShortExact A} (<span class="nv">Mor</span> : MPMor SSE1 SSE2)
+        (<span class="nv">H2</span> : is_z_isomorphism (MPMor1 Mor)) (<span class="nv">H4</span> : is_z_isomorphism (MPMor3 Mor)) :
+    is_z_isomorphism (MPMor2 Mor).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (FR1 := ShortExactRow1 Mor).
+    <span class="nb">set</span> (FR2 := ShortExactRow2 Mor).
+    <span class="nb">set</span> (FM := ShortExactMor Mor).
+    use (FiveLemma FM).
+    - <span class="bp">exact</span> (is_z_isomorphism_identity _).
+    - <span class="bp">exact</span> H2.
+    - <span class="bp">exact</span> H4.
+    - <span class="bp">exact</span> (is_z_isomorphism_identity _).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">short_exact_five_lemma</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/FiveLemma.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - Five Lemma for short exact sequences, [ShortExact]
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

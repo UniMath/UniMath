@@ -1,0 +1,549 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FullyFaithful.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd"> Faithful and fully faithful 1-cells in bicategories</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Definition of faithful 1-cells</span>
+<span class="sd"> 2. Characterization of faithful 1-cells</span>
+<span class="sd"> 3. Fully faithful 1-cells</span>
+<span class="sd"> 4. Characterization of fully faithful 1-cells</span>
+<span class="sd"> 5. Pseudomonic 1-cells</span>
+<span class="sd"> 6. Characterization of pseudomonic 1-cells</span>
+<span class="sd"> 7. Pseudomonic 1-cells in locally groupoidal bicategories</span>
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Definition of faithful 1-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">faithful_1cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : UU
+  := ∏ (z : B)
+       (g₁ g₂ : z --&gt; a)
+       (α₁ α₂ : g₁ ==&gt; g₂),
+     α₁ ▹ f = α₂ ▹ f
+     →
+     α₁ = α₂.
+
+<span class="kn">Definition</span> <span class="nf">faithful_1cell_eq_cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">Hf</span> : faithful_1cell f)
+           {<span class="nv">z</span> : B}
+           {<span class="nv">g₁</span> <span class="nv">g₂</span> : z --&gt; a}
+           {<span class="nv">α₁</span> <span class="nv">α₂</span> : g₁ ==&gt; g₂}
+           (<span class="nv">p</span> : α₁ ▹ f = α₂ ▹ f)
+  : α₁ = α₂
+  := Hf _ _ _ _ _ p.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_faithful_1cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : isaprop (faithful_1cell f).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> cellset_property.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Characterization of faithful 1-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">faithful_1cell_to_faithful</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : faithful_1cell f → ∏ (z : B), faithful (post_comp z f).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hf z g₁ g₂ α ; <span class="nb">cbn</span> <span class="k">in</span> *.
+  use invproofirrelevance.
+  <span class="nb">intros</span> φ₁ φ₂ ; <span class="nb">cbn</span> <span class="k">in</span> *.
+  use subtypePath.
+  {
+    <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property.
+  }
+  <span class="nb">apply</span> (faithful_1cell_eq_cell Hf).
+  <span class="bp">exact</span> (pr2 φ₁ @ !(pr2 φ₂)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">faithful_to_faithful_1cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : (∏ (z : B), faithful (post_comp z f)) → faithful_1cell f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hf z g₁ g₂ α₁ α₂ p.
+  <span class="nb">pose</span> (proofirrelevance _ (Hf z g₁ g₂ (α₂ ▹ f)) (α₁ ,, p) (α₂ ,, idpath _)) <span class="k">as</span> q.
+  <span class="bp">exact</span> (maponpaths pr1 q).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">faithful_1cell_weq_faithful</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : (faithful_1cell f) ≃ (∏ (z : B), faithful (post_comp z f)).
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="bp">exact</span> (faithful_1cell_to_faithful f).
+  - <span class="bp">exact</span> (faithful_to_faithful_1cell f).
+  - <span class="bp">exact</span> (isaprop_faithful_1cell f).
+  - use impred ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_faithful.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Fully faithful 1-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">fully_faithful_1cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : UU
+  := (∏ (z : B)
+        (g₁ g₂ : z --&gt; a)
+        (α₁ α₂ : g₁ ==&gt; g₂),
+      α₁ ▹ f = α₂ ▹ f
+      →
+      α₁ = α₂)
+     ×
+     (∏ (z : B)
+        (g₁ g₂ : z --&gt; a)
+        (αf : g₁ · f ==&gt; g₂ · f),
+      ∑ (α : g₁ ==&gt; g₂), α ▹ f = αf).
+
+<span class="kn">Definition</span> <span class="nf">fully_faithful_1cell_faithful</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">Hf</span> : fully_faithful_1cell f)
+  : faithful_1cell f
+  := pr1 Hf.
+
+<span class="kn">Definition</span> <span class="nf">fully_faithful_1cell_eq</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">Hf</span> : fully_faithful_1cell f)
+           {<span class="nv">z</span> : B}
+           {<span class="nv">g₁</span> <span class="nv">g₂</span> : z --&gt; a}
+           {<span class="nv">α₁</span> <span class="nv">α₂</span> : g₁ ==&gt; g₂}
+           (<span class="nv">p</span> : α₁ ▹ f = α₂ ▹ f)
+  : α₁ = α₂
+  := pr1 Hf _ _ _ _ _ p.
+
+<span class="kn">Definition</span> <span class="nf">fully_faithful_1cell_inv_map</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">Hf</span> : fully_faithful_1cell f)
+           {<span class="nv">z</span> : B}
+           {<span class="nv">g₁</span> <span class="nv">g₂</span> : z --&gt; a}
+           (<span class="nv">αf</span> : g₁ · f ==&gt; g₂ · f)
+  : g₁ ==&gt; g₂
+  := pr1 (pr2 Hf _ _ _ αf).
+
+<span class="kn">Definition</span> <span class="nf">fully_faithful_1cell_inv_map_eq</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">Hf</span> : fully_faithful_1cell f)
+           {<span class="nv">z</span> : B}
+           {<span class="nv">g₁</span> <span class="nv">g₂</span> : z --&gt; a}
+           (<span class="nv">αf</span> : g₁ · f ==&gt; g₂ · f)
+  : fully_faithful_1cell_inv_map Hf αf ▹ f = αf
+  := pr2 (pr2 Hf _ _ _ αf).
+
+<span class="kn">Definition</span> <span class="nf">make_fully_faithful</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">Hf₁</span> : faithful_1cell f)
+           (<span class="nv">Hf₂</span> : ∏ (z : B)
+                    (g₁ g₂ : z --&gt; a)
+                    (αf : g₁ · f ==&gt; g₂ · f),
+                  ∑ (α : g₁ ==&gt; g₂), α ▹ f = αf)
+  : fully_faithful_1cell f
+  := (Hf₁ ,, Hf₂).
+
+<span class="kn">Definition</span> <span class="nf">isaprop_fully_faithful_1cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : isaprop (fully_faithful_1cell f).
+<span class="kn">Proof</span>.
+  use invproofirrelevance.
+  <span class="nb">intros</span> φ₁ φ₂.
+  use pathsdirprod.
+  - <span class="nb">apply</span> isaprop_faithful_1cell.
+  - use funextsec ; <span class="nb">intro</span> z.
+    use funextsec ; <span class="nb">intro</span> g₁.
+    use funextsec ; <span class="nb">intro</span> g₂.
+    use funextsec ; <span class="nb">intro</span> αf.
+    use subtypePath.
+    {
+      <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property.
+    }
+    <span class="nb">pose</span> (ψ₁ := pr2 φ₁ z g₁ g₂ αf).
+    <span class="nb">pose</span> (ψ₂ := pr2 φ₂ z g₁ g₂ αf).
+    <span class="nb">enough</span> (pr1 ψ₁ = pr1 ψ₂) <span class="k">as</span> X.
+    {
+      <span class="bp">exact</span> X.
+    }
+    use (fully_faithful_1cell_eq φ₁).
+    <span class="bp">exact</span> (pr2 ψ₁ @ !(pr2 ψ₂)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Characterizations of fully faithful 1-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">fully_faithful_1cell_to_fully_faithful</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : fully_faithful_1cell f → ∏ (z : B), fully_faithful (post_comp z f).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hf z g₁ g₂ α ; <span class="nb">cbn</span> <span class="k">in</span> *.
+  use iscontraprop1.
+  - use invproofirrelevance.
+    <span class="nb">intros</span> φ₁ φ₂.
+    use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property | ].
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> (pr1 Hf).
+    <span class="bp">exact</span> (pr2 φ₁ @ !(pr2 φ₂)).
+  - <span class="bp">exact</span> (pr2 Hf z _ _ α).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">fully_faithful_to_fully_faithful_1cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : (∏ (z : B), fully_faithful (post_comp z f)) → fully_faithful_1cell f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hf.
+  use make_fully_faithful.
+  - use faithful_to_faithful_1cell.
+    <span class="nb">intro</span> z.
+    <span class="nb">apply</span> fully_faithful_implies_full_and_faithful.
+    <span class="nb">apply</span> Hf.
+  - <span class="nb">intros</span> z g₁ g₂ αf.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="bp">exact</span> (invmap (make_weq _ (Hf z g₁ g₂)) αf).
+    + <span class="nb">apply</span> (homotweqinvweq (make_weq _ (Hf z g₁ g₂))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">fully_faithful_1cell_weq_fully_faithful</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : (fully_faithful_1cell f)
+    ≃
+    (∏ (z : B), fully_faithful (post_comp z f)).
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="bp">exact</span> (fully_faithful_1cell_to_fully_faithful f).
+  - <span class="bp">exact</span> (fully_faithful_to_fully_faithful_1cell f).
+  - <span class="bp">exact</span> (isaprop_fully_faithful_1cell f).
+  - use impred ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_fully_faithful.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Pseudomonic 1-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">pseudomonic_1cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : UU
+  := (∏ (z : B)
+        (g₁ g₂ : z --&gt; a)
+        (α₁ α₂ : g₁ ==&gt; g₂),
+      α₁ ▹ f = α₂ ▹ f
+      →
+      α₁ = α₂)
+     ×
+     (∏ (z : B)
+        (g₁ g₂ : z --&gt; a)
+        (αf : g₁ · f ==&gt; g₂ · f)
+        (Hαf : is_invertible_2cell αf),
+      ∑ (α : g₁ ==&gt; g₂), is_invertible_2cell α × α ▹ f = αf).
+
+
+<span class="kn">Definition</span> <span class="nf">pseudomonic_1cell_faithful</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">Hf</span> : pseudomonic_1cell f)
+  : faithful_1cell f
+  := pr1 Hf.
+
+<span class="kn">Definition</span> <span class="nf">pseudomonic_1cell_eq</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">Hf</span> : pseudomonic_1cell f)
+           {<span class="nv">z</span> : B}
+           {<span class="nv">g₁</span> <span class="nv">g₂</span> : z --&gt; a}
+           {<span class="nv">α₁</span> <span class="nv">α₂</span> : g₁ ==&gt; g₂}
+           (<span class="nv">p</span> : α₁ ▹ f = α₂ ▹ f)
+  : α₁ = α₂
+  := pr1 Hf _ _ _ _ _ p.
+
+<span class="kn">Definition</span> <span class="nf">pseudomonic_1cell_inv_map</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">Hf</span> : pseudomonic_1cell f)
+           {<span class="nv">z</span> : B}
+           {<span class="nv">g₁</span> <span class="nv">g₂</span> : z --&gt; a}
+           (<span class="nv">αf</span> : g₁ · f ==&gt; g₂ · f)
+           (<span class="nv">Hαf</span> : is_invertible_2cell αf)
+  : g₁ ==&gt; g₂
+  := pr1 (pr2 Hf _ _ _ αf Hαf).
+
+<span class="kn">Definition</span> <span class="nf">is_invertible_2cell_pseudomonic_1cell_inv_map</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">Hf</span> : pseudomonic_1cell f)
+           {<span class="nv">z</span> : B}
+           {<span class="nv">g₁</span> <span class="nv">g₂</span> : z --&gt; a}
+           (<span class="nv">αf</span> : g₁ · f ==&gt; g₂ · f)
+           (<span class="nv">Hαf</span> : is_invertible_2cell αf)
+  : is_invertible_2cell (pseudomonic_1cell_inv_map Hf αf Hαf)
+  := pr12 (pr2 Hf _ _ _ αf Hαf).
+
+<span class="kn">Definition</span> <span class="nf">pseudomonic_1cell_inv_map_eq</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">Hf</span> : pseudomonic_1cell f)
+           {<span class="nv">z</span> : B}
+           {<span class="nv">g₁</span> <span class="nv">g₂</span> : z --&gt; a}
+           (<span class="nv">αf</span> : g₁ · f ==&gt; g₂ · f)
+           (<span class="nv">Hαf</span> : is_invertible_2cell αf)
+  : pseudomonic_1cell_inv_map Hf αf Hαf ▹ f = αf
+  := pr22 (pr2 Hf _ _ _ αf Hαf).
+
+<span class="kn">Definition</span> <span class="nf">make_pseudomonic</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">Hf₁</span> : faithful_1cell f)
+           (<span class="nv">Hf₂</span> : ∏ (z : B)
+                    (g₁ g₂ : z --&gt; a)
+                    (αf : g₁ · f ==&gt; g₂ · f)
+                    (Hαf : is_invertible_2cell αf),
+                  ∑ (α : g₁ ==&gt; g₂),
+                  is_invertible_2cell α × α ▹ f = αf)
+  : pseudomonic_1cell f
+  := (Hf₁ ,, Hf₂).
+
+<span class="kn">Definition</span> <span class="nf">isaprop_pseudomonic_1cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : isaprop (pseudomonic_1cell f).
+<span class="kn">Proof</span>.
+  use invproofirrelevance.
+  <span class="nb">intros</span> φ₁ φ₂.
+  use pathsdirprod.
+  - <span class="nb">apply</span> isaprop_faithful_1cell.
+  - use funextsec ; <span class="nb">intro</span> z.
+    use funextsec ; <span class="nb">intro</span> g₁.
+    use funextsec ; <span class="nb">intro</span> g₂.
+    use funextsec ; <span class="nb">intro</span> αf.
+    use funextsec ; <span class="nb">intro</span> Hαf.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropdirprod.
+      + <span class="nb">apply</span> isaprop_is_invertible_2cell.
+      + <span class="nb">apply</span> cellset_property.
+    }
+    <span class="nb">pose</span> (ψ₁ := pr2 φ₁ z g₁ g₂ αf Hαf).
+    <span class="nb">pose</span> (ψ₂ := pr2 φ₂ z g₁ g₂ αf Hαf).
+    <span class="nb">enough</span> (pr1 ψ₁ = pr1 ψ₂) <span class="k">as</span> X.
+    {
+      <span class="bp">exact</span> X.
+    }
+    use (pseudomonic_1cell_eq φ₁).
+    <span class="bp">exact</span> (pr22 ψ₁ @ !(pr22 ψ₂)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd">  6. Characterization of pseudomonic 1-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">pseudomonic_1cell_to_pseudomonic</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : pseudomonic_1cell f → ∏ (z : B), pseudomonic (post_comp z f).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hf z.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> faithful_1cell_to_faithful.
+    <span class="bp">exact</span> (pr1 Hf).
+  - <span class="nb">intros</span> g₁ g₂ α.
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">simple refine</span> (_ ,, _) ; <span class="nb">cbn</span>.
+    + <span class="nb">apply</span> inv2cell_to_z_iso.
+      use make_invertible_2cell.
+      * use (pseudomonic_1cell_inv_map Hf (z_iso_to_inv2cell α)).
+        <span class="nb">apply</span> property_from_invertible_2cell.
+      * <span class="nb">apply</span> is_invertible_2cell_pseudomonic_1cell_inv_map.
+    + use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> (isaprop_is_z_isomorphism(C:=hom z b)) | ].
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pseudomonic_1cell_inv_map_eq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pseudomonic_to_pseudomonic_1cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : (∏ (z : B), pseudomonic (post_comp z f)) → pseudomonic_1cell f.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  use make_pseudomonic.
+  - <span class="nb">apply</span> faithful_to_faithful_1cell.
+    <span class="nb">intro</span> z.
+    <span class="nb">apply</span> H.
+  - <span class="nb">intros</span> z g₁ g₂ αf Hαf.
+    <span class="nb">pose</span> (w := make_weq _ (isweq_functor_on_iso_pseudomonic (H z) g₁ g₂)).
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + <span class="nb">apply</span> (invweq w).
+      use inv2cell_to_z_iso.
+      <span class="bp">exact</span> (αf ,, Hαf).
+    + <span class="nb">cbn</span>.
+      <span class="nb">apply</span> is_z_iso_to_is_inv2cell.
+      <span class="nb">apply</span> (pr2 (invmap w (inv2cell_to_z_iso (αf,, Hαf)))).
+    + <span class="bp">exact</span> (maponpaths
+               pr1
+               (homotweqinvweq w (inv2cell_to_z_iso (αf,, Hαf)))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pseudomonic_1cell_weq_pseudomonic</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : (pseudomonic_1cell f)
+    ≃
+    (∏ (z : B), pseudomonic (post_comp z f)).
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="bp">exact</span> (pseudomonic_1cell_to_pseudomonic f).
+  - <span class="bp">exact</span> (pseudomonic_to_pseudomonic_1cell f).
+  - <span class="bp">exact</span> (isaprop_pseudomonic_1cell f).
+  - use impred ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_pseudomonic.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 7. Pseudomonic 1-cells in locally groupoidal bicategories</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">fully_faithful_is_pseudomonic</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">Hf</span> : fully_faithful_1cell f)
+  : pseudomonic_1cell f.
+<span class="kn">Proof</span>.
+  use make_pseudomonic.
+  - <span class="bp">exact</span> (fully_faithful_1cell_faithful Hf).
+  - <span class="nb">intros</span> z g₁ g₂ αf ?.
+    <span class="nb">refine</span> (fully_faithful_1cell_inv_map Hf αf ,, _ ,, _).
+    + use make_is_invertible_2cell.
+      * <span class="bp">exact</span> (fully_faithful_1cell_inv_map Hf Hαf^-<span class="mi">1</span>).
+      * <span class="kp">abstract</span>
+          (use (fully_faithful_1cell_faithful Hf) ;
+           <span class="nb">rewrite</span> &lt;- rwhisker_vcomp ;
+           <span class="nb">rewrite</span> !fully_faithful_1cell_inv_map_eq ;
+           <span class="nb">rewrite</span> id2_rwhisker ;
+           <span class="nb">apply</span> vcomp_rinv).
+      * <span class="kp">abstract</span>
+          (use (fully_faithful_1cell_faithful Hf) ;
+           <span class="nb">rewrite</span> &lt;- rwhisker_vcomp ;
+           <span class="nb">rewrite</span> !fully_faithful_1cell_inv_map_eq ;
+           <span class="nb">rewrite</span> id2_rwhisker ;
+           <span class="nb">apply</span> vcomp_linv).
+    + <span class="bp">exact</span> (fully_faithful_1cell_inv_map_eq Hf αf).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pseudomonic_is_fully_faithful_locally_grpd</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">inv_B</span> : locally_groupoid B)
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">Hf</span> : pseudomonic_1cell f)
+  : fully_faithful_1cell f.
+<span class="kn">Proof</span>.
+  use make_fully_faithful.
+  - <span class="bp">exact</span> (pr1 Hf).
+  - <span class="nb">intros</span> z g₁ g₂ αf.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + use (pseudomonic_1cell_inv_map Hf αf).
+      <span class="nb">apply</span> inv_B.
+    + <span class="nb">apply</span> (pseudomonic_1cell_inv_map_eq Hf).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pseudomonic_weq_fully_faithful_locally_grpd</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">inv_B</span> : locally_groupoid B)
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : pseudomonic_1cell f ≃ fully_faithful_1cell f.
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="bp">exact</span> (pseudomonic_is_fully_faithful_locally_grpd inv_B).
+  - <span class="bp">exact</span> fully_faithful_is_pseudomonic.
+  - <span class="nb">apply</span> isaprop_pseudomonic_1cell.
+  - <span class="nb">apply</span> isaprop_fully_faithful_1cell.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Morphisms/FullyFaithful.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Characterization of pseudomonic 1-cells
+  &gt;  7. Pseudomonic 1-cells in locally groupoidal bicategories
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

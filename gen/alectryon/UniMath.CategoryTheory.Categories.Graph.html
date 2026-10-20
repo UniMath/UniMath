@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Graph.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ******************************************************************************* *)</span>
+<span class="sd">(** * Bicategory of graphs</span>
+<span class="sd">    Benedikt Ahrens, Marco Maggesi</span>
+<span class="sd">    May 2018</span>
+<span class="sd">    Revised June 2019</span>
+<span class="sd"> ********************************************************************************* *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartB.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Graph.
+
+<span class="sd">(** NB: pregraph is the same as precategory_ob_mor. *)</span>
+
+<span class="kn">Require</span> UniMath.CategoryTheory.Core.Univalence.  <span class="c">(* double_transport *)</span>
+<span class="kn">Require</span> UniMath.CategoryTheory.Core.Functors.    <span class="c">(* functor_data_eq *)</span>
+
+<span class="sd">(** Should be moved in Combinatorics/Graph.v,</span>
+<span class="sd">    but it depends on code from CategoryTheory for now. *)</span>
+<span class="kn">Definition</span> <span class="nf">graph_mor_eq</span> {<span class="nv">G</span> <span class="nv">H</span> : pregraph} (<span class="nv">p</span> <span class="nv">q</span> : graph_mor G H)
+           (<span class="nv">e₀</span> : ∏ x : vertex G, onvertex p x = onvertex q x)
+           (<span class="nv">e₁</span> : ∏ x y (f : edge G x y),
+                 UniMath.CategoryTheory.Core.Univalence.double_transport
+                   (e₀ x) (e₀ y) (onedge p f) =
+                 onedge q f)
+  : p = q
+  := UniMath.CategoryTheory.Core.Functors.functor_data_eq G H p q e₀ e₁.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_has_edgesets</span> (<span class="nv">G</span> : pregraph)
+  : isaprop (has_edgesets G).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> UniMath.CategoryTheory.Core.Categories.isaprop_has_homsets.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Precategory of pregraphs. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">pregraph_precategory_ob_mor</span> : precategory_ob_mor
+  := make_precategory_ob_mor pregraph graph_mor.
+
+<span class="kn">Definition</span> <span class="nf">pregraph_precategory_data</span> : precategory_data
+  := make_precategory_data
+       pregraph_precategory_ob_mor
+       graph_mor_id
+       (@graph_mor_comp).
+
+<span class="kn">Lemma</span> <span class="nf">is_precategory_pregraph</span> : is_precategory pregraph_precategory_data.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_precategory_one_assoc_to_two.
+  <span class="kp">repeat</span> <span class="nb">apply</span> make_dirprod; <span class="nb">cbn</span>.
+  - <span class="bp">exact</span> @graph_mor_id_left.
+  - <span class="bp">exact</span> @graph_mor_id_right.
+  - <span class="nb">apply</span> @graph_mor_comp_assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pregraph_category</span> : precategory
+  := make_precategory
+       pregraph_precategory_data
+       is_precategory_pregraph.
+
+<span class="sd">(** ** Category of graphs. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">graph_precategory_ob_mor</span> : precategory_ob_mor
+  := make_precategory_ob_mor graph graph_mor.
+
+<span class="kn">Definition</span> <span class="nf">graph_precategory_data</span> : precategory_data
+  := make_precategory_data
+       graph_precategory_ob_mor
+       (<span class="k">λ</span> <span class="nv">G</span> : graph, graph_mor_id G)
+       (<span class="k">λ</span> <span class="nv">G</span> <span class="nv">H</span> <span class="nv">K</span> : graph, graph_mor_comp).
+
+<span class="kn">Lemma</span> <span class="nf">is_precategory_graph</span> : is_precategory graph_precategory_data.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_precategory_one_assoc_to_two.
+  <span class="kp">repeat</span> <span class="nb">apply</span> make_dirprod; <span class="nb">cbn</span>.
+  - <span class="bp">exact</span> @graph_mor_id_left.
+  - <span class="bp">exact</span> @graph_mor_id_right.
+  - <span class="bp">exact</span> @graph_mor_comp_assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">graph_precategory</span> : precategory
+  := make_precategory
+       graph_precategory_data
+       is_precategory_graph.
+
+<span class="kn">Lemma</span> <span class="nf">has_homsets_graph</span> : has_homsets graph_precategory_ob_mor.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> G H.
+  <span class="nb">apply</span> isaset_graph_mor.
+  - <span class="bp">exact</span> (isaset_vertex H).
+  - <span class="bp">exact</span> (isaset_edge H).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/Graph.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartB.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     Revised June 2019
+  &gt;  ********************************************************************************* *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartB.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.Combinatorics.Graph.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

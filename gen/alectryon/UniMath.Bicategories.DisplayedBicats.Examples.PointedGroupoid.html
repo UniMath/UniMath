@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PointedGroupoid.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(*</span>
+<span class="c">The univalent bicategory of pointed groupoid.</span>
+<span class="c">*)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.TransportMorphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Groupoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.OneTypes.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.Groupoids.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Biequivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.PathGroupoid.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat. <span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.PointedOneTypes.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispModification.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBiequivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBuilders.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> bicategory_scope.
+
+<span class="kn">Definition</span> <span class="nf">pgrpds_disp_prebicat_1_id_comp_cells</span> : disp_prebicat_1_id_comp_cells grpds.
+<span class="kn">Proof</span>.
+  use tpair.
+  - use tpair.
+    + <span class="sd">(** Objects and 1-cells *)</span>
+      use tpair.
+      * <span class="sd">(** Objects over a groupoid are points of X *)</span>
+        <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">G</span>, pr11 G).
+      * <span class="nb">cbn</span>. <span class="nb">intros</span> G1 G2 x y F.
+        <span class="sd">(** 1-cells over F are properties: F preserves points *)</span>
+        <span class="bp">exact</span> (z_iso (pr1 F x) y).
+    + <span class="sd">(** Identity and composition of 1-cells: composition of properties *)</span>
+      use tpair.
+      * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">G</span> <span class="nv">x</span>, identity_z_iso x).
+      * <span class="nb">intros</span> G1 G2 G3 F1 F2 x y z i1 i2.
+        <span class="bp">exact</span> (z_iso_comp (functor_on_z_iso (pr1 F2) i1) i2).
+  - <span class="nb">intros</span> G1 G2 F1 F2 α x y i1 i2. <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="sd">(** Two cells over α : F1 ==&gt; F2 *)</span>
+    <span class="nb">unfold</span> total_prebicat_cell_struct <span class="k">in</span> α.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="c">(* α on the point of G1 is iso to identity *)</span>
+    <span class="bp">exact</span> (pr1 α x · i2 = i1).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pgrpds_disp_prebicat_ops</span> : disp_prebicat_ops pgrpds_disp_prebicat_1_id_comp_cells.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">cbn</span>.
+  - <span class="nb">intros</span> G1 G2 F x y i.
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">intros</span> G1 G2 F x y i.
+    <span class="nb">rewrite</span> functor_id.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> G1 G2 F x y i.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> G1 G2 F x y i.
+    <span class="nb">rewrite</span> functor_id.
+    <span class="nb">rewrite</span> !id_left.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> G1 G2 F x y i.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> G1 G2 G3 G4 F1 F2 F3 x y z w i1 i2 i3.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> G1 G2 G3 G4 F1 F2 F3 x y z w i1 i2 i3.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> G1 G2 F1 F2 F3 α β x y i1 i2 i3 p1 p2.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> p2.
+    <span class="nb">apply</span> p1.
+  - <span class="nb">intros</span> G1 G2 G3 F1 F2 F3 α x y z i1 i2 i3 p.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- (nat_trans_ax (pr1 α)).
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> p.
+  - <span class="nb">intros</span> G1 G2 G3 F1 F2 F3 α x y z i1 i2 i3 p.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · i3)).
+    <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pgrpds_prebicat_laws</span>
+  : disp_prebicat_laws (pgrpds_disp_prebicat_1_id_comp_cells,, pgrpds_disp_prebicat_ops).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>. <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intro</span>; <span class="nb">intros</span> ; <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pgrpds_prebicat</span> : disp_prebicat grpds.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="k">exists</span> <span class="nv">pgrpds_disp_prebicat_1_id_comp_cells</span>.
+    <span class="nb">apply</span> pgrpds_disp_prebicat_ops.
+  - <span class="bp">exact</span> pgrpds_prebicat_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pgrpds_disp</span> : disp_bicat grpds.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">apply</span> pgrpds_prebicat.
+  - <span class="kp">repeat</span> <span class="nb">intro</span>. <span class="nb">apply</span> hlevelntosn.
+    <span class="nb">apply</span> homset_property.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pgrpds</span> : bicat := total_bicat pgrpds_disp.
+
+<span class="c">(*</span>
+<span class="c">The bicategory of pointed groupoids is biequivalent to the bicategory of pointed 1types.</span>
+<span class="c">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">pgrpds_disp_2cells_isaprop</span> : disp_2cells_isaprop pgrpds_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> G₁ G₂; <span class="nb">intros</span>.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pgrpds_disp_locally_groupoid</span> : disp_locally_groupoid pgrpds_disp.
+<span class="kn">Proof</span>.
+  use make_disp_locally_groupoid.
+  - <span class="nb">intros</span> G₁ G₂ F₁ F₂ n pG₁ pG₂ pF₁ pF₂ pn.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">rewrite</span> &lt;- pn.
+    <span class="nb">rewrite</span> assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (nat_trans_eq_pointwise (maponpaths pr1 (vcomp_linv (pr2 n)))).
+    }
+    <span class="nb">apply</span> id_left.
+  - <span class="bp">exact</span> pgrpds_disp_2cells_isaprop.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">p1types_disp_2cells_isaprop</span> : disp_2cells_isaprop p1types_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B; <span class="nb">intros</span>.
+  <span class="bp">exact</span> (pr2 B _ _ _ _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">p1types_disp_locally_groupoid</span> : disp_locally_groupoid p1types_disp.
+<span class="kn">Proof</span>.
+  use make_disp_locally_groupoid.
+  - <span class="nb">intros</span> G₁ G₂ F₁ F₂ n pG₁ pG₂ pF₁ pF₂ pn.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> hornRotation_rr.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ @ ! z) pn @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathscomp_inv.
+    }
+    <span class="nb">refine</span> (path_assoc _ _ _ @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0r.
+    }
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> pathsinv0_to_right'.
+    <span class="bp">exact</span> (!(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z pG₁) (vcomp_rinv n))).
+  - <span class="bp">exact</span> p1types_disp_2cells_isaprop.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_objects_of_pgrpd</span> : disp_psfunctor pgrpds_disp p1types_disp objects_of_grpd.
+<span class="kn">Proof</span>.
+  use make_disp_psfunctor.
+  - <span class="bp">exact</span> p1types_disp_2cells_isaprop.
+  - <span class="bp">exact</span> p1types_disp_locally_groupoid.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">G</span> <span class="nv">x</span>, x).
+  - <span class="nb">intros</span> G1 G2 F x y i.
+    <span class="bp">exact</span> (isotoid _ (pr21 G2) i).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> G1 G2 F1 F2 α x y i1 i2 p ;
+       <span class="nb">cbn</span> <span class="k">in</span> * ;
+       <span class="nb">rewrite</span> &lt;- isotoid_comp ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="nb">apply</span> z_iso_eq ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">refine</span> (! p)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> G x ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> isotoid_identity_iso ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> G1 G2 G3 F1 F2 x y z i1 i2 ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> (maponpaths_isotoid _ _ _ (pr21 G2) (pr21 G3)) ;
+       <span class="nb">rewrite</span> &lt;- isotoid_comp ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_path_pgroupoid</span> : disp_psfunctor p1types_disp pgrpds_disp path_groupoid.
+<span class="kn">Proof</span>.
+  use make_disp_psfunctor.
+  - <span class="bp">exact</span> pgrpds_disp_2cells_isaprop.
+  - <span class="bp">exact</span> pgrpds_disp_locally_groupoid.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">x</span>, x).
+  - <span class="nb">intros</span> X Y f x y p.
+    <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> (p ,, pr2 (path_groupoid Y) _ _ p).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> X Y f g α x y p q αα ;
+       <span class="nb">cbn</span> <span class="k">in</span> * ;
+       <span class="bp">exact</span> (!αα)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> X x ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> X Y Z f g x y z p q ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_path_pgroupoid_counit</span>
+  : disp_pstrans (disp_pseudo_comp _ _ _ _ _ disp_objects_of_pgrpd disp_path_pgroupoid)
+                 (disp_pseudo_id _)
+                 path_groupoid_counit.
+<span class="kn">Proof</span>.
+  use make_disp_pstrans.
+  - <span class="bp">exact</span> pgrpds_disp_2cells_isaprop.
+  - <span class="bp">exact</span> pgrpds_disp_locally_groupoid.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">G</span> <span class="nv">x</span>, identity_z_iso x).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> G1 G2 F x y i ;
+       <span class="nb">cbn</span> <span class="k">in</span> * ;
+       <span class="nb">rewrite</span> idtoiso_isotoid ;
+       <span class="nb">rewrite</span> functor_id ;
+       <span class="nb">rewrite</span> !id_left ;
+       <span class="nb">apply</span> id_right).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_path_pgroupoid_unit</span>
+  : disp_pstrans (disp_pseudo_id _)
+                 (disp_pseudo_comp _ _ _ _ _ disp_path_pgroupoid disp_objects_of_pgrpd)
+                 path_groupoid_unit.
+<span class="kn">Proof</span>.
+  use make_disp_pstrans.
+  - <span class="bp">exact</span> p1types_disp_2cells_isaprop.
+  - <span class="bp">exact</span> p1types_disp_locally_groupoid.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">x</span>, idpath x).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> X Y f x y p;
+       <span class="nb">cbn</span> <span class="k">in</span> *;
+       <span class="nb">rewrite</span> pathscomp0rid;
+       <span class="nb">rewrite</span> maponpathsidfun;
+       <span class="nb">cbn</span>;
+       <span class="nb">refine</span> (_ @ isotoid_idtoiso _ (is_univalent_path_groupoid (pr1 Y) (pr2 Y)) _ _ _);
+       <span class="nb">apply</span> maponpaths;
+       <span class="nb">apply</span> z_iso_eq;
+       <span class="nb">cbn</span>;
+       <span class="nb">induction</span> p;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_path_pgroupoid_counit_inv</span>
+  : disp_pstrans (disp_pseudo_id _)
+                 (disp_pseudo_comp _ _ _ _ _ disp_objects_of_pgrpd disp_path_pgroupoid)
+                 path_groupoid_counit_inv.
+<span class="kn">Proof</span>.
+  use make_disp_pstrans.
+  - <span class="bp">exact</span> pgrpds_disp_2cells_isaprop.
+  - <span class="bp">exact</span> pgrpds_disp_locally_groupoid.
+  - <span class="nb">intros</span> G x.
+    <span class="bp">exact</span> (@identity_z_iso (pr11 (path_groupoid (objects_of_grpd G))) x).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> G1 G2 F x y i;
+       <span class="nb">cbn</span>;
+       <span class="nb">rewrite</span> pathscomp0rid;
+       <span class="nb">apply</span> maponpaths;
+       use z_iso_eq;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_path_pgroupoid_unit_inv</span>
+  : disp_pstrans (disp_pseudo_comp _ _ _ _ _ disp_path_pgroupoid disp_objects_of_pgrpd)
+                 (disp_pseudo_id _)
+                 path_groupoid_unit_inv.
+<span class="kn">Proof</span>.
+  use make_disp_pstrans.
+  - <span class="bp">exact</span> p1types_disp_2cells_isaprop.
+  - <span class="bp">exact</span> p1types_disp_locally_groupoid.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">x</span>, idpath x).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> X Y f x y p;
+       <span class="nb">cbn</span> <span class="k">in</span> *;
+       <span class="nb">rewrite</span> pathscomp0rid;
+       <span class="nb">rewrite</span> maponpathsidfun;
+       <span class="nb">refine</span> (!(isotoid_idtoiso _ (is_univalent_path_groupoid (pr1 Y) (pr2 Y)) _ _ _) @_);
+       <span class="nb">apply</span> maponpaths;
+       <span class="nb">induction</span> p;
+       use z_iso_eq;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">is_disp_biequiv_unit_counit_path_pgroupoid</span> :
+  is_disp_biequivalence_unit_counit _ _
+                                    (unit_counit_from_is_biequivalence is_biequiv_path_groupoid)
+                                    disp_path_pgroupoid disp_objects_of_pgrpd.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> disp_path_pgroupoid_unit_inv.
+  - <span class="bp">exact</span> disp_path_pgroupoid_counit.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_path_pgroupoid_unit_unit_inv</span> :
+  disp_invmodification _ _ _ _
+    (disp_comp_pstrans disp_path_pgroupoid_unit disp_path_pgroupoid_unit_inv)
+    (disp_id_pstrans _)
+    (unitcounit_of_is_biequivalence is_biequiv_path_groupoid).
+<span class="kn">Proof</span>.
+  use make_disp_invmodification.
+  - <span class="bp">exact</span> p1types_disp_2cells_isaprop.
+  - <span class="bp">exact</span> p1types_disp_locally_groupoid.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> X x;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_path_pgroupoid_unit_inv_unit</span> :
+  disp_invmodification _ _ _ _
+    (disp_comp_pstrans disp_path_pgroupoid_unit_inv disp_path_pgroupoid_unit)
+    (disp_id_pstrans _)
+    (unitunit_of_is_biequivalence is_biequiv_path_groupoid).
+<span class="kn">Proof</span>.
+  use make_disp_invmodification.
+  - <span class="bp">exact</span> p1types_disp_2cells_isaprop.
+  - <span class="bp">exact</span> p1types_disp_locally_groupoid.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> X x;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_path_pgroupoid_counit_inv_counit</span> :
+  disp_invmodification _ _ _ _
+    (disp_comp_pstrans disp_path_pgroupoid_counit_inv disp_path_pgroupoid_counit)
+    (disp_id_pstrans _)
+    (counitcounit_of_is_biequivalence is_biequiv_path_groupoid).
+<span class="kn">Proof</span>.
+  use make_disp_invmodification.
+  - <span class="bp">exact</span> pgrpds_disp_2cells_isaprop.
+  - <span class="bp">exact</span> pgrpds_disp_locally_groupoid.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> G x;
+       <span class="nb">cbn</span>;
+       <span class="nb">rewrite</span> !id_right;
+       <span class="nb">apply</span> (z_iso_inv_after_z_iso (id₁ x ,, _))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_path_pgroupoid_counit_counit_inv</span> :
+  disp_invmodification _ _ _ _
+    (disp_comp_pstrans disp_path_pgroupoid_counit disp_path_pgroupoid_counit_inv)
+    (disp_id_pstrans _)
+    (counitunit_of_is_biequivalence is_biequiv_path_groupoid).
+<span class="kn">Proof</span>.
+  use make_disp_invmodification.
+  - <span class="bp">exact</span> pgrpds_disp_2cells_isaprop.
+  - <span class="bp">exact</span> pgrpds_disp_locally_groupoid.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> G x;
+       <span class="nb">cbn</span>;
+       <span class="nb">rewrite</span> pathscomp0rid;
+       <span class="nb">refine</span> (! (isotoid_idtoiso _ (pr21 G) _ _ (idpath _)) @ _);
+       <span class="nb">apply</span> maponpaths;
+       <span class="nb">apply</span> z_iso_eq;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_biequiv_data_unit_counit_path_pgroupoid</span> :
+  disp_is_biequivalence_data _ _
+                             is_biequiv_path_groupoid
+                             is_disp_biequiv_unit_counit_path_pgroupoid.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> disp_path_pgroupoid_unit.
+  - use tpair.
+    + <span class="bp">exact</span> disp_path_pgroupoid_counit_inv.
+    + use tpair.
+      * <span class="nb">simpl</span>.
+        use tpair.
+        -- <span class="bp">exact</span> disp_path_pgroupoid_unit_unit_inv.
+        -- <span class="bp">exact</span> disp_path_pgroupoid_unit_inv_unit.
+      * use tpair.
+        -- <span class="bp">exact</span> disp_path_pgroupoid_counit_inv_counit.
+        -- <span class="bp">exact</span> disp_path_pgroupoid_counit_counit_inv.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/Examples/PointedGroupoid.v</tt>, line 4)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (*
+  &gt; The univalent bicategory of pointed groupoid.
+  &gt; *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

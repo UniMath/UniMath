@@ -1,0 +1,517 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PseudoTransformation.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Pseudo transformations and pseudo transformations between pseudofunctors. *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Prod.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Base.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Map1Cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Map2Cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Identitor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Compositor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Definition</span> <span class="nf">pstrans_data</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           (<span class="nv">F</span> <span class="nv">G</span> : psfunctor C D)
+  : UU.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (map1cells C D⟦_,_⟧).
+  - <span class="nb">apply</span> F.
+  - <span class="nb">apply</span> G.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_pstrans_data</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor C D}
+           (<span class="nv">η₁</span> : ∏ (X : C), F X --&gt; G X)
+           (<span class="nv">η₂</span> : ∏ (X Y : C) (f : X --&gt; Y), invertible_2cell (η₁ X · #G f) (#F f · η₁ Y))
+  : pstrans_data F G
+  := (η₁ ,, η₂).
+
+<span class="kn">Definition</span> <span class="nf">pstrans</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           (<span class="nv">F</span> <span class="nv">G</span> : psfunctor C D)
+  : UU
+  := psfunctor_bicat C D ⟦F,G⟧.
+
+<span class="kn">Definition</span> <span class="nf">pscomponent_of</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor C D}
+           (<span class="nv">η</span> : pstrans F G)
+  : ∏ (X : C), F X --&gt; G X
+  := pr111 η.
+
+<span class="kn">Coercion</span> <span class="nf">pscomponent_of</span> : pstrans &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">psnaturality_of</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor C D}
+           (<span class="nv">η</span> : pstrans F G)
+  : ∏ {X Y : C} (f : X --&gt; Y), invertible_2cell (η X · #G f) (#F f · η Y)
+  := pr211 η.
+
+<span class="kn">Definition</span> <span class="nf">is_pstrans</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor C D}
+           (<span class="nv">η</span> : pstrans_data F G)
+  : UU
+  := (∏ (X Y : C) (f g : X --&gt; Y) (α : f ==&gt; g),
+      (pr1 η X ◃ ##G α)
+        • pr2 η _ _ g
+      =
+      (pr2 η _ _ f)
+        • (##F α ▹ pr1 η Y))
+     ×
+     (∏ (X : C),
+      (pr1 η X ◃ psfunctor_id G X)
+        • pr2 η _ _ (id₁ X)
+      =
+      (runitor (pr1 η X))
+        • linvunitor (pr1 η X)
+        • (psfunctor_id F X ▹ pr1 η X))
+     ×
+     (∏ (X Y Z : C) (f : X --&gt; Y) (g : Y --&gt; Z),
+      (pr1 η X ◃ psfunctor_comp G f g)
+        • pr2 η _ _ (f · g)
+      =
+      (lassociator (pr1 η X) (#G f) (#G g))
+        • (pr2 η _ _ f ▹ (#G g))
+        • rassociator (#F f) (pr1 η Y) (#G g)
+        • (#F f ◃ pr2 η _ _ g)
+        • lassociator (#F f) (#F g) (pr1 η Z)
+        • (psfunctor_comp F f g ▹ pr1 η Z)).
+
+<span class="kn">Definition</span> <span class="nf">make_pstrans</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor C D}
+           (<span class="nv">η</span> : pstrans_data F G)
+           (<span class="nv">Hη</span> : is_pstrans η)
+  : pstrans F G.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> ((η ,, _) ,, tt).
+  <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">cbn</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> Hη.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">psnaturality_natural</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor C D}
+           (<span class="nv">η</span> : pstrans F G)
+  : ∏ (X Y : C) (f g : X --&gt; Y) (α : f ==&gt; g),
+    (η X ◃ ##G α)
+      • psnaturality_of η g
+    =
+    (psnaturality_of η f)
+      • (##F α ▹ η Y)
+  := pr121 η.
+
+<span class="kn">Definition</span> <span class="nf">psnaturality_inv_natural</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor C D}
+           (<span class="nv">η</span> : pstrans F G)
+  : ∏ (X Y : C) (f g : X --&gt; Y) (α : f ==&gt; g),
+    (psnaturality_of η f)^-<span class="mi">1</span>
+      • (η X ◃ ##G α)
+    =
+    (##F α ▹ η Y)
+      • (psnaturality_of η g)^-<span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y f g α.
+  use vcomp_move_L_Mp.
+  { is_iso. }
+  etrans.
+  {
+    <span class="nb">apply</span> vassocl.
+  }
+  use vcomp_move_R_pM.
+  { is_iso. }
+  <span class="nb">cbn</span>.
+  <span class="bp">exact</span> (psnaturality_natural η X Y f g α).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pstrans_id</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor C D}
+           (<span class="nv">η</span> : pstrans F G)
+  : ∏ (X : C),
+    (η X ◃ psfunctor_id G X)
+      • psnaturality_of η (id₁ X)
+    =
+    (runitor (η X))
+      • linvunitor (η X)
+      • (psfunctor_id F X ▹ η X)
+  := pr122(pr1 η).
+
+<span class="kn">Definition</span> <span class="nf">pstrans_comp</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor C D}
+           (<span class="nv">η</span> : pstrans F G)
+  : ∏ {X Y Z : C} (f : X --&gt; Y) (g : Y --&gt; Z),
+    (η X ◃ psfunctor_comp G f g)
+      • psnaturality_of η (f · g)
+    =
+    (lassociator (η X) (#G f) (#G g))
+      • (psnaturality_of η f ▹ (#G g))
+      • rassociator (#F f) (η Y) (#G g)
+      • (#F f ◃ psnaturality_of η g)
+      • lassociator (#F f) (#F g) (η Z)
+      • (psfunctor_comp F f g ▹ η Z)
+  := pr222(pr1 η).
+
+<span class="kn">Definition</span> <span class="nf">pstrans_id_alt</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor C D}
+           (<span class="nv">η</span> : pstrans F G)
+  : ∏ (X : C),
+    cell_from_invertible_2cell (psnaturality_of η (id₁ X))
+    =
+    (η X ◃ (psfunctor_id G X)^-<span class="mi">1</span>)
+      • runitor (η X)
+      • linvunitor (η X)
+      • (psfunctor_id F X ▹ η X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X.
+  <span class="nb">rewrite</span> !vassocl.
+  use vcomp_move_L_pM.
+  { is_iso. }
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !vassocr.
+  <span class="bp">exact</span> (pstrans_id η X).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">pstrans_id_inv</span>
+            {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+            {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B₁ B₂}
+            (<span class="nv">τ</span> : pstrans F G)
+            (<span class="nv">x</span> : B₁)
+  : (psnaturality_of τ (id₁ x))^-<span class="mi">1</span> • (τ x ◃ (psfunctor_id G x)^-<span class="mi">1</span>)
+    =
+    ((psfunctor_id F x)^-<span class="mi">1</span> ▹ τ x) • lunitor _ • rinvunitor _.
+<span class="kn">Proof</span>.
+  use vcomp_move_L_pM ; [ is_iso | ].
+  use vcomp_move_R_Mp ; [ is_iso | ].
+  use vcomp_move_L_pM; [ is_iso | ].
+  <span class="nb">cbn</span> -[psfunctor_id].
+  <span class="nb">rewrite</span> !vassocr.
+  <span class="bp">exact</span> (!(pstrans_id τ x)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">pstrans_id_inv_alt</span>
+            {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+            {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B₁ B₂}
+            (<span class="nv">τ</span> : pstrans F G)
+            (<span class="nv">x</span> : B₁)
+  : (psfunctor_id F x ▹ τ x) • (psnaturality_of τ (id₁ x))^-<span class="mi">1</span>
+    =
+    lunitor _ • rinvunitor _ • (τ x ◃ psfunctor_id G x).
+<span class="kn">Proof</span>.
+  use vcomp_move_R_pM ; [ is_iso ; <span class="nb">apply</span> property_from_invertible_2cell | ].
+  <span class="nb">rewrite</span> !vassocr.
+  use vcomp_move_L_Mp ; [ is_iso ; <span class="nb">apply</span> property_from_invertible_2cell | ].
+  <span class="nb">cbn</span> -[psfunctor_id].
+  <span class="nb">apply</span> pstrans_id_inv.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pstrans_comp_alt</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor C D}
+           (<span class="nv">η</span> : pstrans F G)
+  : ∏ {X Y Z : C} (f : X --&gt; Y) (g : Y --&gt; Z),
+    cell_from_invertible_2cell (psnaturality_of η (f · g))
+    =
+    (η X ◃ (psfunctor_comp G f g)^-<span class="mi">1</span>)
+      • lassociator (η X) (#G f) (#G g)
+      • (psnaturality_of η f ▹ (#G g))
+      • rassociator (#F f) (η Y) (#G g)
+      • (#F f ◃ psnaturality_of η g)
+      • lassociator (#F f) (#F g) (η Z)
+      • (psfunctor_comp F f g ▹ η Z).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y Z f g.
+  <span class="nb">rewrite</span> !vassocl.
+  use vcomp_move_L_pM.
+  { is_iso. }
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !vassocr.
+  <span class="bp">exact</span> (pstrans_comp η f g).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pstrans_inv_comp_alt</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor C D}
+           (<span class="nv">η</span> : pstrans F G)
+  : ∏ {X Y Z : C} (f : X --&gt; Y) (g : Y --&gt; Z),
+    (psnaturality_of η (f · g))^-<span class="mi">1</span>
+    =
+    ((psfunctor_comp F f g)^-<span class="mi">1</span> ▹ η Z)
+      • rassociator (#F f) (#F g) (η Z)
+      • (#F f ◃ ((psnaturality_of η g)^-<span class="mi">1</span>))
+      • lassociator (#F f) (η Y) (#G g)
+      • ((psnaturality_of η f)^-<span class="mi">1</span> ▹ (#G g))
+      • (rassociator (η X) (#G f) (#G g))
+      • (η X ◃ (psfunctor_comp G f g)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y Z f g.
+  use vcomp_move_L_pM.
+  { is_iso. }
+  use vcomp_move_R_Mp.
+  { is_iso. }
+  use vcomp_move_L_pM.
+  { is_iso. <span class="nb">apply</span> (psfunctor_comp G). }
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> pstrans_comp_alt.
+  <span class="nb">rewrite</span> !vassocl.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">id_pstrans</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           (<span class="nv">F</span> : psfunctor C D)
+  : pstrans F F
+  := id₁ F.
+
+<span class="kn">Definition</span> <span class="nf">comp_pstrans</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           {<span class="nv">F₁</span> <span class="nv">F₂</span> <span class="nv">F₃</span> : psfunctor C D}
+           (<span class="nv">σ₁</span> : pstrans F₁ F₂) (<span class="nv">σ₂</span> : pstrans F₂ F₃)
+  : pstrans F₁ F₃
+  := σ₁ · σ₂.
+
+<span class="sd">(** Pseudo adjoint equivalence is pointwise adjoint equivalence *)</span>
+<span class="kn">Definition</span> <span class="nf">pointwise_adjequiv</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+           {<span class="nv">F₁</span> <span class="nv">F₂</span> : psfunctor B₁ B₂}
+           (<span class="nv">σ</span> : pstrans F₁ F₂)
+           (<span class="nv">Hf</span> : left_adjoint_equivalence σ)
+  : ∏ (X : B₁), left_adjoint_equivalence (σ X).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> X.
+  <span class="nb">pose</span> (pr1 (left_adjoint_equivalence_total_disp_weq _ _ Hf)) <span class="k">as</span> t₁.
+  <span class="nb">pose</span> (pr1 (left_adjoint_equivalence_total_disp_weq _ _ t₁)) <span class="k">as</span> t₂.
+  <span class="nb">pose</span> (pr1 (left_adjoint_equivalence_total_disp_weq _ _ t₂)) <span class="k">as</span> t₃.
+  <span class="bp">exact</span> (is_adjequiv_to_all_is_adjequiv _ _ _ t₃ X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pstrans_to_pstrans_data</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+           {<span class="nv">F₁</span> <span class="nv">F₂</span> : psfunctor B₁ B₂}
+           (<span class="nv">α</span> : pstrans F₁ F₂)
+  : pstrans_data F₁ F₂
+  := pr11 α.
+
+<span class="kn">Definition</span> <span class="nf">pstrans_to_is_pstrans</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+           {<span class="nv">F₁</span> <span class="nv">F₂</span> : psfunctor B₁ B₂}
+           (<span class="nv">α</span> : pstrans F₁ F₂)
+  : is_pstrans (pstrans_to_pstrans_data α)
+  := pr21 α.
+
+<span class="sd">(** A pointwise adjoint equivalence is an adjoint equivalence *)</span>
+<span class="kn">Section</span> <span class="nf">PointwiseAdjequivIsAdjequiv</span>.
+  <span class="kn">Context</span> {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+          (<span class="nv">HB₂</span> : is_univalent_2 B₂)
+          {<span class="nv">F₁</span> <span class="nv">F₂</span> : psfunctor B₁ B₂}
+          (<span class="nv">σ</span> : pstrans F₁ F₂)
+          (<span class="nv">Hf</span> : ∏ (x : B₁), left_adjoint_equivalence (σ x)).
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_adjequiv_to_adjequiv_base</span>
+    : left_adjoint_equivalence (pr111 σ).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> all_is_adjequiv_to_is_adjequiv.
+    <span class="bp">exact</span> Hf.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_adjequiv_to_adjequiv_1cell</span>
+    : left_adjoint_equivalence (pr11 σ).
+  <span class="kn">Proof</span>.
+    use (invmap (left_adjoint_equivalence_total_disp_weq _ _)).
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> pointwise_adjequiv_to_adjequiv_base.
+    - <span class="nb">apply</span> map1cells_disp_left_adjoint_equivalence.
+      <span class="bp">exact</span> HB₂.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_adjequiv_to_adjequiv_data</span>
+    : left_adjoint_equivalence (pr1 σ).
+  <span class="kn">Proof</span>.
+    use (invmap (left_adjoint_equivalence_total_disp_weq _ _)).
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> pointwise_adjequiv_to_adjequiv_1cell.
+    - use (pair_left_adjoint_equivalence
+               (map2cells_disp_cat B₁ B₂)
+               (disp_dirprod_bicat
+                  (identitor_disp_cat B₁ B₂)
+                  (compositor_disp_cat B₁ B₂))
+               (_ ,, pointwise_adjequiv_to_adjequiv_1cell)).
+      <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="nb">apply</span> map2cells_disp_left_adjequiv.
+        <span class="bp">exact</span> HB₂.
+      + use (pair_left_adjoint_equivalence
+               (identitor_disp_cat B₁ B₂)
+               (compositor_disp_cat B₁ B₂)).
+        <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="nb">apply</span> identitor_disp_left_adjequiv.
+          <span class="bp">exact</span> HB₂.
+        * <span class="nb">apply</span> compositor_disp_left_adjequiv.
+          <span class="bp">exact</span> HB₂.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_adjequiv_to_adjequiv</span>
+    : left_adjoint_equivalence σ.
+  <span class="kn">Proof</span>.
+    use (invmap (left_adjoint_equivalence_total_disp_weq _ _)).
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> pointwise_adjequiv_to_adjequiv_data.
+    - <span class="nb">apply</span> disp_left_adjoint_equivalence_fullsubbicat.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">PointwiseAdjequivIsAdjequiv</span>.
+
+<span class="kn">Definition</span> <span class="nf">right_adjoint_pointwise_adjequiv</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+           (<span class="nv">HB₂</span> : is_univalent_2 B₂)
+           {<span class="nv">F₁</span> <span class="nv">F₂</span> : psfunctor B₁ B₂}
+           (<span class="nv">σ</span> : pstrans F₁ F₂)
+           (<span class="nv">H</span> : ∏ (x : B₁), left_adjoint_equivalence (σ x))
+           (<span class="nv">x</span> : B₁)
+  : (left_adjoint_right_adjoint (pointwise_adjequiv_to_adjequiv HB₂ σ H) : pstrans F₂ F₁) x
+    =
+    left_adjoint_right_adjoint (H x).
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (H x
+          =
+          pointwise_adjequiv
+            _
+            (pointwise_adjequiv_to_adjequiv HB₂ σ H)
+            x)
+    <span class="k">as</span> p.
+  {
+    <span class="nb">apply</span> isaprop_left_adjoint_equivalence.
+    <span class="nb">apply</span> HB₂.
+  }
+  <span class="nb">rewrite</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Pseudotansformations between psfunctor data *)</span>
+<span class="kn">Definition</span> <span class="nf">pstrans_data_on_data</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           (<span class="nv">F</span> <span class="nv">G</span> : psfunctor_data C D)
+  : UU.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (map1cells C D⟦_,_⟧).
+  - <span class="nb">apply</span> F.
+  - <span class="nb">apply</span> G.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_pstrans_data_on_data</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor_data C D}
+           (<span class="nv">η₁</span> : ∏ (X : C), F X --&gt; G X)
+           (<span class="nv">η₂</span> : ∏ (X Y : C) (f : X --&gt; Y), invertible_2cell (η₁ X · #G f) (#F f · η₁ Y))
+  : pstrans_data_on_data F G
+  := (η₁ ,, η₂).
+
+<span class="kn">Definition</span> <span class="nf">psfunctor_data_on_cells</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           (<span class="nv">F</span> : psfunctor_data C D)
+           {<span class="nv">a</span> <span class="nv">b</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b}
+           (<span class="nv">x</span> : f ==&gt; g)
+  : #F f ==&gt; #F g
+  := pr12 F a b f g x.
+
+<span class="kn">Section</span> <span class="nf">LocalNotation</span>.
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'##'"</span> := (PseudoFunctorBicat.psfunctor_on_cells).
+
+  <span class="kn">Definition</span> <span class="nf">is_pstrans_on_data</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+             {<span class="nv">F</span> <span class="nv">G</span> : psfunctor_data C D}
+             (<span class="nv">η</span> : pstrans_data_on_data F G)
+    : UU
+    := (∏ (X Y : C) (f g : X --&gt; Y) (α : f ==&gt; g),
+        (pr1 η X ◃ ##G α)
+          • pr2 η _ _ g
+        =
+        (pr2 η _ _ f)
+          • (##F α ▹ pr1 η Y))
+         ×
+         (∏ (X : C),
+          (pr1 η X ◃ PseudoFunctorBicat.psfunctor_id G X)
+            • pr2 η _ _ (id₁ X)
+          =
+          (runitor (pr1 η X))
+            • linvunitor (pr1 η X)
+            • (PseudoFunctorBicat.psfunctor_id F X ▹ pr1 η X))
+         ×
+         (∏ (X Y Z : C) (f : X --&gt; Y) (g : Y --&gt; Z),
+          (pr1 η X ◃ PseudoFunctorBicat.psfunctor_comp G f g)
+            • pr2 η _ _ (f · g)
+          =
+          (lassociator (pr1 η X) (#G f) (#G g))
+            • (pr2 η _ _ f ▹ (#G g))
+            • rassociator (#F f) (pr1 η Y) (#G g)
+            • (#F f ◃ pr2 η _ _ g)
+            • lassociator (#F f) (#F g) (pr1 η Z)
+            • (PseudoFunctorBicat.psfunctor_comp F f g ▹ pr1 η Z)).
+
+  <span class="kn">Definition</span> <span class="nf">pstrans_on_data</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+             (<span class="nv">F</span> <span class="nv">G</span> : psfunctor_data C D)
+    : UU
+    := ∑ (η : pstrans_data_on_data F G), is_pstrans_on_data η.
+
+  <span class="kn">Definition</span> <span class="nf">pstrans_on_data_to_pstrans</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+             {<span class="nv">F</span> <span class="nv">G</span> : psfunctor C D}
+             (<span class="nv">η</span> : pstrans_on_data (pr1 F) (pr1 G))
+    : pstrans F G
+    := η ,, tt.
+<span class="kn">End</span> <span class="nf">LocalNotation</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Transformations/PseudoTransformation.v</tt>, line 2)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** Pseudo transformations and pseudo transformations between pseudofunctors. *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>
