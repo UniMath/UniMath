@@ -78,8 +78,12 @@ Lemma is_isofibration_iff_is_op_isofibration
     {C : category} (D : disp_cat C)
   : iso_cleaving D <-> is_op_isofibration D.
 Proof.
-  (* TODO: give this! *)
-Abort.
+  split; intros H c c' i d;
+    destruct (H c c' (z_iso_inv i) d) as [d' I'];
+    exists d'; rewrite<- (z_iso_inv_z_iso_inv _ _ i);
+    apply z_iso_inv_from_z_iso_disp;
+    exact I'.
+Defined.
 
 End Isofibrations.
 
