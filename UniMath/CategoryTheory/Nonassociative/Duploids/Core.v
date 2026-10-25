@@ -105,6 +105,11 @@ Section polarities.
   Local Notation "'⊕'" := chpositive : duploid.
   Local Notation "'⊖'" := chnegative : duploid.
 
+  (* This makes the goals use [⊕] and [⊖] rather than [true] and [false]. *)
+  Definition hpolarity_rec
+    : ∏ P : bool → Type, P ⊕ → P ⊖ → ∏ b : bool, P b
+    := bool_rec.
+
   Definition is_polarity_mapping
     {D : unital_premagmoid_data} (ω : D -> hpolarity) : UU
     := ∏ (a : D), if ω a then is_positive a else is_negative a.
@@ -168,8 +173,8 @@ Section polarities.
     (ω : polarity_mapping D) : polarity_mapping_alt D.
   Proof.
     intro a.
-    induction (_,,idpath _ : paths_from (ω a)) as [ωa Hωa].
-    induction ωa.
+    remember0 (ω a) as ωa eqn:Hωa.
+    induction ωa using hpolarity_rec.
     - right; apply (pmap_positive' ω a Hωa).
     - left; apply (pmap_negative' ω a Hωa).
   Defined.

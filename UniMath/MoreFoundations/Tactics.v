@@ -110,3 +110,19 @@ Ltac repeatc n t :=
 
 Tactic Notation "repeatc" tactic(t) :=
   repeatc 0 t.
+
+(** Add hypotheses [x] and [Hx : e = x] (with <-) or [Hx : x = e] (with ->).
+
+ This is helpful when you want to do induction on [e], but it is more
+ convenient for it to create an identification [Hx] rather than a
+ judgemental equality.
+ *)
+Tactic Notation "remember0" "<-"
+  constr(e) "as" ident(x) "eqn:" ident(Hx) :=
+  induction (e,, idpath e : coconusfromt _ e) as [x Hx].
+Tactic Notation "remember0" "->"
+  constr(e) "as" ident(x) "eqn:" ident(Hx) :=
+  induction (e,, idpath e : coconustot _ e) as [x Hx].
+Tactic Notation "remember0"
+  constr(e) "as" ident(x) "eqn:" ident(Hx) :=
+  remember0 <- e as x eqn:Hx.

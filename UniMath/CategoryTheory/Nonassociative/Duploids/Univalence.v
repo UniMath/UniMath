@@ -145,7 +145,7 @@ Section univalence_def.
     : (edges_to (category_to_rxgraph Dε) ltac:(induction ε; exact (make_sub_ob isε a Ha)))
         ≃ edges_to (split_duploid_ob_rxgraph D) a.
   Proof.
-    induction ε.
+    induction ε using hpolarity_rec.
     all: apply (weqcomp (weqtotal2asstor _ _)).
     all: apply weqfibtototal.
     all: intro b; cbn.
@@ -165,7 +165,7 @@ Section univalence_def.
   Proof.
     apply is_univalent_from_isaprop_edges_to.
     intro a.
-    induction (_,, idpath _ : paths_from (ω a)) as [ε Ha].
+    remember0 (ω a) as ε eqn:Ha.
     apply (isofhlevelweqf 1
              (is_split_dupl_univalent_to_rxgraph_edges_to_weq
                 D ε a Ha)).
