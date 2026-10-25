@@ -149,10 +149,10 @@ Section envelope_equiv.
     apply (has_polarity_rec (polarity_of D a)).
     - apply isaprop_envelope_polarization.
     - intro Hn.
-      apply hinhpr, ii1.
+      apply hdisj_in1.
       apply envelope_on_shifts_chosen_negative_of_is_negative, Hn.
     - intro Hp.
-      apply hinhpr, ii2.
+      apply hdisj_in2.
       apply envelope_on_shifts_chosen_positive_of_is_positive, Hp.
   Defined.
 

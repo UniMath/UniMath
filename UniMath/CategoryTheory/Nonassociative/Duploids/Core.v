@@ -41,15 +41,12 @@ Section polarities.
   (** *** Polarization property *)
 
   (** Property to say that a is negative, positive, or both. *)
-  Definition has_polarity {M : unital_premagmoid} (a : M) : UU
-    := ∥ is_negative a ⨿ is_positive a ∥.
+  Definition has_polarity {M : unital_premagmoid} (a : M) : hProp
+    := is_negative a ∨ is_positive a.
   Definition make_has_polarity_negative {M : unital_premagmoid} (a : M)
-    (H : is_negative a) : has_polarity a := hinhpr (ii1 H).
+    (H : is_negative a) : has_polarity a := hdisj_in1 H.
   Definition make_has_polarity_positive {M : unital_premagmoid} (a : M)
-    (H : is_positive a) : has_polarity a := hinhpr (ii2 H).
-
-  Lemma isaprop_has_polarity {M : unital_premagmoid} (a : M) : isaprop (has_polarity a).
-  Proof. apply isapropishinh. Qed.
+    (H : is_positive a) : has_polarity a := hdisj_in2 H.
 
   Definition has_polarities (M : unital_premagmoid) : UU
     := ∏ (a : M), has_polarity a.
@@ -57,7 +54,7 @@ Section polarities.
     : has_polarity a := H a.
 
   Lemma isaprop_has_polarities (M : unital_premagmoid) : isaprop (has_polarities M).
-  Proof. apply impred; intro a; apply isaprop_has_polarity. Qed.
+  Proof. apply impred; intro a; apply propproperty. Qed.
 
   (** Non-dependent induction scheme for polarities. *)
   Lemma has_polarity_rec {M : unital_premagmoid}
@@ -78,8 +75,8 @@ Section polarities.
     {a : M} (H : has_polarity a)
     {P : has_polarity a -> UU}
     (HP : isPredicate P)
-    (H1 : ∏ (negp : is_negative a), P (hinhpr (ii1 negp)))
-    (H2 : ∏ (posp : is_positive a), P (hinhpr (ii2 posp)))
+    (H1 : ∏ (negp : is_negative a), P (make_has_polarity_negative a negp))
+    (H2 : ∏ (posp : is_positive a), P (make_has_polarity_positive a posp))
     : P H.
   Proof.
     apply (squash_rec (λ a, make_hProp (P a) (HP a))).
@@ -102,7 +99,7 @@ Section polarities.
 
   (** *** Polarization structure *)
 
-  Definition hpolarity : hSet := make_hSet bool isasetbool.
+  Definition hpolarity : hSet := boolset.
   Definition chpositive : hpolarity := true.
   Definition chnegative : hpolarity := false.
   Local Notation "'⊕'" := chpositive : duploid.
@@ -227,6 +224,8 @@ Section polarities.
   Proof. apply pmap_negative'. Qed.
 
 End polarities.
+Notation "'⊕'" := chpositive : duploid.
+Notation "'⊖'" := chnegative : duploid.
 Notation "'^⊕ω'" := ish_chpositive : unital_magmoid.
 Notation "'^⊖ω'" := ish_chnegative : unital_magmoid.
 

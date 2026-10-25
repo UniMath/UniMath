@@ -5,7 +5,7 @@
  Author: B. Szilvasy
  January–October 2026
 
- This file defines the envelope duploid and some proofs about it.
+ This file defines the envelope duploid and proves some theorems about it.
 
  Contents:
  1. Definition of the envelope duploid
@@ -271,8 +271,8 @@ Section envelope_defs.
 
   Lemma envelope_polarization_rec {a : envelope_preob}
     (T : envelope_polarization a -> hProp)
-    (Hnegative : ∏ (negative : envelope_chosen_negative a), T (hinhpr (ii1 negative)))
-    (Hpositive : ∏ (positive : envelope_chosen_positive a), T (hinhpr (ii2 positive)))
+    (Hnegative : ∏ (negative : envelope_chosen_negative a), T (hdisj_in1 negative))
+    (Hpositive : ∏ (positive : envelope_chosen_positive a), T (hdisj_in2 positive))
     : ∏ (polarization : envelope_polarization a), T polarization.
   Proof.
     intro polarization; apply squash_rec; intro H.
@@ -284,8 +284,8 @@ Section envelope_defs.
   Lemma envelope_polarization_rec' {a : envelope_preob}
     (T : envelope_polarization a -> UU)
     (Hprop : isPredicate T)
-    (Hnegative : ∏ (negative : envelope_chosen_negative a), T (hinhpr (ii1 negative)))
-    (Hpositive : ∏ (positive : envelope_chosen_positive a), T (hinhpr (ii2 positive)))
+    (Hnegative : ∏ (negative : envelope_chosen_negative a), T (hdisj_in1 negative))
+    (Hpositive : ∏ (positive : envelope_chosen_positive a), T (hdisj_in2 positive))
     : ∏ (polarization : envelope_polarization a), T polarization.
   Proof.
     apply (envelope_polarization_rec (λ H, make_hProp (T H) (Hprop H))); assumption.
@@ -361,13 +361,13 @@ Section envelope_defs.
   Definition envelope_ob_of_positive (p : P) : envelope_ob.
   Proof.
     use (make_envelope_ob (envelope_preob_of_positive p)).
-    apply hinhpr; constructor; apply envelope_chosen_positive_of_positive.
+    apply hdisj_in2; apply envelope_chosen_positive_of_positive.
   Defined.
 
   Definition envelope_ob_of_negative (n : N) : envelope_ob.
   Proof.
     use (make_envelope_ob (envelope_preob_of_negative n)).
-    apply hinhpr; constructor; apply envelope_chosen_negative_of_negative.
+    apply hdisj_in1; apply envelope_chosen_negative_of_negative.
   Defined.
 
   Definition envelope_ob_mor : precategory_ob_mor.
@@ -460,7 +460,7 @@ Section envelope_defs.
   Proof.
     intro a; cbn in a.
     envelope_induction a.
-    - intro; apply isaprop_has_polarity.
+    - intro; apply propproperty.
     - intro H.
       apply make_has_polarity_negative, is_negative_of_envelope_chosen_negative, H.
     - intro H.
