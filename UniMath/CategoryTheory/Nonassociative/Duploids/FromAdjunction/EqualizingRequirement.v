@@ -63,17 +63,6 @@ Local Open Scope unital_magmoid.
 Local Open Scope oblique_mor.
 Local Open Scope duploid.
 
-Lemma isweq_iscontrweqf {X Y : UU} (w : X ≃ Y) : isweq (iscontrweqf w).
-Proof.
-  use isweq_iso.
-  - apply (iscontrweqb w).
-  - intro; apply isapropiscontr.
-  - intro; apply isapropiscontr.
-Defined.
-
-Definition weq_iscontrweqf {X Y : UU} (w : X ≃ Y) : iscontr X ≃ iscontr Y
-  := make_weq _ (isweq_iscontrweqf w).
-
 (** ** Definition of the equalizing requirement *)
 
 Section equalized.

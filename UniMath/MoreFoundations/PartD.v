@@ -1,4 +1,7 @@
+(** Results that could be upstreamed to Foundations/PartD.v *)
 Require Export UniMath.Foundations.All.
+
+(** * Straightening and unstraightening *)
 
 Lemma eqweqmap_transportb {T U: Type} (p: T = U) :
  (λ u:U, eqweqmap (! p) u) = transportb (λ X:Type, X) p.
@@ -66,3 +69,27 @@ Proof.
   - exact totalfst_display.
   - exact display_totalfst.
 Defined.
+
+(** * H-levels over equivalences. *)
+
+Lemma isweq_iscontrweqf {X Y : UU} (w : X ≃ Y) : isweq (iscontrweqf w).
+Proof.
+  use isweq_iso.
+  - apply (iscontrweqb w).
+  - intro; apply isapropiscontr.
+  - intro; apply isapropiscontr.
+Defined.
+
+Definition weq_iscontrweqf {X Y : UU} (w : X ≃ Y) : iscontr X ≃ iscontr Y
+  := make_weq _ (isweq_iscontrweqf w).
+
+Lemma isweq_isofhlevelweqf (n : nat) {X Y : UU} (w : X ≃ Y) : isweq (isofhlevelweqf n w).
+Proof.
+  use isweq_iso.
+  - apply (isofhlevelweqb n w).
+  - intro; apply isapropisofhlevel.
+  - intro; apply isapropisofhlevel.
+Defined.
+
+Definition weq_isofhlevelweqf (n : nat) {X Y : UU} (w : X ≃ Y) : isofhlevel n X ≃ isofhlevel n Y
+  := make_weq _ (isweq_isofhlevelweqf n w).
