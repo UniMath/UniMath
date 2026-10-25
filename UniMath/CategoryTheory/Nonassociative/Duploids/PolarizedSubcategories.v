@@ -531,46 +531,71 @@ Section shift_functors.
   (* We prove the adjunction [⇑ ⊣ ⇓ : D⁻ₗ ⟶ D⁺ₜ] by direct
      computation, since it does not require much extra machinery. *)
 
+  Definition unit_data_neg_l_to_pos_t
+    : nat_trans_data (functor_identity D⁺ₜ)
+        (upshift_pos_t_to_neg_l ∙ downshift_neg_l_to_pos_t).
+  Proof.
+    intro a; cbn in a.
+    change (a -->{_lt} ⇓⇑a).
+    apply weq_positive_thunkable_mor.
+    apply (make_submm_mor _t (delay a · wrap ⇑a)).
+    abstract (apply is_thunkable_compose;
+              solve [apply is_thunkable_delay|submagmoid]).
+  Defined.
+
+  Lemma is_nat_trans_unit_neg_l_to_pos_t
+    : is_nat_trans _ _ unit_data_neg_l_to_pos_t.
+  Proof.
+    intros a b f; apply submm_mor_eq.
+    cbn in a, b |- *.
+    change (a -->{_lt} b) in f.
+    change (f · (delay b · wrap ⇑b) = (delay a · wrap ⇑a) · #⇓(#⇑f)).
+    refine (assoc_thunkable f ummsolve _ _ @ _).
+    etrans; [apply cancel_postcomposition, delay_natural|].
+    refine (assoc'_thunkable (delay a) ummsolve _ _ @ _).
+    refine (_ @ assoc_thunkable (delay a) ummsolve _ _).
+    apply cancel_precomposition.
+    apply wrap_natural.
+  Qed.
+
+  Definition counit_data_neg_l_to_pos_t
+    : nat_trans_data
+        (downshift_neg_l_to_pos_t ∙ upshift_pos_t_to_neg_l)
+        (functor_identity D⁻ₗ).
+  Proof.
+    intro a; cbn in a.
+    change (a <--{_lt} ⇑⇓a).
+    apply weq_negative_linear_mor.
+    apply (make_submm_mor _l (unwrap a ∘ force ⇓a)).
+    abstract (apply is_linear_compose;
+              solve [apply is_linear_unwrap|submagmoid]).
+  Defined.
+
+  Lemma is_nat_trans_counit_neg_l_to_pos_t
+    : is_nat_trans _ _ counit_data_neg_l_to_pos_t.
+  Proof.
+    intros a b f; apply submm_mor_eq.
+    cbn in a, b |- *.
+    change (a -->{_lt} b) in f.
+    change ((unwrap b ∘ force ⇓b) ∘ #⇑(#⇓f) = f ∘ (unwrap a ∘ force ⇓a)).
+    apply pathsinv0.
+    refine (assoc'_linear f ummsolve _ _ @ _).
+    etrans; [apply cancel_precomposition, pathsinv0, unwrap_natural|].
+    refine (assoc_linear (unwrap b) ummsolve _ _ @ _).
+    refine (_ @ assoc'_linear (unwrap b) ummsolve _ _).
+    apply cancel_postcomposition.
+    apply pathsinv0, force_natural.
+  Qed.
+
   Lemma adjunction_data_neg_l_to_pos_t : adjunction_data D⁺ₜ D⁻ₗ.
   Proof.
     use make_adjunction_data.
     - exact upshift_pos_t_to_neg_l.
     - exact downshift_neg_l_to_pos_t.
-    - use make_nat_trans.
-      + intro a; cbn in a.
-        change (a -->{_lt} ⇓⇑a).
-        apply weq_positive_thunkable_mor.
-        apply (make_submm_mor _t (delay a · wrap ⇑a)).
-        apply is_thunkable_compose;
-          solve [apply is_thunkable_delay|submagmoid].
-      + intros a b f; apply submm_mor_eq.
-        cbn in a, b |- *.
-        change (a -->{_lt} b) in f.
-        change (f · (delay b · wrap ⇑b) = (delay a · wrap ⇑a) · #⇓(#⇑f)).
-        refine (assoc_thunkable f ummsolve _ _ @ _).
-        etrans; [apply cancel_postcomposition, delay_natural|].
-        refine (assoc'_thunkable (delay a) ummsolve _ _ @ _).
-        refine (_ @ assoc_thunkable (delay a) ummsolve _ _).
-        apply cancel_precomposition.
-        apply wrap_natural.
-    - use make_nat_trans.
-      + intro a; cbn in a.
-        change (a <--{_lt} ⇑⇓a).
-        apply weq_negative_linear_mor.
-        apply (make_submm_mor _l (unwrap a ∘ force ⇓a)).
-        apply is_linear_compose;
-          solve [apply is_linear_unwrap|submagmoid].
-      + intros a b f; apply submm_mor_eq.
-        cbn in a, b |- *.
-        change (a -->{_lt} b) in f.
-        change ((unwrap b ∘ force ⇓b) ∘ #⇑(#⇓f) = f ∘ (unwrap a ∘ force ⇓a)).
-        apply pathsinv0.
-        refine (assoc'_linear f ummsolve _ _ @ _).
-        etrans; [apply cancel_precomposition, pathsinv0, unwrap_natural|].
-        refine (assoc_linear (unwrap b) ummsolve _ _ @ _).
-        refine (_ @ assoc'_linear (unwrap b) ummsolve _ _).
-        apply cancel_postcomposition.
-        apply pathsinv0, force_natural.
+    - exists unit_data_neg_l_to_pos_t.
+      exact is_nat_trans_unit_neg_l_to_pos_t.
+    - exists counit_data_neg_l_to_pos_t.
+      exact is_nat_trans_counit_neg_l_to_pos_t.
   Defined.
 
   Lemma form_adjunction_neg_l_to_pos_t
