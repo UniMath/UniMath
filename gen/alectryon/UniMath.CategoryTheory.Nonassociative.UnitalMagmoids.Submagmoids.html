@@ -1,0 +1,988 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Submagmoids.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> Submagmoids</span>
+
+<span class="sd"> Author: B. Szilvasy</span>
+<span class="sd"> September 2026</span>
+
+<span class="sd"> Central to the study of unital magmoids are the (often associative) submagmoids</span>
+<span class="sd"> obtained by restricting to a subset of the morphisms.  We define them in their</span>
+<span class="sd"> full generality here.  The specific submagmoids obtained by requiring</span>
+<span class="sd"> associativity may be found in [PolarizedSubcategories.v].</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Wide submagmoids</span>
+<span class="sd"> 1.1. Wide submagmoid definitions</span>
+<span class="sd"> 1.2. Wide submagmoid morphisms</span>
+<span class="sd"> 1.3. Sub-objects</span>
+<span class="sd"> 1.4. Intersection submagmoids</span>
+<span class="sd"> 1.5. Associative wide submagmoids</span>
+<span class="sd"> 2. Submagmoids to magmoids</span>
+<span class="sd"> 2.1. Wide submagmoid to magmoid</span>
+<span class="sd"> 2.2. Full submagmoid to magmoid</span>
+<span class="sd"> 2.3. Arbitrary submagmoids</span>
+
+<span class="sd"> ********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.catiso.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> unital_magmoid.
+
+<span class="sd">(** ** Wide submagmoids *)</span>
+
+<span class="kn">Section</span> <span class="nf">submagmoids</span>.
+  <span class="kn">Context</span> {<span class="nv">M</span> : unital_premagmoid_data}.
+  <span class="kn">Hypothesis</span> <span class="nv">hs</span> : has_homsets M.
+
+  <span class="sd">(** *** Wide submagmoid definitions *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">wide_submagmoid_data</span> : UU
+    := ∏ (a b : M), hsubtype (a --&gt; b).
+  <span class="kn">Identity Coercion</span> <span class="nf">Id_wide_submagmoid_data</span> : wide_submagmoid_data &gt;-&gt; <span class="kt">Funclass</span>.
+  <span class="kn">Definition</span> <span class="nf">is_wide_submagmoid</span> (<span class="nv">P</span> : wide_submagmoid_data) : hProp :=
+    ((<span class="k">∀</span> (<span class="nv">a</span> : M), P _ _ (identity a)) ∧
+       (<span class="k">∀</span> (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M) (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c),
+           P _ _ f ⇒ P _ _ g ⇒ P _ _ (f · g)))%logic.
+
+  <span class="kn">Definition</span> <span class="nf">make_is_wide_submagmoid</span>
+    (<span class="nv">P</span> : wide_submagmoid_data)
+    (<span class="nv">Hid</span> : ∏ (a : M), P _ _ (identity a))
+    (<span class="nv">Hcomp</span> : ∏ (a b c : M) (f : a --&gt; b) (g : b --&gt; c), P _ _ f -&gt; P _ _ g -&gt; P _ _ (f · g))
+    : is_wide_submagmoid P
+    := make_dirprod Hid Hcomp.
+
+  <span class="kn">Definition</span> <span class="nf">wide_submagmoid</span> := total2 is_wide_submagmoid.
+  <span class="kn">Coercion</span> <span class="nf">wide_submagmoid_to_data</span> (P : wide_submagmoid)
+    : wide_submagmoid_data := pr1 P.
+  <span class="kn">Definition</span> <span class="nf">wide_submagmoid_is_wide_submagmoid</span> (<span class="nv">P</span> : wide_submagmoid)
+    : is_wide_submagmoid P := pr2 P.
+
+  <span class="kn">Definition</span> <span class="nf">make_wide_submagmoid</span>
+    (<span class="nv">H</span> : wide_submagmoid_data)
+    (<span class="nv">His</span> : is_wide_submagmoid H)
+    : wide_submagmoid
+    := H,, His.
+
+  <span class="kn">Definition</span> <span class="nf">make_wide_submagmoid'</span>
+    (<span class="nv">H</span> : wide_submagmoid_data)
+    (<span class="nv">Hid</span> : ∏ (a : M), H _ _ (identity a))
+    (<span class="nv">Hcomp</span> : ∏ (a b c : M) (f : a --&gt; b) (g : b --&gt; c), H _ _ f -&gt; H _ _ g -&gt; H _ _ (f · g))
+    : wide_submagmoid
+    := make_wide_submagmoid H
+         (make_is_wide_submagmoid H Hid Hcomp).
+
+  <span class="kn">Definition</span> <span class="nf">wide_submagmoid_identity_holds</span> (<span class="nv">P</span> : wide_submagmoid) (<span class="nv">a</span> : M)
+    : P a a (identity a)
+    := pr1 (wide_submagmoid_is_wide_submagmoid P) a.
+  <span class="kn">Definition</span> <span class="nf">wide_submagmoid_compose_holds</span> (<span class="nv">P</span> : wide_submagmoid)
+    {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c)
+    (<span class="nv">Hf</span> : P a b f) (<span class="nv">Hg</span> : P b c g)
+    : P a c (f · g)
+    := pr2 (wide_submagmoid_is_wide_submagmoid P) a b c f g Hf Hg.
+
+  <span class="sd">(** *** Wide submagmoid morphisms *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">submm_mor</span> (<span class="nv">P</span> : wide_submagmoid_data) (<span class="nv">a</span> <span class="nv">b</span> : M) : UU := P a b.
+  <span class="kn">Identity Coercion</span> <span class="nf">Id_submm_mor</span> : submm_mor &gt;-&gt; carrier.
+  <span class="kn">Coercion</span> <span class="nf">submm_mor_mor</span> {P : wide_submagmoid_data} {a b : M}
+    (f : submm_mor P a b) : M⟦a, b⟧ := pr1carrier _ f.
+  <span class="kn">Definition</span> <span class="nf">submm_mor_property</span> (<span class="nv">P</span> : wide_submagmoid_data) {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">f</span> : submm_mor P a b) : P a b f := pr2 f.
+  <span class="kn">Definition</span> <span class="nf">make_submm_mor</span> (<span class="nv">P</span> : wide_submagmoid_data) {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">f</span> : a --&gt; b) (<span class="nv">H</span> : P a b f)
+    : submm_mor P a b
+    := f,, H.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"a '--&gt;{' P '}' b"</span> :=
+    (submm_mor P a b) (<span class="kn">at level</span> <span class="mi">55</span>, <span class="kn">format</span> <span class="s2">"a  --&gt;{ P }  b"</span>) : unital_magmoid.
+
+  <span class="kn">Lemma</span> <span class="nf">isaset_submm_mor'</span> (<span class="nv">P</span> : wide_submagmoid_data) (<span class="nv">a</span> <span class="nv">b</span> : M)
+    : isaset (a --&gt;{P} b).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaset_total2.
+    - <span class="nb">apply</span> hs.
+    - <span class="nb">intro</span> f; <span class="nb">apply</span> isasetaprop, propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isincl_submm_mor_mor</span> (<span class="nv">P</span> : wide_submagmoid_data) (<span class="nv">a</span> <span class="nv">b</span> : M)
+    : isincl (<span class="k">λ</span> (<span class="nv">f</span> : a --&gt;{P} b), submm_mor_mor f)
+    := isinclpr1carrier (P a b).
+
+  <span class="kn">Definition</span> <span class="nf">issurjective_submm_mor_mor</span> (<span class="nv">P</span> : wide_submagmoid_data) (<span class="nv">a</span> <span class="nv">b</span> : M)
+    (<span class="nv">H</span> : ∏ (f : a --&gt; b), P a b f)
+    : issurjective (<span class="k">λ</span> (<span class="nv">f</span> : a --&gt;{P} b), submm_mor_mor f).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> f; <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">make_submm_mor</span> <span class="nv">P</span> <span class="nv">f</span> (H f)).
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isweq_submm_mor_mor</span> (<span class="nv">P</span> : wide_submagmoid_data) (<span class="nv">a</span> <span class="nv">b</span> : M)
+    (<span class="nv">H</span> : ∏ (f : a --&gt; b), P a b f)
+    : isweq (<span class="k">λ</span> (<span class="nv">f</span> : a --&gt;{P} b), submm_mor_mor f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isweqinclandsurj.
+    - <span class="nb">apply</span> isincl_submm_mor_mor.
+    - <span class="nb">apply</span> issurjective_submm_mor_mor, H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">submm_mor_eq</span> {<span class="nv">P</span> : wide_submagmoid_data} {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> <span class="nv">g</span> : a --&gt;{P} b)
+    : submm_mor_mor f = g ≃ f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> invweq, Injectivity, isweqonpathsincl, isincl_submm_mor_mor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_make_submm_mor</span> (<span class="nv">P</span> : wide_submagmoid_data)
+    (<span class="nv">a</span> <span class="nv">b</span> : M) (<span class="nv">H</span> : ∏ (f : a --&gt; b), P a b f)
+    : (a --&gt; b) ≃ (a --&gt;{P} b)
+    := invweq (make_weq _ (isweq_submm_mor_mor P a b H)).
+
+  <span class="kn">Definition</span> <span class="nf">submm_identity</span> (<span class="nv">P</span> : wide_submagmoid) (<span class="nv">a</span> : M) : a --&gt;{P} a
+    := make_submm_mor P (identity a) (wide_submagmoid_identity_holds P a).
+  <span class="kn">Definition</span> <span class="nf">submm_compose</span> (<span class="nv">P</span> : wide_submagmoid)
+    {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M} (<span class="nv">f</span> : a --&gt;{P} b) (<span class="nv">g</span> : b --&gt;{P} c) : a --&gt;{P} c
+    := make_submm_mor P (f · g)
+         (wide_submagmoid_compose_holds P f g
+            (submm_mor_property P f) (submm_mor_property P g)).
+
+  <span class="sd">(** *** Sub-objects *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">sub_ob</span> (<span class="nv">M</span> : precategory_ob_mor) (<span class="nv">P</span> : hsubtype M) : UU := carrier P.
+  <span class="kn">Identity Coercion</span> <span class="nf">Id_sub_ob</span> : sub_ob &gt;-&gt; carrier.
+  <span class="kn">Coercion</span> <span class="nf">sub_ob_ob</span> {M : precategory_ob_mor} {P : hsubtype M}
+    (a : sub_ob M P) : ob M := pr1carrier _ a.
+  <span class="kn">Definition</span> <span class="nf">sub_ob_property</span> {<span class="nv">M</span> : precategory_ob_mor} (<span class="nv">P</span> : hsubtype M)
+    (<span class="nv">a</span> : sub_ob M P) : P a := pr2 a.
+  <span class="kn">Definition</span> <span class="nf">make_sub_ob</span> {<span class="nv">M</span> : precategory_ob_mor} (<span class="nv">P</span> : hsubtype M)
+    (<span class="nv">a</span> : M) (<span class="nv">H</span> : P a)
+    : sub_ob M P
+    := a,, H.
+
+  <span class="sd">(** *** Intersection submagmoids *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">submm_includes_at</span>
+    (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid_data) (<span class="nv">a</span> <span class="nv">b</span> : M)
+    : UU := ∏ (f : a --&gt; b), P a b f -&gt; Q a b f.
+  <span class="kn">Definition</span> <span class="nf">make_submm_includes_at</span>
+    (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid_data) (<span class="nv">a</span> <span class="nv">b</span> : M)
+    (<span class="nv">H</span> : ∏ (f : a --&gt;{P} b), Q a b f)
+    : submm_includes_at P Q a b
+    := <span class="k">λ</span> <span class="nv">f</span> <span class="nv">Hf</span>, H (f,, Hf).
+
+  <span class="kn">Definition</span> <span class="nf">submm_includes_in</span>
+    (<span class="nv">R</span> : hsubtype M)
+    (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid_data)
+    : UU := ∏ (a b : sub_ob M R), submm_includes_at P Q a b.
+
+  <span class="kn">Definition</span> <span class="nf">make_submm_includes_in</span>
+    (<span class="nv">R</span> : hsubtype M) (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid_data) (<span class="nv">a</span> <span class="nv">b</span> : M)
+    (<span class="nv">H</span> : ∏ (a b : M) (f : a --&gt;{P} b), Q a b f)
+    : submm_includes_in R P Q
+    := <span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, make_submm_includes_at P Q a b (H a b).
+
+  <span class="kn">Definition</span> <span class="nf">submm_includes</span> (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid_data)
+    : UU := ∏ (a b : M), submm_includes_at P Q a b.
+
+  <span class="kn">Definition</span> <span class="nf">make_submm_includes</span>
+    (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid_data) (<span class="nv">a</span> <span class="nv">b</span> : M)
+    (<span class="nv">H</span> : ∏ (a b : M) (f : a --&gt;{P} b), Q a b f)
+    : submm_includes P Q
+    := <span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, make_submm_includes_at P Q a b (H a b).
+
+  <span class="kn">Lemma</span> <span class="nf">weq_submm_includes_in_trivial</span> (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid_data)
+    : submm_includes P Q
+        ≃ submm_includes_in (totalsubtype M) P Q.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (weqcomp (weqonsecbase _ (weqtotalsubtype M))).
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> a.
+    <span class="nb">apply</span> (weqonsecbase _ (weqtotalsubtype M)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">submm_mor_incl</span> (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid_data)
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">H</span> : submm_includes_at P Q a b)
+    (<span class="nv">f</span> : a --&gt;{P} b) : a --&gt;{Q} b
+    := make_submm_mor Q f (H f (submm_mor_property P f)).
+
+  <span class="kn">Theorem</span> <span class="nf">isincl_submm_mor_incl</span> (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid_data)
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">H</span> : submm_includes_at P Q a b)
+    : isincl (submm_mor_incl P Q H).
+  <span class="kn">Proof</span>.
+    <span class="nb">change</span> (isincl (totalfun _ _ H)).
+    <span class="nb">apply</span> isofhlevelf_totalfun; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> isofhlevelffromXY.
+    - <span class="nb">apply</span> propproperty.
+    - <span class="nb">apply</span> isofhlevelsnprop, propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">issurjective_submm_mor_incl</span> (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid_data)
+    {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">H</span> : submm_includes_at P Q a b)
+    (<span class="nv">Hinv</span> : submm_includes_at Q P a b)
+    : issurjective (submm_mor_incl P Q H).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> f; <span class="nb">apply</span> hinhpr.
+    use make_hfiber.
+    - <span class="bp">exact</span> (submm_mor_incl _ _ Hinv f).
+    - <span class="bp">now</span> <span class="nb">apply</span> submm_mor_eq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">isweq_submm_mor_incl</span> (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid_data)
+    {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">H</span> : submm_includes_at P Q a b)
+    (<span class="nv">Hinv</span> : submm_includes_at Q P a b)
+    : isweq (submm_mor_incl P Q H).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isweqinclandsurj.
+    - <span class="nb">apply</span> isincl_submm_mor_incl.
+    - <span class="nb">apply</span> issurjective_submm_mor_incl, Hinv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_submm_mor_incl</span> {<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid_data}
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">H</span> : ∏ (f : a --&gt; b), P a b f ≃ Q a b f)
+    : (a --&gt;{P} b) ≃ (a --&gt;{Q} b).
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="nb">apply</span> submm_mor_incl.
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, H f).
+    - <span class="nb">apply</span> isweq_submm_mor_incl.
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, invmap (H f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_wide_submagmoid_intersection</span>
+    (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid)
+    : is_wide_submagmoid (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">f</span>, P a b f ∧ Q a b f).
+  <span class="kn">Proof</span>.
+    use make_is_wide_submagmoid.
+    - <span class="nb">intro</span> a; <span class="nb">split</span>; <span class="nb">apply</span> wide_submagmoid_identity_holds.
+    - <span class="nb">intros</span> a b c f g Hf Hg.
+      <span class="nb">induction</span> Hf, Hg.
+      <span class="nb">split</span>; <span class="bp">now</span> <span class="nb">apply</span> wide_submagmoid_compose_holds.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">wide_submagmoid_intersection</span> (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid)
+    : wide_submagmoid
+    := make_wide_submagmoid _ (is_wide_submagmoid_intersection P Q).
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"P ∩ Q"</span> := (wide_submagmoid_intersection P Q) : unital_magmoid.
+
+  <span class="kn">Definition</span> <span class="nf">submm_mor_to_left</span> {<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid} {<span class="nv">a</span> <span class="nv">b</span> : M}
+    : (a --&gt;{P ∩ Q} b) -&gt; (a --&gt;{P} b)
+    := submm_mor_incl (P ∩ Q) P (<span class="k">λ</span> <span class="nv">_</span>, pr1).
+
+  <span class="kn">Definition</span> <span class="nf">submm_mor_from_left</span> {<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid}
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt;{P} b) (<span class="nv">H</span> : Q a b f)
+    : a --&gt;{P ∩ Q} b.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (make_submm_mor _ f); <span class="nb">split</span>.
+    - <span class="nb">apply</span> submm_mor_property.
+    - <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isweq_submm_mor_to_left</span> {<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid} (<span class="nv">a</span> <span class="nv">b</span> : M)
+    (<span class="nv">H</span> : ∏ (f : a --&gt;{P} b), Q a b f)
+    : isweq (<span class="k">λ</span> (<span class="nv">f</span> : a --&gt;{P ∩ Q} b), submm_mor_to_left f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isweq_submm_mor_incl.
+    <span class="nb">intros</span> f Hf; <span class="nb">split</span>.
+    - <span class="bp">exact</span> Hf.
+    - <span class="bp">exact</span> (H (f,, Hf)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">submm_mor_to_right</span> {<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid} {<span class="nv">a</span> <span class="nv">b</span> : M}
+    : (a --&gt;{P ∩ Q} b) -&gt; (a --&gt;{Q} b)
+    := submm_mor_incl (P ∩ Q) Q (<span class="k">λ</span> <span class="nv">_</span>, pr2).
+
+  <span class="kn">Definition</span> <span class="nf">submm_mor_from_right</span> {<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid}
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt;{Q} b) (<span class="nv">H</span> : P a b f)
+    : a --&gt;{P ∩ Q} b.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (make_submm_mor _ f); <span class="nb">split</span>.
+    - <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> submm_mor_property.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isweq_submm_mor_to_right</span> {<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid} (<span class="nv">a</span> <span class="nv">b</span> : M)
+    (<span class="nv">H</span> : ∏ (f : a --&gt;{Q} b), P a b f)
+    : isweq (<span class="k">λ</span> (<span class="nv">f</span> : a --&gt;{P ∩ Q} b), submm_mor_to_right f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isweq_submm_mor_incl.
+    <span class="nb">intros</span> f Hf; <span class="nb">split</span>.
+    - <span class="bp">exact</span> (H (f,, Hf)).
+    - <span class="bp">exact</span> Hf.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">trivial_submm</span> : wide_submagmoid.
+  <span class="kn">Proof</span>.
+    use make_wide_submagmoid.
+    - <span class="nb">intros</span> a b; <span class="bp">exact</span> (totalsubtype (M⟦a, b⟧)).
+    - <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** Associative wide submagmoids *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">is_assoc_wide_submagmoid</span> (<span class="nv">P</span> : wide_submagmoid_data) : UU
+    := ∏ (a b c d : M) (f : a --&gt; b) (g : b --&gt; c) (h : c --&gt; d),
+      P _ _ f -&gt; P _ _ g -&gt; P _ _ h -&gt;
+      f · (g · h) = (f · g) · h.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_assoc_wide_submagmoid'</span> (<span class="nv">P</span> : wide_submagmoid_data)
+    : isaprop (is_assoc_wide_submagmoid P).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">10</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+    <span class="nb">apply</span> hs.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">wide_subcategory</span> : UU
+    := ∑ (P : wide_submagmoid), is_assoc_wide_submagmoid P.
+  <span class="kn">Coercion</span> <span class="nf">wide_subcategory_to_submagmoid</span> (P : wide_subcategory)
+    : wide_submagmoid := pr1 P.
+  <span class="kn">Definition</span> <span class="nf">wide_subcategory_is_assoc</span> (<span class="nv">P</span> : wide_subcategory)
+    : is_assoc_wide_submagmoid P := pr2 P.
+
+  <span class="kn">Definition</span> <span class="nf">make_wide_subcategory</span> (<span class="nv">P</span> : wide_submagmoid)
+    (<span class="nv">H</span> : is_assoc_wide_submagmoid P)
+    : wide_subcategory
+    := P,, H.
+
+  <span class="kn">Lemma</span> <span class="nf">is_assoc_wide_submagmoid_intersection_left</span>
+    (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid)
+    (<span class="nv">H</span> : is_assoc_wide_submagmoid P)
+    : is_assoc_wide_submagmoid (wide_submagmoid_intersection P Q).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b c d f g h Hf Hg Hh.
+    <span class="nb">apply</span> H.
+    - <span class="bp">exact</span> (pr1 Hf).
+    - <span class="bp">exact</span> (pr1 Hg).
+    - <span class="bp">exact</span> (pr1 Hh).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_assoc_wide_submagmoid_intersection_right</span>
+    (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid)
+    (<span class="nv">H</span> : is_assoc_wide_submagmoid Q)
+    : is_assoc_wide_submagmoid (wide_submagmoid_intersection P Q).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b c d f g h Hf Hg Hh.
+    <span class="nb">apply</span> H.
+    - <span class="bp">exact</span> (pr2 Hf).
+    - <span class="bp">exact</span> (pr2 Hg).
+    - <span class="bp">exact</span> (pr2 Hh).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">submagmoids</span>.
+<span class="kn">Arguments</span> wide_submagmoid_data _ : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> wide_submagmoid _ : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> wide_subcategory _ : <span class="kn">clear implicits</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaset_submm_mor</span> {<span class="nv">M</span> : unital_magmoid}
+  (<span class="nv">P</span> : wide_submagmoid_data M) (<span class="nv">a</span> <span class="nv">b</span> : M) : isaset (P a b).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isaset_submm_mor'.
+  <span class="nb">apply</span> unital_magmoid_has_homsets.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_assoc_wide_submagmoid</span> {<span class="nv">M</span> : unital_magmoid}
+  (<span class="nv">P</span> : wide_submagmoid_data M)
+  : isaprop (is_assoc_wide_submagmoid P).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isaprop_is_assoc_wide_submagmoid'.
+  <span class="nb">apply</span> unital_magmoid_has_homsets.
+<span class="kn">Qed</span>.
+
+<span class="kn">Notation</span> <span class="s2">"a '--&gt;{' P '}' b"</span> :=
+  (submm_mor P a b) (<span class="kn">at level</span> <span class="mi">55</span>, <span class="kn">format</span> <span class="s2">"a  --&gt;{ P }  b"</span>) : unital_magmoid.
+<span class="kn">Notation</span> <span class="s2">"a '&lt;--{' P '}' b"</span> :=
+  (submm_mor P b a) (<span class="kn">at level</span> <span class="mi">55</span>, <span class="kn">only parsing</span>) : unital_magmoid.
+<span class="kn">Notation</span> <span class="s2">"M '∣' P '∣⟦' a ',' b '⟧'"</span> :=
+  (submm_mor (M:=M) P a b)
+    (<span class="kn">at level</span> <span class="mi">49</span>, <span class="kn">right associativity</span>,
+      <span class="kn">format</span> <span class="s2">"M ∣ P ∣⟦  a ,  b  ⟧"</span>) : unital_magmoid.
+<span class="kn">Notation</span> <span class="s2">"f '∘{' P '}' g"</span> :=
+  (submm_compose P g f) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>, <span class="kn">format</span> <span class="s2">"f  ∘{ P }  g"</span>) : unital_magmoid.
+<span class="kn">Notation</span> <span class="s2">"f '·{' P '}' g"</span> :=
+  (submm_compose P f g) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>, <span class="kn">format</span> <span class="s2">"f  ·{ P }  g"</span>) : unital_magmoid.
+
+<span class="sd">(** ** Submagmoids to magmoids *)</span>
+
+<span class="kn">Section</span> <span class="nf">submagmoid_to_magmoid</span>.
+  <span class="sd">(** *** Wide submagmoid to magmoid *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">wide_submagmoid_carrier_data</span>
+    (<span class="nv">M</span> : unital_premagmoid_data) (<span class="nv">P</span> : wide_submagmoid M)
+    : unital_premagmoid_data.
+  <span class="kn">Proof</span>.
+    use make_precategory_data.
+    - use make_precategory_ob_mor.
+      + <span class="bp">exact</span> (ob M).
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, a --&gt;{P} b).
+    - <span class="nb">apply</span> submm_identity.
+    - <span class="nb">apply</span> submm_compose.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">wide_submagmoid_has_homsets</span>
+    (<span class="nv">M</span> : unital_magmoid) (<span class="nv">P</span> : wide_submagmoid M)
+    : has_homsets (wide_submagmoid_carrier_data M P).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> isaset_submm_mor', unital_magmoid_has_homsets.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">wide_submagmoid_is_unital</span>
+    (<span class="nv">M</span> : unital_premagmoid) (<span class="nv">P</span> : wide_submagmoid M)
+    : is_unital_premagmoid (wide_submagmoid_carrier_data M P).
+  <span class="kn">Proof</span>.
+    use make_is_unital_premagmoid.
+    - <span class="nb">intros</span> a b f; <span class="nb">apply</span> submm_mor_eq, magmoid_id_left.
+    - <span class="nb">intros</span> a b f; <span class="nb">apply</span> submm_mor_eq, magmoid_id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">wide_sub_premagmoid_carrier</span>
+    (<span class="nv">M</span> : unital_premagmoid) (<span class="nv">P</span> : wide_submagmoid M)
+    : unital_premagmoid
+    := make_unital_premagmoid _ (wide_submagmoid_is_unital M P).
+
+  <span class="kn">Definition</span> <span class="nf">wide_submagmoid_carrier</span>
+    (<span class="nv">M</span> : unital_magmoid) (<span class="nv">P</span> : wide_submagmoid M)
+    : unital_magmoid
+    := make_unital_magmoid (wide_sub_premagmoid_carrier M P)
+         (wide_submagmoid_has_homsets M P).
+
+  <span class="kn">Definition</span> <span class="nf">wide_submagmoid_is_assoc_iff</span>
+    (<span class="nv">M</span> : unital_premagmoid_data) (<span class="nv">P</span> : wide_submagmoid M)
+    : is_assoc_wide_submagmoid P
+        &lt;-&gt; is_assoc_premagmoid (wide_submagmoid_carrier_data M P).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> H; <span class="nb">apply</span> make_is_one_assoc_premagmoid; <span class="nb">intros</span> a b c d f g h.
+      <span class="nb">apply</span> submm_mor_eq, H;
+        <span class="nb">apply</span> submm_mor_property.
+    - <span class="nb">intros</span> H; <span class="nb">intros</span> a b c d f g h Hf Hg Hh.
+      <span class="bp">exact</span> (base_paths _ _ (pr1 H a b c d (f,,Hf) (g,,Hg) (h,,Hh))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">wide_subcategory_is_assoc_premagmoid</span>
+    (<span class="nv">M</span> : unital_premagmoid) (<span class="nv">P</span> : wide_subcategory M)
+    : is_assoc_premagmoid (wide_submagmoid_carrier_data M P).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> wide_submagmoid_is_assoc_iff.
+    <span class="nb">apply</span> wide_subcategory_is_assoc.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">wide_subcategory_is_precategory</span>
+    (<span class="nv">M</span> : unital_premagmoid) (<span class="nv">P</span> : wide_subcategory M)
+    : is_precategory (wide_submagmoid_carrier_data M P).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> wide_submagmoid_is_unital.
+    - <span class="nb">apply</span> wide_subcategory_is_assoc_premagmoid.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">wide_sub_precategory_carrier</span>
+    (<span class="nv">M</span> : unital_premagmoid) (<span class="nv">P</span> : wide_subcategory M)
+    : precategory
+    := make_precategory _ (wide_subcategory_is_precategory M P).
+
+  <span class="kn">Definition</span> <span class="nf">wide_subcategory_carrier</span>
+    (<span class="nv">M</span> : unital_magmoid) (<span class="nv">P</span> : wide_subcategory M)
+    : category
+    := make_category (wide_sub_precategory_carrier M P)
+         (wide_submagmoid_has_homsets M P).
+
+  <span class="sd">(** *** Full submagmoid to magmoid *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">full_unital_sub_premagmoid_data</span>
+    (<span class="nv">M</span> : unital_premagmoid_data) (<span class="nv">P</span> : hsubtype M)
+    : unital_premagmoid_data.
+  <span class="kn">Proof</span>.
+    use make_precategory_data.
+    - use make_precategory_ob_mor.
+      + <span class="bp">exact</span> (sub_ob M P).
+      + <span class="bp">exact</span> (@precategory_morphisms M).
+    - <span class="nb">cbn</span>; <span class="nb">intro</span> a.
+      <span class="bp">exact</span> (@identity M a).
+    - <span class="nb">cbn</span>; <span class="nb">intros</span> a b c.
+      <span class="bp">exact</span> (@compose M a b c).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">full_unital_sub_premagmoid</span>
+    (<span class="nv">M</span> : unital_premagmoid) (<span class="nv">P</span> : hsubtype M)
+    : unital_premagmoid.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (make_unital_premagmoid (full_unital_sub_premagmoid_data M P)).
+    <span class="nb">split</span>; <span class="nb">cbn</span>; <span class="nb">intros</span> a b.
+    - <span class="bp">exact</span> (@magmoid_id_left M a b).
+    - <span class="bp">exact</span> (@magmoid_id_right M a b).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">full_unital_submagmoid_carrier</span>
+    (<span class="nv">M</span> : unital_magmoid) (<span class="nv">P</span> : hsubtype M)
+    : unital_magmoid.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (make_unital_magmoid (full_unital_sub_premagmoid M P)).
+    <span class="nb">red</span>; <span class="nb">cbn</span>; <span class="nb">intros</span> a b.
+    <span class="bp">exact</span> (unital_magmoid_has_homsets M a b).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** Arbitrary submagmoids *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">full_submagmoid_promote</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> : hsubtype M)
+    (<span class="nv">Q</span> : wide_submagmoid M)
+    : wide_submagmoid (full_unital_sub_premagmoid_data M P).
+  <span class="kn">Proof</span>.
+    use make_wide_submagmoid.
+    - <span class="nb">intros</span> a b; <span class="nb">cbn</span> <span class="k">in</span> a, b.
+      <span class="bp">exact</span> (Q a b).
+    - use make_is_wide_submagmoid.
+      + <span class="nb">intro</span> a; <span class="nb">cbn</span> <span class="k">in</span> a.
+        <span class="bp">exact</span> (wide_submagmoid_identity_holds Q a).
+      + <span class="nb">intros</span> a b c f g; <span class="nb">cbn</span> <span class="k">in</span> a, b, c, f, g.
+        <span class="bp">exact</span> (wide_submagmoid_compose_holds Q f g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">full_subcategory_promote</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> : hsubtype M)
+    (<span class="nv">Q</span> : wide_subcategory M)
+    : wide_subcategory (full_unital_sub_premagmoid_data M P).
+  <span class="kn">Proof</span>.
+    use make_wide_subcategory.
+    - <span class="bp">exact</span> (full_submagmoid_promote M P Q).
+    - <span class="nb">red</span>; <span class="nb">cbn</span>; <span class="nb">intros</span> a b c d.
+      <span class="bp">exact</span> (wide_subcategory_is_assoc Q a b c d).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">associative_submagmoid_carrier</span>
+    (<span class="nv">M</span> : unital_magmoid)
+    (<span class="nv">P</span> : hsubtype M)
+    (<span class="nv">Q</span> : wide_subcategory M)
+    : category
+    := wide_subcategory_carrier
+         (full_unital_submagmoid_carrier M P)
+         (full_subcategory_promote M P Q).
+
+<span class="kn">End</span> <span class="nf">submagmoid_to_magmoid</span>.
+
+<span class="kn">Section</span> <span class="nf">submagmoid_to_magmoid_functors</span>.
+
+  <span class="sd">(** Inclusion from submagmoid into the base *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">wide_submm_trivial_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data) (<span class="nv">P</span> : wide_submagmoid M)
+    : functor (wide_submagmoid_carrier_data M P) M.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - use make_functor_data.
+      + <span class="bp">exact</span> (idfun M).
+      + <span class="bp">exact</span> (@submm_mor_mor M P).
+    - <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">faithful_wide_submm_trivial_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data) (<span class="nv">P</span> : wide_submagmoid M)
+    : faithful (wide_submm_trivial_incl M P).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b.
+    <span class="nb">apply</span> isincl_submm_mor_mor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">full_wide_submm_trivial_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data) (<span class="nv">P</span> : wide_submagmoid M)
+    (<span class="nv">H</span> : ∏ (a b : M) (f : a --&gt; b), P a b f)
+    : full (wide_submm_trivial_incl M P).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b f; <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">make_submm_mor</span> <span class="nv">P</span> <span class="nv">f</span> (H a b f)).
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">fully_faithful_wide_submm_trivial_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data) (<span class="nv">P</span> : wide_submagmoid M)
+    (<span class="nv">H</span> : ∏ (a b : M) (f : a --&gt; b), P a b f)
+    : fully_faithful (wide_submm_trivial_incl M P).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> full_and_faithful_implies_fully_faithful; <span class="nb">split</span>.
+    - <span class="nb">apply</span> full_wide_submm_trivial_incl, H.
+    - <span class="nb">apply</span> faithful_wide_submm_trivial_incl.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">is_catiso_wide_submm_trivial_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data) (<span class="nv">P</span> : wide_submagmoid M)
+    (<span class="nv">H</span> : ∏ (a b : M) (f : a --&gt; b), P a b f)
+    : is_catiso (wide_submm_trivial_incl M P).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> fully_faithful_wide_submm_trivial_incl, H.
+    - <span class="nb">apply</span> idisweq.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Inclusion between submagmoids *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">wide_submm_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid M)
+    (<span class="nv">H</span> : submm_includes P Q)
+    : functor (wide_submagmoid_carrier_data M P)
+        (wide_submagmoid_carrier_data M Q).
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - use make_functor_data.
+      + <span class="bp">exact</span> (idfun M).
+      + <span class="nb">cbn</span>; <span class="nb">intros</span> a b.
+        <span class="bp">exact</span> (submm_mor_incl P Q (H a b)).
+    - use make_is_functor.
+      + <span class="nb">intro</span> a; <span class="nb">cbn</span>.
+        <span class="bp">now</span> <span class="nb">apply</span> submm_mor_eq.
+      + <span class="nb">intros</span> a b c f g; <span class="nb">cbn</span>.
+        <span class="bp">now</span> <span class="nb">apply</span> submm_mor_eq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">faithful_wide_submm_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid M)
+    (<span class="nv">H</span> : submm_includes P Q)
+    : faithful (wide_submm_incl M P Q H).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b.
+    <span class="nb">apply</span> isincl_submm_mor_incl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">fully_faithful_wide_submm_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid M)
+    (<span class="nv">H</span>    : submm_includes P Q)
+    (<span class="nv">Hinv</span> : submm_includes Q P)
+    : fully_faithful (wide_submm_incl M P Q H).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b.
+    <span class="nb">apply</span> isweq_submm_mor_incl, Hinv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">is_catiso_wide_submm_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid M)
+    (<span class="nv">H</span> : submm_includes P Q)
+    (<span class="nv">Hinv</span> : submm_includes Q P)
+    : is_catiso (wide_submm_incl M P Q H).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> fully_faithful_wide_submm_incl, Hinv.
+    - <span class="nb">apply</span> idisweq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">wide_submm_incl_catiso</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid M)
+    (<span class="nv">H</span> : submm_includes P Q)
+    (<span class="nv">Hinv</span> : submm_includes Q P)
+    : catiso (wide_submagmoid_carrier_data M P)
+        (wide_submagmoid_carrier_data M Q)
+    := _,, is_catiso_wide_submm_incl M P Q H Hinv.
+
+  <span class="kn">Definition</span> <span class="nf">trivial_submm_catiso</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    : catiso (wide_submagmoid_carrier_data M trivial_submm) M.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - use make_functor.
+      + use make_functor_data.
+        * <span class="bp">exact</span> (idweq M).
+        * <span class="nb">intros</span> a b.
+          <span class="bp">exact</span> (weqtotalsubtype (M⟦a, b⟧)).
+      + <span class="bp">easy</span>.
+    - <span class="nb">split</span>.
+      + <span class="nb">intros</span> a b; <span class="nb">apply</span> weqproperty.
+      + <span class="nb">intros</span> a; <span class="nb">apply</span> weqproperty.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Full submagmoid inclusions *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">full_submm_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> : hsubtype M)
+    : functor (full_unital_sub_premagmoid_data M P) M.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - use make_functor_data.
+      + <span class="bp">exact</span> sub_ob_ob.
+      + <span class="nb">intros</span> a b; <span class="nb">cbn</span> <span class="k">in</span> a, b.
+        <span class="bp">exact</span> (idfun (M⟦a, b⟧)).
+    - <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">fully_faithful_full_submm_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> : hsubtype M)
+    : fully_faithful (full_submm_incl M P).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b.
+    <span class="nb">apply</span> idisweq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">full_submm_into_other_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> <span class="nv">Q</span> : hsubtype M)
+    (<span class="nv">H</span> : subtype_containedIn P Q)
+    : functor (full_unital_sub_premagmoid_data M P)
+        (full_unital_sub_premagmoid_data M Q).
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - use make_functor_data.
+      + <span class="nb">cbn</span>; <span class="nb">intro</span> a.
+        <span class="nb">apply</span> (make_sub_ob Q a).
+        <span class="bp">exact</span> (H a (sub_ob_property P a)).
+      + <span class="nb">intros</span> a b; <span class="nb">cbn</span> <span class="k">in</span> a, b.
+        <span class="bp">exact</span> (idfun (M⟦a, b⟧)).
+    - <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">fully_faithful_full_submm_into_other_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> <span class="nv">Q</span> : hsubtype M)
+    (<span class="nv">H</span> : subtype_containedIn P Q)
+    : fully_faithful (full_submm_into_other_incl M P Q H).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b.
+    <span class="nb">apply</span> idisweq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isweq_full_submm_into_other_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> <span class="nv">Q</span> : hsubtype M)
+    (<span class="nv">H</span> : subtype_containedIn P Q)
+    (<span class="nv">Hinv</span> : subtype_containedIn Q P)
+    : isweq (full_submm_into_other_incl M P Q H).
+  <span class="kn">Proof</span>.
+    use weqhomot.
+    - <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> a.
+      <span class="nb">apply</span> weqimplimpl.
+      + <span class="nb">apply</span> (H a).
+      + <span class="nb">apply</span> (Hinv a).
+      + <span class="nb">apply</span> propproperty.
+      + <span class="nb">apply</span> propproperty.
+    - <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">is_catiso_full_submm_into_other_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> <span class="nv">Q</span> : hsubtype M)
+    (<span class="nv">H</span> : subtype_containedIn P Q)
+    (<span class="nv">Hinv</span> : subtype_containedIn Q P)
+    : is_catiso (full_submm_into_other_incl M P Q H).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> fully_faithful_full_submm_into_other_incl.
+    - <span class="bp">now</span> <span class="nb">apply</span> isweq_full_submm_into_other_incl.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Arbitrary submagmoid inclusions *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">submm_into_wide_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> : hsubtype M)
+    (<span class="nv">Q</span> : wide_submagmoid M)
+    : functor
+        (wide_submagmoid_carrier_data
+           (full_unital_sub_premagmoid_data M P)
+           (full_submagmoid_promote M P Q))
+        (wide_submagmoid_carrier_data M Q).
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - use make_functor_data.
+      + <span class="bp">exact</span> sub_ob_ob.
+      + <span class="nb">intros</span> a b; <span class="nb">cbn</span> <span class="k">in</span> a, b.
+        <span class="bp">exact</span> (idfun (M∣Q∣⟦a, b⟧)).
+    - <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">fully_faithful_submm_into_wide_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> : hsubtype M)
+    (<span class="nv">Q</span> : wide_submagmoid M)
+    : fully_faithful (submm_into_wide_incl M P Q).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b.
+    <span class="nb">apply</span> idisweq.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Note: this is not the most general form; [H] could be strengthened to take</span>
+<span class="sd">      [sub_ob P] (but it would no longer factor through [wide_submm_incl]). *)</span>
+  <span class="kn">Definition</span> <span class="nf">submm_into_other_wide_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> : hsubtype M)
+    (<span class="nv">Q₁</span> <span class="nv">Q₂</span> : wide_submagmoid M)
+    (<span class="nv">H</span> : submm_includes Q₁ Q₂)
+    : functor
+        (wide_submagmoid_carrier_data
+           (full_unital_sub_premagmoid_data M P)
+           (full_submagmoid_promote M P Q₁))
+        (wide_submagmoid_carrier_data M Q₂)
+    := submm_into_wide_incl M P Q₁
+         ∙ wide_submm_incl M Q₁ Q₂ H.
+
+  <span class="kn">Theorem</span> <span class="nf">faithful_submm_into_other_wide_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> : hsubtype M)
+    (<span class="nv">Q₁</span> <span class="nv">Q₂</span> : wide_submagmoid M)
+    (<span class="nv">H</span> : submm_includes Q₁ Q₂)
+    : faithful (submm_into_other_wide_incl M P Q₁ Q₂ H).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> comp_faithful_is_faithful.
+    - <span class="nb">apply</span> fully_faithful_implies_full_and_faithful.
+      <span class="nb">apply</span> fully_faithful_submm_into_wide_incl.
+    - <span class="nb">apply</span> faithful_wide_submm_incl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">full_submm_into_other_wide_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> : hsubtype M)
+    (<span class="nv">Q₁</span> <span class="nv">Q₂</span> : wide_submagmoid M)
+    (<span class="nv">H</span> : submm_includes Q₁ Q₂)
+    (<span class="nv">Hinv</span> : submm_includes_in P Q₂ Q₁)
+    : full (submm_into_other_wide_incl M P Q₁ Q₂ H).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b; <span class="nb">cbn</span> <span class="k">in</span> a, b.
+    <span class="nb">change</span> (issurjective (submm_mor_incl Q₁ Q₂ (H a b))).
+    <span class="nb">apply</span> issurjective_submm_mor_incl, Hinv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">fully_faithful_submm_into_other_wide_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> : hsubtype M)
+    (<span class="nv">Q₁</span> <span class="nv">Q₂</span> : wide_submagmoid M)
+    (<span class="nv">H</span> : submm_includes Q₁ Q₂)
+    (<span class="nv">Hinv</span> : submm_includes_in P Q₂ Q₁)
+    : fully_faithful (submm_into_other_wide_incl M P Q₁ Q₂ H).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> full_and_faithful_implies_fully_faithful; <span class="nb">split</span>.
+    - <span class="nb">apply</span> full_submm_into_other_wide_incl, Hinv.
+    - <span class="nb">apply</span> faithful_submm_into_other_wide_incl.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">submm_trivial_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> : hsubtype M)
+    (<span class="nv">Q</span> : wide_submagmoid M)
+    : functor
+        (wide_submagmoid_carrier_data
+           (full_unital_sub_premagmoid_data M P)
+           (full_submagmoid_promote M P Q))
+        M
+    := submm_into_wide_incl M P Q
+         ∙ wide_submm_trivial_incl M Q.
+
+  <span class="kn">Theorem</span> <span class="nf">faithful_submm_trivial_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> : hsubtype M)
+    (<span class="nv">Q</span> : wide_submagmoid M)
+    : faithful (submm_trivial_incl M P Q).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> comp_faithful_is_faithful.
+    - <span class="nb">apply</span> fully_faithful_implies_full_and_faithful.
+      <span class="nb">apply</span> fully_faithful_submm_into_wide_incl.
+    - <span class="nb">apply</span> faithful_wide_submm_trivial_incl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">full_submm_trivial_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> : hsubtype M)
+    (<span class="nv">Q</span> : wide_submagmoid M)
+    (<span class="nv">H</span> : ∏ (a b : sub_ob M P) (f : a --&gt; b), Q a b f)
+    : full (submm_trivial_incl M P Q).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b; <span class="nb">cbn</span> <span class="k">in</span> a, b.
+    <span class="nb">change</span> (issurjective (@submm_mor_mor M Q a b)).
+    <span class="nb">apply</span> issurjective_submm_mor_mor, H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">fully_faithful_submm_trivial_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P</span> : hsubtype M)
+    (<span class="nv">Q</span> : wide_submagmoid M)
+    (<span class="nv">H</span> : ∏ (a b : sub_ob M P) (f : a --&gt; b), Q a b f)
+    : fully_faithful (submm_trivial_incl M P Q).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> full_and_faithful_implies_fully_faithful; <span class="nb">split</span>.
+    - <span class="nb">apply</span> full_submm_trivial_incl, H.
+    - <span class="nb">apply</span> faithful_submm_trivial_incl.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Even more arbitrary submagmoid inclusions *)</span>
+  <span class="kn">Definition</span> <span class="nf">submm_into_other_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P₁</span> <span class="nv">P₂</span> : hsubtype M)
+    (<span class="nv">Q₁</span> <span class="nv">Q₂</span> : wide_submagmoid M)
+    (<span class="nv">HP</span> : subtype_containedIn P₁ P₂)
+    (<span class="nv">HQ</span> : ∏ (a b : sub_ob M P₁),
+        submm_includes_at Q₁ Q₂ a b)
+    : functor
+        (wide_submagmoid_carrier_data
+           (full_unital_sub_premagmoid_data M P₁)
+           (full_submagmoid_promote M P₁ Q₁))
+        (wide_submagmoid_carrier_data
+           (full_unital_sub_premagmoid_data M P₂)
+           (full_submagmoid_promote M P₂ Q₂)).
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - use make_functor_data.
+      + <span class="nb">cbn</span>; <span class="nb">intro</span> a.
+        <span class="nb">apply</span> (make_sub_ob _ a).
+        <span class="bp">exact</span> (HP a (sub_ob_property _ a)).
+      + <span class="nb">cbn</span>; <span class="nb">intros</span> a b.
+        <span class="bp">exact</span> (submm_mor_incl _ _ (HQ a b)).
+    - <span class="nb">split</span>.
+      + <span class="nb">intro</span> a; <span class="bp">now</span> <span class="nb">apply</span> submm_mor_eq.
+      + <span class="nb">intros</span> a b c f g; <span class="bp">now</span> <span class="nb">apply</span> submm_mor_eq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fully_faithful_submm_into_other_incl</span>
+    (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">P₁</span> <span class="nv">P₂</span> : hsubtype M)
+    (<span class="nv">Q₁</span> <span class="nv">Q₂</span> : wide_submagmoid M)
+    (<span class="nv">HP</span> : subtype_containedIn P₁ P₂)
+    (<span class="nv">HQ</span> : ∏ (a b : sub_ob M P₁),
+        submm_includes_at Q₁ Q₂ a b)
+    (<span class="nv">HQinv</span> : ∏ (a b : sub_ob M P₁),
+        submm_includes_at Q₂ Q₁ a b)
+    : fully_faithful (submm_into_other_incl M P₁ P₂ Q₁ Q₂ HP HQ).
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">cbn</span>; <span class="nb">intros</span> a b.
+    <span class="nb">change</span> (isweq (totalfun _ _ (HQ a b))).
+    <span class="nb">apply</span> (isofhlevelf_totalfun <span class="mi">0</span>); <span class="nb">intro</span> f.
+    <span class="nb">apply</span> isweqimplimpl.
+    - <span class="nb">apply</span> (HQinv a b).
+    - <span class="nb">apply</span> propproperty.
+    - <span class="nb">apply</span> propproperty.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">submagmoid_to_magmoid_functors</span>.</span></pre>
+</div>
+</div></body>
+</html>

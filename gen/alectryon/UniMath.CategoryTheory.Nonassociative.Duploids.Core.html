@@ -1,0 +1,801 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Core.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> [Pre]duploids</span>
+
+<span class="sd"> Author: B. Szilvasy</span>
+<span class="sd"> January 2026</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Polarity shifts</span>
+<span class="sd"> 2. Polarization property</span>
+<span class="sd"> 3. Definition of a preduploid</span>
+<span class="sd"> 4. Definition of a duploid</span>
+<span class="sd"> 5. Lemmas about shifts</span>
+
+<span class="sd"> ********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Submagmoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.PolarizedSubcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Tactics.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> unital_magmoid.
+
+<span class="kn">Declare Scope</span> duploid.
+<span class="kn">Delimit Scope</span> duploid <span class="k">with</span> duploid.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> duploid.
+
+<span class="sd">(** ** Polarization property/structure *)</span>
+
+<span class="kn">Section</span> <span class="nf">polarities</span>.
+
+  <span class="sd">(** *** Polarization property *)</span>
+
+  <span class="sd">(** Property to say that a is negative, positive, or both. *)</span>
+  <span class="kn">Definition</span> <span class="nf">has_polarity</span> {<span class="nv">M</span> : unital_premagmoid} (<span class="nv">a</span> : M) : hProp
+    := is_negative a ∨ is_positive a.
+  <span class="kn">Definition</span> <span class="nf">make_has_polarity_negative</span> {<span class="nv">M</span> : unital_premagmoid} (<span class="nv">a</span> : M)
+    (<span class="nv">H</span> : is_negative a) : has_polarity a := hdisj_in1 H.
+  <span class="kn">Definition</span> <span class="nf">make_has_polarity_positive</span> {<span class="nv">M</span> : unital_premagmoid} (<span class="nv">a</span> : M)
+    (<span class="nv">H</span> : is_positive a) : has_polarity a := hdisj_in2 H.
+
+  <span class="kn">Definition</span> <span class="nf">has_polarities</span> (<span class="nv">M</span> : unital_premagmoid) : UU
+    := ∏ (a : M), has_polarity a.
+  <span class="kn">Definition</span> <span class="nf">polarity_of</span> {<span class="nv">M</span> : unital_premagmoid} (<span class="nv">H</span> : has_polarities M) (<span class="nv">a</span> : M)
+    : has_polarity a := H a.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_has_polarities</span> (<span class="nv">M</span> : unital_premagmoid) : isaprop (has_polarities M).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> impred; <span class="nb">intro</span> a; <span class="nb">apply</span> propproperty. <span class="kn">Qed</span>.
+
+  <span class="sd">(** Non-dependent induction scheme for polarities. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">has_polarity_rec</span> {<span class="nv">M</span> : unital_premagmoid}
+    {<span class="nv">a</span> : M} (<span class="nv">H</span> : has_polarity a)
+    {<span class="nv">P</span> : UU} (<span class="nv">HP</span> : isaprop P)
+    (<span class="nv">H1</span> : ∏ (negp : is_negative a), P)
+    (<span class="nv">H2</span> : ∏ (posp : is_positive a), P)
+    : P.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (factor_through_squash HP _ H).
+    <span class="nb">intro</span> H'; <span class="nb">induction</span> H'.
+    - <span class="bp">now</span> <span class="nb">apply</span> H1.
+    - <span class="bp">now</span> <span class="nb">apply</span> H2.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Dependent induction scheme for polarities. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">has_polarity_rec_dep</span> {<span class="nv">M</span> : unital_premagmoid}
+    {<span class="nv">a</span> : M} (<span class="nv">H</span> : has_polarity a)
+    {<span class="nv">P</span> : has_polarity a -&gt; UU}
+    (<span class="nv">HP</span> : isPredicate P)
+    (<span class="nv">H1</span> : ∏ (negp : is_negative a), P (make_has_polarity_negative a negp))
+    (<span class="nv">H2</span> : ∏ (posp : is_positive a), P (make_has_polarity_positive a posp))
+    : P H.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (squash_rec (<span class="k">λ</span> <span class="nv">a</span>, make_hProp (P a) (HP a))).
+    <span class="nb">intro</span> H'; <span class="nb">induction</span> H'.
+    - <span class="bp">now</span> <span class="nb">apply</span> H1.
+    - <span class="bp">now</span> <span class="nb">apply</span> H2.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Preduploid definition *)</span>
+  <span class="kn">Definition</span> <span class="nf">preduploid</span> : UU
+    := ∑ (M : unital_magmoid), has_polarities M.
+  <span class="kn">Coercion</span> <span class="nf">preduploid_to_unital_magmoid</span> (D : preduploid) : unital_magmoid := pr1 D.
+  <span class="kn">Coercion</span> <span class="nf">preduploid_has_polarities</span> (D : preduploid) : has_polarities D := pr2 D.
+
+  <span class="kn">Definition</span> <span class="nf">make_preduploid</span>
+    (<span class="nv">M</span> : unital_magmoid)
+    (<span class="nv">H</span> : has_polarities M)
+    : preduploid
+    := M,, H.
+
+  <span class="sd">(** *** Polarization structure *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">hpolarity</span> : hSet := boolset.
+  <span class="kn">Definition</span> <span class="nf">chpositive</span> : hpolarity := true.
+  <span class="kn">Definition</span> <span class="nf">chnegative</span> : hpolarity := false.
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'⊕'"</span> := chpositive : duploid.
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'⊖'"</span> := chnegative : duploid.
+
+  <span class="c">(* This makes the goals use [⊕] and [⊖] rather than [true] and [false]. *)</span>
+  <span class="kn">Definition</span> <span class="nf">hpolarity_rec</span>
+    : ∏ P : bool → <span class="kt">Type</span>, P ⊕ → P ⊖ → ∏ b : bool, P b
+    := bool_rec.
+
+  <span class="kn">Definition</span> <span class="nf">is_polarity_mapping</span>
+    {<span class="nv">D</span> : unital_premagmoid_data} (<span class="nv">ω</span> : D -&gt; hpolarity) : UU
+    := ∏ (a : D), <span class="k">if</span> ω a <span class="k">then</span> is_positive a <span class="k">else</span> is_negative a.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_polarity_mapping</span>
+    {<span class="nv">D</span> : unital_magmoid} (<span class="nv">ω</span> : D -&gt; hpolarity)
+    : isaprop (is_polarity_mapping ω).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> impred; <span class="nb">intro</span> a.
+    <span class="nb">induction</span> (ω a).
+    - <span class="nb">apply</span> isaprop_is_positive.
+    - <span class="nb">apply</span> isaprop_is_negative.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">polarity_mapping</span> (<span class="nv">D</span> : unital_premagmoid_data) : UU
+    := ∑ (ω : D -&gt; hpolarity), is_polarity_mapping ω.
+  <span class="kn">Definition</span> <span class="nf">polarity_mapping_to_mapping</span> {<span class="nv">D</span> : unital_premagmoid_data}
+    (<span class="nv">ω</span> : polarity_mapping D) : D -&gt; hpolarity
+    := pr1 ω.
+  <span class="kn">Coercion</span> <span class="nf">polarity_mapping_to_mapping</span> : polarity_mapping &gt;-&gt; <span class="kt">Funclass</span>.
+  <span class="kn">Definition</span> <span class="nf">polarity_mapping_property</span> {<span class="nv">D</span> : unital_premagmoid_data}
+    (<span class="nv">ω</span> : polarity_mapping D) : is_polarity_mapping ω
+    := pr2 ω.
+
+  <span class="kn">Definition</span> <span class="nf">make_polarity_mapping</span> {<span class="nv">D</span> : unital_premagmoid_data}
+    (<span class="nv">ω</span> : D -&gt; hpolarity) (<span class="nv">Hω</span> : is_polarity_mapping ω)
+    : polarity_mapping D
+    := ω,, Hω.
+
+  <span class="kn">Lemma</span> <span class="nf">pmap_positive'</span> {<span class="nv">D</span> : unital_premagmoid_data}
+    (<span class="nv">ω</span> : polarity_mapping D) (<span class="nv">a</span> : D) : ω a = ⊕ -&gt; is_positive a.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> Ha.
+    <span class="bp">exact</span> (transportf (<span class="k">λ</span> (<span class="nv">x</span> : hpolarity), <span class="k">if</span> x <span class="k">then</span> _ <span class="k">else</span> _) Ha
+             (polarity_mapping_property ω a)).
+  <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">pmap_negative'</span> {<span class="nv">D</span> : unital_premagmoid_data}
+    (<span class="nv">ω</span> : polarity_mapping D) (<span class="nv">a</span> : D) : ω a = ⊖ -&gt; is_negative a.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> Ha.
+    <span class="bp">exact</span> (transportf (<span class="k">λ</span> (<span class="nv">x</span> : hpolarity), <span class="k">if</span> x <span class="k">then</span> _ <span class="k">else</span> _) Ha
+             (polarity_mapping_property ω a)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">polarity_mapping_alt</span> (<span class="nv">D</span> : unital_premagmoid_data) : UU
+    := ∏ (a : D), is_negative a ⨿ is_positive a.
+
+  <span class="kn">Definition</span> <span class="nf">make_polarity_mapping'</span> {<span class="nv">D</span> : unital_premagmoid_data}
+    (<span class="nv">ω</span> : polarity_mapping_alt D) : polarity_mapping D.
+  <span class="kn">Proof</span>.
+    use make_polarity_mapping.
+    - <span class="nb">intro</span> a.
+      <span class="nb">induction</span> (ω a).
+      + <span class="bp">exact</span> ⊖.
+      + <span class="bp">exact</span> ⊕.
+    - <span class="nb">intro</span> a.
+      <span class="bp">now</span> <span class="nb">induction</span> (ω a).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">decide_polarity</span> {<span class="nv">D</span> : unital_premagmoid_data}
+    (<span class="nv">ω</span> : polarity_mapping D) : polarity_mapping_alt D.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> a.
+    remember0 (ω a) <span class="k">as</span> ωa <span class="nb">eqn</span>:Hωa.
+    <span class="nb">induction</span> ωa <span class="nb">using</span> hpolarity_rec.
+    - <span class="nb">right</span>; <span class="nb">apply</span> (pmap_positive' ω a Hωa).
+    - <span class="nb">left</span>; <span class="nb">apply</span> (pmap_negative' ω a Hωa).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ish_chpositive'</span>
+    {<span class="nv">M</span> : unital_magmoid} (<span class="nv">ω</span> : M -&gt; hpolarity)
+    : hsubtype M
+    := <span class="k">λ</span> <span class="nv">a</span>, make_hProp (ω a = ⊕) (setproperty hpolarity _ _).
+
+  <span class="kn">Definition</span> <span class="nf">ish_chnegative'</span>
+    {<span class="nv">M</span> : unital_magmoid} (<span class="nv">ω</span> : M -&gt; hpolarity)
+    : hsubtype M
+    := <span class="k">λ</span> <span class="nv">a</span>, make_hProp (ω a = ⊖) (setproperty hpolarity _ _).
+
+  <span class="sd">(** Split preduploid definition *)</span>
+  <span class="kn">Definition</span> <span class="nf">split_preduploid</span> : UU
+    := ∑ (D : preduploid), polarity_mapping D.
+  <span class="kn">Coercion</span> <span class="nf">split_preduploid_to_preduploid</span>
+    (D : split_preduploid) : preduploid := pr1 D.
+  <span class="kn">Coercion</span> <span class="nf">polarity_mapping_of</span>
+    (D : split_preduploid) : polarity_mapping D := pr2 D.
+
+  <span class="kn">Definition</span> <span class="nf">make_split_preduploid'</span>
+    (<span class="nv">D</span> : preduploid)
+    (<span class="nv">ω</span> : polarity_mapping D)
+    : split_preduploid
+    := D,, ω.
+
+  <span class="kn">Definition</span> <span class="nf">make_split_preduploid</span>
+    (<span class="nv">D</span> : unital_magmoid)
+    (<span class="nv">ω</span> : polarity_mapping D)
+    : split_preduploid.
+  <span class="kn">Proof</span>.
+    use make_split_preduploid'.
+    - use make_preduploid.
+      + <span class="bp">exact</span> D.
+      + <span class="nb">intro</span> a; <span class="nb">apply</span> hinhpr.
+        <span class="bp">exact</span> (decide_polarity ω a).
+    - <span class="bp">exact</span> ω.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ish_chpositive</span> {<span class="nv">D</span> : split_preduploid}
+    : hsubtype D := ish_chpositive' D.
+  <span class="kn">Definition</span> <span class="nf">ish_chnegative</span> {<span class="nv">D</span> : split_preduploid}
+    : hsubtype D := ish_chnegative' D.
+
+  <span class="kn">Lemma</span> <span class="nf">pmap_positive</span> {<span class="nv">D</span> : split_preduploid} (<span class="nv">a</span> : D)
+    : polarity_mapping_of D a = ⊕ -&gt; is_positive a.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> pmap_positive'. <span class="kn">Qed</span>.
+  <span class="kn">Lemma</span> <span class="nf">pmap_negative</span> {<span class="nv">D</span> : split_preduploid} (<span class="nv">a</span> : D)
+    : polarity_mapping_of D a = ⊖ -&gt; is_negative a.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> pmap_negative'. <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">polarities</span>.
+<span class="kn">Notation</span> <span class="s2">"'⊕'"</span> := chpositive : duploid.
+<span class="kn">Notation</span> <span class="s2">"'⊖'"</span> := chnegative : duploid.
+<span class="kn">Notation</span> <span class="s2">"'^⊕ω'"</span> := ish_chpositive : unital_magmoid.
+<span class="kn">Notation</span> <span class="s2">"'^⊖ω'"</span> := ish_chnegative : unital_magmoid.
+
+<span class="sd">(** ** Polarity shifts *)</span>
+
+<span class="kn">Section</span> <span class="nf">shifts</span>.
+
+  <span class="sd">(** Upshifts, or negative shifts. *)</span>
+  <span class="kn">Definition</span> <span class="nf">negative_shift_data</span> (<span class="nv">M</span> : unital_magmoid) : UU :=
+    ∏ a : M, ∑ upshift : M, upshift --&gt; a.
+  <span class="kn">Definition</span> <span class="nf">make_negative_shift_data</span> {<span class="nv">M</span> : unital_magmoid}
+    (<span class="nv">upshift</span> : M -&gt; M) (<span class="nv">force</span> : ∏ (a : M), upshift a --&gt; a)
+    : negative_shift_data M :=
+    <span class="k">λ</span> <span class="nv">a</span>, upshift a,,force a.
+  <span class="kn">Definition</span> <span class="nf">upshift'</span> {<span class="nv">M</span> : unital_magmoid} (<span class="nv">D</span> : negative_shift_data M) : M -&gt; M := <span class="k">λ</span> <span class="nv">a</span>, pr1 (D a).
+  <span class="kn">Definition</span> <span class="nf">force'</span> {<span class="nv">M</span> : unital_magmoid} (<span class="nv">D</span> : negative_shift_data M) (<span class="nv">a</span> : M) : upshift' D a --&gt; a := pr2 (D a).
+
+  <span class="kn">Definition</span> <span class="nf">negative_shift_axioms</span> {<span class="nv">M</span> : unital_magmoid} (<span class="nv">D</span> : negative_shift_data M) : UU
+    := (∏ (a : M), is_linear (force' D a)) ×
+         (∏ (a : M), is_negative (upshift' D a)) ×
+         (∏ (a : M), has_linear_inverse (force' D a)).
+
+  <span class="kn">Definition</span> <span class="nf">make_negative_shift_axioms</span> {<span class="nv">M</span> : unital_magmoid} {<span class="nv">D</span> : negative_shift_data M}
+    (<span class="nv">H1</span> : ∏ a : M, is_linear (force' D a))
+    (<span class="nv">H2</span> : ∏ a : M, is_negative (upshift' D a))
+    (<span class="nv">H3</span> : ∏ a : M, has_linear_inverse (force' D a))
+    : negative_shift_axioms D
+    := H1,,H2,,H3.
+
+  <span class="kn">Definition</span> <span class="nf">is_linear_force'</span> {<span class="nv">M</span> : unital_magmoid} {<span class="nv">D</span> : negative_shift_data M}
+    (<span class="nv">H</span> : negative_shift_axioms D) (<span class="nv">a</span> : M) : is_linear (force' D a) := pr1 H a.
+  <span class="kn">Definition</span> <span class="nf">is_negative_upshift'</span> {<span class="nv">M</span> : unital_magmoid} {<span class="nv">D</span> : negative_shift_data M}
+    (<span class="nv">H</span> : negative_shift_axioms D) (<span class="nv">a</span> : M) : is_negative (upshift' D a) := pr12 H a.
+  <span class="kn">Definition</span> <span class="nf">has_linear_inverse_force'</span> {<span class="nv">M</span> : unital_magmoid} {<span class="nv">D</span> : negative_shift_data M}
+    (<span class="nv">H</span> : negative_shift_axioms D) (<span class="nv">a</span> : M) : has_linear_inverse (force' D a) := pr22 H a.
+  <span class="kn">Definition</span> <span class="nf">delay'</span> {<span class="nv">M</span> : unital_magmoid} {<span class="nv">D</span> : negative_shift_data M}
+    (<span class="nv">H</span> : negative_shift_axioms D) (<span class="nv">a</span> : M) : a --&gt;{_l} upshift' D a
+    := submm_inv_mor _l (has_linear_inverse_force' H a).
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_negative_shift_axioms</span> {<span class="nv">M</span> : unital_magmoid} (<span class="nv">D</span> : negative_shift_data M)
+    : isaprop (negative_shift_axioms D).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (isapropdirprod _ _ _ (isapropdirprod _ _ _ _));
+      <span class="nb">apply</span> impred; <span class="nb">intro</span> a.
+    - <span class="nb">apply</span> isaprop_is_linear.
+    - <span class="nb">apply</span> isaprop_is_negative.
+    - <span class="nb">apply</span> isaprop_has_linear_inverse.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_negative_shifts</span> (<span class="nv">M</span> : unital_magmoid) : UU
+    := ∑ (D : negative_shift_data M), negative_shift_axioms D.
+  <span class="kn">Definition</span> <span class="nf">make_has_negative_shifts</span> {<span class="nv">M</span> : unital_magmoid}
+    (<span class="nv">D</span> : negative_shift_data M) (<span class="nv">H</span> : negative_shift_axioms D)
+    : has_negative_shifts M := D,,H.
+  <span class="kn">Coercion</span> <span class="nf">has_negative_shifts_to_negative_shift_data</span> (M : unital_magmoid)
+    (H : has_negative_shifts M) : negative_shift_data M := pr1 H.
+  <span class="kn">Coercion</span> <span class="nf">has_negative_shifts_to_negative_shift_axioms</span> (M : unital_magmoid)
+    (H : has_negative_shifts M) : negative_shift_axioms H := pr2 H.
+
+  <span class="sd">(** Downshifts, or positive shifts. *)</span>
+  <span class="kn">Definition</span> <span class="nf">positive_shift_data</span> (<span class="nv">M</span> : unital_magmoid) : UU :=
+    ∏ a : M, ∑ downshift : M, downshift &lt;-- a.
+  <span class="kn">Definition</span> <span class="nf">make_positive_shift_data</span> {<span class="nv">M</span> : unital_magmoid}
+    (<span class="nv">downshift</span> : M -&gt; M) (<span class="nv">wrap</span> : ∏ (a : M), downshift a &lt;-- a)
+    : positive_shift_data M :=
+    <span class="k">λ</span> <span class="nv">a</span>, downshift a,,wrap a.
+  <span class="kn">Definition</span> <span class="nf">downshift'</span> {<span class="nv">M</span> : unital_magmoid} (<span class="nv">D</span> : positive_shift_data M) : M -&gt; M := <span class="k">λ</span> <span class="nv">a</span>, pr1 (D a).
+  <span class="kn">Definition</span> <span class="nf">wrap'</span> {<span class="nv">M</span> : unital_magmoid} (<span class="nv">D</span> : positive_shift_data M) (<span class="nv">a</span> : M) : downshift' D a &lt;-- a := pr2 (D a).
+
+  <span class="kn">Definition</span> <span class="nf">positive_shift_axioms</span> {<span class="nv">M</span> : unital_magmoid} (<span class="nv">D</span> : positive_shift_data M) : UU
+    := (∏ (a : M), is_thunkable (wrap' D a)) ×
+         (∏ (a : M), is_positive (downshift' D a)) ×
+         (∏ (a : M), has_thunkable_inverse (wrap' D a)).
+
+  <span class="kn">Definition</span> <span class="nf">make_positive_shift_axioms</span> {<span class="nv">M</span> : unital_magmoid} {<span class="nv">D</span> : positive_shift_data M}
+    (<span class="nv">H1</span> : ∏ a : M, is_thunkable (wrap' D a))
+    (<span class="nv">H2</span> : ∏ a : M, is_positive (downshift' D a))
+    (<span class="nv">H3</span> : ∏ a : M, has_thunkable_inverse (wrap' D a))
+    : positive_shift_axioms D
+    := H1,,H2,,H3.
+
+  <span class="kn">Definition</span> <span class="nf">is_thunkable_wrap'</span> {<span class="nv">M</span> : unital_magmoid} {<span class="nv">D</span> : positive_shift_data M}
+    (<span class="nv">H</span> : positive_shift_axioms D) (<span class="nv">a</span> : M) : is_thunkable (wrap' D a) := pr1 H a.
+  <span class="kn">Definition</span> <span class="nf">is_positive_downshift'</span> {<span class="nv">M</span> : unital_magmoid} {<span class="nv">D</span> : positive_shift_data M}
+    (<span class="nv">H</span> : positive_shift_axioms D) (<span class="nv">a</span> : M) : is_positive (downshift' D a) := pr12 H a.
+  <span class="kn">Definition</span> <span class="nf">has_thunkable_inverse_wrap'</span> {<span class="nv">M</span> : unital_magmoid} {<span class="nv">D</span> : positive_shift_data M}
+    (<span class="nv">H</span> : positive_shift_axioms D) (<span class="nv">a</span> : M) : has_thunkable_inverse (wrap' D a) := pr22 H a.
+  <span class="kn">Definition</span> <span class="nf">unwrap'</span> {<span class="nv">M</span> : unital_magmoid} {<span class="nv">D</span> : positive_shift_data M}
+    (<span class="nv">H</span> : positive_shift_axioms D) (<span class="nv">a</span> : M) : downshift' D a --&gt;{_t} a
+    := submm_inv_mor _t (has_thunkable_inverse_wrap' H a).
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_positive_shift_axioms</span> {<span class="nv">M</span> : unital_magmoid} (<span class="nv">D</span> : positive_shift_data M)
+    : isaprop (positive_shift_axioms D).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (isapropdirprod _ _ _ (isapropdirprod _ _ _ _));
+      <span class="nb">apply</span> impred; <span class="nb">intro</span> a.
+    - <span class="nb">apply</span> isaprop_is_thunkable.
+    - <span class="nb">apply</span> isaprop_is_positive.
+    - <span class="nb">apply</span> isaprop_has_thunkable_inverse.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_positive_shifts</span> (<span class="nv">M</span> : unital_magmoid) : UU
+    := ∑ (D : positive_shift_data M), positive_shift_axioms D.
+  <span class="kn">Definition</span> <span class="nf">make_has_positive_shifts</span> {<span class="nv">M</span> : unital_magmoid}
+    (<span class="nv">D</span> : positive_shift_data M) (<span class="nv">H</span> : positive_shift_axioms D)
+    : has_positive_shifts M := D,,H.
+  <span class="kn">Coercion</span> <span class="nf">has_positive_shifts_to_positive_shift_data</span> (M : unital_magmoid)
+    (H : has_positive_shifts M) : positive_shift_data M := pr1 H.
+  <span class="kn">Coercion</span> <span class="nf">has_positive_shifts_to_positive_shift_axioms</span> (M : unital_magmoid)
+    (H : has_positive_shifts M) : positive_shift_axioms H := pr2 H.
+
+  <span class="sd">(** Combined shifts *)</span>
+  <span class="kn">Definition</span> <span class="nf">has_polarity_shifts</span> (<span class="nv">M</span> : unital_magmoid) : UU
+    := has_negative_shifts M × has_positive_shifts M.
+  <span class="kn">Definition</span> <span class="nf">make_has_polarity_shifts</span> {<span class="nv">M</span> : unital_magmoid}
+    (<span class="nv">H1</span> : has_negative_shifts M)
+    (<span class="nv">H2</span> : has_positive_shifts M)
+    : has_polarity_shifts M := H1,,H2.
+  <span class="kn">Coercion</span> <span class="nf">has_polarity_shifts_to_has_negative_shifts</span> {M : unital_magmoid}
+    (H : has_polarity_shifts M) : has_negative_shifts M := pr1 H.
+  <span class="kn">Coercion</span> <span class="nf">has_polarity_shifts_to_has_positive_shifts</span> {M : unital_magmoid}
+    (H : has_polarity_shifts M) : has_positive_shifts M := pr2 H.
+
+  <span class="sd">(** Definition of duploid *)</span>
+  <span class="kn">Definition</span> <span class="nf">duploid</span> : UU
+    := ∑ (D : preduploid), has_polarity_shifts D.
+  <span class="kn">Coercion</span> <span class="nf">duploid_to_preduploid</span> (D : duploid) : preduploid := pr1 D.
+  <span class="kn">Coercion</span> <span class="nf">duploid_has_polarity_shifts</span> (D : duploid) : has_polarity_shifts D := pr2 D.
+
+  <span class="kn">Definition</span> <span class="nf">make_duploid</span>
+    (<span class="nv">D</span> : preduploid)
+    (<span class="nv">S</span> : has_polarity_shifts D)
+    : duploid
+    := D,, S.
+
+  <span class="sd">(** Upshifts *)</span>
+  <span class="kn">Definition</span> <span class="nf">upshift</span> {<span class="nv">D</span> : duploid} (<span class="nv">a</span> : D) : sub_ob D ^⊖
+    := make_sub_ob ^⊖ (upshift' D a) (is_negative_upshift' D a).
+  <span class="kn">Notation</span> <span class="s2">"'⇑' a"</span> := (upshift a) (<span class="kn">at level</span> <span class="mi">5</span>, <span class="kn">right associativity</span>, <span class="kn">format</span> <span class="s2">"⇑ a"</span>) : duploid.
+    <span class="c">(* type in Emacs using agda-input with \Uparrow *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">force</span> {<span class="nv">D</span> : duploid} (<span class="nv">a</span> : D) : ⇑a ≅{_l} a.
+  <span class="kn">Proof</span>.
+    use make_submm_iso.
+    - <span class="bp">exact</span> (force' D a).
+    - use make_is_submm_iso.
+      + <span class="bp">exact</span> (is_linear_force' D a).
+      + <span class="bp">exact</span> (has_linear_inverse_force' D a).
+  <span class="kn">Defined</span>.
+  <span class="kn">Definition</span> <span class="nf">delay</span> {<span class="nv">D</span> : duploid} (<span class="nv">a</span> : D) : a ≅{_l} ⇑a
+    := submm_iso_inv _ (force a).
+
+  <span class="sd">(** Downshifts *)</span>
+  <span class="kn">Definition</span> <span class="nf">downshift</span> {<span class="nv">D</span> : duploid} (<span class="nv">a</span> : D) : sub_ob D ^⊕
+    := make_sub_ob ^⊕ (downshift' D a) (is_positive_downshift' D a).
+  <span class="kn">Notation</span> <span class="s2">"'⇓' a"</span> := (downshift a) (<span class="kn">at level</span> <span class="mi">5</span>, <span class="kn">right associativity</span>, <span class="kn">format</span> <span class="s2">"⇓ a"</span>) : duploid.
+    <span class="c">(* type in Emacs using agda-input with \Downarrow *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">wrap</span> {<span class="nv">D</span> : duploid} (<span class="nv">a</span> : D) : a ≅{_t} ⇓a.
+  <span class="kn">Proof</span>.
+    use make_submm_iso.
+    - <span class="bp">exact</span> (wrap' D a).
+    - use make_is_submm_iso.
+      + <span class="bp">exact</span> (is_thunkable_wrap' D a).
+      + <span class="bp">exact</span> (has_thunkable_inverse_wrap' D a).
+  <span class="kn">Defined</span>.
+  <span class="kn">Definition</span> <span class="nf">unwrap</span> {<span class="nv">D</span> : duploid} (<span class="nv">a</span> : D) : ⇓a ≅{_t} a
+    := submm_iso_inv _ (wrap a).
+
+  <span class="sd">(** *** Mapping-respecting shifts *)</span>
+  <span class="kn">Definition</span> <span class="nf">pmap_respects_negative_shifts</span>
+    {<span class="nv">M</span> : unital_magmoid}
+    (<span class="nv">S</span> : negative_shift_data M)
+    (<span class="nv">ω</span> : M -&gt; hpolarity) : UU
+    := ∏ (a : M), ω (upshift' S a) = chnegative.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_pmap_respects_negative_shifts</span>
+    {<span class="nv">M</span> : unital_magmoid}
+    (<span class="nv">S</span> : negative_shift_data M)
+    (<span class="nv">ω</span> : M -&gt; hpolarity)
+    : isaprop (pmap_respects_negative_shifts S ω).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> impred; <span class="nb">intro</span>.
+    <span class="nb">apply</span> setproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_split_negative_shifts</span>
+    (<span class="nv">M</span> : unital_magmoid) (<span class="nv">ω</span> : M -&gt; hpolarity) : UU
+    := ∑ (S : has_negative_shifts M),
+      pmap_respects_negative_shifts S ω.
+
+  <span class="kn">Definition</span> <span class="nf">pmap_respects_positive_shifts</span>
+    {<span class="nv">M</span> : unital_magmoid}
+    (<span class="nv">S</span> : positive_shift_data M)
+    (<span class="nv">ω</span> : M -&gt; hpolarity) : UU
+    := ∏ (a : M), ω (downshift' S a) = chpositive.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_pmap_respects_positive_shifts</span>
+    {<span class="nv">M</span> : unital_magmoid}
+    (<span class="nv">S</span> : positive_shift_data M)
+    (<span class="nv">ω</span> : M -&gt; hpolarity)
+    : isaprop (pmap_respects_positive_shifts S ω).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> impred; <span class="nb">intro</span>.
+    <span class="nb">apply</span> setproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_split_positive_shifts</span>
+    (<span class="nv">M</span> : unital_magmoid) (<span class="nv">ω</span> : M -&gt; hpolarity) : UU
+    := ∑ (S : has_positive_shifts M),
+      pmap_respects_positive_shifts S ω.
+
+  <span class="kn">Definition</span> <span class="nf">pmap_respects_shifts</span>
+    {<span class="nv">M</span> : unital_magmoid}
+    (<span class="nv">S</span> : has_polarity_shifts M)
+    (<span class="nv">ω</span> : M -&gt; hpolarity) : UU
+    := pmap_respects_negative_shifts S ω
+         × pmap_respects_positive_shifts S ω.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_pmap_respects_shifts</span>
+    {<span class="nv">M</span> : unital_magmoid}
+    (<span class="nv">S</span> : has_polarity_shifts M)
+    (<span class="nv">ω</span> : M -&gt; hpolarity)
+    : isaprop (pmap_respects_shifts S ω).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropdirprod.
+    - <span class="nb">apply</span> isaprop_pmap_respects_negative_shifts.
+    - <span class="nb">apply</span> isaprop_pmap_respects_positive_shifts.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Split duploid *)</span>
+  <span class="kn">Definition</span> <span class="nf">split_duploid</span> : UU
+    := ∑ (D : duploid) (ω : polarity_mapping D),
+      pmap_respects_shifts D ω.
+
+  <span class="kn">Definition</span> <span class="nf">make_split_duploid'</span>
+    (<span class="nv">D</span> : duploid)
+    (<span class="nv">ω</span> : polarity_mapping D)
+    (<span class="nv">H</span> : pmap_respects_shifts D ω)
+    : split_duploid
+    := D,, ω,, H.
+
+  <span class="kn">Definition</span> <span class="nf">make_split_duploid</span>
+    (<span class="nv">D</span> : split_preduploid)
+    (<span class="nv">S</span> : has_polarity_shifts D)
+    (<span class="nv">H</span> : pmap_respects_shifts S D)
+    : split_duploid.
+  <span class="kn">Proof</span>.
+    use make_split_duploid'.
+    - use make_duploid.
+      + <span class="bp">exact</span> D.
+      + <span class="bp">exact</span> S.
+    - <span class="bp">exact</span> D.
+    - <span class="bp">exact</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** We are careful with the coercions so that unification can find</span>
+<span class="sd">      both [D : duploid] and [D : split_preduploid] as the implicit</span>
+<span class="sd">      argument from an [a : D].  We effectively witness the "diamond</span>
+<span class="sd">      problem" of multiple inheritance here. *)</span>
+  <span class="kn">Definition</span> <span class="nf">split_duploid_to_duploid</span> (<span class="nv">D</span> : split_duploid) : duploid := pr1 D.
+  <span class="kn">Coercion</span> <span class="nf">split_duploid_to_split_preduploid</span> (D : split_duploid) : split_preduploid
+    := make_split_preduploid' (split_duploid_to_duploid D) (pr12 D).
+  <span class="kn">Coercion</span> <span class="nf">split_duploid_to_duploid</span> : split_duploid &gt;-&gt; duploid.
+
+  <span class="sd">(** Checking the coercions... *)</span>
+  <span class="kn">Section</span> <span class="nf">check</span>.
+    <span class="c">(* Local Set Printing Coercions. Local Set Printing Implicit. *)</span>
+    <span class="kn">Check</span> <span class="k">λ</span> (<span class="nv">D</span> : split_duploid), sub_ob D ^⊕ω.
+    <span class="kn">Check</span> <span class="k">λ</span> (<span class="nv">D</span> : split_duploid) (<span class="nv">a</span> : D), delay a.
+  <span class="kn">End</span> <span class="nf">check</span>.
+
+  <span class="kn">Definition</span> <span class="nf">split_duploid_pmap_respects_shifts</span> (<span class="nv">D</span> : split_duploid)
+    : pmap_respects_shifts D D := pr22 D.
+
+  <span class="c">(* Example: unification would not be able to find that [⇑a] belongs</span>
+<span class="c">     to a split preduploid.  So, [polarity_mapping_of _ ⇑a]</span>
+<span class="c">     fails to typecheck, but [polarity_mapping_of _ a] succeeds. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">pmap_upshift</span> {<span class="nv">D</span> : split_duploid} (<span class="nv">a</span> : D)
+    : polarity_mapping_of D ⇑a = chnegative.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> split_duploid_pmap_respects_shifts. <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">pmap_downshift</span> {<span class="nv">D</span> : split_duploid} (<span class="nv">a</span> : D)
+    : polarity_mapping_of D ⇓a = chpositive.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> split_duploid_pmap_respects_shifts. <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">chnegative_upshift</span> {<span class="nv">D</span> : split_duploid} (<span class="nv">a</span> : D)
+    : sub_ob D ^⊖ω.
+  <span class="kn">Proof</span>.
+    use make_sub_ob.
+    - <span class="bp">exact</span> ⇑a.
+    - <span class="nb">apply</span> pmap_upshift.
+  <span class="kn">Defined</span>.
+  <span class="kn">Definition</span> <span class="nf">chpositive_downshift</span> {<span class="nv">D</span> : split_duploid} (<span class="nv">a</span> : D)
+    : sub_ob D ^⊕ω.
+  <span class="kn">Proof</span>.
+    use make_sub_ob.
+    - <span class="bp">exact</span> ⇓a.
+    - <span class="nb">apply</span> pmap_downshift.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">shifts</span>.
+<span class="kn">Notation</span> <span class="s2">"'⇑' a"</span> := (upshift a) (<span class="kn">at level</span> <span class="mi">5</span>, <span class="kn">right associativity</span>, <span class="kn">format</span> <span class="s2">"⇑ a"</span>) : duploid.
+  <span class="c">(* type in Emacs using agda-input with \Uparrow *)</span>
+<span class="kn">Notation</span> <span class="s2">"'⇓' a"</span> := (downshift a) (<span class="kn">at level</span> <span class="mi">5</span>, <span class="kn">right associativity</span>, <span class="kn">format</span> <span class="s2">"⇓ a"</span>) : duploid.
+  <span class="c">(* type in Emacs using agda-input with \Downarrow *)</span>
+
+<span class="sd">(** ** Lemmas about shifts *)</span>
+
+<span class="kn">Section</span> <span class="nf">shift_lemmas</span>.
+  <span class="kn">Context</span> {<span class="nv">D</span> : duploid}.
+
+  <span class="c">(* [force] and [delay] lemmas. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">force_delay_id</span> (<span class="nv">a</span> : D) : force a · delay a = identity ⇑a.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> (is_inverse_in_precat1 (force a)). <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">delay_force_id</span> (<span class="nv">a</span> : D) : delay a · force a = identity a.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> (is_inverse_in_precat2 (force a)). <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">delay_force_right</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a --&gt; b) : (f · delay b) · force b = f.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> submm_iso_right_of_linear; submagmoid. <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">delay_force_left</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a --&gt; b) : delay a · (force a · f) = f.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> submm_iso_left_of_thunkable; submagmoid. <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">delay_force_interpose</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : D} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c)
+    : (f · delay b) · (force b · g) = f · g.
+  <span class="kn">Proof</span>. <span class="bp">now</span> <span class="nb">rewrite</span> (assoc_negative ⇑b ummsolve), delay_force_right. <span class="kn">Qed</span>.
+
+  <span class="c">(* [wrap] and [unwrap] lemmas. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">unwrap_wrap_id</span> (<span class="nv">a</span> : D) : unwrap a · wrap a = identity ⇓a.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> (is_inverse_in_precat2 (wrap a)). <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">wrap_unwrap_id</span> (<span class="nv">a</span> : D) : wrap a · unwrap a = identity a.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> (is_inverse_in_precat1 (wrap a)). <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">wrap_unwrap_right</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a &lt;-- b) : (f · wrap a) · unwrap a = f.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> submm_iso_right_of_inv_linear; submagmoid. <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">wrap_unwrap_left</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a &lt;-- b) : wrap b · (unwrap b · f) = f.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> submm_iso_left_of_thunkable; submagmoid. <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">wrap_unwrap_interpose</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : D} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c)
+    : (f · wrap b) · (unwrap b · g) = f · g.
+  <span class="kn">Proof</span>. <span class="bp">now</span> <span class="nb">rewrite</span> (assoc'_positive ⇓b ummsolve), wrap_unwrap_left. <span class="kn">Qed</span>.
+
+  <span class="sd">(** Force and wrap are intermediate. *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">is_intermediate_force</span> (<span class="nv">a</span> : D) : is_intermediate (force a).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> is_intermediate_of_negative; submagmoid. <span class="kn">Qed</span>.
+  <span class="kn">Lemma</span> <span class="nf">is_intermediate_wrap</span> (<span class="nv">a</span> : D) : is_intermediate (wrap a).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> is_intermediate_of_positive; submagmoid. <span class="kn">Qed</span>.
+
+  <span class="sd">(** Characterisation of thunkable and linear morphisms *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">is_thunkable_of_delay_wrap</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a --&gt; b)
+    : f · (delay b · wrap ⇑b) = (f · delay b) · wrap ⇑b -&gt;
+      is_thunkable f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Hf.
+    <span class="nb">assert</span> (H' : ∏ (d : D) (h : ⇑b --&gt; d), f · (delay b · h) = (f · delay b) · h). {
+      <span class="nb">intros</span> d h.
+      <span class="nb">rewrite</span> &lt;- (wrap_unwrap_interpose (delay b) h).
+      <span class="nb">rewrite</span> (assoc_positive ⇓⇑b ummsolve), Hf.
+      <span class="nb">rewrite</span> (assoc'_negative ⇑b ummsolve).
+      <span class="bp">now</span> <span class="nb">rewrite</span> wrap_unwrap_left.
+    }
+    <span class="nb">intros</span> c d g h.
+    intermediate_path (f · (delay b · (force b · g) · h)).
+    <span class="mi">1</span>: <span class="bp">now</span> <span class="nb">rewrite</span> delay_force_left.
+    <span class="nb">rewrite</span> (assoc'_negative ⇑b ummsolve), H'.
+    <span class="nb">rewrite</span> (assoc_negative ⇑b ummsolve), &lt;- H'.
+    <span class="bp">now</span> <span class="nb">rewrite</span> delay_force_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_thunkable_iff_delay_wrap</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a --&gt; b)
+    : f · (delay b · wrap ⇑b) = (f · delay b) · wrap ⇑b ≃
+        is_thunkable f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqimplimpl.
+    - <span class="nb">apply</span> is_thunkable_of_delay_wrap.
+    - <span class="nb">intro</span> H; <span class="nb">apply</span> assoc_thunkable, H.
+    - <span class="nb">apply</span> unital_magmoid_has_homsets.
+    - <span class="nb">apply</span> isaprop_is_thunkable.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_linear_of_force_unwrap</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : b --&gt; a)
+    : (force ⇓b · unwrap b) · f = force ⇓b · (unwrap b · f) -&gt;
+      is_linear f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Hf.
+    <span class="nb">assert</span> (H' : ∏ (d : D) (h : d --&gt; ⇓b), (h · unwrap b) · f = h · (unwrap b · f)). {
+      <span class="nb">intros</span> d h.
+      <span class="nb">rewrite</span> &lt;- (delay_force_interpose h (unwrap b)).
+      <span class="nb">rewrite</span> (assoc'_negative ⇑⇓b ummsolve), Hf.
+      <span class="nb">rewrite</span> (assoc_positive ⇓b ummsolve).
+      <span class="bp">now</span> <span class="nb">rewrite</span> delay_force_right.
+    }
+    <span class="nb">intros</span> c d g h.
+    intermediate_path ((h · ((g · wrap b) · unwrap b)) · f).
+    <span class="mi">1</span>: <span class="bp">now</span> <span class="nb">rewrite</span> wrap_unwrap_right.
+    <span class="nb">rewrite</span> (assoc_positive (⇓b) ummsolve), H'.
+    <span class="nb">rewrite</span> (assoc'_positive (⇓b) ummsolve), &lt;- H'.
+    <span class="bp">now</span> <span class="nb">rewrite</span> wrap_unwrap_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_linear_iff_force_unwrap</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a &lt;-- b)
+    : (force ⇓b · unwrap b) · f = force ⇓b · (unwrap b · f) ≃
+        is_linear f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqimplimpl.
+    - <span class="nb">apply</span> is_linear_of_force_unwrap.
+    - <span class="nb">intro</span> H; <span class="nb">apply</span> assoc'_linear, H.
+    - <span class="nb">apply</span> unital_magmoid_has_homsets.
+    - <span class="nb">apply</span> isaprop_is_linear.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Characterisation of positive and negative objects *)</span>
+
+  <span class="sd">(** For an object [a], the following statements are equivalent:</span>
+<span class="sd">  1. [a] is positive</span>
+<span class="sd">  2. [wrap a] is linear</span>
+<span class="sd">  3. [wrap a] is a linear-and-thunkable isomorphism *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">is_linear_unwrap</span> (<span class="nv">a</span> : D) : is_linear (unwrap a).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> is_linear_of_positive; submagmoid. <span class="kn">Qed</span>.
+  <span class="sd">(** 1 -&gt; 2 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_linear_wrap_of_positive</span> (<span class="nv">a</span> : D) (<span class="nv">H</span> : is_positive a) : is_linear (wrap a).
+  <span class="kn">Proof</span>. <span class="bp">now</span> <span class="nb">apply</span> is_linear_of_positive. <span class="kn">Qed</span>.
+
+  <span class="sd">(** 2 -&gt; 3 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_lt_iso_wrap_of_linear</span> (<span class="nv">a</span> : D) (<span class="nv">H</span> : is_linear (wrap a)) : is_lt_iso (wrap a).
+  <span class="kn">Proof</span>.
+    use make_is_submm_iso'.
+    - <span class="bp">exact</span> (unwrap a).
+    - <span class="kp">abstract</span> (<span class="nb">split</span>; <span class="kp">solve</span> [<span class="bp">exact</span> H|submagmoid]).
+    - <span class="kp">abstract</span> (<span class="nb">split</span>; <span class="kp">solve</span> [<span class="nb">apply</span> is_linear_unwrap|submagmoid]).
+    - <span class="kp">abstract</span> (<span class="bp">exact</span> (wrap a)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** 1 -&gt; 3 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_lt_iso_wrap_of_positive</span> (<span class="nv">a</span> : D) (<span class="nv">H</span> : is_positive a) : is_lt_iso (wrap a).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_lt_iso_wrap_of_linear.
+    <span class="kp">abstract</span> (<span class="nb">apply</span> is_linear_of_positive, H).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** 2 -&gt; 1 (via 3) *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_positive_of_linear_wrap</span> (<span class="nv">a</span> : D) (<span class="nv">H</span> : is_linear (wrap a)) : is_positive a.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (is_positive_of_lt_iso (_ : ⇓a ≅{_lt} a) ummsolve).
+    <span class="nb">eapply</span> submm_iso_inv, make_submm_iso, is_lt_iso_wrap_of_linear, H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_positive_iff_linear_wrap</span> (<span class="nv">a</span> : D) : is_linear (wrap a) ≃ is_positive a.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqimplimpl.
+    - <span class="nb">apply</span> is_positive_of_linear_wrap.
+    - <span class="nb">apply</span> is_linear_wrap_of_positive.
+    - <span class="nb">apply</span> isaprop_is_linear.
+    - <span class="nb">apply</span> isaprop_is_positive.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 3 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">lt_iso_downshift_of_positive</span> (<span class="nv">a</span> : D) (<span class="nv">H</span> : is_positive a) : lt_iso a ⇓a.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (make_submm_iso _lt _ (is_lt_iso_wrap_of_positive a H)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_lt_iso_unwrap_of_positive</span> (<span class="nv">a</span> : D) (<span class="nv">H</span> : is_positive a) : is_lt_iso (unwrap a).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 (submm_iso_inv _lt (lt_iso_downshift_of_positive a H))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_lt_iso_unwrap_of_linear</span> (<span class="nv">a</span> : D) (<span class="nv">H</span> : is_linear (wrap a)) : is_lt_iso (unwrap a).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_lt_iso_unwrap_of_positive, is_positive_of_linear_wrap, H.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** For an object [a], the following statements are equivalent:</span>
+<span class="sd">  1. [a] is negative</span>
+<span class="sd">  2. [force a] is thunkable</span>
+<span class="sd">  3. [force a] is a thunkable-and-linear isomorphism *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">is_thunkable_delay</span> (<span class="nv">a</span> : D) : is_thunkable (delay a).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> is_thunkable_of_negative; submagmoid. <span class="kn">Qed</span>.
+  <span class="sd">(** 1 -&gt; 2 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_thunkable_force_of_negative</span> (<span class="nv">a</span> : D) (<span class="nv">H</span> : is_negative a) : is_thunkable (force a).
+  <span class="kn">Proof</span>. <span class="bp">now</span> <span class="nb">apply</span> is_thunkable_of_negative. <span class="kn">Qed</span>.
+
+  <span class="sd">(** 2 -&gt; 3 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_lt_iso_force_of_thunkable</span> (<span class="nv">a</span> : D) (<span class="nv">H</span> : is_thunkable (force a)) : is_lt_iso (force a).
+  <span class="kn">Proof</span>.
+    use make_is_submm_iso'.
+    - <span class="bp">exact</span> (delay a).
+    - <span class="kp">abstract</span> (<span class="nb">split</span>; <span class="kp">solve</span> [<span class="bp">exact</span> H|submagmoid]).
+    - <span class="kp">abstract</span> (<span class="nb">split</span>; <span class="kp">solve</span> [<span class="nb">apply</span> is_thunkable_delay|submagmoid]).
+    - <span class="kp">abstract</span> (<span class="bp">exact</span> (force a)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** 1 -&gt; 3 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_lt_iso_force_of_negative</span> (<span class="nv">a</span> : D) (<span class="nv">H</span> : is_negative a) : is_lt_iso (force a).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_lt_iso_force_of_thunkable.
+    <span class="kp">abstract</span> (<span class="nb">apply</span> is_thunkable_of_negative, H).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** 2 -&gt; 1 (via 3) *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_negative_of_thunkable_force</span> (<span class="nv">a</span> : D) (<span class="nv">H</span> : is_thunkable (force a)) : is_negative a.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (is_negative_of_lt_iso (_ : ⇑a ≅{_lt} a) ummsolve).
+    <span class="nb">eapply</span> make_submm_iso, is_lt_iso_force_of_thunkable, H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_negative_iff_thunkable_force</span> (<span class="nv">a</span> : D) : is_thunkable (force a) ≃ is_negative a.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqimplimpl.
+    - <span class="nb">apply</span> is_negative_of_thunkable_force.
+    - <span class="nb">apply</span> is_thunkable_force_of_negative.
+    - <span class="nb">apply</span> isaprop_is_thunkable.
+    - <span class="nb">apply</span> isaprop_is_negative.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 3 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">lt_iso_upshift_of_negative</span> (<span class="nv">a</span> : D) (<span class="nv">H</span> : is_negative a) : lt_iso ⇑a a.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (make_submm_iso _lt _ (is_lt_iso_force_of_negative a H)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_lt_iso_delay_of_negative</span> (<span class="nv">a</span> : D) (<span class="nv">H</span> : is_negative a) : is_lt_iso (delay a).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 (submm_iso_inv _lt (lt_iso_upshift_of_negative a H))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_lt_iso_delay_of_thunkable</span> (<span class="nv">a</span> : D) (<span class="nv">H</span> : is_thunkable (force a)) : is_lt_iso (delay a).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_lt_iso_delay_of_negative, is_negative_of_thunkable_force, H.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">shift_lemmas</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Nonassociative/Duploids/Core.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  ********************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,762 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Univalence.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> Univalence of Duploids</span>
+
+<span class="sd"> Author: B. Szilvasy</span>
+<span class="sd"> January 2026</span>
+
+<span class="sd"> We define what it means for a duploid to be univalent both as a</span>
+<span class="sd"> single-sorted duploid ([is_dupl_univalent]), and as a split duploid</span>
+<span class="sd"> ([is_split_dupl_univalent]). We show that the former makes shifts a</span>
+<span class="sd"> property.</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Definition of univalence for duploids</span>
+<span class="sd"> 1.1. Single-sorted duploid univalence</span>
+<span class="sd"> 1.2. Split duploid univalence</span>
+<span class="sd"> 1.3. Algebra</span>
+<span class="sd"> 2. Consequences of univalence</span>
+<span class="sd"> 2.1. Polarity shifts are a property in single-sorted duploids</span>
+<span class="sd"> 2.2. Polarity shifts are a property in split preduploids</span>
+<span class="sd"> 3. Characterizations of univalence</span>
+<span class="sd"> 4. Split duploids and univalence</span>
+
+<span class="sd"> ********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.catiso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoryRXGraph.
+
+<span class="kn">Require Import</span> UniMath.IdentitySystems.RXGraph.
+<span class="kn">Require Import</span> UniMath.IdentitySystems.Examples.
+<span class="kn">Require Import</span> UniMath.IdentitySystems.RXGraphOfRXGraphs.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Submagmoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.PolarizedSubcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.Duploids.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.Duploids.PolarizedSubcategories.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> unital_magmoid.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> duploid.
+
+<span class="sd">(** ** Definition of univalence for duploids *)</span>
+<span class="kn">Section</span> <span class="nf">univalence_def</span>.
+  <span class="sd">(** *** Single-sorted duploid univalence *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">is_dupl_univalent</span> (<span class="nv">M</span> : unital_magmoid)
+    := is_submm_univalent M _lt.
+
+  <span class="kn">Definition</span> <span class="nf">duploid_to_rxgraph</span> (<span class="nv">D</span> : preduploid) : rxgraph
+    := submm_rxgraph D _lt.
+
+  <span class="kn">Remark</span> <span class="nf">duploid_rxgraph_univalent_eq</span> (<span class="nv">D</span> : preduploid)
+    : is_dupl_univalent D = is_univalent (duploid_to_rxgraph D).
+  <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_um_univalent_preduploid_iff</span> (<span class="nv">D</span> : preduploid)
+    : is_dupl_univalent D ≃ is_um_univalent D.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqimplimpl.
+    <span class="mi">3</span>,<span class="mi">4</span>: <span class="nb">apply</span> isaprop_is_univalent.
+    <span class="kp">all</span>: <span class="nb">intro</span> ua; <span class="nb">apply</span> is_univalent_from_weq; <span class="nb">intros</span> a b.
+    <span class="kp">all</span>: <span class="nb">apply</span> (weqcomp (make_weq _ (ua a b))).
+    <span class="mi">1</span>: <span class="nb">apply</span> invweq, weq_lti_iso_to_lt_iso_from_polarized.
+    <span class="mi">2</span>: <span class="nb">apply</span> weq_lti_iso_to_lt_iso_from_polarized.
+    <span class="kp">all</span>: <span class="nb">apply</span> (polarity_of D a).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** *** Split duploid univalence</span>
+
+<span class="sd">   Let [D] be a split preduploid. The following are equivalent:</span>
+
+<span class="sd">   1. The [chosen_positive_thunkable_category] and</span>
+<span class="sd">      [chosen_negative_linear_category] of [D] are univalent.</span>
+<span class="sd">   2. The reflexive graph whose edges are [lt_iso]s between</span>
+<span class="sd">      same-[polarity_mapping_of] objects [is_rxgraph_univalent].</span>
+<span class="sd">   3. For all objects [a b : D] with the same-[polarity_mapping_of],</span>
+<span class="sd">      [id_to_lt_iso] at [a] and [b] is an equivalence.</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">is_split_dupl_univalent</span> (<span class="nv">D</span> : split_preduploid)
+    := is_univalent D⁺ᶜₜ × is_univalent D⁻ᶜₗ.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_split_dupl_univalent</span> (<span class="nv">D</span> : split_preduploid)
+    : isaprop (is_split_dupl_univalent D).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> isaprop_is_univalent. <span class="kn">Qed</span>.
+
+  <span class="kn">Local Notation</span> <span class="nf">ω</span> := (polarity_mapping_of _).
+
+  <span class="kn">Definition</span> <span class="nf">have_same_polarity</span> {<span class="nv">D</span> : split_preduploid} (<span class="nv">a</span> <span class="nv">b</span> : D) : UU
+    := ∑ ε, ω a = ε × ω b = ε.
+
+  <span class="kn">Definition</span> <span class="nf">have_same_polarity_refl</span> {<span class="nv">D</span> : split_preduploid} (<span class="nv">a</span> : D)
+    : have_same_polarity a a.
+  <span class="kn">Proof</span>. <span class="bp">now</span> <span class="k">exists</span> (<span class="nv">ω</span> <span class="nv">a</span>). <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">split_duploid_ob_rxgraph</span> (<span class="nv">D</span> : split_preduploid) : rxgraph.
+  <span class="kn">Proof</span>.
+    use make_rxgraph.
+    - <span class="bp">exact</span> (ob D).
+    - <span class="nb">intros</span> a b.
+      <span class="bp">exact</span> (have_same_polarity a b × lt_iso a b).
+    - <span class="nb">intro</span> a.
+      <span class="bp">exact</span> (have_same_polarity_refl a,, submm_iso_identity _ a).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_split_dupl_univalent_alt</span> (<span class="nv">D</span> : split_preduploid) : UU
+    := ∏ (a b : D) (H : have_same_polarity a b),
+      isweq (<span class="k">λ</span> (<span class="nv">p</span> : a = b), id_to_submm_iso _lt p).
+
+  <span class="kn">Definition</span> <span class="nf">have_same_polarity_weq</span> {<span class="nv">D</span> : split_preduploid} (<span class="nv">a</span> <span class="nv">b</span> : D)
+    : have_same_polarity a b ≃ polarity_mapping_of D a = polarity_mapping_of D b.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="nb">intros</span> [ε [Ha Hb]]; <span class="nb">induction</span> Hb; <span class="bp">exact</span> Ha.
+    - <span class="nb">intros</span> p; <span class="bp">exact</span> (ω b,, p,, idpath _).
+    - <span class="nb">intros</span> [ε [Ha Hb]]; <span class="bp">now</span> <span class="nb">induction</span> Hb.
+    - <span class="bp">easy</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_have_same_polarity</span> {<span class="nv">D</span> : split_preduploid} (<span class="nv">a</span> <span class="nv">b</span> : D)
+    : isaprop (have_same_polarity a b).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (isofhlevelweqb <span class="mi">1</span> (have_same_polarity_weq a b)).
+    <span class="nb">apply</span> isasetbool.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 1 -&gt; 2 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_split_dupl_univalent_to_rxgraph_edges_to_weq</span>
+    (<span class="nv">D</span> : split_preduploid)
+    (<span class="nv">ε</span> : hpolarity) (<span class="nv">a</span> : D)
+    (<span class="nv">Ha</span> : polarity_mapping_of D a = ε)
+    (<span class="nv">isε</span> := <span class="k">if</span> ε <span class="k">then</span> ^⊕ω <span class="k">else</span> ^⊖ω : hsubtype D)
+    (<span class="nv">Dε</span> := <span class="k">if</span> ε <span class="k">then</span> D⁺ᶜₜ <span class="k">else</span> D⁻ᶜₗ)
+    : (edges_to (category_to_rxgraph Dε) <span class="kp">ltac</span>:(<span class="nb">induction</span> ε; <span class="bp">exact</span> (make_sub_ob isε a Ha)))
+        ≃ edges_to (split_duploid_ob_rxgraph D) a.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> ε <span class="nb">using</span> hpolarity_rec.
+    <span class="kp">all</span>: <span class="nb">apply</span> (weqcomp (weqtotal2asstor _ _)).
+    <span class="kp">all</span>: <span class="nb">apply</span> weqfibtototal.
+    <span class="kp">all</span>: <span class="nb">intro</span> b; <span class="nb">cbn</span>.
+    <span class="kp">all</span>: use weqbandf; [
+        <span class="nb">apply</span> invweq;
+        <span class="nb">apply</span> (weqcomp (have_same_polarity_weq _ _));
+        <span class="bp">exact</span> (make_weq _ (isweqpathscomp0r _ Ha))|].
+    <span class="kp">all</span>: <span class="nb">intro</span> Hb; <span class="nb">apply</span> invweq.
+    <span class="kp">all</span>: <span class="bp">exact</span> (weq_submm_iso_z_iso _lt
+                  (make_sub_ob isε b Hb)
+                  (make_sub_ob isε a Ha)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_split_dupl_univalent_to_rxgraph</span> (<span class="nv">D</span> : split_preduploid)
+    (<span class="nv">ua</span> : is_split_dupl_univalent D)
+    : is_univalent (split_duploid_ob_rxgraph D).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_from_isaprop_edges_to.
+    <span class="nb">intro</span> a.
+    remember0 (ω a) <span class="k">as</span> ε <span class="nb">eqn</span>:Ha.
+    <span class="nb">apply</span> (isofhlevelweqf <span class="mi">1</span>
+             (is_split_dupl_univalent_to_rxgraph_edges_to_weq
+                D ε a Ha)).
+    <span class="nb">induction</span> ε; <span class="nb">apply</span> is_univalent_to_isaprop_edges_to, ua.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 1 &lt;- 2 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_split_dupl_univalent_from_rxgraph</span> (<span class="nv">D</span> : split_preduploid)
+    (<span class="nv">ua</span> : is_univalent (split_duploid_ob_rxgraph D))
+    : is_split_dupl_univalent D.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">apply</span> is_univalent_from_isaprop_edges_to.
+    - <span class="nb">intro</span> a; <span class="nb">cbn</span> <span class="k">in</span> a.
+      <span class="nb">apply</span> (isofhlevelweqb <span class="mi">1</span>
+               (is_split_dupl_univalent_to_rxgraph_edges_to_weq
+                  D chpositive a (sub_ob_property ^⊕ω a))).
+      <span class="nb">apply</span> is_univalent_to_isaprop_edges_to, ua.
+    - <span class="nb">intro</span> a; <span class="nb">cbn</span> <span class="k">in</span> a.
+      <span class="nb">apply</span> (isofhlevelweqb <span class="mi">1</span>
+               (is_split_dupl_univalent_to_rxgraph_edges_to_weq
+                  D chnegative a (sub_ob_property ^⊖ω a))).
+      <span class="nb">apply</span> is_univalent_to_isaprop_edges_to, ua.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 2 -&gt; 3 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_split_dupl_univalent_rxgraph_to_alt</span> (<span class="nv">D</span> : split_preduploid)
+    (<span class="nv">ua</span> : is_univalent (split_duploid_ob_rxgraph D))
+    : is_split_dupl_univalent_alt D.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b Hab.
+    use weqhomot.
+    - <span class="nb">apply</span> (weqcomp (make_weq _ (ua a b))).
+      <span class="nb">apply</span> (weqcomp (weqdirprodcomm _ _)).
+      <span class="nb">apply</span> weqpr1.
+      <span class="nb">intro</span>; <span class="nb">apply</span> iscontraprop1.
+      + <span class="nb">apply</span> isaprop_have_same_polarity.
+      + <span class="bp">assumption</span>.
+    - <span class="nb">intro</span> p; <span class="nb">induction</span> p.
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 2 &lt;- 3 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_split_dupl_univalent_rxgraph_from_alt</span> (<span class="nv">D</span> : split_preduploid)
+    (<span class="nv">ua</span> : is_split_dupl_univalent_alt D)
+    : is_univalent (split_duploid_ob_rxgraph D).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b.
+    use isweq_iso.
+    - <span class="nb">intros</span> [Hab p].
+      <span class="bp">exact</span> (invmap (make_weq _ (ua a b Hab)) p).
+    - <span class="nb">intros</span> p; <span class="nb">induction</span> p; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pathsinv0, pathsweq1.
+      <span class="bp">now</span> <span class="nb">apply</span> lt_iso_eq.
+    - <span class="nb">intros</span> [Hab p].
+      <span class="nb">apply</span> dirprod_paths; [<span class="nb">apply</span> isaprop_have_same_polarity|].
+      <span class="nb">set</span> (w := make_weq _ (ua a b Hab)).
+      intermediate_path (id_to_submm_iso _lt (invmap w p)).
+      <span class="mi">2</span>: <span class="bp">exact</span> (homotweqinvweq w p).
+      <span class="nb">generalize</span> (invmap w p).
+      <span class="nb">intro</span> e; <span class="nb">induction</span> e.
+      <span class="bp">now</span> <span class="nb">apply</span> lt_iso_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_split_dupl_univalent_to_alt</span> (<span class="nv">D</span> : split_preduploid)
+    (<span class="nv">ua</span> : is_split_dupl_univalent D)
+    : is_split_dupl_univalent_alt D.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_split_dupl_univalent_rxgraph_to_alt.
+    <span class="nb">apply</span> is_split_dupl_univalent_to_rxgraph.
+    <span class="bp">assumption</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_split_dupl_univalent_from_alt</span> (<span class="nv">D</span> : split_preduploid)
+    (<span class="nv">ua</span> : is_split_dupl_univalent_alt D)
+    : is_split_dupl_univalent D.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_split_dupl_univalent_from_rxgraph.
+    <span class="nb">apply</span> is_split_dupl_univalent_rxgraph_from_alt.
+    <span class="bp">assumption</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** *** Algebra *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">weq_id_to_lt_iso_polarized</span> {<span class="nv">D</span> : split_preduploid}
+    (<span class="nv">ua</span> : is_split_dupl_univalent D)
+    {<span class="nv">a</span> <span class="nv">b</span> : D}
+    (<span class="nv">Hab</span> : have_same_polarity a b)
+    : a = b ≃ lt_iso a b
+    := make_weq _ (is_split_dupl_univalent_to_alt D ua a b Hab).
+
+  <span class="kn">Definition</span> <span class="nf">lt_iso_to_id_polarized</span> {<span class="nv">D</span> : split_preduploid}
+    (<span class="nv">ua</span> : is_split_dupl_univalent D)
+    {<span class="nv">a</span> <span class="nv">b</span> : D}
+    (<span class="nv">Hab</span> : have_same_polarity a b)
+    : lt_iso a b -&gt; a = b
+    := invmap (weq_id_to_lt_iso_polarized ua Hab).
+
+  <span class="kn">Lemma</span> <span class="nf">submm_isos_from_paths_polarized</span> {<span class="nv">D</span> : split_preduploid}
+    (<span class="nv">ua</span> : is_split_dupl_univalent D)
+    (<span class="nv">a</span> <span class="nv">b</span> : D)
+    (<span class="nv">q</span> : have_same_polarity a b)
+    (<span class="nv">p</span> : a ≅{_lt} b)
+    : PathPair (B:=<span class="k">λ</span> <span class="nv">b</span>, a ≅{_lt} b)
+        (@edges_from_refl (submm_rxgraph D _lt) a)
+        (b,, p).
+  <span class="kn">Proof</span>.
+    transparent <span class="nb">assert</span> (pq : (edges_from (split_duploid_ob_rxgraph D) a)).
+    { <span class="k">exists</span> <span class="nv">b</span>; <span class="bp">now</span> <span class="nb">split</span>. }
+    <span class="nb">assert</span> (I : PathPair (@edges_from_refl (split_duploid_ob_rxgraph D) a) pq).
+    { <span class="nb">apply</span> total2_paths_equiv, proofirrelevance.
+      <span class="nb">apply</span> is_univalent_to_isaprop_edges_from.
+      <span class="nb">apply</span> is_split_dupl_univalent_to_rxgraph, ua. }
+    <span class="nb">induction</span> I <span class="k">as</span> [Haa' Hpq]; <span class="nb">cbn</span> <span class="k">in</span> Haa', Hpq.
+    <span class="k">exists</span> <span class="nv">Haa'</span>; <span class="nb">induction</span> Haa'; <span class="nb">cbn</span> <span class="k">in</span> Hpq |- *.
+    <span class="nb">apply</span> pathsdirprodweq <span class="k">in</span> Hpq.
+    <span class="bp">exact</span> (pr2 Hpq).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">submm_isos_to_paths_polarized</span> {<span class="nv">D</span> : split_preduploid}
+    (<span class="nv">ua</span> : is_split_dupl_univalent D)
+    (<span class="nv">a</span> <span class="nv">b</span> : D)
+    (<span class="nv">q</span> : have_same_polarity a b)
+    (<span class="nv">p</span> : a ≅{_lt} b)
+    : PathPair (B:=<span class="k">λ</span> <span class="nv">a</span>, a ≅{_lt} b)
+        (@edges_to_refl (submm_rxgraph D _lt) b)
+        (a,, p).
+  <span class="kn">Proof</span>.
+    transparent <span class="nb">assert</span> (pq : (edges_to (split_duploid_ob_rxgraph D) b)).
+    { <span class="k">exists</span> <span class="nv">a</span>; <span class="bp">now</span> <span class="nb">split</span>. }
+    <span class="nb">assert</span> (I : PathPair (@edges_to_refl (split_duploid_ob_rxgraph D) b) pq).
+    { <span class="nb">apply</span> total2_paths_equiv, proofirrelevance.
+      <span class="nb">apply</span> is_univalent_to_isaprop_edges_to.
+      <span class="nb">apply</span> is_split_dupl_univalent_to_rxgraph, ua. }
+    <span class="nb">induction</span> I <span class="k">as</span> [Haa' Hpq]; <span class="nb">cbn</span> <span class="k">in</span> Haa', Hpq.
+    <span class="k">exists</span> <span class="nv">Haa'</span>; <span class="nb">induction</span> Haa'; <span class="nb">cbn</span> <span class="k">in</span> Hpq |- *.
+    <span class="nb">apply</span> pathsdirprodweq <span class="k">in</span> Hpq.
+    <span class="bp">exact</span> (pr2 Hpq).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">univalence_def</span>.
+
+<span class="sd">(** ** Consequences of univalence *)</span>
+<span class="kn">Section</span> <span class="nf">univalence_consequences</span>.
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_dupl_univalent</span> (<span class="nv">M</span> : unital_magmoid)
+    : isaprop (is_dupl_univalent M).
+  <span class="kn">Proof</span>. <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> isapropisweq. <span class="kn">Qed</span>.
+
+  <span class="sd">(** *** Polarity shifts are a property in single-sorted duploids *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">has_negative_shifts_alt</span> (<span class="nv">M</span> : unital_magmoid) : UU
+    := ∏ (a : M), ∑ (upshift : @sub_ob M ^⊖), submm_iso _l upshift a.
+
+  <span class="kn">Lemma</span> <span class="nf">has_negative_shifts_alt_weq</span> (<span class="nv">M</span> : unital_magmoid)
+    : has_negative_shifts M ≃ has_negative_shifts_alt M.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="nb">intros</span> [D H] a.
+      <span class="k">exists</span> (<span class="nv">upshift'</span> <span class="nv">D</span> <span class="nv">a</span>,, <span class="nv">is_negative_upshift'</span> <span class="nv">H</span> <span class="nv">a</span>).
+      use make_submm_iso'.
+      + <span class="k">exists</span> (<span class="nv">force'</span> <span class="nv">D</span> <span class="nv">a</span>).
+        <span class="bp">exact</span> (is_linear_force' H a).
+      + <span class="bp">exact</span> (delay' H a).
+      + <span class="bp">exact</span> (has_linear_inverse_force' H a).
+    - <span class="nb">intros</span> S.
+      use make_has_negative_shifts.
+      + use make_negative_shift_data.
+        * <span class="nb">intro</span> a; <span class="bp">exact</span> (pr1 (S a)).
+        * <span class="nb">intro</span> a; <span class="bp">exact</span> (submm_mor_mor (pr2 (S a))).
+      + use make_negative_shift_axioms.
+        * <span class="nb">intro</span> a; <span class="bp">exact</span> (submm_mor_property _l _).
+        * <span class="nb">intro</span> a; <span class="bp">exact</span> (sub_ob_property ^⊖ _).
+        * <span class="nb">intro</span> a; <span class="bp">exact</span> (pr2 (S a)).
+    - <span class="bp">easy</span>.
+    - <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_has_negative_shifts</span> (<span class="nv">M</span> : unital_magmoid)
+    (<span class="nv">ua</span> : is_um_univalent M)
+    : isaprop (has_negative_shifts M).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (isofhlevelweqb <span class="mi">1</span> (has_negative_shifts_alt_weq M)).
+    <span class="nb">apply</span> impred; <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_linear_isos_from_negative, ua.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_positive_shifts_alt</span> (<span class="nv">M</span> : unital_magmoid) : UU
+    := ∏ (a : M), ∑ (downshift : @sub_ob M ^⊕), submm_iso _t a downshift.
+
+  <span class="kn">Lemma</span> <span class="nf">has_positive_shifts_alt_weq</span> (<span class="nv">M</span> : unital_magmoid)
+    : has_positive_shifts M ≃ has_positive_shifts_alt M.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="nb">intros</span> [D H] a.
+      <span class="k">exists</span> (<span class="nv">downshift'</span> <span class="nv">D</span> <span class="nv">a</span>,, <span class="nv">is_positive_downshift'</span> <span class="nv">H</span> <span class="nv">a</span>).
+      use make_submm_iso'.
+      + <span class="k">exists</span> (<span class="nv">wrap'</span> <span class="nv">D</span> <span class="nv">a</span>).
+        <span class="bp">exact</span> (is_thunkable_wrap' H a).
+      + <span class="bp">exact</span> (unwrap' H a).
+      + <span class="bp">exact</span> (has_thunkable_inverse_wrap' H a).
+    - <span class="nb">intros</span> S.
+      use make_has_positive_shifts.
+      + use make_positive_shift_data.
+        * <span class="nb">intro</span> a; <span class="bp">exact</span> (pr1 (S a)).
+        * <span class="nb">intro</span> a; <span class="bp">exact</span> (submm_mor_mor (pr2 (S a))).
+      + use make_positive_shift_axioms.
+        * <span class="nb">intro</span> a; <span class="bp">exact</span> (submm_mor_property _t _).
+        * <span class="nb">intro</span> a; <span class="bp">exact</span> (sub_ob_property ^⊕ _).
+        * <span class="nb">intro</span> a; <span class="bp">exact</span> (pr2 (S a)).
+    - <span class="bp">easy</span>.
+    - <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_has_positive_shifts</span> (<span class="nv">M</span> : unital_magmoid)
+    (<span class="nv">ua</span> : is_um_univalent M)
+    : isaprop (has_positive_shifts M).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (isofhlevelweqb <span class="mi">1</span> (has_positive_shifts_alt_weq M)).
+    <span class="nb">apply</span> impred; <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_thunkable_isos_to_positive, ua.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">isaprop_has_polarity_shifts</span> (<span class="nv">M</span> : unital_magmoid) (<span class="nv">ua</span> : is_um_univalent M)
+    : isaprop (has_polarity_shifts M).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropdirprod.
+    - <span class="nb">apply</span> isaprop_has_negative_shifts, ua.
+    - <span class="nb">apply</span> isaprop_has_positive_shifts, ua.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** *** Polarity shifts are a property in split preduploids *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_linear_isos_from_negative_polarized</span>
+    {<span class="nv">M</span> : split_preduploid}
+    (<span class="nv">ua</span> : is_split_dupl_univalent M)
+    (<span class="nv">b</span> : M)
+    : isaprop (∑ (a : sub_ob M ^⊖ω), a ≅{_l} b).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> invproofirrelevance.
+    <span class="nb">intros</span> [[a Ha] e] [[a' Ha'] e'].
+    transparent <span class="nb">assert</span> (ee' : (lt_iso a a')). {
+      <span class="nb">refine</span> (submm_iso_incl M _l _lt _
+                (subcat_iso_compose _ e (submm_iso_inv _ e'))).
+      <span class="nb">split</span>; (<span class="nb">intros</span> f Hf; <span class="nb">split</span>;
+              [ <span class="bp">exact</span> Hf
+              | <span class="nb">apply</span> is_thunkable_of_negative ];
+              <span class="bp">now</span> <span class="nb">apply</span> pmap_negative).
+    }
+    <span class="nb">induction</span> (submm_isos_from_paths_polarized ua _ _
+                 (chnegative,, Ha,, Ha') ee') <span class="k">as</span> [Haa' Hee'].
+    <span class="nb">apply</span> submm_iso_eq_mor <span class="k">in</span> Hee'.
+    <span class="nb">cbn</span> <span class="k">in</span> Haa', Hee'.
+    <span class="nb">clear</span> ee'; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> Haa'; <span class="nb">cbn</span> <span class="k">in</span> Hee'.
+    <span class="nb">induction</span> (proofirrelevance_hProp (^⊖ω a) Ha Ha').
+    <span class="nb">apply</span> pair_path_in2, (subcat_iso_eq _l).
+    <span class="nb">apply</span> subcat_iso_eq_from_identity_right.
+    <span class="bp">exact</span> (!Hee').
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_thunkable_isos_from_positive_polarized</span>
+    {<span class="nv">M</span> : split_preduploid}
+    (<span class="nv">ua</span> : is_split_dupl_univalent M)
+    (<span class="nv">b</span> : M)
+    : isaprop (∑ (a : sub_ob M ^⊕ω), b ≅{_t} a).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> invproofirrelevance.
+    <span class="nb">intros</span> [[a Ha] e] [[a' Ha'] e'].
+    transparent <span class="nb">assert</span> (ee' : (lt_iso a a')). {
+      <span class="nb">refine</span> (submm_iso_incl M _t _lt _
+                (subcat_iso_compose _ (submm_iso_inv _ e) e')).
+      <span class="nb">split</span>; (<span class="nb">intros</span> f Hf; <span class="nb">split</span>;
+              [ <span class="nb">apply</span> is_linear_of_positive
+              | <span class="bp">exact</span> Hf ];
+              <span class="bp">now</span> <span class="nb">apply</span> pmap_positive).
+    }
+    <span class="nb">induction</span> (submm_isos_from_paths_polarized ua _ _
+                 (chpositive,, Ha,, Ha') ee') <span class="k">as</span> [Haa' Hee'].
+    <span class="nb">apply</span> submm_iso_eq_mor <span class="k">in</span> Hee'.
+    <span class="nb">cbn</span> <span class="k">in</span> Haa', Hee'.
+    <span class="nb">clear</span> ee'; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> Haa'; <span class="nb">cbn</span> <span class="k">in</span> Hee'.
+    <span class="nb">induction</span> (proofirrelevance_hProp (^⊕ω a) Ha Ha').
+    <span class="nb">apply</span> pair_path_in2, (subcat_iso_eq _t).
+    <span class="nb">apply</span> pathsinv0, subcat_iso_eq_from_identity_left.
+    <span class="bp">exact</span> (!Hee').
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_split_negative_shifts_alt</span>
+    (<span class="nv">M</span> : unital_magmoid) (<span class="nv">ω</span> : M -&gt; hpolarity) : UU
+    := ∏ (a : M), ∑ (upshift : @sub_ob M (ish_chnegative' ω)),
+      submm_iso _l upshift a.
+
+  <span class="kn">Lemma</span> <span class="nf">has_split_negative_shifts_alt_weq</span>
+    (<span class="nv">M</span> : unital_magmoid) (<span class="nv">ω</span> : polarity_mapping M)
+    : has_split_negative_shifts M ω ≃ has_split_negative_shifts_alt M ω.
+  <span class="kn">Proof</span>.
+    intermediate_weq (∑ (S : has_negative_shifts_alt M),
+                       ∏ (a : M), ish_chnegative' ω (pr1 (S a))). {
+      use weqbandf.
+      - <span class="nb">apply</span> has_negative_shifts_alt_weq.
+      - <span class="nb">intro</span> S; <span class="bp">exact</span> (idweq (pmap_respects_negative_shifts S ω)).
+    }
+    <span class="nb">eapply</span> weqcomp. {
+      <span class="nb">apply</span> invweq,
+        (sec_total2_distributivity
+           (<span class="k">λ</span> (<span class="nv">a</span> : M) (<span class="nv">shift</span> : ∑ upshift : sub_ob M ^⊖,
+                    submm_iso _l upshift a),
+             ish_chnegative' ω (pr1 shift))).
+    }
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> a.
+    intermediate_weq (∑ (upshift : sub_ob M ^⊖),
+                       submm_iso _l upshift a × ish_chnegative' ω upshift).
+    { <span class="nb">apply</span> invweq, totalAssociativity. }
+    <span class="nb">eapply</span> weqcomp.
+    { <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span>. <span class="nb">apply</span> weqdirprodcomm. }
+    intermediate_weq (∑ (upshift : ∑ (x : sub_ob M ^⊖), ish_chnegative' ω x),
+                       submm_iso _l (pr1 upshift) a).
+    { <span class="nb">apply</span> totalAssociativity. }
+    use weqbandf. {
+      intermediate_weq (∑ (x : M), ish_negative x × ish_chnegative' ω x).
+      { <span class="nb">apply</span> invweq, totalAssociativity. }
+      <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> x.
+      <span class="nb">apply</span> (weqcomp (weqdirprodcomm _ _)).
+      <span class="nb">apply</span> weqpr1; <span class="nb">intro</span> H.
+      <span class="nb">apply</span> iscontraprop1.
+      - <span class="nb">apply</span> propproperty.
+      - <span class="nb">apply</span> (pmap_negative' ω), H.
+    }
+    <span class="nb">intros</span> upshift.
+    <span class="bp">exact</span> (idweq _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_has_split_negative_shifts</span> (<span class="nv">D</span> : split_preduploid)
+    (<span class="nv">ua</span> : is_split_dupl_univalent D)
+    : isaprop (has_split_negative_shifts D D).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (isofhlevelweqb <span class="mi">1</span> (has_split_negative_shifts_alt_weq D D)).
+    <span class="nb">apply</span> impred; <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_linear_isos_from_negative_polarized, ua.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_split_positive_shifts_alt</span>
+    (<span class="nv">M</span> : unital_magmoid) (<span class="nv">ω</span> : M -&gt; hpolarity) : UU
+    := ∏ (a : M), ∑ (downshift : @sub_ob M (ish_chpositive' ω)),
+      submm_iso _t a downshift.
+
+  <span class="kn">Lemma</span> <span class="nf">has_split_positive_shifts_alt_weq</span>
+    (<span class="nv">M</span> : unital_magmoid) (<span class="nv">ω</span> : polarity_mapping M)
+    : has_split_positive_shifts M ω ≃ has_split_positive_shifts_alt M ω.
+  <span class="kn">Proof</span>.
+    intermediate_weq (∑ (S : has_positive_shifts_alt M),
+                       ∏ (a : M), ish_chpositive' ω (pr1 (S a))). {
+      use weqbandf.
+      - <span class="nb">apply</span> has_positive_shifts_alt_weq.
+      - <span class="nb">intro</span> S; <span class="bp">exact</span> (idweq (pmap_respects_positive_shifts S ω)).
+    }
+    <span class="nb">eapply</span> weqcomp. {
+      <span class="nb">apply</span> invweq,
+        (sec_total2_distributivity
+           (<span class="k">λ</span> (<span class="nv">a</span> : M) (<span class="nv">shift</span> : ∑ downshift : sub_ob M ^⊕,
+                    submm_iso _t a downshift),
+             ish_chpositive' ω (pr1 shift))).
+    }
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> a.
+    intermediate_weq (∑ (downshift : sub_ob M ^⊕),
+                       submm_iso _t a downshift × ish_chpositive' ω downshift).
+    { <span class="nb">apply</span> invweq, totalAssociativity. }
+    <span class="nb">eapply</span> weqcomp.
+    { <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span>. <span class="nb">apply</span> weqdirprodcomm. }
+    intermediate_weq (∑ (downshift : ∑ (x : sub_ob M ^⊕), ish_chpositive' ω x),
+                       submm_iso _t a (pr1 downshift)).
+    { <span class="nb">apply</span> totalAssociativity. }
+    use weqbandf. {
+      intermediate_weq (∑ (x : M), ish_positive x × ish_chpositive' ω x).
+      { <span class="nb">apply</span> invweq, totalAssociativity. }
+      <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> x.
+      <span class="nb">apply</span> (weqcomp (weqdirprodcomm _ _)).
+      <span class="nb">apply</span> weqpr1; <span class="nb">intro</span> H.
+      <span class="nb">apply</span> iscontraprop1.
+      - <span class="nb">apply</span> propproperty.
+      - <span class="nb">apply</span> (pmap_positive' ω), H.
+    }
+    <span class="nb">intros</span> downshift.
+    <span class="bp">exact</span> (idweq _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_has_split_positive_shifts</span> (<span class="nv">D</span> : split_preduploid)
+    (<span class="nv">ua</span> : is_split_dupl_univalent D)
+    : isaprop (has_split_positive_shifts D D).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (isofhlevelweqb <span class="mi">1</span> (has_split_positive_shifts_alt_weq D D)).
+    <span class="nb">apply</span> impred; <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_thunkable_isos_from_positive_polarized, ua.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_has_split_shifts</span> (<span class="nv">D</span> : split_preduploid)
+    (<span class="nv">ua</span> : is_split_dupl_univalent D)
+    : isaprop (∑ (S : has_polarity_shifts D), pmap_respects_shifts S D).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (isofhlevelweqb <span class="mi">1</span> (Y:=has_split_negative_shifts D D
+                                  × has_split_positive_shifts D D)). {
+      use weq_iso.
+      - <span class="nb">intros</span> [[A B] [HA HB]].
+        <span class="bp">exact</span> ((A,, HA),, (B,, HB)).
+      - <span class="nb">intros</span> [[A HA] [B HB]].
+        <span class="bp">exact</span> ((A,, B),, (HA,, HB)).
+      - <span class="bp">easy</span>.
+      - <span class="bp">easy</span>.
+    }
+    <span class="nb">apply</span> isapropdirprod.
+    - <span class="nb">apply</span> isaprop_has_split_negative_shifts, ua.
+    - <span class="nb">apply</span> isaprop_has_split_positive_shifts, ua.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">univalence_consequences</span>.
+
+<span class="sd">(** ** Characterizations of univalence *)</span>
+
+<span class="kn">Section</span> <span class="nf">characterizations</span>.
+  <span class="kn">Context</span> (<span class="nv">D</span> : preduploid).
+  <span class="sd">(** The following are equivalent:</span>
+<span class="sd">      1. [D] is a univalent duploid</span>
+<span class="sd">      2. [linear_and_thunkable_category D] is a univalent category</span>
+<span class="sd">      3. [positive_thunkable_category D] and [negative_linear_category D] are both univalent categories *)</span>
+
+  <span class="sd">(** 1 -&gt; 2 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">duploid_to_lt_cat_rxgraph_iso</span>
+    : rxgraph_iso (category_to_rxgraph (D ₗₜ)) (duploid_to_rxgraph D).
+  <span class="kn">Proof</span>.
+    use make_rxgraph_iso.
+    - <span class="nb">apply</span> idweq.
+    - <span class="nb">intros</span> a b.
+      <span class="nb">apply</span> invweq, weq_submm_iso_z_iso.
+    - <span class="nb">intro</span> a.
+      <span class="bp">now</span> <span class="nb">apply</span> lt_iso_eq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_dupl_univalent_to_lt_cat</span>
+    (<span class="nv">H</span> : is_dupl_univalent D) : Univalence.is_univalent (D ₗₜ).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (is_univalent_rxgraph_iso_b _ _
+             duploid_to_lt_cat_rxgraph_iso
+             H).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 2 -&gt; 1 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_dupl_univalent_from_lt_cat</span>
+    (<span class="nv">H</span> : Univalence.is_univalent (D ₗₜ)) : is_dupl_univalent D.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (is_univalent_rxgraph_iso_f _ _
+             duploid_to_lt_cat_rxgraph_iso
+             H).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 2 -&gt; 3.a *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_lt_cat_to_pos_t_cat</span>
+    (<span class="nv">H</span> : Univalence.is_univalent (D ₗₜ)) : Univalence.is_univalent (D ⁺ₜ).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b.
+    use weqhomot.
+    - <span class="nb">induction</span> a <span class="k">as</span> [a Ha], b <span class="k">as</span> [b Hb].
+      intermediate_weq (a = b); [<span class="nb">apply</span> path_sigma_hprop, propproperty|].
+      intermediate_weq (z_iso (C:=linear_and_thunkable_category D) a b);
+        [<span class="bp">exact</span> (make_weq _ (H a b))|].
+      <span class="nb">apply</span> invweq.
+      <span class="nb">apply</span> (weq_ff_functor_on_z_iso
+               (fully_faithful_positive_thunkable_to_linear_and_thunkable_category D)).
+    - <span class="nb">intro</span> p.
+      <span class="nb">apply</span> z_iso_eq, submm_mor_eq.
+      <span class="bp">now</span> <span class="nb">induction</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 2 -&gt; 3.b *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_lt_cat_to_neg_l_cat</span>
+    (<span class="nv">H</span> : Univalence.is_univalent (D ₗₜ)) : Univalence.is_univalent (D ⁻ₗ).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b.
+    use weqhomot.
+    - <span class="nb">induction</span> a <span class="k">as</span> [a Ha], b <span class="k">as</span> [b Hb].
+      intermediate_weq (a = b); [<span class="nb">apply</span> path_sigma_hprop, propproperty|].
+      intermediate_weq (z_iso (C:=linear_and_thunkable_category D) a b);
+        [<span class="bp">exact</span> (make_weq _ (H a b))|].
+      <span class="nb">apply</span> invweq.
+      <span class="nb">apply</span> (weq_ff_functor_on_z_iso
+               (fully_faithful_negative_linear_to_linear_and_thunkable_category D)).
+    - <span class="nb">intro</span> p.
+      <span class="nb">apply</span> z_iso_eq, submm_mor_eq.
+      <span class="bp">now</span> <span class="nb">induction</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* 3 -&gt; 2 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_lt_cat_from_polarized</span>
+    (<span class="nv">Hpositive</span> : Univalence.is_univalent (D⁺ₜ))
+    (<span class="nv">Hnegative</span> : Univalence.is_univalent (D⁻ₗ))
+    : Univalence.is_univalent (D ₗₜ).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (is_univalent_from_isaprop_edges_from (category_to_rxgraph (D ₗₜ))).
+    <span class="nb">intro</span> a.
+    isaprop_goal Hprop; [<span class="nb">apply</span> isapropisaprop|].
+    <span class="nb">refine</span> (squash_to_prop (polarity_of D a) Hprop (<span class="k">λ</span> <span class="nv">Ha</span>, _)).
+    <span class="nb">induction</span> Ha <span class="k">as</span> [Ha | Ha].
+    <span class="mi">1</span>: <span class="nb">set</span> (C := D⁻ₗ).                           <span class="mi">2</span>: <span class="nb">set</span> (C := D⁺ₜ).
+    <span class="mi">1</span>: <span class="nb">set</span> (HC := Hnegative).                    <span class="mi">2</span>: <span class="nb">set</span> (HC := Hpositive).
+    <span class="mi">1</span>: <span class="nb">set</span> (is_p := @is_negative D).             <span class="mi">2</span>: <span class="nb">set</span> (is_p := @is_positive D).
+    <span class="kp">all</span>: <span class="nb">set</span> (a' := a,,Ha : C).
+    <span class="kp">all</span>: use (isofhlevelweqb <span class="mi">1</span> (Y:=edges_from (category_to_rxgraph C) a'));
+      [|<span class="bp">exact</span> (is_univalent_to_isaprop_edges_from (category_to_rxgraph C) HC _)].
+    <span class="kp">all</span>: <span class="nb">eapply</span> weqcomp; [|<span class="nb">apply</span> weqtotal2asstol].
+    <span class="kp">all</span>: use weqbandf; [<span class="bp">exact</span> (idweq D)|]; <span class="nb">intro</span> b; <span class="nb">cbn</span> <span class="k">in</span> b |- *.
+    <span class="kp">all</span>: intermediate_weq (∑ _ : z_iso (C:=D ₗₜ) a b, is_p b).
+    <span class="mi">1</span>,<span class="mi">3</span>:   <span class="nb">apply</span> invweq, weqpr1; <span class="nb">intro</span> e.
+    <span class="mi">1</span>,<span class="mi">2</span>:   <span class="nb">apply</span> iscontraprop1.
+    <span class="mi">1</span>:     <span class="nb">apply</span> isaprop_is_negative.            <span class="mi">2</span>: <span class="nb">apply</span> isaprop_is_positive.
+    <span class="mi">1</span>:     <span class="nb">refine</span> (is_negative_of_lt_iso _ Ha).  <span class="mi">2</span>: <span class="nb">refine</span> (is_positive_of_lt_iso _ Ha).
+    <span class="mi">1</span>,<span class="mi">2</span>:   <span class="nb">apply</span> weq_submm_iso_z_iso, e.
+    <span class="kp">all</span>: <span class="nb">eapply</span> weqcomp; [<span class="nb">apply</span> weqdirprodcomm|].
+    <span class="kp">all</span>: use weqbandf; [<span class="bp">exact</span> (idweq _)|]; <span class="nb">intro</span> Hb; <span class="nb">cbn</span>.
+    <span class="kp">all</span>: <span class="nb">apply</span> invweq.
+    <span class="mi">1</span>: <span class="nb">apply</span> (weq_ff_functor_on_z_iso (fully_faithful_negative_linear_to_linear_and_thunkable_category D)).
+    <span class="mi">1</span>: <span class="nb">apply</span> (weq_ff_functor_on_z_iso (fully_faithful_positive_thunkable_to_linear_and_thunkable_category D)).
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* 3 -&gt; 1 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_dupl_univalent_from_polarized</span>
+    (<span class="nv">Hpositive</span> : Univalence.is_univalent (D⁺ₜ))
+    (<span class="nv">Hnegative</span> : Univalence.is_univalent (D⁻ₗ))
+    : is_dupl_univalent D.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_dupl_univalent_from_lt_cat.
+    <span class="nb">apply</span> is_univalent_lt_cat_from_polarized.
+    <span class="kp">all</span>: <span class="bp">assumption</span>.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">characterizations</span>.
+
+<span class="sd">(** ** Split duploids and univalence *)</span>
+<span class="kn">Section</span> <span class="nf">split_duploids</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">neg_is_dupl_univalent_if_split</span> (<span class="nv">D</span> : split_duploid)
+    (<span class="nv">a</span> : D) (<span class="nv">Hpositive</span> : is_positive a) (<span class="nv">Hnegative</span> : is_negative a)
+    : ¬is_dupl_univalent D.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ua.
+    <span class="nb">enough</span> (Heq : (⇑a : D) = ⇓a). {
+      <span class="nb">apply</span> (maponpaths (polarity_mapping_of D)) <span class="k">in</span> Heq.
+      <span class="nb">apply</span> nopathsfalsetotrue.
+      <span class="nb">refine</span> (_ @ Heq @ _).
+      - <span class="nb">apply</span> pathsinv0, pmap_upshift.
+      - <span class="nb">apply</span> pmap_downshift.
+    }
+    use (submm_iso_to_id _ _ ua).
+    <span class="nb">apply</span> (subcat_iso_compose _lt (b:=a)).
+    - <span class="nb">apply</span> (lt_iso_upshift_of_negative a Hnegative).
+    - <span class="nb">apply</span> (lt_iso_downshift_of_positive a Hpositive).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">split_duploids</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Nonassociative/Duploids/Univalence.v</tt>, line 26)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  ********************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

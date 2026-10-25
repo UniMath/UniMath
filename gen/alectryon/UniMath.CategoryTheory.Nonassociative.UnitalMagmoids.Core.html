@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Core.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> Unital (Pre)magmoids</span>
+
+<span class="sd"> Author: B. Szilvasy</span>
+<span class="sd"> January 2026</span>
+
+<span class="sd"> A unital (pre)magmoid is a (pre)category without associativity.  It</span>
+<span class="sd"> may also be called a "non-associative category". This file defines</span>
+<span class="sd"> unital magmoids, and provides definitions and lemmas for the</span>
+<span class="sd"> important special cases when unital magmoids do associate.</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Linearity, thunkability and polarization (exposition)</span>
+<span class="sd"> 2. Unbundled definitions of unitality and associativity</span>
+<span class="sd"> 3. Definition of a unital (pre)magmoid</span>
+<span class="sd"> 3.1. Unital premagmoid</span>
+<span class="sd"> 3.2. Unital magmoid</span>
+<span class="sd"> 4. Definition of linearity, thunkability, and polarization</span>
+<span class="sd"> 5. Lemmas for working with linearity, thunkability and polarization</span>
+
+<span class="sd"> ** Linearity, thunkability and polarization (exposition)</span>
+
+<span class="sd"> Linearity, thunkability, and polarization are those properties of morphisms or</span>
+<span class="sd"> objects that provide associativity of composition around them, in the following</span>
+<span class="sd"> ways (described in diagrammatic order):</span>
+
+<span class="sd"> 1. A *linear* morphism associates when it is on the *right*.</span>
+<span class="sd"> 2. A *thunkable* morphism associates when it is on the *left*.</span>
+<span class="sd"> 3. An *intermediate* morphisms associates when it is in the *middle*.</span>
+<span class="sd"> 4. A *negative* object is one where all *incoming* morphisms are *thunkable*.</span>
+<span class="sd"> 5. A *positive* object is one where all *outgoing* morphisms are *linear*.</span>
+
+<span class="sd"> In pictorial form, given objects and morphisms as follows, composition</span>
+<span class="sd"> associates if any one of the annotations holds:</span>
+
+<span class="sd"> &lt;&lt;</span>
+<span class="sd">                                  intermediate</span>
+<span class="sd">                       thunkable ↓     ↓     ↓ linear</span>
+<span class="sd">                                 f     g     h</span>
+<span class="sd">                              A --&gt; B --&gt; C --&gt; D</span>
+<span class="sd">                           negative ↑     ↑ positive</span>
+<span class="sd"> &gt;&gt;</span>
+
+<span class="sd"> When any of those named properties can be proven, the lemmas named below can be</span>
+<span class="sd"> used to reassociate, replacing the [*] with the property:</span>
+
+<span class="sd"> - [assoc_*]  : f · (g · h) = (f · g) · h     ("to the left")</span>
+<span class="sd"> - [assoc'_*] : (f · g) · h = f · (g · h)    ("to the right")</span>
+
+<span class="sd"> Identities are both linear and thunkable, and composition preserves linearity.</span>
+<span class="sd"> Indeed, a unital magmoid's submagmoid of linear morphisms is a category, and</span>
+<span class="sd"> likewise for thunkable morphisms, but those definitions and more are in</span>
+<span class="sd"> [PolarizedSubcategories.v].</span>
+
+<span class="sd"> ********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Declare Scope</span> unital_magmoid.
+<span class="kn">Delimit Scope</span> unital_magmoid <span class="k">with</span> unital_magmoid.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> unital_magmoid.
+
+<span class="kn">Section</span> <span class="nf">magmoid_defs</span>.
+  <span class="sd">(** ** Unbundled definitions of unitality and associativity *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">unital_premagmoid_data</span> := precategory_data.
+  <span class="kn">Identity Coercion</span> <span class="nf">Id_unital_premagmoid_data</span> : unital_premagmoid_data &gt;-&gt; precategory_data.
+
+  <span class="kn">Definition</span> <span class="nf">is_unital_premagmoid</span> (<span class="nv">M</span> : unital_premagmoid_data) : UU
+    := ((∏ (a b : M) (f : a --&gt; b), identity a · f = f)
+          ×
+          (∏ (a b : M) (f : a --&gt; b), f · identity b = f)).
+  <span class="kn">Definition</span> <span class="nf">make_is_unital_premagmoid</span> (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">H1</span> : ∏ (a b : M) (f : a --&gt; b), identity a · f = f)
+    (<span class="nv">H2</span> : ∏ (a b : M) (f : a --&gt; b), f · identity b = f)
+    : is_unital_premagmoid M
+    := H1,,H2.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_is_unital_premagmoid</span> (<span class="nv">M</span> : unital_premagmoid_data) (<span class="nv">hs</span> : has_homsets M)
+    : isaprop (is_unital_premagmoid M).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> isapropdirprod; <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> hs. <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_assoc_premagmoid</span> (<span class="nv">M</span> : unital_premagmoid_data) : UU
+    := ((∏ (a b c d : M) (f : a --&gt; b) (g : b --&gt; c) (h : c --&gt; d), f · (g · h) = (f · g) · h)
+          ×
+          (∏ (a b c d : M) (f : a --&gt; b) (g : b --&gt; c) (h : c --&gt; d), (f · g) · h = f · (g · h))).
+  <span class="kn">Definition</span> <span class="nf">make_is_assoc_premagmoid</span> (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">H1</span> : ∏ (a b c d : M) (f : a --&gt; b) (g : b --&gt; c) (h : c --&gt; d), f · (g · h) = (f · g) · h)
+    (<span class="nv">H2</span> : ∏ (a b c d : M) (f : a --&gt; b) (g : b --&gt; c) (h : c --&gt; d), (f · g) · h = f · (g · h))
+    : is_assoc_premagmoid M
+    := H1,,H2.
+  <span class="kn">Definition</span> <span class="nf">make_is_one_assoc_premagmoid</span> (<span class="nv">M</span> : unital_premagmoid_data)
+    (<span class="nv">H</span> : ∏ (a b c d : M) (f : a --&gt; b) (g : b --&gt; c) (h : c --&gt; d), f · (g · h) = (f · g) · h)
+    : is_assoc_premagmoid M
+    := make_is_assoc_premagmoid M H (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>, !H a b c d f g h).
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_is_assoc_premagmoid</span> (<span class="nv">M</span> : unital_premagmoid_data) (<span class="nv">hs</span> : has_homsets M)
+    : isaprop (is_assoc_premagmoid M).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> isapropdirprod; <span class="kp">do</span> <span class="mi">7</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> hs. <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** Definition of a unital (pre)magmoid *)</span>
+
+  <span class="sd">(** *** Unital premagmoid *)</span>
+  <span class="kn">Definition</span> <span class="nf">unital_premagmoid</span> : UU
+    := total2 is_unital_premagmoid.
+  <span class="kn">Coercion</span> <span class="nf">unital_premagmoid_to_precategory_data</span> (M : unital_premagmoid) : unital_premagmoid_data := pr1 M.
+  <span class="kn">Definition</span> <span class="nf">unital_premagmoid_is_unital</span> (<span class="nv">M</span> : unital_premagmoid) : is_unital_premagmoid M := pr2 M.
+  <span class="kn">Definition</span> <span class="nf">make_unital_premagmoid</span>
+    (<span class="nv">M</span> : unital_premagmoid_data) (<span class="nv">H</span> : is_unital_premagmoid M) : unital_premagmoid
+    := M,,H.
+
+  <span class="kn">Definition</span> <span class="nf">magmoid_id_left</span> {<span class="nv">M</span> : unital_premagmoid} {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b)
+    : identity a · f = f
+    := pr1 (unital_premagmoid_is_unital M) a b f.
+  <span class="kn">Definition</span> <span class="nf">magmoid_id_right</span> {<span class="nv">M</span> : unital_premagmoid} {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b)
+    : f · identity b = f
+    := pr2 (unital_premagmoid_is_unital M) a b f.
+
+  <span class="sd">(** *** Unital magmoid *)</span>
+  <span class="kn">Definition</span> <span class="nf">unital_magmoid</span> : UU
+    := ∑ (M : unital_premagmoid), has_homsets M.
+  <span class="kn">Definition</span> <span class="nf">make_unital_magmoid</span>
+    (<span class="nv">M</span> : unital_premagmoid)
+    (<span class="nv">H</span> : has_homsets M)
+    : unital_magmoid
+    := M,,H.
+  <span class="kn">Coercion</span> <span class="nf">unital_magmoid_to_unital_premagmoid</span> (M : unital_magmoid) : unital_premagmoid := pr1 M.
+  <span class="kn">Definition</span> <span class="nf">unital_magmoid_has_homsets</span> (<span class="nv">M</span> : unital_magmoid) : has_homsets M := pr2 M.
+
+  <span class="kn">Theorem</span> <span class="nf">unital_magmoid_paths</span> (<span class="nv">N</span> <span class="nv">M</span> : unital_magmoid)
+    (<span class="nv">data_eq</span> : (N : precategory_data) = M)
+    : N = M.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> subtypePath'; [|<span class="nb">apply</span> isaprop_has_homsets].
+    <span class="nb">apply</span> subtypePath'; [|<span class="nb">apply</span> isaprop_is_unital_premagmoid, unital_magmoid_has_homsets].
+    <span class="bp">exact</span> data_eq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">um_homset</span> {<span class="nv">M</span> : unital_magmoid} (<span class="nv">a</span> <span class="nv">b</span> : M) : hSet
+    := make_hSet (M⟦a, b⟧) (unital_magmoid_has_homsets M a b).
+
+<span class="kn">End</span> <span class="nf">magmoid_defs</span>.
+
+<span class="sd">(** ** Definition of linearity, thunkability, and polarization *)</span>
+
+<span class="kn">Section</span> <span class="nf">polarity_defs</span>.
+
+  <span class="kn">Context</span> {<span class="nv">M</span> : unital_premagmoid_data}.
+  <span class="kn">Hypothesis</span> <span class="nv">hs</span> : has_homsets M.
+
+  <span class="sd">(** Linear, thunkable and intermediate *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">is_linear</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b) : UU
+    := ∏ (c d : M) (g : c --&gt; a) (h : d --&gt; c),
+      (h · g) · f = h · (g · f).
+  <span class="kn">Definition</span> <span class="nf">is_thunkable</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : b --&gt; a) : UU
+    := ∏ (c d : M) (g : a --&gt; c) (h : c --&gt; d),
+      f · (g · h) = (f · g) · h.
+  <span class="kn">Definition</span> <span class="nf">is_intermediate</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b) : UU
+    :=  ∏ (c d : M) (g : c --&gt; a) (h : b --&gt; d),
+      g · (f · h) = (g · f) · h.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_linear'</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b) : isaprop (is_linear f).
+  <span class="kn">Proof</span>. <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> hs. <span class="kn">Qed</span>.
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_thunkable'</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b) : isaprop (is_thunkable f).
+  <span class="kn">Proof</span>. <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> hs. <span class="kn">Qed</span>.
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_intermediate'</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b) : isaprop (is_intermediate f).
+  <span class="kn">Proof</span>. <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> hs. <span class="kn">Qed</span>.
+
+  <span class="sd">(** Positive and negative *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">is_positive</span> (<span class="nv">a</span> : M) : UU
+    := ∏ (b : M) (f : a --&gt; b), is_linear f.
+  <span class="kn">Definition</span> <span class="nf">is_negative</span> (<span class="nv">a</span> : M) : UU
+    := ∏ (b : M) (f : b --&gt; a), is_thunkable f.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_positive'</span> (<span class="nv">a</span> : M) : isaprop (is_positive a).
+  <span class="kn">Proof</span>. <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> isaprop_is_linear'. <span class="kn">Qed</span>.
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_negative'</span> (<span class="nv">a</span> : M) : isaprop (is_negative a).
+  <span class="kn">Proof</span>. <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> isaprop_is_thunkable'. <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">polarity_defs</span>.
+
+<span class="sd">(** ** Lemmas for working with linearity, thunkability and polarization *)</span>
+
+<span class="kn">Section</span> <span class="nf">polarity_lemmas</span>.
+  <span class="kn">Context</span> {<span class="nv">M</span> : unital_premagmoid_data}.
+
+  <span class="kn">Definition</span> <span class="nf">is_linear_of_positive</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b)
+    : is_positive a -&gt; is_linear f := <span class="k">λ</span> <span class="nv">H</span>, H _ f.
+  <span class="kn">Definition</span> <span class="nf">is_thunkable_of_negative</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : b --&gt; a)
+    : is_negative a -&gt; is_thunkable f := <span class="k">λ</span> <span class="nv">H</span>, H _ f.
+
+  <span class="sd">(** Lemmas for reassociating composition. *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">assoc_linear</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : M} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">H</span> : is_linear f)
+    (<span class="nv">g</span> : c --&gt; a) (<span class="nv">h</span> : d --&gt; c) : h · (g · f) = (h · g) · f.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> pathsinv0, H. <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">assoc'_linear</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : M} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">H</span> : is_linear f)
+    (<span class="nv">g</span> : c --&gt; a) (<span class="nv">h</span> : d --&gt; c)
+    : (h · g) · f = h · (g · f).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> H. <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">assoc_thunkable</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : M} (<span class="nv">f</span> : b --&gt; a) (<span class="nv">H</span> : is_thunkable f)
+    (<span class="nv">g</span> : a --&gt; c) (<span class="nv">h</span> : c --&gt; d)
+    : f · (g · h) = (f · g) · h.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> H. <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">assoc'_thunkable</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : M} (<span class="nv">f</span> : b --&gt; a) (<span class="nv">H</span> : is_thunkable f)
+    (<span class="nv">g</span> : a --&gt; c) (<span class="nv">h</span> : c --&gt; d)
+    : (f · g) · h = f · (g · h).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> pathsinv0, H. <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">assoc_positive</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">d</span> : M} (<span class="nv">c</span> : M) (<span class="nv">H</span> : is_positive c)
+    (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c) (<span class="nv">h</span> : c --&gt; d)
+    : f · (g · h) = (f · g) · h.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> assoc_linear, is_linear_of_positive, H. <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">assoc'_positive</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">d</span> : M} (<span class="nv">c</span> : M) (<span class="nv">H</span> : is_positive c)
+    (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c) (<span class="nv">h</span> : c --&gt; d)
+    : (f · g) · h = f · (g · h).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> assoc'_linear, is_linear_of_positive, H. <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">assoc_negative</span> {<span class="nv">a</span> <span class="nv">c</span> <span class="nv">d</span> : M} (<span class="nv">b</span> : M) (<span class="nv">H</span> : is_negative b)
+    (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c) (<span class="nv">h</span> : c --&gt; d)
+    : f · (g · h) = (f · g) · h.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> assoc_thunkable, is_thunkable_of_negative, H. <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">assoc'_negative</span> {<span class="nv">a</span> <span class="nv">c</span> <span class="nv">d</span> : M} (<span class="nv">b</span> : M) (<span class="nv">H</span> : is_negative b)
+    (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c) (<span class="nv">h</span> : c --&gt; d)
+    : (f · g) · h = f · (g · h).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> assoc'_thunkable, is_thunkable_of_negative, H. <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">assoc_intermediate</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : M} (<span class="nv">f</span> : b --&gt; c) (<span class="nv">H</span> : is_intermediate f)
+    (<span class="nv">g</span> : a --&gt; b) (<span class="nv">h</span> : c --&gt; d)
+    : g · (f · h) = (g · f) · h.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> H. <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">assoc'_intermediate</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : M} (<span class="nv">f</span> : b --&gt; c) (<span class="nv">H</span> : is_intermediate f)
+    (<span class="nv">g</span> : a --&gt; b) (<span class="nv">h</span> : c --&gt; d)
+    : (g · f) · h = g · (f · h).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> pathsinv0, H. <span class="kn">Defined</span>.
+
+  <span class="sd">(** Linearity and thunkability are preserved under composition. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_linear_compose</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c)
+    : is_linear f -&gt; is_linear g -&gt; is_linear (f · g).
+  <span class="kn">Proof</span>. <span class="nb">intros</span> Hf Hg d e h k. <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- Hg, &lt;- Hg, Hf, Hg. <span class="kn">Qed</span>.
+  <span class="kn">Lemma</span> <span class="nf">is_thunkable_compose</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c)
+    : is_thunkable f -&gt; is_thunkable g -&gt; is_thunkable (f · g).
+  <span class="kn">Proof</span>. <span class="nb">intros</span> Hf Hg d e h k. <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- Hf, &lt;- Hf, Hg, Hf. <span class="kn">Qed</span>.
+
+  <span class="sd">(** Intermediate morphisms *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">is_intermediate_of_positive</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b)
+    : is_positive b -&gt; is_intermediate f.
+  <span class="kn">Proof</span>. <span class="nb">intros</span> H c d g h; <span class="nb">apply</span> assoc_positive, H. <span class="kn">Qed</span>.
+  <span class="kn">Lemma</span> <span class="nf">is_intermediate_of_negative</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b)
+    : is_negative a -&gt; is_intermediate f.
+  <span class="kn">Proof</span>. <span class="nb">intros</span> H c d g h; <span class="nb">apply</span> assoc_negative, H. <span class="kn">Qed</span>.
+  <span class="kn">Lemma</span> <span class="nf">is_intermediate_compose</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c)
+    : is_intermediate f -&gt; is_intermediate g -&gt; is_intermediate (f · g).
+  <span class="kn">Proof</span>. <span class="nb">intros</span> Hf Hg d e h k. <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- Hg, !Hf, Hg. <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_negative_of_all_intermediate</span> (<span class="nv">a</span> : M)
+    (<span class="nv">H</span> : ∏ (b : M) (f : a --&gt; b), is_intermediate f)
+    : is_negative a.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> b f c d g h.
+    <span class="nb">apply</span> assoc_intermediate, H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_positive_of_all_intermediate</span> (<span class="nv">a</span> : M)
+    (<span class="nv">H</span> : ∏ (b : M) (f : a &lt;-- b), is_intermediate f)
+    : is_positive a.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> b f c d g h.
+    <span class="nb">apply</span> assoc'_intermediate, H.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">polarity_lemmas</span>.
+
+<span class="kn">Section</span> <span class="nf">polarity_lemmas</span>.
+  <span class="kn">Context</span> {<span class="nv">M</span> : unital_premagmoid}.
+
+  <span class="sd">(** Identities are linear and thunkable. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_linear_identity</span> (<span class="nv">a</span> : M) : is_linear (identity a).
+  <span class="kn">Proof</span>. <span class="nb">intros</span> b c g h. <span class="bp">now</span> <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> magmoid_id_right. <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">is_thunkable_identity</span> (<span class="nv">a</span> : M) : is_thunkable (identity a).
+  <span class="kn">Proof</span>. <span class="nb">intros</span> b c g h. <span class="bp">now</span> <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> magmoid_id_left. <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">is_intermediate_identity</span> (<span class="nv">a</span> : M) : is_intermediate (identity a).
+  <span class="kn">Proof</span>. <span class="nb">intros</span> b c g h. <span class="bp">now</span> <span class="nb">rewrite</span> magmoid_id_left, magmoid_id_right. <span class="kn">Qed</span>.
+
+  <span class="sd">(** Characterisations of [is_assoc_premagmoid] in a unital magmoid *)</span>
+  <span class="kn">Lemma</span> <span class="nf">all_is_linear_iff_assoc</span>
+    : (∏ (a b : M) (f : a --&gt; b), is_linear f) &lt;-&gt; is_assoc_premagmoid M.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">intro</span> H.
+    - <span class="nb">apply</span> make_is_one_assoc_premagmoid; <span class="nb">intros</span>.
+      <span class="nb">apply</span> assoc_linear, H.
+    - <span class="nb">intros</span> a b f c d g h. <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">all_is_thunkable_iff_assoc</span>
+    : (∏ (a b : M) (f : a &lt;-- b), is_thunkable f) &lt;-&gt; is_assoc_premagmoid M.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">intro</span> H.
+    - <span class="nb">apply</span> make_is_one_assoc_premagmoid; <span class="nb">intros</span>.
+      <span class="nb">apply</span> assoc_thunkable, H.
+    - <span class="nb">intros</span> a b f c d g h. <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">all_is_positive_iff_assoc</span>
+    : (∏ (a : M), is_positive a) &lt;-&gt; is_assoc_premagmoid M.
+  <span class="kn">Proof</span>.
+    <span class="nb">eapply</span> logeq_trans; [|<span class="nb">apply</span> all_is_linear_iff_assoc].
+    <span class="nb">split</span>; <span class="nb">intro</span> H; <span class="nb">intros</span>.
+    - <span class="nb">apply</span> is_linear_of_positive, H.
+    - <span class="nb">intros</span> b f.
+      <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">all_is_negative_iff_assoc</span>
+    : (∏ (a : M), is_negative a) &lt;-&gt; is_assoc_premagmoid M.
+  <span class="kn">Proof</span>.
+    <span class="nb">eapply</span> logeq_trans; [|<span class="nb">apply</span> all_is_thunkable_iff_assoc].
+    <span class="nb">split</span>; <span class="nb">intro</span> H; <span class="nb">intros</span>.
+    - <span class="nb">apply</span> is_thunkable_of_negative, H.
+    - <span class="nb">intros</span> b f.
+      <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">polarity_lemmas</span>.
+
+<span class="kn">Section</span> <span class="nf">polarity_lemmas</span>.
+  <span class="kn">Context</span> {<span class="nv">M</span> : unital_magmoid}.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets M := unital_magmoid_has_homsets M.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_is_linear</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b) : isaprop (is_linear f).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> isaprop_is_linear', hs. <span class="kn">Defined</span>.
+  <span class="kn">Definition</span> <span class="nf">isaprop_is_thunkable</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b) : isaprop (is_thunkable f).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> isaprop_is_thunkable', hs. <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_intermediate</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b) : isaprop (is_intermediate f).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> isaprop_is_intermediate', hs. <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ish_linear</span> {<span class="nv">a</span> <span class="nv">b</span> : M} : hsubtype (a --&gt; b)
+    := <span class="k">λ</span> <span class="nv">f</span>, make_hProp (is_linear f) (isaprop_is_linear f).
+  <span class="kn">Definition</span> <span class="nf">ish_thunkable</span> {<span class="nv">a</span> <span class="nv">b</span> : M} : hsubtype (a --&gt; b)
+    := <span class="k">λ</span> <span class="nv">f</span>, make_hProp (is_thunkable f) (isaprop_is_thunkable f).
+  <span class="kn">Definition</span> <span class="nf">ish_intermediate</span> {<span class="nv">a</span> <span class="nv">b</span> : M} : hsubtype (a --&gt; b)
+    := <span class="k">λ</span> <span class="nv">f</span>, make_hProp (is_intermediate f) (isaprop_is_intermediate f).
+
+  <span class="sd">(** Positive objects *)</span>
+  <span class="kn">Definition</span> <span class="nf">isaprop_is_positive</span> (<span class="nv">a</span> : M) : isaprop (is_positive a).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> isaprop_is_positive', hs. <span class="kn">Defined</span>.
+  <span class="kn">Definition</span> <span class="nf">ish_positive</span> : hsubtype M
+    := <span class="k">λ</span> <span class="nv">a</span>, make_hProp (is_positive a) (isaprop_is_positive a).
+
+  <span class="sd">(** Negative objects *)</span>
+  <span class="kn">Definition</span> <span class="nf">isaprop_is_negative</span> (<span class="nv">a</span> : M) : isaprop (is_negative a).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> isaprop_is_negative', hs. <span class="kn">Defined</span>.
+  <span class="kn">Definition</span> <span class="nf">ish_negative</span> : hsubtype M
+    := <span class="k">λ</span> <span class="nv">a</span>, make_hProp (is_negative a) (isaprop_is_negative a).
+
+<span class="kn">End</span> <span class="nf">polarity_lemmas</span>.
+<span class="kn">Notation</span> <span class="s2">"'^⊕'"</span> := ish_positive : unital_magmoid.
+<span class="kn">Notation</span> <span class="s2">"'^⊖'"</span> := ish_negative : unital_magmoid.</span></pre>
+</div>
+</div></body>
+</html>

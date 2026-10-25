@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Opposite.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> Opposite Magmoids</span>
+
+<span class="sd"> Author: B. Szilvasy</span>
+<span class="sd"> January 2026</span>
+
+<span class="sd"> The opposite of a unital magmoid is the same magmoid obtained by</span>
+<span class="sd"> reversing all of the arrows. Important properties in a unital magmoid</span>
+<span class="sd"> have duals: [is_linear] and [is_thunkable] are dual, [is_positive]</span>
+<span class="sd"> and [is_negative] are dual, etc. Where possible, the properties and</span>
+<span class="sd"> types are carefully written so that this duality holds</span>
+<span class="sd"> definitionally, or if not possible, up to an involution.</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Definition of the opposite unital magmoid</span>
+<span class="sd"> 2. Dualities defined in terms of the opposite magmoid</span>
+
+<span class="sd"> ********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> unital_magmoid.
+
+<span class="sd">(** ** Definition of the opposite unital magmoid *)</span>
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C '^opd'"</span> := (opp_precat_data C) (<span class="kn">at level</span> <span class="mi">1</span>, <span class="kn">format</span> <span class="s2">"C ^opd"</span>) : unital_magmoid.
+
+<span class="kn">Definition</span> <span class="nf">is_unital_premagmoid_opp_precat_data</span> (<span class="nv">M</span> : unital_premagmoid)
+  : is_unital_premagmoid M^opd.
+<span class="kn">Proof</span>.
+  use make_is_unital_premagmoid.
+  - <span class="nb">intros</span> a b f; <span class="nb">apply</span> magmoid_id_right.
+  - <span class="nb">intros</span> a b f; <span class="nb">apply</span> magmoid_id_left.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">opp_premagmoid</span> (<span class="nv">M</span> : unital_premagmoid) : unital_premagmoid
+  := make_unital_premagmoid _ (is_unital_premagmoid_opp_precat_data M).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C '^op'"</span> := (opp_premagmoid C) (<span class="kn">at level</span> <span class="mi">1</span>, <span class="kn">format</span> <span class="s2">"C ^op"</span>) : unital_magmoid.
+
+<span class="kn">Goal</span> ∏ C:unital_premagmoid, C^op^op = C. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">opp_magmoid</span> (<span class="nv">M</span> : unital_magmoid) : unital_magmoid.
+<span class="kn">Proof</span>.
+  use (make_unital_magmoid M^op).
+  <span class="nb">intros</span> a b; <span class="nb">apply</span> unital_magmoid_has_homsets.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C '^opm'"</span> := (opp_magmoid C) (<span class="kn">at level</span> <span class="mi">1</span>, <span class="kn">format</span> <span class="s2">"C ^opm"</span>) : unital_magmoid.
+
+<span class="sd">(** ** Dualities defined in terms of the opposite magmoid *)</span>
+
+<span class="sd">(** [is_linear] and [is_thunkable] are dual, definitionally *)</span>
+<span class="kn">Lemma</span> <span class="nf">opp_magmoid_is_linear</span> {<span class="nv">M</span> : unital_premagmoid_data} {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b)
+  : is_linear (M:=M^opd) f = is_thunkable f.
+<span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+<span class="kn">Lemma</span> <span class="nf">opp_magmoid_is_thunkable</span> {<span class="nv">M</span> : unital_premagmoid_data} {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b)
+  : is_thunkable (M:=M^opd) f = is_linear f.
+<span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="sd">(** [is_positive] and [is_negative] are dual, definitionally *)</span>
+<span class="kn">Lemma</span> <span class="nf">opp_magmoid_is_positive</span> {<span class="nv">M</span> : unital_premagmoid_data} (<span class="nv">a</span> : M)
+  : is_positive (M:=M^opd) a = is_negative a.
+<span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+<span class="kn">Lemma</span> <span class="nf">opp_magmoid_is_negative</span> {<span class="nv">M</span> : unital_premagmoid_data} (<span class="nv">a</span> : M)
+  : is_negative (M:=M^opd) a = is_positive a.
+<span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="sd">(** Tactic to close a goal of the form [isweq (opp_magmoid_XYZ M [_ ...])] with</span>
+<span class="sd">    inverse [@opp_magmoid_XYZ M^op]. *)</span>
+<span class="kn">Ltac</span> <span class="nf">opp_magmoid_do_involution</span> inverse :=
+  use isweq_iso; <span class="kp">first</span> [ use inverse | <span class="bp">easy</span> | <span class="kp">idtac</span> ].
+
+<span class="kn">Ltac</span> <span class="nf">opp_magmoid_involution_on</span> F M Mop :=
+  <span class="k">lazymatch</span> F <span class="k">with</span>
+  | <span class="nl">?f</span> M <span class="nl">?a1</span> =&gt; opp_magmoid_do_involution (f Mop)
+  | <span class="nl">?f</span> M <span class="nl">?a1</span> <span class="nl">?a2</span> =&gt; opp_magmoid_do_involution (f Mop)
+  | <span class="nl">?f</span> M <span class="nl">?a1</span> <span class="nl">?a2</span> <span class="nl">?a3</span> =&gt; opp_magmoid_do_involution (f Mop)
+  | <span class="nl">?f</span> M <span class="nl">?a1</span> <span class="nl">?a2</span> <span class="nl">?a3</span> <span class="nl">?a4</span> =&gt; opp_magmoid_do_involution (f Mop)
+  <span class="k">end</span>.
+
+<span class="kn">Ltac</span> <span class="nf">opp_magmoid_involution</span> :=
+  <span class="k">lazymatch goal with</span>
+  | M : unital_premagmoid_data |- isweq <span class="nl">?F</span> =&gt; opp_magmoid_involution_on F M (opp_precat_data M)
+  | M : unital_premagmoid |- isweq <span class="nl">?F</span> =&gt; opp_magmoid_involution_on F M (opp_premagmoid M)
+  | M : unital_magmoid |- isweq <span class="nl">?F</span> =&gt; opp_magmoid_involution_on F M (opp_magmoid M)
+  | |- isweq _ =&gt; <span class="kp">fail</span> <span class="s2">"No unital magmoid in context"</span>
+  | |- _ =&gt; <span class="kp">fail</span> <span class="s2">"Goal is not isweq"</span>
+  <span class="k">end</span>.
+
+<span class="sd">(** [is_intermediate] is self-dual, using function extensionality *)</span>
+<span class="kn">Lemma</span> <span class="nf">opp_magmoid_is_intermediate</span> {<span class="nv">M</span> : unital_premagmoid_data} {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b)
+  : is_intermediate (M:=M^opd) f -&gt; is_intermediate f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H c d g h.
+  <span class="bp">exact</span> (!H _ _ h g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isweq_opp_magmoid_is_intermediate</span> {<span class="nv">M</span> : unital_premagmoid_data} {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b)
+  : isweq (@opp_magmoid_is_intermediate M a b f).
+<span class="kn">Proof</span>.
+  opp_magmoid_involution.
+  <span class="kp">all</span>: <span class="nb">intro</span>; <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>).
+  <span class="kp">all</span>: <span class="nb">apply</span> pathsinv0inv0.
+<span class="kn">Defined</span>.</span></pre>
+</div>
+</div></body>
+</html>

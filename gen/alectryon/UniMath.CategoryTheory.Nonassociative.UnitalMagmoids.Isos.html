@@ -1,0 +1,873 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Isos.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> Isomorphisms in Unital Magmoids</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Inverses in wide submagmoids, definitions</span>
+<span class="sd"> 2. Rewriting lemmas of isomorphisms</span>
+
+<span class="sd"> Author: B. Szilvasy</span>
+<span class="sd"> January 2026</span>
+
+<span class="sd"> ********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Submagmoids.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> unital_magmoid.
+
+<span class="sd">(** ** Inverses in wide submagmoids, definitions *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_inverse_in_precat_of_magmoid</span>
+  {<span class="nv">M</span> : unital_magmoid} {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : a &lt;-- b) : isaprop (is_inverse_in_precat f g).
+<span class="kn">Proof</span>. <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> unital_magmoid_has_homsets. <span class="kn">Qed</span>.
+<span class="kn">Definition</span> <span class="nf">ish_inverse_in_unital_magmoid</span>
+  {<span class="nv">M</span> : unital_magmoid} {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : a &lt;-- b)
+  : hProp
+  := make_hProp (is_inverse_in_precat f g) (isaprop_is_inverse_in_precat_of_magmoid f g).
+
+<span class="kn">Lemma</span> <span class="nf">is_inverse_in_precat_identity_of_magmoid</span> {<span class="nv">M</span> : unital_magmoid} (<span class="nv">a</span> : M)
+  : is_inverse_in_precat (identity a) (identity a).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_is_inverse_in_precat;
+    <span class="nb">apply</span> magmoid_id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">wide_submagmoid_inverses</span>.
+  <span class="kn">Context</span> {<span class="nv">M</span> : unital_magmoid} (<span class="nv">P</span> : wide_submagmoid M).
+
+  <span class="kn">Definition</span> <span class="nf">has_submm_inverse</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b) : UU
+    := ∑ (g : b --&gt;{P} a), ish_inverse_in_unital_magmoid f g.
+
+  <span class="kn">Lemma</span> <span class="nf">isaset_has_submm_inverse</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b)
+    : isaset (has_submm_inverse f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaset_total2.
+    - <span class="nb">apply</span> isaset_submm_mor.
+    - <span class="nb">intro</span> g; <span class="nb">apply</span> isasetaprop, propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Example</span> <span class="nf">weq_has_submm_inverse_is_z_isomorphism</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt;{P} b)
+    : has_submm_inverse f
+      ≃ is_z_isomorphism (C:=wide_submagmoid_carrier_data M P) f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> g.
+    <span class="nb">apply</span> weqdirprodf.
+    - <span class="bp">exact</span> (submm_mor_eq (f ·{P} g) (submm_identity P a)).
+    - <span class="bp">exact</span> (submm_mor_eq (g ·{P} f) (submm_identity P b)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">submm_inv_mor</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : M} {<span class="nv">f</span> : a --&gt; b} (<span class="nv">g</span> : has_submm_inverse f)
+    : b --&gt;{P} a := pr1 g.
+  <span class="kn">Coercion</span> <span class="nf">has_submm_inverse_is_inverse</span>
+    {a b : M} {f : a --&gt; b} (g : has_submm_inverse f)
+    : is_inverse_in_precat f (submm_inv_mor g) := pr2 g.
+
+  <span class="kn">Definition</span> <span class="nf">make_has_submm_inverse</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt;{P} a)
+    (<span class="nv">Hfg</span> : is_inverse_in_precat f g)
+    : has_submm_inverse f
+    := g,, Hfg.
+
+  <span class="kn">Definition</span> <span class="nf">make_has_submm_inverse'</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; a)
+    (<span class="nv">Hg</span> : P b a g)
+    (<span class="nv">Hfg</span> : ish_inverse_in_unital_magmoid f g)
+    : has_submm_inverse f
+    := make_has_submm_inverse f
+         (make_submm_mor P g Hg)
+         Hfg.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_has_submm_inverse_from_assoc</span>
+    (<span class="nv">a</span> <span class="nv">b</span> : M) (<span class="nv">f</span> : a --&gt; b)
+    (<span class="nv">H</span> : ∏ (c d : M) (g : c --&gt; a) (h : b --&gt; d),
+        P _ _ g -&gt; P _ _ h -&gt;
+        (g · f) · h = g · (f · h))
+    : isaprop (has_submm_inverse f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> invproofirrelevance; <span class="nb">intros</span> g g'.
+    <span class="nb">apply</span> carrier_eq, submm_mor_eq.
+    <span class="nb">refine</span> (!magmoid_id_left _ @ _ @ magmoid_id_right _).
+    <span class="nb">rewrite</span> &lt;- (is_inverse_in_precat1 g).
+    <span class="nb">rewrite</span> &lt;- (is_inverse_in_precat2 g').
+    <span class="nb">apply</span> H; <span class="nb">apply</span> (submm_mor_property P).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_submm_iso</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b)
+    := P a b f × has_submm_inverse f.
+
+  <span class="kn">Lemma</span> <span class="nf">isaset_is_submm_iso</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b)
+    : isaset (is_submm_iso f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isasetdirprod.
+    - <span class="nb">apply</span> isasetaprop, propproperty.
+    - <span class="nb">apply</span> isaset_has_submm_inverse.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_submm_iso_property</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : M} {<span class="nv">f</span> : a --&gt; b} (<span class="nv">g</span> : is_submm_iso f)
+    : P _ _ f := pr1 g.
+  <span class="kn">Coercion</span> <span class="nf">is_submm_iso_to_has_submm_inverse</span>
+    {a b : M} {f : a --&gt; b} (g : is_submm_iso f)
+    : has_submm_inverse f
+    := pr2 g.
+
+  <span class="kn">Definition</span> <span class="nf">make_is_submm_iso</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b)
+    (<span class="nv">Hf</span> : P a b f)
+    (<span class="nv">g</span> : has_submm_inverse f)
+    : is_submm_iso f
+    := Hf,, g.
+
+  <span class="kn">Definition</span> <span class="nf">make_is_submm_iso'</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">f</span> : a --&gt; b)
+    (<span class="nv">g</span> : b --&gt; a)
+    (<span class="nv">Hf</span> : P a b f)
+    (<span class="nv">Hg</span> : P b a g)
+    (<span class="nv">Hfg</span> : is_inverse_in_precat f g)
+    : is_submm_iso f.
+  <span class="kn">Proof</span>.
+    use make_is_submm_iso.
+    - <span class="bp">exact</span> Hf.
+    - use make_has_submm_inverse.
+      + use make_submm_mor.
+        * <span class="bp">exact</span> g.
+        * <span class="bp">exact</span> Hg.
+      + <span class="bp">exact</span> Hfg.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_submm_iso_eq</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b)
+    (<span class="nv">finv</span> <span class="nv">finv'</span> : is_submm_iso f)
+    (<span class="nv">H</span> : submm_mor_mor (submm_inv_mor finv) = submm_inv_mor finv')
+    : finv = finv'.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> dirprod_paths.
+    - <span class="nb">apply</span> propproperty.
+    - <span class="nb">apply</span> carrier_eq, submm_mor_eq, H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">submm_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : M) : UU
+    := ∑ (f : a --&gt; b), is_submm_iso f.
+
+  <span class="kn">Coercion</span> <span class="nf">submm_iso_mor</span>
+    {a b : M} (f : submm_iso a b)
+    : a --&gt;{P} b
+    := make_submm_mor P (pr1 f) (is_submm_iso_property (pr2 f)).
+  <span class="kn">Coercion</span> <span class="nf">submm_iso_has_submm_inverse</span>
+    {a b : M} (f : submm_iso a b)
+    : has_submm_inverse f := pr2 f.
+  <span class="kn">Definition</span> <span class="nf">submm_iso_plain_mor</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : submm_iso a b)
+    : a --&gt; b := f.
+
+  <span class="kn">Definition</span> <span class="nf">make_submm_iso</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">f</span> : a --&gt; b) (<span class="nv">H</span> : is_submm_iso f)
+    : submm_iso a b
+    := f,, H.
+
+  <span class="kn">Definition</span> <span class="nf">make_submm_iso'</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">f</span> : a --&gt;{P} b) (<span class="nv">g</span> : b --&gt;{P} a)
+    (<span class="nv">Hfg</span> : is_inverse_in_precat f g)
+    : submm_iso a b.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (make_submm_iso f).
+    <span class="nb">apply</span> make_is_submm_iso.
+    - <span class="bp">exact</span> (submm_mor_property P f).
+    - use make_has_submm_inverse.
+      + <span class="bp">exact</span> g.
+      + <span class="bp">exact</span> Hfg.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_submm_iso_z_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : M)
+    : submm_iso a b
+        ≃ z_iso (C:=wide_submagmoid_carrier_data M P) a b.
+  <span class="kn">Proof</span>.
+    intermediate_weq (∑ (f : a --&gt;{P} b), has_submm_inverse f).
+    { <span class="nb">apply</span> totalAssociativity. }
+    <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> weq_has_submm_inverse_is_z_isomorphism.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">submm_iso_to_plain_z_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : M)
+    : submm_iso a b -&gt; z_iso a b.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> f; use make_z_iso.
+    - <span class="bp">exact</span> f.
+    - <span class="bp">exact</span> (submm_inv_mor f).
+    - <span class="bp">exact</span> f.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weq_is_submm_iso_is_z_isomorphism</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt;{P} b)
+    : is_submm_iso f
+        ≃ is_z_isomorphism (C:=wide_submagmoid_carrier_data M P) f.
+  <span class="kn">Proof</span>.
+    intermediate_weq (has_submm_inverse f). {
+      <span class="nb">apply</span> invweq, dirprod_with_contr_l.
+      <span class="nb">apply</span> iscontraprop1.
+      - <span class="nb">apply</span> propproperty.
+      - <span class="bp">exact</span> (submm_mor_property P f).
+    }
+    <span class="bp">exact</span> (weq_has_submm_inverse_is_z_isomorphism f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_submm_iso_from_assoc</span>
+    (<span class="nv">H</span> : is_assoc_wide_submagmoid P)
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b)
+    : isaprop (is_submm_iso f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaprop_assume_it_is; <span class="nb">intro</span> Hf.
+    <span class="nb">pose</span> (f' := make_submm_iso f Hf).
+    <span class="nb">apply</span> (isofhlevelweqb <span class="mi">1</span> (weq_is_submm_iso_is_z_isomorphism f')).
+    <span class="nb">apply</span> (isaprop_is_z_isomorphism
+             (C:=wide_subcategory_carrier M (P,, H))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isincl_submm_iso_mor</span>
+    (<span class="nv">H</span> : is_assoc_wide_submagmoid P)
+    (<span class="nv">a</span> <span class="nv">b</span> : M)
+    : isincl (@submm_iso_mor a b).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (isinclgwtog (invweq (weq_submm_iso_z_iso a b))
+             submm_iso_mor).
+    <span class="nb">apply</span> isinclpr1; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> (isaprop_is_z_isomorphism
+             (C:=wide_subcategory_carrier M (P,, H))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isincl_submm_iso_plain_mor</span> (<span class="nv">a</span> <span class="nv">b</span> : M)
+    (<span class="nv">H</span> : ∏ (f : a --&gt; b), isaprop (is_submm_iso f))
+    : isincl (@submm_iso_plain_mor a b).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isinclpr1; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaset_submm_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : M)
+    : isaset (submm_iso a b).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaset_total2.
+    - <span class="nb">apply</span> unital_magmoid_has_homsets.
+    - <span class="nb">intro</span> f.
+      <span class="nb">apply</span> isaset_is_submm_iso.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">submm_iso_eq</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">f</span> <span class="nv">g</span> : submm_iso a b)
+    (<span class="nv">H₁</span> : submm_mor_mor f = g)
+    (<span class="nv">H₂</span> : submm_mor_mor (submm_inv_mor f) = submm_inv_mor g)
+    : f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> f <span class="k">as</span> [f finv].
+    <span class="nb">induction</span> g <span class="k">as</span> [g ginv].
+    <span class="nb">cbn</span> <span class="k">in</span> H₁.
+    <span class="nb">induction</span> H₁.
+    <span class="nb">apply</span> pair_path_in2.
+    <span class="nb">apply</span> is_submm_iso_eq, H₂.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">submm_iso_eq_mor</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">f</span> <span class="nv">g</span> : submm_iso a b)
+    (<span class="nv">H</span> : f = g)
+    : submm_mor_mor f = g.
+  <span class="kn">Proof</span>. <span class="bp">exact</span> (maponpaths _ H). <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">submm_iso_eq_inverse_mor</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">f</span> <span class="nv">g</span> : submm_iso a b)
+    (<span class="nv">H</span> : f = g)
+    : submm_mor_mor (submm_inv_mor f) = submm_inv_mor g.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> (<span class="nv">f</span> : submm_iso a b),
+               submm_mor_mor (submm_inv_mor f)) H).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">submm_iso_inv</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">f</span> : submm_iso a b)
+    : submm_iso b a.
+  <span class="kn">Proof</span>.
+    use make_submm_iso'.
+    - <span class="bp">exact</span> (submm_inv_mor f).
+    - <span class="bp">exact</span> f.
+    - <span class="nb">apply</span> is_inverse_in_precat_inv.
+      <span class="bp">exact</span> f.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">submm_iso_inv_involution</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">f</span> : submm_iso a b)
+    : submm_iso_inv (submm_iso_inv f) = f.
+  <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isweq_submm_iso_inv</span> (<span class="nv">a</span> <span class="nv">b</span> : M)
+    : isweq (@submm_iso_inv a b).
+  <span class="kn">Proof</span>.
+    use isweq_iso.
+    - <span class="bp">exact</span> submm_iso_inv.
+    - <span class="bp">easy</span>.
+    - <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_submm_iso_inv</span> (<span class="nv">a</span> <span class="nv">b</span> : M)
+    : submm_iso a b ≃ submm_iso b a
+    := make_weq _ (isweq_submm_iso_inv a b).
+
+  <span class="kn">Lemma</span> <span class="nf">has_submm_inverse_identity</span> (<span class="nv">a</span> : M)
+    : has_submm_inverse (identity a).
+  <span class="kn">Proof</span>.
+    use make_has_submm_inverse.
+    - <span class="bp">exact</span> (submm_identity P a).
+    - <span class="nb">apply</span> is_inverse_in_precat_identity_of_magmoid.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_submm_iso_compose</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M}
+    (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c)
+    (<span class="nv">H</span> : is_assoc_wide_submagmoid P)
+    (<span class="nv">Hf</span> : is_submm_iso f) (<span class="nv">Hg</span> : is_submm_iso g)
+    : is_submm_iso (f · g).
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (f' := make_submm_mor P _ (is_submm_iso_property Hf)).
+    <span class="nb">pose</span> (g' := make_submm_mor P _ (is_submm_iso_property Hg)).
+    <span class="nb">apply</span> (invmap (weq_is_submm_iso_is_z_isomorphism (f' ·{P} g'))).
+    <span class="nb">eapply</span> (is_z_isomorphism_comp (C:=wide_subcategory_carrier M (P,, H))).
+    - <span class="bp">exact</span> (weq_is_submm_iso_is_z_isomorphism f' Hf).
+    - <span class="bp">exact</span> (weq_is_submm_iso_is_z_isomorphism g' Hg).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_submm_iso_identity</span> (<span class="nv">a</span> : M)
+    : is_submm_iso (identity a).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> wide_submagmoid_identity_holds.
+    - <span class="nb">apply</span> has_submm_inverse_identity.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">submm_iso_identity</span> (<span class="nv">a</span> : M)
+    : submm_iso a a.
+  <span class="kn">Proof</span>.
+    use make_submm_iso.
+    - <span class="bp">exact</span> (submm_identity P a).
+    - <span class="bp">exact</span> (is_submm_iso_identity a).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">submm_iso_compose</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M}
+    (<span class="nv">f</span> : submm_iso a b) (<span class="nv">g</span> : submm_iso b c)
+    (<span class="nv">H</span> : is_assoc_wide_submagmoid P)
+    : submm_iso a c.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (invmap (weq_submm_iso_z_iso a c)).
+    <span class="nb">eapply</span> (z_iso_comp (C:=wide_subcategory_carrier M (P,, H))).
+    - <span class="bp">exact</span> (weq_submm_iso_z_iso a b f).
+    - <span class="bp">exact</span> (weq_submm_iso_z_iso b c g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">id_to_submm_iso</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">p</span> : a = b)
+    : submm_iso a b.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p; <span class="nb">apply</span> submm_iso_identity.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">wide_submagmoid_inverses</span>.
+
+<span class="kn">Notation</span> <span class="s2">"a ≅{ P } b"</span> :=
+  (submm_iso P a b)
+    (<span class="kn">at level</span> <span class="mi">60</span>, <span class="kn">no associativity</span>, <span class="kn">format</span> <span class="s2">"a  ≅{ P }  b"</span>)
+    : unital_magmoid.
+
+<span class="kn">Section</span> <span class="nf">wide_subcat_inverses</span>.
+  <span class="kn">Context</span> {<span class="nv">M</span> : unital_magmoid} (<span class="nv">P</span> : wide_subcategory M).
+
+  <span class="kn">Definition</span> <span class="nf">is_subcat_iso</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b) : UU := is_submm_iso P f.
+  <span class="kn">Identity Coercion</span> <span class="nf">Id_is_subcat_iso</span> : is_subcat_iso &gt;-&gt; is_submm_iso.
+
+  <span class="kn">Definition</span> <span class="nf">subcat_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : M) : UU := submm_iso P a b.
+  <span class="kn">Identity Coercion</span> <span class="nf">Id_subcat_iso</span> : subcat_iso &gt;-&gt; submm_iso.
+  <span class="kn">Coercion</span> <span class="nf">subcat_iso_is_subcat_iso</span> {a b : M}
+    (f : subcat_iso a b) : is_subcat_iso f := pr2 f.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_subcat_iso</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b)
+    : isaprop (is_subcat_iso f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaprop_is_submm_iso_from_assoc.
+    <span class="nb">apply</span> wide_subcategory_is_assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">subcat_iso_eq</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">f</span> <span class="nv">g</span> : subcat_iso a b)
+    : (submm_iso_plain_mor P f = submm_iso_plain_mor P g)
+        ≃ f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> invweq, (weqonpathsincl (submm_iso_plain_mor P)).
+    <span class="nb">apply</span> isincl_submm_iso_plain_mor, isaprop_is_subcat_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">subcat_iso_eq_inv</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">f</span> <span class="nv">g</span> : subcat_iso a b)
+    : (submm_mor_mor (submm_inv_mor P f) = submm_inv_mor P g)
+        ≃ f = g.
+  <span class="kn">Proof</span>.
+    intermediate_weq (submm_iso_inv P f = submm_iso_inv P g).
+    - <span class="bp">exact</span> (subcat_iso_eq
+               (submm_iso_inv P f)
+               (submm_iso_inv P g)).
+    - <span class="nb">apply</span> invweq, weqonpathsincl.
+      <span class="nb">apply</span> isinclweq, isweq_submm_iso_inv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_subcat_iso_compose</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M}
+    (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c)
+    (<span class="nv">Hf</span> : is_submm_iso P f) (<span class="nv">Hg</span> : is_submm_iso P g)
+    : is_submm_iso P (f · g).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (is_submm_iso_compose P f g _ Hf Hg).
+    <span class="nb">apply</span> wide_subcategory_is_assoc.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">subcat_iso_compose</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M}
+    (<span class="nv">f</span> : subcat_iso a b) (<span class="nv">g</span> : subcat_iso b c)
+    : subcat_iso a c.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (submm_iso_compose P f g).
+    <span class="nb">apply</span> wide_subcategory_is_assoc.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ish_subcat_iso</span> {<span class="nv">a</span> <span class="nv">b</span> : M} : hsubtype (a --&gt; b)
+    := <span class="k">λ</span> <span class="nv">f</span>, make_hProp (is_subcat_iso f) (isaprop_is_subcat_iso f).
+  <span class="kn">Definition</span> <span class="nf">isw_subcat_iso</span> : wide_submagmoid M
+    := make_wide_submagmoid' (@ish_subcat_iso)
+         (is_submm_iso_identity P) (@is_subcat_iso_compose).
+  <span class="kn">Definition</span> <span class="nf">isc_subcat_iso</span> : wide_subcategory M.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (make_wide_subcategory isw_subcat_iso).
+    <span class="nb">intros</span> a b c d f g h Hf Hg Hh.
+    <span class="nb">apply</span> (wide_subcategory_is_assoc P).
+    - <span class="bp">exact</span> (is_submm_iso_property P Hf).
+    - <span class="bp">exact</span> (is_submm_iso_property P Hg).
+    - <span class="bp">exact</span> (is_submm_iso_property P Hh).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">wide_subcat_inverses</span>.
+
+<span class="kn">Section</span> <span class="nf">inclusions</span>.
+  <span class="kn">Context</span> (<span class="nv">M</span> : unital_magmoid).
+
+  <span class="kn">Definition</span> <span class="nf">submm_includes_at_sym</span>
+    (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid M) (<span class="nv">a</span> <span class="nv">b</span> : M)
+    : UU
+    := submm_includes_at P Q a b ×
+         submm_includes_at P Q b a.
+
+  <span class="kn">Definition</span> <span class="nf">submm_includes_to_at_sym</span>
+    (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid M)
+    (<span class="nv">H</span> : submm_includes P Q)
+    (<span class="nv">a</span> <span class="nv">b</span> : M)
+    : submm_includes_at_sym P Q a b.
+  <span class="kn">Proof</span>. <span class="nb">split</span>; <span class="nb">apply</span> H. <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">submm_includes_in_to_at_sym</span>
+    (<span class="nv">R</span> : hsubtype M)
+    (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid M)
+    (<span class="nv">H</span> : submm_includes_in R P Q)
+    (<span class="nv">a</span> <span class="nv">b</span> : sub_ob M R)
+    : submm_includes_at_sym P Q a b.
+  <span class="kn">Proof</span>. <span class="nb">split</span>; <span class="nb">apply</span> H. <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_submm_inverse_incl</span>
+    (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid M)
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">H</span> : submm_includes_at P Q b a)
+    (<span class="nv">f</span> : a --&gt; b)
+    (<span class="nv">I</span> : has_submm_inverse P f)
+    : has_submm_inverse Q f.
+  <span class="kn">Proof</span>.
+    use make_has_submm_inverse.
+    - <span class="nb">apply</span> (submm_mor_incl P).
+      + <span class="nb">apply</span> H.
+      + <span class="bp">exact</span> (submm_inv_mor P I).
+    - <span class="bp">exact</span> I.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isincl_has_submm_inverse_incl</span>
+    (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid M)
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">H</span> : submm_includes_at P Q b a)
+    (<span class="nv">f</span> : a --&gt; b)
+    : isincl (has_submm_inverse_incl P Q H f).
+  <span class="kn">Proof</span>.
+    use isofhlevelfhomot.
+    - use bandfmap.
+      + <span class="nb">apply</span> (submm_mor_incl P), H.
+      + <span class="bp">easy</span>.
+    - <span class="bp">easy</span>.
+    - <span class="nb">apply</span> isofhlevelf_bandfmap.
+      + <span class="nb">apply</span> isincl_submm_mor_incl.
+      + <span class="nb">intros</span> g.
+        <span class="nb">apply</span> isinclweq, idisweq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_submm_iso_incl</span>
+    (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid M)
+    {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">H</span> : submm_includes_at_sym P Q a b)
+    (<span class="nv">f</span> : a --&gt; b)
+    (<span class="nv">I</span> : is_submm_iso P f)
+    : is_submm_iso Q f.
+  <span class="kn">Proof</span>.
+    use make_is_submm_iso.
+    - <span class="nb">apply</span> H.
+      <span class="nb">apply</span> is_submm_iso_property, I.
+    - <span class="nb">apply</span> (has_submm_inverse_incl P).
+      + <span class="nb">apply</span> H.
+      + <span class="bp">exact</span> I.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">isincl_is_submm_iso_incl</span> (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid M)
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">H</span> : submm_includes_at_sym P Q a b)
+    (<span class="nv">f</span> : a --&gt; b)
+    : isincl (is_submm_iso_incl P Q H f).
+  <span class="kn">Proof</span>.
+    use isofhlevelfhomot.
+    - use bandfmap.
+      + <span class="nb">apply</span> (pr1 H).
+      + <span class="nb">intro</span> Hf.
+        <span class="nb">apply</span> (has_submm_inverse_incl P), (pr2 H).
+    - <span class="bp">easy</span>.
+    - <span class="nb">apply</span> isofhlevelf_bandfmap.
+      + <span class="nb">apply</span> isofhlevelffromXY.
+        * <span class="nb">apply</span> propproperty.
+        * <span class="nb">apply</span> isasetaprop, propproperty.
+      + <span class="nb">intro</span> Hf.
+        <span class="nb">apply</span> isincl_has_submm_inverse_incl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">submm_iso_incl</span>
+    (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid M)
+    {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">H</span> : submm_includes_at_sym P Q a b)
+    : a ≅{P} b -&gt; a ≅{Q} b.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> totalfun; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> is_submm_iso_incl, H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">isincl_submm_iso_incl</span> (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid M)
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">H</span> : submm_includes_at_sym P Q a b)
+    : isincl (submm_iso_incl P Q H).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isofhlevelf_totalfun.
+    <span class="nb">apply</span> isincl_is_submm_iso_incl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">issurjective_submm_iso_incl</span> (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid M)
+    {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">H</span> : submm_includes_at_sym P Q a b)
+    (<span class="nv">Hinv</span> : submm_includes_at_sym Q P a b)
+    : issurjective (submm_iso_incl P Q H).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> f; <span class="nb">apply</span> hinhpr.
+    use make_hfiber.
+    - <span class="bp">exact</span> (submm_iso_incl _ _ Hinv f).
+    - <span class="bp">now</span> <span class="nb">apply</span> submm_iso_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">isweq_submm_iso_incl</span> (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid M)
+    {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">H</span> : submm_includes_at_sym P Q a b)
+    (<span class="nv">Hinv</span> : submm_includes_at_sym Q P a b)
+    : isweq (submm_iso_incl P Q H).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isweqinclandsurj.
+    - <span class="nb">apply</span> isincl_submm_iso_incl.
+    - <span class="nb">apply</span> issurjective_submm_iso_incl, Hinv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_submm_iso_incl</span> (<span class="nv">P</span> <span class="nv">Q</span> : wide_submagmoid M)
+    {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">H</span> : submm_includes_at_sym P Q a b)
+    (<span class="nv">Hinv</span> : submm_includes_at_sym Q P a b)
+    : (a ≅{P} b) ≃ (a ≅{Q} b)
+    := make_weq _ (isweq_submm_iso_incl P Q H Hinv).
+
+<span class="kn">End</span> <span class="nf">inclusions</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weq_has_trivial_submm_inverse_is_z_isomorphism</span>
+  {<span class="nv">M</span> : unital_magmoid} {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b)
+  : has_submm_inverse trivial_submm f
+      ≃ is_z_isomorphism f.
+<span class="kn">Proof</span>.
+  use weqbandf.
+  { <span class="nb">apply</span> invweq, weq_make_submm_mor; <span class="bp">easy</span>. }
+  <span class="nb">intro</span> g.
+  <span class="bp">exact</span> (idweq _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weq_trivial_submm_iso_z_iso</span>
+  {<span class="nv">M</span> : unital_magmoid} (<span class="nv">a</span> <span class="nv">b</span> : M)
+  : a ≅{trivial_submm} b ≃ z_iso a b.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> f.
+  <span class="nb">apply</span> (weqcomp (invweq (dirprod_with_contr_l _ _ iscontrunit))).
+  <span class="nb">apply</span> weq_has_trivial_submm_inverse_is_z_isomorphism.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Rewriting lemmas of isomorphisms *)</span>
+
+<span class="kn">Section</span> <span class="nf">rewrites</span>.
+  <span class="kn">Context</span> {<span class="nv">M</span> : unital_magmoid}
+    (<span class="nv">P</span> : wide_submagmoid M).
+
+  <span class="kn">Definition</span> <span class="nf">magmoid_remove_id_left</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">f</span> : a --&gt; a) (<span class="nv">g</span> : a --&gt; b)
+    (<span class="nv">H</span> : f = identity a)
+    : f · g = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ magmoid_id_left g).
+    <span class="nb">apply</span> cancel_postcomposition, H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">magmoid_remove_id_right</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">f</span> : a &lt;-- a) (<span class="nv">g</span> : a &lt;-- b)
+    (<span class="nv">H</span> : f = identity a)
+    : f ∘ g = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ magmoid_id_right g).
+    <span class="nb">apply</span> cancel_precomposition, H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">submm_iso_left_of_thunkable</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> : a ≅{P} b)
+    (<span class="nv">H</span> : is_thunkable p)
+    {<span class="nv">c</span> : M} (<span class="nv">f</span> : a --&gt; c)
+    : p · (submm_inv_mor P p · f) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (assoc_thunkable _ H _ _ @ _).
+    <span class="nb">apply</span> magmoid_remove_id_left.
+    <span class="bp">exact</span> (is_inverse_in_precat1 p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">submm_iso_right_of_linear</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> : b ≅{P} a)
+    (<span class="nv">H</span> : is_linear p)
+    {<span class="nv">c</span> : M} (<span class="nv">f</span> : a &lt;-- c)
+    : p ∘ (submm_inv_mor P p ∘ f) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (assoc'_linear _ H _ _ @ _).
+    <span class="nb">apply</span> magmoid_remove_id_right.
+    <span class="bp">exact</span> (is_inverse_in_precat2 p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">submm_iso_left_of_intermediate</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> : b ≅{P} a)
+    (<span class="nv">H</span> : is_intermediate p)
+    {<span class="nv">c</span> : M} (<span class="nv">f</span> : a --&gt; c)
+    : submm_inv_mor P p · (p · f) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (assoc_intermediate _ H _ _ @ _).
+    <span class="nb">apply</span> magmoid_remove_id_left.
+    <span class="bp">exact</span> (is_inverse_in_precat2 p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">submm_iso_right_of_intermediate</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> : a ≅{P} b)
+    (<span class="nv">H</span> : is_intermediate p)
+    {<span class="nv">c</span> : M} (<span class="nv">f</span> : a &lt;-- c)
+    : submm_inv_mor P p ∘ (p ∘ f) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (assoc'_intermediate _ H _ _ @ _).
+    <span class="nb">apply</span> magmoid_remove_id_right.
+    <span class="bp">exact</span> (is_inverse_in_precat1 p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">submm_iso_left_of_inv_thunkable</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> : b ≅{P} a)
+    (<span class="nv">H</span> : is_thunkable (submm_inv_mor P p))
+    {<span class="nv">c</span> : M} (<span class="nv">f</span> : a --&gt; c)
+    : submm_inv_mor P p · (p · f) = f.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (submm_iso_left_of_thunkable
+             (submm_iso_inv P p) H f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">submm_iso_right_of_inv_linear</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> : a ≅{P} b)
+    (<span class="nv">H</span> : is_linear (submm_inv_mor P p))
+    {<span class="nv">c</span> : M} (<span class="nv">f</span> : a &lt;-- c)
+    : submm_inv_mor P p ∘ (p ∘ f) = f.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (submm_iso_right_of_linear
+             (submm_iso_inv P p) H f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">submm_iso_interpose_of_intermediate</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> : a ≅{P} b)
+    (<span class="nv">Hp</span> : is_intermediate p)
+    (<span class="nv">Hinv</span> : is_intermediate (submm_inv_mor P p))
+    {<span class="nv">c</span> <span class="nv">d</span> : M}
+    (<span class="nv">f</span> : c --&gt; a)
+    (<span class="nv">g</span> : a --&gt; d)
+    : (f · p) · (submm_inv_mor P p · g) = f · g.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (assoc'_intermediate _ Hp _ _ @ _).
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">refine</span> (assoc_intermediate _ Hinv _ _ @ _).
+    <span class="nb">apply</span> magmoid_remove_id_left.
+    <span class="bp">exact</span> (is_inverse_in_precat1 p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">submm_iso_interpose_inv_of_intermediate</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> : b ≅{P} a)
+    (<span class="nv">Hp</span> : is_intermediate p)
+    (<span class="nv">Hinv</span> : is_intermediate (submm_inv_mor P p))
+    {<span class="nv">c</span> <span class="nv">d</span> : M}
+    (<span class="nv">f</span> : c --&gt; a)
+    (<span class="nv">g</span> : a --&gt; d)
+    : (f · submm_inv_mor P p) · (p · g) = f · g.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (submm_iso_interpose_of_intermediate
+             (submm_iso_inv P p) Hinv Hp f g).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">cancel_submm_iso_left_of_associates</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> : a ≅{P} b)
+    {<span class="nv">c</span> : M}
+    (<span class="nv">f</span> <span class="nv">g</span> : b --&gt; c)
+    (<span class="nv">Ha₁</span> : submm_inv_mor _ p · (p · f) = (submm_inv_mor _ p · p) · f)
+    (<span class="nv">Ha₂</span> : submm_inv_mor _ p · (p · g) = (submm_inv_mor _ p · p) · g)
+    : p · f = p · g ≃ f = g.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intros</span> Heq.
+      <span class="nb">refine</span> (!magmoid_id_left f @ _ @ magmoid_id_left g).
+      <span class="nb">rewrite</span> &lt;- (is_inverse_in_precat2 p).
+      <span class="nb">refine</span> (!Ha₁ @ _ @ Ha₂).
+      <span class="nb">apply</span> cancel_precomposition, Heq.
+    - <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, p · x)).
+    - <span class="nb">apply</span> unital_magmoid_has_homsets.
+    - <span class="nb">apply</span> unital_magmoid_has_homsets.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">cancel_submm_iso_right_of_associates</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> : b ≅{P} a)
+    {<span class="nv">c</span> : M}
+    (<span class="nv">f</span> <span class="nv">g</span> : b &lt;-- c)
+    (<span class="nv">Ha₁</span> : submm_inv_mor _ p ∘ (p ∘ f) = (submm_inv_mor _ p ∘ p) ∘ f)
+    (<span class="nv">Ha₂</span> : submm_inv_mor _ p ∘ (p ∘ g) = (submm_inv_mor _ p ∘ p) ∘ g)
+    : p ∘ f = p ∘ g ≃ f = g.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intros</span> Heq.
+      <span class="nb">refine</span> (!magmoid_id_right f @ _ @ magmoid_id_right g).
+      <span class="nb">rewrite</span> &lt;- (is_inverse_in_precat1 p).
+      <span class="nb">refine</span> (!Ha₁ @ _ @ Ha₂).
+      <span class="nb">apply</span> cancel_postcomposition, Heq.
+    - <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, p ∘ x)).
+    - <span class="nb">apply</span> unital_magmoid_has_homsets.
+    - <span class="nb">apply</span> unital_magmoid_has_homsets.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">submm_iso_eq_from_identity_and_remove_right</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> <span class="nv">q</span> : a ≅{P} b)
+    (<span class="nv">Hremove</span> : (p · submm_inv_mor P q) · q = p)
+    (<span class="nv">H</span> : p · submm_inv_mor _ q = identity a)
+    : submm_mor_mor p = q.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- (is_inverse_in_precat1 q) <span class="k">in</span> H.
+    <span class="nb">apply</span> (cancel_submm_iso_right_of_associates (submm_iso_inv P q)) <span class="k">in</span> H.
+    - <span class="bp">exact</span> H.
+    - etrans; [|<span class="nb">apply</span> pathsinv0, magmoid_remove_id_right,
+                (is_inverse_in_precat2 q)].
+      <span class="bp">exact</span> Hremove.
+    - etrans.
+      + <span class="nb">apply</span> magmoid_remove_id_left.
+        <span class="nb">apply</span> (is_inverse_in_precat1 q).
+      + <span class="nb">apply</span> pathsinv0, magmoid_remove_id_right.
+        <span class="nb">apply</span> (is_inverse_in_precat2 q).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">submm_iso_eq_from_identity_and_remove_left</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> <span class="nv">q</span> : a ≅{P} b)
+    (<span class="nv">Hremove</span> : (p ∘ submm_inv_mor P q) ∘ q = p)
+    (<span class="nv">H</span> : p ∘ submm_inv_mor _ q = identity b)
+    : submm_mor_mor p = q.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- (is_inverse_in_precat2 q) <span class="k">in</span> H.
+    <span class="nb">apply</span> (cancel_submm_iso_left_of_associates (submm_iso_inv P q)) <span class="k">in</span> H.
+    - <span class="bp">exact</span> H.
+    - etrans; [|<span class="nb">apply</span> pathsinv0, magmoid_remove_id_left,
+                (is_inverse_in_precat1 q)].
+      <span class="bp">exact</span> Hremove.
+    - etrans.
+      + <span class="nb">apply</span> magmoid_remove_id_right.
+        <span class="nb">apply</span> (is_inverse_in_precat2 q).
+      + <span class="nb">apply</span> pathsinv0, magmoid_remove_id_left.
+        <span class="nb">apply</span> (is_inverse_in_precat1 q).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">rewrites</span>.
+
+<span class="kn">Lemma</span> <span class="nf">subcat_iso_eq_from_identity_right</span>
+  {<span class="nv">M</span> : unital_magmoid}
+  (<span class="nv">P</span> : wide_subcategory M)
+  {<span class="nv">a</span> <span class="nv">b</span> : M}
+  (<span class="nv">p</span> <span class="nv">q</span> : submm_iso P a b)
+  (<span class="nv">H</span> : p · submm_inv_mor _ q = identity a)
+  : submm_mor_mor p = q.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> submm_iso_eq_from_identity_and_remove_right.
+  - <span class="nb">rewrite</span> &lt;- (wide_subcategory_is_assoc P). {
+      <span class="nb">apply</span> magmoid_remove_id_right.
+      <span class="bp">exact</span> (is_inverse_in_precat2 q).
+    }
+    <span class="kp">all</span>: <span class="nb">apply</span> (submm_mor_property P).
+  - <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">subcat_iso_eq_from_identity_left</span>
+  {<span class="nv">M</span> : unital_magmoid}
+  (<span class="nv">P</span> : wide_subcategory M)
+  {<span class="nv">a</span> <span class="nv">b</span> : M}
+  (<span class="nv">p</span> <span class="nv">q</span> : submm_iso P a b)
+  (<span class="nv">H</span> : p ∘ submm_inv_mor _ q = identity b)
+  : submm_mor_mor p = q.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> submm_iso_eq_from_identity_and_remove_left.
+  - <span class="nb">rewrite</span> (wide_subcategory_is_assoc P). {
+      <span class="nb">apply</span> magmoid_remove_id_left.
+      <span class="bp">exact</span> (is_inverse_in_precat1 q).
+    }
+    <span class="kp">all</span>: <span class="nb">apply</span> (submm_mor_property P).
+  - <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.</span></pre>
+</div>
+</div></body>
+</html>

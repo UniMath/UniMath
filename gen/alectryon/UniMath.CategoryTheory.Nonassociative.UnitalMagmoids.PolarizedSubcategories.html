@@ -1,0 +1,849 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PolarizedSubcategories.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> Polarized Subcategories</span>
+
+<span class="sd"> Author: B. Szilvasy</span>
+<span class="sd"> September 2026</span>
+
+<span class="sd"> We define the linear, thunkable, intermediate, positive, and negative</span>
+<span class="sd"> subcategories of a unital magmoid.</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Linear, thunkable, intermediate, and polarized subcategories</span>
+<span class="sd"> 2. Inclusion functors</span>
+<span class="sd"> 3. Specific inverses and when they are unique</span>
+<span class="sd"> 4. Composition of inverses when they exist</span>
+<span class="sd"> 5. Linear-and-thunkable(-and-intermediate) isomorphisms [lt(i)_iso]</span>
+<span class="sd"> 6. Lemmas about isomorphisms</span>
+
+<span class="sd"> ********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Submagmoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Isos.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> unital_magmoid.
+
+<span class="sd">(** ** Linear, thunkable, intermediate, and polarized subcategories *)</span>
+
+<span class="kn">Section</span> <span class="nf">polarized_submagmoids</span>.
+  <span class="kn">Context</span> (<span class="nv">M</span> : unital_magmoid).
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets M := unital_magmoid_has_homsets M.
+
+  <span class="sd">(** Linear morphisms *)</span>
+  <span class="kn">Definition</span> <span class="nf">isw_linear</span> : wide_submagmoid M
+    := make_wide_submagmoid' (@ish_linear M) is_linear_identity (@is_linear_compose M).
+  <span class="kn">Definition</span> <span class="nf">isc_linear</span> : wide_subcategory M
+    := make_wide_subcategory isw_linear (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">Hf</span> <span class="nv">Hg</span> <span class="nv">Hh</span>, assoc_linear _ Hh _ _).
+
+  <span class="sd">(** Thunkable morphisms *)</span>
+  <span class="kn">Definition</span> <span class="nf">isw_thunkable</span> : wide_submagmoid M
+    := make_wide_submagmoid' (@ish_thunkable M) is_thunkable_identity (@is_thunkable_compose M).
+  <span class="kn">Definition</span> <span class="nf">isc_thunkable</span> : wide_subcategory M
+    := make_wide_subcategory isw_thunkable (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">Hf</span> <span class="nv">Hg</span> <span class="nv">Hh</span>, assoc_thunkable _ Hf _ _).
+
+  <span class="sd">(** Intermediate morphisms *)</span>
+  <span class="kn">Definition</span> <span class="nf">isw_intermediate</span> : wide_submagmoid M
+    := make_wide_submagmoid' (@ish_intermediate M)
+         is_intermediate_identity (@is_intermediate_compose M).
+  <span class="kn">Definition</span> <span class="nf">isc_intermediate</span> : wide_subcategory M
+    := make_wide_subcategory isw_intermediate (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">Hf</span> <span class="nv">Hg</span> <span class="nv">Hh</span>, assoc_intermediate _ Hg _ _).
+
+  <span class="sd">(** Linear and thunkable (and intermediate) morphisms *)</span>
+  <span class="kn">Definition</span> <span class="nf">isw_linear_and_thunkable</span> : wide_submagmoid M
+    := wide_submagmoid_intersection isw_linear isw_thunkable.
+  <span class="kn">Definition</span> <span class="nf">isc_linear_and_thunkable</span> : wide_subcategory M
+    := make_wide_subcategory isw_linear_and_thunkable
+         (is_assoc_wide_submagmoid_intersection_left _ _
+            (wide_subcategory_is_assoc isc_linear)).
+
+  <span class="kn">Definition</span> <span class="nf">isw_linear_and_thunkable_and_intermediate</span> : wide_submagmoid M
+    := wide_submagmoid_intersection isw_linear_and_thunkable isw_intermediate.
+  <span class="kn">Definition</span> <span class="nf">isc_linear_and_thunkable_and_intermediate</span> : wide_subcategory M
+    := make_wide_subcategory isw_linear_and_thunkable_and_intermediate
+         (is_assoc_wide_submagmoid_intersection_right _ _
+            (wide_subcategory_is_assoc isc_intermediate)).
+
+<span class="kn">End</span> <span class="nf">polarized_submagmoids</span>.
+
+<span class="kn">Notation</span> <span class="s2">"'_l'"</span> := (isc_linear _) : unital_magmoid.
+<span class="kn">Notation</span> <span class="s2">"'_t'"</span> := (isc_thunkable _) : unital_magmoid.
+<span class="kn">Notation</span> <span class="s2">"'_i'"</span> := (isc_intermediate _) : unital_magmoid.
+<span class="kn">Notation</span> <span class="s2">"'_lt'"</span> := (isc_linear_and_thunkable _) : unital_magmoid.
+<span class="kn">Notation</span> <span class="s2">"'_lti'"</span> := (isc_linear_and_thunkable_and_intermediate _) : unital_magmoid.
+
+<span class="kn">Section</span> <span class="nf">polarized_subcategories</span>.
+  <span class="kn">Context</span> (<span class="nv">M</span> : unital_magmoid).
+
+  <span class="kn">Definition</span> <span class="nf">linear_category</span> : category := wide_subcategory_carrier M _l.
+  <span class="kn">Definition</span> <span class="nf">thunkable_category</span> : category := wide_subcategory_carrier M _t.
+  <span class="kn">Definition</span> <span class="nf">linear_and_thunkable_category</span> : category := wide_subcategory_carrier M _lt.
+  <span class="kn">Definition</span> <span class="nf">linear_and_thunkable_and_intermediate_category</span> : category := wide_subcategory_carrier M _lti.
+
+  <span class="kn">Definition</span> <span class="nf">positive_category</span> : category := associative_submagmoid_carrier M ^⊕ _l.
+  <span class="kn">Definition</span> <span class="nf">negative_category</span> : category := associative_submagmoid_carrier M ^⊖ _t.
+  <span class="kn">Definition</span> <span class="nf">positive_thunkable_category</span> : category := associative_submagmoid_carrier M ^⊕ _lt.
+  <span class="kn">Definition</span> <span class="nf">negative_linear_category</span> : category := associative_submagmoid_carrier M ^⊖ _lt.
+
+  <span class="kn">Definition</span> <span class="nf">weq_positive_mor</span> {<span class="nv">a</span> <span class="nv">b</span> : sub_ob M ^⊕}
+    : M⟦a, b⟧ ≃ M∣_l∣⟦a, b⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weq_make_submm_mor; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> is_linear_of_positive.
+    <span class="bp">exact</span> (sub_ob_property _ a).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_positive_thunkable_mor</span> {<span class="nv">a</span> <span class="nv">b</span> : sub_ob M ^⊕}
+    : M∣_t∣⟦a, b⟧ ≃ M∣_lt∣⟦a, b⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weq_submm_mor_incl; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> dirprod_with_contr_l.
+    <span class="nb">apply</span> iscontraprop1.
+    - <span class="nb">apply</span> propproperty.
+    - <span class="nb">apply</span> is_linear_of_positive.
+      <span class="bp">exact</span> (sub_ob_property _ a).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_positive_z_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : sub_ob M ^⊕)
+    : z_iso a b ≃ a ≅{_l} b.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (weqcomp (invweq (weq_trivial_submm_iso_z_iso a b))).
+    <span class="nb">apply</span> weq_submm_iso_incl;
+      <span class="nb">apply</span> submm_includes_in_to_at_sym; <span class="nb">clear</span> a b.
+    - <span class="nb">intros</span> a b f H.
+      <span class="nb">apply</span> is_linear_of_positive, (sub_ob_property ^⊕).
+    - <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_positive_lt_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : sub_ob M ^⊕)
+    : a ≅{_t} b ≃ a ≅{_lt} b.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weq_submm_iso_incl;
+      <span class="nb">apply</span> submm_includes_in_to_at_sym; <span class="nb">clear</span> a b.
+    - <span class="nb">intros</span> a b f H.
+      <span class="nb">split</span>; <span class="kp">solve</span> [<span class="bp">exact</span> H|<span class="nb">apply</span> is_linear_of_positive, (sub_ob_property ^⊕)].
+    - <span class="nb">intros</span> a b f H; <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_negative_mor</span> {<span class="nv">a</span> <span class="nv">b</span> : sub_ob M ^⊖}
+    : M⟦a, b⟧ ≃ M∣_t∣⟦a, b⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weq_make_submm_mor; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> is_thunkable_of_negative.
+    <span class="bp">exact</span> (sub_ob_property _ b).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_negative_linear_mor</span> {<span class="nv">a</span> <span class="nv">b</span> : sub_ob M ^⊖}
+    : M∣_l∣⟦a, b⟧ ≃ M∣_lt∣⟦a, b⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weq_submm_mor_incl; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> dirprod_with_contr_r.
+    <span class="nb">apply</span> iscontraprop1.
+    - <span class="nb">apply</span> propproperty.
+    - <span class="nb">apply</span> is_thunkable_of_negative.
+      <span class="bp">exact</span> (sub_ob_property _ b).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_negative_z_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : sub_ob M ^⊖)
+    : z_iso a b ≃ a ≅{_t} b.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (weqcomp (invweq (weq_trivial_submm_iso_z_iso a b))).
+    <span class="nb">apply</span> weq_submm_iso_incl;
+      <span class="nb">apply</span> submm_includes_in_to_at_sym; <span class="nb">clear</span> a b.
+    - <span class="nb">intros</span> a b f H.
+      <span class="nb">apply</span> is_thunkable_of_negative, (sub_ob_property ^⊖).
+    - <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_negative_lt_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : sub_ob M ^⊖)
+    : a ≅{_l} b ≃ a ≅{_lt} b.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weq_submm_iso_incl;
+      <span class="nb">apply</span> submm_includes_in_to_at_sym; <span class="nb">clear</span> a b.
+    - <span class="nb">intros</span> a b f H.
+      <span class="nb">split</span>; <span class="kp">solve</span> [<span class="bp">exact</span> H|<span class="nb">apply</span> is_thunkable_of_negative, (sub_ob_property ^⊖)].
+    - <span class="nb">intros</span> a b f H; <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">polarized_subcategories</span>.
+
+<span class="kn">Notation</span> <span class="s2">"M 'ₗ'"</span> := (linear_category M) (<span class="kn">at level</span> <span class="mi">1</span>) : unital_magmoid.
+  <span class="c">(* type in Emacs using agda-input with \_l *)</span>
+<span class="kn">Notation</span> <span class="s2">"M 'ₜ'"</span> := (thunkable_category M) (<span class="kn">at level</span> <span class="mi">1</span>) : unital_magmoid.
+  <span class="c">(* type in Emacs using agda-input with \_t *)</span>
+<span class="kn">Notation</span> <span class="s2">"M 'ₗₜ'"</span> := (linear_and_thunkable_category M) (<span class="kn">at level</span> <span class="mi">1</span>) : unital_magmoid.
+  <span class="c">(* type in Emacs using agda-input with \_l \_t *)</span>
+<span class="kn">Notation</span> <span class="s2">"M 'ₗₜᵢ'"</span> := (linear_and_thunkable_and_intermediate_category M) (<span class="kn">at level</span> <span class="mi">1</span>) : unital_magmoid.
+  <span class="c">(* type in Emacs using agda-input with \_l \_t \_i *)</span>
+<span class="kn">Notation</span> <span class="s2">"M '⁺'"</span> := (positive_category M) (<span class="kn">at level</span> <span class="mi">1</span>) : unital_magmoid.
+  <span class="c">(* type in Emacs using agda-input with \^+ *)</span>
+<span class="kn">Notation</span> <span class="s2">"M '⁻'"</span> := (negative_category M) (<span class="kn">at level</span> <span class="mi">1</span>) : unital_magmoid.
+  <span class="c">(* type in Emacs using agda-input with \^- *)</span>
+<span class="kn">Notation</span> <span class="s2">"M '⁺ₜ'"</span> := (positive_thunkable_category M) (<span class="kn">at level</span> <span class="mi">1</span>) : unital_magmoid.
+  <span class="c">(* type in Emacs using agda-input with \^+ \_t *)</span>
+<span class="kn">Notation</span> <span class="s2">"M '⁻ₗ'"</span> := (negative_linear_category M) (<span class="kn">at level</span> <span class="mi">1</span>) : unital_magmoid.
+  <span class="c">(* type in Emacs using agda-input with \^- \_l *)</span>
+
+<span class="sd">(** ** Inclusion functors</span>
+
+<span class="sd">  The inclusion functors between the categories of a unital magmoid M</span>
+<span class="sd">  are depicted in the commutative diagram below. Of these, all but</span>
+<span class="sd">  the four vertically drawn functors are fully faithful.</span>
+
+<span class="sd">  &lt;&lt;</span>
+<span class="sd">                      M⁺  ⟶ Mₗ    ↰</span>
+<span class="sd">                      ↑     ↑</span>
+<span class="sd">                      M⁺ₜ → Mₗₜ  ← M⁻ₗ</span>
+<span class="sd">                            ↓     ↓</span>
+<span class="sd">                      ↳     Mₜ  ← M⁻</span>
+<span class="sd">  &gt;&gt;</span>
+
+<span class="sd">  All these categories also have inclusion functors into M itself.</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">inclusion_functors</span>.
+  <span class="kn">Context</span> (<span class="nv">M</span> : unital_magmoid).
+
+  <span class="sd">(** Direct inclusions *)</span>
+  <span class="kn">Definition</span> <span class="nf">positive_to_linear_category</span> : M⁺ ⟶ M ₗ
+    := submm_into_wide_incl M ^⊕ _l.
+  <span class="kn">Definition</span> <span class="nf">positive_thunkable_to_linear_and_thunkable_category</span> : M⁺ₜ ⟶ M ₗₜ
+    := submm_into_wide_incl M ^⊕ _lt.
+  <span class="kn">Definition</span> <span class="nf">positive_thunkable_to_positive_category</span> : M⁺ₜ ⟶ M⁺
+    := wide_submm_incl _
+         (full_subcategory_promote M ^⊕ _lt)
+         (full_subcategory_promote M ^⊕ _l)
+         (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">f</span>, pr1).
+
+  <span class="kn">Definition</span> <span class="nf">negative_to_thunkable_category</span> : M⁻ ⟶ M ₜ
+    := submm_into_wide_incl M ^⊖ _t.
+  <span class="kn">Definition</span> <span class="nf">negative_linear_to_linear_and_thunkable_category</span> : M⁻ₗ ⟶ M ₗₜ
+    := submm_into_wide_incl M ^⊖ _lt.
+  <span class="kn">Definition</span> <span class="nf">negative_linear_to_negative_category</span> : M⁻ₗ ⟶ M⁻
+    := wide_submm_incl _
+         (full_subcategory_promote M ^⊖ _lt)
+         (full_subcategory_promote M ^⊖ _t)
+         (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">f</span>, pr2).
+
+  <span class="kn">Definition</span> <span class="nf">linear_and_thunkable_to_linear_category</span> : M ₗₜ ⟶ M ₗ
+    := wide_submm_incl M _lt _l (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">f</span>, pr1).
+  <span class="kn">Definition</span> <span class="nf">linear_and_thunkable_to_thunkable_category</span> : M ₗₜ ⟶ M ₜ
+    := wide_submm_incl M _lt _t (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">f</span>, pr2).
+
+  <span class="sd">(** Composites *)</span>
+  <span class="kn">Definition</span> <span class="nf">positive_thunkable_to_linear_category</span> : M⁺ₜ ⟶ M ₗ
+    := positive_thunkable_to_linear_and_thunkable_category
+         ∙ linear_and_thunkable_to_linear_category.
+  <span class="kn">Definition</span> <span class="nf">positive_thunkable_to_thunkable_category</span> : M⁺ₜ ⟶ M ₜ
+    := positive_thunkable_to_linear_and_thunkable_category
+         ∙ linear_and_thunkable_to_thunkable_category.
+  <span class="kn">Definition</span> <span class="nf">negative_linear_to_thunkable_category</span> : M⁻ₗ ⟶ M ₜ
+    := negative_linear_to_linear_and_thunkable_category
+         ∙ linear_and_thunkable_to_thunkable_category.
+  <span class="kn">Definition</span> <span class="nf">negative_linear_to_linear_category</span> : M⁻ₗ ⟶ M ₗ
+    := negative_linear_to_linear_and_thunkable_category
+         ∙ linear_and_thunkable_to_linear_category.
+
+  <span class="sd">(** Inclusions into [M] *)</span>
+  <span class="kn">Definition</span> <span class="nf">linear_to_unital_magmoid</span> : M ₗ ⟶ M
+    := wide_submm_trivial_incl M _l.
+  <span class="kn">Definition</span> <span class="nf">thunkable_to_unital_magmoid</span> : M ₜ ⟶ M
+    := wide_submm_trivial_incl M _t.
+  <span class="kn">Definition</span> <span class="nf">linear_and_thunkable_to_unital_magmoid</span> : M ₗₜ ⟶ M
+    := wide_submm_trivial_incl M _lt.
+  <span class="kn">Definition</span> <span class="nf">positive_to_unital_magmoid</span> : M⁺ ⟶ M
+    := positive_to_linear_category ∙ linear_to_unital_magmoid.
+  <span class="kn">Definition</span> <span class="nf">negative_to_unital_magmoid</span> : M⁻ ⟶ M
+    := negative_to_thunkable_category ∙ thunkable_to_unital_magmoid.
+
+  <span class="kn">Lemma</span> <span class="nf">fully_faithful_positive_to_linear_category</span>
+    : fully_faithful positive_to_linear_category.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> fully_faithful_submm_into_wide_incl. <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">fully_faithful_positive_thunkable_to_linear_and_thunkable_category</span>
+    : fully_faithful positive_thunkable_to_linear_and_thunkable_category.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> fully_faithful_submm_into_wide_incl. <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">fully_faithful_negative_to_thunkable_category</span>
+    : fully_faithful negative_to_thunkable_category.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> fully_faithful_submm_into_wide_incl. <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">fully_faithful_negative_linear_to_linear_and_thunkable_category</span>
+    : fully_faithful negative_linear_to_linear_and_thunkable_category.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> fully_faithful_submm_into_wide_incl. <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">fully_faithful_negative_linear_to_thunkable_category</span>
+    : fully_faithful negative_linear_to_linear_and_thunkable_category.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> fully_faithful_submm_into_wide_incl. <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">faithful_linear_and_thunkable_to_linear_category</span>
+    : faithful linear_and_thunkable_to_linear_category.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> faithful_wide_submm_incl. <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">faithful_linear_and_thunkable_to_thunkable_category</span>
+    : faithful linear_and_thunkable_to_thunkable_category.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> faithful_wide_submm_incl. <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">faithful_positive_thunkable_to_positive_category</span>
+    : faithful positive_thunkable_to_positive_category.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> faithful_wide_submm_incl. <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">faithful_negative_linear_to_negative_category</span>
+    : faithful negative_linear_to_negative_category.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> faithful_wide_submm_incl. <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">faithful_positive_thunkable_to_linear_category</span>
+    : faithful positive_thunkable_to_linear_category.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> comp_faithful_is_faithful.
+    - <span class="nb">apply</span> fully_faithful_implies_full_and_faithful,
+        fully_faithful_positive_thunkable_to_linear_and_thunkable_category.
+    - <span class="nb">apply</span> faithful_linear_and_thunkable_to_linear_category.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">faithful_negative_linear_to_thunkable_category</span>
+    : faithful negative_linear_to_thunkable_category.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> comp_faithful_is_faithful.
+    - <span class="nb">apply</span> fully_faithful_implies_full_and_faithful,
+        fully_faithful_negative_linear_to_linear_and_thunkable_category.
+    - <span class="nb">apply</span> faithful_linear_and_thunkable_to_thunkable_category.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">faithful_linear_to_unital_magmoid</span>
+    : faithful linear_to_unital_magmoid.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> faithful_wide_submm_trivial_incl. <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">faithful_thunkable_to_unital_magmoid</span>
+    : faithful thunkable_to_unital_magmoid.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> faithful_wide_submm_trivial_incl. <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">fully_faithful_positive_to_unital_magmoid</span>
+    : fully_faithful positive_to_unital_magmoid.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> fully_faithful_submm_trivial_incl.
+    <span class="nb">intros</span> a b f.
+    <span class="nb">apply</span> is_linear_of_positive.
+    <span class="bp">exact</span> (sub_ob_property _ a).
+  <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">fully_faithful_negative_to_unital_magmoid</span>
+    : fully_faithful negative_to_unital_magmoid.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> fully_faithful_submm_trivial_incl.
+    <span class="nb">intros</span> a b f.
+    <span class="nb">apply</span> is_thunkable_of_negative.
+    <span class="bp">exact</span> (sub_ob_property _ b).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">fully_faithful_positive_thunkable_to_thunkable_category</span>
+    : fully_faithful positive_thunkable_to_thunkable_category.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> fully_faithful_submm_into_other_wide_incl.
+    <span class="nb">intros</span> a b f H.
+    <span class="nb">split</span>; <span class="kp">solve</span> [<span class="bp">assumption</span>|<span class="nb">apply</span> is_linear_of_positive, (sub_ob_property ^⊕ _)].
+  <span class="kn">Defined</span>.
+  <span class="kn">Lemma</span> <span class="nf">fully_faithful_negative_linear_to_linear_category</span>
+    : fully_faithful negative_linear_to_linear_category.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> fully_faithful_submm_into_other_wide_incl.
+    <span class="nb">intros</span> a b f H.
+    <span class="nb">split</span>; <span class="kp">solve</span> [<span class="bp">assumption</span>|<span class="nb">apply</span> is_thunkable_of_negative, (sub_ob_property ^⊖ _)].
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** I : M⁺ₜ ⟶ M ₗ factors through M⁺ *)</span>
+  <span class="kn">Lemma</span> <span class="nf">positive_thunkable_to_linear_category_through_positive</span>
+    : positive_thunkable_to_linear_category
+      = (positive_thunkable_to_positive_category
+           ∙ positive_to_linear_category).
+  <span class="kn">Proof</span>. <span class="bp">now</span> <span class="nb">apply</span> (functor_eq _ _ (homset_property _)). <span class="kn">Defined</span>.
+
+  <span class="sd">(** I : M⁻ₗ ⟶ M ₜ factors through M⁻ *)</span>
+  <span class="kn">Lemma</span> <span class="nf">negative_linear_to_thunkable_category_through_negative</span>
+    : negative_linear_to_thunkable_category
+      = (negative_linear_to_negative_category
+           ∙ negative_to_thunkable_category).
+  <span class="kn">Proof</span>. <span class="bp">now</span> <span class="nb">apply</span> (functor_eq _ _ (homset_property _)). <span class="kn">Defined</span>.
+
+  <span class="sd">(** I : M⁻ₗ ⟶ M ₗ factors through M ₗₜ *)</span>
+  <span class="kn">Lemma</span> <span class="nf">negative_linear_to_linear_category_through_thunkable</span>
+    : negative_linear_to_linear_category
+      = (negative_linear_to_linear_and_thunkable_category
+           ∙ linear_and_thunkable_to_linear_category).
+  <span class="kn">Proof</span>. <span class="bp">now</span> <span class="nb">apply</span> (functor_eq _ _ (homset_property _)). <span class="kn">Defined</span>.
+
+  <span class="sd">(** I : M⁺ₜ ⟶ M ₜ factors through M ₜₗ *)</span>
+  <span class="kn">Lemma</span> <span class="nf">positive_thunkable_to_thunkable_category_through_linear</span>
+    : positive_thunkable_to_thunkable_category
+      = (positive_thunkable_to_linear_and_thunkable_category
+           ∙ linear_and_thunkable_to_thunkable_category).
+  <span class="kn">Proof</span>. <span class="bp">now</span> <span class="nb">apply</span> (functor_eq _ _ (homset_property _)). <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">inclusion_functors</span>.
+
+<span class="sd">(** ** Specific inverses and when they are unique *)</span>
+
+<span class="kn">Section</span> <span class="nf">inverses</span>.
+  <span class="kn">Context</span> {<span class="nv">M</span> : unital_magmoid} {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b).
+
+  <span class="c">(* Linear inverses are unique *)</span>
+  <span class="kn">Definition</span> <span class="nf">has_linear_inverse</span> : UU := has_submm_inverse _l f.
+  <span class="kn">Identity Coercion</span> <span class="nf">Id_has_linear_inverse</span> : has_linear_inverse &gt;-&gt; has_submm_inverse.
+  <span class="c">(* Construct with [make_has_submm_inverse]. *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_has_linear_inverse</span> : isaprop has_linear_inverse.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaprop_has_submm_inverse_from_assoc.
+    <span class="nb">intros</span> c d g h Hg Hh.
+    <span class="bp">now</span> <span class="nb">apply</span> assoc'_linear.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* Thunkable inverses are unique *)</span>
+  <span class="kn">Definition</span> <span class="nf">has_thunkable_inverse</span> : UU := has_submm_inverse _t f.
+  <span class="kn">Identity Coercion</span> <span class="nf">Id_has_thunkable_inverse</span> : has_thunkable_inverse &gt;-&gt; has_submm_inverse.
+  <span class="c">(* Construct with [make_has_submm_inverse]. *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_has_thunkable_inverse</span> : isaprop has_thunkable_inverse.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaprop_has_submm_inverse_from_assoc.
+    <span class="nb">intros</span> c d g h Hg Hh.
+    <span class="bp">now</span> <span class="nb">apply</span> assoc'_thunkable.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* Thunkable-and-linear inverses are of course unique *)</span>
+  <span class="kn">Definition</span> <span class="nf">has_linear_and_thunkable_inverse</span> : UU := has_submm_inverse _lt f.
+  <span class="kn">Identity Coercion</span> <span class="nf">Id_has_linear_and_thunkable_inverse</span>
+    : has_linear_and_thunkable_inverse &gt;-&gt; has_submm_inverse.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_has_linear_and_thunkable_inverse</span> : isaprop has_linear_and_thunkable_inverse.
+  <span class="kn">Proof</span>.
+    use (isofhlevelsninclb <span class="mi">0</span> (has_submm_inverse_incl M _lt _l (<span class="k">λ</span> <span class="nv">_</span>, pr1) f)).
+    - <span class="nb">apply</span> isincl_has_submm_inverse_incl.
+    - <span class="nb">apply</span> isaprop_has_linear_inverse.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* If a morphism is intermediate then its inverses are unique. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">isaprop_has_submm_inverse_from_intermediate</span>
+    (<span class="nv">H</span> : is_intermediate f)
+    (<span class="nv">P</span> : wide_submagmoid M)
+    : isaprop (has_submm_inverse P f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaprop_has_submm_inverse_from_assoc.
+    <span class="nb">intros</span> c d g h _ _.
+    <span class="bp">now</span> <span class="nb">apply</span> assoc'_intermediate.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">isaprop_is_z_isomorphism_from_intermediate</span>
+    (<span class="nv">H</span> : is_intermediate f)
+    : isaprop (is_z_isomorphism f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (isofhlevelweqf <span class="mi">1</span> (weq_has_trivial_submm_inverse_is_z_isomorphism f)).
+    <span class="nb">apply</span> isaprop_has_submm_inverse_from_intermediate, H.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">inverses</span>.
+
+<span class="sd">(** ** Composition of inverses when they exist *)</span>
+
+<span class="kn">Section</span> <span class="nf">composition</span>.
+  <span class="kn">Context</span> {<span class="nv">M</span> : unital_magmoid}.
+
+  <span class="sd">(** There are multiple ways in which linearity and thunkability permit</span>
+<span class="sd">      composition of inverses. *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">is_inverse_in_magmoid_comp_2linear</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M}
+    (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : a &lt;-- b) (<span class="nv">f'</span> : b --&gt; c) (<span class="nv">g'</span> : b &lt;-- c)
+    (<span class="nv">Hg</span> : is_linear g) (<span class="nv">Hg'</span> : is_linear g')
+    (<span class="nv">H1</span> : f · g = identity a) (<span class="nv">H2</span> : f' · g' = identity b)
+    : (f · f') · (g' · g) = identity a.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (assoc_linear _ Hg _ _ @ _ @ H1).
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">refine</span> (assoc'_linear _ Hg' _ _ @ _ @ magmoid_id_right f).
+    <span class="nb">apply</span> cancel_precomposition, H2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_inverse_in_magmoid_comp_2thunkable</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M}
+    (<span class="nv">f</span> : a &lt;-- b) (<span class="nv">g</span> : a --&gt; b) (<span class="nv">f'</span> : b &lt;-- c) (<span class="nv">g'</span> : b --&gt; c)
+    (<span class="nv">Hg</span> : is_thunkable g) (<span class="nv">Hg'</span> : is_thunkable g')
+    (<span class="nv">H1</span> : f ∘ g = identity a) (<span class="nv">H2</span> : f' ∘ g' = identity b)
+    : (f ∘ f') ∘ (g' ∘ g) = identity a.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (assoc'_thunkable _ Hg _ _ @ _ @ H1).
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">refine</span> (assoc_thunkable _ Hg' _ _ @ _ @ magmoid_id_left f).
+    <span class="nb">apply</span> cancel_postcomposition, H2.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Linear-and-thunkable inverses compose. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">has_linear_and_thunkable_inverse_compose</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M}
+    (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : has_linear_and_thunkable_inverse f)
+    (<span class="nv">f'</span> : b --&gt; c) (<span class="nv">g'</span> : has_linear_and_thunkable_inverse f')
+    : has_linear_and_thunkable_inverse (f · f').
+  <span class="kn">Proof</span>.
+    use make_has_submm_inverse.
+    - <span class="nb">apply</span> (submm_inv_mor _ g' ·{_lt} submm_inv_mor _ g).
+    - use make_is_inverse_in_precat.
+      + <span class="nb">apply</span> is_inverse_in_magmoid_comp_2linear.
+        * <span class="nb">apply</span> (submm_inv_mor _ g).
+        * <span class="nb">apply</span> (submm_inv_mor _ g').
+        * <span class="nb">apply</span> (is_inverse_in_precat1 g).
+        * <span class="nb">apply</span> (is_inverse_in_precat1 g').
+      + <span class="nb">apply</span> is_inverse_in_magmoid_comp_2thunkable.
+        * <span class="nb">apply</span> (submm_inv_mor _ g').
+        * <span class="nb">apply</span> (submm_inv_mor _ g ).
+        * <span class="nb">apply</span> (is_inverse_in_precat2 g').
+        * <span class="nb">apply</span> (is_inverse_in_precat2 g).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Linear inverses of linear maps compose -- but this is just the linear</span>
+<span class="sd">      category. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">has_linear_inverse_compose</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M}
+    (<span class="nv">f</span> : a --&gt;{_l} b) (<span class="nv">g</span> : has_linear_inverse f)
+    (<span class="nv">f'</span> : b --&gt;{_l} c) (<span class="nv">g'</span> : has_linear_inverse f')
+    : has_linear_inverse (f · f').
+  <span class="kn">Proof</span>.
+    use make_has_submm_inverse.
+    - <span class="nb">apply</span> (submm_inv_mor _ g' ·{_l} submm_inv_mor _ g).
+    - use make_is_inverse_in_precat.
+      + <span class="nb">apply</span> is_inverse_in_magmoid_comp_2linear.
+        * <span class="nb">apply</span> (submm_inv_mor _ g).
+        * <span class="nb">apply</span> (submm_inv_mor _ g').
+        * <span class="nb">apply</span> (is_inverse_in_precat1 g).
+        * <span class="nb">apply</span> (is_inverse_in_precat1 g').
+      + <span class="nb">apply</span> is_inverse_in_magmoid_comp_2linear.
+        * <span class="nb">apply</span> f'.
+        * <span class="nb">apply</span> f.
+        * <span class="nb">apply</span> (is_inverse_in_precat2 g').
+        * <span class="nb">apply</span> (is_inverse_in_precat2 g).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Thunkable inverses of thunkable maps compose -- but this is just the</span>
+<span class="sd">      thunkable category. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">has_thunkable_inverse_compose</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : M}
+    (<span class="nv">f</span> : a --&gt;{_t} b) (<span class="nv">g</span> : has_thunkable_inverse f)
+    (<span class="nv">f'</span> : b --&gt;{_t} c) (<span class="nv">g'</span> : has_thunkable_inverse f')
+    : has_thunkable_inverse (f · f').
+  <span class="kn">Proof</span>.
+    use make_has_submm_inverse.
+    - <span class="nb">apply</span> (submm_inv_mor _ g' ·{_t} submm_inv_mor _ g).
+    - use make_is_inverse_in_precat.
+      + <span class="nb">apply</span> is_inverse_in_magmoid_comp_2thunkable.
+        * <span class="nb">apply</span> f.
+        * <span class="nb">apply</span> f'.
+        * <span class="nb">apply</span> (is_inverse_in_precat1 g).
+        * <span class="nb">apply</span> (is_inverse_in_precat1 g').
+      + <span class="nb">apply</span> is_inverse_in_magmoid_comp_2thunkable.
+        * <span class="nb">apply</span> (submm_inv_mor _ g').
+        * <span class="nb">apply</span> (submm_inv_mor _ g).
+        * <span class="nb">apply</span> (is_inverse_in_precat2 g').
+        * <span class="nb">apply</span> (is_inverse_in_precat2 g).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">composition</span>.
+
+<span class="sd">(** ** Linear-and-thunkable(-and-intermediate) isomorphisms [lt(i)_iso] *)</span>
+
+<span class="kn">Section</span> <span class="nf">isos</span>.
+  <span class="kn">Context</span> {<span class="nv">M</span> : unital_magmoid}.
+
+  <span class="kn">Definition</span> <span class="nf">is_lt_iso</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b) : UU := is_subcat_iso _lt f.
+  <span class="kn">Identity Coercion</span> <span class="nf">Id_is_lt_iso</span> : is_lt_iso &gt;-&gt; is_subcat_iso.
+  <span class="kn">Definition</span> <span class="nf">isaprop_is_lt_iso</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : a --&gt; b) : isaprop (is_lt_iso f)
+    := isaprop_is_subcat_iso _lt f.
+
+  <span class="kn">Definition</span> <span class="nf">lt_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : M) : UU := submm_iso _lt a b.
+  <span class="kn">Identity Coercion</span> <span class="nf">Id_lt_iso</span> : lt_iso &gt;-&gt; submm_iso.
+
+  <span class="kn">Lemma</span> <span class="nf">lt_iso_eq</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> <span class="nv">g</span> : lt_iso a b)
+    : (submm_iso_plain_mor _lt f = submm_iso_plain_mor _lt g)
+        ≃ f = g.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> subcat_iso_eq. <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaset_lt_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : M) : isaset (lt_iso a b).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> isaset_submm_iso. <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lt_iso_left</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">p</span> : lt_iso a b)
+    {<span class="nv">c</span> : M} (<span class="nv">f</span> : a --&gt; c)
+    : p · (submm_iso_inv _lt p · f) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (submm_iso_left_of_thunkable _lt p).
+    <span class="nb">apply</span> (submm_mor_property _lt).
+  <span class="kn">Qed</span>.
+  <span class="kn">Lemma</span> <span class="nf">lt_iso_inv_left</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">p</span> : lt_iso b a)
+    {<span class="nv">c</span> : M} (<span class="nv">f</span> : a --&gt; c)
+    : submm_iso_inv _lt p · (p · f) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (submm_iso_left_of_inv_thunkable _lt p).
+    <span class="nb">apply</span> (submm_mor_property _lt).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lt_iso_right</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">p</span> : lt_iso b a)
+    {<span class="nv">c</span> : M} (<span class="nv">f</span> : a &lt;-- c)
+    : p ∘ (submm_iso_inv _lt p ∘ f) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (submm_iso_right_of_linear _lt p).
+    <span class="nb">apply</span> (submm_mor_property _lt).
+  <span class="kn">Qed</span>.
+  <span class="kn">Lemma</span> <span class="nf">lt_iso_inv_right</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">p</span> : lt_iso a b)
+    {<span class="nv">c</span> : M} (<span class="nv">f</span> : a &lt;-- c)
+    : submm_iso_inv _lt p ∘ (p ∘ f) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (submm_iso_right_of_inv_linear _lt p).
+    <span class="nb">apply</span> (submm_mor_property _lt).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lti_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : M) : UU := submm_iso _lti a b.
+  <span class="kn">Identity Coercion</span> <span class="nf">Id_lti_iso</span> : lti_iso &gt;-&gt; submm_iso.
+
+  <span class="kn">Definition</span> <span class="nf">lti_iso_to_lt_iso</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> : lti_iso a b) : lt_iso a b
+    := submm_iso_incl M _lti _lt ((<span class="k">λ</span> <span class="nv">_</span>, pr1),, (<span class="k">λ</span> <span class="nv">_</span>, pr1)) f.
+
+  <span class="kn">Lemma</span> <span class="nf">lti_iso_left</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">p</span> : lti_iso a b)
+    {<span class="nv">c</span> : M} (<span class="nv">f</span> : a --&gt; c)
+    : p · (submm_iso_inv _lti p · f) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (submm_iso_left_of_thunkable _lti p).
+    <span class="nb">apply</span> (submm_mor_property _lti).
+  <span class="kn">Qed</span>.
+  <span class="kn">Lemma</span> <span class="nf">lti_iso_inv_left</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">p</span> : lti_iso b a)
+    {<span class="nv">c</span> : M} (<span class="nv">f</span> : a --&gt; c)
+    : submm_iso_inv _lti p · (p · f) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (submm_iso_left_of_inv_thunkable _lti p).
+    <span class="nb">apply</span> (submm_mor_property _lti).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lti_iso_right</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">p</span> : lti_iso b a)
+    {<span class="nv">c</span> : M} (<span class="nv">f</span> : a &lt;-- c)
+    : p ∘ (submm_iso_inv _lti p ∘ f) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (submm_iso_right_of_linear _lti p).
+    <span class="nb">apply</span> (submm_mor_property _lti).
+  <span class="kn">Qed</span>.
+  <span class="kn">Lemma</span> <span class="nf">lti_iso_inv_right</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">p</span> : lti_iso a b)
+    {<span class="nv">c</span> : M} (<span class="nv">f</span> : a &lt;-- c)
+    : submm_iso_inv _lti p ∘ (p ∘ f) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (submm_iso_right_of_inv_linear _lti p).
+    <span class="nb">apply</span> (submm_mor_property _lti).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lti_iso_interpose</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> : lti_iso a b)
+    {<span class="nv">c</span> <span class="nv">d</span> : M}
+    (<span class="nv">f</span> : c --&gt; a)
+    (<span class="nv">g</span> : a --&gt; d)
+    : (f · p) · (submm_inv_mor _lti p · g) = f · g.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> submm_iso_interpose_of_intermediate.
+    - <span class="nb">apply</span> (submm_mor_property _lti).
+    - <span class="nb">apply</span> (submm_mor_property _lti).
+  <span class="kn">Qed</span>.
+  <span class="kn">Lemma</span> <span class="nf">lti_iso_interpose_inv</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> : lti_iso b a)
+    {<span class="nv">c</span> <span class="nv">d</span> : M}
+    (<span class="nv">f</span> : c --&gt; a)
+    (<span class="nv">g</span> : a --&gt; d)
+    : (f · submm_inv_mor _lti p) · (p · g) = f · g.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> submm_iso_interpose_inv_of_intermediate.
+    - <span class="nb">apply</span> (submm_mor_property _lti).
+    - <span class="nb">apply</span> (submm_mor_property _lti).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaset_lti_iso</span> {<span class="nv">a</span> <span class="nv">b</span> : M} : isaset (lti_iso a b).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> isaset_submm_iso. <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lti_iso_eq</span> {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">f</span> <span class="nv">g</span> : lti_iso a b)
+    : (submm_iso_plain_mor _lti f = submm_iso_plain_mor _lti g)
+        ≃ f = g.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> subcat_iso_eq. <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">isincl_lti_iso_to_lt_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : M)
+    : isincl (@lti_iso_to_lt_iso a b).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> isincl_submm_iso_incl. <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lti_iso_from_intermediate_lt_iso</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">f</span> : lt_iso a b)
+    (<span class="nv">Hf</span> : is_intermediate f)
+    (<span class="nv">Hfinv</span> : is_intermediate (submm_inv_mor _lt f))
+    : lti_iso a b.
+  <span class="kn">Proof</span>.
+    use make_submm_iso'.
+    - <span class="nb">apply</span> (submm_mor_from_left f), Hf.
+    - <span class="nb">apply</span> (submm_mor_from_left (submm_inv_mor _lt f)), Hfinv.
+    - <span class="bp">exact</span> f.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">isos</span>.
+
+<span class="sd">(** ** Lemmas about isomorphisms *)</span>
+
+<span class="kn">Section</span> <span class="nf">isos_facts</span>.
+  <span class="kn">Context</span> {<span class="nv">M</span> : unital_magmoid}.
+
+  <span class="kn">Lemma</span> <span class="nf">is_intermediate_from_interpose</span> {<span class="nv">b</span> <span class="nv">b'</span> : M}
+    (<span class="nv">p</span> : b --&gt; b')
+    (<span class="nv">pinv</span> : has_thunkable_inverse p)
+    (<span class="nv">Hp</span> : ∏ (a c : M) (f : a --&gt; b) (g : b --&gt; c),
+        (f · p) · (submm_inv_mor _t pinv · g) = f · g)
+    : is_intermediate p.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a c f g.
+    intermediate_path ((f · p) · (submm_inv_mor _t pinv · (p · g))). {
+      <span class="nb">apply</span> pathsinv0, Hp.
+    }
+    <span class="nb">rewrite</span> (assoc_thunkable (submm_inv_mor _t pinv) (submm_mor_property _t _)).
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">refine</span> (_ @ magmoid_id_left g).
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> (is_inverse_in_precat2 pinv).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lt_iso_i_from_interpose</span> {<span class="nv">b</span> <span class="nv">b'</span> : M}
+    (<span class="nv">p</span> : lt_iso b b')
+    (<span class="nv">Hp</span> : ∏ (a c : M) (f : a --&gt; b) (g : b --&gt; c),
+        (f · p) · (submm_inv_mor _lt p · g) = f · g)
+    : is_submm_iso _i p.
+  <span class="kn">Proof</span>.
+    use make_is_submm_iso'.
+    - <span class="bp">exact</span> (submm_inv_mor _lt p).
+    - use (is_intermediate_from_interpose p). {
+        <span class="nb">apply</span> (has_submm_inverse_incl M _lt _t (<span class="k">λ</span> <span class="nv">_</span>, pr2) _ p).
+      }
+      <span class="nb">apply</span> Hp.
+    - use (is_intermediate_from_interpose (submm_inv_mor _lt p)). {
+        <span class="nb">apply</span> (has_submm_inverse_incl M _lt _t (<span class="k">λ</span> <span class="nv">_</span>, pr2) _ (submm_iso_inv _lt p)).
+      }
+      <span class="nb">intros</span> a c f g.
+      etrans; [<span class="nb">apply</span> pathsinv0, Hp|]; <span class="nb">cbn</span>.
+      etrans.
+      + <span class="nb">apply</span> cancel_postcomposition, (lt_iso_right p).
+      + <span class="nb">apply</span> cancel_precomposition, (lt_iso_inv_left p).
+    - <span class="nb">cbn</span>; <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** [lt_iso]s preserve polarities *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">is_positive_of_lt_iso</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> : lt_iso a b) (<span class="nv">H</span> : is_positive a) : is_positive b.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> c f.
+    <span class="nb">rewrite</span> &lt;- (lt_iso_inv_left p f).
+    <span class="nb">apply</span> is_linear_compose.
+    - <span class="nb">apply</span> (submm_mor_property _lt).
+    - <span class="nb">apply</span> is_linear_of_positive, H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">weq_is_positive_of_lt_iso</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> : lt_iso a b)
+    : is_positive a ≃ is_positive b.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqimplimpl.
+    - <span class="nb">apply</span> is_positive_of_lt_iso, p.
+    - <span class="nb">apply</span> is_positive_of_lt_iso, submm_iso_inv, p.
+    - <span class="nb">apply</span> isaprop_is_positive.
+    - <span class="nb">apply</span> isaprop_is_positive.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_negative_of_lt_iso</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> : lt_iso a b) (<span class="nv">H</span> : is_negative a) : is_negative b.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> c f.
+    <span class="nb">rewrite</span> &lt;- (lt_iso_right p f).
+    <span class="nb">apply</span> is_thunkable_compose.
+    - <span class="nb">apply</span> is_thunkable_of_negative, H.
+    - <span class="nb">apply</span> (submm_mor_property _lt).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">weq_is_negative_of_lt_iso</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> : lt_iso a b)
+    : is_negative a ≃ is_negative b.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqimplimpl.
+    - <span class="nb">apply</span> is_negative_of_lt_iso, p.
+    - <span class="nb">apply</span> is_negative_of_lt_iso, submm_iso_inv, p.
+    - <span class="nb">apply</span> isaprop_is_negative.
+    - <span class="nb">apply</span> isaprop_is_negative.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** If anything is polarized, [lt_iso]s and [lti_iso]s merge. *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">lt_iso_is_intermediate_from_polarized</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> : lt_iso a b)
+    (<span class="nv">H</span> : is_negative a ∨ is_positive a)
+    : is_intermediate p.
+  <span class="kn">Proof</span>.
+    isaprop_goal Hprop; [<span class="nb">apply</span> isaprop_is_intermediate|].
+    <span class="nb">apply</span> (squash_to_prop H Hprop).
+    <span class="nb">clear</span> H; <span class="nb">intro</span> H; <span class="nb">induction</span> H <span class="k">as</span> [Hnegative | Hpositive].
+    - <span class="nb">apply</span> is_intermediate_of_negative, Hnegative.
+    - <span class="nb">apply</span> is_intermediate_of_positive.
+      <span class="nb">apply</span> (is_positive_of_lt_iso p Hpositive).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_polarized_across_lt_iso</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> : lt_iso a b)
+    (<span class="nv">H</span> : is_negative a ∨ is_positive a)
+    : is_negative b ∨ is_positive b.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> H; <span class="nb">apply</span> hinhfun; <span class="nb">intro</span> H.
+    <span class="nb">induction</span> H <span class="k">as</span> [Hnegative | Hpositive].
+    - <span class="nb">apply</span> ii1, (is_negative_of_lt_iso p Hnegative).
+    - <span class="nb">apply</span> ii2, (is_positive_of_lt_iso p Hpositive).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lt_iso_is_intermediate_from_polarized'</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : M}
+    (<span class="nv">p</span> : lt_iso a b)
+    (<span class="nv">H</span> : is_negative b ∨ is_positive b)
+    : is_intermediate p.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> lt_iso_is_intermediate_from_polarized.
+    <span class="nb">apply</span> (transport_polarized_across_lt_iso
+             (submm_iso_inv _lt p) H).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isweq_lti_iso_to_lt_iso_from_polarized</span> (<span class="nv">a</span> <span class="nv">b</span> : M)
+    (<span class="nv">H</span> : is_negative a ∨ is_positive a)
+    : isweq (@lti_iso_to_lt_iso M a b).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (isweqinclandsurj _ (isincl_lti_iso_to_lt_iso _ _)).
+    <span class="nb">intro</span> f; <span class="nb">apply</span> hinhpr.
+    use make_hfiber.
+    - <span class="nb">apply</span> (lti_iso_from_intermediate_lt_iso f).
+      + <span class="nb">apply</span> lt_iso_is_intermediate_from_polarized, H.
+      + <span class="nb">apply</span> (lt_iso_is_intermediate_from_polarized' (submm_iso_inv _lt f)), H.
+    - <span class="bp">now</span> <span class="nb">apply</span> lt_iso_eq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_lti_iso_to_lt_iso_from_polarized</span> (<span class="nv">a</span> <span class="nv">b</span> : M)
+    (<span class="nv">H</span> : is_negative a ∨ is_positive a)
+    : a ≅{_lti} b ≃ a ≅{_lt} b
+    := make_weq _ (isweq_lti_iso_to_lt_iso_from_polarized _ _ H).
+
+<span class="kn">End</span> <span class="nf">isos_facts</span>.</span></pre>
+</div>
+</div></body>
+</html>

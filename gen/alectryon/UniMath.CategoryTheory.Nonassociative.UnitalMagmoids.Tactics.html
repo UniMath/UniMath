@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Tactics.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> Tactics for Unital Magmoids</span>
+
+<span class="sd"> Author: B. Szilvasy</span>
+<span class="sd"> October 2026</span>
+
+<span class="sd"> Provides the [submagmoid] tactic and [unital_magmoid] hint database</span>
+<span class="sd"> for inferring [is_{linear,positive,...}] from submagmoids.  Use the</span>
+<span class="sd"> notation [ummsolve] for an expression that requires a proof.</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. The [unital_magmoid] tactic</span>
+
+<span class="sd"> ********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Submagmoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.PolarizedSubcategories.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> unital_magmoid.
+
+<span class="sd">(** ** The [unital_magmoid] tactic *)</span>
+
+<span class="kn">Section</span> <span class="nf">mor_hints</span>.
+  <span class="kn">Context</span> {<span class="nv">M</span> : unital_magmoid} (<span class="nv">a</span> <span class="nv">b</span> : M).
+  <span class="kn">Definition</span> <span class="nf">is_linear_l_mor</span> (<span class="nv">f</span> : a --&gt;{_l} b) : is_linear f := submm_mor_property _l f.
+  <span class="kn">Definition</span> <span class="nf">is_thunkable_t_mor</span> (<span class="nv">f</span> : a --&gt;{_t} b) : is_thunkable f := submm_mor_property _t f.
+  <span class="kn">Definition</span> <span class="nf">is_intermediate_i_mor</span> (<span class="nv">f</span> : a --&gt;{_i} b) : is_intermediate f := submm_mor_property _i f.
+  <span class="kn">Definition</span> <span class="nf">is_linear_lt_mor</span> (<span class="nv">f</span> : a --&gt;{_lt} b) : is_linear f := pr1 (submm_mor_property _lt f).
+  <span class="kn">Definition</span> <span class="nf">is_thunkable_lt_mor</span> (<span class="nv">f</span> : a --&gt;{_lt} b) : is_thunkable f := pr2 (submm_mor_property _lt f).
+  <span class="kn">Definition</span> <span class="nf">is_linear_lti_mor</span> (<span class="nv">f</span> : a --&gt;{_lti} b) : is_linear f := pr11 (submm_mor_property _lti f).
+  <span class="kn">Definition</span> <span class="nf">is_thunkable_lti_mor</span> (<span class="nv">f</span> : a --&gt;{_lti} b) : is_thunkable f := pr21 (submm_mor_property _lti f).
+  <span class="kn">Definition</span> <span class="nf">is_intermediate_lti_mor</span> (<span class="nv">f</span> : a --&gt;{_lti} b) : is_intermediate f := pr2 (submm_mor_property _lti f).
+<span class="kn">End</span> <span class="nf">mor_hints</span>.
+
+<span class="kn">Section</span> <span class="nf">ob_hints</span>.
+  <span class="kn">Context</span> {<span class="nv">M</span> : unital_magmoid}.
+  <span class="kn">Definition</span> <span class="nf">is_positive_p_ob</span> (<span class="nv">a</span> : sub_ob M ^⊕) : is_positive a := sub_ob_property ^⊕ a.
+  <span class="kn">Definition</span> <span class="nf">is_negative_n_ob</span> (<span class="nv">a</span> : sub_ob M ^⊖) : is_negative a := sub_ob_property ^⊖ a.
+<span class="kn">End</span> <span class="nf">ob_hints</span>.
+
+<span class="kn">Create HintDb</span> unital_magmoid.
+<span class="kn">Hint Resolve</span> @is_linear_l_mor : unital_magmoid.
+<span class="kn">Hint Resolve</span> @is_thunkable_t_mor : unital_magmoid.
+<span class="kn">Hint Resolve</span> @is_intermediate_i_mor : unital_magmoid.
+<span class="kn">Hint Resolve</span> @is_linear_lt_mor : unital_magmoid.
+<span class="kn">Hint Resolve</span> @is_thunkable_lt_mor : unital_magmoid.
+<span class="kn">Hint Resolve</span> @is_linear_lti_mor : unital_magmoid.
+<span class="kn">Hint Resolve</span> @is_thunkable_lti_mor : unital_magmoid.
+<span class="kn">Hint Resolve</span> @is_intermediate_lti_mor : unital_magmoid.
+<span class="kn">Hint Resolve</span> @is_positive_p_ob : unital_magmoid.
+<span class="kn">Hint Resolve</span> @is_negative_n_ob : unital_magmoid.
+
+<span class="kn">Ltac</span> <span class="nf">submagmoid</span> :=
+  <span class="kp">repeat</span> (<span class="bp">assumption</span> || <span class="nb">split</span>);
+  <span class="kp">solve</span>
+    [ <span class="nb">apply</span> is_linear_l_mor
+    | <span class="nb">apply</span> is_thunkable_t_mor
+    | <span class="nb">apply</span> is_intermediate_i_mor
+    | <span class="nb">apply</span> is_linear_lt_mor
+    | <span class="nb">apply</span> is_thunkable_lt_mor
+    | <span class="nb">apply</span> is_linear_lti_mor
+    | <span class="nb">apply</span> is_thunkable_lti_mor
+    | <span class="nb">apply</span> is_intermediate_lti_mor
+    | <span class="nb">apply</span> is_positive_p_ob
+    | <span class="nb">apply</span> is_negative_n_ob ].
+<span class="kn">Notation</span> <span class="nf">ummsolve</span> := <span class="kp">ltac</span>:(submagmoid) (<span class="kn">only parsing</span>).</span></pre>
+</div>
+</div></body>
+</html>

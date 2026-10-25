@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Univalence.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> Univalence of Unital Magmoids</span>
+
+<span class="sd"> Author: B. Szilvasy</span>
+<span class="sd"> October 2026</span>
+
+<span class="sd"> We define what it means for a unital magmoid to be univalent: that</span>
+<span class="sd"> identifications are equivalent to linear-and-thunkable-and-intermediate</span>
+<span class="sd"> isomorphisms.  We show some properties of equivalences (fully-faithful functors</span>
+<span class="sd"> which are surjective up to linear-and-thunkable(-and-intermediate) isomorphism)</span>
+<span class="sd"> between univalent unital magmoids; in particular that they become isomorphisms.</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Internal univalence in unital magmoids</span>
+<span class="sd"> 1.1. Definition of univalence</span>
+<span class="sd"> 1.2. Simple consequences of univalence</span>
+<span class="sd"> 2. Weak equivalences to strong equivalences</span>
+<span class="sd"> 2.1. Generically over [wide_subcategory]s</span>
+<span class="sd"> 2.2. Specifically for [lt] and [lti]</span>
+<span class="sd"> 3. Univalent unital magmoids are identified if they are weakly equivalent</span>
+
+<span class="sd"> ********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.IdentitySystems.RXGraph.
+<span class="kn">Require Import</span> UniMath.IdentitySystems.Examples.
+<span class="kn">Require Import</span> UniMath.IdentitySystems.RXGraphOfRXGraphs.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.catiso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoryRXGraph.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Submagmoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.PolarizedSubcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Functors.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> unital_magmoid.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> rxgraph.
+
+<span class="sd">(** ** Internal univalence in unital magmoids *)</span>
+
+<span class="kn">Section</span> <span class="nf">internal_univalence</span>.
+  <span class="kn">Context</span> (<span class="nv">M</span> : unital_magmoid) (<span class="nv">P</span> : wide_submagmoid M).
+
+  <span class="sd">(** *** Definition of univalence *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">submm_rxgraph</span> : rxgraph.
+  <span class="kn">Proof</span>.
+    use make_rxgraph.
+    - <span class="bp">exact</span> (ob M).
+    - <span class="bp">exact</span> (submm_iso P).
+    - <span class="bp">exact</span> (submm_iso_identity P).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_submm_univalent</span> : UU
+    := is_univalent submm_rxgraph.
+
+  <span class="kn">Definition</span> <span class="nf">weq_id_to_submm_iso</span>
+    (<span class="nv">H</span> : is_submm_univalent) (<span class="nv">a</span> <span class="nv">b</span> : M)
+    : a = b ≃ a ≅{P} b
+    := make_weq _ (H a b).
+
+  <span class="kn">Definition</span> <span class="nf">submm_iso_to_id</span>
+    (<span class="nv">H</span> : is_submm_univalent)
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">p</span> : a ≅{P} b)
+    : a = b
+    := invmap (weq_id_to_submm_iso H a b) p.
+
+  <span class="kn">Lemma</span> <span class="nf">submm_iso_to_id_retract</span>
+    (<span class="nv">H</span> : is_submm_univalent)
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">p</span> : a = b)
+    : submm_iso_to_id H (id_to_submm_iso P p) = p.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (homotinvweqweq (weq_id_to_submm_iso H a b)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">submm_iso_to_id_section</span>
+    (<span class="nv">H</span> : is_submm_univalent)
+    {<span class="nv">a</span> <span class="nv">b</span> : M} (<span class="nv">p</span> : a ≅{P} b)
+    : id_to_submm_iso P (submm_iso_to_id H p) = p.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (homotweqinvweq (weq_id_to_submm_iso H a b)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">submm_isos_from_paths</span>
+    (<span class="nv">H</span> : is_submm_univalent)
+    (<span class="nv">a</span> <span class="nv">b</span> : M)
+    (<span class="nv">p</span> : a ≅{P} b)
+    : PathPair (B:=<span class="k">λ</span> <span class="nv">b</span>, a ≅{P} b)
+        (@edges_from_refl submm_rxgraph a)
+        (b,, p).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> total2_paths_equiv.
+    <span class="nb">apply</span> (proofirrelevance (edges_from submm_rxgraph a)).
+    <span class="nb">apply</span> is_univalent_to_isaprop_edges_from, H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">submm_isos_to_paths</span>
+    (<span class="nv">H</span> : is_submm_univalent)
+    (<span class="nv">a</span> <span class="nv">b</span> : M)
+    (<span class="nv">p</span> : a ≅{P} b)
+    : PathPair (B:=<span class="k">λ</span> <span class="nv">a</span>, a ≅{P} b)
+        (@edges_to_refl submm_rxgraph b)
+        (a,, p).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> total2_paths_equiv.
+    <span class="nb">apply</span> (proofirrelevance (edges_to submm_rxgraph b)).
+    <span class="nb">apply</span> is_univalent_to_isaprop_edges_to, H.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">internal_univalence</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_um_univalent</span> (<span class="nv">M</span> : unital_magmoid) : UU
+  := is_submm_univalent M _lti.
+<span class="kn">Definition</span> <span class="nf">univalent_unital_magmoid</span> : UU
+  := total2 is_um_univalent.
+<span class="kn">Coercion</span> <span class="nf">univalent_unital_magmoid_to_unital_magmoid</span>
+  (M : univalent_unital_magmoid) : unital_magmoid := pr1 M.
+<span class="kn">Coercion</span> <span class="nf">unital_magmoid_univalence</span>
+  (M : univalent_unital_magmoid) : is_um_univalent M := pr2 M.
+<span class="kn">Definition</span> <span class="nf">make_univalent_unital_magmoid</span>
+  (<span class="nv">M</span> : unital_magmoid) (<span class="nv">ua</span> : is_um_univalent M)
+  : univalent_unital_magmoid
+  := M,, ua.
+
+<span class="sd">(** *** Simple consequences of univalence **)</span>
+
+<span class="kn">Section</span> <span class="nf">up_uniqueness</span>.
+  <span class="kn">Lemma</span> <span class="nf">isaprop_linear_isos_from_negative</span>
+    {<span class="nv">M</span> : unital_magmoid}
+    (<span class="nv">ua</span> : is_um_univalent M)
+    (<span class="nv">b</span> : M)
+    : isaprop (∑ (a : sub_ob M ^⊖), a ≅{_l} b).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> invproofirrelevance.
+    <span class="nb">intros</span> [[a Ha] e] [[a' Ha'] e'].
+    transparent <span class="nb">assert</span> (ee' : (lti_iso a a')). {
+      <span class="nb">refine</span> (submm_iso_incl M _l _lti _
+                (subcat_iso_compose _ e (submm_iso_inv _ e'))).
+      <span class="nb">split</span>; (<span class="nb">intros</span> f Hf; <span class="nb">split</span>; [<span class="nb">split</span>|];
+              [ <span class="bp">exact</span> Hf
+              | <span class="bp">now</span> <span class="nb">apply</span> is_thunkable_of_negative
+              | <span class="bp">now</span> <span class="nb">apply</span> is_intermediate_of_negative ]).
+    }
+    <span class="nb">induction</span> (submm_isos_from_paths M _lti ua _ _ ee') <span class="k">as</span> [Haa' Hee'].
+    <span class="nb">apply</span> submm_iso_eq_mor <span class="k">in</span> Hee'.
+    <span class="nb">cbn</span> <span class="k">in</span> Haa', Hee'.
+    <span class="nb">clear</span> ee'; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> Haa'; <span class="nb">cbn</span> <span class="k">in</span> Hee'.
+    <span class="nb">induction</span> (proofirrelevance_hProp (^⊖ a) Ha Ha').
+    <span class="nb">apply</span> pair_path_in2, (subcat_iso_eq _l).
+    <span class="nb">apply</span> subcat_iso_eq_from_identity_right.
+    <span class="bp">exact</span> (!Hee').
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_thunkable_isos_to_positive</span>
+    {<span class="nv">M</span> : unital_magmoid}
+    (<span class="nv">ua</span> : is_um_univalent M)
+    (<span class="nv">b</span> : M)
+    : isaprop (∑ (a : sub_ob M ^⊕), b ≅{_t} a).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> invproofirrelevance.
+    <span class="nb">intros</span> [[a Ha] e] [[a' Ha'] e'].
+    transparent <span class="nb">assert</span> (ee' : (lti_iso a a')). {
+      <span class="nb">refine</span> (submm_iso_incl M _t _lti _
+                (subcat_iso_compose _ (submm_iso_inv _ e) e')).
+      <span class="nb">split</span>; (<span class="nb">intros</span> f Hf; <span class="nb">split</span>; [<span class="nb">split</span>|];
+              [ <span class="bp">now</span> <span class="nb">apply</span> is_linear_of_positive
+              | <span class="bp">exact</span> Hf
+              | <span class="bp">now</span> <span class="nb">apply</span> is_intermediate_of_positive ]).
+    }
+    <span class="nb">induction</span> (submm_isos_from_paths M _lti ua _ _ ee') <span class="k">as</span> [Haa' Hee'].
+    <span class="nb">apply</span> submm_iso_eq_mor <span class="k">in</span> Hee'.
+    <span class="nb">cbn</span> <span class="k">in</span> Haa', Hee'.
+    <span class="nb">clear</span> ee'; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> Haa'; <span class="nb">cbn</span> <span class="k">in</span> Hee'.
+    <span class="nb">induction</span> (proofirrelevance_hProp (^⊕ a) Ha Ha').
+    <span class="nb">apply</span> pair_path_in2, (subcat_iso_eq _t).
+    <span class="nb">apply</span> pathsinv0, subcat_iso_eq_from_identity_left.
+    <span class="bp">exact</span> (!Hee').
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">up_uniqueness</span>.
+
+<span class="sd">(** ** Weak equivalences to strong equivalences *)</span>
+
+<span class="kn">Section</span> <span class="nf">upgrade</span>.
+  <span class="kn">Lemma</span> <span class="nf">issurjective_from_submm_eso</span>
+    {<span class="nv">C</span> : unital_premagmoid_data}
+    {<span class="nv">D</span> : unital_magmoid}
+    (<span class="nv">F</span> : functor C D)
+    (<span class="nv">P</span> : wide_submagmoid D)
+    (<span class="nv">ua</span> : is_submm_univalent D P)
+    (<span class="nv">Heso</span> : submm_essentially_surjective F P)
+    : issurjective F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> b.
+    <span class="nb">refine</span> (hinhfun _ (Heso b)).
+    <span class="nb">apply</span> totalfun; <span class="nb">intro</span> a.
+    <span class="nb">apply</span> submm_iso_to_id, ua.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** Generically over [wide_subcategory]s *)</span>
+  <span class="kn">Section</span> <span class="nf">generic</span>.
+    <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : unital_magmoid}
+      (<span class="nv">F</span> : functor C D)
+      (<span class="nv">P₁</span> : wide_subcategory C)
+      (<span class="nv">P₂</span> : wide_subcategory D)
+      (<span class="nv">ua₁</span> : is_submm_univalent C P₁)
+      (<span class="nv">ua₂</span> : is_submm_univalent D P₂).
+
+    <span class="kn">Hypothesis</span> <span class="nv">Hreflects</span>
+      : reflects_submm F (isc_subcat_iso P₁) (isc_subcat_iso P₂).
+
+    <span class="kn">Lemma</span> <span class="nf">isaprop_submm_fibre</span> (<span class="nv">b</span> : D)
+      (<span class="nv">HF</span> : fully_faithful F)
+      : isaprop (submm_fibre F P₂ b).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> invproofirrelevance.
+      <span class="nb">intros</span> [a e] [a' e'].
+      <span class="nb">pose</span> (ee' := subcat_iso_compose _ e (submm_iso_inv _ e')).
+      transparent <span class="nb">assert</span> (ee'inv : (a ≅{P₁} a')). {
+        use make_submm_iso.
+        - <span class="bp">exact</span> (fully_faithful_inv_hom HF _ _ ee').
+        - <span class="nb">apply</span> Hreflects.
+          <span class="nb">refine</span> (transportf (is_submm_iso P₂) _ ee').
+          <span class="nb">apply</span> pathsinv0, (homotweqinvweq (weq_from_fully_faithful HF a a')).
+      }
+      <span class="nb">induction</span> (submm_isos_from_paths C P₁ ua₁ _ _ ee'inv)
+        <span class="k">as</span> [Ha He]; <span class="nb">cbn</span> <span class="k">in</span> Ha, He.
+      <span class="nb">induction</span> Ha; <span class="nb">cbn</span> <span class="k">in</span> He.
+      <span class="nb">apply</span> pair_path_in2, subcat_iso_eq.
+      <span class="nb">apply</span> subcat_iso_eq_from_identity_right.
+      <span class="nb">rewrite</span> &lt;- (functor_id F a).
+      <span class="nb">apply</span> pathsinv0, (pathsweq1' (weq_from_fully_faithful HF a a)).
+      <span class="bp">exact</span> (submm_iso_eq_mor _ _ _ He).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Theorem</span> <span class="nf">isaprop_submm_split_essentially_surjective</span>
+      (<span class="nv">HF</span> : fully_faithful F)
+      : isaprop (submm_split_essentially_surjective F P₂).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_submm_fibre, HF.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Corollary</span> <span class="nf">isaprop_is_submm_strong_equiv</span>
+      : isaprop (is_submm_strong_equiv F P₂).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> isofhleveltotal2.
+      - <span class="nb">apply</span> isaprop_fully_faithful.
+      - <span class="nb">intro</span> HF.
+        <span class="nb">apply</span> isaprop_submm_split_essentially_surjective, HF.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Theorem</span> <span class="nf">submm_eso_upgrade</span>
+      (<span class="nv">HF</span> : fully_faithful F)
+      (<span class="nv">Heso</span> : submm_essentially_surjective F P₂)
+      : submm_split_essentially_surjective F P₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> b.
+      <span class="nb">refine</span> (hinhprinv (make_hProp _ _) (Heso b)).
+      <span class="nb">apply</span> isaprop_submm_fibre, HF.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Corollary</span> <span class="nf">weq_submm_eso</span> (<span class="nv">HF</span> : fully_faithful F)
+      : submm_essentially_surjective F P₂
+          ≃ submm_split_essentially_surjective F P₂.
+    <span class="kn">Proof</span>.
+      use weqimplimpl.
+      - <span class="nb">apply</span> submm_eso_upgrade, HF.
+      - <span class="nb">apply</span> submm_split_essentially_surjective_weaken.
+      - <span class="nb">apply</span> isaprop_submm_essentially_surjective.
+      - <span class="nb">apply</span> isaprop_submm_split_essentially_surjective, HF.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Corollary</span> <span class="nf">submm_weak_equiv_upgrade</span>
+      (<span class="nv">Hequiv</span> : is_submm_weak_equiv F P₂)
+      : is_submm_strong_equiv F P₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="bp">exact</span> Hequiv.
+      - <span class="nb">apply</span> submm_eso_upgrade; <span class="bp">exact</span> Hequiv.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Corollary</span> <span class="nf">weq_submm_equiv</span> (<span class="nv">HF</span> : fully_faithful F)
+      : is_submm_weak_equiv F P₂
+          ≃ is_submm_strong_equiv F P₂.
+    <span class="kn">Proof</span>.
+      use weqimplimpl.
+      - <span class="nb">apply</span> submm_weak_equiv_upgrade.
+      - <span class="nb">intro</span> H; <span class="nb">split</span>; <span class="bp">exact</span> H.
+      - <span class="nb">apply</span> isaprop_is_submm_weak_equiv.
+      - <span class="nb">apply</span> isaprop_is_submm_strong_equiv.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Theorem</span> <span class="nf">isincl_fully_faithful_from_submm_univalent</span>
+      (<span class="nv">HF</span> : fully_faithful F)
+      : isincl F.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> b.
+      <span class="nb">apply</span> (isofhlevelweqb <span class="mi">1</span> (Y:=submm_fibre F P₂ b)).
+      - <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> a.
+        <span class="bp">exact</span> (weq_id_to_submm_iso _ _ ua₂ (F a) b).
+      - <span class="nb">apply</span> isaprop_submm_fibre, HF.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Theorem</span> <span class="nf">isweq_submm_weak_equiv</span>
+      (<span class="nv">HF</span> : is_submm_weak_equiv F P₂)
+      : isweq F.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> isweqinclandsurj.
+      - <span class="nb">apply</span> isincl_fully_faithful_from_submm_univalent, HF.
+      - <span class="nb">eapply</span> issurjective_from_submm_eso.
+        + <span class="bp">exact</span> ua₂.
+        + <span class="bp">exact</span> HF.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">generic</span>.
+
+  <span class="sd">(** *** Specifically for [lt] and [lti] *)</span>
+
+  <span class="kn">Section</span> <span class="nf">lti_fibres</span>.
+    <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : unital_magmoid}
+      (<span class="nv">F</span> : functor C D).
+    <span class="kn">Hypothesis</span> <span class="nv">ualt</span> : is_submm_univalent C _lt.
+    <span class="kn">Hypothesis</span> <span class="nv">ualt₂</span> : is_submm_univalent D _lt.
+    <span class="kn">Hypothesis</span> <span class="nv">ualti</span> : is_submm_univalent C _lti.
+    <span class="kn">Hypothesis</span> <span class="nv">ualti₂</span> : is_submm_univalent D _lti.
+
+    <span class="sd">(** [lt] *)</span>
+    <span class="kn">Theorem</span> <span class="nf">isaprop_lt_fibre</span>
+      (<span class="nv">b</span> : D)
+      (<span class="nv">Hff</span> : fully_faithful F)
+      : isaprop (submm_fibre F _lt b).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (isaprop_submm_fibre F _lt _lt ualt
+               (reflects_lt_iso_ff F Hff)).
+      <span class="bp">exact</span> Hff.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Theorem</span> <span class="nf">lt_weak_equiv_upgrade</span>
+      (<span class="nv">Hequiv</span> : is_submm_weak_equiv F _lt)
+      : is_submm_strong_equiv F _lt.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="bp">exact</span> Hequiv.
+      - <span class="nb">apply</span> (submm_eso_upgrade F _lt _lt ualt
+                 (reflects_lt_iso_ff F Hequiv)).
+        + <span class="bp">exact</span> Hequiv.
+        + <span class="bp">exact</span> Hequiv.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Theorem</span> <span class="nf">isweq_lt_weak_equiv</span>
+      (<span class="nv">Hequiv</span> : is_submm_weak_equiv F _lt)
+      : isweq F.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (isweq_submm_weak_equiv F _lt _lt ualt ualt₂
+               (reflects_lt_iso_ff F Hequiv)).
+      <span class="bp">exact</span> Hequiv.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Theorem</span> <span class="nf">is_catiso_lt_weak_equiv</span>
+      (<span class="nv">Hequiv</span> : is_submm_weak_equiv F _lt)
+      : is_catiso F.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="bp">exact</span> Hequiv.
+      - <span class="nb">apply</span> isweq_lt_weak_equiv, Hequiv.
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(** [lt] *)</span>
+    <span class="kn">Theorem</span> <span class="nf">isaprop_lti_fibre</span>
+      (<span class="nv">b</span> : D)
+      (<span class="nv">Hff</span> : fully_faithful F)
+      : isaprop (submm_fibre F _lti b).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (isaprop_submm_fibre F _lti _lti ualti
+               (reflects_lti_iso_ff F Hff)).
+      <span class="bp">exact</span> Hff.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Theorem</span> <span class="nf">lti_weak_equiv_upgrade</span>
+      (<span class="nv">Hequiv</span> : is_submm_weak_equiv F _lti)
+      : is_submm_strong_equiv F _lti.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="bp">exact</span> Hequiv.
+      - <span class="nb">apply</span> (submm_eso_upgrade F _lti _lti ualti
+                 (reflects_lti_iso_ff F Hequiv)).
+        + <span class="bp">exact</span> Hequiv.
+        + <span class="bp">exact</span> Hequiv.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Theorem</span> <span class="nf">isweq_lti_weak_equiv</span>
+      (<span class="nv">Hequiv</span> : is_submm_weak_equiv F _lti)
+      : isweq F.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (isweq_submm_weak_equiv F _lti _lti ualti ualti₂
+               (reflects_lti_iso_ff F Hequiv)).
+      <span class="bp">exact</span> Hequiv.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Theorem</span> <span class="nf">is_catiso_lti_weak_equiv</span>
+      (<span class="nv">Hequiv</span> : is_submm_weak_equiv F _lti)
+      : is_catiso F.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="bp">exact</span> Hequiv.
+      - <span class="nb">apply</span> isweq_lti_weak_equiv, Hequiv.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">lti_fibres</span>.
+
+<span class="kn">End</span> <span class="nf">upgrade</span>.
+
+<span class="sd">(** ** Univalent unital magmoids are identified if they are weakly equivalent *)</span>
+
+<span class="kn">Section</span> <span class="nf">external_univalence</span>.
+
+  <span class="c">(* This is not univalent. *)</span>
+  <span class="kn">Definition</span> <span class="nf">unital_premagmoid_rxgraph</span> : rxgraph.
+  <span class="kn">Proof</span>.
+    use make_rxgraph.
+    - <span class="bp">exact</span> unital_premagmoid.
+    - <span class="bp">exact</span> catiso.
+    - <span class="bp">exact</span> identity_catiso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">unital_magmoid_rxgraph</span> : rxgraph.
+  <span class="kn">Proof</span>.
+    use make_rxgraph.
+    - <span class="bp">exact</span> unital_magmoid.
+    - <span class="bp">exact</span> catiso.
+    - <span class="bp">exact</span> identity_catiso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">is_univalent_unital_magmoid_rxgraph</span>
+    : is_univalent unital_magmoid_rxgraph.
+  <span class="kn">Proof</span>.
+    use is_univalent_rxgraph_iso_f.
+    - <span class="bp">exact</span> (sub_rxgraph precategory_data_rxgraph (<span class="k">λ</span> (<span class="nv">C</span> : precategory_data),
+                 has_homsets C × is_unital_premagmoid C)).
+    - use make_rxgraph_iso.
+      + use weq_iso.
+        * <span class="nb">intros</span> [C [H₁ H₂]]; <span class="bp">exact</span> ((C,, H₂),, H₁).
+        * <span class="nb">intros</span> [[C H₂] H₁]; <span class="bp">exact</span> (C,, H₁,, H₂).
+        * <span class="bp">easy</span>.
+        * <span class="bp">easy</span>.
+      + <span class="nb">intros</span> C D; <span class="nb">cbn</span>.
+        <span class="bp">exact</span> (idweq _).
+      + <span class="bp">easy</span>.
+    - <span class="nb">apply</span> is_univalent_sub_rxgraph.
+      + <span class="nb">apply</span> is_univalent_precategory_data_rxgraph.
+      + <span class="nb">intro</span> M.
+        <span class="nb">apply</span> isaprop_assume_it_is.
+        <span class="nb">intros</span> [hs H].
+        <span class="nb">apply</span> isapropdirprod.
+        * <span class="nb">apply</span> isaprop_has_homsets.
+        * <span class="nb">apply</span> isaprop_is_unital_premagmoid, hs.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">weq_is_catiso_is_lti_weak_equiv</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : unital_magmoid}
+    (<span class="nv">HC</span> : is_um_univalent C)
+    (<span class="nv">Hd</span> : is_um_univalent D)
+    (<span class="nv">F</span> : functor C D)
+    : is_catiso F ≃ is_submm_weak_equiv F _lti.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intro</span> HF; <span class="nb">split</span>.
+      + <span class="nb">apply</span> HF.
+      + <span class="nb">apply</span> submm_split_essentially_surjective_weaken.
+        <span class="nb">apply</span> (is_submm_eso_from_weq F _lti), HF.
+    - <span class="nb">intros</span> HF.
+      <span class="bp">now</span> <span class="nb">apply</span> is_catiso_lti_weak_equiv.
+    - <span class="nb">apply</span> isaprop_is_catiso.
+    - <span class="nb">apply</span> isaprop_is_submm_weak_equiv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">weq_is_catiso_is_lt_weak_equiv</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : unital_magmoid}
+    (<span class="nv">HC</span> : is_submm_univalent C _lt)
+    (<span class="nv">Hd</span> : is_submm_univalent D _lt)
+    (<span class="nv">F</span> : functor C D)
+    : is_catiso F ≃ is_submm_weak_equiv F _lt.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intro</span> HF; <span class="nb">split</span>.
+      + <span class="nb">apply</span> HF.
+      + <span class="nb">apply</span> submm_split_essentially_surjective_weaken.
+        <span class="nb">apply</span> (is_submm_eso_from_weq F _lt), HF.
+    - <span class="nb">intros</span> HF.
+      <span class="bp">now</span> <span class="nb">apply</span> is_catiso_lt_weak_equiv.
+    - <span class="nb">apply</span> isaprop_is_catiso.
+    - <span class="nb">apply</span> isaprop_is_submm_weak_equiv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">univalent_unital_magmoid_rxgraph</span> : rxgraph.
+  <span class="kn">Proof</span>.
+    use make_rxgraph.
+    - <span class="bp">exact</span> univalent_unital_magmoid.
+    - <span class="nb">intros</span> C D; <span class="bp">exact</span> (submm_weak_equiv C D _lti).
+    - <span class="nb">intro</span> M; <span class="nb">apply</span> submm_weak_equiv_identity.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_univalent_unital_magmoid_rxgraph</span>
+    : is_univalent univalent_unital_magmoid_rxgraph.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_from_weq.
+    <span class="nb">intros</span> C D.
+    <span class="nb">refine</span> (weqcomp
+              (@weq_id_to_edge
+                 (sub_rxgraph unital_magmoid_rxgraph is_um_univalent)
+                 _ C D) _). {
+      <span class="nb">apply</span> is_univalent_sub_rxgraph.
+      - <span class="nb">apply</span> is_univalent_unital_magmoid_rxgraph.
+      - <span class="nb">intro</span>; <span class="nb">apply</span> isaprop_is_univalent.
+    }
+    <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> F.
+    <span class="nb">apply</span> weq_is_catiso_is_lti_weak_equiv;
+      <span class="nb">apply</span> unital_magmoid_univalence.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">external_univalence</span>.</span></pre>
+</div>
+</div></body>
+</html>

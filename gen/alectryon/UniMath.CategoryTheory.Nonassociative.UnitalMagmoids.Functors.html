@@ -1,0 +1,582 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Functors.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> Functors of Unital Magmoids</span>
+
+<span class="sd"> Author: B. Szilvasy</span>
+<span class="sd"> January 2026</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Preservation of submagmoids</span>
+<span class="sd"> 1.1. Definition of preservation/reflection</span>
+<span class="sd"> 1.2. Preservation/reflection of isomorphisms</span>
+<span class="sd"> 2. Equivalences of unital magmoids</span>
+<span class="sd"> 2.1. Essential fibres</span>
+<span class="sd"> 2.2. Weak equivalences</span>
+
+<span class="sd"> ********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Submagmoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.PolarizedSubcategories.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> unital_magmoid.
+
+<span class="sd">(** ** Preservation of submagmoids *)</span>
+
+<span class="kn">Section</span> <span class="nf">preservation</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : unital_premagmoid_data} (<span class="nv">F</span> : functor_data C D).
+  <span class="kn">Hypothesis</span> <span class="nv">Hfunctor</span> : is_functor F.
+
+  <span class="sd">(** *** Definition of preservation/reflection *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">preserves_submm</span>
+    (<span class="nv">P</span> : wide_submagmoid_data C)
+    (<span class="nv">Q</span> : wide_submagmoid_data D)
+    : UU
+    := ∏ (a b : C) (f : a --&gt; b),
+      P _ _ f -&gt; Q _ _ (#F f).
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_preserves_submm</span>
+    (<span class="nv">P</span> : wide_submagmoid_data C)
+    (<span class="nv">Q</span> : wide_submagmoid_data D)
+    : isaprop (preserves_submm P Q).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+    <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_submm_intersection</span>
+    (<span class="nv">P₁</span> <span class="nv">P₂</span> : wide_submagmoid C)
+    (<span class="nv">Q₁</span> <span class="nv">Q₂</span> : wide_submagmoid D)
+    (<span class="nv">H₁</span> : preserves_submm P₁ Q₁)
+    (<span class="nv">H₂</span> : preserves_submm P₂ Q₂)
+    : preserves_submm
+        (wide_submagmoid_intersection P₁ P₂)
+        (wide_submagmoid_intersection Q₁ Q₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b f [Hf₁ Hf₂].
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> H₁, Hf₁.
+    - <span class="nb">apply</span> H₂, Hf₂.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reflects_submm</span>
+    (<span class="nv">P₁</span> : wide_submagmoid_data C)
+    (<span class="nv">P₂</span> : wide_submagmoid_data D)
+    : UU
+    := ∏ (a b : C) (f : a --&gt; b),
+      P₂ _ _ (#F f) -&gt; P₁ _ _ f.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_reflects_submm</span>
+    (<span class="nv">P</span> : wide_submagmoid_data C)
+    (<span class="nv">Q</span> : wide_submagmoid_data D)
+    : isaprop (reflects_submm P Q).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+    <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reflects_submm_intersection</span>
+    (<span class="nv">P₁</span> <span class="nv">P₂</span> : wide_submagmoid C)
+    (<span class="nv">Q₁</span> <span class="nv">Q₂</span> : wide_submagmoid D)
+    (<span class="nv">H₁</span> : reflects_submm P₁ Q₁)
+    (<span class="nv">H₂</span> : reflects_submm P₂ Q₂)
+    : reflects_submm
+        (wide_submagmoid_intersection P₁ P₂)
+        (wide_submagmoid_intersection Q₁ Q₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b f [Hf₁ Hf₂].
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> H₁, Hf₁.
+    - <span class="nb">apply</span> H₂, Hf₂.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_lift_submm_data</span>
+    (<span class="nv">P</span> : wide_submagmoid C)
+    (<span class="nv">Q</span> : wide_submagmoid D)
+    (<span class="nv">H</span> : preserves_submm P Q)
+    : functor_data
+        (wide_submagmoid_carrier_data C P)
+        (wide_submagmoid_carrier_data D Q).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> F.
+    - <span class="nb">intros</span> a b.
+      use bandfmap.
+      + <span class="bp">exact</span> #F.
+      + <span class="nb">intro</span> f.
+        <span class="bp">exact</span> (H a b f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">functor_lift_submm_is_functor</span>
+    (<span class="nv">P</span> : wide_submagmoid C)
+    (<span class="nv">Q</span> : wide_submagmoid D)
+    (<span class="nv">H</span> : preserves_submm P Q)
+    : is_functor (functor_lift_submm_data P Q H).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> a; <span class="nb">apply</span> submm_mor_eq; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (functor_id (F,,Hfunctor) a).
+    - <span class="nb">intros</span> a b c f g; <span class="nb">apply</span> submm_mor_eq; <span class="nb">cbn</span> <span class="k">in</span> f, g |- *.
+      <span class="bp">exact</span> (functor_comp (F,,Hfunctor) f g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_lift_submm'</span>
+    (<span class="nv">P</span> : wide_submagmoid C)
+    (<span class="nv">Q</span> : wide_submagmoid D)
+    (<span class="nv">H</span> : preserves_submm P Q)
+    : functor
+        (wide_submagmoid_carrier_data C P)
+        (wide_submagmoid_carrier_data D Q)
+    := make_functor _ (functor_lift_submm_is_functor P Q H).
+
+  <span class="kn">Lemma</span> <span class="nf">functor_lift_submm_fully_faithful</span>
+    (<span class="nv">P</span> : wide_submagmoid C)
+    (<span class="nv">Q</span> : wide_submagmoid D)
+    (<span class="nv">Hff</span> : fully_faithful (F,, Hfunctor))
+    (<span class="nv">H</span> : preserves_submm P Q)
+    (<span class="nv">Hinv</span> : reflects_submm P Q)
+    : fully_faithful (functor_lift_submm' P Q H).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b.
+    use weqhomot.
+    - use weqbandf.
+      + <span class="nb">apply</span> (weq_from_fully_faithful Hff).
+      + <span class="nb">intro</span> f; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> weqimplimpl.
+        * <span class="nb">apply</span> H.
+        * <span class="nb">apply</span> Hinv.
+        * <span class="nb">apply</span> propproperty.
+        * <span class="nb">apply</span> propproperty.
+    - <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">preservation</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_lift_submm</span>
+  {<span class="nv">C</span> <span class="nv">D</span> : unital_premagmoid_data}
+  (<span class="nv">F</span> : functor C D)
+  (<span class="nv">P</span> : wide_submagmoid C)
+  (<span class="nv">Q</span> : wide_submagmoid D)
+  (<span class="nv">H</span> : preserves_submm F P Q)
+  : functor
+      (wide_submagmoid_carrier_data C P)
+      (wide_submagmoid_carrier_data D Q)
+  := make_functor _ (functor_lift_submm_is_functor F (pr2 F) P Q H).
+
+<span class="kn">Section</span> <span class="nf">preservation_proofs</span>.
+  <span class="sd">(** *** Preservation/reflection of isomorphisms *)</span>
+
+  <span class="kn">Theorem</span> <span class="nf">functor_preserves_subcat_iso</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : unital_magmoid}
+    (<span class="nv">F</span> : functor C D)
+    (<span class="nv">P</span> : wide_subcategory C)
+    (<span class="nv">Q</span> : wide_subcategory D)
+    (<span class="nv">Hpreserves</span> : preserves_submm F P Q)
+    : preserves_submm F
+        (isc_subcat_iso P)
+        (isc_subcat_iso Q).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b f Hf; <span class="nb">cbn</span> <span class="k">in</span> Hf.
+    use make_is_submm_iso'.
+    - <span class="bp">exact</span> (#F (submm_inv_mor P Hf)).
+    - <span class="nb">apply</span> Hpreserves, Hf.
+    - <span class="nb">apply</span> Hpreserves, (submm_mor_property P).
+    - <span class="nb">apply</span> functor_on_is_inverse_in_precat.
+      <span class="bp">exact</span> Hf.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">fully_faithful_reflects_subcat_iso</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : unital_magmoid}
+    (<span class="nv">F</span> : functor C D)
+    (<span class="nv">Hff</span> : fully_faithful F)
+    (<span class="nv">P</span> : wide_subcategory C)
+    (<span class="nv">Q</span> : wide_subcategory D)
+    (<span class="nv">Hreflects</span> : reflects_submm F P Q)
+    : reflects_submm F
+        (isc_subcat_iso P)
+        (isc_subcat_iso Q).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b f Hf; <span class="nb">cbn</span> <span class="k">in</span> Hf.
+    use make_is_submm_iso'.
+    - <span class="bp">exact</span> (fully_faithful_inv_hom Hff _ _ (submm_inv_mor Q Hf)).
+    - <span class="nb">apply</span> Hreflects, Hf.
+    - <span class="nb">apply</span> Hreflects.
+      <span class="nb">refine</span> (transportb (<span class="k">λ</span> <span class="nv">x</span>, Q _ _ x) _ (submm_mor_property Q (submm_inv_mor Q Hf))).
+      <span class="nb">apply</span> (homotweqinvweq (weq_from_fully_faithful Hff _ _)).
+    - <span class="nb">refine</span> (transportf (<span class="k">λ</span> <span class="nv">x</span>, is_inverse_in_precat x _) _
+                (inv_of_ff_inv_is_inv _ _ F Hff _ _
+                   (make_z_iso (#F f) _ Hf))).
+      <span class="nb">apply</span> (homotinvweqweq (weq_from_fully_faithful Hff _ _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">reflects_linearity_ff</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : unital_magmoid} (<span class="nv">F</span> : functor C D)
+    (<span class="nv">Hff</span> : fully_faithful F)
+    : reflects_submm F _l _l.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">cbn</span>; <span class="nb">intros</span> a b f Hf c d g h.
+    <span class="nb">apply</span> (weqonpathsincl #F); [<span class="nb">apply</span> isinclweq, Hff|].
+    <span class="nb">rewrite</span> !functor_comp.
+    <span class="nb">apply</span> assoc'_linear, Hf.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">reflects_thunkability_ff</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : unital_magmoid} (<span class="nv">F</span> : functor C D)
+    (<span class="nv">Hff</span> : fully_faithful F)
+    : reflects_submm F _t _t.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">cbn</span>; <span class="nb">intros</span> a b f Hf c d g h.
+    <span class="nb">apply</span> (weqonpathsincl #F); [<span class="nb">apply</span> isinclweq, Hff|].
+    <span class="nb">rewrite</span> !functor_comp.
+    <span class="nb">apply</span> assoc_thunkable, Hf.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">reflects_intermediate_ff</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : unital_magmoid} (<span class="nv">F</span> : functor C D)
+    (<span class="nv">Hff</span> : fully_faithful F)
+    : reflects_submm F _i _i.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">cbn</span>; <span class="nb">intros</span> a b f Hf c d g h.
+    <span class="nb">apply</span> (weqonpathsincl #F); [<span class="nb">apply</span> isinclweq, Hff|].
+    <span class="nb">rewrite</span> !functor_comp.
+    <span class="nb">apply</span> assoc_intermediate, Hf.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">reflects_lt_ff</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : unital_magmoid} (<span class="nv">F</span> : functor C D)
+    (<span class="nv">Hff</span> : fully_faithful F)
+    : reflects_submm F _lt _lt.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> reflects_submm_intersection.
+    - <span class="nb">apply</span> reflects_linearity_ff, Hff.
+    - <span class="nb">apply</span> reflects_thunkability_ff, Hff.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">reflects_lti_ff</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : unital_magmoid} (<span class="nv">F</span> : functor C D)
+    (<span class="nv">Hff</span> : fully_faithful F)
+    : reflects_submm F _lti _lti.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> reflects_submm_intersection.
+    - <span class="nb">apply</span> reflects_lt_ff, Hff.
+    - <span class="nb">apply</span> reflects_intermediate_ff, Hff.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">reflects_lt_iso_ff</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : unital_magmoid} (<span class="nv">F</span> : functor C D)
+    (<span class="nv">Hff</span> : fully_faithful F)
+    : reflects_submm F (isc_subcat_iso _lt) (isc_subcat_iso _lt).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> fully_faithful_reflects_subcat_iso.
+    - <span class="bp">exact</span> Hff.
+    - <span class="nb">apply</span> reflects_lt_ff, Hff.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">reflects_lti_iso_ff</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : unital_magmoid} (<span class="nv">F</span> : functor C D)
+    (<span class="nv">Hff</span> : fully_faithful F)
+    : reflects_submm F (isc_subcat_iso _lti) (isc_subcat_iso _lti).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> fully_faithful_reflects_subcat_iso.
+    - <span class="bp">exact</span> Hff.
+    - <span class="nb">apply</span> reflects_lti_ff, Hff.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">preservation_proofs</span>.
+
+<span class="sd">(** ** Equivalences of unital magmoids *)</span>
+
+<span class="kn">Section</span> <span class="nf">equivalences</span>.
+
+  <span class="sd">(** *** Essential fibres *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">submm_fibre</span>
+    {<span class="nv">C</span> : unital_premagmoid_data}
+    {<span class="nv">D</span> : unital_magmoid}
+    (<span class="nv">F</span> : functor_data C D)
+    (<span class="nv">P</span> : wide_submagmoid D) (<span class="nv">b</span> : D)
+    : UU := ∑ (a : C), submm_iso P (F a) b.
+
+  <span class="sd">(** *** Weak equivalences *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">submm_essentially_surjective</span>
+    {<span class="nv">C</span> : unital_premagmoid_data}
+    {<span class="nv">D</span> : unital_magmoid}
+    (<span class="nv">F</span> : functor_data C D)
+    (<span class="nv">P</span> : wide_submagmoid D)
+    : UU := ∏ (b : D), ishinh (submm_fibre F P b).
+
+  <span class="kn">Definition</span> <span class="nf">submm_split_essentially_surjective</span>
+    {<span class="nv">C</span> : unital_premagmoid_data}
+    {<span class="nv">D</span> : unital_magmoid}
+    (<span class="nv">F</span> : functor_data C D)
+    (<span class="nv">P</span> : wide_submagmoid D)
+    : UU := ∏ (b : D), submm_fibre F P b.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_submm_essentially_surjective</span>
+    {<span class="nv">C</span> : unital_premagmoid_data}
+    {<span class="nv">D</span> : unital_magmoid}
+    (<span class="nv">F</span> : functor_data C D)
+    (<span class="nv">P</span> : wide_submagmoid D)
+    : isaprop (submm_essentially_surjective F P).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>.
+    <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Coercion</span> <span class="nf">submm_split_essentially_surjective_weaken</span>
+    {C : unital_premagmoid_data}
+    {D : unital_magmoid}
+    (F : functor_data C D)
+    (P : wide_submagmoid D)
+    (H : submm_split_essentially_surjective F P)
+    : submm_essentially_surjective F P.
+  <span class="kn">Proof</span>. <span class="nb">intro</span> b; <span class="nb">apply</span> hinhpr, H. <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_submm_weak_equiv</span>
+    {<span class="nv">C</span> : unital_premagmoid_data}
+    {<span class="nv">D</span> : unital_magmoid}
+    (<span class="nv">F</span> : functor C D)
+    (<span class="nv">P</span> : wide_submagmoid D)
+    : UU := fully_faithful F × submm_essentially_surjective F P.
+
+  <span class="kn">Definition</span> <span class="nf">submm_weak_equiv</span>
+    (<span class="nv">C</span> : unital_premagmoid_data)
+    (<span class="nv">D</span> : unital_magmoid)
+    (<span class="nv">P</span> : wide_submagmoid D)
+    : UU := ∑ (F : functor C D), is_submm_weak_equiv F P.
+  <span class="kn">Coercion</span> <span class="nf">submm_weak_equiv_functor</span>
+    {C : unital_premagmoid_data}
+    {D : unital_magmoid}
+    {P : wide_submagmoid D}
+    (F : submm_weak_equiv C D P)
+    : functor C D := pr1 F.
+  <span class="kn">Coercion</span> <span class="nf">submm_weak_equiv_property</span>
+    {C : unital_premagmoid_data}
+    {D : unital_magmoid}
+    {P : wide_submagmoid D}
+    (F : submm_weak_equiv C D P)
+    : is_submm_weak_equiv F P := pr2 F.
+  <span class="kn">Definition</span> <span class="nf">make_submm_weak_equiv</span>
+    (<span class="nv">C</span> : unital_premagmoid_data)
+    (<span class="nv">D</span> : unital_magmoid)
+    (<span class="nv">P</span> : wide_submagmoid D)
+    (<span class="nv">F</span> : functor C D)
+    (<span class="nv">H</span> : is_submm_weak_equiv F P)
+    : submm_weak_equiv C D P
+    := F,, H.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_submm_weak_equiv</span>
+    {<span class="nv">C</span> : unital_premagmoid_data}
+    {<span class="nv">D</span> : unital_magmoid}
+    (<span class="nv">F</span> : functor C D)
+    (<span class="nv">P</span> : wide_submagmoid D)
+    : isaprop (is_submm_weak_equiv F P).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropdirprod.
+    - <span class="nb">apply</span> isaprop_fully_faithful.
+    - <span class="nb">apply</span> isaprop_submm_essentially_surjective.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_submm_eso_from_weq</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : unital_magmoid}
+    (<span class="nv">F</span> : functor C D)
+    (<span class="nv">P</span> : wide_submagmoid D)
+    (<span class="nv">Hweq</span> : isweq F)
+    : submm_split_essentially_surjective F P.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> a.
+    <span class="k">exists</span> (<span class="nv">invmap</span> (make_weq F Hweq) a).
+    <span class="nb">apply</span> id_to_submm_iso.
+    <span class="bp">exact</span> (homotweqinvweq (make_weq F Hweq) a).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_submm_weak_equiv_identity</span>
+    (<span class="nv">D</span> : unital_magmoid)
+    (<span class="nv">P</span> : wide_submagmoid D)
+    : is_submm_weak_equiv (functor_identity D) P.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> identity_functor_is_fully_faithful.
+    - <span class="nb">apply</span> submm_split_essentially_surjective_weaken.
+      <span class="nb">apply</span> is_submm_eso_from_weq, idisweq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">submm_weak_equiv_identity</span>
+    (<span class="nv">D</span> : unital_magmoid)
+    (<span class="nv">P</span> : wide_submagmoid D)
+    : submm_weak_equiv D D P.
+  <span class="kn">Proof</span>.
+    use make_submm_weak_equiv.
+    - <span class="bp">exact</span> (functor_identity D).
+    - <span class="nb">apply</span> is_submm_weak_equiv_identity.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Coercion</span> <span class="nf">is_submm_weak_equiv_to_fully_faithful</span>
+    {C : unital_premagmoid_data} {D : unital_magmoid}
+    (F : functor C D) (P : wide_submagmoid D)
+    (H : is_submm_weak_equiv F P)
+    : fully_faithful F
+    := pr1 H.
+  <span class="kn">Coercion</span> <span class="nf">is_submm_weak_equiv_to_submm_eso</span>
+    {C : unital_premagmoid_data} {D : unital_magmoid}
+    (F : functor C D) (P : wide_submagmoid D)
+    (H : is_submm_weak_equiv F P)
+    : submm_essentially_surjective F P
+    := pr2 H.
+
+  <span class="kn">Definition</span> <span class="nf">is_submm_strong_equiv</span>
+    {<span class="nv">C</span> : unital_premagmoid_data}
+    {<span class="nv">D</span> : unital_magmoid}
+    (<span class="nv">F</span> : functor C D)
+    (<span class="nv">P</span> : wide_submagmoid D)
+    : UU := fully_faithful F × submm_split_essentially_surjective F P.
+
+  <span class="kn">Coercion</span> <span class="nf">is_submm_strong_equiv_to_fully_faithful</span>
+    {C : unital_premagmoid_data} {D : unital_magmoid}
+    (F : functor C D) (P : wide_submagmoid D)
+    (H : is_submm_strong_equiv F P)
+    : fully_faithful F
+    := pr1 H.
+  <span class="kn">Coercion</span> <span class="nf">is_submm_strong_equiv_to_submm_eso</span>
+    {C : unital_premagmoid_data} {D : unital_magmoid}
+    (F : functor C D) (P : wide_submagmoid D)
+    (H : is_submm_strong_equiv F P)
+    : submm_split_essentially_surjective F P
+    := pr2 H.
+
+<span class="kn">End</span> <span class="nf">equivalences</span>.
+
+<span class="kn">Section</span> <span class="nf">equivalences</span>.
+  <span class="kn">Lemma</span> <span class="nf">preserves_linearity_lti_equiv</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : unital_magmoid} (<span class="nv">F</span> : functor C D)
+    (<span class="nv">Hff</span> : fully_faithful F)
+    (<span class="nv">Heso</span> : submm_essentially_surjective F _lti)
+    : preserves_submm F _l _l.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">cbn</span>; <span class="nb">intros</span> a b f Hf c d g h.
+    isaprop_goal Hgoal; [<span class="nb">apply</span> unital_magmoid_has_homsets|].
+    <span class="nb">refine</span> (squash_to_prop (Heso c) Hgoal _); <span class="nb">intros</span> [c' Hc'].
+    <span class="nb">refine</span> (squash_to_prop (Heso d) Hgoal _); <span class="nb">intros</span> [d' Hd'].
+    <span class="nb">clear</span> Hgoal.
+    <span class="nb">pose</span> (h' := Hd' · h · submm_inv_mor _ Hc').
+    <span class="nb">pose</span> (h'' := fully_faithful_inv_hom Hff _ _ h').
+    <span class="nb">pose</span> (g' := Hc' · g).
+    <span class="nb">pose</span> (g'' := fully_faithful_inv_hom Hff _ _ g').
+    <span class="nb">assert</span> (Hhg' : h' · g' · # F f = h' · (g' · # F f)). {
+      <span class="nb">rewrite</span> &lt;- (homotweqinvweq (weq_from_fully_faithful Hff _ _) h').
+      <span class="nb">rewrite</span> &lt;- (homotweqinvweq (weq_from_fully_faithful Hff _ _) g').
+      <span class="nb">change</span> (#F h'' · #F g'' · # F f = #F h'' · (#F g'' · # F f)).
+      <span class="nb">rewrite</span> &lt;- !functor_comp.
+      <span class="nb">apply</span> (maponpaths #F).
+      <span class="nb">apply</span> assoc'_linear, Hf.
+    }
+    use (cancel_submm_iso_left_of_associates _lti Hd').
+    <span class="mi">1</span>,<span class="mi">2</span>: <span class="nb">apply</span> assoc_intermediate, (submm_mor_property _lti).
+    <span class="nb">rewrite</span> &lt;- (lti_iso_interpose_inv Hc' h g).
+    <span class="nb">rewrite</span> &lt;- (lti_iso_interpose_inv Hc' h (g · #F f)).
+    <span class="nb">subst</span> h' g'.
+    <span class="nb">rewrite</span> !(assoc_thunkable Hd' (pr21 (submm_mor_property _lti Hd'))).
+    <span class="nb">rewrite</span> !(assoc_thunkable Hc' (pr21 (submm_mor_property _lti Hc'))).
+    <span class="bp">exact</span> Hhg'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">preserves_thunkability_lti_equiv</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : unital_magmoid} (<span class="nv">F</span> : functor C D)
+    (<span class="nv">Hff</span> : fully_faithful F)
+    (<span class="nv">Heso</span> : submm_essentially_surjective F _lti)
+    : preserves_submm F _t _t.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">cbn</span>; <span class="nb">intros</span> a b f Hf c d g h.
+    isaprop_goal Hgoal; [<span class="nb">apply</span> unital_magmoid_has_homsets|].
+    <span class="nb">refine</span> (squash_to_prop (Heso c) Hgoal _); <span class="nb">intros</span> [c' Hc'].
+    <span class="nb">refine</span> (squash_to_prop (Heso d) Hgoal _); <span class="nb">intros</span> [d' Hd'].
+    <span class="nb">clear</span> Hgoal.
+    <span class="nb">pose</span> (h' := submm_inv_mor _ Hd' ∘ h ∘ Hc').
+    <span class="nb">pose</span> (h'' := fully_faithful_inv_hom Hff _ _ h').
+    <span class="nb">pose</span> (g' := submm_inv_mor _ Hc' ∘ g).
+    <span class="nb">pose</span> (g'' := fully_faithful_inv_hom Hff _ _ g').
+    <span class="nb">assert</span> (Hhg' : h' ∘ g' ∘ # F f = h' ∘ (g' ∘ # F f)). {
+      <span class="nb">rewrite</span> &lt;- (homotweqinvweq (weq_from_fully_faithful Hff _ _) h').
+      <span class="nb">rewrite</span> &lt;- (homotweqinvweq (weq_from_fully_faithful Hff _ _) g').
+      <span class="nb">change</span> (#F h'' ∘ #F g'' ∘ # F f = #F h'' ∘ (#F g'' ∘ # F f)).
+      <span class="nb">rewrite</span> &lt;- !functor_comp.
+      <span class="nb">apply</span> (maponpaths #F).
+      <span class="nb">apply</span> assoc_thunkable, Hf.
+    }
+    use (cancel_submm_iso_right_of_associates _lti (submm_iso_inv _ Hd')).
+    <span class="mi">1</span>,<span class="mi">2</span>: <span class="nb">apply</span> assoc'_intermediate, (submm_mor_property _lti).
+    <span class="nb">rewrite</span> &lt;- (lti_iso_interpose_inv Hc' g h).
+    <span class="nb">rewrite</span> &lt;- (lti_iso_interpose_inv Hc' (g ∘ #F f) h).
+    <span class="nb">subst</span> h' g'.
+    <span class="nb">rewrite</span> !(assoc'_linear (submm_inv_mor _ Hd') (pr11 (submm_mor_property _lti _))).
+    <span class="nb">rewrite</span> !(assoc'_linear (submm_inv_mor _ Hc') (pr11 (submm_mor_property _lti _))).
+    <span class="bp">exact</span> Hhg'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">preserves_intermediate_lti_equiv</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : unital_magmoid} (<span class="nv">F</span> : functor C D)
+    (<span class="nv">Hff</span> : fully_faithful F)
+    (<span class="nv">Heso</span> : submm_essentially_surjective F _lti)
+    : preserves_submm F _i _i.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">cbn</span>; <span class="nb">intros</span> a b f Hf c d g h.
+    isaprop_goal Hgoal; [<span class="nb">apply</span> unital_magmoid_has_homsets|].
+    <span class="nb">refine</span> (squash_to_prop (Heso c) Hgoal _); <span class="nb">intros</span> [c' Hc'].
+    <span class="nb">refine</span> (squash_to_prop (Heso d) Hgoal _); <span class="nb">intros</span> [d' Hd'].
+    <span class="nb">clear</span> Hgoal.
+    <span class="nb">pose</span> (h' := h · submm_inv_mor _ Hd').
+    <span class="nb">pose</span> (h'' := fully_faithful_inv_hom Hff _ _ h').
+    <span class="nb">pose</span> (g' := Hc' · g).
+    <span class="nb">pose</span> (g'' := fully_faithful_inv_hom Hff _ _ g').
+    <span class="nb">assert</span> (Hhg' : g' · # F f · h' = g' · (# F f · h')). {
+      <span class="nb">rewrite</span> &lt;- (homotweqinvweq (weq_from_fully_faithful Hff _ _) h').
+      <span class="nb">rewrite</span> &lt;- (homotweqinvweq (weq_from_fully_faithful Hff _ _) g').
+      <span class="nb">change</span> (#F g'' · #F f · #F h'' = #F g'' · (#F f · #F h'')).
+      <span class="nb">rewrite</span> &lt;- !functor_comp.
+      <span class="nb">apply</span> (maponpaths #F).
+      <span class="nb">apply</span> assoc'_intermediate, Hf.
+    }
+    use (cancel_submm_iso_left_of_associates _lti Hc').
+    <span class="mi">1</span>,<span class="mi">2</span>: <span class="nb">apply</span> assoc_intermediate, (submm_mor_property _lti).
+    use (cancel_submm_iso_right_of_associates _lti (submm_iso_inv _ Hd')).
+    <span class="mi">1</span>,<span class="mi">2</span>: <span class="nb">apply</span> assoc'_intermediate, (submm_mor_property _lti).
+    <span class="nb">subst</span> h' g'.
+    <span class="nb">rewrite</span> !(assoc_thunkable Hc' (pr21 (submm_mor_property _lti Hc'))).
+    <span class="nb">rewrite</span> !(assoc'_linear (submm_inv_mor _ Hd') (pr11 (submm_mor_property _lti (submm_inv_mor _ Hd')))).
+    <span class="bp">exact</span> (!Hhg').
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">equivalences</span>.</span></pre>
+</div>
+</div></body>
+</html>

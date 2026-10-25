@@ -1,0 +1,313 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Algebra.Universal.Examples.Bool</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Algebra.Universal.Examples.Bool</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab295"></a><h1 class="section">Example on booleans.</h1>
+ Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 
+<div class="paragraph"> </div>
+
+  This file contains the definition of the signature of booleans and the standard boolean algebra.
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Notations.html#"><span class="id" title="library">UniMath.MoreFoundations.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Bool.html#"><span class="id" title="library">UniMath.MoreFoundations.Bool</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#"><span class="id" title="library">UniMath.Combinatorics.StandardFiniteSets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.MoreLists.html#"><span class="id" title="library">UniMath.Combinatorics.MoreLists</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#"><span class="id" title="library">UniMath.Algebra.Universal.Algebras</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#"><span class="id" title="library">UniMath.Algebra.Universal.VTerms</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">stn</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="bool_signature" class="idref" href="#bool_signature"><span class="id" title="definition">bool_signature</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#make_signature_simple_single_sorted"><span class="id" title="definition">make_signature_simple_single_sorted</span></a> <a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">[</span></a>0<a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">;</span></a> 0<a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">;</span></a> 1<a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">;</span></a> 2<a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">;</span></a> 2<a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">;</span></a> 2<a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">]</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab296"></a><h2 class="section">Algebra structure over type bool.</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="bool_algebra" class="idref" href="#bool_algebra"><span class="id" title="definition">bool_algebra</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#make_algebra_simple_single_sorted'"><span class="id" title="definition">make_algebra_simple_single_sorted'</span></a> <br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_signature"><span class="id" title="definition">bool_signature</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Sets.html#boolset"><span class="id" title="definition">boolset</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">[(</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a> <a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">;</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a> <a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">;</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#negb"><span class="id" title="definition">negb</span></a> <a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">;</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#andb"><span class="id" title="definition">andb</span></a> <a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">;</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#orb"><span class="id" title="definition">orb</span></a> <a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">;</span></a> <a class="idref" href="UniMath.MoreFoundations.Bool.html#implb"><span class="id" title="definition">implb</span></a> <a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">)]</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="bool_sort" class="idref" href="#bool_sort"><span class="id" title="definition">bool_sort</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#sorts"><span class="id" title="definition">sorts</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_signature"><span class="id" title="definition">bool_signature</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab297"></a><h2 class="section">Boolean ground terms.</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Module</span> <a id="GTerm" class="idref" href="#GTerm"><span class="id" title="module">GTerm</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The type of ground terms. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="GTerm.T" class="idref" href="#GTerm.T"><span class="id" title="definition">T</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Terms.html#gterm"><span class="id" title="abbreviation">gterm</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_signature"><span class="id" title="definition">bool_signature</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_sort"><span class="id" title="definition">bool_sort</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Constructors for ground terms. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="GTerm.bot" class="idref" href="#GTerm.bot"><span class="id" title="definition">bot</span></a>  : <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#GTerm.T"><span class="id" title="definition">T</span></a>         := <a class="idref" href="UniMath.Algebra.Universal.Terms.html#build_gterm'"><span class="id" title="definition">build_gterm'</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>0 : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_signature"><span class="id" title="definition">bool_signature</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="GTerm.top" class="idref" href="#GTerm.top"><span class="id" title="definition">top</span></a>  : <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#GTerm.T"><span class="id" title="definition">T</span></a>         := <a class="idref" href="UniMath.Algebra.Universal.Terms.html#build_gterm'"><span class="id" title="definition">build_gterm'</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>1 : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_signature"><span class="id" title="definition">bool_signature</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="GTerm.neg" class="idref" href="#GTerm.neg"><span class="id" title="definition">neg</span></a>  : <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#GTerm.T"><span class="id" title="definition">T</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#GTerm.T"><span class="id" title="definition">T</span></a>     := <a class="idref" href="UniMath.Algebra.Universal.Terms.html#build_gterm'"><span class="id" title="definition">build_gterm'</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>2 : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_signature"><span class="id" title="definition">bool_signature</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="GTerm.conj" class="idref" href="#GTerm.conj"><span class="id" title="definition">conj</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#GTerm.T"><span class="id" title="definition">T</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#GTerm.T"><span class="id" title="definition">T</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#GTerm.T"><span class="id" title="definition">T</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Terms.html#build_gterm'"><span class="id" title="definition">build_gterm'</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>3 : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_signature"><span class="id" title="definition">bool_signature</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="GTerm.disj" class="idref" href="#GTerm.disj"><span class="id" title="definition">disj</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#GTerm.T"><span class="id" title="definition">T</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#GTerm.T"><span class="id" title="definition">T</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#GTerm.T"><span class="id" title="definition">T</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Terms.html#build_gterm'"><span class="id" title="definition">build_gterm'</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>4 : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_signature"><span class="id" title="definition">bool_signature</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="GTerm.impl" class="idref" href="#GTerm.impl"><span class="id" title="definition">impl</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#GTerm.T"><span class="id" title="definition">T</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#GTerm.T"><span class="id" title="definition">T</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#GTerm.T"><span class="id" title="definition">T</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Terms.html#build_gterm'"><span class="id" title="definition">build_gterm'</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>5 : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_signature"><span class="id" title="definition">bool_signature</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#GTerm"><span class="id" title="module">GTerm</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab298"></a><h2 class="section">Booleans terms and semantics for boolean formulae.</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Module</span> <a id="Term" class="idref" href="#Term"><span class="id" title="module">Term</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Term.bool_varspec" class="idref" href="#Term.bool_varspec"><span class="id" title="definition">bool_varspec</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#make_varspec"><span class="id" title="definition">make_varspec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_signature"><span class="id" title="definition">bool_signature</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natset"><span class="id" title="definition">natset</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_sort"><span class="id" title="definition">bool_sort</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Type for boolean (open) terms. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Term.T" class="idref" href="#Term.T"><span class="id" title="definition">T</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#term"><span class="id" title="definition">term</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_signature"><span class="id" title="definition">bool_signature</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.bool_varspec"><span class="id" title="definition">bool_varspec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_sort"><span class="id" title="definition">bool_sort</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Constructors for terms. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Term.bot" class="idref" href="#Term.bot"><span class="id" title="definition">bot</span></a>  : <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.T"><span class="id" title="definition">T</span></a>         := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#build_term'"><span class="id" title="definition">build_term'</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>0 : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_signature"><span class="id" title="definition">bool_signature</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="Term.top" class="idref" href="#Term.top"><span class="id" title="definition">top</span></a>  : <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.T"><span class="id" title="definition">T</span></a>         := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#build_term'"><span class="id" title="definition">build_term'</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>1 : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_signature"><span class="id" title="definition">bool_signature</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="Term.neg" class="idref" href="#Term.neg"><span class="id" title="definition">neg</span></a>  : <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.T"><span class="id" title="definition">T</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.T"><span class="id" title="definition">T</span></a>     := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#build_term'"><span class="id" title="definition">build_term'</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>2 : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_signature"><span class="id" title="definition">bool_signature</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="Term.conj" class="idref" href="#Term.conj"><span class="id" title="definition">conj</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.T"><span class="id" title="definition">T</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.T"><span class="id" title="definition">T</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.T"><span class="id" title="definition">T</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#build_term'"><span class="id" title="definition">build_term'</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>3 : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_signature"><span class="id" title="definition">bool_signature</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="Term.disj" class="idref" href="#Term.disj"><span class="id" title="definition">disj</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.T"><span class="id" title="definition">T</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.T"><span class="id" title="definition">T</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.T"><span class="id" title="definition">T</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#build_term'"><span class="id" title="definition">build_term'</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>4 : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_signature"><span class="id" title="definition">bool_signature</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="Term.impl" class="idref" href="#Term.impl"><span class="id" title="definition">impl</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.T"><span class="id" title="definition">T</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.T"><span class="id" title="definition">T</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.T"><span class="id" title="definition">T</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#build_term'"><span class="id" title="definition">build_term'</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>5 : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_signature"><span class="id" title="definition">bool_signature</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Interpretation of propositional formulae. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Term.interp" class="idref" href="#Term.interp"><span class="id" title="definition">interp</span></a> (<a id="b21fefed36afb9ce8946ad605358e450" class="idref" href="#b21fefed36afb9ce8946ad605358e450"><span class="id" title="binder">α</span></a>: <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#assignment"><span class="id" title="definition">assignment</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_algebra"><span class="id" title="definition">bool_algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.bool_varspec"><span class="id" title="definition">bool_varspec</span></a>) (<a id="t:2" class="idref" href="#t:2"><span class="id" title="binder">t</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.T"><span class="id" title="definition">T</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Algebra.Universal.VTerms.html#fromterm"><span class="id" title="definition">fromterm</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Algebras.html#ops"><span class="id" title="definition">ops</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_algebra"><span class="id" title="definition">bool_algebra</span></a>) <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#b21fefed36afb9ce8946ad605358e450"><span class="id" title="variable">α</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#bool_sort"><span class="id" title="definition">bool_sort</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#t:2"><span class="id" title="variable">t</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Computations and interactive proofs. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Module</span> <a id="Term.Tests" class="idref" href="#Term.Tests"><span class="id" title="module">Tests</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Term.Tests.x" class="idref" href="#Term.Tests.x"><span class="id" title="definition">x</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.T"><span class="id" title="definition">T</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varterm"><span class="id" title="definition">varterm</span></a> (0: <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.bool_varspec"><span class="id" title="definition">bool_varspec</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="Term.Tests.y" class="idref" href="#Term.Tests.y"><span class="id" title="definition">y</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.T"><span class="id" title="definition">T</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varterm"><span class="id" title="definition">varterm</span></a> (1: <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.bool_varspec"><span class="id" title="definition">bool_varspec</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="Term.Tests.z" class="idref" href="#Term.Tests.z"><span class="id" title="definition">z</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.T"><span class="id" title="definition">T</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varterm"><span class="id" title="definition">varterm</span></a> (2: <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.bool_varspec"><span class="id" title="definition">bool_varspec</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Example: evaluation of true &amp; false 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Goal</span> <a id="Term.Tests.Unnamed_thm" class="idref" href="#Term.Tests.Unnamed_thm"><span class="id" title="definition">interp</span></a> <a id="Term.Tests.Unnamed_thm" class="idref" href="#Term.Tests.Unnamed_thm"><span class="id" title="definition">(</span></a><a id="Term.Tests.Unnamed_thm" class="idref" href="#Term.Tests.Unnamed_thm"><span class="id" title="definition">λ</span></a> <a id="Term.Tests.Unnamed_thm" class="idref" href="#Term.Tests.Unnamed_thm"><span class="id" title="binder, definition"><span id="n:3" class="id">n</span></span></a><a id="Term.Tests.Unnamed_thm" class="idref" href="#Term.Tests.Unnamed_thm"><span class="id" title="definition">,</span></a> <a id="Term.Tests.Unnamed_thm" class="idref" href="#Term.Tests.Unnamed_thm"><span class="id" title="definition">false</span></a><a id="Term.Tests.Unnamed_thm" class="idref" href="#Term.Tests.Unnamed_thm"><span class="id" title="definition">)</span></a> <a id="Term.Tests.Unnamed_thm" class="idref" href="#Term.Tests.Unnamed_thm"><span class="id" title="definition">(</span></a><a id="Term.Tests.Unnamed_thm" class="idref" href="#Term.Tests.Unnamed_thm"><span class="id" title="definition">conj</span></a> <a id="Term.Tests.Unnamed_thm" class="idref" href="#Term.Tests.Unnamed_thm"><span class="id" title="definition">top</span></a> <a id="Term.Tests.Unnamed_thm" class="idref" href="#Term.Tests.Unnamed_thm"><span class="id" title="definition">bot</span></a><a id="Term.Tests.Unnamed_thm" class="idref" href="#Term.Tests.Unnamed_thm"><span class="id" title="definition">)</span></a> <a id="Term.Tests.Unnamed_thm" class="idref" href="#Term.Tests.Unnamed_thm"><span class="id" title="definition">=</span></a> <a id="Term.Tests.Unnamed_thm" class="idref" href="#Term.Tests.Unnamed_thm"><span class="id" title="definition">false</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">lazy</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+A simple evaluation function for variables:
+    assign true to x and y (the 0th and 1st variable) and false otherwise.
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Term.Tests.v" class="idref" href="#Term.Tests.v"><span class="id" title="definition">v</span></a> <a id="n:4" class="idref" href="#n:4"><span class="id" title="binder">n</span></a> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#n:4"><span class="id" title="variable">n</span></a> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;0 =&gt; <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a><br/>
+&nbsp;&nbsp;| 1 =&gt; <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a><br/>
+&nbsp;&nbsp;| <span class="id" title="var">_</span> =&gt; <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Example: evaluation of x ∧ (¬ y ∧ z) 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Goal</span> <a id="Term.Tests.Unnamed_thm0" class="idref" href="#Term.Tests.Unnamed_thm0"><span class="id" title="definition">interp</span></a> <a id="Term.Tests.Unnamed_thm0" class="idref" href="#Term.Tests.Unnamed_thm0"><span class="id" title="definition">v</span></a> <a id="Term.Tests.Unnamed_thm0" class="idref" href="#Term.Tests.Unnamed_thm0"><span class="id" title="definition">(</span></a><a id="Term.Tests.Unnamed_thm0" class="idref" href="#Term.Tests.Unnamed_thm0"><span class="id" title="definition">conj</span></a> <a id="Term.Tests.Unnamed_thm0" class="idref" href="#Term.Tests.Unnamed_thm0"><span class="id" title="definition">x</span></a> <a id="Term.Tests.Unnamed_thm0" class="idref" href="#Term.Tests.Unnamed_thm0"><span class="id" title="definition">(</span></a><a id="Term.Tests.Unnamed_thm0" class="idref" href="#Term.Tests.Unnamed_thm0"><span class="id" title="definition">conj</span></a> <a id="Term.Tests.Unnamed_thm0" class="idref" href="#Term.Tests.Unnamed_thm0"><span class="id" title="definition">(</span></a><a id="Term.Tests.Unnamed_thm0" class="idref" href="#Term.Tests.Unnamed_thm0"><span class="id" title="definition">neg</span></a>  <a id="Term.Tests.Unnamed_thm0" class="idref" href="#Term.Tests.Unnamed_thm0"><span class="id" title="definition">y</span></a><a id="Term.Tests.Unnamed_thm0" class="idref" href="#Term.Tests.Unnamed_thm0"><span class="id" title="definition">)</span></a> <a id="Term.Tests.Unnamed_thm0" class="idref" href="#Term.Tests.Unnamed_thm0"><span class="id" title="definition">z</span></a><a id="Term.Tests.Unnamed_thm0" class="idref" href="#Term.Tests.Unnamed_thm0"><span class="id" title="definition">))</span></a> <a id="Term.Tests.Unnamed_thm0" class="idref" href="#Term.Tests.Unnamed_thm0"><span class="id" title="definition">=</span></a> <a id="Term.Tests.Unnamed_thm0" class="idref" href="#Term.Tests.Unnamed_thm0"><span class="id" title="definition">false</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">lazy</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Example: evaluation of x ∧ (z → ¬ y) 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Goal</span> <a id="Term.Tests.Unnamed_thm1" class="idref" href="#Term.Tests.Unnamed_thm1"><span class="id" title="definition">interp</span></a> <a id="Term.Tests.Unnamed_thm1" class="idref" href="#Term.Tests.Unnamed_thm1"><span class="id" title="definition">v</span></a> <a id="Term.Tests.Unnamed_thm1" class="idref" href="#Term.Tests.Unnamed_thm1"><span class="id" title="definition">(</span></a><a id="Term.Tests.Unnamed_thm1" class="idref" href="#Term.Tests.Unnamed_thm1"><span class="id" title="definition">conj</span></a> <a id="Term.Tests.Unnamed_thm1" class="idref" href="#Term.Tests.Unnamed_thm1"><span class="id" title="definition">x</span></a> <a id="Term.Tests.Unnamed_thm1" class="idref" href="#Term.Tests.Unnamed_thm1"><span class="id" title="definition">(</span></a><a id="Term.Tests.Unnamed_thm1" class="idref" href="#Term.Tests.Unnamed_thm1"><span class="id" title="definition">impl</span></a> <a id="Term.Tests.Unnamed_thm1" class="idref" href="#Term.Tests.Unnamed_thm1"><span class="id" title="definition">z</span></a> <a id="Term.Tests.Unnamed_thm1" class="idref" href="#Term.Tests.Unnamed_thm1"><span class="id" title="definition">(</span></a><a id="Term.Tests.Unnamed_thm1" class="idref" href="#Term.Tests.Unnamed_thm1"><span class="id" title="definition">neg</span></a>  <a id="Term.Tests.Unnamed_thm1" class="idref" href="#Term.Tests.Unnamed_thm1"><span class="id" title="definition">y</span></a><a id="Term.Tests.Unnamed_thm1" class="idref" href="#Term.Tests.Unnamed_thm1"><span class="id" title="definition">)))</span></a> <a id="Term.Tests.Unnamed_thm1" class="idref" href="#Term.Tests.Unnamed_thm1"><span class="id" title="definition">=</span></a> <a id="Term.Tests.Unnamed_thm1" class="idref" href="#Term.Tests.Unnamed_thm1"><span class="id" title="definition">true</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">lazy</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Dummett tautology 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Local Lemma</span> <a id="Term.Tests.Dummett" class="idref" href="#Term.Tests.Dummett"><span class="id" title="lemma">Dummett</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="i:6" class="idref" href="#i:6"><span class="id" title="binder">i</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.interp"><span class="id" title="definition">interp</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#i:6"><span class="id" title="variable">i</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.disj"><span class="id" title="definition">disj</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.impl"><span class="id" title="definition">impl</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.Tests.x"><span class="id" title="definition">x</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.Tests.y"><span class="id" title="definition">y</span></a>) (<a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.impl"><span class="id" title="definition">impl</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.Tests.y"><span class="id" title="definition">y</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.Tests.x"><span class="id" title="definition">x</span></a>)) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">i</span>. <span class="id" title="tactic">lazy</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> (<span class="id" title="var">i</span> 0); <span class="id" title="tactic">induction</span> (<span class="id" title="var">i</span> 1); <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+x ∨ ¬ (y ∧ z → x) 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Local Lemma</span> <a id="Term.Tests.not_tautology" class="idref" href="#Term.Tests.not_tautology"><span class="id" title="lemma">not_tautology</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="i:7" class="idref" href="#i:7"><span class="id" title="binder">i</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.interp"><span class="id" title="definition">interp</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#i:7"><span class="id" title="variable">i</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.disj"><span class="id" title="definition">disj</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.Tests.x"><span class="id" title="definition">x</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.neg"><span class="id" title="definition">neg</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.impl"><span class="id" title="definition">impl</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.conj"><span class="id" title="definition">conj</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.Tests.y"><span class="id" title="definition">y</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.Tests.z"><span class="id" title="definition">z</span></a>) <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.Tests.x"><span class="id" title="definition">x</span></a>))) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="n:8" class="idref" href="#n:8"><span class="id" title="binder"><span id="n:10" class="id">n</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <span class="id" title="keyword">match</span> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#n:8"><span class="id" title="variable">n</span></a> <span class="id" title="keyword">with</span>  <span class="id" title="var">_</span> =&gt; <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a> <span class="id" title="keyword">end</span>).<br/>
+&nbsp;- <span class="id" title="tactic">lazy</span>.<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Further tests. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Term.Tests.f" class="idref" href="#Term.Tests.f"><span class="id" title="definition">f</span></a> (<a id="n:12" class="idref" href="#n:12"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">n</span> <span class="id" title="keyword">as</span> [|<span class="id" title="var">n</span> <span class="id" title="var">Hn</span>].<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Goal</span> <a id="Term.Tests.Unnamed_thm2" class="idref" href="#Term.Tests.Unnamed_thm2"><span class="id" title="definition">interp</span></a> <a id="Term.Tests.Unnamed_thm2" class="idref" href="#Term.Tests.Unnamed_thm2"><span class="id" title="definition">f</span></a> <a id="Term.Tests.Unnamed_thm2" class="idref" href="#Term.Tests.Unnamed_thm2"><span class="id" title="definition">(</span></a><a id="Term.Tests.Unnamed_thm2" class="idref" href="#Term.Tests.Unnamed_thm2"><span class="id" title="definition">conj</span></a> <a id="Term.Tests.Unnamed_thm2" class="idref" href="#Term.Tests.Unnamed_thm2"><span class="id" title="definition">x</span></a> <a id="Term.Tests.Unnamed_thm2" class="idref" href="#Term.Tests.Unnamed_thm2"><span class="id" title="definition">top</span></a><a id="Term.Tests.Unnamed_thm2" class="idref" href="#Term.Tests.Unnamed_thm2"><span class="id" title="definition">)</span></a> <a id="Term.Tests.Unnamed_thm2" class="idref" href="#Term.Tests.Unnamed_thm2"><span class="id" title="definition">=</span></a> <a id="Term.Tests.Unnamed_thm2" class="idref" href="#Term.Tests.Unnamed_thm2"><span class="id" title="definition">true</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">lazy</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Goal</span> <a id="Term.Tests.Unnamed_thm3" class="idref" href="#Term.Tests.Unnamed_thm3"><span class="id" title="definition">interp</span></a> <a id="Term.Tests.Unnamed_thm3" class="idref" href="#Term.Tests.Unnamed_thm3"><span class="id" title="definition">f</span></a> <a id="Term.Tests.Unnamed_thm3" class="idref" href="#Term.Tests.Unnamed_thm3"><span class="id" title="definition">(</span></a><a id="Term.Tests.Unnamed_thm3" class="idref" href="#Term.Tests.Unnamed_thm3"><span class="id" title="definition">conj</span></a> <a id="Term.Tests.Unnamed_thm3" class="idref" href="#Term.Tests.Unnamed_thm3"><span class="id" title="definition">x</span></a> <a id="Term.Tests.Unnamed_thm3" class="idref" href="#Term.Tests.Unnamed_thm3"><span class="id" title="definition">y</span></a><a id="Term.Tests.Unnamed_thm3" class="idref" href="#Term.Tests.Unnamed_thm3"><span class="id" title="definition">)</span></a> <a id="Term.Tests.Unnamed_thm3" class="idref" href="#Term.Tests.Unnamed_thm3"><span class="id" title="definition">=</span></a> <a id="Term.Tests.Unnamed_thm3" class="idref" href="#Term.Tests.Unnamed_thm3"><span class="id" title="definition">false</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">lazy</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Goal</span> <a id="Term.Tests.Unnamed_thm4" class="idref" href="#Term.Tests.Unnamed_thm4"><span class="id" title="definition">interp</span></a> <a id="Term.Tests.Unnamed_thm4" class="idref" href="#Term.Tests.Unnamed_thm4"><span class="id" title="definition">f</span></a> <a id="Term.Tests.Unnamed_thm4" class="idref" href="#Term.Tests.Unnamed_thm4"><span class="id" title="definition">(</span></a><a id="Term.Tests.Unnamed_thm4" class="idref" href="#Term.Tests.Unnamed_thm4"><span class="id" title="definition">disj</span></a> <a id="Term.Tests.Unnamed_thm4" class="idref" href="#Term.Tests.Unnamed_thm4"><span class="id" title="definition">x</span></a> <a id="Term.Tests.Unnamed_thm4" class="idref" href="#Term.Tests.Unnamed_thm4"><span class="id" title="definition">y</span></a><a id="Term.Tests.Unnamed_thm4" class="idref" href="#Term.Tests.Unnamed_thm4"><span class="id" title="definition">)</span></a> <a id="Term.Tests.Unnamed_thm4" class="idref" href="#Term.Tests.Unnamed_thm4"><span class="id" title="definition">=</span></a> <a id="Term.Tests.Unnamed_thm4" class="idref" href="#Term.Tests.Unnamed_thm4"><span class="id" title="definition">true</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">lazy</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Goal</span> <a id="Term.Tests.Unnamed_thm5" class="idref" href="#Term.Tests.Unnamed_thm5"><span class="id" title="definition">interp</span></a> <a id="Term.Tests.Unnamed_thm5" class="idref" href="#Term.Tests.Unnamed_thm5"><span class="id" title="definition">f</span></a> <a id="Term.Tests.Unnamed_thm5" class="idref" href="#Term.Tests.Unnamed_thm5"><span class="id" title="definition">(</span></a><a id="Term.Tests.Unnamed_thm5" class="idref" href="#Term.Tests.Unnamed_thm5"><span class="id" title="definition">disj</span></a> <a id="Term.Tests.Unnamed_thm5" class="idref" href="#Term.Tests.Unnamed_thm5"><span class="id" title="definition">x</span></a> <a id="Term.Tests.Unnamed_thm5" class="idref" href="#Term.Tests.Unnamed_thm5"><span class="id" title="definition">(</span></a><a id="Term.Tests.Unnamed_thm5" class="idref" href="#Term.Tests.Unnamed_thm5"><span class="id" title="definition">conj</span></a> <a id="Term.Tests.Unnamed_thm5" class="idref" href="#Term.Tests.Unnamed_thm5"><span class="id" title="definition">y</span></a> <a id="Term.Tests.Unnamed_thm5" class="idref" href="#Term.Tests.Unnamed_thm5"><span class="id" title="definition">bot</span></a><a id="Term.Tests.Unnamed_thm5" class="idref" href="#Term.Tests.Unnamed_thm5"><span class="id" title="definition">))</span></a> <a id="Term.Tests.Unnamed_thm5" class="idref" href="#Term.Tests.Unnamed_thm5"><span class="id" title="definition">=</span></a> <a id="Term.Tests.Unnamed_thm5" class="idref" href="#Term.Tests.Unnamed_thm5"><span class="id" title="definition">true</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">lazy</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term.Tests"><span class="id" title="module">Tests</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Algebra.Universal.Examples.Bool.html#Term"><span class="id" title="module">Term</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

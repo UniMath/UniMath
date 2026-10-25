@@ -1,0 +1,955 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EqualizingRequirement.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> The Equalizing Requirement of an Adjunction</span>
+
+<span class="sd"> Author: B. Szilvasy</span>
+<span class="sd"> January–October 2026</span>
+
+<span class="sd"> An adjunction is negative equalizing if the counit [εn] of the adjunction [L ⊣</span>
+<span class="sd"> R] is an equalizer of [LRεn] and [εLRn], and positive equalizing if the unit</span>
+<span class="sd"> [ηp] is a coequalizer of [RLηp] and [ηRLp].  These are also known as being of</span>
+<span class="sd"> "descent type" and "codescent type" respetively.</span>
+
+<span class="sd"> We define the equalizing requirement and some of its consequences.  In</span>
+<span class="sd"> particular, we prove univalence of the oblique and envelope duploids.</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Definition of the equalizing requirement</span>
+<span class="sd"> 1.1. Characterizations of the equalizing requirement</span>
+<span class="sd"> 1.2. Consequences about the fixed points of the adjunction</span>
+<span class="sd"> 2. The shift adjunction of a duploid is fully equalizing</span>
+<span class="sd"> 3. Univalence of the envelope and oblique duploids</span>
+<span class="sd"> 3.1. Characterizations in terms of duploids</span>
+<span class="sd"> 3.2. Univalence of the oblique duploid</span>
+<span class="sd"> 3.3. Univalence of the envelope duploid</span>
+
+<span class="sd"> ********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.IdentitySystems.RXGraph.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoryRXGraph.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.catiso.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Submagmoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.PolarizedSubcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.Duploids.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.Duploids.PolarizedSubcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.Duploids.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.Duploids.FromAdjunction.ObliqueMor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.Duploids.FromAdjunction.Envelope.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.Duploids.FromAdjunction.Oblique.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> unital_magmoid.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> oblique_mor.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> duploid.
+
+<span class="sd">(** ** Definition of the equalizing requirement *)</span>
+
+<span class="kn">Section</span> <span class="nf">equalized</span>.
+  <span class="kn">Context</span> {<span class="nv">N</span> <span class="nv">P</span> : category} (<span class="nv">θ</span> : adjunction P N).
+  <span class="kn">Let</span> <span class="nf">L</span> : P ⟶ N := left_functor θ.
+  <span class="kn">Let</span> <span class="nf">R</span> : N ⟶ P := right_functor θ.
+  <span class="kn">Let</span> <span class="nf">η</span> : functor_identity P ⟹ L ∙ R := adjunit θ.
+  <span class="kn">Let</span> <span class="nf">ε</span> : R ∙ L ⟹ functor_identity N := adjcounit θ.
+
+  <span class="kn">Definition</span> <span class="nf">is_negative_equalizing</span> : UU
+    := ∏ (n m : N) (f : (R ∙ L) n --&gt; m) (H : #(R ∙ L) (ε n) · f = ε ((R ∙ L) n) · f),
+      <span class="k">∃</span>! (f' : n --&gt; m), ε n · f' = f.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_negative_equalizing</span> : isaprop is_negative_equalizing.
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isapropiscontr.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_positive_equalizing</span> : UU
+    := ∏ (p q : P) (f : p --&gt; (L ∙ R) q) (H : f · #(L ∙ R) (η q) = f · η ((L ∙ R) q)),
+       <span class="k">∃</span>! (f' : p --&gt; q), f' · η q = f.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_positive_equalizing</span> : isaprop is_positive_equalizing.
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isapropiscontr.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_fully_equalizing</span> : UU
+    := is_negative_equalizing × is_positive_equalizing.
+  <span class="kn">Definition</span> <span class="nf">make_is_fully_equalizing</span>
+    (<span class="nv">Hnegative</span> : is_negative_equalizing)
+    (<span class="nv">Hpositive</span> : is_positive_equalizing)
+    : is_fully_equalizing := Hnegative,,Hpositive.
+  <span class="kn">Coercion</span> <span class="nf">is_fully_equalizing_to_is_negative_equalizing</span>
+    (H : is_fully_equalizing) : is_negative_equalizing := pr1 H.
+  <span class="kn">Coercion</span> <span class="nf">is_fully_equalizing_to_is_positive_equalizing</span>
+    (H : is_fully_equalizing) : is_positive_equalizing := pr2 H.
+
+  <span class="kn">Local Lemma</span> <span class="nf">isInjective_φ_adj</span> {<span class="nv">a</span> <span class="nv">b</span>} : isInjective (φ_adj (A:=a) (B:=b) θ).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> isweqonpathsincl, isinclweq, adjunction_hom_weq. <span class="kn">Qed</span>.
+  <span class="kn">Local Lemma</span> <span class="nf">isInjective_φ_adj_inv</span> {<span class="nv">a</span> <span class="nv">b</span>} : isInjective (φ_adj_inv (A:=a) (B:=b) θ).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> isweqonpathsincl, isinclweq, (invweq (adjunction_hom_weq _ _ _)). <span class="kn">Qed</span>.
+
+  <span class="kn">Ltac</span> <span class="nf">cancel_φ_adj</span> := <span class="nb">apply</span> (Injectivity (φ_adj θ) isInjective_φ_adj).
+  <span class="kn">Ltac</span> <span class="nf">cancel_φ_adj_inv</span> := <span class="nb">apply</span> (Injectivity (φ_adj_inv θ) isInjective_φ_adj_inv).
+
+  <span class="sd">(** *** Characterizations of the equalizing requirement *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">is_negative_equalizing_weq_isweq_oblique_lift_negative</span>
+    : (∏ (n m : N), isweq (<span class="k">λ</span> (<span class="nv">f</span> : n --&gt; m), oblique_lift_negative θ f))
+        ≃ is_negative_equalizing.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> n.
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> m.
+    <span class="nb">eapply</span> weqcomp; [<span class="nb">apply</span> weqsecovertotal2|].
+    <span class="nb">eapply</span> weqcomp; [<span class="nb">apply</span> (weqonsecbase (X:=N⟦L (R n), m⟧) _
+                              (weq_oblique_mor_from_negative θ _ _))|].
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> Hf.
+    <span class="nb">apply</span> weq_iscontrweqf.
+    <span class="nb">apply</span> (weqbandf (idweq _)).
+    <span class="nb">intro</span> f'.
+    <span class="nb">eapply</span> weqcomp; [<span class="nb">apply</span> subtypeInjectivity; <span class="nb">intro</span>; <span class="nb">apply</span> propproperty|].
+    <span class="nb">apply</span> oblique_mor_negative_path_weq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_negative_equalizing_from_is_epi_and_equation</span>
+    (<span class="nv">Hepi</span> : ∏ (n : N), isEpi (ε n))
+    (<span class="nv">Himage</span> : ∏ (n m : N) (f : oblique_mor θ (R n) m) (H : is_oblique_mor_linear θ f),
+        ishinh (hfiber (<span class="k">λ</span> <span class="nv">g</span>, ε n · g) f♭))
+    : is_negative_equalizing.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b f Hf.
+    isaprop_goal Hprop; [<span class="nb">apply</span> isapropiscontr|].
+    <span class="nb">refine</span> (squash_to_prop (Himage _ _ (oblique_mor_from_negative θ f) Hf) Hprop (<span class="k">λ</span> <span class="nv">Hfib</span>, _)).
+    <span class="nb">induction</span> Hfib <span class="k">as</span> [g Hg].
+    use (unique_exists g).
+    - <span class="bp">exact</span> Hg.
+    - <span class="nb">intro</span>; <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> g' Hg'; <span class="nb">cbn</span> <span class="k">in</span> Hg'.
+      <span class="nb">apply</span> Hepi.
+      <span class="bp">exact</span> (Hg' @ !Hg).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_negative_equalizing_from_is_epi_and_linear_image</span>
+    (<span class="nv">Hepi</span> : ∏ (n : N), isEpi (ε n))
+    (<span class="nv">Himage</span> : ∏ (n m : N) (f : oblique_mor θ (R n) m) (H : is_oblique_mor_linear θ f),
+        ishinh (hfiber (#R) f♯))
+    : is_negative_equalizing.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (is_negative_equalizing_from_is_epi_and_equation Hepi).
+    <span class="nb">intros</span> a b f Hf.
+    isaprop_goal Hprop; [<span class="nb">apply</span> propproperty|].
+    <span class="nb">refine</span> (squash_to_prop (Himage _ _ f Hf) Hprop (<span class="k">λ</span> <span class="nv">Hfib</span>, _)).
+    <span class="nb">induction</span> Hfib <span class="k">as</span> [g Hg].
+    <span class="nb">apply</span> hinhpr; <span class="k">exists</span> <span class="nv">g</span>.
+    <span class="nb">change</span> ((oblique_lift_negative θ g)♭ = f♭).
+    <span class="nb">apply</span> (maponpaths (oblique_mor_negative θ)), oblique_mor_positive_path.
+    <span class="bp">exact</span> Hg.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_positive_equalizing_weq_isweq_oblique_lift_positive</span>
+    : (∏ (p q : P), isweq (<span class="k">λ</span> (<span class="nv">f</span> : p --&gt; q), oblique_lift_positive θ f))
+        ≃ is_positive_equalizing.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> p.
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> q.
+    <span class="nb">eapply</span> weqcomp; [<span class="nb">apply</span> weqsecovertotal2|].
+    <span class="nb">eapply</span> weqcomp; [<span class="nb">apply</span> (weqonsecbase (X:=P⟦p, R (L q)⟧) _
+                              (weq_oblique_mor_from_positive θ _ _))|].
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> Hf.
+    <span class="nb">apply</span> weq_iscontrweqf.
+    <span class="nb">apply</span> (weqbandf (idweq _)).
+    <span class="nb">intro</span> f'.
+    <span class="nb">eapply</span> weqcomp; [<span class="nb">apply</span> subtypeInjectivity; <span class="nb">intro</span>; <span class="nb">apply</span> propproperty|].
+    <span class="nb">apply</span> oblique_mor_positive_path_weq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_positive_equalizing_from_is_monic_and_equation</span>
+    (<span class="nv">Hmonic</span> : ∏ (p : P), isMonic (η p))
+    (<span class="nv">Himage</span> : ∏ (p q : P) (f : oblique_mor θ p (L q)) (H : is_oblique_mor_thunkable θ f),
+        ishinh (hfiber (<span class="k">λ</span> <span class="nv">g</span>, g · η q) f♯))
+    : is_positive_equalizing.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b f Hf.
+    isaprop_goal Hprop; [<span class="nb">apply</span> isapropiscontr|].
+    <span class="nb">refine</span> (squash_to_prop (Himage _ _ (oblique_mor_from_positive θ f) Hf) Hprop (<span class="k">λ</span> <span class="nv">Hfib</span>, _)).
+    <span class="nb">induction</span> Hfib <span class="k">as</span> [g Hg].
+    use (unique_exists g).
+    - <span class="bp">exact</span> Hg.
+    - <span class="nb">intro</span>; <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> g' Hg'; <span class="nb">cbn</span> <span class="k">in</span> Hg'.
+      <span class="nb">apply</span> Hmonic.
+      <span class="bp">exact</span> (Hg' @ !Hg).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_positive_equalizing_from_is_monic_and_thunkable_image</span>
+    (<span class="nv">Hmonic</span> : ∏ (p : P), isMonic (η p))
+    (<span class="nv">Himage</span> : ∏ (p q : P) (f : oblique_mor θ p (L q)) (H : is_oblique_mor_thunkable θ f),
+        ishinh (hfiber (#L) f♭))
+    : is_positive_equalizing.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (is_positive_equalizing_from_is_monic_and_equation Hmonic).
+    <span class="nb">intros</span> a b f Hf.
+    isaprop_goal Hprop; [<span class="nb">apply</span> propproperty|].
+    <span class="nb">refine</span> (squash_to_prop (Himage _ _ f Hf) Hprop (<span class="k">λ</span> <span class="nv">Hfib</span>, _)).
+    <span class="nb">induction</span> Hfib <span class="k">as</span> [g Hg].
+    <span class="nb">apply</span> hinhpr; <span class="k">exists</span> <span class="nv">g</span>.
+    <span class="nb">change</span> ((oblique_lift_positive θ g)♯ = f♯).
+    <span class="nb">apply</span> (maponpaths (oblique_mor_positive θ)), oblique_mor_negative_path.
+    <span class="bp">exact</span> Hg.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** *** Consequences about the fixed points of the adjunction *)</span>
+
+  <span class="sd">(** Lemmas about the negative fixed point of the adjunction *)</span>
+  <span class="kn">Section</span> <span class="nf">negative_fixed_point</span>.
+    <span class="kn">Lemma</span> <span class="nf">is_epi_counit_from_negative_equalizing</span>
+      (<span class="nv">Hnegative_eq</span> : is_negative_equalizing) (<span class="nv">n</span> : N)
+      : isEpi (ε n).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> b f g H.
+      <span class="nb">apply</span> (base_paths (B:=<span class="k">λ</span> <span class="nv">f'</span>, ε n · f' = ε n · g) (f,,H) (g,,idpath _)).
+      <span class="nb">eassert</span> (H' : <span class="k">∃</span>! f' : N⟦n, b⟧, ε n · f' = ε n · g). {
+        <span class="nb">refine</span> (Hnegative_eq _ _ (ε n · g) _).
+        <span class="bp">now</span> <span class="nb">rewrite</span> !assoc, nat_trans_ax.
+      }
+      intermediate_path (iscontrpr1 H').
+      - <span class="nb">apply</span> iscontr_uniqueness.
+      - <span class="nb">apply</span> pathsinv0, iscontr_uniqueness.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">is_negative_fixed_point_from_pre_fixed_point</span>
+      (<span class="nv">Hnegative_eq</span> : is_negative_equalizing)
+      (<span class="nv">n</span> : N) (<span class="nv">Hn</span> : is_negative_pre_fixed_point θ n)
+      : is_negative_fixed_point θ n.
+    <span class="kn">Proof</span>.
+      <span class="nb">eassert</span> (f' : <span class="k">∃</span>! f' : N⟦n, (R ∙ L) n⟧, ε n · f' = identity ((R ∙ L) n)). {
+        <span class="nb">apply</span> Hnegative_eq.
+        <span class="kp">abstract</span> (<span class="nb">rewrite</span> !id_right; <span class="bp">exact</span> Hn).
+      }
+      <span class="nb">induction</span> f' <span class="k">as</span> [f' _], f' <span class="k">as</span> [f' Hf'].
+      use make_is_z_isomorphism; [|use make_is_inverse_in_precat].
+      - <span class="bp">exact</span> f'.
+      - <span class="bp">exact</span> Hf'.
+      - <span class="kp">abstract</span> (<span class="nb">apply</span> (is_epi_counit_from_negative_equalizing Hnegative_eq); <span class="nb">fold</span> ε;
+                  <span class="nb">rewrite</span> assoc; etrans; [<span class="nb">apply</span> cancel_postcomposition, Hf'|];
+                  <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">is_negative_fixed_point_to_pre_fixed_point</span>
+      (<span class="nv">n</span> : N) (<span class="nv">Hn</span> : is_negative_fixed_point θ n)
+      : is_negative_pre_fixed_point θ n.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (pre_comp_with_z_iso_is_inj
+                (_ : is_z_isomorphism (#(R ∙ L) (is_z_isomorphism_mor Hn)))
+                _ _ _).
+      <span class="mi">1</span>: <span class="nb">apply</span> functor_on_is_z_isomorphism, is_z_isomorphism_inv.
+      intermediate_path (identity ((R ∙ L) n)).
+      - <span class="nb">rewrite</span> &lt;- functor_comp, &lt;- functor_id.
+        <span class="nb">apply</span> (maponpaths (#(R ∙ L))).
+        <span class="nb">apply</span> (is_inverse_in_precat2 Hn).
+      - <span class="nb">apply</span> pathsinv0.
+        <span class="nb">refine</span> (nat_trans_ax ε n _ _ @ _).
+        <span class="nb">apply</span> (is_inverse_in_precat1 Hn).
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(** The negative equalizing requirement makes the negative pre-fixed and</span>
+<span class="sd">        fixed points coincide *)</span>
+    <span class="kn">Lemma</span> <span class="nf">is_negative_fixed_point_iff_pre_fixed_point</span>
+      (<span class="nv">Hnegative_eq</span> : is_negative_equalizing) (<span class="nv">n</span> : N)
+      : is_negative_fixed_point θ n ≃ is_negative_pre_fixed_point θ n.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> weqimplimpl.
+      - <span class="nb">apply</span> is_negative_fixed_point_to_pre_fixed_point.
+      - <span class="nb">apply</span> (is_negative_fixed_point_from_pre_fixed_point Hnegative_eq).
+      - <span class="nb">apply</span> isaprop_is_negative_fixed_point.
+      - <span class="nb">apply</span> isaprop_is_negative_pre_fixed_point.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">negative_fixed_point</span>.
+
+  <span class="sd">(** Lemmas about the positive fixed point of the adjunction *)</span>
+  <span class="kn">Section</span> <span class="nf">positive_fixed_point</span>.
+    <span class="kn">Lemma</span> <span class="nf">is_monic_unit_from_positive_equalizing</span>
+      (<span class="nv">Hpositive_eq</span> : is_positive_equalizing) (<span class="nv">p</span> : P)
+      : isMonic (η p).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> b f g H.
+      <span class="nb">apply</span> (base_paths (B:=<span class="k">λ</span> <span class="nv">f'</span>, f' · η p = g · η p) (f,,H) (g,,idpath _)).
+      <span class="nb">eassert</span> (H' : <span class="k">∃</span>! f' : P⟦b, p⟧, f' · η p = g · η p). {
+        <span class="nb">refine</span> (Hpositive_eq _ _ (g · η p) _).
+        <span class="bp">now</span> <span class="nb">rewrite</span> !assoc', (!nat_trans_ax η _ _ _).
+      }
+      intermediate_path (iscontrpr1 H').
+      - <span class="nb">apply</span> iscontr_uniqueness.
+      - <span class="nb">apply</span> pathsinv0, iscontr_uniqueness.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">is_positive_fixed_point_from_pre_fixed_point</span>
+      (<span class="nv">Hpositive_eq</span> : is_positive_equalizing)
+      (<span class="nv">p</span> : P) (<span class="nv">Hp</span> : is_positive_pre_fixed_point θ p)
+      : is_positive_fixed_point θ p.
+    <span class="kn">Proof</span>.
+      <span class="nb">eassert</span> (f' : <span class="k">∃</span>! f' : P⟦(L ∙ R) p, p⟧, f' · η p = identity ((L ∙ R) p)). {
+        <span class="nb">apply</span> Hpositive_eq.
+        <span class="kp">abstract</span> (<span class="nb">rewrite</span> !id_left; <span class="bp">exact</span> Hp).
+      }
+      <span class="nb">induction</span> f' <span class="k">as</span> [f' _], f' <span class="k">as</span> [f' Hf'].
+      use make_is_z_isomorphism; [|use make_is_inverse_in_precat].
+      - <span class="bp">exact</span> f'.
+      - <span class="kp">abstract</span> (<span class="nb">apply</span> (is_monic_unit_from_positive_equalizing Hpositive_eq);
+                  <span class="nb">rewrite</span> assoc';
+                  etrans; [<span class="nb">apply</span> cancel_precomposition, Hf'|];
+                  <span class="bp">now</span> <span class="nb">rewrite</span> id_right, id_left).
+      - <span class="bp">exact</span> Hf'.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">is_positive_fixed_point_to_pre_fixed_point</span>
+      (<span class="nv">p</span> : P) (<span class="nv">Hp</span> : is_positive_fixed_point θ p)
+      : is_positive_pre_fixed_point θ p.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (post_comp_with_z_iso_is_inj
+                (_ : is_z_isomorphism (#(L ∙ R) (is_z_isomorphism_mor Hp)))
+                _ _ _).
+      <span class="mi">1</span>: <span class="nb">apply</span> functor_on_is_z_isomorphism, is_z_isomorphism_inv.
+      intermediate_path (identity ((L ∙ R) p)).
+      - <span class="nb">rewrite</span> &lt;- functor_comp, &lt;- functor_id.
+        <span class="nb">apply</span> (maponpaths (#(L ∙ R))).
+        <span class="nb">apply</span> (is_inverse_in_precat1 Hp).
+      - <span class="nb">refine</span> (_ @ nat_trans_ax η _ p _).
+        <span class="nb">apply</span> pathsinv0, (is_inverse_in_precat2 Hp).
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(** The positive equalizing requirement makes the positive pre-fixed and</span>
+<span class="sd">        fixed points coincide *)</span>
+    <span class="kn">Lemma</span> <span class="nf">is_positive_fixed_point_iff_pre_fixed_point</span>
+      (<span class="nv">Hpositive_eq</span> : is_positive_equalizing) (<span class="nv">p</span> : P)
+      : is_positive_fixed_point θ p ≃ is_positive_pre_fixed_point θ p.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> weqimplimpl.
+      - <span class="nb">apply</span> is_positive_fixed_point_to_pre_fixed_point.
+      - <span class="nb">apply</span> (is_positive_fixed_point_from_pre_fixed_point Hpositive_eq).
+      - <span class="nb">apply</span> isaprop_is_positive_fixed_point.
+      - <span class="nb">apply</span> isaprop_is_positive_pre_fixed_point.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">positive_fixed_point</span>.
+
+<span class="kn">End</span> <span class="nf">equalized</span>.
+<span class="kn">Arguments</span> is_negative_pre_fixed_point / _.
+<span class="kn">Arguments</span> is_positive_pre_fixed_point / _.
+
+<span class="sd">(** ** The shift adjunction of a duploid is fully equalizing *)</span>
+
+<span class="kn">Section</span> <span class="nf">shift_is_equalizing</span>.
+  <span class="kn">Context</span> (<span class="nv">D</span> : duploid).
+  <span class="kn">Let</span> <span class="nf">θ</span> := adjunction_neg_l_to_pos_t D.
+
+  <span class="kn">Let</span> <span class="nf">ε'</span> (<span class="nv">a</span> : D) : D⟦⇑⇓a, a⟧ := force ⇓a · unwrap a.
+  <span class="kn">Let</span> <span class="nf">ε_sec</span> (<span class="nv">a</span> : D) : D⟦a, ⇑⇓a⟧ := wrap a · delay ⇓a.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ε'_has_section</span> (<span class="nv">a</span> : D)
+    : ε_sec a · ε' a = identity a.
+  <span class="kn">Proof</span>.
+    etrans; [<span class="nb">apply</span> (assoc'_thunkable (wrap _) ummsolve)|].
+    etrans; [<span class="nb">apply</span> cancel_precomposition, delay_force_left|].
+    <span class="nb">apply</span> wrap_unwrap_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ε_sec_natural</span> (<span class="nv">a</span> <span class="nv">b</span> : D) (<span class="nv">f</span> : a --&gt; b)
+    : f · ε_sec b = ε_sec a · #⇑(#⇓f).
+  <span class="kn">Proof</span>.
+    <span class="nb">subst</span> ε_sec; <span class="nb">cbn</span> beta.
+    etrans; [|<span class="nb">apply</span> (assoc_thunkable (wrap a) ummsolve)].
+    etrans; [|<span class="nb">apply</span> cancel_precomposition, delay_natural].
+    etrans; [|<span class="nb">apply</span> (assoc'_thunkable (wrap a) ummsolve)].
+    etrans; [|<span class="nb">apply</span> cancel_postcomposition, wrap_natural].
+    <span class="nb">apply</span> (assoc_linear (delay _) ummsolve).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">is_epi_ε'</span> (<span class="nv">a</span> : sub_ob D ^⊖)
+    : isEpi (adjcounit θ a).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> b f g Hfg; <span class="nb">cbn</span> <span class="k">in</span> b.
+    <span class="nb">change</span> (a --&gt;{_lt} b) <span class="k">in</span> f, g.
+    <span class="nb">apply</span> base_paths <span class="k">in</span> Hfg.
+    <span class="nb">apply</span> (maponpaths (precomp_with (ε_sec a))) <span class="k">in</span> Hfg.
+    <span class="nb">change</span> (ε_sec a · (ε' a · f) = ε_sec a · (ε' a · g)) <span class="k">in</span> Hfg.
+    <span class="nb">apply</span> submm_mor_eq.
+    <span class="nb">refine</span> (_ @ Hfg @ _).
+    - <span class="bp">now</span> <span class="nb">rewrite</span> (assoc_linear f ummsolve), ε'_has_section, magmoid_id_left.
+    - <span class="bp">now</span> <span class="nb">rewrite</span> (assoc_linear g ummsolve), ε'_has_section, magmoid_id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Let</span> <span class="nf">η'</span> (<span class="nv">a</span> : D) : D⟦a, ⇓⇑a⟧ := wrap ⇑a ∘ delay a.
+  <span class="kn">Let</span> <span class="nf">η_ret</span> (<span class="nv">a</span> : D) : D⟦⇓⇑a, a⟧ := force a ∘ unwrap ⇑a.
+
+  <span class="kn">Local Lemma</span> <span class="nf">η'_has_retract</span> (<span class="nv">a</span> : D)
+    : η_ret a ∘ η' a = identity a.
+  <span class="kn">Proof</span>.
+    etrans; [<span class="nb">apply</span> (assoc_linear (force _) ummsolve)|].
+    etrans; [<span class="nb">apply</span> cancel_postcomposition, wrap_unwrap_right|].
+    <span class="nb">apply</span> delay_force_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">η_ret_natural</span> (<span class="nv">a</span> <span class="nv">b</span> : D) (<span class="nv">f</span> : a &lt;-- b)
+    : f ∘ η_ret b = η_ret a ∘ #⇓(#⇑f).
+  <span class="kn">Proof</span>.
+    <span class="nb">subst</span> η_ret; <span class="nb">cbn</span> beta.
+    etrans; [|<span class="nb">apply</span> (assoc'_linear (force a) ummsolve)].
+    etrans; [|<span class="nb">apply</span> cancel_postcomposition, pathsinv0, unwrap_natural].
+    etrans; [|<span class="nb">apply</span> (assoc_linear (force a) ummsolve)].
+    etrans; [|<span class="nb">apply</span> cancel_precomposition, pathsinv0, force_natural].
+    <span class="nb">apply</span> (assoc'_thunkable (unwrap _) ummsolve).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">is_monic_η'</span> (<span class="nv">a</span> : sub_ob D ^⊕)
+    : isMonic (adjunit θ a).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> b f g Hfg; <span class="nb">cbn</span> <span class="k">in</span> b.
+    <span class="nb">change</span> (a &lt;--{_lt} b) <span class="k">in</span> f, g.
+    <span class="nb">apply</span> base_paths <span class="k">in</span> Hfg.
+    <span class="nb">apply</span> (maponpaths (postcomp_with (η_ret a))) <span class="k">in</span> Hfg.
+    <span class="nb">change</span> (η_ret a ∘ (η' a ∘ f) = η_ret a ∘ (η' a ∘ g)) <span class="k">in</span> Hfg.
+    <span class="nb">apply</span> submm_mor_eq.
+    <span class="nb">refine</span> (_ @ Hfg @ _).
+    - <span class="bp">now</span> <span class="nb">rewrite</span> (assoc'_thunkable f ummsolve), η'_has_retract, magmoid_id_right.
+    - <span class="bp">now</span> <span class="nb">rewrite</span> (assoc'_thunkable g ummsolve), η'_has_retract, magmoid_id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_negative_equalizing_adjunction_neg_l_to_pos_t</span>
+    : is_negative_equalizing θ.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_negative_equalizing_from_is_epi_and_equation.
+    <span class="mi">1</span>: <span class="nb">apply</span> is_epi_ε'.
+    <span class="nb">intros</span> n m f Hf; <span class="nb">cbn</span> <span class="k">in</span> n, m, f.
+    <span class="nb">set</span> (f' := ε_sec n · submm_mor_mor f♭ : D⟦n, m⟧).
+    <span class="nb">assert</span> (Hfb := pr12 f♭ : is_linear (M:=D) (submm_mor_mor f♭)).
+    <span class="nb">assert</span> (Hf' : ε' n · f' = submm_mor_mor f♭). {
+      etrans; [<span class="nb">apply</span> (assoc_linear _ Hfb)|].
+      etrans; [|<span class="nb">apply</span> magmoid_id_left].
+      etrans; [|<span class="nb">apply</span> cancel_postcomposition, (ε'_has_section _)].
+      etrans; [|<span class="nb">apply</span> (assoc_linear _ Hfb)].
+      <span class="nb">apply</span> base_paths <span class="k">in</span> Hf.
+      intermediate_path (ε_sec (⇑⇓n) · (#⇑(#⇓(ε' n)) · submm_mor_mor f♭));
+        [|<span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, ε_sec _ · f) _); <span class="bp">exact</span> Hf].
+      etrans; [|<span class="nb">apply</span> (assoc'_linear _ Hfb)].
+      <span class="nb">apply</span> cancel_postcomposition, ε_sec_natural.
+    }
+    <span class="nb">assert</span> (Hlinear : is_linear f'). {
+      <span class="nb">apply</span> is_linear_of_force_unwrap.
+      <span class="nb">fold</span> (ε' n).
+      <span class="nb">refine</span> (Hf' @ _).
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">subst</span> f' ε_sec; <span class="nb">cbn</span>.
+      etrans. {
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, force _ · f) _).
+        etrans; [<span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, unwrap _ · f) _);
+                 <span class="nb">apply</span> (assoc'_thunkable (wrap n) ummsolve (delay (⇓n)))|].
+        etrans; [<span class="nb">apply</span> assoc_linear, (is_linear_compose (delay (⇓n)) (submm_mor_mor f♭)
+                                        (is_linear_of_positive (delay ⇓n) ummsolve)
+                                        Hfb)|].
+        etrans; [<span class="nb">apply</span> cancel_postcomposition, unwrap_wrap_id|].
+        <span class="nb">apply</span> magmoid_id_left.
+      }
+      etrans; [<span class="nb">apply</span> (assoc_linear _ Hfb)|].
+      etrans; [<span class="nb">apply</span> cancel_postcomposition, force_delay_id|].
+      <span class="nb">apply</span> magmoid_id_left.
+    }
+    <span class="nb">apply</span> hinhpr.
+    use make_hfiber.
+    - <span class="nb">apply</span> weq_negative_linear_mor.
+      <span class="bp">exact</span> (make_submm_mor _l f' Hlinear).
+    - <span class="nb">apply</span> submm_mor_eq, Hf'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_positive_equalizing_adjunction_neg_l_to_pos_t</span>
+    : is_positive_equalizing θ.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_positive_equalizing_from_is_monic_and_equation.
+    <span class="mi">1</span>: <span class="nb">apply</span> is_monic_η'.
+    <span class="nb">intros</span> p q f Hf; <span class="nb">cbn</span> <span class="k">in</span> p, q, f.
+    <span class="nb">set</span> (f' := η_ret q ∘ submm_mor_mor f♯ : D⟦p, q⟧).
+    <span class="nb">assert</span> (Hfs := pr22 f♯ : is_thunkable (M:=D) (submm_mor_mor f♯)).
+    <span class="nb">assert</span> (Hf' : η' q ∘ f' = submm_mor_mor f♯). {
+      etrans; [<span class="nb">apply</span> (assoc'_thunkable _ Hfs)|].
+      etrans; [|<span class="nb">apply</span> magmoid_id_right].
+      etrans; [|<span class="nb">apply</span> cancel_precomposition, (η'_has_retract _)].
+      etrans; [|<span class="nb">apply</span> (assoc'_thunkable _ Hfs)].
+      <span class="nb">apply</span> base_paths <span class="k">in</span> Hf.
+      intermediate_path (η_ret (⇓⇑q) ∘ (#⇓(#⇑(η' q)) ∘ submm_mor_mor f♯));
+        [|<span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, η_ret _ ∘ f) _); <span class="bp">exact</span> Hf].
+      etrans; [|<span class="nb">apply</span> (assoc_thunkable _ Hfs)].
+      etrans; [<span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, submm_mor_mor f♯ · x) _);
+               <span class="nb">apply</span> η_ret_natural|].
+      <span class="bp">reflexivity</span>.
+    }
+    <span class="nb">assert</span> (Hthunkable : is_thunkable f'). {
+      <span class="nb">apply</span> is_thunkable_of_delay_wrap.
+      <span class="nb">fold</span> (η' q).
+      <span class="nb">refine</span> (Hf' @ _).
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">subst</span> f' η_ret; <span class="nb">cbn</span>.
+      etrans. {
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, wrap _ ∘ f) _).
+        etrans; [<span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, delay _ ∘ f) _);
+                 <span class="nb">apply</span> (assoc_linear (force q) ummsolve (unwrap (⇑q)))|].
+        etrans; [<span class="nb">apply</span> assoc'_thunkable, (is_thunkable_compose (M:=D) (submm_mor_mor f♯) (unwrap (⇑q))
+                                            Hfs
+                                            (is_thunkable_of_negative (unwrap ⇑q) ummsolve))|].
+        etrans; [<span class="nb">apply</span> cancel_precomposition, force_delay_id|].
+        <span class="nb">apply</span> magmoid_id_right.
+      }
+      etrans; [<span class="nb">apply</span> (assoc'_thunkable _ Hfs)|].
+      etrans; [<span class="nb">apply</span> cancel_precomposition, unwrap_wrap_id|].
+      <span class="nb">apply</span> magmoid_id_right.
+    }
+    <span class="nb">apply</span> hinhpr.
+    use make_hfiber.
+    - <span class="nb">apply</span> weq_positive_thunkable_mor.
+      <span class="bp">exact</span> (make_submm_mor _t f' Hthunkable).
+    - <span class="nb">apply</span> submm_mor_eq, Hf'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_fully_equalizing_adjunction_neg_l_to_pos_t</span>
+    : is_fully_equalizing θ.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_fully_equalizing.
+    - <span class="nb">apply</span> is_negative_equalizing_adjunction_neg_l_to_pos_t.
+    - <span class="nb">apply</span> is_positive_equalizing_adjunction_neg_l_to_pos_t.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">shift_is_equalizing</span>.
+
+<span class="sd">(** ** Univalence of the envelope and oblique duploids *)</span>
+
+<span class="kn">Section</span> <span class="nf">univalence</span>.
+  <span class="kn">Context</span> {<span class="nv">N</span> <span class="nv">P</span> : category} (<span class="nv">θ</span> : adjunction P N).
+  <span class="kn">Let</span> <span class="nf">L</span> : P ⟶ N := left_functor θ.
+  <span class="kn">Let</span> <span class="nf">R</span> : N ⟶ P := right_functor θ.
+  <span class="kn">Let</span> <span class="nf">η</span> : functor_identity P ⟹ L ∙ R := adjunit θ.
+  <span class="kn">Let</span> <span class="nf">ε</span> : R ∙ L ⟹ functor_identity N := adjcounit θ.
+
+  <span class="sd">(** *** Characterizations in terms of duploids</span>
+
+<span class="sd">Given an adjunction [L ⊣ R], the following are equivalent:</span>
+<span class="sd">1. [L ⊣ R] is negative equalizing.</span>
+<span class="sd">2. [negative_to_oblique_duploid] is [fully_faithful].</span>
+<span class="sd">3. [negative_to_oblique_duploid] is a [catiso].</span>
+<span class="sd">4. [negative_to_envelope_duploid] is [fully_faithful].</span>
+<span class="sd">5. [negative_to_envelope_duploid] is an [adj_equivalence_of_cats].</span>
+
+<span class="sd">Dually, the following are equivalent:</span>
+<span class="sd">A. [L ⊣ R] is positive equalizing.</span>
+<span class="sd">B. [positive_to_oblique_duploid] is [fully_faithful].</span>
+<span class="sd">C. [positive_to_oblique_duploid] is a [catiso].</span>
+<span class="sd">D. [positive_to_envelope_duploid] is [fully_faithful].</span>
+<span class="sd">E. [positive_to_envelope_duploid] is an [adj_equivalence_of_cats]. *)</span>
+
+  <span class="sd">(** 1 &lt;-&gt; 2 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">ff_negative_to_oblique_iff_equ</span>
+    : is_negative_equalizing θ ≃ fully_faithful (negative_to_oblique_duploid θ).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> invweq.
+    <span class="nb">eapply</span> weqcomp; [|<span class="nb">apply</span> is_negative_equalizing_weq_isweq_oblique_lift_negative].
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> n.
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> m.
+    <span class="nb">eapply</span> weqcomp. {
+      <span class="nb">unshelve</span> <span class="nb">apply</span> (weqonsecbase (X:=oblique_linear_mor θ n m)).
+      <span class="nb">apply</span> (weqcomp (weq_oblique_linear_mor_oblique_linear_mor θ n
+                        (oblique_ob_of_negative m))).
+      <span class="bp">exact</span> (@weq_syn_negative_linear_mor (oblique_duploid θ)
+               (negative_to_oblique_duploid θ n)
+               (negative_to_oblique_duploid θ m)).
+    }
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> weq_iscontrweqf.
+    <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> f'.
+    <span class="nb">eapply</span> weqcomp; [<span class="nb">apply</span> subtypeInjectivity; <span class="nb">intro</span>; <span class="nb">apply</span> propproperty|].
+    <span class="nb">eapply</span> weqcomp; [|<span class="nb">apply</span> invweq, subtypeInjectivity; <span class="nb">intro</span>; <span class="nb">apply</span> propproperty].
+    <span class="bp">exact</span> (idweq _).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 2 &lt;-&gt; 3 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_catiso_negative_to_oblique_iff_ff</span>
+    : fully_faithful (negative_to_oblique_duploid θ)
+        ≃ is_catiso (negative_to_oblique_duploid θ).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> dirprod_with_contr_r.
+    <span class="nb">apply</span> iscontraprop1.
+    - <span class="nb">apply</span> isapropisweq.
+    - <span class="nb">apply</span> isweq_on_ob_negative_to_oblique_duploid.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 1 &lt;-&gt; 3 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_catiso_negative_to_oblique_iff_equ</span>
+    : is_negative_equalizing θ ≃ is_catiso (negative_to_oblique_duploid θ).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (weqcomp ff_negative_to_oblique_iff_equ
+             is_catiso_negative_to_oblique_iff_ff).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 1 &lt;-&gt; 4 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">ff_negative_to_envelope_iff_equ</span>
+    : is_negative_equalizing θ ≃ fully_faithful (negative_to_envelope_duploid θ).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> invweq.
+    <span class="nb">eapply</span> weqcomp; [|<span class="nb">apply</span> is_negative_equalizing_weq_isweq_oblique_lift_negative].
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> n.
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> m.
+    <span class="nb">eapply</span> weqcomp. {
+      <span class="nb">unshelve</span> <span class="nb">apply</span> (weqonsecbase (X:=oblique_linear_mor θ n m)).
+      <span class="nb">apply</span> (weqcomp (weq_envelope_linear_mor_oblique_linear_mor θ n
+                        (envelope_ob_of_negative θ m))).
+      <span class="bp">exact</span> (@weq_negative_linear_mor (envelope_duploid θ)
+               (negative_to_envelope_duploid θ n)
+               (negative_to_envelope_duploid θ m)).
+    }
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> weq_iscontrweqf.
+    <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> f'.
+    <span class="nb">eapply</span> weqcomp; [<span class="nb">apply</span> subtypeInjectivity; <span class="nb">intro</span>; <span class="nb">apply</span> propproperty|].
+    <span class="nb">eapply</span> weqcomp; [|<span class="nb">apply</span> invweq, subtypeInjectivity; <span class="nb">intro</span>; <span class="nb">apply</span> propproperty].
+    <span class="bp">exact</span> (idweq _).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 4 &lt;-&gt; 5 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">adj_equiv_negative_to_envelope_iff_ff</span>
+    : fully_faithful (negative_to_envelope_duploid θ)
+        &lt;-&gt; adj_equivalence_of_cats (negative_to_envelope_duploid θ).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> Hff.
+      <span class="nb">apply</span> rad_equivalence_of_cats'.
+      + <span class="bp">exact</span> Hff.
+      + <span class="bp">exact</span> (split_eso_negative_to_envelope_duploid θ).
+    - <span class="nb">apply</span> fully_faithful_from_equivalence.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** A &lt;-&gt; B *)</span>
+  <span class="kn">Lemma</span> <span class="nf">ff_positive_to_oblique_iff_equ</span>
+    : is_positive_equalizing θ ≃ fully_faithful (positive_to_oblique_duploid θ).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> invweq.
+    <span class="nb">eapply</span> weqcomp; [|<span class="nb">apply</span> is_positive_equalizing_weq_isweq_oblique_lift_positive].
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> p.
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> q.
+    <span class="nb">eapply</span> weqcomp. {
+      <span class="nb">unshelve</span> <span class="nb">apply</span> (weqonsecbase (X:=oblique_thunkable_mor θ p q)).
+      <span class="nb">apply</span> (weqcomp (weq_oblique_thunkable_mor_oblique_thunkable_mor θ
+                        (oblique_ob_of_positive p) q)).
+      <span class="bp">exact</span> (@weq_syn_positive_thunkable_mor (oblique_duploid θ)
+               (positive_to_oblique_duploid θ p)
+               (positive_to_oblique_duploid θ q)).
+    }
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> weq_iscontrweqf.
+    <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> f'.
+    <span class="nb">eapply</span> weqcomp; [<span class="nb">apply</span> subtypeInjectivity; <span class="nb">intro</span>; <span class="nb">apply</span> propproperty|].
+    <span class="nb">eapply</span> weqcomp; [|<span class="nb">apply</span> invweq, subtypeInjectivity; <span class="nb">intro</span>; <span class="nb">apply</span> propproperty].
+    <span class="bp">exact</span> (idweq _).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** B &lt;-&gt; C *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_catiso_positive_to_oblique_iff_ff</span>
+    : fully_faithful (positive_to_oblique_duploid θ)
+        ≃ is_catiso (positive_to_oblique_duploid θ).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> dirprod_with_contr_r.
+    <span class="nb">apply</span> iscontraprop1.
+    - <span class="nb">apply</span> isapropisweq.
+    - <span class="nb">apply</span> isweq_on_ob_positive_to_oblique_duploid.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 1 &lt;-&gt; 3 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_catiso_positive_to_oblique_iff_equ</span>
+    : is_positive_equalizing θ ≃ is_catiso (positive_to_oblique_duploid θ).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (weqcomp ff_positive_to_oblique_iff_equ
+             is_catiso_positive_to_oblique_iff_ff).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 1 &lt;-&gt; 4 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">ff_positive_to_envelope_iff_equ</span>
+    : is_positive_equalizing θ ≃ fully_faithful (positive_to_envelope_duploid θ).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> invweq.
+    <span class="nb">eapply</span> weqcomp; [|<span class="nb">apply</span> is_positive_equalizing_weq_isweq_oblique_lift_positive].
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> p.
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> q.
+    <span class="nb">eapply</span> weqcomp. {
+      <span class="nb">unshelve</span> <span class="nb">apply</span> (weqonsecbase (X:=oblique_thunkable_mor θ p q)).
+      <span class="nb">apply</span> (weqcomp (weq_envelope_thunkable_mor_oblique_thunkable_mor θ
+                        (envelope_ob_of_positive θ p) q)).
+      <span class="bp">exact</span> (@weq_positive_thunkable_mor (envelope_duploid θ)
+               (positive_to_envelope_duploid θ p)
+               (positive_to_envelope_duploid θ q)).
+    }
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> weq_iscontrweqf.
+    <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> f'.
+    <span class="nb">eapply</span> weqcomp; [<span class="nb">apply</span> subtypeInjectivity; <span class="nb">intro</span>; <span class="nb">apply</span> propproperty|].
+    <span class="nb">eapply</span> weqcomp; [|<span class="nb">apply</span> invweq, subtypeInjectivity; <span class="nb">intro</span>; <span class="nb">apply</span> propproperty].
+    <span class="bp">exact</span> (idweq _).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 4 &lt;-&gt; 5 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">adj_equiv_positive_to_envelope_iff_ff</span>
+    : fully_faithful (positive_to_envelope_duploid θ)
+        &lt;-&gt; adj_equivalence_of_cats (positive_to_envelope_duploid θ).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> Hff.
+      <span class="nb">apply</span> rad_equivalence_of_cats'.
+      + <span class="bp">exact</span> Hff.
+      + <span class="bp">exact</span> (split_eso_positive_to_envelope_duploid θ).
+    - <span class="nb">apply</span> fully_faithful_from_equivalence.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** *** Univalence of the oblique duploid *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_oblique_duploid_iff</span>
+    (<span class="nv">Hequ</span> : is_fully_equalizing θ)
+    : (is_univalent P × is_univalent N)
+        ≃ is_split_dupl_univalent (oblique_duploid θ).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqdirprodf.
+    - <span class="nb">apply</span> is_univalent_catiso_iff.
+      <span class="k">exists</span> (<span class="nv">positive_to_oblique_duploid</span> <span class="nv">θ</span>).
+      <span class="nb">apply</span> is_catiso_positive_to_oblique_iff_equ, Hequ.
+    - <span class="nb">apply</span> is_univalent_catiso_iff.
+      <span class="k">exists</span> (<span class="nv">negative_to_oblique_duploid</span> <span class="nv">θ</span>).
+      <span class="nb">apply</span> is_catiso_negative_to_oblique_iff_equ, Hequ.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** *** Univalence of the envelope duploid *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_chosen_negative_ob_eq</span>
+    (<span class="nv">ua</span> : is_univalent P)
+    (<span class="nv">a</span> : envelope_ob θ)
+    (<span class="nv">H</span> : envelope_chosen_negative θ a)
+    : a = sub_ob_ob ⇑a.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> a <span class="k">as</span> [[[p n] c] Hc].
+    <span class="nb">cbn</span> <span class="k">in</span> c; <span class="nb">change</span> (is_z_isomorphism c♯) <span class="k">in</span> H.
+    <span class="nb">apply</span> subtypePath'; [|<span class="nb">apply</span> propproperty]; <span class="nb">cbn</span>; <span class="nb">clear</span> Hc.
+    <span class="nb">assert</span> (Hcross : edges_to_refl (G:=P) (R n) = (p,, make_z_iso' c♯ H)).
+    { <span class="nb">apply</span> proofirrelevance, is_univalent_to_isaprop_edges_to, ua. }
+    <span class="nb">apply</span> total2_paths_equiv <span class="k">in</span> Hcross.
+    <span class="nb">induction</span> Hcross <span class="k">as</span> [Hp Hcross]; <span class="nb">cbn</span> <span class="k">in</span> Hp, Hcross.
+    <span class="nb">induction</span> Hp; <span class="nb">cbn</span> <span class="k">in</span> Hcross.
+    <span class="nb">apply</span> pair_path_in2.
+    <span class="nb">apply</span> oblique_mor_positive_path; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (base_paths _ _ (!Hcross)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_chosen_positive_ob_eq</span>
+    (<span class="nv">ua</span> : is_univalent N)
+    (<span class="nv">a</span> : envelope_ob θ)
+    (<span class="nv">H</span> : envelope_chosen_positive θ a)
+    : a = sub_ob_ob ⇓a.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> a <span class="k">as</span> [[[p n] c] Hc].
+    <span class="nb">cbn</span> <span class="k">in</span> c; <span class="nb">change</span> (is_z_isomorphism c♭) <span class="k">in</span> H.
+    <span class="nb">apply</span> subtypePath'; [|<span class="nb">apply</span> propproperty]; <span class="nb">cbn</span>; <span class="nb">clear</span> Hc.
+    <span class="nb">assert</span> (Hcross : edges_from_refl (G:=N) (L p) = (n,, make_z_iso' c♭ H)).
+    { <span class="nb">apply</span> proofirrelevance, is_univalent_to_isaprop_edges_from, ua. }
+    <span class="nb">apply</span> total2_paths_equiv <span class="k">in</span> Hcross.
+    <span class="nb">induction</span> Hcross <span class="k">as</span> [Hp Hcross]; <span class="nb">cbn</span> <span class="k">in</span> Hp, Hcross.
+    <span class="nb">induction</span> Hp; <span class="nb">cbn</span> <span class="k">in</span> Hcross.
+    <span class="nb">apply</span> pair_path_in2.
+    <span class="nb">apply</span> oblique_mor_negative_path; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (base_paths _ _ (!Hcross)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_chosen_negative_from_negative</span>
+    (<span class="nv">Hpositive_eq</span> : is_positive_equalizing θ)
+    (<span class="nv">a</span> : envelope_ob θ) (<span class="nv">H</span> : is_negative a)
+    : envelope_chosen_negative θ a.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (squash_to_prop (envelope_ob_to_envelope_polarization θ a)
+             (isaprop_envelope_chosen_negative θ a)).
+    <span class="nb">intro</span> Hchoice.
+    <span class="nb">induction</span> Hchoice <span class="k">as</span> [Hnegative|Hpositive]; [<span class="bp">exact</span> Hnegative|].
+    <span class="nb">red</span>; <span class="nb">rewrite</span> &lt;- oblique_mor_negative_transpose.
+    <span class="nb">change</span> (is_z_isomorphism (η (π⊕ a) · #R cross(a)♭)).
+    <span class="nb">apply</span> is_z_isomorphism_comp.
+    - <span class="nb">apply</span> (is_positive_fixed_point_from_pre_fixed_point θ Hpositive_eq).
+      <span class="nb">apply</span> is_negative_envelope_downshift_iff_pre_fixed_point.
+      <span class="nb">change</span> (is_negative (M:=envelope_duploid θ) ⇓a).
+      <span class="nb">refine</span> (is_negative_of_lt_iso (a:=a) _ H).
+      <span class="nb">apply</span> lt_iso_downshift_of_positive.
+      <span class="nb">apply</span> is_positive_of_envelope_chosen_positive, Hpositive.
+    - <span class="nb">apply</span> (functor_on_is_z_isomorphism R).
+      <span class="bp">exact</span> Hpositive.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_chosen_positive_from_positive</span>
+    (<span class="nv">Hnegative_eq</span> : is_negative_equalizing θ)
+    (<span class="nv">a</span> : envelope_ob θ) (<span class="nv">H</span> : is_positive a)
+    : envelope_chosen_positive θ a.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (squash_to_prop (envelope_ob_to_envelope_polarization θ a)
+             (isaprop_envelope_chosen_positive θ a)).
+    <span class="nb">intro</span> Hchoice.
+    <span class="nb">induction</span> Hchoice <span class="k">as</span> [Hnegative|Hpositive]; [|<span class="bp">exact</span> Hpositive].
+    <span class="nb">red</span>; <span class="nb">rewrite</span> &lt;- oblique_mor_positive_transpose.
+    <span class="nb">change</span> (is_z_isomorphism (#L cross(a)♯ · ε (π⊖ a))).
+    <span class="nb">apply</span> is_z_isomorphism_comp.
+    - <span class="nb">apply</span> (functor_on_is_z_isomorphism L).
+      <span class="bp">exact</span> Hnegative.
+    - <span class="nb">apply</span> (is_negative_fixed_point_from_pre_fixed_point θ Hnegative_eq).
+      <span class="nb">apply</span> is_positive_envelope_upshift_iff_pre_fixed_point.
+      <span class="nb">change</span> (is_positive (M:=envelope_duploid θ) ⇑a).
+      <span class="nb">refine</span> (is_positive_of_lt_iso (a:=a) _ H).
+      <span class="nb">apply</span> submm_iso_inv, lt_iso_upshift_of_negative.
+      <span class="nb">apply</span> is_negative_of_envelope_chosen_negative, Hnegative.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_negative_ob_eq</span>
+    (<span class="nv">Hpositive_eq</span> : is_positive_equalizing θ)
+    (<span class="nv">ua</span> : is_univalent P)
+    (<span class="nv">a</span> : envelope_ob θ) (<span class="nv">H</span> : is_negative a)
+    : a = sub_ob_ob ⇑a.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (envelope_chosen_negative_ob_eq ua).
+    <span class="bp">now</span> <span class="nb">apply</span> envelope_chosen_negative_from_negative.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_positive_ob_eq</span>
+    (<span class="nv">Hnegative_eq</span> : is_negative_equalizing θ)
+    (<span class="nv">ua</span> : is_univalent N)
+    (<span class="nv">a</span> : envelope_ob θ) (<span class="nv">H</span> : is_positive a)
+    : a = sub_ob_ob ⇓a.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (envelope_chosen_positive_ob_eq ua).
+    <span class="bp">now</span> <span class="nb">apply</span> envelope_chosen_positive_from_positive.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isweq_on_ob_negative_to_envelope_duploid</span>
+    (<span class="nv">Hpositive_eq</span> : is_positive_equalizing θ)
+    (<span class="nv">ua</span> : is_univalent P)
+    : isweq (negative_to_envelope_duploid θ).
+  <span class="kn">Proof</span>.
+    use isweq_iso.
+    - <span class="nb">intro</span> a; <span class="nb">cbn</span> <span class="k">in</span> a.
+      <span class="bp">exact</span> (π⊖ (sub_ob_ob a : envelope_ob _)).
+    - <span class="bp">easy</span>.
+    - <span class="nb">intro</span> a.
+      <span class="nb">apply</span> subtypePath'; [|<span class="nb">apply</span> propproperty].
+      <span class="nb">apply</span> pathsinv0, (envelope_negative_ob_eq Hpositive_eq ua).
+      submagmoid.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">is_catiso_negative_to_envelope_duploid</span>
+    (<span class="nv">Hequ</span> : is_fully_equalizing θ)
+    (<span class="nv">ua</span> : is_univalent P)
+    : is_catiso (negative_to_envelope_duploid θ).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> ff_negative_to_envelope_iff_equ.
+      <span class="bp">exact</span> (is_fully_equalizing_to_is_negative_equalizing _ Hequ).
+    - <span class="nb">apply</span> isweq_on_ob_negative_to_envelope_duploid.
+      + <span class="bp">exact</span> (is_fully_equalizing_to_is_positive_equalizing _ Hequ).
+      + <span class="bp">exact</span> ua.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isweq_on_ob_positive_to_envelope_duploid</span>
+    (<span class="nv">Hnegative_eq</span> : is_negative_equalizing θ)
+    (<span class="nv">ua</span> : is_univalent N)
+    : isweq (positive_to_envelope_duploid θ).
+  <span class="kn">Proof</span>.
+    use isweq_iso.
+    - <span class="nb">intro</span> a; <span class="nb">cbn</span> <span class="k">in</span> a.
+      <span class="bp">exact</span> (π⊕ (sub_ob_ob a : envelope_ob _)).
+    - <span class="bp">easy</span>.
+    - <span class="nb">intro</span> a.
+      <span class="nb">apply</span> subtypePath'; [|<span class="nb">apply</span> propproperty].
+      <span class="nb">apply</span> pathsinv0, (envelope_positive_ob_eq Hnegative_eq ua).
+      submagmoid.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">is_catiso_positive_to_envelope_duploid</span>
+    (<span class="nv">Hequ</span> : is_fully_equalizing θ)
+    (<span class="nv">ua</span> : is_univalent N)
+    : is_catiso (positive_to_envelope_duploid θ).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> ff_positive_to_envelope_iff_equ.
+      <span class="bp">exact</span> (is_fully_equalizing_to_is_positive_equalizing _ Hequ).
+    - <span class="nb">apply</span> isweq_on_ob_positive_to_envelope_duploid.
+      + <span class="bp">exact</span> (is_fully_equalizing_to_is_negative_equalizing _ Hequ).
+      + <span class="bp">exact</span> ua.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">is_univalent_envelope_duploid</span>
+    (<span class="nv">Hequ</span> : is_fully_equalizing θ)
+    (<span class="nv">ua₁</span> : is_univalent P)
+    (<span class="nv">ua₂</span> : is_univalent N)
+    : is_dupl_univalent (envelope_duploid θ).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_dupl_univalent_from_polarized.
+    - <span class="nb">refine</span> (is_univalent_catiso_f P (envelope_duploid θ)⁺ₜ _ ua₁).
+      <span class="k">exists</span> (<span class="nv">positive_to_envelope_duploid</span> <span class="nv">θ</span>).
+      <span class="nb">apply</span> (is_catiso_positive_to_envelope_duploid Hequ ua₂).
+    - <span class="nb">refine</span> (is_univalent_catiso_f N (envelope_duploid θ)⁻ₗ _ ua₂).
+      <span class="k">exists</span> (<span class="nv">negative_to_envelope_duploid</span> <span class="nv">θ</span>).
+      <span class="nb">apply</span> (is_catiso_negative_to_envelope_duploid Hequ ua₁).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">univalence</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Nonassociative/Duploids/FromAdjunction/EqualizingRequirement.v</tt>, line 28)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  ********************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

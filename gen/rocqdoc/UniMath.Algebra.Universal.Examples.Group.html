@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Algebra.Universal.Examples.Group</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Algebra.Universal.Examples.Group</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab299"></a><h1 class="section">Example on groups.</h1>
+ Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 
+<div class="paragraph"> </div>
+
+  This file contains the definition of the signature of groups and the way to turn
+  a group (as defined in <span class="inlinecode"><a class="idref" href="UniMath.Algebra.Groups.html#"><span class="id" title="library">UniMath.Algebra.Groups</span></a></span>) into an algebra.
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Notations.html#"><span class="id" title="library">UniMath.MoreFoundations.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#"><span class="id" title="library">UniMath.Combinatorics.StandardFiniteSets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.MoreLists.html#"><span class="id" title="library">UniMath.Combinatorics.MoreLists</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.Groups.html#"><span class="id" title="library">UniMath.Algebra.Groups</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#"><span class="id" title="library">UniMath.Algebra.Universal.EqAlgebras</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">stn</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">eq</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Group structure without equations. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="group_signature" class="idref" href="#group_signature"><span class="id" title="definition">group_signature</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#make_signature_simple_single_sorted"><span class="id" title="definition">make_signature_simple_single_sorted</span></a> <a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">[</span></a>2<a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">;</span></a> 0<a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">;</span></a> 1<a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">]</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="group_sort" class="idref" href="#group_sort"><span class="id" title="definition">group_sort</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#sorts"><span class="id" title="definition">sorts</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#group_signature"><span class="id" title="definition">group_signature</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="group_mul_op" class="idref" href="#group_mul_op"><span class="id" title="definition">group_mul_op</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#group_signature"><span class="id" title="definition">group_signature</span></a> := <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>0.<br/>
+<span class="id" title="keyword">Definition</span> <a id="group_id_op" class="idref" href="#group_id_op"><span class="id" title="definition">group_id_op</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#group_signature"><span class="id" title="definition">group_signature</span></a> := <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>1.<br/>
+<span class="id" title="keyword">Definition</span> <a id="group_inv_op" class="idref" href="#group_inv_op"><span class="id" title="definition">group_inv_op</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#group_signature"><span class="id" title="definition">group_signature</span></a> := <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>2.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Algebra of groups. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Module</span> <a id="Algebra" class="idref" href="#Algebra"><span class="id" title="module">Algebra</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Algebra.group_algebra" class="idref" href="#Algebra.group_algebra"><span class="id" title="definition">group_algebra</span></a> {<a id="G:1" class="idref" href="#G:1"><span class="id" title="binder">G</span></a>: <a class="idref" href="UniMath.Algebra.Groups2.html#gr"><span class="id" title="definition">gr</span></a>}<br/>
+&nbsp;:= <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#make_algebra_simple_single_sorted'"><span class="id" title="definition">make_algebra_simple_single_sorted'</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#group_signature"><span class="id" title="definition">group_signature</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#G:1"><span class="id" title="variable">G</span></a> <a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">[(</span></a> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#op"><span class="id" title="definition">op</span></a> <a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">;</span></a> <a class="idref" href="UniMath.Algebra.Monoids2.html#unel"><span class="id" title="definition">unel</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#G:1"><span class="id" title="variable">G</span></a><a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">;</span></a> <a class="idref" href="UniMath.Algebra.Groups2.html#grinv"><span class="id" title="definition">grinv</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#G:1"><span class="id" title="variable">G</span></a> <a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">)]</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Algebra.group_mul" class="idref" href="#Algebra.group_mul"><span class="id" title="definition">group_mul</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Terms.html#build_gterm'"><span class="id" title="definition">build_gterm'</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#group_mul_op"><span class="id" title="definition">group_mul_op</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="Algebra.group_id" class="idref" href="#Algebra.group_id"><span class="id" title="definition">group_id</span></a>  := <a class="idref" href="UniMath.Algebra.Universal.Terms.html#build_gterm'"><span class="id" title="definition">build_gterm'</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#group_id_op"><span class="id" title="definition">group_id_op</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="Algebra.group_inv" class="idref" href="#Algebra.group_inv"><span class="id" title="definition">group_inv</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Terms.html#build_gterm'"><span class="id" title="definition">build_gterm'</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#group_inv_op"><span class="id" title="definition">group_inv_op</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Algebra"><span class="id" title="module">Algebra</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Module</span> <a id="Eqspec" class="idref" href="#Eqspec"><span class="id" title="module">Eqspec</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Equational specification and the free algebra of open terms. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.group_varspec" class="idref" href="#Eqspec.group_varspec"><span class="id" title="definition">group_varspec</span></a> : <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varspec"><span class="id" title="definition">varspec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#group_signature"><span class="id" title="definition">group_signature</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#make_varspec"><span class="id" title="definition">make_varspec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#group_signature"><span class="id" title="definition">group_signature</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natset"><span class="id" title="definition">natset</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#group_sort"><span class="id" title="definition">group_sort</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.G" class="idref" href="#Eqspec.G"><span class="id" title="definition">G</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#term"><span class="id" title="definition">term</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#group_signature"><span class="id" title="definition">group_signature</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.group_varspec"><span class="id" title="definition">group_varspec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#group_sort"><span class="id" title="definition">group_sort</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.group_mul" class="idref" href="#Eqspec.group_mul"><span class="id" title="definition">group_mul</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.G"><span class="id" title="definition">G</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.G"><span class="id" title="definition">G</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.G"><span class="id" title="definition">G</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#build_term'"><span class="id" title="definition">build_term'</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#group_mul_op"><span class="id" title="definition">group_mul_op</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.group_id" class="idref" href="#Eqspec.group_id"><span class="id" title="definition">group_id</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.G"><span class="id" title="definition">G</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#build_term'"><span class="id" title="definition">build_term'</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#group_id_op"><span class="id" title="definition">group_id_op</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.group_inv" class="idref" href="#Eqspec.group_inv"><span class="id" title="definition">group_inv</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.G"><span class="id" title="definition">G</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.G"><span class="id" title="definition">G</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#build_term'"><span class="id" title="definition">build_term'</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#group_inv_op"><span class="id" title="definition">group_inv_op</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.x" class="idref" href="#Eqspec.x"><span class="id" title="definition">x</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.G"><span class="id" title="definition">G</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varterm"><span class="id" title="definition">varterm</span></a> (0: <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.group_varspec"><span class="id" title="definition">group_varspec</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.y" class="idref" href="#Eqspec.y"><span class="id" title="definition">y</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.G"><span class="id" title="definition">G</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varterm"><span class="id" title="definition">varterm</span></a> (1: <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.group_varspec"><span class="id" title="definition">group_varspec</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.z" class="idref" href="#Eqspec.z"><span class="id" title="definition">z</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.G"><span class="id" title="definition">G</span></a> := <a class="idref" href="UniMath.Algebra.Universal.VTerms.html#varterm"><span class="id" title="definition">varterm</span></a> (2: <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.group_varspec"><span class="id" title="definition">group_varspec</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.group_mul_assoc" class="idref" href="#Eqspec.group_mul_assoc"><span class="id" title="definition">group_mul_assoc</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.group_mul"><span class="id" title="definition">group_mul</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.group_mul"><span class="id" title="definition">group_mul</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.x"><span class="id" title="definition">x</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.y"><span class="id" title="definition">y</span></a>) <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.z"><span class="id" title="definition">z</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#946b9ba0ab2226a57d7bd73cbe21a223"><span class="id" title="notation">==</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.group_mul"><span class="id" title="definition">group_mul</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.x"><span class="id" title="definition">x</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.group_mul"><span class="id" title="definition">group_mul</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.y"><span class="id" title="definition">y</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.z"><span class="id" title="definition">z</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.group_mul_lid" class="idref" href="#Eqspec.group_mul_lid"><span class="id" title="definition">group_mul_lid</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.group_mul"><span class="id" title="definition">group_mul</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.group_id"><span class="id" title="definition">group_id</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.x"><span class="id" title="definition">x</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#946b9ba0ab2226a57d7bd73cbe21a223"><span class="id" title="notation">==</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.x"><span class="id" title="definition">x</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.group_mul_rid" class="idref" href="#Eqspec.group_mul_rid"><span class="id" title="definition">group_mul_rid</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.group_mul"><span class="id" title="definition">group_mul</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.group_id"><span class="id" title="definition">group_id</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.x"><span class="id" title="definition">x</span></a> <a class="idref" href="UniMath.Algebra.Universal.Equations.html#946b9ba0ab2226a57d7bd73cbe21a223"><span class="id" title="notation">==</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.x"><span class="id" title="definition">x</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.group_axioms" class="idref" href="#Eqspec.group_axioms"><span class="id" title="definition">group_axioms</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqsystem"><span class="id" title="definition">eqsystem</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#group_signature"><span class="id" title="definition">group_signature</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.group_varspec"><span class="id" title="definition">group_varspec</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a> 3 <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#three_rec"><span class="id" title="definition">three_rec</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.group_mul_assoc"><span class="id" title="definition">group_mul_assoc</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.group_mul_lid"><span class="id" title="definition">group_mul_lid</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.group_mul_rid"><span class="id" title="definition">group_mul_rid</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.group_eqspec" class="idref" href="#Eqspec.group_eqspec"><span class="id" title="definition">group_eqspec</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Equations.html#eqspec"><span class="id" title="definition">eqspec</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>. { <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#group_signature"><span class="id" title="definition">group_signature</span></a>. }<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>. { <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.group_varspec"><span class="id" title="definition">group_varspec</span></a>. }<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.group_axioms"><span class="id" title="definition">group_axioms</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Eqspec.group_eqalgebra" class="idref" href="#Eqspec.group_eqalgebra"><span class="id" title="definition">group_eqalgebra</span></a> := <a class="idref" href="UniMath.Algebra.Universal.EqAlgebras.html#eqalgebra"><span class="id" title="definition">eqalgebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec.group_eqspec"><span class="id" title="definition">group_eqspec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Algebra.Universal.Examples.Group.html#Eqspec"><span class="id" title="module">Eqspec</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,675 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PolarizedSubcategories.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> Polarized Subcategories in Duploids</span>
+
+<span class="sd"> Author: B. Szilvasy</span>
+<span class="sd"> January–October 2026</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Syntactic polarized subcategories</span>
+<span class="sd"> 2. Inclusion functors</span>
+<span class="sd"> 3. Equivalences</span>
+<span class="sd"> 3.1. Equivalence of syntactic and semantic categories</span>
+<span class="sd"> 3.2. Equivalence of (un)polarized subcategories</span>
+
+<span class="sd"> ********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Submagmoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.PolarizedSubcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Tactics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.Duploids.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> unital_magmoid.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> duploid.
+
+<span class="sd">(** ** Syntactic polarized subcategories *)</span>
+
+<span class="kn">Section</span> <span class="nf">syntactic_subcategories</span>.
+  <span class="kn">Context</span> (<span class="nv">D</span> : split_preduploid).
+
+  <span class="kn">Definition</span> <span class="nf">syn_positive_category</span> : category := associative_submagmoid_carrier D ^⊕ω _l.
+  <span class="kn">Definition</span> <span class="nf">syn_negative_category</span> : category := associative_submagmoid_carrier D ^⊖ω _t.
+  <span class="kn">Definition</span> <span class="nf">syn_positive_thunkable_category</span> : category := associative_submagmoid_carrier D ^⊕ω _lt.
+  <span class="kn">Definition</span> <span class="nf">syn_negative_linear_category</span> : category := associative_submagmoid_carrier D ^⊖ω _lt.
+
+  <span class="kn">Definition</span> <span class="nf">weq_syn_positive_mor</span> {<span class="nv">a</span> <span class="nv">b</span> : sub_ob D ^⊕ω}
+    : D⟦a, b⟧ ≃ D∣_l∣⟦a, b⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weq_make_submm_mor; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> is_linear_of_positive, pmap_positive.
+    <span class="bp">exact</span> (sub_ob_property _ a).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_syn_positive_thunkable_mor</span> {<span class="nv">a</span> <span class="nv">b</span> : sub_ob D ^⊕ω}
+    : D∣_t∣⟦a, b⟧ ≃ D∣_lt∣⟦a, b⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weq_submm_mor_incl; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> dirprod_with_contr_l.
+    <span class="nb">apply</span> iscontraprop1.
+    - <span class="nb">apply</span> propproperty.
+    - <span class="nb">apply</span> is_linear_of_positive, pmap_positive.
+      <span class="bp">exact</span> (sub_ob_property _ a).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_syn_positive_z_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : sub_ob D ^⊕ω)
+    : z_iso a b ≃ a ≅{_l} b.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (weqcomp (invweq (weq_trivial_submm_iso_z_iso a b))).
+    <span class="nb">apply</span> weq_submm_iso_incl;
+      <span class="nb">apply</span> submm_includes_in_to_at_sym; <span class="nb">clear</span> a b.
+    - <span class="nb">intros</span> a b f H.
+      <span class="nb">apply</span> is_linear_of_positive, pmap_positive.
+      <span class="bp">exact</span> (sub_ob_property _ a).
+    - <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_syn_positive_lt_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : sub_ob D ^⊕ω)
+    : a ≅{_t} b ≃ a ≅{_lt} b.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weq_submm_iso_incl;
+      <span class="nb">apply</span> submm_includes_in_to_at_sym; <span class="nb">clear</span> a b.
+    - <span class="nb">intros</span> a b f H.
+      <span class="nb">split</span>; <span class="kp">solve</span> [<span class="bp">exact</span> H|<span class="nb">apply</span> is_linear_of_positive, pmap_positive, (sub_ob_property ^⊕ω)].
+    - <span class="nb">intros</span> a b f H; <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_syn_negative_mor</span> {<span class="nv">a</span> <span class="nv">b</span> : sub_ob D ^⊖ω}
+    : D⟦a, b⟧ ≃ D∣_t∣⟦a, b⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weq_make_submm_mor; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> is_thunkable_of_negative.
+    <span class="nb">apply</span> pmap_negative.
+    <span class="bp">exact</span> (sub_ob_property _ b).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_syn_negative_linear_mor</span> {<span class="nv">a</span> <span class="nv">b</span> : sub_ob D ^⊖ω}
+    : D∣_l∣⟦a, b⟧ ≃ D∣_lt∣⟦a, b⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weq_submm_mor_incl; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> dirprod_with_contr_r.
+    <span class="nb">apply</span> iscontraprop1.
+    - <span class="nb">apply</span> propproperty.
+    - <span class="nb">apply</span> is_thunkable_of_negative.
+      <span class="nb">apply</span> pmap_negative.
+      <span class="bp">exact</span> (sub_ob_property _ b).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_syn_negative_z_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : sub_ob D ^⊖ω)
+    : z_iso a b ≃ a ≅{_t} b.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (weqcomp (invweq (weq_trivial_submm_iso_z_iso a b))).
+    <span class="nb">apply</span> weq_submm_iso_incl;
+      <span class="nb">apply</span> submm_includes_in_to_at_sym; <span class="nb">clear</span> a b.
+    - <span class="nb">intros</span> a b f H.
+      <span class="nb">apply</span> is_thunkable_of_negative, pmap_negative.
+      <span class="bp">exact</span> (sub_ob_property _ b).
+    - <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_syn_negative_lt_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : sub_ob D ^⊖ω)
+    : a ≅{_l} b ≃ a ≅{_lt} b.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weq_submm_iso_incl;
+      <span class="nb">apply</span> submm_includes_in_to_at_sym; <span class="nb">clear</span> a b.
+    - <span class="nb">intros</span> a b f H.
+      <span class="nb">split</span>; <span class="kp">solve</span> [<span class="bp">exact</span> H|<span class="nb">apply</span> is_thunkable_of_negative, pmap_negative, (sub_ob_property ^⊖ω)].
+    - <span class="nb">intros</span> a b f H; <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">syntactic_subcategories</span>.
+
+<span class="kn">Notation</span> <span class="s2">"D '⁺ᶜ'"</span> := (syn_positive_category D) (<span class="kn">at level</span> <span class="mi">1</span>) : duploid.
+  <span class="c">(* type in Emacs using agda-input with \^c \^+ *)</span>
+<span class="kn">Notation</span> <span class="s2">"D '⁻ᶜ'"</span> := (syn_negative_category D) (<span class="kn">at level</span> <span class="mi">1</span>) : duploid.
+  <span class="c">(* type in Emacs using agda-input with \^c \^+ *)</span>
+<span class="kn">Notation</span> <span class="s2">"D '⁺ᶜₜ'"</span> := (syn_positive_thunkable_category D) (<span class="kn">at level</span> <span class="mi">1</span>) : duploid.
+  <span class="c">(* type in Emacs using agda-input with \^c \^+ \_t *)</span>
+<span class="kn">Notation</span> <span class="s2">"D '⁻ᶜₗ'"</span> := (syn_negative_linear_category D) (<span class="kn">at level</span> <span class="mi">1</span>) : duploid.
+  <span class="c">(* type in Emacs using agda-input with \^c \^+ \_l *)</span>
+
+<span class="sd">(** ** Inclusion functors *)</span>
+
+<span class="kn">Section</span> <span class="nf">inclusions</span>.
+  <span class="kn">Context</span> (<span class="nv">D</span> : split_preduploid).
+
+  <span class="sd">(** Direct inclusions *)</span>
+  <span class="kn">Definition</span> <span class="nf">syn_positive_to_linear_category</span> : D⁺ᶜ ⟶ D ₗ
+    := submm_into_wide_incl D ^⊕ω _l.
+  <span class="kn">Definition</span> <span class="nf">syn_positive_thunkable_to_linear_and_thunkable_category</span> : D⁺ᶜₜ ⟶ D ₗₜ
+    := submm_into_wide_incl D ^⊕ω _lt.
+  <span class="kn">Definition</span> <span class="nf">syn_positive_thunkable_to_positive_category</span> : D⁺ᶜₜ ⟶ D⁺ᶜ
+    := wide_submm_incl _
+         (full_subcategory_promote D ^⊕ω _lt)
+         (full_subcategory_promote D ^⊕ω _l)
+         (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">f</span>, pr1).
+
+  <span class="kn">Definition</span> <span class="nf">syn_negative_to_thunkable_category</span> : D⁻ᶜ ⟶ D ₜ
+    := submm_into_wide_incl D ^⊖ω _t.
+  <span class="kn">Definition</span> <span class="nf">syn_negative_linear_to_linear_and_thunkable_category</span> : D⁻ᶜₗ ⟶ D ₗₜ
+    := submm_into_wide_incl D ^⊖ω _lt.
+  <span class="kn">Definition</span> <span class="nf">syn_negative_linear_to_negative_category</span> : D⁻ᶜₗ ⟶ D⁻ᶜ
+    := wide_submm_incl _
+         (full_subcategory_promote D ^⊖ω _lt)
+         (full_subcategory_promote D ^⊖ω _t)
+         (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">f</span>, pr2).
+
+  <span class="sd">(** Maps into the semantics subcategories *)</span>
+  <span class="kn">Definition</span> <span class="nf">syn_positive_to_sem_category</span> : D⁺ᶜ ⟶ D⁺
+    := submm_into_other_incl D ^⊕ω ^⊕ _l _l (<span class="k">λ</span> <span class="nv">a</span>, pmap_positive a) (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">H</span>, H).
+  <span class="kn">Definition</span> <span class="nf">syn_positive_thunkable_to_sem_category</span> : D⁺ᶜₜ ⟶ D⁺ₜ
+    := submm_into_other_incl D ^⊕ω ^⊕ _lt _lt (<span class="k">λ</span> <span class="nv">a</span>, pmap_positive a) (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">H</span>, H).
+  <span class="kn">Definition</span> <span class="nf">syn_negative_to_sem_category</span> : D⁻ᶜ ⟶ D⁻
+    := submm_into_other_incl D ^⊖ω ^⊖ _t _t (<span class="k">λ</span> <span class="nv">a</span>, pmap_negative a) (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">H</span>, H).
+  <span class="kn">Definition</span> <span class="nf">syn_negative_linear_to_sem_category</span> : D⁻ᶜₗ ⟶ D⁻ₗ
+    := submm_into_other_incl D ^⊖ω ^⊖ _lt _lt (<span class="k">λ</span> <span class="nv">a</span>, pmap_negative a) (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">H</span>, H).
+
+<span class="kn">End</span> <span class="nf">inclusions</span>.
+
+<span class="sd">(** ** Equivalences *)</span>
+
+<span class="kn">Section</span> <span class="nf">equivalences</span>.
+
+  <span class="sd">(** *** Equivalence of syntactic and semantic categories *)</span>
+
+  <span class="c">(* D⁺ᶜ ≅ D⁺ *)</span>
+  <span class="kn">Theorem</span> <span class="nf">equiv_syn_positive_to_sem_category</span> (<span class="nv">D</span> : split_duploid)
+    : adj_equivalence_of_cats (syn_positive_to_sem_category D).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> rad_equivalence_of_cats'.
+    - <span class="nb">apply</span> fully_faithful_submm_into_other_incl.
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">H</span>, H).
+    - <span class="nb">intro</span> a; <span class="nb">cbn</span> <span class="k">in</span> a.
+      use tpair.
+      + <span class="bp">exact</span> (chpositive_downshift a).
+      + <span class="nb">apply</span> weq_submm_iso_z_iso.
+        <span class="nb">change</span> (⇓a ≅{_l} a).
+        <span class="nb">apply</span> (weq_positive_z_iso D ⇓a a).
+        <span class="nb">eapply</span> submm_iso_to_plain_z_iso.
+        <span class="bp">exact</span> (unwrap a).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* D⁻ᶜ ≅ D⁻ *)</span>
+  <span class="kn">Theorem</span> <span class="nf">equiv_syn_negative_to_sem_category</span> (<span class="nv">D</span> : split_duploid)
+    : adj_equivalence_of_cats (syn_negative_to_sem_category D).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> rad_equivalence_of_cats'.
+    - <span class="nb">apply</span> fully_faithful_submm_into_other_incl.
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">H</span>, H).
+    - <span class="nb">intro</span> a; <span class="nb">cbn</span> <span class="k">in</span> a.
+      use tpair.
+      + <span class="bp">exact</span> (chnegative_upshift a).
+      + <span class="nb">apply</span> weq_submm_iso_z_iso.
+        <span class="nb">change</span> (⇑a ≅{_t} a).
+        <span class="nb">apply</span> (weq_negative_z_iso D ⇑a a).
+        <span class="nb">eapply</span> submm_iso_to_plain_z_iso.
+        <span class="bp">exact</span> (force a).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* D⁺ᶜₜ ≅ D⁺ₜ *)</span>
+  <span class="kn">Theorem</span> <span class="nf">equiv_syn_positive_thunkable_to_sem_category</span> (<span class="nv">D</span> : split_duploid)
+    : adj_equivalence_of_cats (syn_positive_thunkable_to_sem_category D).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> rad_equivalence_of_cats'.
+    - <span class="nb">apply</span> fully_faithful_submm_into_other_incl.
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">H</span>, H).
+    - <span class="nb">intro</span> a; <span class="nb">cbn</span> <span class="k">in</span> a.
+      use tpair.
+      + <span class="bp">exact</span> (chpositive_downshift a).
+      + <span class="nb">apply</span> weq_submm_iso_z_iso.
+        <span class="nb">change</span> (⇓a ≅{_lt} a).
+        <span class="nb">apply</span> (weq_positive_lt_iso D ⇓a a).
+        <span class="bp">exact</span> (unwrap a).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* D⁻ᶜₗ ≅ D⁻ₗ *)</span>
+  <span class="kn">Theorem</span> <span class="nf">equiv_syn_negative_linear_to_sem_category</span> (<span class="nv">D</span> : split_duploid)
+    : adj_equivalence_of_cats (syn_negative_linear_to_sem_category D).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> rad_equivalence_of_cats'.
+    - <span class="nb">apply</span> fully_faithful_submm_into_other_incl.
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">H</span>, H).
+    - <span class="nb">intro</span> a; <span class="nb">cbn</span> <span class="k">in</span> a.
+      use tpair.
+      + <span class="bp">exact</span> (chnegative_upshift a).
+      + <span class="nb">apply</span> weq_submm_iso_z_iso.
+        <span class="nb">change</span> (⇑a ≅{_lt} a).
+        <span class="nb">apply</span> (weq_negative_lt_iso D ⇑a a).
+        <span class="bp">exact</span> (force a).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** Equivalence of (un)polarized subcategories *)</span>
+
+  <span class="c">(* D⁺ₜ ≅ Dₜ *)</span>
+  <span class="kn">Theorem</span> <span class="nf">equiv_positive_thunkable_to_thunkable_category</span> (<span class="nv">D</span> : duploid)
+    : adj_equivalence_of_cats (positive_thunkable_to_thunkable_category D).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> rad_equivalence_of_cats'.
+    - <span class="nb">apply</span> fully_faithful_positive_thunkable_to_thunkable_category.
+    - <span class="nb">intro</span> a; <span class="nb">cbn</span> <span class="k">in</span> a.
+      use tpair.
+      + <span class="bp">exact</span> ⇓a.
+      + <span class="nb">apply</span> weq_submm_iso_z_iso.
+        <span class="nb">change</span> (⇓a ≅{_t} a).
+        <span class="bp">exact</span> (unwrap a).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* D⁻ₗ ≅ Dₗ *)</span>
+  <span class="kn">Theorem</span> <span class="nf">equiv_negative_linear_to_linear_category</span> (<span class="nv">D</span> : duploid)
+    : adj_equivalence_of_cats (negative_linear_to_linear_category D).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> rad_equivalence_of_cats'.
+    - <span class="nb">apply</span> fully_faithful_negative_linear_to_linear_category.
+    - <span class="nb">intro</span> a; <span class="nb">cbn</span> <span class="k">in</span> a.
+      use tpair.
+      + <span class="bp">exact</span> ⇑a.
+      + <span class="nb">apply</span> weq_submm_iso_z_iso.
+        <span class="nb">change</span> (⇑a ≅{_l} a).
+        <span class="bp">exact</span> (force a).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">equivalences</span>.
+
+<span class="sd">(** ** Shift functors *)</span>
+
+<span class="kn">Section</span> <span class="nf">shift_functors</span>.
+  <span class="kn">Context</span> {<span class="nv">D</span> : duploid}.
+
+  <span class="sd">(** *** Universal properties of shifts *)</span>
+
+  <span class="sd">(** Negative shifts *)</span>
+  <span class="kn">Definition</span> <span class="nf">negative_lift</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a --&gt; b)
+    : a --&gt; ⇑b := f · delay b.
+
+  <span class="kn">Definition</span> <span class="nf">negative_lift_property</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a --&gt; b)
+    : negative_lift f · force b = f.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> delay_force_right. <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">negative_lift_unique</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a --&gt; b)
+    (<span class="nv">f'</span> : a --&gt; ⇑b) (<span class="nv">Hf'</span> : f' · force b = f)
+    : f' = negative_lift f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, negative_lift x)) <span class="k">in</span> Hf'.
+    <span class="nb">refine</span> (_ @ Hf').
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">refine</span> (assoc'_negative ⇑b ummsolve _ _ _ @ _).
+    <span class="nb">apply</span> magmoid_remove_id_right, force_delay_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">negative_lift_univprop</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a --&gt; b)
+    : <span class="k">∃</span>! (f' : a --&gt; ⇑b), f' · force b = f.
+  <span class="kn">Proof</span>.
+    use unique_exists.
+    - <span class="bp">exact</span> (negative_lift f).
+    - <span class="bp">exact</span> (negative_lift_property f).
+    - <span class="nb">intro</span>; <span class="nb">apply</span> unital_magmoid_has_homsets.
+    - <span class="bp">exact</span> (negative_lift_unique f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">isweq_negative_lift</span> (<span class="nv">a</span> <span class="nv">b</span> : D)
+    : isweq (@negative_lift a b).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (weqproperty (invweq (make_weq _ negative_lift_univprop))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">negative_lift_linear</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a --&gt; b)
+    (<span class="nv">Hf</span> : is_linear f) : is_linear (negative_lift f).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> is_linear_compose; <span class="kp">solve</span> [<span class="bp">assumption</span>|submagmoid]. <span class="kn">Qed</span>.
+
+  <span class="sd">(** Positive shifts *)</span>
+  <span class="kn">Definition</span> <span class="nf">positive_lift</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a &lt;-- b)
+    : a &lt;-- ⇓b := f ∘ unwrap b.
+
+  <span class="kn">Definition</span> <span class="nf">positive_lift_property</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a &lt;-- b)
+    : positive_lift f ∘ wrap b = f.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> wrap_unwrap_left. <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">positive_lift_unique</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a &lt;-- b)
+    (<span class="nv">f'</span> : a &lt;-- ⇓b) (<span class="nv">Hf'</span> : f' ∘ wrap b = f)
+    : f' = positive_lift f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, positive_lift x)) <span class="k">in</span> Hf'.
+    <span class="nb">refine</span> (_ @ Hf').
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">refine</span> (assoc_positive ⇓b ummsolve _ _ _ @ _).
+    <span class="nb">apply</span> magmoid_remove_id_left, unwrap_wrap_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">positive_lift_univprop</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a &lt;-- b)
+    : <span class="k">∃</span>! (f' : a &lt;-- ⇓b), f' ∘ wrap b = f.
+  <span class="kn">Proof</span>.
+    use unique_exists.
+    - <span class="bp">exact</span> (positive_lift f).
+    - <span class="bp">exact</span> (positive_lift_property f).
+    - <span class="nb">intro</span>; <span class="nb">apply</span> unital_magmoid_has_homsets.
+    - <span class="bp">exact</span> (positive_lift_unique f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">isweq_positive_lift</span> (<span class="nv">a</span> <span class="nv">b</span> : D)
+    : isweq (@positive_lift a b).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (weqproperty (invweq (make_weq _ positive_lift_univprop))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">positive_lift_thunkable</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a &lt;-- b)
+    (<span class="nv">Hf</span> : is_thunkable f) : is_thunkable (positive_lift f).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> is_thunkable_compose; <span class="kp">solve</span> [<span class="bp">assumption</span>|submagmoid]. <span class="kn">Qed</span>.
+
+  <span class="sd">(** *** Definition of shift functors *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">upshiftf</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a --&gt; b) : ⇑a --&gt; ⇑b := negative_lift (force a · f).
+  <span class="kn">Definition</span> <span class="nf">downshiftf</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a --&gt; b) : ⇓a --&gt; ⇓b := positive_lift (f · wrap b).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'#⇑'"</span> := upshiftf : duploid.
+    <span class="c">(* type in Emacs using agda-input with # \Uparrow *)</span>
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'#⇓'"</span> := downshiftf : duploid.
+  <span class="c">(* type in Emacs using agda-input with # \Downarrow *)</span>
+
+  <span class="sd">(** Upshift functor *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">upshiftf_id</span> (<span class="nv">a</span> : D) : #⇑(identity a) = identity ⇑a.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0, negative_lift_unique.
+    <span class="bp">exact</span> (magmoid_id_left _ @ !magmoid_id_right _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">upshiftf_comp</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : D} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c)
+    (<span class="nv">H</span> : is_linear g) : #⇑(f · g) = (#⇑f) · (#⇑g).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0, negative_lift_unique.
+    <span class="nb">rewrite</span> (assoc'_negative ⇑b ummsolve).
+    etrans; [<span class="nb">apply</span> cancel_precomposition, negative_lift_property|].
+    <span class="nb">rewrite</span> (assoc_negative ⇑b ummsolve).
+    etrans; [<span class="nb">apply</span> cancel_postcomposition, negative_lift_property|].
+    <span class="nb">apply</span> (assoc'_linear _ H).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_linear_upshiftf</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">H</span> : is_linear f)
+    : is_linear (#⇑f).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> is_linear_compose);
+      <span class="kp">solve</span> [<span class="bp">assumption</span>|submagmoid].
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">upshift_'_to_neg_data</span> : functor_data D (D⁻).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">apply</span> upshift.
+    - <span class="nb">intros</span> a b f.
+      <span class="nb">apply</span> weq_negative_mor.
+      <span class="bp">exact</span> (upshiftf f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">upshift_l_to_neg_l_data</span> : functor_data D ₗ (D⁻ₗ).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">apply</span> upshift.
+    - <span class="nb">intros</span> a b f; <span class="nb">cbn</span> <span class="k">in</span> f.
+      <span class="nb">apply</span> weq_negative_linear_mor.
+      <span class="nb">apply</span> (make_submm_mor _l (upshiftf f)).
+      <span class="nb">apply</span> is_linear_upshiftf; submagmoid.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">upshift_l_to_neg_l_laws</span> : is_functor upshift_l_to_neg_l_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> a; <span class="nb">apply</span> submm_mor_eq.
+      <span class="nb">apply</span> upshiftf_id.
+    - <span class="nb">intros</span> a b c f g; <span class="nb">apply</span> submm_mor_eq.
+      <span class="nb">apply</span> upshiftf_comp; submagmoid.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">upshift_l_to_neg_l</span> : functor D ₗ (D⁻ₗ)
+    := make_functor _ upshift_l_to_neg_l_laws.
+
+  <span class="kn">Definition</span> <span class="nf">upshift_pos_t_to_neg_l</span> : functor (D⁺ₜ) (D⁻ₗ)
+    := positive_thunkable_to_linear_category D ∙ upshift_l_to_neg_l.
+
+  <span class="sd">(** Downshift functor *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">downshiftf_id</span> (<span class="nv">a</span> : D) : #⇓(identity a) = identity ⇓a.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0, positive_lift_unique.
+    <span class="bp">exact</span> (magmoid_id_right _ @ !magmoid_id_left _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">downshiftf_comp</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : D} (<span class="nv">f</span> : a &lt;-- b) (<span class="nv">g</span> : b &lt;-- c)
+    (<span class="nv">H</span> : is_thunkable g) : #⇓(f ∘ g) = (#⇓f) ∘ (#⇓g).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0, positive_lift_unique.
+    <span class="nb">rewrite</span> (assoc_positive ⇓b ummsolve).
+    etrans; [<span class="nb">apply</span> cancel_postcomposition, positive_lift_property|].
+    <span class="nb">rewrite</span> (assoc'_positive ⇓b ummsolve).
+    etrans; [<span class="nb">apply</span> cancel_precomposition, positive_lift_property|].
+    <span class="nb">apply</span> (assoc_thunkable _ H).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_thunkable_downshiftf</span> {<span class="nv">a</span> <span class="nv">b</span> : D} (<span class="nv">f</span> : a &lt;-- b) (<span class="nv">H</span> : is_thunkable f)
+    : is_thunkable (#⇓f).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> is_thunkable_compose);
+      <span class="kp">solve</span> [<span class="bp">assumption</span>|submagmoid].
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">downshift_'_to_pos_data</span> : functor_data D (D⁺).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">apply</span> downshift.
+    - <span class="nb">intros</span> a b f.
+      <span class="nb">apply</span> weq_positive_mor.
+      <span class="bp">exact</span> (downshiftf f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">downshift_t_to_pos_t_data</span> : functor_data D ₜ (D⁺ₜ).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">apply</span> downshift.
+    - <span class="nb">intros</span> a b f; <span class="nb">cbn</span> <span class="k">in</span> f.
+      <span class="nb">apply</span> weq_positive_thunkable_mor.
+      <span class="nb">apply</span> (make_submm_mor _t (downshiftf f)).
+      <span class="nb">apply</span> is_thunkable_downshiftf; submagmoid.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">downshift_t_to_pos_t_laws</span> : is_functor downshift_t_to_pos_t_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> a; <span class="nb">apply</span> submm_mor_eq.
+      <span class="nb">apply</span> downshiftf_id.
+    - <span class="nb">intros</span> a b c f g; <span class="nb">apply</span> submm_mor_eq.
+      <span class="nb">apply</span> downshiftf_comp; submagmoid.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">downshift_t_to_pos_t</span> : functor D ₜ (D⁺ₜ)
+    := make_functor _ downshift_t_to_pos_t_laws.
+
+  <span class="kn">Definition</span> <span class="nf">downshift_neg_l_to_pos_t</span> : functor (D⁻ₗ) (D⁺ₜ)
+    := negative_linear_to_thunkable_category D ∙ downshift_t_to_pos_t.
+
+  <span class="sd">(** *** Adjunction [⇑ ⊣ ⇓ : D⁻ₗ ⟶ D⁺ₜ] *)</span>
+
+  <span class="sd">(** Naturality of [wrap] *)</span>
+  <span class="kn">Lemma</span> <span class="nf">wrap_natural</span> (<span class="nv">a</span> <span class="nv">b</span> : D) (<span class="nv">f</span> : D⟦a, b⟧)
+    : f · wrap b = wrap a · #⇓ f.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> pathsinv0, wrap_unwrap_left. <span class="kn">Qed</span>.
+
+  <span class="sd">(** Naturality of [unwrap] *)</span>
+  <span class="kn">Lemma</span> <span class="nf">unwrap_natural</span> (<span class="nv">a</span> <span class="nv">b</span> : D) (<span class="nv">f</span> : D⟦a, b⟧)
+    : #⇓ f · unwrap b = unwrap a · f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> positive_lift_unique.
+    etrans; [<span class="nb">apply</span> assoc_thunkable; submagmoid|].
+    etrans; [<span class="nb">apply</span> cancel_postcomposition, positive_lift_property|].
+    <span class="nb">apply</span> wrap_unwrap_right.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Naturality of [force] *)</span>
+  <span class="kn">Lemma</span> <span class="nf">force_natural</span> (<span class="nv">a</span> <span class="nv">b</span> : D) (<span class="nv">f</span> : D⟦a, b⟧)
+    : #⇑ f · force b = force a · f.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> delay_force_right. <span class="kn">Qed</span>.
+
+  <span class="sd">(** Naturality of [delay] *)</span>
+  <span class="kn">Lemma</span> <span class="nf">delay_natural</span> (<span class="nv">a</span> <span class="nv">b</span> : D) (<span class="nv">f</span> : D⟦a, b⟧)
+    : f · delay b = delay a · #⇑ f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0, negative_lift_unique.
+    etrans; [<span class="nb">apply</span> assoc'_linear; submagmoid|].
+    etrans; [<span class="nb">apply</span> cancel_precomposition, negative_lift_property|].
+    <span class="nb">apply</span> delay_force_left.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* We prove the adjunction [⇑ ⊣ ⇓ : D⁻ₗ ⟶ D⁺ₜ] by direct</span>
+<span class="c">     computation, since it does not require much extra machinery. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">unit_data_neg_l_to_pos_t</span>
+    : nat_trans_data (functor_identity D⁺ₜ)
+        (upshift_pos_t_to_neg_l ∙ downshift_neg_l_to_pos_t).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> a; <span class="nb">cbn</span> <span class="k">in</span> a.
+    <span class="nb">change</span> (a --&gt;{_lt} ⇓⇑a).
+    <span class="nb">apply</span> weq_positive_thunkable_mor.
+    <span class="nb">apply</span> (make_submm_mor _t (delay a · wrap ⇑a)).
+    <span class="kp">abstract</span> (<span class="nb">apply</span> is_thunkable_compose;
+              <span class="kp">solve</span> [<span class="nb">apply</span> is_thunkable_delay|submagmoid]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_nat_trans_unit_neg_l_to_pos_t</span>
+    : is_nat_trans _ _ unit_data_neg_l_to_pos_t.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b f; <span class="nb">apply</span> submm_mor_eq.
+    <span class="nb">cbn</span> <span class="k">in</span> a, b |- *.
+    <span class="nb">change</span> (a --&gt;{_lt} b) <span class="k">in</span> f.
+    <span class="nb">change</span> (f · (delay b · wrap ⇑b) = (delay a · wrap ⇑a) · #⇓(#⇑f)).
+    <span class="nb">refine</span> (assoc_thunkable f ummsolve _ _ @ _).
+    etrans; [<span class="nb">apply</span> cancel_postcomposition, delay_natural|].
+    <span class="nb">refine</span> (assoc'_thunkable (delay a) ummsolve _ _ @ _).
+    <span class="nb">refine</span> (_ @ assoc_thunkable (delay a) ummsolve _ _).
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> wrap_natural.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">counit_data_neg_l_to_pos_t</span>
+    : nat_trans_data
+        (downshift_neg_l_to_pos_t ∙ upshift_pos_t_to_neg_l)
+        (functor_identity D⁻ₗ).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> a; <span class="nb">cbn</span> <span class="k">in</span> a.
+    <span class="nb">change</span> (a &lt;--{_lt} ⇑⇓a).
+    <span class="nb">apply</span> weq_negative_linear_mor.
+    <span class="nb">apply</span> (make_submm_mor _l (unwrap a ∘ force ⇓a)).
+    <span class="kp">abstract</span> (<span class="nb">apply</span> is_linear_compose;
+              <span class="kp">solve</span> [<span class="nb">apply</span> is_linear_unwrap|submagmoid]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_nat_trans_counit_neg_l_to_pos_t</span>
+    : is_nat_trans _ _ counit_data_neg_l_to_pos_t.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b f; <span class="nb">apply</span> submm_mor_eq.
+    <span class="nb">cbn</span> <span class="k">in</span> a, b |- *.
+    <span class="nb">change</span> (a --&gt;{_lt} b) <span class="k">in</span> f.
+    <span class="nb">change</span> ((unwrap b ∘ force ⇓b) ∘ #⇑(#⇓f) = f ∘ (unwrap a ∘ force ⇓a)).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">refine</span> (assoc'_linear f ummsolve _ _ @ _).
+    etrans; [<span class="nb">apply</span> cancel_precomposition, pathsinv0, unwrap_natural|].
+    <span class="nb">refine</span> (assoc_linear (unwrap b) ummsolve _ _ @ _).
+    <span class="nb">refine</span> (_ @ assoc'_linear (unwrap b) ummsolve _ _).
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> pathsinv0, force_natural.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">adjunction_data_neg_l_to_pos_t</span> : adjunction_data D⁺ₜ D⁻ₗ.
+  <span class="kn">Proof</span>.
+    use make_adjunction_data.
+    - <span class="bp">exact</span> upshift_pos_t_to_neg_l.
+    - <span class="bp">exact</span> downshift_neg_l_to_pos_t.
+    - <span class="k">exists</span> <span class="nv">unit_data_neg_l_to_pos_t</span>.
+      <span class="bp">exact</span> is_nat_trans_unit_neg_l_to_pos_t.
+    - <span class="k">exists</span> <span class="nv">counit_data_neg_l_to_pos_t</span>.
+      <span class="bp">exact</span> is_nat_trans_counit_neg_l_to_pos_t.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">form_adjunction_neg_l_to_pos_t</span>
+    : form_adjunction' adjunction_data_neg_l_to_pos_t.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> a; <span class="nb">apply</span> submm_mor_eq; <span class="nb">cbn</span> <span class="k">in</span> a.
+      <span class="nb">change</span> (#⇑(delay a · wrap ⇑a) · (force ⇓⇑a · unwrap ⇑a) = identity ⇑a).
+      <span class="nb">rewrite</span> (assoc_negative ⇑⇓⇑a ummsolve).
+      <span class="nb">rewrite</span> force_natural, wrap_natural.
+      <span class="nb">rewrite</span> (assoc_positive ⇓a ummsolve).
+      <span class="nb">rewrite</span> (assoc'_positive ⇓⇑a ummsolve).
+      <span class="nb">rewrite</span> unwrap_natural.
+      <span class="nb">rewrite</span> wrap_unwrap_interpose.
+      <span class="nb">apply</span> force_delay_id.
+    - <span class="nb">intros</span> a; <span class="nb">apply</span> submm_mor_eq; <span class="nb">cbn</span> <span class="k">in</span> a.
+      <span class="nb">change</span> (#⇓(unwrap a ∘ force ⇓a) ∘ (wrap ⇑⇓a ∘ delay ⇓a) = identity ⇓a).
+      <span class="nb">rewrite</span> (assoc'_positive ⇓⇑⇓a ummsolve).
+      <span class="nb">rewrite</span> &lt;- wrap_natural, &lt;- force_natural.
+      <span class="nb">rewrite</span> (assoc'_negative ⇑a ummsolve).
+      <span class="nb">rewrite</span> (assoc_negative ⇑⇓a ummsolve).
+      <span class="nb">rewrite</span> &lt;- delay_natural.
+      <span class="nb">rewrite</span> delay_force_interpose.
+      <span class="nb">apply</span> unwrap_wrap_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adjunction_neg_l_to_pos_t</span> : adjunction D⁺ₜ D⁻ₗ.
+  <span class="kn">Proof</span>.
+    use make_adjunction.
+    - <span class="bp">exact</span> adjunction_data_neg_l_to_pos_t.
+    - <span class="bp">exact</span> form_adjunction_neg_l_to_pos_t.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">shift_functors</span>.
+<span class="kn">Notation</span> <span class="s2">"'#⇑'"</span> := upshiftf : duploid.
+  <span class="c">(* type in Emacs using agda-input with # \Uparrow *)</span>
+<span class="kn">Notation</span> <span class="s2">"'#⇓'"</span> := downshiftf : duploid.
+  <span class="c">(* type in Emacs using agda-input with # \Downarrow *)</span>
+
+<span class="kn">Arguments</span> adjunction_neg_l_to_pos_t _ : <span class="kn">clear implicits</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Nonassociative/Duploids/PolarizedSubcategories.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  ********************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>
