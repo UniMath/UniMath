@@ -25,8 +25,6 @@
   3. Useful computation tools for CwFs
   4. Type Formers in CwFs : Unit, Π, Σ
   5. Definition of democracy in CwFs
-
-
  *)
 
 
@@ -430,9 +428,27 @@ Proof.
   apply setproperty.
 Qed.
 
+Proposition cwf_subst_tm_on_comp'
+  {C : cwf_data}
+  {Γ₁ Γ₂ Γ₃ : C}
+  {A : cwf_ty Γ₃}
+  (s₁ : Γ₁ --> Γ₂)
+  (s₂ : Γ₂ --> Γ₃)
+  (t : cwf_tm A)
+  : t [[ s₂ ]]tm [[ s₁ ]]tm
+    =
+      transportf (cwf_tm) (!(cwf_subst_ty_comp _ _ _)) (t [[ s₁ · s₂ ]]tm).
+Proof.
+  refine (!_).
+  rewrite cwf_subst_tm_on_comp.
+  rewrite transport_f_f.
+  rewrite pathsinv0r.
+  apply idpath.
+Qed.
+
 Definition cwf_subst_tm_id {C : cwf_data} {Γ : C} {A : cwf_ty Γ}
   (a : cwf_tm  A) : cwf_tm (A [[ identity Γ ]])
-  := transportf (λ X, cwf_tm  X) (pathsinv0 (cwf_subst_ty_id (C:=C) A)) a.
+  := transportf (λ X, cwf_tm  X) (!(cwf_subst_ty_id (C:=C) A)) a.
 
 Definition cwf_qA_subst {C : cwf_data} {Γ Δ : C} {A : cwf_ty  Γ}
   (u : Δ --> Γ & A) : cwf_tm (A [[ u · p_ A ]])
@@ -799,7 +815,7 @@ Lemma cwf_pair_subst_ty_comm {C : cwf} {Γ Δ : C} (s : Δ --> Γ) (A : cwf_ty �
       (B [[ cwf_lift s A ]]) [[ ⟨⟨ identity Δ, cwf_subst_tm_id (a [[ s ]]tm) ⟩⟩ ]].
 Proof.
   refine (cwf_subst_ty_comp B (⟨⟨ identity Γ, cwf_subst_tm_id a ⟩⟩) s @ _).
-  refine (_ @ pathsinv0 (cwf_subst_ty_comp B (cwf_lift s A)
+  refine (_ @ !(cwf_subst_ty_comp B (cwf_lift s A)
                            (⟨⟨ identity Δ, cwf_subst_tm_id (a [[ s ]]tm) ⟩⟩))).
   apply cwf_subst_ty_eq.
   exact (cwf_pair_subst_comm s A a).
@@ -826,57 +842,52 @@ Section Unit_For_CwF.
     ∏ (Γ Δ : CC) (s : Γ --> Δ),
       One Δ [[ s ]] = One Γ.
 
-  Definition unit_subst_tt
-    (One : unit_form) (tt : unit_intro One)
-    (us : unit_subst One) : UU :=
-    ∏ (Γ Δ : CC) (s : Γ --> Δ),
-      transportf (λ A, cwf_tm A) (us Γ Δ s) (tt Δ [[ s ]]tm) = tt Γ.
-
-  Definition cwf_unit : UU :=
+  Definition cwf_unit_structure : UU :=
     ∑ One : unit_form,
         ∑ tt  : unit_intro One,
           ∑ uniq : unit_unique One tt,
-            ∑ us : unit_subst One,
-              unit_subst_tt One tt us.
+            unit_subst One.
 
-  Definition make_cwf_unit
+  Definition make_cwf_unit_structure
     (One : unit_form)
     (tt : unit_intro One)
     (uniq : unit_unique One tt)
     (us : unit_subst One)
-    (us_tt : unit_subst_tt One tt us)
-    : cwf_unit := One ,, tt ,, uniq ,, us ,, us_tt.
+    : cwf_unit_structure := One ,, tt ,, uniq ,, us.
 
 End Unit_For_CwF.
+
 
 (** Accessors for cwf_unit *)
 
 Section cwf_unit_accessors.
 
-  Coercion cwf_unit_One (C : cwf) (u : cwf_unit C)
+  Coercion cwf_unit_One (C : cwf) (u : cwf_unit_structure C)
     : ∏ (Γ : C), cwf_ty Γ
     := pr1 u.
 
-  Definition cwf_unit_tt {C : cwf} {u : cwf_unit C} (Γ : C)
+  Definition cwf_unit_tt {C : cwf} {u : cwf_unit_structure C} (Γ : C)
     : cwf_tm ((pr1 u) Γ)
     := pr12 u Γ.
 
-  Definition cwf_unit_uniq {C : cwf} {u : cwf_unit C}
+  Definition cwf_unit_uniq {C : cwf} {u : cwf_unit_structure C}
     {Γ :  C} (t : cwf_tm ((pr1 u) Γ))
     : t = cwf_unit_tt Γ
     := pr122 u Γ t.
 
-  Definition cwf_unit_subst_eq {C : cwf} {u : cwf_unit C}
+  Definition cwf_unit_subst_eq {C : cwf} {u : cwf_unit_structure C}
     {Γ Δ : C} (s : Γ --> Δ)
     : (pr1 u) Δ [[ s ]] = (pr1 u) Γ
-    := pr1 (pr222 u) Γ Δ s.
+    := (pr222 u) Γ Δ s.
 
-  Definition cwf_unit_subst_tt {C : cwf} {u : cwf_unit C}
+  Definition cwf_unit_subst_tt {C : cwf} {u : cwf_unit_structure C}
     {Γ Δ : C} (s : Γ --> Δ)
-    : transportf (λ A, cwf_tm A) (cwf_unit_subst_eq s)
+    : transportf (λ A, cwf_tm A) (cwf_unit_subst_eq (u:=u) s)
         (cwf_unit_tt Δ [[ s ]]tm)
-      = cwf_unit_tt Γ
-    := pr2 (pr222 u) Γ Δ s.
+      = cwf_unit_tt Γ.
+  Proof.
+    apply cwf_unit_uniq.
+  Qed.
 
 End cwf_unit_accessors.
 
@@ -952,7 +963,7 @@ Section Pi_For_CwF.
     ∏ (Γ Δ : CC) (s : Δ --> Γ) (A : cwf_ty Γ) (B : cwf_ty (Γ & A))
       (b : cwf_tm B),
       (lam Γ A B b) [[ s ]]tm = transportf (λ X, cwf_tm X)
-                                  (pathsinv0 (Pi_subst Γ Δ s A B))
+                                  (! (Pi_subst Γ Δ s A B))
                                   (lam Δ (A [[ s ]]) (B [[ cwf_lift s A ]])
                                      (b [[ cwf_lift s A ]]tm)).
 
@@ -960,7 +971,7 @@ Section Pi_For_CwF.
     (Pi_subst : pi_subst Pi) : UU :=
     ∏ Γ Δ s A B f a, (app Γ A B f a) [[ s ]]tm =
                        transportf (λ X, cwf_tm X)
-                         (pathsinv0 (cwf_pair_subst_ty_comm s A B a))
+                         (! (cwf_pair_subst_ty_comm s A B a))
                          (app Δ (A [[ s ]]) (B [[ cwf_lift s A ]])
                             (transportf (λ X, cwf_tm X) (Pi_subst Γ Δ s A B)
                                (f [[ s ]]tm)) (a [[ s ]]tm)).
@@ -1042,7 +1053,7 @@ Section cwf_pi_accessors.
     (b : cwf_tm B)
     : cwf_pi_lam_map b [[ s ]]tm =
         transportf (λ X, cwf_tm X)
-          (pathsinv0 (cwf_pi_subst_eq s A B))
+          (! (cwf_pi_subst_eq s A B))
           (cwf_pi_lam_map (b [[ cwf_lift s A ]]tm))
     := pr1 (pr222 (pr222 π)) Γ Δ s A B b.
 
@@ -1052,7 +1063,7 @@ Section cwf_pi_accessors.
     (f : cwf_tm ((pr1 π) Γ A B)) (a : cwf_tm A)
     : cwf_pi_app_map f a [[ s ]]tm =
         transportf (λ X, cwf_tm  X)
-          (pathsinv0 (cwf_pair_subst_ty_comm s A B a))
+          (! (cwf_pair_subst_ty_comm s A B a))
           (cwf_pi_app_map
              (transportf (λ X, cwf_tm X) (cwf_pi_subst_eq s A B) (f [[ s ]]tm))
              (a [[ s ]]tm))
@@ -1130,7 +1141,7 @@ Section Sigma_For_CwF.
       transportf (λ X, cwf_tm X)
         (maponpaths
            (λ x, (B [[ cwf_lift s A ]]) [[ ⟨⟨ identity Δ , cwf_subst_tm_id x ⟩⟩ ]])
-           (pathsinv0 (pi1_subst Γ Δ s A B p)))
+           (! (pi1_subst Γ Δ s A B p)))
         (transportf (λ X, cwf_tm X)
            (cwf_pair_subst_ty_comm s A B a)
            ((pi2 Γ A B p) [[ s ]]tm)) = pi2 Δ (A [[ s ]]) (B [[ cwf_lift s A ]]) p'.
@@ -1252,7 +1263,7 @@ Section cwf_sigma_accessors.
     : transportf (λ X, cwf_tm X)
         (maponpaths
            (λ x, (B [[ cwf_lift s A ]]) [[ ⟨⟨ identity Δ, cwf_subst_tm_id x ⟩⟩ ]])
-           (pathsinv0 (cwf_sigma_subst_pi1 s p)))
+           (! (cwf_sigma_subst_pi1 s p)))
         (transportf (λ X, cwf_tm X)
            (cwf_pair_subst_ty_comm s A B (cwf_sigma_pi1_map p))
            (cwf_sigma_pi2_map p [[ s ]]tm))
@@ -1280,6 +1291,6 @@ End cwf_sigma_accessors.
 (** Democracy in CwFs  *)
 
 Definition cwf_democracy_data (C : cwf) : UU :=
-  ∏ Γ : pr1  C, ∑ Γ' : cwf_ty [], z_iso Γ ([] & Γ').
+  ∏ Γ : pr1  C, ∑ A : cwf_ty [], z_iso Γ ([] & A).
 
 Close Scope cwf.
