@@ -97,7 +97,7 @@ Proof.
   - apply (setproperty Y).
 Defined.
 
-Definition monoidfun (X Y : monoid) : UU := monoid_category⟦X, Y⟧%cat.
+Definition monoidfun (X Y : monoid) : UU := (monoid_category⟦X, Y⟧)%cat.
 
 Definition make_monoidfun {X Y : monoid} {f : X → Y} (isc : ismonoidfun f) : monoidfun X Y
   := (f ,, pr1 isc) ,, (tt ,, pr2 isc).

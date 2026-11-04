@@ -545,7 +545,7 @@ Notation "'∑'  x .. y , P" := (concatenateFiniteOrderedSets (λ x, .. (concate
 
 (** sorting finite ordered sets *)
 
-Definition FiniteStructure (X:OrderedSet) := ∑ n, ⟦ n ⟧ %foset ≅ X.
+Definition FiniteStructure (X:OrderedSet) := ∑ n, (⟦ n ⟧) %foset ≅ X.
 
 Local Lemma std_auto n : iscontr (⟦ n ⟧ ≅ ⟦ n ⟧) %foset.
 Proof.

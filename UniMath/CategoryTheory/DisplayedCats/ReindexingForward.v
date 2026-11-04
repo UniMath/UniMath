@@ -752,7 +752,7 @@ Section univalence_and_reindexing_forward.
   Section weq_Split_z_iso_to_z_iso.
 
     Context {c' : C'}.
-    Local Notation "x' -->[] y'" := (mor_disp x' y' (identity_z_iso c')) (at level 0).
+    Local Notation "x' -->[] y'" := (mor_disp x' y' (identity_z_iso c')) (at level 0, y' at level 0).
 
     Local Open Scope reindexing_forward_scope.
 

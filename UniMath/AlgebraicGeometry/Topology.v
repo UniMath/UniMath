@@ -25,7 +25,7 @@ Declare Scope open_scope.
 Delimit Scope open_scope with open.
 Open Scope open.
 
-Notation "⋃ S" := (union_open S) (at level 100, no associativity) : open_scope.
+Notation "⋃ S" := (union_open S) (at level 69, S at level 99, no associativity) : open_scope.
 
 
 Section union_facts.

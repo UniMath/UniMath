@@ -47,7 +47,7 @@ Section Add_Row.
   Context { R : ring }.
 
   Definition add_row_mult
-    { m n } (r1 r2 : ⟦ m ⟧%stn) (s : R) (mat : Matrix R m n)
+    { m n } (r1 r2 : (⟦ m ⟧)%stn) (s : R) (mat : Matrix R m n)
     : ( Matrix R m n ).
   Proof.
     intros i j.
@@ -59,8 +59,8 @@ Section Add_Row.
 
   (** Basic properties of [add_row_mult] *)
   Lemma add_row_mult_nontarget_row
-      {m n} (r1 r2 : ⟦ m ⟧%stn) (s : R) (mat : Matrix R m n)
-    : ∏ (i : ⟦ m ⟧%stn), r2 ≠ i -> add_row_mult r1 r2 s mat i = mat i.
+      {m n} (r1 r2 : (⟦ m ⟧)%stn) (s : R) (mat : Matrix R m n)
+    : ∏ (i : (⟦ m ⟧)%stn), r2 ≠ i -> add_row_mult r1 r2 s mat i = mat i.
   Proof.
     intros i r2_ne_i.
     unfold add_row_mult.
@@ -68,8 +68,8 @@ Section Add_Row.
   Defined.
 
   Definition add_row_mult_target_row
-      {m n} (r1 r2 : ⟦ m ⟧%stn) (s : R) (mat : Matrix R m n)
-      (c : ⟦ n ⟧%stn)
+      {m n} (r1 r2 : (⟦ m ⟧)%stn) (s : R) (mat : Matrix R m n)
+      (c : (⟦ n ⟧)%stn)
     : (add_row_mult r1 r2 s mat) r2 c = (mat r2 c + s * mat r1 c)%rig.
   Proof.
     unfold add_row_mult.
@@ -79,7 +79,7 @@ Section Add_Row.
   (** The add-a-row-multiple operation as a matrix *)
 
   Definition add_row_mult_matrix
-    { n : nat } (r1 r2 : ⟦ n ⟧%stn) (s : R)
+    { n : nat } (r1 r2 : (⟦ n ⟧)%stn) (s : R)
     : Matrix R n n.
   Proof.
     intros i.
@@ -90,7 +90,7 @@ Section Add_Row.
   Defined.
 
   Lemma add_row_mult_as_matrix
-    { m n } (r1 r2 : ⟦ m ⟧%stn) (ne : r1 ≠ r2) (s : R) (mat : Matrix R m n)
+    { m n } (r1 r2 : (⟦ m ⟧)%stn) (ne : r1 ≠ r2) (s : R) (mat : Matrix R m n)
     : (add_row_mult_matrix r1 r2 s) **' mat = add_row_mult r1 r2 s mat.
   Proof.
     intros.
@@ -108,7 +108,7 @@ Section Add_Row.
   Defined.
 
   Lemma add_row_mult_matrix_sum
-    { n : nat } ( r1 r2 : ⟦ n ⟧%stn ) (ne : r1 ≠ r2) ( s1 s2 : R ) :
+    { n : nat } ( r1 r2 : (⟦ n ⟧)%stn ) (ne : r1 ≠ r2) ( s1 s2 : R ) :
     ((add_row_mult_matrix r1 r2 s1 ) **' (add_row_mult_matrix r1 r2 s2))
    = (add_row_mult_matrix r1 r2 (s1 + s2)%ring).
   Proof.
@@ -125,7 +125,7 @@ Section Add_Row.
   Defined.
 
   Lemma add_row_mult_matrix_zero
-      { n } ( r1 r2 : ⟦ n ⟧%stn ) (ne : r1 ≠ r2)
+      { n } ( r1 r2 : (⟦ n ⟧)%stn ) (ne : r1 ≠ r2)
     : add_row_mult_matrix r1 r2 (@rigunel1 R) = @identity_matrix R _.
   Proof.
     apply funextfun; intros i.
@@ -140,7 +140,7 @@ Section Add_Row.
   Defined.
 
   Lemma add_row_mult_matrix_commutes
-      {n} ( r1 r2 : ⟦ n ⟧%stn) (ne : r1 ≠ r2) ( s1 s2 : R )
+      {n} ( r1 r2 : (⟦ n ⟧)%stn) (ne : r1 ≠ r2) ( s1 s2 : R )
     : ((add_row_mult_matrix r1 r2 s1 ) **' (add_row_mult_matrix r1 r2 s2 ))
     = ((add_row_mult_matrix r1 r2 s2 ) **' (add_row_mult_matrix r1 r2 s1 )).
   Proof.
@@ -149,7 +149,7 @@ Section Add_Row.
   Defined.
 
   Lemma add_row_mult_matrix_invertible
-    { n } (r1 r2 : ⟦ n ⟧%stn) (ne : r1 ≠ r2) (s : R)
+    { n } (r1 r2 : (⟦ n ⟧)%stn) (ne : r1 ≠ r2) (s : R)
    : @matrix_inverse R n (add_row_mult_matrix r1 r2 s).
   Proof.
     exists (add_row_mult_matrix r1 r2 (- s)%ring).
@@ -164,7 +164,7 @@ Section Add_Row.
   (** Miscellaneous properties of [add_row_mult], used in [Algebra.GaussianElimination.Elimination] *)
 
   Lemma add_row_mult_source_row_zero
-    {m n} (r1 r2 : ⟦ m ⟧%stn) (s : R) (mat : Matrix R m n)
+    {m n} (r1 r2 : (⟦ m ⟧)%stn) (s : R) (mat : Matrix R m n)
     : mat r1 = const_vec 0%ring
       -> add_row_mult r1 r2 s mat = mat.
   Proof.
@@ -186,7 +186,7 @@ Section Mult_Row.
   Context { F : fld }.
 
   Definition scalar_mult_row
-    { m n : nat} (r : ⟦ m ⟧%stn) (s : F) (mat : Matrix F m n)
+    { m n : nat} (r : (⟦ m ⟧)%stn) (s : F) (mat : Matrix F m n)
     : Matrix F m n.
   Proof.
     intros i j.
@@ -197,7 +197,7 @@ Section Mult_Row.
 
   (** The multiply-row operation as a matrix *)
   Definition scalar_mult_row_matrix {n : nat}
-      (r : ⟦ n ⟧%stn) (s : F)
+      (r : (⟦ n ⟧)%stn) (s : F)
     : Matrix F n n.
   Proof.
     intros i.
@@ -207,7 +207,7 @@ Section Mult_Row.
   Defined.
 
   Lemma scalar_mult_as_matrix
-    {m n : nat} (r : ⟦ m ⟧%stn) (s : F) (mat : Matrix F m n)
+    {m n : nat} (r : (⟦ m ⟧)%stn) (s : F) (mat : Matrix F m n)
     : ((scalar_mult_row_matrix r s) **' mat) = scalar_mult_row r s mat.
   Proof.
     use funextfun; intros i; use funextfun; intros ?.
@@ -224,7 +224,7 @@ Section Mult_Row.
   Defined.
 
   Lemma scalar_mult_matrix_product
-    { n } ( r : ⟦ n ⟧%stn ) ( s1 s2 : F )
+    { n } ( r : (⟦ n ⟧)%stn ) ( s1 s2 : F )
     : ((scalar_mult_row_matrix r s1 ) **' (scalar_mult_row_matrix r s2 ))
       = (scalar_mult_row_matrix r (s1 * s2)%ring ).
   Proof.
@@ -241,7 +241,7 @@ Section Mult_Row.
   Defined.
 
   Lemma scalar_mult_matrix_one
-    {n : nat} (r : ⟦ n ⟧%stn)
+    {n : nat} (r : (⟦ n ⟧)%stn)
     : scalar_mult_row_matrix r (@rigunel2 F) = @identity_matrix F _.
   Proof.
     unfold scalar_mult_row_matrix.
@@ -253,7 +253,7 @@ Section Mult_Row.
   Defined.
 
   Lemma scalar_mult_matrix_comm
-    { n : nat } ( r : ⟦ n ⟧%stn ) ( s1 s2 : F )
+    { n : nat } ( r : (⟦ n ⟧)%stn ) ( s1 s2 : F )
     : ((scalar_mult_row_matrix r s1) **' (scalar_mult_row_matrix r s2))
     = ((scalar_mult_row_matrix r s2) **' (scalar_mult_row_matrix r s1)).
   Proof.
@@ -262,7 +262,7 @@ Section Mult_Row.
   Defined.
 
   Lemma scalar_mult_matrix_invertible
-    { n } ( i : ⟦ n ⟧%stn ) ( s : F ) ( ne : s != (@rigunel1 F))
+    { n } ( i : (⟦ n ⟧)%stn ) ( s : F ) ( ne : s != (@rigunel1 F))
   : @matrix_inverse F _ (scalar_mult_row_matrix i s).
   Proof.
     exists (scalar_mult_row_matrix i (fldmultinv s ne)).
@@ -281,7 +281,7 @@ Section Switch_Row.
   Context { R : rig }.
 
   Definition switch_row
-    {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
+    {m n} (r1 r2 : (⟦ m ⟧)%stn) (mat : Matrix R m n)
     : Matrix R m n.
   Proof.
     intros i j.
@@ -294,7 +294,7 @@ Section Switch_Row.
 
   (** Basic properties of [switch_row] *)
   Lemma switch_row_former_row
-      {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n) (j : ⟦n⟧%stn)
+      {m n} (r1 r2 : (⟦ m ⟧)%stn) (mat : Matrix R m n) (j : (⟦n⟧)%stn)
     : switch_row r1 r2 mat r1 j = mat r2 j.
   Proof.
     unfold switch_row. rewrite stn_eq_or_neq_refl; simpl.
@@ -302,7 +302,7 @@ Section Switch_Row.
   Defined.
 
   Lemma switch_row_latter_row
-      {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n) (j : ⟦n⟧%stn)
+      {m n} (r1 r2 : (⟦ m ⟧)%stn) (mat : Matrix R m n) (j : (⟦n⟧)%stn)
     : switch_row r1 r2 mat r2 j = mat r1 j.
   Proof.
     unfold switch_row.
@@ -312,8 +312,8 @@ Section Switch_Row.
   Defined.
 
   Lemma switch_row_other_row
-      {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
-      (i : ⟦ m ⟧%stn) (ne1 : i ≠ r1) (ne2 : i ≠ r2) (j : ⟦n⟧%stn)
+      {m n} (r1 r2 : (⟦ m ⟧)%stn) (mat : Matrix R m n)
+      (i : (⟦ m ⟧)%stn) (ne1 : i ≠ r1) (ne2 : i ≠ r2) (j : (⟦n⟧)%stn)
     : switch_row r1 r2 mat i j = mat i j.
   Proof.
     unfold switch_row.
@@ -322,24 +322,24 @@ Section Switch_Row.
   Defined.
 
   Lemma switch_row_former_row'
-      {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
-      (i : ⟦m⟧%stn) (e : i = r1) (j : ⟦n⟧%stn)
+      {m n} (r1 r2 : (⟦ m ⟧)%stn) (mat : Matrix R m n)
+      (i : (⟦m⟧)%stn) (e : i = r1) (j : (⟦n⟧)%stn)
     : switch_row r1 r2 mat i j = mat r2 j.
   Proof.
     destruct e; apply switch_row_former_row.
   Defined.
 
   Lemma switch_row_latter_row'
-      {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
-      (i : ⟦m⟧%stn) (e : i = r2) (j : ⟦n⟧%stn)
+      {m n} (r1 r2 : (⟦ m ⟧)%stn) (mat : Matrix R m n)
+      (i : (⟦m⟧)%stn) (e : i = r2) (j : (⟦n⟧)%stn)
     : switch_row r1 r2 mat i j = mat r1 j.
   Proof.
     destruct e; apply switch_row_latter_row.
   Defined.
 
   Lemma switch_row_other_row'
-    {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
-    : ∏ (i : ⟦ m ⟧%stn), i ≠ r1 -> i ≠ r2
+    {m n} (r1 r2 : (⟦ m ⟧)%stn) (mat : Matrix R m n)
+    : ∏ (i : (⟦ m ⟧)%stn), i ≠ r1 -> i ≠ r2
     -> (switch_row r1 r2 mat) i = mat i.
   Proof.
     intros i i_ne_r1 i_ne_r2.
@@ -349,7 +349,7 @@ Section Switch_Row.
 
   (** The switch-row operation as a matrix *)
   Definition switch_row_matrix
-    {n : nat} (r1 r2 : ⟦ n ⟧ %stn)
+    {n : nat} (r1 r2 : (⟦ n ⟧) %stn)
     : Matrix R n n.
   Proof.
     intros i.
@@ -361,7 +361,7 @@ Section Switch_Row.
   Defined.
 
   Lemma switch_row_as_matrix
-    {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
+    {m n} (r1 r2 : (⟦ m ⟧)%stn) (mat : Matrix R m n)
     : ((switch_row_matrix r1 r2) ** mat) = switch_row r1 r2 mat.
   Proof.
     apply funextfun; intros i; apply funextfun; intros j.
@@ -374,7 +374,7 @@ Section Switch_Row.
   Defined.
 
   Definition switch_row_involution
-    {m n : nat} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
+    {m n : nat} (r1 r2 : (⟦ m ⟧)%stn) (mat : Matrix R m n)
     : switch_row r1 r2 (switch_row r1 r2 mat) = mat.
   Proof.
     apply funextfun; intros i; apply funextfun; intros j.
@@ -390,7 +390,7 @@ Section Switch_Row.
   Defined.
 
   Lemma switch_row_matrix_involution
-    { n : nat } ( r1 r2 : ⟦ n ⟧%stn )
+    { n : nat } ( r1 r2 : (⟦ n ⟧)%stn )
     : ((switch_row_matrix r1 r2)
       ** (switch_row_matrix r1 r2))
       = @identity_matrix _ _.
@@ -418,7 +418,7 @@ Section Switch_Row.
   Defined.
 
   Lemma switch_row_matrix_invertible
-    { n : nat } ( r1 r2 : ⟦ n ⟧%stn )
+    { n : nat } ( r1 r2 : (⟦ n ⟧)%stn )
     : @matrix_inverse R n (switch_row_matrix r1 r2).
   Proof.
     exists (switch_row_matrix r1 r2).
@@ -427,7 +427,7 @@ Section Switch_Row.
 
   (** Miscellaneous properties of [switch_row], used in [Algebra.GaussianElimination.Elimination] *)
   Lemma switch_row_equal_rows
-    {m n} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
+    {m n} (r1 r2 : (⟦ m ⟧)%stn) (mat : Matrix R m n)
     : (mat r1) = (mat r2) -> (switch_row r1 r2 mat) = mat.
   Proof.
     intros m_eq.
@@ -445,9 +445,9 @@ Section Switch_Row.
   Qed.
 
   Lemma switch_row_equal_entries
-    {m n : nat} (r1 r2 : ⟦ m ⟧%stn) (mat : Matrix R m n)
-    : ∏ (j : ⟦ n ⟧%stn), (mat r1 j) = (mat r2 j) ->
-      ∏ (r3 : ⟦ m ⟧%stn), (switch_row r1 r2 mat) r3 j = mat r3 j.
+    {m n : nat} (r1 r2 : (⟦ m ⟧)%stn) (mat : Matrix R m n)
+    : ∏ (j : (⟦ n ⟧)%stn), (mat r1 j) = (mat r2 j) ->
+      ∏ (r3 : (⟦ m ⟧)%stn), (switch_row r1 r2 mat) r3 j = mat r3 j.
   Proof.
     intros j m_eq r3.
     unfold switch_row.

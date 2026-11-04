@@ -242,7 +242,7 @@ Proof.
                             (isapropisbinopfun f) (isapropislinear f)).
 Defined.
 
-Definition modulefun {R : ring} (M N : module R) : UU := module_category R⟦M, N⟧%cat.
+Definition modulefun {R : ring} (M N : module R) : UU := (module_category R⟦M, N⟧)%cat.
 
 Definition make_modulefun {R : ring} {M N : module R} (f : M -> N) (isc : ismodulefun f)
   : modulefun M N.

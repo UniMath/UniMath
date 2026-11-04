@@ -40,7 +40,7 @@ Import MonoidalNotations.
 Local Open Scope cat.
 Local Open Scope moncat.
 
-Local Notation "C ⊠ D" := (category_binproduct C D) (at level 38).
+Local Notation "C ⊠ D" := (category_binproduct C D) (at level 38, left associativity).
 
 Section HomFunctor.
   Context {V : monoidal_cat}

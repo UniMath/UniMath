@@ -142,7 +142,7 @@ Definition profunctor_on_morphisms
   : P y₂ x₂
   := @functor_on_morphisms _ _ (P : _ ⟶ _) (_ ,, _) (_ ,, _) (g ,, f) h.
 
-Notation "P #[ g , f ] h" := (profunctor_on_morphisms P g f h) (at level 60) : cat.
+Notation "P #[ g , f ] h" := (profunctor_on_morphisms P g f h) (at level 59) : cat.
 
 Proposition profunctor_id
             {C₁ C₂ : category}

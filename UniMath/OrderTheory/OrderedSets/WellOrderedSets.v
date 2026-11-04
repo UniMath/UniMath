@@ -827,7 +827,7 @@ Proof.
   - apply chain_union_rel_istotal.
 Defined.
 
-Notation "⋃ chain" := (chain_union_TOSubset chain) (at level 100, no associativity) : tosubset.
+Notation "⋃ chain" := (chain_union_TOSubset chain) (at level 69, chain at level 99, no associativity) : tosubset.
 
 (** ** The union of a chain of well ordered subsets *)
 
@@ -908,7 +908,7 @@ Proof.
   - apply chain_union_rel_hasSmallest.
 Defined.
 
-Notation "⋃ chain" := (chain_union_WOSubset chain) (at level 100, no associativity) : wosubset.
+Notation "⋃ chain" := (chain_union_WOSubset chain) (at level 69, chain at level 99, no associativity) : wosubset.
 
 Lemma chain_union_le {X:hSet} {I:UU} (S : I -> WOSubset X) (Schain : is_wosubset_chain S) :
   ∀ i, S i ≼ ⋃ Schain.

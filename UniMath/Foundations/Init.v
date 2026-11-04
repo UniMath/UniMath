@@ -103,7 +103,7 @@ Reserved Notation "X ⟹ Y"  (at level 39).
 (* same parsing level as ⟶ *)
 (* to input: type "\==>" with Agda input method *)
 
-Reserved Notation "F ∙ G" (at level 35).
+Reserved Notation "F ∙ G" (at level 34, left associativity).
 (* to input: type "\." with Agda input method *)
 (* the old notation had the arguments in the opposite order *)
 

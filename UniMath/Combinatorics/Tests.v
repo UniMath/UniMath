@@ -382,7 +382,7 @@ Section Test_ord.
 
   Local Open Scope stn.
 
-  Goal 3 = height ( ●3 : ⟦ 8 ⟧ %foset ). Proof. reflexivity. Defined.
+  Goal 3 = height ( ●3 : (⟦ 8 ⟧) %foset ). Proof. reflexivity. Defined.
 
   Section TestLex.
     (* we want lex order to be computable if R and S both are *)
