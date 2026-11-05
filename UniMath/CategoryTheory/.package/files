@@ -863,10 +863,14 @@ MarkovCategories/AlternativeDefinitions/EquivalenceQuasicartesianMarkov.v
 
 # Comprehension categories
 CategoriesWithFamilies/CatsWithFams.v
+CategoriesWithFamilies/CatsWithFamsTypeFormersWithSections.v
 ComprehensionCats/CompCats.v
 ComprehensionCats/CompCatTypeFormers.v
 ComprehensionCats/CompCatUniverse.v
 ComprehensionCats/CwfFromCompCatWithUniv.v
+ComprehensionCats/CwfFromCompCatWithUnivUnitDemocracy.v
+ComprehensionCats/CwfFromCompCatWithUnivSigma.v
+ComprehensionCats/CwfFromCompCatWithUnivPi.v
 
 # Non-associative categories
 Nonassociative/UnitalMagmoids/Core.v
