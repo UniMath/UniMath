@@ -112,7 +112,7 @@ Proof.
   apply idpath.
 Qed.
 
-Definition UntypedForest_Sig : MultiSortedSig (⟦3⟧%stn).
+Definition UntypedForest_Sig : MultiSortedSig ((⟦3⟧)%stn).
 Proof.
   use (make_MultiSortedSig (stn 3)).
   - apply ((((unit,,isasetunit) + (nat,,isasetnat)) + (nat,, isasetnat))%set).

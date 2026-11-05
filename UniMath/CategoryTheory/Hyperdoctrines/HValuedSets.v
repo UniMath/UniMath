@@ -110,7 +110,7 @@ Section HValuedSets.
     : H
     := pr12 X (x ,, y).
 
-  Notation "x ~_{ X } y" := (@per_of_h_valued_set X x y) (at level 70).
+  Notation "x ~_{ X } y" := (@per_of_h_valued_set X x y) (at level 69).
 
   Proposition sym_per_of_h_valued_set
               {X : h_valued_set}
@@ -576,4 +576,4 @@ Section HValuedSets.
   Qed.
 End HValuedSets.
 
-Notation "x ~_{ X } y" := (@per_of_h_valued_set _ X x y) (at level 70) : heyting.
+Notation "x ~_{ X } y" := (@per_of_h_valued_set _ X x y) (at level 69) : heyting.

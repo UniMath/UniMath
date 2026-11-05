@@ -105,7 +105,7 @@ Defined.
 
 Definition subtype_union {X I:UU} (S : I -> hsubtype X) : hsubtype X := λ x, ∃ i, S i x.
 
-Notation "⋃ S" := (subtype_union S) (at level 100, no associativity) : subtype.
+Notation "⋃ S" := (subtype_union S) (at level 69, S at level 99, no associativity) : subtype.
 
 Definition subtype_binaryunion {X} (A B : hsubtype X) : hsubtype X
   := fun x => A x ∨ B x.

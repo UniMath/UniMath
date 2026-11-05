@@ -48,9 +48,9 @@ Section Echelon_Form.
   Context {R: ring}.
 
   Definition is_leading_entry {n : nat}
-    (v : Vector R n) (i_1 : ⟦ n ⟧%stn)
+    (v : Vector R n) (i_1 : (⟦ n ⟧)%stn)
     := (v i_1 != 0%ring)
-      × (∏ i_2 : ⟦ n ⟧%stn, i_2 < i_1 -> (v i_2) = 0%ring).
+      × (∏ i_2 : (⟦ n ⟧)%stn, i_2 < i_1 -> (v i_2) = 0%ring).
 
   (** A matrix is in row echelon form if two conditions hold:
     1. each leading entry is strictly to the right of earlier leading entries
@@ -65,8 +65,8 @@ Section Echelon_Form.
 
   Definition is_row_echelon {m n : nat} (mat : Matrix R m n)
   :=
-    ∏ i_1 i_2 : ⟦ m ⟧%stn,
-    (∏ j_1 j_2 : ⟦ n ⟧%stn,
+    ∏ i_1 i_2 : (⟦ m ⟧)%stn,
+    (∏ j_1 j_2 : (⟦ n ⟧)%stn,
       is_leading_entry (mat i_1) j_1
       -> i_1 < i_2 -> j_2 ≤ j_1
       -> mat i_2 j_2 = 0%ring)
@@ -99,8 +99,8 @@ Section LeadingEntry.
      [... _ _ X 0 0 0] -> index of X  (Up to a separator variable) *)
    Definition leading_entry_compute_dual_internal_general
      {X : UU} { n : nat } (v : Vector F n)
-     (iter : ⟦ S n ⟧%stn)
-     : maybe (⟦ n ⟧%stn).
+     (iter : (⟦ S n ⟧)%stn)
+     : maybe ((⟦ n ⟧)%stn).
    Proof.
      destruct iter as [iter lt].
      induction iter as [| iter IH]. { exact nothing. }
@@ -113,8 +113,8 @@ Section LeadingEntry.
   (** The leading entry of a (dual <-> "flipped") vector:
      [... _ _ X 0 0 0] -> index of X  (Up to a separator variable) *)
   Definition leading_entry_compute_dual_internal
-    { n : nat } (v : Vector F n) (iter : ⟦ S n ⟧%stn)
-    : maybe (⟦ n ⟧%stn).
+    { n : nat } (v : Vector F n) (iter : (⟦ S n ⟧)%stn)
+    : maybe ((⟦ n ⟧)%stn).
   Proof.
     destruct iter as [iter lt].
     induction iter as [| iter IH]. { exact nothing. }
@@ -126,11 +126,11 @@ Section LeadingEntry.
 
   (** Leading entry of a vector in terms of dual *)
   Definition leading_entry_compute_internal
-    { n : nat } (v : Vector F n) (iter : ⟦ S n ⟧%stn)
+    { n : nat } (v : Vector F n) (iter : (⟦ S n ⟧)%stn)
     : maybe (⟦ n ⟧)%stn.
   Proof.
     destruct (leading_entry_compute_dual_internal
-      (λ i : ⟦ n ⟧%stn, v (dualelement i)) iter) as [s | ?].
+      (λ i : (⟦ n ⟧)%stn, v (dualelement i)) iter) as [s | ?].
     - exact (just (dualelement s)).
     - exact nothing.
   Defined.
@@ -143,10 +143,10 @@ Section LeadingEntry.
      := leading_entry_compute_dual_internal v (n,, natgthsnn _).
 
   Lemma leading_entry_compute_eq {n : nat} (v : Vector F n)
-    (i_1 i_2 : ⟦ n ⟧%stn)
+    (i_1 i_2 : (⟦ n ⟧)%stn)
     (e_1 : leading_entry_compute v = just i_1)
     (e_2 : leading_entry_dual_compute
-      (λ i : ⟦ n ⟧%stn, v (dualelement i)) = just i_2)
+      (λ i : (⟦ n ⟧)%stn, v (dualelement i)) = just i_2)
     : i_1 = dualelement i_2.
   Proof.
     unfold leading_entry_compute, leading_entry_dual_compute,
@@ -163,11 +163,11 @@ Section LeadingEntry.
   Defined.
 
   Lemma leading_entry_compute_impl {n : nat} (v : Vector F n)
-    (i_1 : ⟦ n ⟧%stn)
+    (i_1 : (⟦ n ⟧)%stn)
     (e_1 : leading_entry_compute_internal v (n,, natgthsnn _) = just i_1)
-    : ∑ (i_2 : ⟦ n ⟧%stn),
+    : ∑ (i_2 : (⟦ n ⟧)%stn),
       leading_entry_compute_dual_internal
-        (λ i : ⟦ n ⟧%stn, v (dualelement i)) (n,, natgthsnn _) = just i_2.
+        (λ i : (⟦ n ⟧)%stn, v (dualelement i)) (n,, natgthsnn _) = just i_2.
   Proof.
     unfold leading_entry_compute_internal in * |-.
     destruct (leading_entry_compute_dual_internal
@@ -180,7 +180,7 @@ Section LeadingEntry.
   Defined.
 
   Lemma leading_entry_compute_dual_internal_inv1
-    { n : nat } (v : Vector F n) (iter : ⟦ S n ⟧%stn)
+    { n : nat } (v : Vector F n) (iter : (⟦ S n ⟧)%stn)
     {i : stn n} (not_nothing : (leading_entry_compute_dual_internal v iter) = just i)
     : i < iter × (v i != 0%ring).
   Proof.
@@ -200,9 +200,9 @@ Section LeadingEntry.
   Defined.
 
   Definition leading_entry_compute_dual_internal_inv2
-    {n : nat} (v : Vector F n) (iter : ⟦ S n ⟧%stn)
+    {n : nat} (v : Vector F n) (iter : (⟦ S n ⟧)%stn)
     (not_nothing : (leading_entry_compute_dual_internal v iter) = nothing)
-    : ∏ i : ⟦ n ⟧%stn, i < iter -> v i = 0%ring.
+    : ∏ i : (⟦ n ⟧)%stn, i < iter -> v i = 0%ring.
   Proof.
     intros i i_lt_iter.
     revert not_nothing.
@@ -220,10 +220,10 @@ Section LeadingEntry.
 
   Definition leading_entry_compute_dual_internal_inv3
     {n : nat} (v : Vector F n)
-    (iter : ⟦ S n ⟧%stn)
-    (i : ⟦ n ⟧%stn)
+    (iter : (⟦ S n ⟧)%stn)
+    (i : (⟦ n ⟧)%stn)
     (eq : (leading_entry_compute_dual_internal v iter) = just i)
-    : (∏ i' : ⟦ n ⟧%stn, i < i' -> i' < iter -> v i' = 0%ring).
+    : (∏ i' : (⟦ n ⟧)%stn, i < i' -> i' < iter -> v i' = 0%ring).
   Proof.
     revert eq.
     destruct iter as [iter p].
@@ -249,10 +249,10 @@ Section LeadingEntry.
 
   Definition leading_entry_compute_dual_internal_inv4
     {n : nat} (v : Vector F n)
-    (iter : ⟦ S n ⟧%stn)
-    (i : ⟦ n ⟧%stn)
+    (iter : (⟦ S n ⟧)%stn)
+    (i : (⟦ n ⟧)%stn)
     (eq : (leading_entry_compute_dual_internal v iter) = just i)
-    : (v i != 0%ring) × (∏ i' : ⟦ n ⟧%stn, i < i' -> i' < iter -> v i' = 0%ring).
+    : (v i != 0%ring) × (∏ i' : (⟦ n ⟧)%stn, i < i' -> i' < iter -> v i' = 0%ring).
   Proof.
     use tpair.
     - apply (leading_entry_compute_dual_internal_inv1 _ iter); assumption.
@@ -260,7 +260,7 @@ Section LeadingEntry.
   Defined.
 
   Lemma leading_entry_compute_internal_inv1
-    {n : nat} (v : Vector F n) (i : ⟦ n ⟧%stn)
+    {n : nat} (v : Vector F n) (i : (⟦ n ⟧)%stn)
     (eq : (leading_entry_compute_internal v (n,, natgthsnn _)) = (just i))
     : is_leading_entry v i.
   Proof.
@@ -286,9 +286,9 @@ Section LeadingEntry.
   Defined.
 
   Lemma leading_entry_compute_internal_inv2
-    {n : nat} (v : Vector F n) (iter : ⟦ S n ⟧%stn)
+    {n : nat} (v : Vector F n) (iter : (⟦ S n ⟧)%stn)
     (eq_nothing : (leading_entry_compute_internal v iter) = nothing)
-    : ∏ i : ⟦ n ⟧%stn, (dualelement i) < iter -> v i = 0%ring.
+    : ∏ i : (⟦ n ⟧)%stn, (dualelement i) < iter -> v i = 0%ring.
   Proof.
     intros i i_lt_iter.
     revert eq_nothing.
@@ -313,7 +313,7 @@ Section LeadingEntry.
   Lemma leading_entry_compute_inv1
     {n : nat} (v : Vector F n)
     (eq_nothing : (leading_entry_compute v) = nothing)
-    : ∏ i : ⟦ n ⟧%stn, v i = 0%ring.
+    : ∏ i : (⟦ n ⟧)%stn, v i = 0%ring.
   Proof.
     intros i.
     rewrite (leading_entry_compute_internal_inv2 _ _ eq_nothing i);
@@ -328,7 +328,7 @@ Section LeadingEntry.
 
   Lemma leading_entry_compute_inv2
     {n : nat} (v : Vector F n)
-    (i : ⟦ n ⟧%stn)
+    (i : (⟦ n ⟧)%stn)
     (eq : (leading_entry_compute v) = just i)
     : is_leading_entry v i.
   Proof.
@@ -355,9 +355,9 @@ Section Pivot.
   Context (F: fld).
 
   Definition select_pivot_row_coprod {m n : nat} (mat : Matrix F m n)
-    (row_sep : ⟦ m ⟧%stn) (k : ⟦ n ⟧%stn) :
-    coprod ((∑ i: ⟦ m ⟧%stn, row_sep ≤ i × ((mat i k) != 0%ring)))
-            (∏ i : ⟦ m ⟧%stn, row_sep ≤ i -> mat i k = 0%ring).
+    (row_sep : (⟦ m ⟧)%stn) (k : (⟦ n ⟧)%stn) :
+    coprod ((∑ i: (⟦ m ⟧)%stn, row_sep ≤ i × ((mat i k) != 0%ring)))
+            (∏ i : (⟦ m ⟧)%stn, row_sep ≤ i -> mat i k = 0%ring).
   Proof.
     pose (H := (@leading_entry_compute_dual_internal_inv1 _
                           _ (col mat k) (m,, natgthsnn _))).
@@ -384,20 +384,20 @@ Section Pivot.
 
   Local Definition exists_first_uncleared
   {m n : nat} (mat : Matrix F m n)
-  (row_sep : ⟦ m ⟧%stn) (col_iter : ⟦ S n ⟧%stn)
-    := ((∑ j: ⟦ n ⟧%stn,
-      j < col_iter × (∑ i: ⟦ m ⟧%stn, row_sep ≤ i × (mat i j != 0%ring)
+  (row_sep : (⟦ m ⟧)%stn) (col_iter : (⟦ S n ⟧)%stn)
+    := ((∑ j: (⟦ n ⟧)%stn,
+      j < col_iter × (∑ i: (⟦ m ⟧)%stn, row_sep ≤ i × (mat i j != 0%ring)
       × ∏ i' : (⟦ m ⟧)%stn, ∏ (j' : stn n),
         row_sep ≤ i' -> j' < j -> mat i' j' = 0%ring))).
 
   Local Definition lower_left_zero {m n : nat} (mat : Matrix F m n)
-  (row_sep : ⟦ m ⟧%stn) (col_iter : ⟦ S n ⟧%stn)
-    := (∏ i : ⟦ m ⟧%stn, row_sep ≤ i
-      -> (∏ j : ⟦ n ⟧%stn, j < col_iter -> mat i j = 0%ring)).
+  (row_sep : (⟦ m ⟧)%stn) (col_iter : (⟦ S n ⟧)%stn)
+    := (∏ i : (⟦ m ⟧)%stn, row_sep ≤ i
+      -> (∏ j : (⟦ n ⟧)%stn, j < col_iter -> mat i j = 0%ring)).
 
   Lemma select_uncleared_column_internal
     {m n : nat} (mat : Matrix F m n)
-    (row_sep : ⟦ m ⟧%stn) (col_iter : ⟦ S n ⟧%stn) (p : n > 0)
+    (row_sep : (⟦ m ⟧)%stn) (col_iter : (⟦ S n ⟧)%stn) (p : n > 0)
     : coprod
       (exists_first_uncleared mat row_sep col_iter)
       (lower_left_zero mat row_sep col_iter).
@@ -438,7 +438,7 @@ Section Pivot.
       or finding the first column segment with a non-zero element *)
   Definition select_uncleared_column
     {m n : nat} (mat : Matrix F m n)
-    (row_sep : ⟦ m ⟧%stn) (p : n > 0)
+    (row_sep : (⟦ m ⟧)%stn) (p : n > 0)
     := select_uncleared_column_internal mat row_sep (n,, natgthsnn _) p.
 
 End Pivot.
@@ -459,8 +459,8 @@ Section Gauss.
   (** Clearing a target entry [i], if it does not equal the pivot row : [i] != [k_i]. *)
   Definition gauss_clear_column_step
     {m n : nat}
-    (k_i : (⟦ m ⟧%stn))
-    (k_j : (⟦ n ⟧%stn))
+    (k_i : ((⟦ m ⟧)%stn))
+    (k_j : ((⟦ n ⟧)%stn))
     (i : (stn m))
     (mat : Matrix F m n)
     : Matrix F m n.
@@ -473,8 +473,8 @@ Section Gauss.
 
   Definition gauss_clear_column_step'
     {m n : nat}
-    (k_i : (⟦ m ⟧%stn))
-    (k_j : (⟦ n ⟧%stn))
+    (k_i : ((⟦ m ⟧)%stn))
+    (k_j : ((⟦ n ⟧)%stn))
     (i : (stn m))
     (mat : Matrix F m n)
     : Matrix F m n.
@@ -486,8 +486,8 @@ Section Gauss.
   Defined.
 
   Lemma gauss_clear_column_step_eq {m n : nat}
-    (k_i i: (⟦ m ⟧%stn))
-    (k_j : (⟦ n ⟧%stn))
+    (k_i i: ((⟦ m ⟧)%stn))
+    (k_j : ((⟦ n ⟧)%stn))
     (mat : Matrix F m n)
     : (gauss_clear_column_step k_i k_j i mat)
       = (gauss_clear_column_step' k_i k_j i mat).
@@ -503,8 +503,8 @@ Section Gauss.
   (** Zeroing the column segment below [k_i]:
         elements [mat {i} k_j], for {i} > [k_i]*)
   Definition gauss_clear_column { m n : nat }
-    (mat : Matrix F m n) (k_i : (⟦ m ⟧%stn))
-    (k_j : (⟦ n ⟧%stn)) (row_sep : ⟦ S m ⟧%stn)
+    (mat : Matrix F m n) (k_i : ((⟦ m ⟧)%stn))
+    (k_j : ((⟦ n ⟧)%stn)) (row_sep : (⟦ S m ⟧)%stn)
     : Matrix F m n.
   Proof.
     destruct row_sep as [iter lt'].
@@ -521,9 +521,9 @@ Section Gauss.
      -- would simplify the clear_column_eq_matrix_def proof. *)
   Lemma gauss_clear_column_as_left_matrix
     { m n : nat }
-    (iter : ⟦ S m ⟧%stn)
+    (iter : (⟦ S m ⟧)%stn)
     (mat : Matrix F m n)
-    (k_i : (⟦ m ⟧%stn)) (k_j : (⟦ n ⟧%stn))
+    (k_i : ((⟦ m ⟧)%stn)) (k_j : ((⟦ n ⟧)%stn))
     : Matrix F m m.
   Proof.
     destruct iter as [iter p].
@@ -543,8 +543,8 @@ Section Gauss.
     { m n : nat }
     (iter : stn (S m))
     (mat : Matrix F m n)
-    (k_i : (⟦ m ⟧%stn)) (k_j : (stn n))
-    (i : ⟦ m ⟧%stn) (i_leh_k : i ≤ k_i)
+    (k_i : ((⟦ m ⟧)%stn)) (k_j : (stn n))
+    (i : (⟦ m ⟧)%stn) (i_leh_k : i ≤ k_i)
     : (gauss_clear_column_as_left_matrix iter mat k_i k_j ** mat) i = mat i.
   Proof.
     unfold gauss_clear_column_as_left_matrix.
@@ -566,9 +566,9 @@ Section Gauss.
 
   (** Proving [mat r] is unchanged after column clearance if [r > sep]. *)
   Lemma gauss_clear_column_inv0
-    { m n : nat } (k_i : (⟦ m ⟧%stn))
-    (k_j : stn n) (iter : ⟦ S m ⟧%stn)
-    (mat : Matrix F m n) (r : ⟦ m ⟧%stn)
+    { m n : nat } (k_i : ((⟦ m ⟧)%stn))
+    (k_j : stn n) (iter : (⟦ S m ⟧)%stn)
+    (mat : Matrix F m n) (r : (⟦ m ⟧)%stn)
     (r_gt_sep : r ≥ iter)
     : (gauss_clear_column mat k_i k_j iter) r = mat r.
   Proof.
@@ -589,8 +589,8 @@ Section Gauss.
     apply natgthtogeh, r_gt_sep.
   Defined.
 
-  Lemma clear_column_eq_matrix_def { m n : nat } (iter : ⟦ S m ⟧%stn)
-    (k_i : (⟦ m ⟧%stn)) (k_j : (⟦ n ⟧%stn)) (mat : Matrix F m n)
+  Lemma clear_column_eq_matrix_def { m n : nat } (iter : (⟦ S m ⟧)%stn)
+    (k_i : ((⟦ m ⟧)%stn)) (k_j : ((⟦ n ⟧)%stn)) (mat : Matrix F m n)
     : ((gauss_clear_column_as_left_matrix iter mat k_i k_j) ** mat)
       = gauss_clear_column mat k_i k_j iter.
   Proof.
@@ -643,9 +643,9 @@ Section Gauss.
 
   Lemma clear_column_matrix_invertible
     { m n : nat }
-    (iter : ⟦ S m ⟧%stn)
+    (iter : (⟦ S m ⟧)%stn)
     (mat : Matrix F m n)
-    (k_i : (⟦ m ⟧%stn))
+    (k_i : ((⟦ m ⟧)%stn))
     (k_j : stn n)
     : @matrix_inverse F _ (gauss_clear_column_as_left_matrix iter mat k_i k_j).
   Proof.
@@ -671,7 +671,7 @@ Section Gauss.
   Definition gauss_clear_row
     { m n : nat }
     (mat : Matrix F m n)
-    (row : (⟦ m ⟧%stn))
+    (row : ((⟦ m ⟧)%stn))
     : Matrix F m n.
   Proof.
     destruct (natchoice0 n) as [contr_eq | p].
@@ -687,7 +687,7 @@ Section Gauss.
   Definition gauss_clear_row_as_left_matrix
     { m n : nat }
     (mat : Matrix F m n)
-    (row : (⟦ m ⟧%stn))
+    (row : ((⟦ m ⟧)%stn))
     (p : n > 0)
     : Matrix F m m.
   Proof.
@@ -701,7 +701,7 @@ Section Gauss.
   Defined.
 
   Lemma clear_row_eq_matrix_def { m n : nat }
-     (mat : Matrix F m n) (r : ⟦ m ⟧%stn) (p : n > 0):
+     (mat : Matrix F m n) (r : (⟦ m ⟧)%stn) (p : n > 0):
      ((gauss_clear_row_as_left_matrix mat r p) ** mat)
     = gauss_clear_row mat r.
   Proof.
@@ -722,7 +722,7 @@ Section Gauss.
   Lemma clear_row_matrix_invertible
     { m n : nat }
     (mat : Matrix F m n)
-    (row : (⟦ m ⟧%stn))
+    (row : ((⟦ m ⟧)%stn))
     (p : n > 0)
     : @matrix_inverse F _ (gauss_clear_row_as_left_matrix mat row p).
   Proof.
@@ -739,7 +739,7 @@ Section Gauss.
   Definition gauss_clear_rows_up_to
     { m n : nat }
     (mat : Matrix F m n)
-    (row_sep : (⟦ S m ⟧%stn))
+    (row_sep : ((⟦ S m ⟧)%stn))
     : (Matrix F m n).
   Proof.
     destruct row_sep as [row_sep row_sep_lt_n].
@@ -755,7 +755,7 @@ Section Gauss.
   Lemma clear_rows_up_to_as_left_matrix
       { m n : nat }
       (mat : Matrix F m n)
-      (row_sep : (⟦ S m ⟧%stn))
+      (row_sep : ((⟦ S m ⟧)%stn))
       (p : n > 0)
     : (Matrix F m m).
   Proof.
@@ -771,7 +771,7 @@ Section Gauss.
   Defined.
 
   Lemma gauss_clear_rows_up_to_as_matrix_eq
-    { m n : nat } (iter : ⟦ S m ⟧%stn)
+    { m n : nat } (iter : (⟦ S m ⟧)%stn)
     (mat : Matrix F m n) (p : n > 0) :
     ((@clear_rows_up_to_as_left_matrix _ _ mat iter p) ** mat)
       = (gauss_clear_rows_up_to mat iter).
@@ -787,7 +787,7 @@ Section Gauss.
 
   Lemma gauss_clear_rows_up_to_matrix_invertible
     {m n : nat}
-    (iter : ⟦ S m ⟧%stn)
+    (iter : (⟦ S m ⟧)%stn)
     (mat : Matrix F m n)
     (p : n > 0)
     : @matrix_inverse F _ (clear_rows_up_to_as_left_matrix mat iter p).
@@ -844,8 +844,8 @@ Section Gauss.
   Proof. apply gauss_clear_rows_up_to_matrix_invertible. Defined.
 
   Lemma gauss_clear_column_step_inv1 {m n : nat}
-    (r_pivot : ⟦m⟧%stn) (c_pivot : ⟦ n ⟧%stn)
-    (r : (⟦ m ⟧%stn)) (mat : Matrix F m n)
+    (r_pivot : (⟦m⟧)%stn) (c_pivot : (⟦ n ⟧)%stn)
+    (r : ((⟦ m ⟧)%stn)) (mat : Matrix F m n)
     (p_1 : mat r_pivot c_pivot != 0%ring)
     (p_2 : r ≠ r_pivot)
     : (gauss_clear_column_step r_pivot c_pivot r mat) r c_pivot = 0%ring.
@@ -863,10 +863,10 @@ Section Gauss.
 
   Lemma gauss_clear_column_step_inv2
     {m n : nat}
-    (k_i : stn m) (k_j : (⟦ n ⟧%stn))
-    (r : (⟦ m ⟧%stn))
+    (k_i : stn m) (k_j : ((⟦ n ⟧)%stn))
+    (r : ((⟦ m ⟧)%stn))
     (mat : Matrix F m n)
-    (j : ⟦ m ⟧%stn)
+    (j : (⟦ m ⟧)%stn)
     (p : r ≠ j)
     : (gauss_clear_column_step k_i k_j j mat) r = mat r.
   Proof.
@@ -882,8 +882,8 @@ Section Gauss.
 
   Lemma gauss_clear_column_step_inv3
     {m n : nat} (k_i : stn m)
-    (k_j : (⟦ n ⟧%stn)) (r : (⟦ m ⟧%stn))
-    (mat : Matrix F m n) (j : ⟦ m ⟧%stn)
+    (k_j : ((⟦ n ⟧)%stn)) (r : ((⟦ m ⟧)%stn))
+    (mat : Matrix F m n) (j : (⟦ m ⟧)%stn)
     (j' : stn n) (p : r < j)
     : (gauss_clear_column_step k_i k_j j mat) r j' = mat r j'.
   Proof.
@@ -894,8 +894,8 @@ Section Gauss.
   (** if the target row r ≤ the pivot row k,
      mat r is not changed by the clearing procedure. *)
   Lemma gauss_clear_column_inv1
-    { m n : nat } (k_i : (⟦ m ⟧%stn)) (k_j : stn n) (r : stn m)
-    (iter : ⟦ S m ⟧%stn) (p' : r ≤ k_i)
+    { m n : nat } (k_i : ((⟦ m ⟧)%stn)) (k_j : stn n) (r : stn m)
+    (iter : (⟦ S m ⟧)%stn) (p' : r ≤ k_i)
     (mat : Matrix F m n)
     : (gauss_clear_column mat k_i k_j iter) r = mat r.
   Proof.
@@ -914,10 +914,10 @@ Section Gauss.
 
   (** Given a target row and pivot, proving the column clearing procedure equals applying step on it *)
   Lemma gauss_clear_column_inv2
-    { m n : nat } (k_i : (⟦ m ⟧%stn))
-    (k_j : stn n) (row_sep : ⟦ S m ⟧%stn)
+    { m n : nat } (k_i : ((⟦ m ⟧)%stn))
+    (k_j : stn n) (row_sep : (⟦ S m ⟧)%stn)
     (mat : Matrix F m n)
-    : ∏ r : (⟦ m ⟧%stn), r < row_sep -> k_i < r ->
+    : ∏ r : ((⟦ m ⟧)%stn), r < row_sep -> k_i < r ->
       ((gauss_clear_column mat k_i k_j row_sep) r
       = (gauss_clear_column_step' k_i k_j r mat) r).
   Proof.
@@ -992,11 +992,11 @@ Section Gauss.
   Defined.
 
   Lemma gauss_clear_column_inv3
-    { m n : nat } (k_i : (⟦ m ⟧%stn))
-    (k_j : (⟦ n ⟧%stn))
-    (iter : ⟦ S m ⟧%stn) (mat : Matrix F m n)
+    { m n : nat } (k_i : ((⟦ m ⟧)%stn))
+    (k_j : ((⟦ n ⟧)%stn))
+    (iter : (⟦ S m ⟧)%stn) (mat : Matrix F m n)
     (p' : mat k_i k_j != 0%ring)
-    : ∏ r : (⟦ m ⟧%stn), r < iter -> r > k_i
+    : ∏ r : ((⟦ m ⟧)%stn), r < iter -> r > k_i
     -> ((gauss_clear_column mat k_i k_j iter) r k_j = 0%ring).
   Proof.
     destruct iter as [sep p].
@@ -1011,10 +1011,10 @@ Section Gauss.
   (** 0 in pivot row -> corresponding col is unchanged after gcc *)
   Lemma gauss_clear_column_inv4
     { m n : nat }  (mat : Matrix F m n)
-    (k_i : (⟦ m ⟧%stn)) (k_j : stn n)
-    (iter : ⟦ S m ⟧%stn) (j : ⟦ n ⟧%stn)
+    (k_i : ((⟦ m ⟧)%stn)) (k_j : stn n)
+    (iter : (⟦ S m ⟧)%stn) (j : (⟦ n ⟧)%stn)
     (eq0 : mat k_i j = 0%ring)
-    : ∏ i : ⟦ m ⟧%stn, gauss_clear_column mat k_i k_j iter i j = mat i j.
+    : ∏ i : (⟦ m ⟧)%stn, gauss_clear_column mat k_i k_j iter i j = mat i j.
   Proof.
     unfold gauss_clear_column.
     destruct iter as [iter lt].
@@ -1046,9 +1046,9 @@ Section Gauss.
   (** Notion of being row echelon "up to" a separator,
       and fulfilling criteria 1 and 2 from the preamble separately. *)
   Definition is_row_echelon_partial_1
-    {m n : nat} (mat : Matrix F m n) (row_sep : ⟦ S m ⟧%stn) :=
-    ∏ i_1 i_2 : ⟦ m ⟧%stn,
-    ∏ j_1 j_2 : ⟦ n ⟧%stn,
+    {m n : nat} (mat : Matrix F m n) (row_sep : (⟦ S m ⟧)%stn) :=
+    ∏ i_1 i_2 : (⟦ m ⟧)%stn,
+    ∏ j_1 j_2 : (⟦ n ⟧)%stn,
      i_1 < row_sep
     -> is_leading_entry (mat i_1) j_2
     -> i_1 < i_2
@@ -1056,21 +1056,21 @@ Section Gauss.
     -> mat i_2 j_1 = 0%ring.
 
   Definition is_row_echelon_partial_2
-    {m n : nat} (mat : Matrix F m n) (iter : ⟦ S m ⟧%stn) :=
-    ∏ (i_1 i_2 : ⟦ m ⟧%stn),
+    {m n : nat} (mat : Matrix F m n) (iter : (⟦ S m ⟧)%stn) :=
+    ∏ (i_1 i_2 : (⟦ m ⟧)%stn),
     i_1 < iter
     -> (mat i_1 = const_vec 0%ring)
     -> i_1 < i_2
     -> mat i_2 = const_vec 0%ring.
 
   Definition is_row_echelon_partial
-    {m n : nat} (mat : Matrix F m n) (iter : ⟦ S m ⟧%stn)
+    {m n : nat} (mat : Matrix F m n) (iter : (⟦ S m ⟧)%stn)
     := is_row_echelon_partial_1 mat iter × is_row_echelon_partial_2 mat iter.
 
   (** Step lemma *)
   Lemma gauss_clear_row_inv0
     { m n : nat } (mat : Matrix F m n) (p : n > 0)
-    (row_sep : (⟦ S m ⟧%stn)) (p' : row_sep < m)
+    (row_sep : ((⟦ S m ⟧)%stn)) (p' : row_sep < m)
     : is_row_echelon_partial_1 mat row_sep
     -> is_row_echelon_partial_1 (gauss_clear_row mat (pr1 row_sep,, p'))
         (S (pr1 row_sep),, p').
@@ -1161,10 +1161,10 @@ Section Gauss.
   Defined.
 
   Lemma gauss_clear_rows_up_to_inv0
-    { m n : nat } (mat : Matrix F m n) (row_sep : (⟦ S m ⟧%stn)) (p : n > 0)
-   : ∏ i_1 : ⟦ m ⟧%stn, i_1 < row_sep
+    { m n : nat } (mat : Matrix F m n) (row_sep : ((⟦ S m ⟧)%stn)) (p : n > 0)
+   : ∏ i_1 : (⟦ m ⟧)%stn, i_1 < row_sep
   -> (gauss_clear_rows_up_to mat row_sep) i_1 = const_vec 0%ring
-  -> ∏ i_2 : ⟦ m ⟧%stn, i_1 < i_2
+  -> ∏ i_2 : (⟦ m ⟧)%stn, i_1 < i_2
   -> (gauss_clear_rows_up_to mat row_sep) i_2 = const_vec 0%ring.
   Proof.
     unfold is_row_echelon_partial_2.
@@ -1254,7 +1254,7 @@ Section Gauss.
   Lemma gauss_clear_rows_up_to_inv1
     { m n : nat } (mat : Matrix F m n)
     (p : n > 0)
-    (row_sep : (⟦ S m ⟧%stn))
+    (row_sep : ((⟦ S m ⟧)%stn))
     : is_row_echelon_partial_1
         (gauss_clear_rows_up_to mat row_sep) row_sep.
   Proof.
@@ -1270,7 +1270,7 @@ Section Gauss.
 
   Lemma gauss_clear_rows_up_to_inv2
     { m n : nat } (mat : Matrix F m n)
-    (p : n > 0) (row_sep : (⟦ S m ⟧%stn))
+    (p : n > 0) (row_sep : ((⟦ S m ⟧)%stn))
     : is_row_echelon_partial_2
         (gauss_clear_rows_up_to mat row_sep) row_sep.
   Proof.
@@ -1298,7 +1298,7 @@ Section Gauss.
     { m n : nat }
     (mat : Matrix F m n)
     (p : n > 0)
-    (row_sep : (⟦ S m ⟧%stn))
+    (row_sep : ((⟦ S m ⟧)%stn))
     : is_row_echelon (gauss_clear_rows_up_to mat (m,, natgthsnn _)).
   Proof.
     apply (@is_row_echelon_from_partial _ _
@@ -1330,7 +1330,7 @@ Section Gauss.
   Lemma is_row_echelon_eq
     { m n : nat } (mat : Matrix F m n)
     : is_row_echelon mat
-    -> ∏ i_1 i_2 : ⟦ m ⟧%stn, ∏ j_1 j_2 : ⟦ n ⟧%stn,
+    -> ∏ i_1 i_2 : (⟦ m ⟧)%stn, ∏ j_1 j_2 : (⟦ n ⟧)%stn,
        i_1 < i_2
     -> is_leading_entry (mat i_1) j_1
     -> is_leading_entry (mat i_2) j_2

@@ -59,7 +59,7 @@ Defined.
 Definition group_morphism
   (X Y : gr)
   : UU
-  := group_category⟦X, Y⟧%cat.
+  := (group_category⟦X, Y⟧)%cat.
 
 Definition group_morphism_to_monoidfun
   {X Y : gr}

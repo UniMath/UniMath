@@ -682,7 +682,7 @@ Definition hztohqandminus ( n m : hz ) : paths ( hztohq ( n - m )%hz ) ( hztohq 
 
 Definition hztohqandmult ( n m : hz ) : paths ( hztohq ( n * m )%hz ) ( hztohq n * hztohq m ) := isbinop2funtofldfrac hzintdom isdeceqhz n m .
 
-Definition hztohqandgth ( n m : hz ) ( isc : hzgth n m ) : hqgth ( hztohq n ) ( hztohq m ) := iscomptofldfrac hzintdom isdeceqhz isplushrelhzgth isringmulthzgth ( ct ( hzgth , isdecrelhzgth , 1 , 0 )%hz ) ( hzneqchoice ) ( isasymmhzgth ) n m isc .
+Definition hztohqandgth ( n m : hz ) ( isc : hzgth n m ) : hqgth ( hztohq n ) ( hztohq m ) := iscomptofldfrac hzintdom isdeceqhz isplushrelhzgth isringmulthzgth ( (ct ( hzgth , isdecrelhzgth , 1 , 0 ))%hz ) ( hzneqchoice ) ( isasymmhzgth ) n m isc .
 
 Definition hztohqandlth ( n m : hz ) ( isc : hzlth n m ) : hqlth ( hztohq n ) ( hztohq m ) := hztohqandgth m n isc .
 

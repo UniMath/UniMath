@@ -53,7 +53,7 @@ Definition subst
 
 Notation "f • g" :=
   (subst f g)
-  (at level 35) : algebraic_theories.
+  (at level 34, left associativity) : algebraic_theories.
 
 Definition algebraic_theory : UU := algebraic_theory_cat.
 

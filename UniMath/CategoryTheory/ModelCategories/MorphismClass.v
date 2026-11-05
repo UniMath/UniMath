@@ -98,7 +98,7 @@ Defined.
 Definition morphism_class_retract_closure {C : category} (S : morphism_class C) :=
     λ x y (f : x --> y), ∃ x y (f' : x --> y), (S _ _ f') × (retract f' f).
 
-Notation "S ^cl" := (morphism_class_retract_closure S) (at level 70) : morcls.
+Notation "S ^cl" := (morphism_class_retract_closure S) (at level 9) : morcls.
 
 Lemma in_morcls_retc_if_in_morcls {C : category} (S : morphism_class C)
     {a b} (f : a --> b) :

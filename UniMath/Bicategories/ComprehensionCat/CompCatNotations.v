@@ -82,7 +82,7 @@ Definition comp_cat_ext
   : C
   := comprehension_functor_ob (comp_cat_comprehension C) A.
 
-Notation "Γ '&' A" := (comp_cat_ext Γ A) (at level 20) : comp_cat.
+Notation "Γ '&' A" := (comp_cat_ext Γ A) (at level 21, left associativity) : comp_cat.
 
 Definition comp_cat_proj
            {C : comp_cat}
@@ -190,7 +190,7 @@ Definition subst_ty
   : ty Γ
   := cleaving_ob (cleaving_of_types C) s A.
 
-Notation "A '[[' s ']]'" := (subst_ty s A) (at level 20) : comp_cat.
+Notation "A '[[' s ']]'" := (subst_ty s A) (at level 21, left associativity) : comp_cat.
 
 Definition comp_cat_subst
            {C : comp_cat}
@@ -674,7 +674,7 @@ Proof.
   - apply (PullbackArrow_PullbackPr2 (comp_cat_pullback A s)).
 Defined.
 
-Notation "t [[ s ]]tm" := (subst_comp_cat_tm t s) (at level 20).
+Notation "t [[ s ]]tm" := (subst_comp_cat_tm t s) (at level 21, left associativity).
 
 Proposition subst_comp_cat_tm_pr1
             {C : comp_cat}

@@ -201,13 +201,13 @@ Definition cwf_subst_ty_from_ty_term_subst {C : category} {Γ Δ : C} (T : cwf_t
   (A : cwf_ty_from_ty_term_subst T Δ)
   : cwf_ty_from_ty_term_subst T Γ := (pr1 (pr21 T _ _ s) A).
 
-Notation "A '[[' s ']]'" := (cwf_subst_ty_from_ty_term_subst _ s A) (at level 20) : cwf.
+Notation "A '[[' s ']]'" := (cwf_subst_ty_from_ty_term_subst _ s A) (at level 21, left associativity) : cwf.
 
 Definition cwf_subst_tm_from_ty_term_subst {C : category} {Γ Δ : C} {T : cwf_ty_term_subst C}
   {A : cwf_ty_from_ty_term_subst T Δ} (s : Γ --> Δ) (t : cwf_tm_from_ty_term_subst T A)
   : cwf_tm_from_ty_term_subst T (A [[ s ]]) := (pr2 (pr21 T _ _ s) A t).
 
-Notation "t '[[' s ']]tm'" := (cwf_subst_tm_from_ty_term_subst s t) (at level 20) : cwf.
+Notation "t '[[' s ']]tm'" := (cwf_subst_tm_from_ty_term_subst s t) (at level 21, left associativity) : cwf.
 
 Definition make_cwf_ty_term_subst
   {C : category}
@@ -278,7 +278,7 @@ Definition cwf_subst_tm {C : cwf_data} {Γ Δ : C} {A : cwf_ty Δ} (s : Γ --> �
 
 Definition cwf_extended_con {C : cwf_data} (Γ : C) (A : cwf_ty Γ) : C := pr1 ((pr222 C) Γ A).
 
-Notation "Γ '&' A" := (cwf_extended_con Γ A) (at level 20): cwf.
+Notation "Γ '&' A" := (cwf_extended_con Γ A) (at level 21, left associativity): cwf.
 
 Definition cwf_projection {C : cwf_data} (Γ : C) (A : cwf_ty Γ) : Γ & A --> Γ := pr12 ((pr222 C) Γ A).
 
@@ -414,7 +414,7 @@ Proposition cwf_subst_tm_on_comp
   (t : cwf_tm A)
   : t [[ s₁ · s₂ ]]tm
     =
-      transportf (cwf_tm ) (cwf_subst_ty_comp _ _ _) (t [[ s₂ ]]tm [[ s₁ ]]tm).
+      transportf (cwf_tm ) (cwf_subst_ty_comp _ _ _) ((t [[ s₂ ]]tm) [[ s₁ ]]tm).
 Proof.
   set (id := functor_comp (cwf_t C) s₂ s₁).
   pose proof (fam_mor_eq_pr2 id A t) as p.
@@ -473,7 +473,7 @@ Definition make_cwf_universal_property_β_η
                (s : Δ --> Γ & A),
       s
       =
-        ext (s · p_ A) (cwf_subst_tm_comp _ _ _ (q_ A [[ s ]]tm)))
+        ext (s · p_ A) (cwf_subst_tm_comp _ _ _ ((q_ A) [[ s ]]tm)))
   : cwf_universal_property C.
 Proof.
   intros Γ Δ A s t.
@@ -547,7 +547,7 @@ Proposition cwf_pair_q_subst'
   {C : cwf} {Γ Δ : C} {A : cwf_ty Γ} (s : Δ --> Γ) (t : cwf_tm (A[[s]]))
   : t
     =
-      transportb (cwf_tm ) (cwf_pair_q_subst_eq s t) (q_ A [[ ⟨⟨ s , t ⟩⟩ ]]tm).
+      transportb (cwf_tm ) (cwf_pair_q_subst_eq s t) ((q_ A) [[ ⟨⟨ s , t ⟩⟩ ]]tm).
 Proof.
   rewrite cwf_pair_q_subst.
   rewrite transportbfinv.
@@ -636,7 +636,7 @@ Proposition cwf_pair_eta
   (s : Δ --> Γ & A)
   : s
     =
-      ⟨⟨ s · p_ A , cwf_subst_tm_comp _ _ _ (q_ A [[ s ]]tm) ⟩⟩.
+      ⟨⟨ s · p_ A , cwf_subst_tm_comp _ _ _ ((q_ A) [[ s ]]tm) ⟩⟩.
 Proof.
   use cwf_pair_unique.
   - exact (s · p_ A).

@@ -858,7 +858,7 @@ Section section_tensor.
                   apply maponpaths.
                   set (X':= @X (a,,a') (b,,b') (b,,b') (S a,, S a') (S b,,S b') (S b,,S b')).
                   set (X'' := @X'
-                                ((id _ · f) ⊠' (id _ · f')) (identity b ⊠' id b')).
+                                ((id _ · f) ⊠' (id _ · f')) (identity b ⊠' (id b'))).
                   set (X3 := X'' ((id_disp (S a) ;; section_disp_on_morphisms S f) ⊠⊠'(id_disp (S a') ;; section_disp_on_morphisms S f') )).
                   set (X4 := X3 (id_disp (S b) ⊠⊠' (id_disp (S b')))).
                   apply X4.
@@ -903,7 +903,7 @@ Section section_tensor.
             apply maponpaths.
             set (X':= @X (a,,a') (a,,a') (b,,b') (S a,, S a') (S a,,S a') (S b,,S b')).
             set (X'' := @X'
-                          (identity a ⊠' id a') (f ⊠' f') ).
+                          (identity a ⊠' (id a')) (f ⊠' f') ).
             set (X3 := X'' (id_disp _ ⊠⊠' (id_disp _ ))
                            (section_disp_on_morphisms S f ⊠⊠' section_disp_on_morphisms S f')
                 ).

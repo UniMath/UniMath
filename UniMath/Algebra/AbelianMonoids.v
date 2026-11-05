@@ -54,7 +54,7 @@ Definition abmonoid_of_monoid (X : monoid) (H : iscomm (@op X)) : abmonoid :=
 Definition abelian_monoid_morphism
   (X Y : abmonoid)
   : UU
-  := abelian_monoid_category⟦X, Y⟧%cat.
+  := (abelian_monoid_category⟦X, Y⟧)%cat.
 
 Definition abelian_monoid_morphism_to_monoidfun
   {X Y : abmonoid}

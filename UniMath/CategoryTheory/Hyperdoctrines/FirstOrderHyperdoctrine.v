@@ -1027,7 +1027,7 @@ Definition first_order_hyperdoctrine_forall
   : form Γ
   := @first_order_preorder_hyperdoctrine_forall H Γ A φ.
 
-Notation "'∀h' φ" := (first_order_hyperdoctrine_forall φ) (at level 10)
+Notation "'∀h' φ" := (first_order_hyperdoctrine_forall φ) (at level 10, φ at level 10)
     : hyperdoctrine.
 
 Proposition forall_intro
@@ -1171,7 +1171,7 @@ Definition first_order_hyperdoctrine_exists
   : form Γ
   := @first_order_preorder_hyperdoctrine_exists H Γ A φ.
 
-Notation "'∃h' φ" := (first_order_hyperdoctrine_exists φ) (at level 10)
+Notation "'∃h' φ" := (first_order_hyperdoctrine_exists φ) (at level 10, φ at level 10)
     : hyperdoctrine.
 
 Proposition exists_subst

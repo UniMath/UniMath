@@ -211,7 +211,7 @@ Section Precomp_with_dagger_weak_equiv.
     apply idpath.
   Qed.
 
-  Local Notation "F '^-i'" := (fully_faithful_reflects_unitary dagH F) (at level 20).
+  Local Notation "F '^-i'" := (fully_faithful_reflects_unitary dagH F) (at level 9).
 
   Definition X_aux_type_center_of_contr (b : D)
              (anot : C)(hnot : unitary dagD (H anot) b) : X b.

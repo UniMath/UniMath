@@ -198,7 +198,7 @@ Proposition topos_tripos_compr_in
             {Γ A : ty H}
             (φ : form (A ×h Γ))
             (t : tm Γ A)
-  : t ∈ {{ φ }} = φ [ ⟨ t , tm_var _ ⟩ ].
+  : (t ∈ {{ φ }}) = φ [ ⟨ t , tm_var _ ⟩ ].
 Proof.
   refine (!_).
   etrans.

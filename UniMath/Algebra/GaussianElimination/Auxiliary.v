@@ -185,19 +185,19 @@ End Nat.
 Section Stn.
 
   Lemma minabstn_to_astn
-    { a b : nat } : ⟦ min a b ⟧%stn -> ⟦ a ⟧%stn.
+    { a b : nat } : (⟦ min a b ⟧)%stn -> (⟦ a ⟧)%stn.
   Proof.
     apply stnmtostnn, min_le_l.
   Defined.
 
   Lemma minabstn_to_bstn
-    { a b : nat } : ⟦ min a b ⟧%stn -> ⟦ b ⟧%stn.
+    { a b : nat } : (⟦ min a b ⟧)%stn -> (⟦ b ⟧)%stn.
   Proof.
     apply stnmtostnn, min_le_r.
   Defined.
 
   Lemma stn_inhabited_implies_succ
-    {n:nat} (i : ⟦ n ⟧%stn)
+    {n:nat} (i : (⟦ n ⟧)%stn)
   : ∑ m, n = S m.
   Proof.
     destruct n as [| m].
@@ -206,14 +206,14 @@ Section Stn.
     - exists m. apply idpath.
   Defined.
 
-  Lemma isaprop_stn_eq_or_neq {n} (i j : ⟦n⟧%stn)
+  Lemma isaprop_stn_eq_or_neq {n} (i j : (⟦n⟧)%stn)
     : isaprop ((i = j) ⨿ (i ≠ j)).
   Proof.
     refine (@isaprop_dec_with_negProp (_,,_) (stnneq _ _)).
     apply isasetstn.
   Defined.
 
-  Lemma stn_eq_or_neq_refl {n} {i : ⟦ n ⟧%stn}
+  Lemma stn_eq_or_neq_refl {n} {i : (⟦ n ⟧)%stn}
     : stn_eq_or_neq i i = inl (idpath i).
   Proof.
     apply isaprop_stn_eq_or_neq.
@@ -232,14 +232,14 @@ Section Stn.
   Defined.
 
   Lemma stn_implies_ngt0
-    { n : nat} (i : ⟦ n ⟧%stn) : n > 0.
+    { n : nat} (i : (⟦ n ⟧)%stn) : n > 0.
   Proof.
     eapply natgthgehtrans. { exact (stnlt i). }
     apply natgehn0.
   Defined.
 
   Lemma stn_implies_nneq0
-    { n : nat } (i : ⟦ n ⟧%stn) : n ≠ 0.
+    { n : nat } (i : (⟦ n ⟧)%stn) : n ≠ 0.
   Proof.
     apply natgthtoneq, stn_implies_ngt0, i.
   Defined.
@@ -264,7 +264,7 @@ Section Stn.
 
   (* perhaps generalise to a version for any [isincl], and use [isinclstntonat]? *)
   Lemma stn_eq_nat_eq
-    { n : nat } (i j : ⟦ n ⟧%stn) : i = j <-> (pr1 i = pr1 j).
+    { n : nat } (i j : (⟦ n ⟧)%stn) : i = j <-> (pr1 i = pr1 j).
   Proof.
     split.
     - apply maponpaths.
@@ -272,7 +272,7 @@ Section Stn.
   Defined.
 
   Lemma stn_neq_nat_neq
-    { n : nat } (i j : ⟦ n ⟧%stn) : i ≠ j <-> (pr1 i ≠ pr1 j).
+    { n : nat } (i j : (⟦ n ⟧)%stn) : i ≠ j <-> (pr1 i ≠ pr1 j).
   Proof.
     split; apply idfun.
   Defined.
@@ -284,7 +284,7 @@ Section Stn.
   Defined.
 
   Lemma prev_stn
-    {n : nat} (i : ⟦ n ⟧%stn) (p : i > 0) : ∑ j : ⟦ n ⟧%stn, S j = i.
+    {n : nat} (i : (⟦ n ⟧)%stn) (p : i > 0) : ∑ j : (⟦ n ⟧)%stn, S j = i.
   Proof.
     destruct (prev_nat i p) as [j Sj_i].
     use tpair.
@@ -297,7 +297,7 @@ Section Stn.
 
   (** General symmetry for decidable equality is tricky to state+prove (requires Hedberg’s theorem); but for non-dependent case-splits, it’s cleaner. *)
   (** Should also be generalisable using [negProp], ideally *)
-  Lemma stn_eq_or_neq_symm_nondep {n} {x y : ⟦n⟧%stn}
+  Lemma stn_eq_or_neq_symm_nondep {n} {x y : (⟦n⟧)%stn}
         (de_xy : (x = y) ⨿ (x ≠ y)%stn) (de_yx : (y = x) ⨿ (y ≠ x)%stn)
        {Z} (z1 z2 : Z)
     : coprod_rect (fun _ => Z) (fun _ => z1) (fun _ => z2) de_xy
@@ -321,14 +321,14 @@ End Stn.
     We provide an alternative to simplify proofs in this section, that could potentially be upstreamed. *)
 Section Dual.
 
-  Definition dualelement' {n : nat} (i : ⟦ n ⟧%stn) : ⟦ n ⟧%stn.
+  Definition dualelement' {n : nat} (i : (⟦ n ⟧)%stn) : (⟦ n ⟧)%stn.
   Proof.
     refine (make_stn n (n - 1 - i) _).
     apply StandardFiniteSets.dualelement_lt. (* Make non-local upstream? *)
     now apply stn_implies_ngt0.
   Defined.
 
-  Definition dualelement_defs_eq {n : nat} (i : ⟦ n ⟧%stn)
+  Definition dualelement_defs_eq {n : nat} (i : (⟦ n ⟧)%stn)
     : dualelement i = dualelement' i.
   Proof.
     unfold dualelement', dualelement.
@@ -337,7 +337,7 @@ Section Dual.
   Defined.
 
   Lemma dualelement_2x
-    {n : nat} (i : ⟦ n ⟧%stn) : dualelement (dualelement i) = i.
+    {n : nat} (i : (⟦ n ⟧)%stn) : dualelement (dualelement i) = i.
   Proof.
     do 2 rewrite dualelement_defs_eq; unfold dualelement'.
     unfold make_stn.
@@ -347,7 +347,7 @@ Section Dual.
   Defined.
 
   Lemma dualelement_eq
-    {n : nat} (i j : ⟦ n ⟧%stn)
+    {n : nat} (i j : (⟦ n ⟧)%stn)
   : dualelement i = j
     -> i = dualelement j.
   Proof.
@@ -360,7 +360,7 @@ Section Dual.
   Defined.
 
   Lemma dualelement_lt_comp
-    {n : nat} (i j : ⟦ n ⟧%stn)
+    {n : nat} (i j : (⟦ n ⟧)%stn)
   : i < j -> (dualelement i) > (dualelement j).
   Proof.
     intros lt.
@@ -373,7 +373,7 @@ Section Dual.
   Defined.
 
   Lemma dualelement_lt_comp'
-    {n : nat} (i j : ⟦ n ⟧%stn)
+    {n : nat} (i j : (⟦ n ⟧)%stn)
   : (dualelement i) < (dualelement j)
     -> j < i.
   Proof.
@@ -383,7 +383,7 @@ Section Dual.
   Defined.
 
   Lemma dualelement_le_comp
-    {n : nat} (i j : ⟦ n ⟧%stn)
+    {n : nat} (i j : (⟦ n ⟧)%stn)
   : i ≤ j -> (dualelement j) ≤ (dualelement i).
   Proof.
     intros le.
@@ -394,7 +394,7 @@ Section Dual.
   Defined.
 
   Lemma dualelement_le_comp'
-    {n : nat} (i j : ⟦ n ⟧%stn)
+    {n : nat} (i j : (⟦ n ⟧)%stn)
   : (dualelement i) ≤ (dualelement j)
     -> j ≤ i.
   Proof.
@@ -487,8 +487,8 @@ Section Dual.
 
   Lemma dualvalue_eq
     {X : UU} {n : nat}
-    (v : ⟦ n ⟧%stn -> X) (i : ⟦ n ⟧%stn)
-  : (v i) = (λ i' : ⟦ n ⟧%stn, v (dualelement i')) (dualelement i).
+    (v : (⟦ n ⟧)%stn -> X) (i : (⟦ n ⟧)%stn)
+  : (v i) = (λ i' : (⟦ n ⟧)%stn, v (dualelement i')) (dualelement i).
   Proof.
     simpl; now rewrite dualelement_2x.
   Defined.

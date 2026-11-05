@@ -42,7 +42,7 @@ Qed.
       ( make_stn _ _  ( ctlong natlth isdecrelnatlth j i ( idpath true ) ) )
       ( at level 70 ). *)
 Notation " 'stnpr' j " := (j,,idpath _) ( at level 70 ).
-Notation " 'stnel' ( i , j ) " := ( (j,,idpath _) : stn i ) ( at level 70 ).
+Notation " 'stnel' ( i , j ) " := ( (j,,idpath _) : stn i ) ( at level 0 ).
 
 Declare Scope stn.
 Delimit Scope stn with stn.
