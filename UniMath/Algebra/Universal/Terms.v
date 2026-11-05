@@ -133,7 +133,7 @@ Section Oplists.
     - induction (opexec_dec nm stok) as [scons_err| scons_ok].
       + induction scons_err as [scons_err _].
         intro H.
-        set (H' :=  (!! scons_err @ H)).
+        set (H' :=  (!(! scons_err @ H))).
         apply negpathsii1ii2 in H'.
         assumption.
       + induction scons_ok as [p [proofp _]].

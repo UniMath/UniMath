@@ -120,7 +120,7 @@ Proof.
   unshelve eapply (make_precategory_data _).
   - unshelve eapply (make_precategory_ob_mor _ _).
     * exact nat.
-    * exact (λ n, λ m, (⟦n⟧%stn → ⟦m⟧%stn)). (* Morphisms *)
+    * exact (λ n, λ m, ((⟦n⟧)%stn → (⟦m⟧)%stn)). (* Morphisms *)
   - intro c. exact (idfun (⟦c⟧)%stn).        (* Identity *)
   - intros n m k f g. exact (g∘f).  (* Composition law *)
 Defined.

@@ -93,7 +93,7 @@ Definition comp_cat_ext
   : C
   := pr1 ((pr11 (comprehension (pr2 C))) Γ A).
 
-Notation "Γ '&' A" := (comp_cat_ext Γ A) (at level 20) : comp_cat.
+Notation "Γ '&' A" := (comp_cat_ext Γ A) (at level 21, left associativity) : comp_cat.
 
 Definition comp_cat_proj
   {C : comp_cat}
@@ -152,7 +152,7 @@ Definition comp_cat_subst_ty {C : comp_cat} {Γ Δ : C}
   : comp_cat_ty Γ
   := cleaving_ob (cleaving_of_types C) s A.
 
-Notation "A '[[' s ']]'" := (comp_cat_subst_ty s A) (at level 20) : comp_cat.
+Notation "A '[[' s ']]'" := (comp_cat_subst_ty s A) (at level 21, left associativity) : comp_cat.
 
 (** * Comprehension Structure and Substitution of Terms*)
 
@@ -294,7 +294,7 @@ Proof.
              apply id_right).
 Defined.
 
-Notation "t '[[' s ']]tm'" := (comp_cat_subst_tm s t) (at level 20) : comp_cat.
+Notation "t '[[' s ']]tm'" := (comp_cat_subst_tm s t) (at level 21, left associativity) : comp_cat.
 
 Definition comp_cat_comp_mor {C : comp_cat} {Γ : C} {A B : comp_cat_ty Γ} (f : A <: B)
   : Γ & A --> Γ & B

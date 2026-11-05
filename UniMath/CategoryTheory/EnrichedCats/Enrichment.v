@@ -76,7 +76,7 @@ Definition arr_enrichment_data
   : V
   := pr1 E x y.
 
-Notation "E ⦃ x , y ⦄" := (arr_enrichment_data E x y) (at level 49).
+Notation "E ⦃ x , y ⦄" := (arr_enrichment_data E x y) (at level 39).
 
 Definition enriched_id
            {C : precategory_data}

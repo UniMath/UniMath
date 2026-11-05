@@ -494,7 +494,7 @@ Section Construction.
     (Γ := comp_cat_el γ)
     {a: comp_cat_tm (comp_cat_U ([] & Γ))}
     (A := comp_cat_el a)
-    : z_iso ([] & comp_cat_el (pr1 SigmaU _ γ a)) ([] & Γ & A)
+    : z_iso ([] & comp_cat_el (pr1 SigmaU _ γ a)) (([] & Γ) & A)
     := ( z_iso_comp (comp_cat_comp_iso (comp_cat_sigma_el_iso _ _ _ _ _)) (comp_cat_sigma_pair_proj_iso _ _ )).
 
   Definition cwf_from_comp_cat_with_u_ctx_ext_iso_law

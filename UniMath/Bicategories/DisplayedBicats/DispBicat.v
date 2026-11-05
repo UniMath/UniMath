@@ -272,9 +272,9 @@ Definition disp_rwhisker
 
 End disp_prebicat_ops_projections.
 
-Local Notation "rr •• ss" := (disp_vcomp2 rr ss) (at level 60).
-Local Notation "ff ◃◃ rr" := (disp_lwhisker ff rr) (at level 60).
-Local Notation "rr ▹▹ gg" := (disp_rwhisker gg rr) (at level 60).
+Local Notation "rr •• ss" := (disp_vcomp2 rr ss) (at level 59, left associativity).
+Local Notation "ff ◃◃ rr" := (disp_lwhisker ff rr) (at level 59, left associativity).
+Local Notation "rr ▹▹ gg" := (disp_rwhisker gg rr) (at level 59, left associativity).
 
 Section disp_prebicat_laws.
 
@@ -1620,7 +1620,7 @@ Section HomDisplayedCategory.
           {D : disp_bicat B}.
 
   Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
-  Notation "rr •• ss" := (disp_vcomp2 rr ss) (at level 60).
+  Notation "rr •• ss" := (disp_vcomp2 rr ss) (at level 59, left associativity).
 
   Definition disp_hom_ob_mor
              {x y : B}
@@ -1696,8 +1696,8 @@ Export Bicat.Notations.
 
 Notation "f' ==>[ x ] g'" := (disp_2cells x f' g') (at level 60).
 Notation "f' <==[ x ] g'" := (disp_2cells x g' f') (at level 60, only parsing).
-Notation "rr •• ss" := (disp_vcomp2 rr ss) (at level 60).
-Notation "ff ◃◃ rr" := (disp_lwhisker ff rr) (at level 60).
-Notation "rr ▹▹ gg" := (disp_rwhisker gg rr) (at level 60).
+Notation "rr •• ss" := (disp_vcomp2 rr ss) (at level 59, left associativity).
+Notation "ff ◃◃ rr" := (disp_lwhisker ff rr) (at level 59, left associativity).
+Notation "rr ▹▹ gg" := (disp_rwhisker gg rr) (at level 59, left associativity).
 
 End Notations.

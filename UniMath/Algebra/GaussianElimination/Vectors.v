@@ -39,7 +39,7 @@ Section Arbitrary_Vectors.
     intros eq; apply (invmaponpathsweq (@weq_vector_1 X)  _ _ eq).
   Defined.
 
-  Lemma const_vec_eq  {X : UU} {n : nat} (v : Vector X n) (e : X) (i : ⟦ n ⟧%stn)
+  Lemma const_vec_eq  {X : UU} {n : nat} (v : Vector X n) (e : X) (i : (⟦ n ⟧)%stn)
     : v = const_vec e -> v i = e.
   Proof.
     intros eq. rewrite eq. reflexivity.
@@ -83,7 +83,7 @@ Section Basic_Vector_Algebra.
     use (pointwise_comm (rigcomm2 CR)).
   Defined.
 
-  Definition stdb_vector { n : nat } (i : ⟦ n ⟧%stn) : Vector R n.
+  Definition stdb_vector { n : nat } (i : (⟦ n ⟧)%stn) : Vector R n.
   Proof.
     intros j.
     induction (stn_eq_or_neq i j).
@@ -91,13 +91,13 @@ Section Basic_Vector_Algebra.
     - exact rigunel1.
   Defined.
 
-  Definition stdb_ii {n : nat} (i : ⟦ n ⟧%stn)
+  Definition stdb_ii {n : nat} (i : (⟦ n ⟧)%stn)
     : (stdb_vector i) i = rigunel2.
   Proof.
     unfold stdb_vector; rewrite (stn_eq_or_neq_refl); apply idpath.
   Defined.
 
-  Definition stdb_ij {n : nat} (i j : ⟦ n ⟧%stn)
+  Definition stdb_ij {n : nat} (i j : (⟦ n ⟧)%stn)
     : i ≠ j -> (stdb_vector i) j = rigunel1.
   Proof.
     intros i_neq_j. unfold stdb_vector.
@@ -123,19 +123,19 @@ Section Vector_Sums.
     reflexivity.
   Defined.
 
-  Lemma vecsum_step {n : nat} (f : ⟦ S n ⟧%stn -> R) :
+  Lemma vecsum_step {n : nat} (f : (⟦ S n ⟧)%stn -> R) :
     Σ f = (Σ (f ∘ (dni lastelement)) + f lastelement)%rig.
   Proof.
     intros; apply iterop_fun_step; apply riglunax1.
   Defined.
 
-  Lemma transport_vecsum {m n : nat} (e: m = n) (g: ⟦ n ⟧%stn -> R) :
+  Lemma transport_vecsum {m n : nat} (e: m = n) (g: (⟦ n ⟧)%stn -> R) :
      Σ g =  Σ (λ i, g (transportf stn e i)).
   Proof.
     intros; now induction e.
   Defined.
 
-  Lemma vecsum_eq {n : nat} (f g : ⟦ n ⟧%stn -> R) : f ~ g -> Σ f = Σ g.
+  Lemma vecsum_eq {n : nat} (f g : (⟦ n ⟧)%stn -> R) : f ~ g -> Σ f = Σ g.
   Proof.
     intros H.
     induction n as [|n IH]; try apply idpath.
@@ -198,7 +198,7 @@ Section Vector_Sums.
     now induction e.
   Defined.
 
-  Lemma vecsum_dni {n : nat} (f : ⟦ S n ⟧%stn -> R) (j : ⟦ S n ⟧%stn ) :
+  Lemma vecsum_dni {n : nat} (f : (⟦ S n ⟧)%stn -> R) (j : (⟦ S n ⟧)%stn ) :
     Σ f = op1 (Σ (f ∘ dni j)) (f j).
   Proof.
     intros.
@@ -240,7 +240,7 @@ Section Vector_Sums.
         apply subtypePath_prop, idpath.
   Defined.
 
-  Lemma vecsum_to_rightsum {n m' n' : nat} (p : m' + n' = n) (f :  ⟦ m' + n' ⟧%stn -> R)
+  Lemma vecsum_to_rightsum {n m' n' : nat} (p : m' + n' = n) (f :  (⟦ m' + n' ⟧)%stn -> R)
     (left_part_is_zero : (f ∘ stn_left m' n') = const_vec 0%rig):
     Σ f = Σ (f ∘ stn_right m' n' ).
   Proof.
@@ -249,7 +249,7 @@ Section Vector_Sums.
     - now rewrite (left_part_is_zero ).
   Defined.
 
-  Lemma vecsum_to_leftsum {n m' n' : nat} (p : m' + n' = n) (f :  ⟦ m' + n' ⟧%stn -> R)
+  Lemma vecsum_to_leftsum {n m' n' : nat} (p : m' + n' = n) (f :  (⟦ m' + n' ⟧)%stn -> R)
     (right_part_is_zero : (f ∘ stn_right m' n') = const_vec 0%rig):
     Σ f = Σ (f ∘ stn_left m' n' ).
   Proof.
@@ -331,12 +331,12 @@ Section Pulse_Functions.
 
   Context { R : rig }.
 
-  Definition is_pulse_function { n : nat } ( i : ⟦ n ⟧%stn )
-  (f : ⟦ n ⟧%stn -> R)
-    := ∏ (j: ⟦ n ⟧%stn), (i ≠ j) -> (f j = 0%rig).
+  Definition is_pulse_function { n : nat } ( i : (⟦ n ⟧)%stn )
+  (f : (⟦ n ⟧)%stn -> R)
+    := ∏ (j: (⟦ n ⟧)%stn), (i ≠ j) -> (f j = 0%rig).
 
   Lemma pulse_function_sums_to_point { n : nat }
-    (f : ⟦ n ⟧%stn -> R) (i : ⟦ n ⟧%stn)
+    (f : (⟦ n ⟧)%stn -> R) (i : (⟦ n ⟧)%stn)
     (f_pulse_function : is_pulse_function i f)
     : Σ f = f i.
   Proof.
@@ -357,7 +357,7 @@ Section Pulse_Functions.
   Defined.
 
   Lemma is_pulse_function_stdb_vector
-      { n : nat } (i : ⟦ n ⟧%stn)
+      { n : nat } (i : (⟦ n ⟧)%stn)
     : is_pulse_function i (stdb_vector i).
   Proof.
     intros j i_neq_j.
@@ -365,7 +365,7 @@ Section Pulse_Functions.
     now rewrite (stn_eq_or_neq_right i_neq_j).
   Defined.
 
-  Lemma stdb_vector_sums_to_1 { n : nat } (i : ⟦ n ⟧%stn)
+  Lemma stdb_vector_sums_to_1 { n : nat } (i : (⟦ n ⟧)%stn)
     : Σ (@stdb_vector R n i) = 1%rig.
   Proof.
     etrans.
@@ -383,7 +383,7 @@ Section Pulse_Functions.
     apply rigmult0x.
   Defined.
 
-  Lemma sum_stdb_vector_pointwise_prod { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn)
+  Lemma sum_stdb_vector_pointwise_prod { n : nat } (v : Vector R n) (i : (⟦ n ⟧)%stn)
     : Σ (stdb_vector i *pw v) = (v i).
   Proof.
     etrans.
@@ -396,7 +396,7 @@ Section Pulse_Functions.
     apply riglunax2.
   Defined.
 
-  Lemma pointwise_prod_stdb_vector {n : nat} (v : Vector R n) (i : ⟦ n ⟧%stn)
+  Lemma pointwise_prod_stdb_vector {n : nat} (v : Vector R n) (i : (⟦ n ⟧)%stn)
     : v *pw (stdb_vector i) = scalar_lmult_vec (v i) (stdb_vector i).
   Proof.
     apply funextfun. intros j.
@@ -409,9 +409,9 @@ Section Pulse_Functions.
   Defined.
 
   Lemma two_pulse_function_sums_to_points { n : nat }
-      (f : ⟦ n ⟧%stn -> R)
-      (i : ⟦ n ⟧%stn) (j : ⟦ n ⟧%stn) (ne_i_j : i ≠ j)
-      (f_two_pulse : ∏ (k: ⟦ n ⟧%stn), (k ≠ i) -> (k ≠ j) -> (f k = 0%rig))
+      (f : (⟦ n ⟧)%stn -> R)
+      (i : (⟦ n ⟧)%stn) (j : (⟦ n ⟧)%stn) (ne_i_j : i ≠ j)
+      (f_two_pulse : ∏ (k: (⟦ n ⟧)%stn), (k ≠ i) -> (k ≠ j) -> (f k = 0%rig))
     : (Σ f = f i + f j)%rig.
   Proof.
     assert (H : f = (scalar_lmult_vec (f i) (stdb_vector i))

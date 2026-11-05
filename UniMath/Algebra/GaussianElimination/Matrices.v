@@ -93,7 +93,7 @@ Section Transposition.
     := transpose mat = mat.
 
   Lemma symmetric_mat_row_eq_col {X : UU} {n : nat} (mat : Matrix X n n)
-        (i : ⟦ n ⟧%stn)
+        (i : (⟦ n ⟧)%stn)
     : is_symmetric_mat mat -> row mat i = col mat i.
   Proof.
     intros H. unfold col, row.
@@ -224,18 +224,18 @@ Section Identity_Matrix.
     apply stn_eq_or_neq_symm_nondep.
   Defined.
 
-  Definition id_row_stdb_vector {n} (i : ⟦n⟧%stn)
+  Definition id_row_stdb_vector {n} (i : (⟦n⟧)%stn)
     : row (@identity_matrix R n) i = stdb_vector i.
   Proof. easy. Defined.
 
-  Definition id_col_stdb_vector {n} (i : ⟦n⟧%stn)
+  Definition id_col_stdb_vector {n} (i : (⟦n⟧)%stn)
     : col (@identity_matrix R n) i = stdb_vector i.
   Proof.
     apply funextfun; intros j.
     apply stn_eq_or_neq_symm_nondep.
   Defined.
 
-  Lemma id_pointwise_prod { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn)
+  Lemma id_pointwise_prod { n : nat } (v : Vector R n) (i : (⟦ n ⟧)%stn)
     : (@identity_matrix R n i) *pw v
       = (@scalar_lmult_vec R (v i) n (identity_matrix i)).
   Proof.
@@ -246,7 +246,7 @@ Section Identity_Matrix.
     - now rewrite rigmultx0, rigmult0x.
   Defined.
 
-  Lemma sum_id_pointwise_prod { n : nat } (v : Vector R n) (i : ⟦ n ⟧%stn) :
+  Lemma sum_id_pointwise_prod { n : nat } (v : Vector R n) (i : (⟦ n ⟧)%stn) :
     Σ ((identity_matrix i) *pw v) = (v i).
   Proof.
     apply sum_stdb_vector_pointwise_prod.
@@ -274,7 +274,7 @@ Section Identity_Matrix.
     now apply toforallpaths; use col_vec_inj.
   Defined.
 
-  Lemma idmat_i_to_idvec {n : nat} (i : ⟦ n ⟧%stn)
+  Lemma idmat_i_to_idvec {n : nat} (i : (⟦ n ⟧)%stn)
     : (@identity_matrix R) i = (@stdb_vector R i).
   Proof.
     apply funextfun. intros j.
@@ -282,14 +282,14 @@ Section Identity_Matrix.
     now destruct (stn_eq_or_neq j k).
   Defined.
 
-  Lemma id_mat_ii {n : nat} (i : ⟦ n ⟧%stn)
+  Lemma id_mat_ii {n : nat} (i : (⟦ n ⟧)%stn)
      : (@identity_matrix R n) i i = rigunel2.
   Proof.
     unfold identity_matrix;
     now rewrite (stn_eq_or_neq_refl).
   Defined.
 
-  Lemma id_mat_ij {n : nat} (i j : ⟦ n ⟧%stn)
+  Lemma id_mat_ij {n : nat} (i j : (⟦ n ⟧)%stn)
     : i ≠ j -> (@identity_matrix R n) i j = rigunel1.
   Proof.
     intros i_neq_j.
@@ -334,7 +334,7 @@ Section Identity_Matrix.
     apply impl.
   Defined.
 
-  Lemma idrow_sums_to_1 { n : nat } (i : ⟦ n ⟧%stn) :
+  Lemma idrow_sums_to_1 { n : nat } (i : (⟦ n ⟧)%stn) :
     Σ ((@identity_matrix R n ) i) = 1%rig.
   Proof.
     apply stdb_vector_sums_to_1.
@@ -502,10 +502,10 @@ Section Diagonal.
     λ i : (stn n), mat i i.
 
   Definition is_diagonal { m n : nat } (mat : Matrix R m n) :=
-    ∏ (i : ⟦ m ⟧%stn) (j : ⟦ n ⟧%stn), (stntonat _ i ≠ (stntonat _ j)) -> (mat i j) = 0%rig.
+    ∏ (i : (⟦ m ⟧)%stn) (j : (⟦ n ⟧)%stn), (stntonat _ i ≠ (stntonat _ j)) -> (mat i j) = 0%rig.
 
   Definition diagonal_all_nonzero { n : nat } (mat : Matrix R n n) :=
-    ∏ i : ⟦ n ⟧%stn, mat i i != 0%rig.
+    ∏ i : (⟦ n ⟧)%stn, mat i i != 0%rig.
 
   Lemma diagonal_nonzero_iff_transpose_nonzero
     { n : nat } (A : Matrix R n n)
@@ -520,16 +520,16 @@ End Diagonal.
 Section Triangular.
 
   Definition is_upper_triangular { m n : nat } (mat : Matrix R m n) :=
-    ∏ (i : ⟦ m ⟧%stn ) (j : ⟦ n ⟧%stn ),  (stntonat _ i > (stntonat _ j)) -> (mat i j) = 0%rig.
+    ∏ (i : (⟦ m ⟧)%stn ) (j : (⟦ n ⟧)%stn ),  (stntonat _ i > (stntonat _ j)) -> (mat i j) = 0%rig.
 
   Definition is_lower_triangular { m n : nat } (mat : Matrix R m n) :=
-    ∏ (i : ⟦ m ⟧%stn ) (j : ⟦ n ⟧%stn ), (stntonat _ i < (stntonat _ j)) -> (mat i j) = 0%rig.
+    ∏ (i : (⟦ m ⟧)%stn ) (j : (⟦ n ⟧)%stn ), (stntonat _ i < (stntonat _ j)) -> (mat i j) = 0%rig.
 
   Definition is_upper_triangular_partial { m n k : nat } (mat : Matrix R m n) :=
-    ∏ (i : ⟦ m ⟧%stn ) (j : ⟦ n ⟧%stn ),  (stntonat _ i > (stntonat _ j)) -> i < k -> (mat i j) = 0%rig.
+    ∏ (i : (⟦ m ⟧)%stn ) (j : (⟦ n ⟧)%stn ),  (stntonat _ i > (stntonat _ j)) -> i < k -> (mat i j) = 0%rig.
 
   Lemma upper_triangular_iff_transpose_lower_triangular
-  { m n : nat } ( iter : ⟦ n ⟧%stn ) (mat : Matrix R m n)
+  { m n : nat } ( iter : (⟦ n ⟧)%stn ) (mat : Matrix R m n)
   : is_upper_triangular mat <-> is_lower_triangular (transpose mat).
   Proof.
     unfold  is_upper_triangular, is_lower_triangular, transpose, flip.
@@ -544,7 +544,7 @@ End Triangular.
 
 Section Misc.
 
-  Definition ij_minor {X : rig} {n : nat} ( i j : ⟦ S n ⟧%stn )
+  Definition ij_minor {X : rig} {n : nat} ( i j : (⟦ S n ⟧)%stn )
     (mat : Matrix X (S n) (S n)) : Matrix X n n.
   Proof.
     intros i' j'.
@@ -553,7 +553,7 @@ Section Misc.
 
   Lemma zero_row_product { m n p : nat }
       (A : Matrix R m n) (B : Matrix R n p)
-      (i : ⟦m⟧%stn) (Ai_zero : row A i = const_vec 0%rig)
+      (i : (⟦m⟧)%stn) (Ai_zero : row A i = const_vec 0%rig)
     : row (A ** B) i = const_vec 0%rig.
   Proof.
     apply toforallpaths in Ai_zero.
@@ -632,7 +632,7 @@ Section MatricesIntDom.
 
   (** Note: these results don’t really require that R is an integral domain, just that R is non-trivial. *)
   Lemma zero_row_to_non_right_invertibility { m n : nat } (A : Matrix R m n)
-      (i : ⟦ m ⟧%stn) (zero_row : A i = (const_vec 0%ring))
+      (i : (⟦ m ⟧)%stn) (zero_row : A i = (const_vec 0%ring))
     : (@matrix_right_inverse R m n A) -> empty.
   Proof.
     intros [inv isrightinv].
@@ -646,7 +646,7 @@ Section MatricesIntDom.
   Defined.
 
   Lemma zero_row_to_non_invertibility { n : nat } (A : Matrix R n n)
-    (i : ⟦ n ⟧%stn) (zero_row : A i = (const_vec 0%ring)) :
+    (i : (⟦ n ⟧)%stn) (zero_row : A i = (const_vec 0%ring)) :
     (@matrix_inverse R n A) -> empty.
   Proof.
     intros invA.
@@ -662,8 +662,8 @@ Section Transpositions.
 
   Context { R : rig }.
 
-  Definition transposition_fun {n : nat} (i j : ⟦ n ⟧%stn)
-    : ⟦ n ⟧%stn -> ⟦ n ⟧%stn.
+  Definition transposition_fun {n : nat} (i j : (⟦ n ⟧)%stn)
+    : (⟦ n ⟧)%stn -> (⟦ n ⟧)%stn.
   Proof.
     intros k.
     destruct (stn_eq_or_neq i k).
@@ -673,7 +673,7 @@ Section Transpositions.
       + exact k.
   Defined.
 
-  Definition transposition_self_inverse {n} (i j : ⟦ n ⟧%stn)
+  Definition transposition_self_inverse {n} (i j : (⟦ n ⟧)%stn)
     : transposition_fun i j ∘ transposition_fun i j = idfun _.
   Proof.
     apply funextsec; intros k; simpl; unfold transposition_fun.
@@ -691,8 +691,8 @@ Section Transpositions.
         reflexivity.
   Defined.
 
-  Definition transposition_perm {n : nat} (i j : ⟦ n ⟧%stn)
-    : ⟦ n ⟧%stn ≃ ⟦ n ⟧%stn.
+  Definition transposition_perm {n : nat} (i j : (⟦ n ⟧)%stn)
+    : (⟦ n ⟧)%stn ≃ (⟦ n ⟧)%stn.
   Proof.
     exists (transposition_fun i j).
     use isweq_iso.
@@ -702,7 +702,7 @@ Section Transpositions.
   Defined.
 
   (* Note: can be generalize to functions on rows? *)
-  Definition transposition_mat_rows {X : UU} {m n : nat} (i j : ⟦ m ⟧%stn)
+  Definition transposition_mat_rows {X : UU} {m n : nat} (i j : (⟦ m ⟧)%stn)
     : (Matrix X m n) -> Matrix X m n.
   Proof.
     intros mat k.
@@ -713,14 +713,14 @@ Section Transpositions.
       + exact (mat k).
   Defined.
 
-  Definition tranposition_mat_rows_perm_stmt {X : UU} {m n : nat} (i j : ⟦ m ⟧%stn)
+  Definition tranposition_mat_rows_perm_stmt {X : UU} {m n : nat} (i j : (⟦ m ⟧)%stn)
     := (Matrix X m n) ≃ Matrix X m n.
 
-  Definition is_permutation_fun {n : nat} (p : ⟦ n ⟧%stn -> ⟦ n ⟧%stn) :=
-    ∏ i j: ⟦ n ⟧%stn, (p i = p j) -> i = j.
+  Definition is_permutation_fun {n : nat} (p : (⟦ n ⟧)%stn -> (⟦ n ⟧)%stn) :=
+    ∏ i j: (⟦ n ⟧)%stn, (p i = p j) -> i = j.
 
-  Definition id_permutation_fun (n : nat) : ⟦ n ⟧%stn -> ⟦ n ⟧%stn :=
-    λ i : ⟦ n ⟧%stn, i.
+  Definition id_permutation_fun (n : nat) : (⟦ n ⟧)%stn -> (⟦ n ⟧)%stn :=
+    λ i : (⟦ n ⟧)%stn, i.
 
   Lemma idp_is_permutation_fun {n : nat} : is_permutation_fun (id_permutation_fun n).
   Proof.

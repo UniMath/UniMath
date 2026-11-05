@@ -99,7 +99,7 @@ Definition morphism_class_retract_closure
     {C : category} (S : morphism_class C) : morphism_class C :=
   λ x y (f : x --> y), ∃ x' y' (f' : x' --> y'), (S _ _ f') × (retract f' f).
 
-Notation "S ^cl" := (morphism_class_retract_closure S) (at level 70) : morcls.
+Notation "S ^cl" := (morphism_class_retract_closure S) (at level 9) : morcls.
 
 Definition morphism_class_retract_closed
     {C : category} (S : morphism_class C) : UU :=

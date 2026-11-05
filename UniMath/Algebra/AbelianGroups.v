@@ -64,7 +64,7 @@ Notation   "- y" := (grinv _ y) : abgr.
 Definition abelian_group_morphism
   (X Y : abgr)
   : UU
-  := abelian_group_category⟦X, Y⟧%cat.
+  := (abelian_group_category⟦X, Y⟧)%cat.
 
 Definition abelian_group_morphism_to_group_morphism
   {X Y : abgr}

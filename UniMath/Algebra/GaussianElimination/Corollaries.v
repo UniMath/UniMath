@@ -64,7 +64,7 @@ Section BackSub.
 
   (** procedure gives [x_i] s.t. [(mat ** x)_i = b_i], given previous assumptions *)
   Lemma back_sub_step_inv0 { n : nat }
-    (row : ⟦ n ⟧%stn) (mat : Matrix F n n)
+    (row : (⟦ n ⟧)%stn) (mat : Matrix F n n)
     (x : Vector F n) (b : Vector F n)
     (p: @is_upper_triangular F n n mat)
     (p' : (mat row row != 0)%ring)
@@ -117,10 +117,10 @@ Section BackSub.
 
   (** [back_sub_step] only modifies target element *)
   Lemma back_sub_step_inv1
-    { n : nat } (row : ⟦ n ⟧%stn)
+    { n : nat } (row : (⟦ n ⟧)%stn)
     (mat : Matrix F n n)
     (x : Vector F n) (b : Vector F n)
-    : ∏ i : ⟦ n ⟧%stn, i ≠ row ->
+    : ∏ i : (⟦ n ⟧)%stn, i ≠ row ->
       (col_vec (back_sub_step row mat x b) i = (col_vec x) i).
   Proof.
     intros i ne.
@@ -134,11 +134,11 @@ Section BackSub.
 
   Lemma back_sub_step_inv2
     { n : nat }
-    (row : ⟦ n ⟧%stn)
+    (row : (⟦ n ⟧)%stn)
     (mat : Matrix F n n)
     (x : Vector F n) (b : Vector F n)
     (is_ut: @is_upper_triangular F n n mat)
-    : ∏ i : ⟦ n ⟧%stn, i ≥ row
+    : ∏ i : (⟦ n ⟧)%stn, i ≥ row
     -> (mat i i != 0)%ring
     -> (mat ** (col_vec x)) i = (col_vec b) i
     -> (mat ** (col_vec (back_sub_step row mat x b))) i = (col_vec b) i.
@@ -170,8 +170,8 @@ Section BackSub.
     { n : nat }
     (mat : Matrix F n n)
     (x : Vector F n) (b : Vector F n)
-    (sep : ⟦ S n ⟧%stn)
-    (row : ⟦ S n ⟧%stn)
+    (sep : (⟦ S n ⟧)%stn)
+    (row : (⟦ S n ⟧)%stn)
     : Vector F n.
   Proof.
     destruct sep as [sep p].
@@ -187,9 +187,9 @@ Section BackSub.
     (mat : Matrix F n n)
     (x : Vector F n) (b : Vector F n)
     (ut : @is_upper_triangular F _ _ mat)
-    (sep : ⟦ S n ⟧%stn)
-    (row : ⟦ S n ⟧%stn)
-    : ∏ (i : ⟦ n ⟧%stn), i >= row
+    (sep : (⟦ S n ⟧)%stn)
+    (row : (⟦ S n ⟧)%stn)
+    : ∏ (i : (⟦ n ⟧)%stn), i >= row
     -> (col_vec (back_sub_internal mat x b sep row)) i = (col_vec x) i.
   Proof.
     destruct sep as [sep p].
@@ -214,8 +214,8 @@ Section BackSub.
     (mat : Matrix F n n)
     (x : Vector F n) (b : Vector F n)
     (ut : @is_upper_triangular F _ _ mat)
-    (sep : ⟦ S n ⟧%stn)
-    (row : ⟦ S n ⟧%stn)
+    (sep : (⟦ S n ⟧)%stn)
+    (row : (⟦ S n ⟧)%stn)
     : ∏ i : stn n, i >= row
     -> (back_sub_internal mat x b sep row) i = x i.
   Proof.
@@ -231,9 +231,9 @@ Section BackSub.
     (mat : Matrix F n n)
     (x : Vector F n) (b : Vector F n)
     (ut : @is_upper_triangular F _ _ mat)
-    (sep : ⟦ S n ⟧%stn)
-    (row : ⟦ S n ⟧%stn)
-    : ∏ (i : ⟦ n ⟧%stn), i ≥ (dualelement sep)
+    (sep : (⟦ S n ⟧)%stn)
+    (row : (⟦ S n ⟧)%stn)
+    : ∏ (i : (⟦ n ⟧)%stn), i ≥ (dualelement sep)
     -> (mat i i != 0)%ring
     -> i < row
     -> (mat ** (col_vec (back_sub_internal mat x b sep row))) i = (col_vec b) i.
@@ -493,7 +493,7 @@ Section Misc.
     { m n : nat }
     (mat : Matrix F m n)
     (p : n > 0)
-    (iter : ⟦ S m ⟧%stn)
+    (iter : (⟦ S m ⟧)%stn)
     : @is_row_echelon_partial F m n mat iter
    -> @is_upper_triangular_partial F m n iter mat.
   Proof.
