@@ -99,9 +99,9 @@ Definition rwhisker {C : two_cat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} (g : C�
   : f1 ==> f2 → f1 · g ==> f2 · g
   := λ x, pr22 (pr222 C) _ _ _ _ _ _ x.
 
-Local Notation "x • y" := (vcomp2 x y) (at level 61, left associativity).
-Local Notation "f ◃ x" := (lwhisker f x) (at level 61, left associativity). (* \tw *)
-Local Notation "y ▹ g" := (rwhisker g y) (at level 61, left associativity). (* \tw nr 2 *)
+Local Notation "x • y" := (vcomp2 x y) (at level 59, left associativity).
+Local Notation "f ◃ x" := (lwhisker f x) (at level 59, left associativity). (* \tw *)
+Local Notation "y ▹ g" := (rwhisker g y) (at level 59, left associativity). (* \tw nr 2 *)
 
 Definition hcomp {C : two_cat_data} {a b c : C} {f1 f2 : C⟦a, b⟧} {g1 g2 : C⟦b, c⟧}
   : f1 ==> f2 -> g1 ==> g2 -> f1 · g1 ==> f2 · g2
@@ -893,9 +893,9 @@ Module Notations.
 
   Notation "f '==>' g" := (two_cat_cells _ f g) (at level 60).
   Notation "f '<==' g" := (two_cat_cells _ g f) (at level 60, only parsing).
-  Notation "x • y" := (vcomp2 x y) (at level 61, left associativity).
-  Notation "f ◃ x" := (lwhisker f x) (at level 61, left associativity). (* \tw *)
-  Notation "y ▹ g" := (rwhisker g y) (at level 61, left associativity). (* \tw nr 2 *)
+  Notation "x • y" := (vcomp2 x y) (at level 59, left associativity).
+  Notation "f ◃ x" := (lwhisker f x) (at level 59, left associativity). (* \tw *)
+  Notation "y ▹ g" := (rwhisker g y) (at level 59, left associativity). (* \tw nr 2 *)
   Notation "x ⋆ y" := (hcomp x y) (at level 50, left associativity).
 
 End Notations.

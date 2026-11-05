@@ -101,7 +101,7 @@ Definition hor_compose {C : predoublecategory_hor_precat_data} { a b c : C }
      : a -h-> b -> b -h-> c -> a -h-> c
      := pr2 (pr2 C) a b c.
 
-Notation "f ·h g" := (hor_compose f g) (at level 60).
+Notation "f ·h g" := (hor_compose f g) (at level 59, left associativity).
 Notation "g ∘h f" := (hor_compose f g) (at level 60).
 
 Definition is_predoublecategory_hor (C : predoublecategory_hor_precat_data) : UU (* Horizontal Category Condition *)
@@ -176,7 +176,7 @@ make_category (und_ob_hor_precategory C) (pr2 C).
 
 End Underlying_Horizontal_Category.
 
-Notation "f ·h g" := (hor_compose f g) (at level 60).
+Notation "f ·h g" := (hor_compose f g) (at level 59, left associativity).
 Notation "g ∘h f" := (hor_compose f g) (at level 60).
 
 Section Underlying_Vertical_Composition.

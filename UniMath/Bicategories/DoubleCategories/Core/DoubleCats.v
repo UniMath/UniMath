@@ -173,7 +173,7 @@ Definition hor_mor_comp_double_cat
   : x -->h z
   := double_hor_comp (hor_comp_double_cat C) f g.
 
-Notation "f ·h g" := (hor_mor_comp_double_cat f g) (at level 60) : double_cat.
+Notation "f ·h g" := (hor_mor_comp_double_cat f g) (at level 59, left associativity) : double_cat.
 
 (** ** 2.3. Squares *)
 Definition square

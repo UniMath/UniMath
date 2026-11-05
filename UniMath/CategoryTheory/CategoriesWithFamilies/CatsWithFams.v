@@ -201,13 +201,13 @@ Definition cwf_subst_ty_from_ty_term_subst {C : category} {Γ Δ : C} (T : cwf_t
   (A : cwf_ty_from_ty_term_subst T Δ)
   : cwf_ty_from_ty_term_subst T Γ := (pr1 (pr21 T _ _ s) A).
 
-Notation "A '[[' s ']]'" := (cwf_subst_ty_from_ty_term_subst _ s A) (at level 20) : cwf.
+Notation "A '[[' s ']]'" := (cwf_subst_ty_from_ty_term_subst _ s A) (at level 21, left associativity) : cwf.
 
 Definition cwf_subst_tm_from_ty_term_subst {C : category} {Γ Δ : C} {T : cwf_ty_term_subst C}
   {A : cwf_ty_from_ty_term_subst T Δ} (s : Γ --> Δ) (t : cwf_tm_from_ty_term_subst T A)
   : cwf_tm_from_ty_term_subst T (A [[ s ]]) := (pr2 (pr21 T _ _ s) A t).
 
-Notation "t '[[' s ']]tm'" := (cwf_subst_tm_from_ty_term_subst s t) (at level 20) : cwf.
+Notation "t '[[' s ']]tm'" := (cwf_subst_tm_from_ty_term_subst s t) (at level 21, left associativity) : cwf.
 
 Definition make_cwf_ty_term_subst
   {C : category}
@@ -278,7 +278,7 @@ Definition cwf_subst_tm {C : cwf_data} {Γ Δ : C} {A : cwf_ty Δ} (s : Γ --> �
 
 Definition cwf_extended_con {C : cwf_data} (Γ : C) (A : cwf_ty Γ) : C := pr1 ((pr222 C) Γ A).
 
-Notation "Γ '&' A" := (cwf_extended_con Γ A) (at level 20): cwf.
+Notation "Γ '&' A" := (cwf_extended_con Γ A) (at level 21, left associativity): cwf.
 
 Definition cwf_projection {C : cwf_data} (Γ : C) (A : cwf_ty Γ) : Γ & A --> Γ := pr12 ((pr222 C) Γ A).
 
